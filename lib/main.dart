@@ -88,8 +88,12 @@ Future<void> mainImpl({bool integration = false}) async {
             canBadge: canBadge),
         update: (BuildContext context, TableNotifier tableNotifier,
                 Notifications? n) {
-          n?.setTableNotifier(tableNotifier);
-          return n!;
+          final Notifications notificationsInstance = n ??
+              Notifications(notifications, db,
+                  Provider.of<TableNotifier>(context, listen: false),
+                  canBadge: canBadge);
+          notificationsInstance.setTableNotifier(tableNotifier);
+          return notificationsInstance;
         },
       ),
       ChangeNotifierProxyProvider<Notifications, User>(
@@ -98,8 +102,11 @@ Future<void> mainImpl({bool integration = false}) async {
             pushNotifications),
         update:
             (BuildContext context, Notifications notifications, User? user) {
-          user?.setNotifications(notifications);
-          return user!;
+          final User userInstance = user ??
+              User(Provider.of<Notifications>(context, listen: false),
+                  pushNotifications);
+          userInstance.setNotifications(notifications);
+          return userInstance;
         },
       ),
     ],

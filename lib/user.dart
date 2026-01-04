@@ -159,7 +159,9 @@ class User with ChangeNotifier {
 
   Future<UserStruct> _newUserReq(Map<String, dynamic> data) async {
     L.i('Creating new credentials...');
-    final d.Dio dio = d.Dio();
+    final d.Dio dio = d.Dio(d.BaseOptions(
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30)));
     Response<dynamic> response;
     try {
       response = await dio.post(codeEndpoint,
@@ -360,10 +362,10 @@ class UserStruct {
 
   String _toJson() {
     if (isNull()) throw 'Cannot encode unset user';
-    return jsonEncode(<String, String>{
-      'UUID': uuid!,
-      'credentials': credentials!,
-      'credentialKey': credentialKey!,
+    return jsonEncode(<String, dynamic>{
+      'UUID': uuid ?? '',
+      'credentials': credentials ?? '',
+      'credentialKey': credentialKey ?? '',
     });
   }
 }

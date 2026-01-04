@@ -321,9 +321,10 @@ class NotificationUIState extends State<NotificationUI>
                                           scrollPhysics:
                                               // ignore: lines_longer_than_80_chars
                                               const NeverScrollableScrollPhysics(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .displayLarge!
+                                          style: (Theme.of(context)
+                                                      .textTheme
+                                                      .displayLarge ??
+                                                  const TextStyle())
                                               .copyWith(color: titleColour),
                                           textAlign: TextAlign.left,
                                           minLines: 1,
@@ -360,9 +361,10 @@ class NotificationUIState extends State<NotificationUI>
                                             String timeStr, Widget? child) {
                                           return Expanded(
                                             child: SelectableText(timeStr,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium!),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium ??
+                                                  const TextStyle()),
                                           );
                                         })
                                   ]),
@@ -395,12 +397,15 @@ class NotificationUIState extends State<NotificationUI>
     // account for icon
     if (Platform.isMacOS || Platform.isLinux) maxWidth -= iconSize;
 
+    final TextTheme textTheme = Theme.of(context).textTheme;
     if (_columnKey.currentContext != null &&
-        hasTextOverflow(widget.title, Theme.of(context).textTheme.displayLarge!,
+        textTheme.displayLarge != null &&
+        maxWidth > 10 &&
+        hasTextOverflow(widget.title, textTheme.displayLarge!,
             maxWidth: maxWidth)) {
       canExpand = true;
       widget.shrinkTitle = getEclipsedText(
-          widget.title, Theme.of(context).textTheme.displayLarge!,
+          widget.title, textTheme.displayLarge!,
           maxWidth: maxWidth);
     } else {
       widget.shrinkTitle = widget.title;
@@ -408,19 +413,21 @@ class NotificationUIState extends State<NotificationUI>
 
     if (_messageKey.currentContext != null &&
         widget.message != '' &&
-        hasTextOverflow(widget.message, Theme.of(context).textTheme.bodyLarge!,
+        textTheme.bodyLarge != null &&
+        (_messageKey.currentContext?.size?.width ?? 0) > 10 &&
+        hasTextOverflow(widget.message, textTheme.bodyLarge!,
             maxWidth: _messageKey.currentContext?.size?.width ?? 0,
             maxLines: 3)) {
       canExpand = true;
       widget.shrinkMessage = getEclipsedText(
-          widget.message, Theme.of(context).textTheme.bodyLarge!,
+          widget.message, textTheme.bodyLarge!,
           maxWidth: _messageKey.currentContext?.size?.width ?? 0, maxLines: 3);
     } else {
       widget.shrinkMessage = widget.message;
     }
 
     widget.canExpand = canExpand;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _setTime() {
