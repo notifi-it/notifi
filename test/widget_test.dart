@@ -284,11 +284,10 @@ Future<void> pumpWidgetWithNotification(
   tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
       const MethodChannel('plugins.flutter.io/path_provider'),
       (MethodCall methodCall) async {
-    if (methodCall.method == 'getApplicationDocumentsDirectory') {
-      return '';
-    }
-    if (methodCall.method == 'getLibraryDirectory') {
-      return '';
+    if (methodCall.method == 'getApplicationDocumentsDirectory' ||
+        methodCall.method == 'getLibraryDirectory' ||
+        methodCall.method == 'getApplicationSupportDirectory') {
+      return '.';
     }
     return null;
   });
