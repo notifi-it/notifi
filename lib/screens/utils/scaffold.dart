@@ -37,8 +37,9 @@ class MyScaffold extends StatelessWidget {
                   toolbarHeight: 70,
                   automaticallyImplyLeading: false,
                   shape: Border(
-                      bottom:
-                          BorderSide(color: Theme.of(context).indicatorColor)),
+                      bottom: BorderSide(
+                          color: Theme.of(context).tabBarTheme.indicatorColor ??
+                              Theme.of(context).primaryColor)),
                   title: Padding(
                     padding: const EdgeInsets.only(right: 56),
                     child: Stack(

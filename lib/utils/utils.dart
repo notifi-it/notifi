@@ -98,9 +98,9 @@ String get httpEndpoint {
 }
 
 Future<void> openUrl(String url) async {
-  if (await canLaunch(url)) {
+  if (await canLaunchUrl(Uri.parse(url))) {
     await invokeMacMethod('close_window');
-    await launch(url, forceSafariVC: false);
+    await launchUrl(Uri.parse(url));
   } else {
     L.w("Can't open: $url");
   }
@@ -121,7 +121,9 @@ Future<String> getDeviceUUID() async {
   if (Platform.isLinux || Globals.isIntegration) {
     return Uuid().v4();
   }
-  return platform.invokeMethod('UUID').then((value) => value.toString());
+  return platform
+      .invokeMethod<String>('UUID')
+      .then((String? value) => value.toString());
 }
 
 bool get shouldUseFirebase {
@@ -220,7 +222,8 @@ Future<bool> linuxDoesAutoLogin() async {
 }
 
 bool isTablet() {
-  MediaQueryData data = MediaQueryData.fromView(WidgetsBinding.instance.window);
+  final MediaQueryData data = MediaQueryData.fromView(
+      WidgetsBinding.instance.platformDispatcher.views.first);
   return data.size.shortestSide > 600;
 }
 

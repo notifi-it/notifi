@@ -62,6 +62,7 @@ class NotificationTableState extends State<NotificationTable>
                           textAlign: TextAlign.center),
                       onTap: () async {
                         if (Platform.isIOS) {
+                          // ignore: deprecated_member_use
                           await Share.share('$credentials ');
                         } else {
                           await copyText(credentials, context);

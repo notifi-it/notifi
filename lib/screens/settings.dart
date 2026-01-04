@@ -101,6 +101,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               credentialsSettingWidget =
                   SettingOption('Share Credentials', AkarIcons.share_box,
                       onTapCallback: () async {
+                // ignore: deprecated_member_use
                 await Share.share('$credentials ');
               });
             }
@@ -227,7 +228,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                             fontFamily: 'Inconsolata'),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            launch('https://max.me.uk');
+                            launchUrl(Uri.parse('https://max.me.uk'));
                           },
                       )),
                 ])),

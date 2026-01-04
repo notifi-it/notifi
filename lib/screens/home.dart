@@ -31,8 +31,8 @@ class HomeScreen extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                   top: BorderSide(
-                      color: Theme.of(context)
-                          .indicatorColor) // red as border color
+                      color: Theme.of(context).tabBarTheme.indicatorColor ??
+                          Theme.of(context).primaryColor) // red as border color
                   ),
             ),
             height: 50,
@@ -61,7 +61,9 @@ class HomeScreen extends StatelessWidget {
                   SizedBox(
                       height: 30,
                       child: Container(
-                          color: Theme.of(context).indicatorColor, width: 1)),
+                          color: Theme.of(context).tabBarTheme.indicatorColor ??
+                              Theme.of(context).primaryColor,
+                          width: 1)),
                   Expanded(
                     child: TextButton(
                         onPressed: () {

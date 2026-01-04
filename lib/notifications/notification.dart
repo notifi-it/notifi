@@ -234,7 +234,9 @@ class NotificationUIState extends State<NotificationUI>
               left: padding, right: padding, top: padding),
           child: Container(
               decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).indicatorColor),
+                  border: Border.all(
+                      color: Theme.of(context).tabBarTheme.indicatorColor ??
+                          Theme.of(context).primaryColor),
                   color: backgroundColour,
                   borderRadius:
                       const BorderRadius.all(Radius.circular(padding))),

@@ -293,9 +293,9 @@ Future<void> pumpWidgetWithNotification(
     return null;
   });
 
-  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      const MethodChannel('com.tekartik.sqflite'),
-      (MethodCall methodCall) async {
+  tester.binding.defaultBinaryMessenger
+      .setMockMethodCallHandler(const MethodChannel('com.tekartik.sqflite'),
+          (MethodCall methodCall) async {
     if (methodCall.method == 'openDatabase') {
       return await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     }
