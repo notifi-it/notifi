@@ -48,7 +48,7 @@ class User with ChangeNotifier {
     final bool hadUser = await _user.load();
 
     // create new credentials if any are missing
-    while (_user.isNull()) {
+    while (_user.isNull() && !isTest) {
       // Create new credentials as the user does not have any.
       await setNewUser();
 
@@ -330,7 +330,9 @@ class UserStruct {
       }
     } else {
       try {
-        userJsonString = (await _storage?.read(key: _key))!;
+        final String? res = await _storage?.read(key: _key);
+        if (res == null) return false;
+        userJsonString = res;
       } catch (e) {
         L.e(e.toString());
         return false;
