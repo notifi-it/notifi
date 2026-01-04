@@ -318,6 +318,14 @@ Future<void> pumpWidgetWithNotification(
       const MethodChannel('vibration'), (MethodCall methodCall) async {
     return null;
   });
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('max.me.uk/notifications'),
+      (MethodCall methodCall) async {
+    if (methodCall.method == 'UUID') {
+      return 'foo';
+    }
+    return null;
+  });
   // finished MOCKS
 
   final DBProvider db = DBProvider('test.db');

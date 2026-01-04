@@ -88,7 +88,7 @@ class User with ChangeNotifier {
         _user = newUser;
         notifyListeners();
 
-        initWSS();
+        if (!isTest) initWSS();
       }
     }
     return !newUser.isNull();
@@ -98,6 +98,7 @@ class User with ChangeNotifier {
   // ws //
   ////////
   Future<void> initWSS({bool shouldDelay = false}) async {
+    if (isTest) return;
     await closeWS(shouldDelay: shouldDelay);
     await connectToWS();
     _ws!.sink.add('.');
@@ -147,7 +148,7 @@ class User with ChangeNotifier {
 
   Future<void> closeWS({bool shouldDelay = false}) async {
     L.i('Closing already open WS...');
-    _ws!.sink.close(status.normalClosure, 'new code!');
+    await _ws?.sink.close(status.normalClosure, 'new code!');
     _ws = null;
     await Future<dynamic>.delayed(Duration(seconds: shouldDelay ? 10 : 2));
   }
@@ -284,7 +285,7 @@ class UserStruct {
   UserStruct({this.uuid, this.credentialKey, this.credentials}) {
     if (!Platform.isLinux) {
       _storage = const FlutterSecureStorage();
-      if (!isTest) _key = 'notifi-${dotenv.env['KEY_STORE']}';
+      _key = 'notifi-${dotenv.env['KEY_STORE'] ?? 'test'}';
     }
   }
 
