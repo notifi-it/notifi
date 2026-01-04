@@ -93,7 +93,8 @@ void main() {
     const List<String> links = <String>['', 'https://max.me.uk/'];
     const List<String> images = <String>['', 'https://max.me.uk/someimage.jpg'];
 
-    String longTtl, longMsg;
+    String longTtl = lorem;
+    String longMsg = lorem;
     int cnt = 0;
 
     // got from printing _messageKey.currentContext.size.width
@@ -108,7 +109,6 @@ void main() {
         break;
       }
     }
-    longTtl ??= lorem; // fallback
 
     // get long message
     for (int i = cnt + 1; i <= lorem.length; i++) {
@@ -119,7 +119,6 @@ void main() {
         break;
       }
     }
-    longMsg ??= lorem; // fallback
 
     group('Test Notification Combinations', () {
       for (int a = 0; a < titles.length; a++) {
