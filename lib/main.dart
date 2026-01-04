@@ -87,16 +87,20 @@ Future<void> mainImpl({bool integration = false}) async {
             Provider.of<TableNotifier>(context, listen: false),
             canBadge: canBadge),
         update: (BuildContext context, TableNotifier tableNotifier,
-                Notifications? user) =>
-            user!..setTableNotifier(tableNotifier),
+                Notifications? n) {
+          n?.setTableNotifier(tableNotifier);
+          return n!;
+        },
       ),
       ChangeNotifierProxyProvider<Notifications, User>(
         create: (BuildContext context) => User(
             Provider.of<Notifications>(context, listen: false),
             pushNotifications),
         update:
-            (BuildContext context, Notifications notifications, User? user) =>
-                user!..setNotifications(notifications),
+            (BuildContext context, Notifications notifications, User? user) {
+          user?.setNotifications(notifications);
+          return user!;
+        },
       ),
     ],
     child: const MyApp(),

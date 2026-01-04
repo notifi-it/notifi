@@ -48,13 +48,15 @@ class User with ChangeNotifier {
     final bool hadUser = await _user.load();
 
     // create new credentials if any are missing
-    while (_user.isNull() && !isTest) {
+    int retryCount = 0;
+    while (_user.isNull() && !isTest && retryCount < 3) {
       // Create new credentials as the user does not have any.
       await setNewUser();
 
       setErr(hasErr: _user.isNull());
       if (_user.isNull()) {
         L.w('Attempting to create user again...');
+        retryCount++;
         await Future<dynamic>.delayed(const Duration(seconds: 5));
       }
     }

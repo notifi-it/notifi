@@ -347,15 +347,19 @@ Future<void> pumpWidgetWithNotification(
         create: (BuildContext context) => Notifications(notifications, db,
             Provider.of<TableNotifier>(context, listen: false)),
         update: (BuildContext context, TableNotifier tableNotifier,
-                Notifications? user) =>
-            user!..setTableNotifier(tableNotifier),
+                Notifications? n) {
+          n?.setTableNotifier(tableNotifier);
+          return n!;
+        },
       ),
       ChangeNotifierProxyProvider<Notifications, User>(
         create: (BuildContext context) =>
             User(Provider.of<Notifications>(context, listen: false), null),
         update:
-            (BuildContext context, Notifications notifications, User? user) =>
-                user!..setNotifications(notifications),
+            (BuildContext context, Notifications notifications, User? user) {
+          user?.setNotifications(notifications);
+          return user!;
+        },
       ),
     ],
     child: const MyApp(),
