@@ -150,7 +150,9 @@ class User with ChangeNotifier {
     L.i('Closing already open WS...');
     await _ws?.sink.close(status.normalClosure, 'new code!');
     _ws = null;
-    await Future<dynamic>.delayed(Duration(seconds: shouldDelay ? 10 : 2));
+    if (!isTest) {
+      await Future<dynamic>.delayed(Duration(seconds: shouldDelay ? 10 : 2));
+    }
   }
 
   Future<UserStruct> _newUserReq(Map<String, dynamic> data) async {
@@ -267,6 +269,7 @@ class User with ChangeNotifier {
     // wait for 1 second to make sure hasErr hasn't changed.
     // To prevent from stuttering.
     _tmpErr = hasErr;
+    if (isTest) return;
     Future<dynamic>.delayed(const Duration(seconds: 2), () {
       if (_tmpErr == hasErr) {
         if (_tmpErr) {

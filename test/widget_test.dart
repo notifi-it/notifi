@@ -311,6 +311,9 @@ Future<void> pumpWidgetWithNotification(
     if (methodCall.method == 'read') {
       return '{"UUID": "foo", "credentials": "bar", "credentialKey": "baz"}';
     }
+    if (methodCall.method == 'write') {
+      return null;
+    }
     return null;
   });
 
