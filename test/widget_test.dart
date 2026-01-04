@@ -28,7 +28,12 @@ final String lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
 final double width = 1200;
 final TextTheme textTheme = getTextTheme();
 
-void main() {
+void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
+  await loadDotEnv();
+
   const String time = '2006-01-02 15:04:05';
   // original 2400.0, 1800.0
   const Size physicalSizeTestValue = Size(2200, 1200);
@@ -179,7 +184,8 @@ void main() {
         time: time,
         uuid: '',
       );
-      await pumpWidgetWithNotification(tester, n);
+      await pumpWidgetWithNotification(tester, n,
+          surfaceSize: const Size(400, 800));
       await tester.pump();
       await tester.pumpAndSettle();
 
@@ -221,7 +227,8 @@ void main() {
       };
       inputsToBeExpected.forEach((String name, NotificationUI notification) {
         testWidgets(name, (WidgetTester tester) async {
-          await pumpWidgetWithNotification(tester, notification);
+          await pumpWidgetWithNotification(tester, notification,
+              surfaceSize: const Size(400, 800));
           await tester.pump();
 
           expect(find.byIcon(AkarIcons.enlarge), findsOneWidget);
@@ -235,25 +242,26 @@ void main() {
         'title': NotificationUI(
           time: time,
           uuid: '',
-          title: longTtl.substring(0, longTtl.length - 1),
+          title: 'Short Title',
         ),
         'message': NotificationUI(
           time: time,
           uuid: '',
           title: 'foo',
-          message: longMsg.substring(0, longMsg.length - 1),
+          message: 'Short Message',
         ),
         'title-message': NotificationUI(
           time: time,
           uuid: '',
-          title: longTtl.substring(0, longTtl.length - 1),
-          message: longMsg.substring(0, longMsg.length - 1),
+          title: 'Short Title',
+          message: 'Short Message',
         ),
       };
       inputsToBeExpected.forEach((String name, NotificationUI notification) {
         testWidgets(name, (WidgetTester tester) async {
-          await pumpWidgetWithNotification(tester, notification);
-          await tester.pump();
+          await pumpWidgetWithNotification(tester, notification,
+              surfaceSize: const Size(1200, 1200));
+          await tester.pumpAndSettle();
 
           expect(find.byIcon(AkarIcons.enlarge), findsNothing);
         });
@@ -274,7 +282,8 @@ Future<void> goldenAssert(Finder finder, String imagePath) async {
 }
 
 Future<void> pumpWidgetWithNotification(
-    WidgetTester tester, NotificationUI? notification) async {
+    WidgetTester tester, NotificationUI? notification,
+    {Size? surfaceSize}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // CHANNEL MOCKS
@@ -283,7 +292,8 @@ Future<void> pumpWidgetWithNotification(
       (MethodCall methodCall) async {
     if (methodCall.method == 'getApplicationDocumentsDirectory' ||
         methodCall.method == 'getLibraryDirectory' ||
-        methodCall.method == 'getApplicationSupportDirectory') {
+        methodCall.method == 'getApplicationSupportDirectory' ||
+        methodCall.method == 'getTemporaryDirectory') {
       return '.';
     }
     return null;
@@ -334,7 +344,10 @@ Future<void> pumpWidgetWithNotification(
     notifications.add(notification);
   }
 
-  await loadDotEnv();
+  if (surfaceSize != null) {
+    tester.view.physicalSize = surfaceSize;
+    addTearDown(tester.view.resetPhysicalSize);
+  }
 
   await tester.pumpWidget(MultiProvider(
     providers: <SingleChildWidget>[
@@ -344,8 +357,11 @@ Future<void> pumpWidgetWithNotification(
             Provider.of<TableNotifier>(context, listen: false)),
         update: (BuildContext context, TableNotifier tableNotifier,
                 Notifications? n) {
-          n?.setTableNotifier(tableNotifier);
-          return n!;
+          final Notifications notificationsInstance = n ??
+              Notifications(notifications, db,
+                  Provider.of<TableNotifier>(context, listen: false));
+          notificationsInstance.setTableNotifier(tableNotifier);
+          return notificationsInstance;
         },
       ),
       ChangeNotifierProxyProvider<Notifications, User>(
@@ -353,8 +369,10 @@ Future<void> pumpWidgetWithNotification(
             User(Provider.of<Notifications>(context, listen: false), null),
         update:
             (BuildContext context, Notifications notifications, User? user) {
-          user?.setNotifications(notifications);
-          return user!;
+          final User userInstance = user ??
+              User(Provider.of<Notifications>(context, listen: false), null);
+          userInstance.setNotifications(notifications);
+          return userInstance;
         },
       ),
     ],

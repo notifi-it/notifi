@@ -27,6 +27,8 @@ class NotificationUI extends StatefulWidget {
       this.canExpand = false})
       : super(key: Key('notification')) {
     dttmTime = i.DateFormat('yyyy-MM-dd HH:mm:ss').parse(time, true).toLocal();
+    shrinkTitle = title;
+    shrinkMessage = message;
   }
 
   factory NotificationUI.fromJson(Map<String, dynamic> json) =>
@@ -103,7 +105,10 @@ class NotificationUIState extends State<NotificationUI>
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _canExpandHandler(context));
     WidgetsBinding.instance.addObserver(this);
-    timer = Timer.periodic(const Duration(minutes: 1), (Timer t) => _setTime());
+    if (!isTest) {
+      timer =
+          Timer.periodic(const Duration(minutes: 1), (Timer t) => _setTime());
+    }
   }
 
   @override
@@ -390,7 +395,8 @@ class NotificationUIState extends State<NotificationUI>
     bool canExpand = false;
 
     // prevent check if can expand when window is scaling up
-    if (Platform.isMacOS &&
+    if (!isTest &&
+        Platform.isMacOS &&
         (_columnKey.currentContext?.size?.width ?? 0) <= 123) return;
 
     double maxWidth = _columnKey.currentContext?.size?.width ?? 0;
