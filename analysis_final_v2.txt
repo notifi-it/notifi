@@ -1,0 +1,54 @@
+Analyzing notifi...                                             
+
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/App.framework/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/App.framework/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Debug/App.framework/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Debug/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Debug/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Debug/notifi.app/Contents/Frameworks/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/App.framework/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/App.framework/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Release/App.framework/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Release/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Release/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Versions/A/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:56:3 • sort_pub_dependencies
+warning • The dev dependency on http is unnecessary because there is also a normal dependency on that package • build/macos/Build/Products/Release/notifi.app/Contents/Frameworks/App.framework/Versions/Current/Resources/flutter_assets/pubspec.yaml:56:3 • unnecessary_dev_dependency
+   info • 'indicatorColor' is deprecated and shouldn't be used. Use TabBarThemeData.indicatorColor instead. This feature was deprecated after v3.28.0-1.0.pre • lib/notifications/notification.dart:237:63 • deprecated_member_use
+   info • 'Share' is deprecated and shouldn't be used. Use SharePlus instead • lib/notifications/notifications_table.dart:65:33 • deprecated_member_use
+   info • 'share' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead • lib/notifications/notifications_table.dart:65:39 • deprecated_member_use
+   info • 'indicatorColor' is deprecated and shouldn't be used. Use TabBarThemeData.indicatorColor instead. This feature was deprecated after v3.28.0-1.0.pre • lib/screens/home.dart:35:28 • deprecated_member_use
+   info • 'indicatorColor' is deprecated and shouldn't be used. Use TabBarThemeData.indicatorColor instead. This feature was deprecated after v3.28.0-1.0.pre • lib/screens/home.dart:64:52 • deprecated_member_use
+   info • 'Share' is deprecated and shouldn't be used. Use SharePlus instead • lib/screens/settings.dart:104:23 • deprecated_member_use
+   info • 'share' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead • lib/screens/settings.dart:104:29 • deprecated_member_use
+   info • 'launch' is deprecated and shouldn't be used. Use launchUrl instead • lib/screens/settings.dart:230:29 • deprecated_member_use
+   info • 'indicatorColor' is deprecated and shouldn't be used. Use TabBarThemeData.indicatorColor instead. This feature was deprecated after v3.28.0-1.0.pre • lib/screens/utils/scaffold.dart:41:63 • deprecated_member_use
+   info • 'canLaunch' is deprecated and shouldn't be used. Use canLaunchUrl instead • lib/utils/utils.dart:101:13 • deprecated_member_use
+   info • 'launch' is deprecated and shouldn't be used. Use launchUrl instead • lib/utils/utils.dart:103:11 • deprecated_member_use
+   info • Missing type annotation • lib/utils/utils.dart:124:46 • always_specify_types
+   info • 'window' is deprecated and shouldn't be used. Look up the current FlutterView from the context via View.of(context) or consult the PlatformDispatcher directly instead. Deprecated to prepare for the upcoming multi-window support. This feature was deprecated after v3.7.0-32.0.pre • lib/utils/utils.dart:223:73 • deprecated_member_use
+   info • Dependencies not sorted alphabetically • pubspec.yaml:40:3 • sort_pub_dependencies
+   info • Dependencies not sorted alphabetically • pubspec.yaml:50:3 • sort_pub_dependencies
+

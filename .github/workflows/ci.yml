@@ -20,7 +20,7 @@ jobs:
       - name: "Test"
         run: flutter test
       - name: "Upload Failure Screenshots"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: golden-failures
@@ -198,7 +198,7 @@ jobs:
           done
           exit 1
       - name: "Store .dmg artifact"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: notifi-dmg
           path: notifi.dmg
@@ -312,7 +312,7 @@ jobs:
           fi
 
       - name: "Store .aab artifact"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: notifi-aab
           path: notifi.aab
@@ -365,7 +365,7 @@ jobs:
           fi
 
       - name: "Store .snap artifact"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: notifi-snap
           path: notifi.snap
@@ -381,17 +381,17 @@ jobs:
     needs: [ checks, macos, android, snap, ios, version ]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         name: "Download notifi-aab"
         id: download-aab
         with:
           name: notifi-aab
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         name: "Download notifi-snap"
         id: download-snap
         with:
           name: notifi-snap
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         name: "Download notifi-dmg"
         id: download-dmg
         with:

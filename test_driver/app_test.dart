@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 void main() {
   group('Integration Tests', () {
-    FlutterDriver driver;
+    late FlutterDriver driver;
 
     // Connect to the Flutter driver before running any tests.
     setUpAll(() async {
@@ -81,7 +81,7 @@ void main() {
       String creds = await driver.getText(credentials);
 
       // get host from .env
-      String host;
+      late String host;
       String file = await File('.env').readAsString();
       file.split('\n').forEach((String ln) {
         if (ln.startsWith('HOST=')) {

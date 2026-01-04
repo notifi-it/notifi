@@ -58,7 +58,8 @@ void main() {
     });
 
     testWidgets('Test Settings Navigation', (WidgetTester tester) async {
-      tester.binding.window.physicalSizeTestValue = Size(2200, 4200);
+      tester.view.physicalSize = Size(2200, 4200);
+      addTearDown(tester.view.resetPhysicalSize);
       await pumpWidgetWithNotification(tester, null);
 
       // open settings
@@ -103,7 +104,7 @@ void main() {
     while (true) {
       cnt += 1;
       String str = lorem.substring(0, cnt);
-      if (hasTextOverflow(str, textTheme.displayLarge, maxWidth: width - 15)) {
+      if (hasTextOverflow(str, textTheme.displayLarge!, maxWidth: width - 15)) {
         // 15 == iconsize
         longTtl = str;
         break;
@@ -115,7 +116,7 @@ void main() {
     while (true) {
       cnt += 1;
       String str = lorem.substring(0, cnt);
-      if (hasTextOverflow(str, textTheme.bodyLarge,
+      if (hasTextOverflow(str, textTheme.bodyLarge!,
           maxWidth: width, maxLines: 3)) {
         longMsg = str;
         break;
@@ -137,8 +138,8 @@ void main() {
               );
               final String name = 'title_$a-message_$b-links_$c-images_$d';
               testWidgets(name, (WidgetTester tester) async {
-                tester.binding.window.physicalSizeTestValue =
-                    physicalSizeTestValue;
+                tester.view.physicalSize = physicalSizeTestValue;
+                addTearDown(tester.view.resetPhysicalSize);
 
                 await pumpWidgetWithNotification(tester, n);
                 await tester.pump();
@@ -276,45 +277,55 @@ Future<void> goldenAssert(Finder finder, String imagePath) async {
 }
 
 Future<void> pumpWidgetWithNotification(
-    WidgetTester tester, NotificationUI notification) async {
+    WidgetTester tester, NotificationUI? notification) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // CHANNEL MOCKS
-  const MethodChannel('plugins.flutter.io/path_provider')
-      .setMockMethodCallHandler((MethodCall methodCall) async {
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (MethodCall methodCall) async {
     if (methodCall.method == 'getApplicationDocumentsDirectory') {
       return '';
     }
     if (methodCall.method == 'getLibraryDirectory') {
       return '';
     }
+    return null;
   });
 
-  const MethodChannel('com.tekartik.sqflite')
-      .setMockMethodCallHandler((MethodCall methodCall) async {
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('com.tekartik.sqflite'),
+      (MethodCall methodCall) async {
     if (methodCall.method == 'openDatabase') {
       return await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     }
     if (methodCall.method == 'getDatabasesPath') {
       return '';
     }
+    return null;
   });
 
-  const MethodChannel('plugins.it_nomads.com/flutter_secure_storage')
-      .setMockMethodCallHandler((MethodCall methodCall) async {
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall methodCall) async {
     if (methodCall.method == 'read') {
       return '{"UUID": "foo", "credentials": "bar", "credentialKey": "baz"}';
     }
+    return null;
   });
 
-  const MethodChannel('vibration')
-      .setMockMethodCallHandler((MethodCall methodCall) async {});
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('vibration'), (MethodCall methodCall) async {
+    return null;
+  });
   // finished MOCKS
 
   final DBProvider db = DBProvider('test.db');
   final List<NotificationUI> notifications =
       List<NotificationUI>.empty(growable: true);
-  notifications.add(notification);
+  if (notification != null) {
+    notifications.add(notification);
+  }
 
   await loadDotEnv();
 
@@ -325,15 +336,15 @@ Future<void> pumpWidgetWithNotification(
         create: (BuildContext context) => Notifications(notifications, db,
             Provider.of<TableNotifier>(context, listen: false)),
         update: (BuildContext context, TableNotifier tableNotifier,
-                Notifications user) =>
-            user..setTableNotifier(tableNotifier),
+                Notifications? user) =>
+            user!..setTableNotifier(tableNotifier),
       ),
       ChangeNotifierProxyProvider<Notifications, User>(
         create: (BuildContext context) =>
             User(Provider.of<Notifications>(context, listen: false), null),
         update:
-            (BuildContext context, Notifications notifications, User user) =>
-                user..setNotifications(notifications),
+            (BuildContext context, Notifications notifications, User? user) =>
+                user!..setNotifications(notifications),
       ),
     ],
     child: const MyApp(),

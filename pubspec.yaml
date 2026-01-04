@@ -43,9 +43,10 @@ dependencies:
   web_socket_channel: ^3.0.3
 
   path: any
-  http: any
   json_annotation: any
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_driver:
     sdk: flutter
   flutter_native_splash: ^2.1.2+1
@@ -53,7 +54,6 @@ dev_dependencies:
     sdk: flutter
   test: ^1.16.8
 
-  http: any
 flutter:
   uses-material-design: false
   assets:
