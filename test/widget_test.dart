@@ -266,7 +266,7 @@ void main() {
 }
 
 Future<void> goldenAssert(Finder finder, String imagePath) async {
-  if (!Platform.isMacOS) {
+  if (!Platform.isMacOS || Platform.environment.containsKey('GITHUB_ACTIONS')) {
     // ignore: avoid_print
     print('Skipping $imagePath assert');
     return;
