@@ -19,11 +19,10 @@ import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite/sqflite.dart';
 
 Future<void> main() => mainImpl();
 
-Future<void> mainImpl({bool integration: false}) async {
+Future<void> mainImpl({bool integration = false}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final SharedPreferences sp = await SharedPreferences.getInstance();
@@ -67,7 +66,7 @@ Future<void> mainImpl({bool integration: false}) async {
       DBProvider('notifications.db', fillWithNotifications: integration);
   final List<NotificationUI> notifications = await db.getAll();
 
-  FlutterLocalNotificationsPlugin pushNotifications = null;
+  FlutterLocalNotificationsPlugin? pushNotifications;
   if (!integration) {
     pushNotifications = await initPushNotifications();
   }
@@ -88,16 +87,16 @@ Future<void> mainImpl({bool integration: false}) async {
             Provider.of<TableNotifier>(context, listen: false),
             canBadge: canBadge),
         update: (BuildContext context, TableNotifier tableNotifier,
-                Notifications user) =>
-            user..setTableNotifier(tableNotifier),
+                Notifications? user) =>
+            user!..setTableNotifier(tableNotifier),
       ),
       ChangeNotifierProxyProvider<Notifications, User>(
         create: (BuildContext context) => User(
             Provider.of<Notifications>(context, listen: false),
             pushNotifications),
         update:
-            (BuildContext context, Notifications notifications, User user) =>
-                user..setNotifications(notifications),
+            (BuildContext context, Notifications notifications, User? user) =>
+                user!..setNotifications(notifications),
       ),
     ],
     child: const MyApp(),
@@ -105,7 +104,7 @@ Future<void> mainImpl({bool integration: false}) async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -135,7 +134,6 @@ class _MyAppState extends State<MyApp> {
             focusColor: MyColour.transparent,
             highlightColor: Colors.transparent,
             splashColor: Colors.transparent,
-            backgroundColor: MyColour.transparent,
             appBarTheme: const AppBarTheme(
                 iconTheme: IconThemeData(
                   color: MyColour.darkGrey,
@@ -149,8 +147,7 @@ class _MyAppState extends State<MyApp> {
               size: 22,
             ),
             scrollbarTheme: ScrollbarThemeData(
-              thickness: MaterialStateProperty.all(4.0),
-              showTrackOnHover: false,
+              thickness: WidgetStateProperty.all(4.0),
             ),
             textTheme: getTextTheme(),
             buttonTheme: const ButtonThemeData(
@@ -158,15 +155,10 @@ class _MyAppState extends State<MyApp> {
                 splashColor: Colors.transparent),
             textButtonTheme: TextButtonThemeData(
                 style: ButtonStyle(
-              overlayColor: MaterialStateProperty.all(Colors.transparent),
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               splashFactory: NoSplash.splashFactory,
             )),
-            indicatorColor: MyColour.offOffGrey,
-            colorScheme: ColorScheme.fromSwatch(
-              primarySwatch: Colors.grey,
-              accentColor: MyColour.red,
-            ),
-            dialogTheme: DialogTheme(
+            dialogTheme: DialogThemeData(
                 elevation: 0,
                 shape: Border.all(width: 0, color: MyColour.offOffGrey),
                 contentTextStyle: const TextStyle(
@@ -178,7 +170,12 @@ class _MyAppState extends State<MyApp> {
                     fontFamily: 'Inconsolata',
                     color: MyColour.black,
                     fontWeight: FontWeight.w900,
-                    fontSize: 30))),
+                    fontSize: 30)),
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Colors.grey,
+              accentColor: MyColour.red,
+            ).copyWith(surface: MyColour.transparent),
+            tabBarTheme: TabBarThemeData(indicatorColor: MyColour.offOffGrey)),
         routes: <String, Widget Function(BuildContext)>{
           '/': (BuildContext context) => HomeScreen(),
           '/settings': (BuildContext context) => const SettingsScreen(),

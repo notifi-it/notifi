@@ -14,7 +14,6 @@ import 'package:notifi/user.dart';
 import 'package:notifi/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 final String lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
@@ -104,7 +103,7 @@ void main() {
     while (true) {
       cnt += 1;
       String str = lorem.substring(0, cnt);
-      if (hasTextOverflow(str, textTheme.headline1, maxWidth: width - 15)) {
+      if (hasTextOverflow(str, textTheme.displayLarge, maxWidth: width - 15)) {
         // 15 == iconsize
         longTtl = str;
         break;
@@ -116,7 +115,7 @@ void main() {
     while (true) {
       cnt += 1;
       String str = lorem.substring(0, cnt);
-      if (hasTextOverflow(str, textTheme.bodyText1,
+      if (hasTextOverflow(str, textTheme.bodyLarge,
           maxWidth: width, maxLines: 3)) {
         longMsg = str;
         break;
@@ -157,7 +156,6 @@ void main() {
       final NotificationUI n = NotificationUI(
         title: titles[0],
         time: time,
-        message: '',
         uuid: '',
       );
       await pumpWidgetWithNotification(tester, n);
@@ -316,9 +314,7 @@ Future<void> pumpWidgetWithNotification(
   final DBProvider db = DBProvider('test.db');
   final List<NotificationUI> notifications =
       List<NotificationUI>.empty(growable: true);
-  if (notification != null) {
-    notifications.add(notification);
-  }
+  notifications.add(notification);
 
   await loadDotEnv();
 
@@ -327,8 +323,7 @@ Future<void> pumpWidgetWithNotification(
       ChangeNotifierProvider<TableNotifier>(create: (_) => TableNotifier()),
       ChangeNotifierProxyProvider<TableNotifier, Notifications>(
         create: (BuildContext context) => Notifications(notifications, db,
-            Provider.of<TableNotifier>(context, listen: false),
-            canBadge: false),
+            Provider.of<TableNotifier>(context, listen: false)),
         update: (BuildContext context, TableNotifier tableNotifier,
                 Notifications user) =>
             user..setTableNotifier(tableNotifier),

@@ -11,7 +11,7 @@ extension NSImage.Name {
     static let error = NSImage.Name("menu_error_icon")
 }
 
-@NSApplicationMain
+@main
 class AppDelegate: FlutterAppDelegate {
     var statusBarItem: NSStatusItem!
     let popover = NSPopover()

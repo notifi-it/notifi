@@ -7,8 +7,8 @@ Future<FlutterLocalNotificationsPlugin> initPushNotifications() async {
 
   InitializationSettings settings = InitializationSettings(
       android: AndroidInitializationSettings('app_icon'),
-      iOS: IOSInitializationSettings(defaultPresentAlert: false),
-      macOS: MacOSInitializationSettings(
+      iOS: DarwinInitializationSettings(defaultPresentAlert: false),
+      macOS: DarwinInitializationSettings(
         defaultPresentAlert: false,
       ),
       linux: LinuxInitializationSettings(
@@ -31,8 +31,8 @@ Future<FlutterLocalNotificationsPlugin> initPushNotifications() async {
 
 void sendLocalNotification(FlutterLocalNotificationsPlugin localNotification,
     int id, NotificationUI notification) {
-  const IOSNotificationDetails iOS = IOSNotificationDetails();
-  const MacOSNotificationDetails macOS = MacOSNotificationDetails();
+  const DarwinNotificationDetails iOS = DarwinNotificationDetails();
+  const DarwinNotificationDetails macOS = DarwinNotificationDetails();
   const NotificationDetails platformChannelSpecifics =
       NotificationDetails(iOS: iOS, macOS: macOS);
 

@@ -6,7 +6,7 @@ import 'package:notifi/utils/pallete.dart';
 import 'package:provider/provider.dart';
 
 class AnimatedCnt extends StatefulWidget {
-  const AnimatedCnt({Key key}) : super(key: key);
+  const AnimatedCnt({Key? key}) : super(key: key);
 
   @override
   _AnimatedCntState createState() => _AnimatedCntState();
@@ -14,11 +14,11 @@ class AnimatedCnt extends StatefulWidget {
 
 class _AnimatedCntState extends State<AnimatedCnt>
     with TickerProviderStateMixin {
-  AnimationController _controller;
+  AnimationController? _controller;
 
   @override
   void dispose() {
-    if (_controller != null) _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -28,7 +28,7 @@ class _AnimatedCntState extends State<AnimatedCnt>
         Provider.of<Notifications>(context, listen: false);
     return ValueListenableBuilder<int>(
         valueListenable: notifications.notificationCnt,
-        builder: (BuildContext context, int notificationCnt, Widget child) {
+        builder: (BuildContext context, int notificationCnt, Widget? child) {
           if (notificationCnt != 0) {
             String numUnread = notificationCnt.toString();
             if (notificationCnt > 99) {
@@ -47,7 +47,7 @@ class _AnimatedCntState extends State<AnimatedCnt>
 
             return ScaleTransition(
                 scale: CurvedAnimation(
-                  parent: _controller,
+                  parent: _controller!,
                   curve: Curves.bounceOut,
                 ),
                 child: CircleAvatar(

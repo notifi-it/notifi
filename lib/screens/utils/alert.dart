@@ -5,7 +5,7 @@ import 'package:notifi/utils/pallete.dart';
 import 'package:provider/provider.dart';
 
 Future<void> showAlert(BuildContext context, String title, String description,
-    {int duration, int gravity, VoidCallback onOkPressed}) {
+    {required VoidCallback onOkPressed, int? duration, int? gravity}) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {

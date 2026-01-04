@@ -4,7 +4,6 @@ import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 import 'package:http/http.dart' as http;
 
-
 void main() {
   group('Integration Tests', () {
     FlutterDriver driver;
@@ -48,7 +47,6 @@ void main() {
       SerializableFinder newCredentials = find.byValueKey('new-credentials');
       SerializableFinder ok = find.byValueKey('ok');
 
-
       await driver.waitFor(credentials);
       String initialCreds = await driver.getText(credentials);
 
@@ -85,8 +83,8 @@ void main() {
       // get host from .env
       String host;
       String file = await File('.env').readAsString();
-      file.split('\n').forEach((String ln){
-        if(ln.startsWith('HOST=')){
+      file.split('\n').forEach((String ln) {
+        if (ln.startsWith('HOST=')) {
           host = ln.replaceAll('HOST=', '');
         }
       });

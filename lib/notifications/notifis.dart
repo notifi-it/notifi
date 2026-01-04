@@ -7,7 +7,7 @@ import 'package:notifi/utils/utils.dart';
 
 class Notifications extends ChangeNotifier {
   Notifications(this.notifications, this.db, this.tableNotifier,
-      {this.canBadge}) {
+      {this.canBadge = false}) {
     setUnreadCnt();
   }
 
@@ -48,11 +48,9 @@ class Notifications extends ChangeNotifier {
 
   void setUnreadCnt() {
     int cnt = 0;
-    if (notifications != null) {
-      for (int i = 0; i < notifications.length; i++) {
-        if (!notifications[i].isRead) {
-          cnt++;
-        }
+    for (int i = 0; i < notifications.length; i++) {
+      if (!notifications[i].isRead) {
+        cnt++;
       }
     }
 
@@ -98,7 +96,7 @@ class Notifications extends ChangeNotifier {
       tableNotifier.notify();
     } else {
       // animate out notification
-      tableKey.currentState.removeItem(index,
+      tableKey.currentState?.removeItem(index,
           (BuildContext context, Animation<double> animation) {
         final Animation<Offset> _offsetAnimation = Tween<Offset>(
           begin: const Offset(-0.2, 0.0),
@@ -109,7 +107,7 @@ class Notifications extends ChangeNotifier {
           position: _offsetAnimation,
           child: notification,
         );
-      }, duration: const Duration(milliseconds: 300));
+      });
     }
   }
 
@@ -122,7 +120,7 @@ class Notifications extends ChangeNotifier {
     setUnreadCnt();
   }
 
-  Future<void> markRead(int index, {bool isRead}) async {
+  Future<void> markRead(int index, {required bool isRead}) async {
     HapticFeedback.lightImpact();
     notifications[index].read = isRead;
     await db.markRead(notifications[index].id, isRead: isRead);

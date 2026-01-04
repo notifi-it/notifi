@@ -6,7 +6,7 @@ import 'package:app_settings/app_settings.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:launch_at_login/launch_at_login.dart';
+
 import 'package:notifi/notifications/notifications_table.dart';
 import 'package:notifi/screens/utils/alert.dart';
 import 'package:notifi/screens/utils/scaffold.dart';
@@ -18,19 +18,19 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key key}) : super(key: key);
+  const SettingsScreen({Key? key}) : super(key: key);
 
   @override
   SettingsScreenState createState() => SettingsScreenState();
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
-  ValueNotifier<String> _versionString;
-  ValueNotifier<bool> _hasUpgrade;
+  late ValueNotifier<String> _versionString;
+  late ValueNotifier<bool> _hasUpgrade;
 
   @override
   void initState() {
@@ -89,7 +89,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             }),
         body: Column(children: <Widget>[
           Consumer<User>(
-              builder: (BuildContext context, User user, Widget child) {
+              builder: (BuildContext context, User user, Widget? child) {
             final String credentials = user.getCredentials();
 
             SettingOption credentialsSettingWidget =
@@ -128,18 +128,18 @@ class SettingsScreenState extends State<SettingsScreen> {
                         .setNewUser();
                 Navigator.pop(context);
                 if (!gotUser) {
-                  Toast.show(
+                  showToast(
                       'Problem fetching new credentials. '
                       'Please try again later...',
-                      context,
-                      gravity: Toast.CENTER);
+                      context);
                 }
               }
             });
           }),
           if (Platform.isIOS)
             SettingOption('iOS App Settings...', AkarIcons.gear,
-                onTapCallback: AppSettings.openNotificationSettings),
+                onTapCallback: () => AppSettings.openAppSettings(
+                    type: AppSettingsType.notification)),
           SettingOption('About...', AkarIcons.info,
               onTapCallback: () => openUrl('https://notifi.it')),
           SettingOption('Other Platforms...', otherPlatformsIcon,
@@ -150,52 +150,25 @@ class SettingsScreenState extends State<SettingsScreen> {
                       androidAppId: 'it.notifi.notifi',
                       iOSAppId: '1563961135',
                     )),
-          if (Platform.isMacOS)
-            Container(
-              padding: const EdgeInsets.only(top: 5),
-              child: FutureBuilder<bool>(
-                  future: LaunchAtLogin.isEnabled,
-                  builder: (BuildContext context, AsyncSnapshot<bool> f) {
-                    if (f.connectionState == ConnectionState.none &&
-                        f.hasData == null) {
-                      return const CircularProgressIndicator();
-                    }
-                    return SettingOption(
-                      'Open notifi at Login',
-                      AkarIcons.person,
-                      switchValue: f.data,
-                      switchCallback: (_) async {
-                        final bool enabled = await LaunchAtLogin.isEnabled;
-                        if (enabled) {
-                          await LaunchAtLogin.disable;
-                        } else {
-                          await LaunchAtLogin.enable;
-                        }
-                        setState(() {});
-                      },
-                    );
-                  }),
-            ),
           if (Platform.isLinux)
             Container(
               padding: const EdgeInsets.only(top: 5),
               child: FutureBuilder<bool>(
                   future: linuxDoesAutoLogin(),
                   builder: (BuildContext context, AsyncSnapshot<bool> f) {
-                    if (f.connectionState == ConnectionState.none &&
-                        f.hasData == null) {
+                    if (f.connectionState == ConnectionState.none) {
                       return const CircularProgressIndicator();
                     }
                     return SettingOption(
                       'Open notifi at Login',
                       AkarIcons.person,
-                      switchValue: f.data,
+                      switchValue: f.data ?? false,
                       switchCallback: (_) async {
                         File desktopPath =
                             await getOpenOnLinuxLoginSnapDesktopFilePath();
                         File localSnapDesktopPath =
                             File('snap/gui/notifi.desktop');
-                        if (f.data) {
+                        if (f.data ?? false) {
                           await desktopPath.delete();
                         } else {
                           localSnapDesktopPath.copy(desktopPath.path);
@@ -211,7 +184,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                 // ignore: always_specify_types
                 builder: (BuildContext context, AsyncSnapshot f) {
                   if (f.connectionState == ConnectionState.none ||
-                      f.hasData == null ||
                       f.data == null) {
                     return const CircularProgressIndicator();
                   }
@@ -263,7 +235,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           if (!isTest)
             ValueListenableBuilder<String>(
                 valueListenable: _versionString,
-                builder: (BuildContext context, String version, Widget child) {
+                builder: (BuildContext context, String version, Widget? child) {
                   return Container(
                     padding: const EdgeInsets.only(top: 10),
                     child: Column(
@@ -276,7 +248,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                           ValueListenableBuilder<bool>(
                               valueListenable: _hasUpgrade,
                               builder: (BuildContext context, bool hasUpgrade,
-                                  Widget child) {
+                                  Widget? child) {
                                 if (hasUpgrade) {
                                   return TextButton(
                                       onPressed: () {
@@ -304,14 +276,17 @@ class SettingsScreenState extends State<SettingsScreen> {
 // ignore: must_be_immutable
 class SettingOption extends StatelessWidget {
   SettingOption(this.text, this.icon,
-      {Key key, this.onTapCallback, this.switchCallback, this.switchValue})
+      {Key? key,
+      this.onTapCallback,
+      this.switchCallback,
+      this.switchValue = false})
       : super(key: key);
 
   final String text;
   final IconData icon;
-  GestureTapCallback onTapCallback;
-  ValueChanged<bool> switchCallback;
-  bool switchValue;
+  final GestureTapCallback? onTapCallback;
+  final ValueChanged<bool>? switchCallback;
+  final bool switchValue;
 
   @override
   Widget build(BuildContext context) {
@@ -322,47 +297,21 @@ class SettingOption extends StatelessWidget {
     double verticalPadding = 0;
     if (Platform.isLinux || Platform.isMacOS) verticalPadding = 13;
     Widget setting;
-    if (switchCallback == null) {
-      setting = Container(
-          padding: EdgeInsets.only(top: 15 + verticalPadding),
-          child: ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                      Theme.of(context).backgroundColor),
-                  overlayColor: MaterialStateProperty.all(MyColour.white),
-                  elevation: MaterialStateProperty.all(0)),
-              onPressed: onTapCallback,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Row(children: <Widget>[
-                      iconWidget,
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 1.5),
-                        child: Text(text,
-                            style: Theme.of(context).textTheme.bodyText2),
-                      )
-                    ]),
-                    Icon(AkarIcons.chevron_right,
-                        size: 20, color: MyColour.black)
-                  ])));
-    } else {
-      switchValue ??= false;
-      setting = Container(
-          padding: EdgeInsets.only(left: 16, right: 7, top: verticalPadding),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(children: <Widget>[
-                  iconWidget,
-                  Text(text, style: Theme.of(context).textTheme.bodyText2)
-                ]),
-                Switch(
-                    value: switchValue,
-                    onChanged: switchCallback,
-                    activeColor: Theme.of(context).colorScheme.secondary)
-              ]));
-    }
+    // switchValue ??= false;
+    setting = Container(
+        padding: EdgeInsets.only(left: 16, right: 7, top: verticalPadding),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Row(children: <Widget>[
+                iconWidget,
+                Text(text, style: Theme.of(context).textTheme.bodyMedium)
+              ]),
+              Switch(
+                  value: switchValue,
+                  onChanged: switchCallback,
+                  activeThumbColor: Theme.of(context).colorScheme.secondary)
+            ]));
     return setting;
   }
 }

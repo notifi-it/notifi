@@ -9,16 +9,16 @@ import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 class DBProvider {
-  DBProvider(this.dbPath, {this.fillWithNotifications: false});
+  DBProvider(this.dbPath, {this.fillWithNotifications = false});
 
   final String _table = 'notifications';
   final String dbPath;
-  Database _db;
+  Database? _db;
   bool fillWithNotifications;
 
   Future<Database> initDB() async {
     if (_db != null) {
-      return _db;
+      return _db!;
     }
 
     Directory dir;
@@ -52,7 +52,7 @@ class DBProvider {
     if (fillWithNotifications) {
       await _insertDummyNotifications();
     }
-    return _db;
+    return _db!;
   }
 
   Future<int> store(NotificationUI notification) async {
@@ -83,7 +83,7 @@ class DBProvider {
     return db.rawDelete('DELETE FROM $_table');
   }
 
-  Future<int> markRead(int id, {bool isRead}) async {
+  Future<int> markRead(int id, {required bool isRead}) async {
     if (isTest) return -1;
     int read = 0;
     if (isRead) read = 1;

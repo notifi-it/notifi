@@ -10,7 +10,7 @@ import 'package:notifi/utils/pallete.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart' as i;
@@ -64,7 +64,7 @@ class MenuBarIcon {
 
 Future<bool> loadDotEnv() async {
   if (isTest) {
-    await dotenv.testLoad();
+    await dotenv.load();
     return true;
   } else {
     await dotenv.load();
@@ -106,15 +106,22 @@ Future<void> openUrl(String url) async {
   }
 }
 
-void showToast(String msg, BuildContext context, {int duration, int gravity}) {
-  Toast.show(msg, context, duration: duration, gravity: gravity);
+void showToast(String msg, BuildContext context,
+    {int? duration, int? gravity}) {
+  Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 16.0);
 }
 
 Future<String> getDeviceUUID() async {
   if (Platform.isLinux || Globals.isIntegration) {
     return Uuid().v4();
   }
-  return platform.invokeMethod('UUID');
+  return platform.invokeMethod('UUID').then((value) => value.toString());
 }
 
 bool get shouldUseFirebase {
@@ -146,15 +153,15 @@ class L {
 
 bool shouldPinWindow(SharedPreferences sp) {
   try {
-    return sp.getBool('pin-window') || false;
+    return sp.getBool('pin-window') ?? false;
   } catch (_) {
     return false;
   }
 }
 
-void copyText(String text, BuildContext context) async {
+Future<void> copyText(String text, BuildContext context) async {
   await Clipboard.setData(ClipboardData(text: text));
-  Toast.show('📋 $text', context, gravity: Toast.BOTTOM);
+  Fluttertoast.showToast(msg: '📋 $text', gravity: ToastGravity.BOTTOM);
 }
 
 bool hasTextOverflow(String text, TextStyle style,
@@ -164,7 +171,7 @@ bool hasTextOverflow(String text, TextStyle style,
     maxLines: maxLines,
     textDirection: TextDirection.ltr,
     textWidthBasis: TextWidthBasis.longestLine,
-  )..layout(minWidth: 0, maxWidth: maxWidth);
+  )..layout(maxWidth: maxWidth);
   // not really sure why I have to -1
   return textPainter.didExceedMaxLines;
 }
@@ -187,7 +194,7 @@ double windowWidth(BuildContext context) {
 
 Future<String> getFirebaseToken() async {
   try {
-    return await FirebaseMessaging.instance.getToken();
+    return await FirebaseMessaging.instance.getToken() ?? '';
   } catch (e) {
     L.e(e.toString());
   }
@@ -213,8 +220,7 @@ Future<bool> linuxDoesAutoLogin() async {
 }
 
 bool isTablet() {
-  MediaQueryData data =
-      MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+  MediaQueryData data = MediaQueryData.fromView(WidgetsBinding.instance.window);
   return data.size.shortestSide > 600;
 }
 
@@ -241,17 +247,17 @@ TextTheme getTextTheme() {
     }
   }
   return TextTheme(
-      headline1: TextStyle(
+      displayLarge: TextStyle(
           inherit: false,
           textBaseline: TextBaseline.alphabetic,
           fontFamily: 'Inconsolata',
           fontSize: defaultFontSize,
           fontWeight: FontWeight.w600),
-      subtitle1: TextStyle(
+      titleMedium: TextStyle(
           color: MyColour.grey,
           fontSize: subtitle1FontSize,
           fontFamily: 'Inconsolata'),
-      bodyText1: TextStyle(
+      bodyLarge: TextStyle(
           inherit: false,
           textBaseline: TextBaseline.alphabetic,
           fontFamily: 'Inconsolata',
@@ -259,7 +265,7 @@ TextTheme getTextTheme() {
           fontSize: bodyText1FontSize,
           letterSpacing: 0.2,
           height: 1.2),
-      bodyText2: TextStyle(
+      bodyMedium: TextStyle(
           fontSize: defaultFontSize,
           color: MyColour.black,
           fontWeight: FontWeight.w500,

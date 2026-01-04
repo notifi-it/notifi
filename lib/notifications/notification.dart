@@ -11,28 +11,22 @@ import 'package:notifi/utils/pallete.dart';
 import 'package:notifi/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:toast/toast.dart';
 
 @JsonSerializable()
 // ignore: must_be_immutable
 class NotificationUI extends StatefulWidget {
   NotificationUI(
-      {@required this.uuid,
-      @required this.time,
-      @required this.title,
-      this.message,
-      this.image,
-      this.link,
-      this.id,
-      this.read,
-      this.canExpand})
+      {required this.uuid,
+      required this.time,
+      required this.title,
+      this.message = '',
+      this.image = '',
+      this.link = '',
+      this.id = -1,
+      this.read = false,
+      this.canExpand = false})
       : super(key: Key('notification')) {
     dttmTime = i.DateFormat('yyyy-MM-dd HH:mm:ss').parse(time, true).toLocal();
-    message = message ?? '';
-    image = image ?? '';
-    link = link ?? '';
-    read = read ?? false;
-    canExpand = canExpand ?? false;
   }
 
   factory NotificationUI.fromJson(Map<String, dynamic> json) =>
@@ -48,13 +42,13 @@ class NotificationUI extends StatefulWidget {
   bool read;
   bool canExpand;
   bool isExpanded = false;
-  int index;
-  DateTime dttmTime;
-  void Function(BuildContext context, int id) toggleExpand;
-  String shrinkTitle;
-  String shrinkMessage;
+  late int index;
+  late DateTime dttmTime;
+  late void Function(BuildContext context, int id) toggleExpand;
+  late String shrinkTitle;
+  late String shrinkMessage;
 
-  bool get isRead => read != null && read;
+  bool get isRead => read;
 
   Map<String, dynamic> toJson() => _$NotificationToJson(this);
 
@@ -92,12 +86,12 @@ class NotificationUIState extends State<NotificationUI>
   final GlobalKey _titleKey = GlobalKey();
   final GlobalKey _messageKey = GlobalKey();
   final ValueNotifier<String> _timeStr = ValueNotifier<String>('');
-  Timer timer;
+  Timer? timer;
 
   double iconSize = 15.0;
 
   @override
-  void setState(Function fn) {
+  void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
     }
@@ -126,11 +120,11 @@ class NotificationUIState extends State<NotificationUI>
   @override
   Widget build(BuildContext context) {
     return Consumer<Notifications>(builder:
-        (BuildContext context, Notifications reloadTable, Widget child) {
+        (BuildContext context, Notifications reloadTable, Widget? child) {
       String title = widget.title;
       String message = widget.message;
-      int messageMaxLines = 3;
-      int titleMaxLines = 1;
+      int? messageMaxLines = 3;
+      int? titleMaxLines = 1;
 
       _setTime();
 
@@ -139,12 +133,8 @@ class NotificationUIState extends State<NotificationUI>
         titleMaxLines = null;
         messageMaxLines = null;
       } else {
-        if (widget.shrinkTitle != null) {
-          title = widget.shrinkTitle;
-        }
-        if (widget.shrinkMessage != null) {
-          message = widget.shrinkMessage;
-        }
+        title = widget.shrinkTitle;
+        message = widget.shrinkMessage;
       }
 
       // if read notification
@@ -168,7 +158,7 @@ class NotificationUIState extends State<NotificationUI>
             });
           },
                   scrollPhysics: const NeverScrollableScrollPhysics(),
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.bodyLarge!,
                   minLines: 1,
                   maxLines: messageMaxLines)),
         ]);
@@ -177,7 +167,7 @@ class NotificationUIState extends State<NotificationUI>
       }
 
       // if link
-      Widget linkBtn;
+      Widget? linkBtn;
       if (widget.link != '') {
         linkBtn = InkWell(
             onTap: () async {
@@ -188,7 +178,7 @@ class NotificationUIState extends State<NotificationUI>
               });
             },
             onLongPress: () {
-              Toast.show(widget.link, context, gravity: Toast.CENTER);
+              showToast(widget.link, context);
             },
             child: Container(
                 padding: const EdgeInsets.only(top: 7.0),
@@ -200,7 +190,7 @@ class NotificationUIState extends State<NotificationUI>
       }
 
       // if image
-      Widget image;
+      Widget? image;
       if (widget.image != '') {
         image = MouseRegion(
           cursor: SystemMouseCursors.alias,
@@ -331,7 +321,7 @@ class NotificationUIState extends State<NotificationUI>
                                               const NeverScrollableScrollPhysics(),
                                           style: Theme.of(context)
                                               .textTheme
-                                              .headline1
+                                              .displayLarge!
                                               .copyWith(color: titleColour),
                                           textAlign: TextAlign.left,
                                           minLines: 1,
@@ -365,12 +355,12 @@ class NotificationUIState extends State<NotificationUI>
                                     ValueListenableBuilder<String>(
                                         valueListenable: _timeStr,
                                         builder: (BuildContext context,
-                                            String timeStr, Widget child) {
+                                            String timeStr, Widget? child) {
                                           return Expanded(
                                             child: SelectableText(timeStr,
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .subtitle1),
+                                                    .titleMedium!),
                                           );
                                         })
                                   ]),
@@ -396,18 +386,19 @@ class NotificationUIState extends State<NotificationUI>
     bool canExpand = false;
 
     // prevent check if can expand when window is scaling up
-    if (Platform.isMacOS && _columnKey.currentContext.size.width <= 123) return;
+    if (Platform.isMacOS &&
+        (_columnKey.currentContext?.size?.width ?? 0) <= 123) return;
 
-    double maxWidth = _columnKey.currentContext.size.width;
+    double maxWidth = _columnKey.currentContext?.size?.width ?? 0;
     // account for icon
     if (Platform.isMacOS || Platform.isLinux) maxWidth -= iconSize;
 
     if (_columnKey.currentContext != null &&
-        hasTextOverflow(widget.title, Theme.of(context).textTheme.headline1,
+        hasTextOverflow(widget.title, Theme.of(context).textTheme.displayLarge!,
             maxWidth: maxWidth)) {
       canExpand = true;
       widget.shrinkTitle = getEclipsedText(
-          widget.title, Theme.of(context).textTheme.headline1,
+          widget.title, Theme.of(context).textTheme.displayLarge!,
           maxWidth: maxWidth);
     } else {
       widget.shrinkTitle = widget.title;
@@ -415,12 +406,13 @@ class NotificationUIState extends State<NotificationUI>
 
     if (_messageKey.currentContext != null &&
         widget.message != '' &&
-        hasTextOverflow(widget.message, Theme.of(context).textTheme.bodyText1,
-            maxWidth: _messageKey.currentContext.size.width, maxLines: 3)) {
+        hasTextOverflow(widget.message, Theme.of(context).textTheme.bodyLarge!,
+            maxWidth: _messageKey.currentContext?.size?.width ?? 0,
+            maxLines: 3)) {
       canExpand = true;
       widget.shrinkMessage = getEclipsedText(
-          widget.message, Theme.of(context).textTheme.bodyText1,
-          maxWidth: _messageKey.currentContext.size.width, maxLines: 3);
+          widget.message, Theme.of(context).textTheme.bodyLarge!,
+          maxWidth: _messageKey.currentContext?.size?.width ?? 0, maxLines: 3);
     } else {
       widget.shrinkMessage = widget.message;
     }

@@ -6,11 +6,13 @@ import 'package:notifi/utils/pallete.dart';
 import 'package:provider/provider.dart';
 
 class MyScaffold extends StatelessWidget {
-  const MyScaffold({this.leading, this.body, this.bottomNavigationBar});
+  const MyScaffold(
+      {Key? key, this.leading, this.body, this.bottomNavigationBar})
+      : super(key: key);
 
-  final Widget leading;
-  final Widget body;
-  final Widget bottomNavigationBar;
+  final Widget? leading;
+  final Widget? body;
+  final Widget? bottomNavigationBar;
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +51,7 @@ class MyScaffold extends StatelessWidget {
                               Provider.of<Notifications>(context, listen: false)
                                   .scrollToTop();
                             },
-                            child: Image.asset('images/bell.png',
-                                height: 50,
-                                filterQuality: FilterQuality.medium),
+                            child: Image.asset('images/bell.png', height: 50),
                           ),
                         ),
                         Positioned(

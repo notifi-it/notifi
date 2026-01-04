@@ -5,46 +5,46 @@ publish_to: 'none'
 version: 0.0.1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <4.0.0"
 
 dependencies:
-  akar_icons_flutter: 1.1.9
-  app_settings: ^4.1.0
+  akar_icons_flutter: ^1.1.21
+  app_settings: ^7.0.0
   cached_network_image: ^3.1.0
   desktop_window: ^0.4.0
-  dio: ^4.0.0
-  firebase_core: ^1.12.0
-  firebase_messaging: ^11.2.6
+  dio: ^5.9.0
+  firebase_core: ^4.3.0
+  firebase_messaging: ^16.1.0
   flutter:
     sdk: flutter
   flutter_app_icon_badge: ^2.0.0
-  flutter_dotenv: ^5.0.0
+  flutter_dotenv: ^6.0.0
   flutter_emoji: ^2.2.1+1
-  flutter_local_notifications: ^9.0.2
-  flutter_secure_storage:
-    git:
-      url: https://github.com/openresearch/flutter_secure_storage
-      ref: feature/macos_support
-  flutter_slidable: ^1.2.0
-  intl: ^0.17.0
+  flutter_local_notifications: ^19.5.0
+  flutter_secure_storage: ^10.0.0
+  flutter_slidable: ^4.0.3
+  intl: ^0.20.2
   json_serializable: ^6.0.1
-  launch_at_login: ^0.0.3
+
   launch_review: ^3.0.1
-  local_auth: ^1.1.8
-  package_info: ^2.0.0
-  package_info_plus: ^1.0.4
+  local_auth: ^3.0.0
+
+  package_info_plus: ^9.0.0
   path_provider: ^2.0.2
   provider: ^6.0.0
-  share_plus: ^4.0.3
+  share_plus: ^12.0.1
   shared_preferences: ^2.0.6
   sqflite: ^2.0.0+3
   sqflite_common_ffi: ^2.0.0+1
   timeago: ^3.0.2
-  toast: ^0.1.5
+  fluttertoast: ^9.0.0
   url_launcher: ^6.0.9
-  uuid: ^3.0.4
-  web_socket_channel: ^2.1.0
+  uuid: ^4.5.2
+  web_socket_channel: ^3.0.3
 
+  path: any
+  http: any
+  json_annotation: any
 dev_dependencies:
   flutter_driver:
     sdk: flutter
@@ -53,6 +53,7 @@ dev_dependencies:
     sdk: flutter
   test: ^1.16.8
 
+  http: any
 flutter:
   uses-material-design: false
   assets:

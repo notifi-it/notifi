@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:notifi/notifications/notification.dart';
 import 'package:notifi/notifications/notifis.dart';
-import 'package:notifi/screens/utils/loading_gif.dart';
 import 'package:notifi/user.dart';
 import 'package:notifi/utils/pallete.dart';
 import 'package:notifi/utils/utils.dart';
@@ -14,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class NotificationTable extends StatefulWidget {
-  const NotificationTable({Key key}) : super(key: key);
+  const NotificationTable({Key? key}) : super(key: key);
 
   @override
   NotificationTableState createState() => NotificationTableState();
@@ -25,9 +24,8 @@ class NotificationTableState extends State<NotificationTable>
   @override
   Widget build(BuildContext context) {
     return Consumer<TableNotifier>(builder:
-        (BuildContext context, TableNotifier reloadTable, Widget child) {
-      final Notifications notifications =
-          Provider.of<Notifications>(context, listen: true);
+        (BuildContext context, TableNotifier reloadTable, Widget? child) {
+      final Notifications notifications = Provider.of<Notifications>(context);
       if (notifications.notifications.isNotEmpty) {
         return AnimatedList(
             padding: const EdgeInsets.only(bottom: 10),
@@ -47,32 +45,28 @@ class NotificationTableState extends State<NotificationTable>
                     width: imageWidth, filterQuality: FilterQuality.high),
                 Container(padding: const EdgeInsets.only(top: 30.0)),
                 Consumer<User>(
-                    builder: (BuildContext context, User user, Widget child) {
+                    builder: (BuildContext context, User user, Widget? child) {
                   final String credentials = user.getCredentials();
                   String howToLink = '$httpEndpoint#how-to';
                   Color howToColour = Theme.of(context).colorScheme.primary;
                   Widget credentialsWidget;
-                  if (credentials != null) {
-                    howToLink = '$httpEndpoint?c=$credentials#how-to';
-                    howToColour = Theme.of(context).colorScheme.secondary;
-                    credentialsWidget = InkWell(
-                        child: Text(credentials,
-                            key: Key('credentials'),
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 17),
-                            textAlign: TextAlign.center),
-                        onTap: () async {
-                          if (Platform.isIOS) {
-                            await Share.share('$credentials ');
-                          } else {
-                            await copyText(credentials, context);
-                          }
-                        });
-                  } else {
-                    credentialsWidget = LoadingGif();
-                  }
+                  howToLink = '$httpEndpoint?c=$credentials#how-to';
+                  howToColour = Theme.of(context).colorScheme.secondary;
+                  credentialsWidget = InkWell(
+                      child: Text(credentials,
+                          key: Key('credentials'),
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 17),
+                          textAlign: TextAlign.center),
+                      onTap: () async {
+                        if (Platform.isIOS) {
+                          await Share.share('$credentials ');
+                        } else {
+                          await copyText(credentials, context);
+                        }
+                      });
 
                   TextStyle textStyle = TextStyle(
                       color: MyColour.grey,
@@ -134,7 +128,7 @@ class NotificationTableState extends State<NotificationTable>
       notification =
           Provider.of<Notifications>(context, listen: false).get(index);
     } catch (e) {
-      L.e(e);
+      L.e(e.toString());
       return SizedBox();
     }
     notification.index = index;
@@ -231,8 +225,8 @@ class NotificationTableState extends State<NotificationTable>
 
 class MouseRegionSpan extends WidgetSpan {
   MouseRegionSpan({
-    @required MouseCursor mouseCursor,
-    @required InlineSpan inlineSpan,
+    required MouseCursor mouseCursor,
+    required InlineSpan inlineSpan,
   }) : super(
           child: MouseRegion(
             cursor: mouseCursor,

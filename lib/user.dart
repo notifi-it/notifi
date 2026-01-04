@@ -25,14 +25,14 @@ class User with ChangeNotifier {
     setNotifications(_notifications);
   }
 
-  UserStruct _user;
-  String flutterToken;
-  IOWebSocketChannel _ws;
-  BuildContext _snackContext;
+  late UserStruct _user;
+  String? flutterToken;
+  IOWebSocketChannel? _ws;
+  late BuildContext _snackContext;
 
   Notifications _notifications;
 
-  final FlutterLocalNotificationsPlugin _pushNotifications;
+  final FlutterLocalNotificationsPlugin? _pushNotifications;
 
   // ignore: use_setters_to_change_properties
   void setNotifications(Notifications _notifications) {
@@ -40,7 +40,7 @@ class User with ChangeNotifier {
   }
 
   String getCredentials() {
-    return _user.credentials;
+    return _user.credentials ?? '';
   }
 
   Future<void> loadUser() async {
@@ -100,7 +100,7 @@ class User with ChangeNotifier {
   Future<void> initWSS({bool shouldDelay = false}) async {
     await closeWS(shouldDelay: shouldDelay);
     await connectToWS();
-    _ws.sink.add('.');
+    _ws!.sink.add('.');
   }
 
   Future<void> connectToWS() async {
@@ -124,17 +124,15 @@ class User with ChangeNotifier {
 
     setErr(hasErr: false);
     bool _hasError = true;
-    _ws.stream.listen((dynamic streamData) async {
+    _ws!.stream.listen((dynamic streamData) async {
       _hasError = false;
       final List<String> notificationUUIDs = await _handleMessage(streamData);
-      if (notificationUUIDs != null && _ws != null) {
-        // confirm received UUIDs with server in chunks
-        int chunkSize = 20;
-        int numUUIDs = notificationUUIDs.length;
-        for (int i = 0; i < numUUIDs; i += chunkSize) {
-          int end = (i + chunkSize < numUUIDs) ? i + chunkSize : numUUIDs;
-          _ws.sink.add(jsonEncode(notificationUUIDs.sublist(i, end)));
-        }
+      // confirm received UUIDs with server in chunks
+      int chunkSize = 20;
+      int numUUIDs = notificationUUIDs.length;
+      for (int i = 0; i < numUUIDs; i += chunkSize) {
+        int end = (i + chunkSize < numUUIDs) ? i + chunkSize : numUUIDs;
+        _ws!.sink.add(jsonEncode(notificationUUIDs.sublist(i, end)));
       }
       // ignore: always_specify_types
     }, onError: (e) async {
@@ -147,13 +145,11 @@ class User with ChangeNotifier {
     }, cancelOnError: false);
   }
 
-  Future<void> closeWS({bool shouldDelay}) async {
-    if (_ws != null) {
-      L.i('Closing already open WS...');
-      _ws.sink.close(status.normalClosure, 'new code!');
-      _ws = null;
-      await Future<dynamic>.delayed(Duration(seconds: shouldDelay ? 10 : 2));
-    }
+  Future<void> closeWS({bool shouldDelay = false}) async {
+    L.i('Closing already open WS...');
+    _ws!.sink.close(status.normalClosure, 'new code!');
+    _ws = null;
+    await Future<dynamic>.delayed(Duration(seconds: shouldDelay ? 10 : 2));
   }
 
   Future<UserStruct> _newUserReq(Map<String, dynamic> data) async {
@@ -166,12 +162,10 @@ class User with ChangeNotifier {
           options: d.Options(headers: <String, dynamic>{
             'Sec-Key': dotenv.env['SERVER_KEY'],
           }, contentType: d.Headers.formUrlEncodedContentType));
-    } on DioError catch (e, _) {
+    } on DioException catch (e, _) {
       // ignore: always_specify_types
-      final d.Response resp = e.response;
-      if (resp != null) {
-        L.e('Problem fetching user code: ${resp.statusCode} ${resp}');
-      }
+      final d.Response? resp = e.response;
+      L.e('Problem fetching user code: ${resp?.statusCode} ${resp}');
       return UserStruct();
     }
 
@@ -211,8 +205,8 @@ class User with ChangeNotifier {
 
     // parse notifications from websocket message
     final List<String> msgUUIDs = <String>[];
-    NotificationUI lastNotification;
-    int lastID;
+    NotificationUI? lastNotification;
+    int lastID = -1;
     for (int i = 0; i < notifications.length; i++) {
       Map<String, dynamic> jsonMessage;
       try {
@@ -223,24 +217,21 @@ class User with ChangeNotifier {
         return <String>[];
       }
 
-      if (jsonMessage != null) {
-        final NotificationUI notification =
-            NotificationUI.fromJson(jsonMessage);
+      final NotificationUI notification = NotificationUI.fromJson(jsonMessage);
 
-        // store notification
-        final int id = await _notifications.add(notification);
+      // store notification
+      final int id = await _notifications.add(notification);
 
-        lastNotification = notification;
-        lastID = id;
+      lastNotification = notification;
+      lastID = id;
 
-        msgUUIDs.add(notification.uuid);
-      }
+      msgUUIDs.add(notification.uuid);
     }
 
     if (lastID != -1) {
       // send push notification
       if (!Platform.isAndroid && _pushNotifications != null) {
-        sendLocalNotification(_pushNotifications, lastID, lastNotification);
+        sendLocalNotification(_pushNotifications!, lastID, lastNotification!);
       }
 
       _notifications.scrollToTop();
@@ -250,9 +241,9 @@ class User with ChangeNotifier {
         for (int i = 0; i < msgUUIDs.length; i++) {
           if (i == msgUUIDs.length - 1) {
             _notifications.tableKey.currentState
-                .insertItem(0, duration: const Duration(seconds: 1));
+                ?.insertItem(0, duration: const Duration(seconds: 1));
           } else {
-            _notifications.tableKey.currentState.insertItem(0);
+            _notifications.tableKey.currentState?.insertItem(0);
           }
         }
       }
@@ -269,9 +260,9 @@ class User with ChangeNotifier {
     _snackContext = context;
   }
 
-  bool _tmpErr;
+  bool _tmpErr = false;
 
-  void setErr({bool hasErr}) {
+  void setErr({required bool hasErr}) {
     // wait for 1 second to make sure hasErr hasn't changed.
     // To prevent from stuttering.
     _tmpErr = hasErr;
@@ -297,15 +288,15 @@ class UserStruct {
     }
   }
 
-  FlutterSecureStorage _storage;
-  String _key;
+  FlutterSecureStorage? _storage;
+  late String _key;
 
-  String uuid;
-  String credentialKey;
-  String credentials;
+  String? uuid;
+  String? credentialKey;
+  String? credentials;
 
   bool isNull() {
-    return uuid == null || credentialKey == null || credentials == null;
+    return credentialKey == null;
   }
 
   Future<bool> store() async {
@@ -317,7 +308,7 @@ class UserStruct {
     }
 
     try {
-      await _storage.write(key: _key, value: _toJson());
+      await _storage?.write(key: _key, value: _toJson());
     } catch (e) {
       L.e(e.toString());
       return false;
@@ -338,7 +329,7 @@ class UserStruct {
       }
     } else {
       try {
-        userJsonString = await _storage.read(key: _key);
+        userJsonString = (await _storage?.read(key: _key))!;
       } catch (e) {
         L.e(e.toString());
         return false;
@@ -362,9 +353,9 @@ class UserStruct {
   String _toJson() {
     if (isNull()) throw 'Cannot encode unset user';
     return jsonEncode(<String, String>{
-      'UUID': uuid,
-      'credentials': credentials,
-      'credentialKey': credentialKey,
+      'UUID': uuid!,
+      'credentials': credentials!,
+      'credentialKey': credentialKey!,
     });
   }
 }
