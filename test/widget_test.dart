@@ -100,28 +100,26 @@ void main() {
     double width = 666.33;
 
     // get long title
-    // ignore: literal_only_boolean_expressions
-    while (true) {
-      cnt += 1;
-      String str = lorem.substring(0, cnt);
+    for (int i = 1; i <= lorem.length; i++) {
+      String str = lorem.substring(0, i);
       if (hasTextOverflow(str, textTheme.displayLarge!, maxWidth: width - 15)) {
-        // 15 == iconsize
         longTtl = str;
+        cnt = i;
         break;
       }
     }
+    longTtl ??= lorem; // fallback
 
     // get long message
-    // ignore: literal_only_boolean_expressions
-    while (true) {
-      cnt += 1;
-      String str = lorem.substring(0, cnt);
+    for (int i = cnt + 1; i <= lorem.length; i++) {
+      String str = lorem.substring(0, i);
       if (hasTextOverflow(str, textTheme.bodyLarge!,
           maxWidth: width, maxLines: 3)) {
         longMsg = str;
         break;
       }
     }
+    longMsg ??= lorem; // fallback
 
     group('Test Notification Combinations', () {
       for (int a = 0; a < titles.length; a++) {
