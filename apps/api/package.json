@@ -1,0 +1,25 @@
+{
+  "name": "@notifi/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --env production",
+    "migrate": "wrangler d1 migrations apply notifi-dev --local",
+    "phase0-push": "tsx src/scripts/phase0-push.ts"
+  },
+  "dependencies": {
+    "@hpke/core": "^1.7.4",
+    "@notifi/contract": "workspace:*",
+    "hono": "^4.6.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240925.0",
+    "@types/node": "^20.16.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.0.0"
+  }
+}

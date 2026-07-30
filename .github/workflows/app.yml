@@ -1,0 +1,123 @@
+name: app
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths:
+      - "apps/app/**"
+      - "packages/contract/**"
+  pull_request:
+    paths:
+      - "apps/app/**"
+      - "packages/contract/**"
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: startsWith(github.ref, 'refs/tags/') == false
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - working-directory: apps/app
+        run: xcodegen generate
+      - working-directory: apps/app
+        run: |
+          xcodebuild build \
+            -scheme notifi-iOS \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            CODE_SIGNING_ALLOWED=NO
+      - working-directory: apps/app
+        run: |
+          xcodebuild build \
+            -scheme notifi-macOS \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO
+
+  testflight:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: macos-15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - working-directory: apps/app
+        run: xcodegen generate
+      - name: Import signing assets
+        env:
+          DISTRIBUTION_CERT_P12: ${{ secrets.DISTRIBUTION_CERT_P12 }}
+          DISTRIBUTION_CERT_PASSWORD: ${{ secrets.DISTRIBUTION_CERT_PASSWORD }}
+          PROVISIONING_PROFILES: ${{ secrets.PROVISIONING_PROFILES }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          echo "$DISTRIBUTION_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$DISTRIBUTION_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          echo "$PROVISIONING_PROFILES" | base64 --decode > "$RUNNER_TEMP/profiles.tar"
+          tar -xf "$RUNNER_TEMP/profiles.tar" -C "$HOME/Library/MobileDevice/Provisioning Profiles"
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/asc"
+          echo "$ASC_API_KEY_P8" | base64 --decode > "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8"
+      - name: Write export options
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions-appstore.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+          </dict>
+          </plist>
+          PLIST
+      - name: Archive and upload iOS
+        working-directory: apps/app
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild archive \
+            -scheme notifi-iOS \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-appstore.plist" \
+            -exportPath "$RUNNER_TEMP/export-iOS" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      - name: Archive and upload macOS
+        working-directory: apps/app
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild archive \
+            -scheme notifi-macOS \
+            -destination 'generic/platform=macOS' \
+            -archivePath "$RUNNER_TEMP/notifi-macOS.xcarchive"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/notifi-macOS.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-appstore.plist" \
+            -exportPath "$RUNNER_TEMP/export-macOS" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"

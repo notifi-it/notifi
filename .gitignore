@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+*.log
+
+# Xcode
+apps/app/build/
+apps/app/DerivedData/
+*.xcuserstate
+xcuserdata/
+.DS_Store
+
+# secrets / signing
+*.p8
+*.p12
+*.mobileprovision
+ExportOptions.plist
