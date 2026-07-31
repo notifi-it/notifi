@@ -343,7 +343,12 @@ Canonical string to sign (UTF-8, joined with `\n`):
 METHOD \n host \n path-with-query \n timestamp \n hex(sha256(raw body bytes))
 ```
 
-- `host` is the lowercase target host (`notifi.it`, or the dev workers.dev host).
+- `host` must match the server's `new URL(req.url).host`, which **includes a
+  non-default port**. Production (`notifi.it` on 443) has no explicit port, so both
+  sides read `notifi.it`; but local dev on `http://localhost:8790` must sign
+  `localhost:8790`, not `localhost`. The Swift side appends `components.port` when
+  present. (Found the hard way: a port-less host signs fine against prod and 401s
+  against any local Worker on a custom port.)
   Binding it means a request captured against the dev Worker can never replay
   against production, and vice versa — the same phone identity talks to both.
 
@@ -1384,7 +1389,7 @@ Rules the code above must follow:
 func signedRequest(method: String, components: URLComponents, body: Data?) throws -> URLRequest {
   let pathWithQuery = components.percentEncodedPath
     + (components.percentEncodedQuery.map { "?\($0)" } ?? "")
-  let host = components.host!.lowercased()
+  let host = components.port.map { "\(components.host!):\($0)" }?.lowercased() ?? components.host!.lowercased()
   let timestamp = Int(Date().timeIntervalSince1970)
   let bodyHash = SHA256.hash(data: body ?? Data()).map { String(format: "%02x", $0) }.joined()
   let canonical = Data("\(method)\n\(host)\n\(pathWithQuery)\n\(timestamp)\n\(bodyHash)".utf8)

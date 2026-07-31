@@ -67,7 +67,12 @@ final class APIClient {
 
         let pathWithQuery = components.percentEncodedPath
             + (components.percentEncodedQuery.map { "?\($0)" } ?? "")
-        let host = components.host!.lowercased()
+        let host: String = {
+            if let port = components.port {
+                return "\(components.host!):\(port)".lowercased()
+            }
+            return components.host!.lowercased()
+        }()
         let timestamp = Int(Date().timeIntervalSince1970)
         let bodyHash = SHA256.hash(data: body ?? Data())
             .map { String(format: "%02x", $0) }
