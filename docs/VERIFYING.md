@@ -131,6 +131,11 @@ xcrun simctl launch booted it.notifi.app             # 3. reopen → SyncEngine 
 - **Expect:** the missed message appears in the inbox on reopen (backfilled via
   `/history?since=`).
 - **Call it again** → no duplicates; the device owns the bookmark.
+- **Ack-based retention:** after the sync, the device's watermark advances —
+  `wrangler d1 execute notifi-dev --local --command "SELECT acked_id FROM devices"`
+  shows it climbing. Messages are kept until the device syncs past them (no fixed
+  window), with a 90-day backstop only for devices that never come back. Sending
+  while the device stays offline for weeks no longer loses the message.
 - 📸 **Screenshot E** — inbox after backfill, unread dot on the offline message.
 
 > **Done when** it's on TestFlight and routing your own real alerts.

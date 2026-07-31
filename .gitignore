@@ -16,3 +16,6 @@ xcuserdata/
 *.p12
 *.mobileprovision
 ExportOptions.plist
+
+# local-only manual smoke harness (not committed; run against wrangler dev)
+apps/api/local-e2e.mjs

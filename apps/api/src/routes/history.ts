@@ -2,7 +2,7 @@ import { type HistoryMessage, historyQuery } from '@notifi/contract';
 import { Hono } from 'hono';
 import { errBody } from '../lib/respond.js';
 import { now } from '../lib/time.js';
-import { bumpLastSeenIfStale, getDevice, signatureAuth } from '../middleware.js';
+import { getDevice, signatureAuth } from '../middleware.js';
 import type { AppEnv } from '../types.js';
 
 export const history = new Hono<AppEnv>();
@@ -31,6 +31,11 @@ history.get('/history', async (c) => {
   const results = rows.results;
   const latest = results.length > 0 ? results[results.length - 1]!.id : null;
 
-  await bumpLastSeenIfStale(c.env, device, nowS);
+  await c.env.DB.prepare(
+    'UPDATE devices SET acked_id = MAX(acked_id, ?), last_seen_at = ? WHERE id = ?',
+  )
+    .bind(since, nowS, device.id)
+    .run();
+
   return c.json({ messages: results, latest_id: latest });
 });

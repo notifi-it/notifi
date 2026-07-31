@@ -84,7 +84,9 @@ listed here so nobody "fixes" them back.
   columns the server must read (`apns_token`, `platform`, `app_version`) are
   AES-GCM-encrypted with a Workers secret. `secret_hash`, the two public keys, ids,
   and timestamps are the only plaintext.
-- The server keeps messages for 7 days. It is a relay, not a mailbox.
+- The server keeps a message until the device has synced it (ack-based retention),
+  with a 90-day backstop only to reclaim space from devices that vanish. It is a
+  relay, not a mailbox — retention is driven by received-or-not, not by a clock.
 - The private key never leaves the device. There is no second credential.
 - Server responses never contain a full send key except the one time `POST /keys`
   returns it.
@@ -204,10 +206,13 @@ database_name = "notifi-prod"
 database_id = "<filled by wrangler d1 create>"
 ```
 
-The cron handler runs `DELETE FROM messages WHERE expires_at < ?now` (chunked with
-`LIMIT 1000` in a loop to stay under D1 limits), then prunes registration flood
-residue: `DELETE FROM devices WHERE last_seen_at < ?now - 2592000 AND id NOT IN
-(SELECT DISTINCT device_id FROM keys)`.
+The cron handler sweeps in three chunked passes (`LIMIT 1000` loops to stay under D1
+limits): first the acknowledged messages `DELETE FROM messages WHERE id IN (SELECT
+m.id FROM messages m JOIN devices d ON d.id = m.device_id WHERE m.id <= d.acked_id …)`
+— the primary rule; then the 90-day backstop `DELETE FROM messages WHERE expires_at <
+?now` for messages on devices that never came back; then registration flood residue
+`DELETE FROM devices WHERE last_seen_at < ?now - 2592000 AND id NOT IN (SELECT DISTINCT
+device_id FROM keys)`.
 
 ---
 
@@ -228,7 +233,8 @@ CREATE TABLE devices (
   platform               TEXT NOT NULL,
   app_version            TEXT NOT NULL,
   created_at             INTEGER NOT NULL,
-  last_seen_at           INTEGER NOT NULL
+  last_seen_at           INTEGER NOT NULL,
+  acked_id               INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE keys (
@@ -263,7 +269,10 @@ operational-encrypted (§6b); `apns_token_hmac` is a deterministic HMAC-SHA-256 
 raw token hex, keyed with `ENCRYPTION_KEY` — its UNIQUE constraint guarantees one
 push token maps to one device row, so a stolen token cannot be registered under a
 second keypair alongside the victim's (§7 `/devices` handles the eviction).
-`messages.id` uses AUTOINCREMENT per §0.1; `expires_at = created_at + 604800`.
+`devices.acked_id` is the retention watermark (§ Delivery): the highest message id the
+device has provably synced, advanced by `/history`. `messages.id` uses AUTOINCREMENT
+per §0.1; `expires_at = created_at + 7776000` (a 90-day **backstop**, not the delivery
+guarantee — see Delivery).
 
 Sealed blobs are one per row, not one per column. `messages.content_sealed` opens to
 the validated send content **plus the row's own identity** —
@@ -525,8 +534,8 @@ Flow (exactly this order):
    `Retry-After: <seconds to window end>`.
 3. Seal the validated `messageContent` — including `key_id` and `created_at` — to
    the device's `encryption_public_key` (§6a); INSERT the message (`content_sealed`,
-   `expires_at = now + 604800`) `RETURNING id`. Plaintext is not referenced after
-   this step.
+   `expires_at = now + 7776000`, the 90-day backstop) `RETURNING id`. Plaintext is not
+   referenced after this step.
 4. Push to APNs (§8). APNs failures do **not** fail the request — history is the
    delivery guarantee; the push is a hint. `410` prunes the device (§8).
 5. `202 { id }`.
@@ -539,8 +548,30 @@ Query: `since` (exclusive message id, default 0), `limit` (default 50, max 200).
 `SELECT … WHERE device_id = ? AND id > ? ORDER BY id ASC LIMIT ?` on the
 `(device_id, id)` index, return `content_sealed` verbatim (the server couldn't open
 it if it wanted to), `{ messages, latest_id }` where `latest_id` = last id in this
-page (or null if empty). Read-only; safe to repeat; the client owns the bookmark.
-Include rows even if their key was since revoked.
+page (or null if empty). Include rows even if their key was since revoked.
+
+`since` is also the **acknowledgement**: the device only advances its bookmark after
+durably storing a page, so a request for `since=B` proves it holds everything ≤ B.
+The handler therefore advances the retention watermark in the same call —
+`UPDATE devices SET acked_id = MAX(acked_id, ?since), last_seen_at = ?now` — which is
+what lets the sweep drop acknowledged messages. Monotonic `MAX`, so it only moves
+forward, and a bogus-high `since` only sacrifices the caller's own data. This makes
+`/history` a tiny writer rather than a pure read, but it stays idempotent and safe to
+repeat.
+
+**Why the id cursor is safe** (the three failure modes and why they don't bite):
+- *Out-of-order commit gaps* — the classic "id 43 visible before 42 commits, bookmark
+  skips 42" bug is real on multi-writer stores (Postgres) but not on D1: SQLite is
+  single-writer, so ids commit in order. Do not move this onto a multi-writer store
+  without a fix.
+- *Id reuse after delete* — prevented by `messages.id AUTOINCREMENT` (§0.1); a plain
+  rowid would be reused after deleting the newest row and a device that already acked
+  it would skip the replacement. Load-bearing, not decoration.
+- *Client ordering* — the bookmark must advance only **after** the page is durably
+  saved on-device (§9d). Save-then-advance; a crash mid-sync just re-fetches. Reorder
+  it and, under ack-based retention, you get permanent loss.
+- D1 read replicas, if ever enabled, are safe here: a lagging replica only delays a
+  message to the next sync, never skips it.
 
 ---
 
@@ -762,11 +793,15 @@ The on-device store is the permanent archive; nothing here expires. `SyncEngine`
   `content_sealed` via `DeviceIdentity` (info `"content"`), decode `messageContent`,
   and **cross-check** the sealed `key_id`/`created_at` against the row's plaintext
   metadata — a mismatch means a swapped blob (§3); discard it. Upsert by `serverID`
-  (insert-if-absent; existing rows keep their `isRead`), advance bookmark to
-  `latest_id`, stop when a page comes back short. A blob that fails to open (key
-  mismatch after a reinstall race) is skipped with a log, never fatal. Plaintext
-  lives only on-device, in SwiftData — the archive the server never had. Safe to
-  call from anywhere, reentrancy-guarded with a simple `isSyncing` flag.
+  (insert-if-absent; existing rows keep their `isRead`). **Save the context, then
+  advance the bookmark to `latest_id`** — save-before-advance is not optional: under
+  ack-based retention the server deletes what the bookmark has passed, so advancing
+  before a durable save is permanent data loss (a `save()` throw aborts the page and
+  the bookmark stays put, so the page re-fetches next sync). Stop when a page comes
+  back short. A blob that fails to open (key mismatch after a reinstall race) is
+  skipped with a log, never fatal. Plaintext lives only on-device, in SwiftData — the
+  archive the server never had. Safe to call from anywhere, reentrancy-guarded with a
+  simple `isSyncing` flag.
 - Read semantics, settled: opening the detail view marks a message read; tapping its
   notification marks it read; "Mark All as Read" lives in the inbox toolbar menu.
   The badge is the live count of `isRead == false`, recomputed on every sync and
@@ -1108,7 +1143,7 @@ Every magic value in the system. If a value appears in code but not here, it's w
 | Operational blob layout | standard base64 of `iv(12 bytes) ‖ ciphertext‖tag` (AES-256-GCM) |
 | APNs JWT | header `{alg:"ES256", kid}`, claims `{iss: teamId, iat}`, cache 50 min |
 | Per-key rate window | 3600 s fixed, bucket `floor(now/3600)*3600`, limit 120 |
-| Message TTL | 604800 s (7 days) |
+| Message retention | ack-based: kept until `messages.id <= devices.acked_id`; 90-day backstop (`expires_at`, 7776000 s) only for devices that never sync back |
 | `apns_token_hmac` | Lowercase hex HMAC-SHA-256 of the token hex string, keyed with `ENCRYPTION_KEY` |
 | Push preview truncation | `message` cut to 1000 chars, `link` dropped |
 | Base64 rule of thumb | base64url = send keys and JWT segments only; standard base64 = everything else |

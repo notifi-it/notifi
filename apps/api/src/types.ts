@@ -25,6 +25,7 @@ export interface DeviceRow {
   app_version: string;
   created_at: number;
   last_seen_at: number;
+  acked_id: number;
 }
 
 export interface Variables {

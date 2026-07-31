@@ -43,12 +43,13 @@ final class SyncEngine {
                     ingest(row)
                 }
 
+                try context.save()
+
                 if let latest = page.latestID {
                     bookmark = latest
                 }
                 if page.messages.count < 200 { break }
             }
-            try? context.save()
         } catch {
             log.error("sync failed: \(String(describing: error), privacy: .public)")
         }

@@ -4,7 +4,7 @@ import { push } from '../lib/apns.js';
 import { errBody } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
 import { hashKey } from '../lib/sendkey.js';
-import { MESSAGE_TTL_S, now, PER_KEY_WINDOW_S, windowStart } from '../lib/time.js';
+import { MESSAGE_BACKSTOP_S, now, PER_KEY_WINDOW_S, windowStart } from '../lib/time.js';
 import type { AppEnv } from '../types.js';
 
 const PUSH_BUDGET_BYTES = 4000;
@@ -123,7 +123,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   };
   const fullSealed = await seal(row.encryption_public_key, 'content', JSON.stringify(content));
 
-  const expiresAt = nowS + MESSAGE_TTL_S;
+  const expiresAt = nowS + MESSAGE_BACKSTOP_S;
   const message = await c.env.DB.prepare(
     `INSERT INTO messages (device_id, key_id, content_sealed, created_at, expires_at)
      VALUES (?, ?, ?, ?, ?) RETURNING id`,
