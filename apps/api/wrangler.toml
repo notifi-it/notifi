@@ -5,7 +5,7 @@ compatibility_date = "2026-07-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "notifi-dev"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "922cd206-7142-4b75-9af2-05f5fd7e1ba2"
 
 [vars]
 APNS_HOST = "https://api.sandbox.push.apple.com"
@@ -31,7 +31,7 @@ APNS_TOPIC = "it.notifi.app"
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "notifi-prod"
-database_id = "00000000-0000-0000-0000-000000000001"
+database_id = "e6e8c82f-779f-4e27-9621-97426939ea9b"
 
 [env.production.triggers]
 crons = ["0 3 * * *"]
