@@ -29,25 +29,15 @@ async function sha256hex(s) {
   return [...h].map((x) => x.toString(16).padStart(2, '0')).join('');
 }
 
+function randomSecret(prefix) {
+  const bytes = crypto.getRandomValues(new Uint8Array(24));
+  return `${prefix}_${Buffer.from(bytes).toString('base64url')}`;
+}
+
 const keys = [
-  {
-    id: base + 0,
-    name: 'Grafana',
-    prefix: 'nk_graf',
-    key: `nk_grafana_d${deviceId}_aaaaaaaaaaaaaaaaaaaaaaaaaaa`,
-  },
-  {
-    id: base + 1,
-    name: 'Deploy Bot',
-    prefix: 'nk_dply',
-    key: `nk_deploybot_d${deviceId}_bbbbbbbbbbbbbbbbbbbbbbbbb`,
-  },
-  {
-    id: base + 2,
-    name: 'Mail',
-    prefix: 'nk_mail',
-    key: `nk_mail_d${deviceId}_ccccccccccccccccccccccccccccc`,
-  },
+  { id: base + 0, name: 'Grafana', prefix: 'nk_graf', key: randomSecret('nk_graf') },
+  { id: base + 1, name: 'Deploy Bot', prefix: 'nk_dply', key: randomSecret('nk_dply') },
+  { id: base + 2, name: 'Mail', prefix: 'nk_mail', key: randomSecret('nk_mail') },
 ];
 
 let sql = '';

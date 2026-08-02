@@ -68,6 +68,8 @@ struct RootContentView: View {
                 ProgressView()
             case .unsupported:
                 UnsupportedDeviceView()
+            case .unavailable:
+                IdentityUnavailableView()
             case .needsRestoreAck:
                 RestoreExplainerView()
             case .ready:

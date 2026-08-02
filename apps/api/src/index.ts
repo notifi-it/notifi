@@ -21,7 +21,7 @@ app.notFound((c) => c.json(errBody('not_found', 'Not found.'), 404));
 
 app.onError((err, c) => {
   console.error('unhandled', String(err));
-  return c.json(errBody('invalid_request', 'Unexpected error.'), 500);
+  return c.json(errBody('internal_error', 'Unexpected error.'), 500);
 });
 
 async function scheduled(_event: ScheduledController, env: Env): Promise<void> {
@@ -48,10 +48,13 @@ async function scheduled(_event: ScheduledController, env: Env): Promise<void> {
 
   await env.DB.prepare(
     `DELETE FROM devices
-     WHERE last_seen_at < ? AND id NOT IN (SELECT DISTINCT device_id FROM keys)`,
+     WHERE last_seen_at < ?
+       AND id NOT IN (SELECT DISTINCT device_id FROM keys WHERE revoked_at IS NULL)`,
   )
     .bind(nowS - ABANDONED_DEVICE_S)
     .run();
+
+  await env.DB.prepare('DELETE FROM seen_signatures WHERE expires_at < ?').bind(nowS).run();
 }
 
 export default {

@@ -914,8 +914,11 @@ SwiftData is a tar pit this product doesn't need).
   primary accessible action is Copy (a 46-char string read glyph-by-glyph is where
   VoiceOver users would fail the core journey); masked key rows read as "Key,
   Grafana, ends 7f3a" rather than raw glyph soup.
-- Semantic colors and system fonts only. No custom palette, no third-party
-  dependencies in the app. Zero SPM packages is a feature; hold that line.
+- Semantic colors, no third-party dependencies in the app. Zero SPM packages is a
+  feature; hold that line. **Superseded on fonts:** the shipped app bundles Inconsolata
+  and Karla (`Shared/Fonts/`, registered in `App-iOS-Info.plist`). Every call site must
+  use `.font(.custom(_:relativeTo:))` so Dynamic Type still applies — a bare
+  `.font(.custom(_:size:))` is an accessibility regression.
 
 ### 9h. Contract mirroring rules (Swift)
 

@@ -20,7 +20,13 @@ enum IdentityConstants {
         (Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String) ?? ""
     }()
 
-    static var accessGroup: String { "\(teamIdPrefix)it.notifi.shared" }
+    // AppIdentifierPrefix only expands when the target has a signing team. If it is
+    // empty, an explicit group would not match the entitlement and every keychain
+    // write would fail with errSecMissingEntitlement; nil resolves to the app's
+    // default group, which is the shared group listed first in the entitlements.
+    static var accessGroup: String? {
+        teamIdPrefix.isEmpty ? nil : "\(teamIdPrefix)it.notifi.shared"
+    }
 }
 
 enum SigningKeyBox {
@@ -114,7 +120,7 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
 
     private static var service: String { IdentityConstants.service }
     private static var encryptionService: String { IdentityConstants.encryptionService }
-    private static var accessGroup: String { IdentityConstants.accessGroup }
+    private static var accessGroup: String? { IdentityConstants.accessGroup }
 
     private static func load(returnNilIfMissing: Bool) throws -> DeviceIdentity? {
         guard let signingData = try keychainGet(service: service, accessGroup: nil) else {
@@ -194,15 +200,9 @@ extension DeviceIdentity {
 }
 
 private extension DeviceIdentity {
+    // Add first, and only update on an explicit duplicate. Deleting up front would
+    // destroy a live identity whenever a read had failed for a transient reason.
     static func keychainSet(service: String, accessGroup: String?, data: Data) throws {
-        var deleteQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecUseDataProtectionKeychain as String: true,
-        ]
-        if let accessGroup { deleteQuery[kSecAttrAccessGroup as String] = accessGroup }
-        SecItemDelete(deleteQuery as CFDictionary)
-
         var addQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -213,7 +213,21 @@ private extension DeviceIdentity {
         if let accessGroup { addQuery[kSecAttrAccessGroup as String] = accessGroup }
 
         let status = SecItemAdd(addQuery as CFDictionary, nil)
-        guard status == errSecSuccess else { throw NotifiError.keychain(status) }
+        if status == errSecSuccess { return }
+        guard status == errSecDuplicateItem else { throw NotifiError.keychain(status) }
+
+        var updateQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecUseDataProtectionKeychain as String: true,
+        ]
+        if let accessGroup { updateQuery[kSecAttrAccessGroup as String] = accessGroup }
+
+        let updateStatus = SecItemUpdate(
+            updateQuery as CFDictionary,
+            [kSecValueData as String: data] as CFDictionary
+        )
+        guard updateStatus == errSecSuccess else { throw NotifiError.keychain(updateStatus) }
     }
 
     static func keychainGet(service: String, accessGroup: String?) throws -> Data? {

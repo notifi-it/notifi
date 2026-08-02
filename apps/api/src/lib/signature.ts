@@ -1,7 +1,6 @@
 import type { DeviceRow, Env } from '../types.js';
 import { fromB64, toHex } from './bytes.js';
-
-const REPLAY_WINDOW_S = 60;
+import { REPLAY_WINDOW_S } from './time.js';
 
 export async function verifyDeviceSignature(
   req: Request,

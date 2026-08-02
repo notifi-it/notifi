@@ -52,7 +52,9 @@ Each row: what the mockup did → the HIG/native verdict → the minimum-code na
   every accessibility setting. If a whisper of character is wanted later, `.fontDesign(.rounded)`
   is one modifier at the root and still fully system. **Recommendation: plain SF Pro, no
   modifier** — the least-opinion option is literally the default.
-- **Already:** system font. Nothing to do. Do not add the font.
+- **Outcome:** not followed. The shipped app bundles Inconsolata and Karla. The
+  Dynamic Type cost above is therefore live: every call site uses
+  `.font(.custom(_:relativeTo:))`, and must keep doing so.
 
 ### 2. The key-filter bar — ✗ not a stock component as drawn
 - **What the mockup drew:** an always-visible, horizontally-scrolling row of glass pills.

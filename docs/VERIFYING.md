@@ -1,19 +1,22 @@
 # notifi — how to verify it works
 
-The companion to the build plan (`2026-07-30-notifi-apple-rebuild.md`). This is the
+The companion to the build plan (`docs/PLAN.md`). This is the
 manual acceptance run — the plan says there are no automated tests, so **this
 document is the test suite**. Work top to bottom; each flow has a command, the exact
 result to expect, and the screenshot to capture as evidence.
 
 ## Setup (once per session)
 
+All `make` targets run from the repository root:
+
 ```bash
-cd apps/api
+make migrate    # apply migrations to the local DB
 make dev        # Worker + local D1 on localhost:8787
-make migrate    # apply 0001_init.sql to the local DB
 ```
 
-Boot the two clients from Xcode, both Debug config (→ `localhost:8787`):
+Boot the two clients from Xcode, both Debug config. Debug points at the **deployed dev
+Worker** (`API_BASE_URL` in `apps/app/project.yml`), so to exercise the local Worker
+either change that value or run the curls below against `localhost:8787` directly:
 
 - iOS Simulator (any iPhone running iOS 17+)
 - a real Mac Debug build (the Simulator lies about keychain access groups and the
@@ -41,18 +44,16 @@ two real devices.
 ### 0. Raw APNs push buzzes both devices
 
 ```bash
-# local first — proves the JWT + payload are right
-pnpm --filter api phase0-push --token $TOK
-
-# then from the DEPLOYED dev Worker — the real test
-curl "https://<dev>.workers.dev/__phase0?token=$TOK"
+# proves the JWT + payload are right, from node
+pnpm --filter @notifi/api phase0-push --token $TOK
 ```
 
 - **Expect:** APNs returns `200` (empty body); the device buzzes.
 - **On `400 BadDeviceToken`:** sandbox/prod mismatch — a Debug build's token must go
   to `api.sandbox.push.apple.com`.
-- **Why run it twice:** node's `fetch` succeeding proves nothing about workerd's
-  outbound HTTP/2 to Apple. Only the deployed-Worker run counts.
+- **This is not sufficient on its own:** node's `fetch` succeeding proves nothing about
+  workerd's outbound HTTP/2 to Apple. The deployed-Worker equivalent is flow 3 below —
+  a real `/send` against the dev Worker — which is what actually has to pass.
 - 📸 **Screenshot A** — lock-screen banner on the iPhone, then the same on the Mac.
 
 > **Done when** a push from the deployed dev Worker lands on both physical devices.
@@ -166,7 +167,7 @@ curl -i "$NB/send?key=$KEY&title=x"
 for i in $(seq 1 121); do
   curl -s -o /dev/null -w "%{http_code} " "$NB/send?key=$KEY2&title=n$i"
 done
-# → 200 …(×120)… 429
+# → 202 …(×120)… 429
 ```
 
 - **Expect:** the 121st in the hour is `429` with a `Retry-After` header.

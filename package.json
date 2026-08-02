@@ -6,7 +6,6 @@
     "node": ">=20"
   },
   "scripts": {
-    "typecheck": "pnpm -r typecheck",
-    "build": "pnpm -r build"
+    "typecheck": "pnpm -r typecheck"
   }
 }

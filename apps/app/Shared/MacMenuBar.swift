@@ -6,6 +6,7 @@ import SwiftUI
 extension Notification.Name {
     static let notifiNewMessages = Notification.Name("notifi.newMessages")
     static let notifiUnreadChanged = Notification.Name("notifi.unreadChanged")
+    static let notifiOpenPanel = Notification.Name("notifi.openPanel")
 }
 
 @MainActor
@@ -51,6 +52,10 @@ final class MenuBarController: NSObject {
             self, selector: #selector(newMessagesArrived),
             name: .notifiNewMessages, object: nil
         )
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(openPanel),
+            name: .notifiOpenPanel, object: nil
+        )
 
         render(angle: 0)
     }
@@ -74,6 +79,13 @@ final class MenuBarController: NSObject {
             self?.render(angle: 0)
         }
         animator?.start()
+    }
+
+    @objc private func openPanel() {
+        guard !popover.isShown, let button = statusItem?.button else { return }
+        NSApp.activate(ignoringOtherApps: true)
+        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        popover.contentViewController?.view.window?.makeFirstResponder(nil)
     }
 
     @objc private func togglePanel(_ sender: Any?) {

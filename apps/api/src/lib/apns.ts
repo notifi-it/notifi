@@ -33,7 +33,16 @@ export async function push(
   expiresAt: number,
   nowS: number,
 ): Promise<void> {
-  const tokenHex = await decryptField(env, device.apns_token);
+  if (device.apns_token === '') return;
+
+  let tokenHex: string;
+  try {
+    tokenHex = await decryptField(env, device.apns_token);
+  } catch (err) {
+    console.error('apns token decrypt failed', String(err));
+    return;
+  }
+
   const doSend = async () =>
     fetch(`${env.APNS_HOST}/3/device/${tokenHex}`, {
       method: 'POST',

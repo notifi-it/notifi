@@ -5,6 +5,7 @@ final class NotificationService: UNNotificationServiceExtension {
     private final class Delivery: @unchecked Sendable {
         let handler: (UNNotificationContent) -> Void
         let content: UNMutableNotificationContent
+        private let lock = NSLock()
         private var delivered = false
 
         init(handler: @escaping (UNNotificationContent) -> Void, content: UNMutableNotificationContent) {
@@ -13,9 +14,19 @@ final class NotificationService: UNNotificationServiceExtension {
         }
 
         func finish() {
-            guard !delivered else { return }
+            lock.lock()
+            let alreadyDelivered = delivered
             delivered = true
+            lock.unlock()
+            guard !alreadyDelivered else { return }
             handler(content)
+        }
+
+        func withContent(_ body: (UNMutableNotificationContent) -> Void) {
+            lock.lock()
+            defer { lock.unlock() }
+            guard !delivered else { return }
+            body(content)
         }
     }
 
@@ -86,7 +97,7 @@ final class NotificationService: UNNotificationServiceExtension {
                 return
             }
             if let attachment = try? UNNotificationAttachment(identifier: "image", url: dest) {
-                delivery.content.attachments = [attachment]
+                delivery.withContent { $0.attachments = [attachment] }
             }
         }
         task.resume()

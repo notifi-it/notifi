@@ -47,11 +47,12 @@ devices.post('/devices', async (c) => {
   const platformEnc = await encryptPadded(c.env, parsed.platform);
   const versionEnc = await encryptPadded(c.env, parsed.app_version);
 
-  await c.env.DB.prepare('DELETE FROM devices WHERE apns_token_hmac = ? AND public_key != ?')
-    .bind(tokenHmac, parsed.public_key)
-    .run();
+  const retireOthers = c.env.DB.prepare(
+    `UPDATE devices SET apns_token = '', apns_token_hmac = 'retired:' || id
+     WHERE apns_token_hmac = ? AND public_key != ?`,
+  ).bind(tokenHmac, parsed.public_key);
 
-  const row = await c.env.DB.prepare(
+  const upsert = c.env.DB.prepare(
     `INSERT INTO devices
        (public_key, encryption_public_key, apns_token, apns_token_hmac, platform, app_version, created_at, last_seen_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -63,18 +64,27 @@ devices.post('/devices', async (c) => {
        app_version           = excluded.app_version,
        last_seen_at          = excluded.last_seen_at
      RETURNING id`,
-  )
-    .bind(
-      parsed.public_key,
-      parsed.encryption_public_key,
-      apnsEnc,
-      tokenHmac,
-      platformEnc,
-      versionEnc,
-      nowS,
-      nowS,
-    )
-    .first<{ id: number }>();
+  ).bind(
+    parsed.public_key,
+    parsed.encryption_public_key,
+    apnsEnc,
+    tokenHmac,
+    platformEnc,
+    versionEnc,
+    nowS,
+    nowS,
+  );
+
+  let row: { id: number } | null = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await retireOthers.run();
+    try {
+      row = await upsert.first<{ id: number }>();
+      break;
+    } catch (err) {
+      if (attempt === 1) throw err;
+    }
+  }
 
   return c.json({ device_id: row!.id }, 200);
 });

@@ -21,7 +21,7 @@ keys.get('/keys', async (c) => {
 
   const rows = await c.env.DB.prepare(
     `SELECT id, meta_sealed, created_at, last_used_at, sent_count, revoked_at
-     FROM keys WHERE device_id = ? ORDER BY id DESC`,
+     FROM keys WHERE device_id = ? AND meta_sealed != '' ORDER BY id DESC`,
   )
     .bind(device.id)
     .all<KeySummary>();
@@ -43,29 +43,28 @@ keys.post('/keys', async (c) => {
     return c.json(errBody('invalid_request', 'Invalid create-key body.'), 400);
   }
 
-  const active = await c.env.DB.prepare(
-    'SELECT COUNT(*) AS n FROM keys WHERE device_id = ? AND revoked_at IS NULL',
-  )
-    .bind(device.id)
-    .first<{ n: number }>();
-  if ((active?.n ?? 0) >= MAX_ACTIVE_KEYS) {
-    return c.json(errBody('invalid_request', 'Active key limit reached.'), 400);
-  }
-
   const generated = await generateSendKey();
 
   const inserted = await c.env.DB.prepare(
-    `INSERT INTO keys (device_id, meta_sealed, secret_hash, created_at)
-     VALUES (?, '', ?, ?) RETURNING id`,
+    `INSERT INTO keys (device_id, meta_sealed, secret_hash, created_at, revoked_at)
+     SELECT ?, '', ?, ?, ?
+     WHERE (SELECT COUNT(*) FROM keys WHERE device_id = ? AND revoked_at IS NULL) < ?
+     RETURNING id`,
   )
-    .bind(device.id, generated.secretHash, nowS)
+    .bind(device.id, generated.secretHash, nowS, nowS, device.id, MAX_ACTIVE_KEYS)
     .first<{ id: number }>();
 
-  const id = inserted!.id;
+  if (!inserted) {
+    return c.json(errBody('invalid_request', 'Active key limit reached.'), 400);
+  }
+
+  const id = inserted.id;
   const meta: KeyMeta = { id, name: parsed.name, prefix: generated.prefix };
   const metaSealed = await seal(device.encryption_public_key, 'key_meta', JSON.stringify(meta));
 
-  await c.env.DB.prepare('UPDATE keys SET meta_sealed = ? WHERE id = ?').bind(metaSealed, id).run();
+  await c.env.DB.prepare('UPDATE keys SET meta_sealed = ?, revoked_at = NULL WHERE id = ?')
+    .bind(metaSealed, id)
+    .run();
 
   await bumpLastSeenIfStale(c.env, device, nowS);
   return c.json({ id, name: parsed.name, key: generated.key }, 200);

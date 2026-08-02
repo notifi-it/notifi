@@ -38,11 +38,39 @@ export async function encryptPadded(env: Env, plaintext: string): Promise<string
   return encryptField(env, plaintext.padEnd(16, ' ').slice(0, 16));
 }
 
+let cachedHmacKey: CryptoKey | null = null;
+
+async function hmacKey(env: Env): Promise<CryptoKey> {
+  if (cachedHmacKey) return cachedHmacKey;
+  const material = await crypto.subtle.importKey(
+    'raw',
+    fromHex(env.ENCRYPTION_KEY),
+    'HKDF',
+    false,
+    ['deriveBits'],
+  );
+  const derived = await crypto.subtle.deriveBits(
+    {
+      name: 'HKDF',
+      hash: 'SHA-256',
+      salt: new Uint8Array(0),
+      info: new TextEncoder().encode('notifi/apns-token-hmac/v1'),
+    },
+    material,
+    256,
+  );
+  cachedHmacKey = await crypto.subtle.importKey(
+    'raw',
+    derived,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  return cachedHmacKey;
+}
+
 export async function tokenHmacHex(env: Env, tokenHex: string): Promise<string> {
-  const raw = fromHex(env.ENCRYPTION_KEY);
-  const key = await crypto.subtle.importKey('raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, [
-    'sign',
-  ]);
+  const key = await hmacKey(env);
   const mac = new Uint8Array(
     await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(tokenHex)),
   );

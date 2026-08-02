@@ -1,5 +1,6 @@
 import CoreImage
 import CoreImage.CIFilterBuiltins
+import OSLog
 import SwiftData
 import SwiftUI
 
@@ -33,80 +34,10 @@ enum Grain {
     }
 }
 
-private struct HashGradientBackground: View {
-    let seed: String
-
-    private func v(_ salt: Int) -> Double {
-        var hash: UInt64 = 5381
-        for byte in "\(salt).\(seed)".utf8 { hash = (hash &* 33) ^ UInt64(byte) }
-        return Double(hash % 1000) / 1000.0
-    }
-
-    private var greys: [Color] {
-        [Color.primary.opacity(0.16), Color.primary.opacity(0.0)]
-    }
-
-    @ViewBuilder
-    var body: some View {
-        if v(0) < 0.4 {
-            RadialGradient(
-                gradient: Gradient(colors: greys),
-                center: UnitPoint(x: 0.2 + v(1) * 0.6, y: 0.2 + v(2) * 0.6),
-                startRadius: 0,
-                endRadius: 120 + v(3) * 180
-            )
-        } else {
-            LinearGradient(
-                colors: greys,
-                startPoint: UnitPoint(x: v(1), y: v(2)),
-                endPoint: UnitPoint(x: v(3), y: v(4))
-            )
-        }
-    }
-}
-
-func brandHue(for text: String, salt: Int) -> Double {
-    var hash: UInt64 = 5381
-    for byte in "\(salt)-\(text)".utf8 { hash = (hash &* 33) ^ UInt64(byte) }
-    return Double(hash % 1000) / 1000.0
-}
-
-private struct SourceAvatar: View {
-    let name: String
-    let unread: Bool
-
-    private var letter: String {
-        String(name.trimmingCharacters(in: .whitespaces).first ?? "•").uppercased()
-    }
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .fill(
-                LinearGradient(
-                    colors: [
-                        Color(hue: brandHue(for: name, salt: 1), saturation: 0.7, brightness: 0.85),
-                        Color(hue: brandHue(for: name, salt: 2), saturation: 0.75, brightness: 0.6),
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .frame(width: 38, height: 38)
-            .overlay {
-                Text(letter)
-                    .font(.inco(.headline, weight: .bold))
-                    .foregroundStyle(.white)
-            }
-            .overlay(alignment: .topTrailing) {
-                if unread {
-                    Circle()
-                        .fill(Color(red: 0.737, green: 0.129, blue: 0.133))
-                        .frame(width: 10, height: 10)
-                        .overlay(Circle().stroke(.background, lineWidth: 2))
-                        .offset(x: 3, y: -3)
-                }
-            }
-    }
+// https only: a sender must not be able to point the reader at a local or plaintext host.
+func remoteImageURL(_ url: URL?) -> URL? {
+    guard let url, url.scheme?.lowercased() == "https" else { return nil }
+    return url
 }
 
 struct InboxView: View {
@@ -116,8 +47,8 @@ struct InboxView: View {
 
     @State private var searchText = ""
     @State private var filterKeyID: Int?
+    private let log = Logger(subsystem: "it.notifi.app", category: "store")
     #if os(iOS)
-    @State private var showingCreate = false
     @State private var showingSettings = false
     #endif
 
@@ -151,9 +82,6 @@ struct InboxView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) { menuButton }
             ToolbarItem(placement: .principal) { bellTitle }
-        }
-        .sheet(isPresented: $showingCreate) {
-            NavigationStack { CreateKeyView() }.environment(model)
         }
         .sheet(isPresented: $showingSettings) {
             NavigationStack { SettingsView() }.environment(model)
@@ -234,7 +162,7 @@ struct InboxView: View {
                 .swipeActions(edge: .leading) {
                     Button {
                         message.isRead.toggle()
-                        try? context.save()
+                        save()
                         model.sync?.updateBadge()
                     } label: {
                         Label(
@@ -254,7 +182,7 @@ struct InboxView: View {
                 .contextMenu {
                     Button(message.isRead ? "Mark as Unread" : "Mark as Read") {
                         message.isRead.toggle()
-                        try? context.save()
+                        save()
                         model.sync?.updateBadge()
                     }
                     Divider()
@@ -383,7 +311,7 @@ struct InboxView: View {
 
     private func delete(_ message: Message) {
         context.delete(message)
-        try? context.save()
+        save()
         model.sync?.updateBadge()
     }
 
@@ -391,79 +319,15 @@ struct InboxView: View {
         for message in messages where !message.isRead {
             message.isRead = true
         }
-        try? context.save()
+        save()
         model.sync?.updateBadge()
     }
-}
 
-private struct MeshBlurBackground: View {
-    let seed: String
-
-    private func value(_ salt: Int) -> Double {
-        var hash: UInt64 = 5381
-        for byte in "\(salt)-\(seed)".utf8 { hash = (hash &* 33) ^ UInt64(byte) }
-        return Double(hash % 1000) / 1000.0
-    }
-
-    private func color(_ salt: Int) -> Color {
-        Color(hue: value(salt), saturation: 0.7, brightness: 0.85)
-    }
-
-    var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
-            let d = max(w, h) * 0.85
-            ZStack {
-                Circle().fill(color(1)).frame(width: d, height: d)
-                    .position(x: w * 0.12, y: h * 0.15)
-                Circle().fill(color(2)).frame(width: d, height: d)
-                    .position(x: w * 0.9, y: h * 0.0)
-                Circle().fill(color(3)).frame(width: d, height: d)
-                    .position(x: w * 0.25, y: h * 1.0)
-                Circle().fill(color(4)).frame(width: d, height: d)
-                    .position(x: w * 0.95, y: h * 0.95)
-            }
-            .blur(radius: 45)
-        }
-    }
-}
-
-private struct CornerBrackets: Shape {
-    var length: CGFloat = 14
-
-    func path(in rect: CGRect) -> Path {
-        var p = Path()
-        let l = length
-        // top-left
-        p.move(to: CGPoint(x: rect.minX, y: rect.minY + l))
-        p.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
-        p.addLine(to: CGPoint(x: rect.minX + l, y: rect.minY))
-        // top-right
-        p.move(to: CGPoint(x: rect.maxX - l, y: rect.minY))
-        p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-        p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + l))
-        // bottom-right
-        p.move(to: CGPoint(x: rect.maxX, y: rect.maxY - l))
-        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-        p.addLine(to: CGPoint(x: rect.maxX - l, y: rect.maxY))
-        // bottom-left
-        p.move(to: CGPoint(x: rect.minX + l, y: rect.maxY))
-        p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-        p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - l))
-        return p
-    }
-}
-
-private struct Scanlines: View {
-    var body: some View {
-        Canvas { context, size in
-            var y: CGFloat = 0
-            while y < size.height {
-                let line = Path(CGRect(x: 0, y: y, width: size.width, height: 1))
-                context.fill(line, with: .color(.primary.opacity(0.05)))
-                y += 3
-            }
+    private func save() {
+        do {
+            try context.save()
+        } catch {
+            log.error("save failed: \(String(describing: error), privacy: .public)")
         }
     }
 }
@@ -530,7 +394,7 @@ private struct MessageRow: View {
                         Spacer(minLength: 0)
                     }
                 }
-                if let imageURL = message.imageURL {
+                if let imageURL = remoteImageURL(message.imageURL) {
                     AsyncImage(url: imageURL) { phase in
                         if case let .success(image) = phase {
                             image.resizable().scaledToFill()

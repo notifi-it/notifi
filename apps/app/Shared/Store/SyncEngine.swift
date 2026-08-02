@@ -17,6 +17,8 @@ final class SyncEngine {
     private(set) var unread = 0
 
     private let bookmarkKey = "lastSyncedMessageID"
+    private let failureKeyPrefix = "ingestFailedAt."
+    private static let unreadableGraceSeconds: TimeInterval = 14 * 24 * 60 * 60
 
     init(api: APIClient, identity: DeviceIdentity, context: ModelContext) {
         self.api = api
@@ -37,19 +39,29 @@ final class SyncEngine {
 
         var newMessages = 0
         do {
-            while true {
+            pages: while true {
                 let page = try await api.history(since: bookmark, limit: 200)
                 if page.messages.isEmpty { break }
 
-                for row in page.messages where ingest(row) {
-                    newMessages += 1
+                var ackable = bookmark
+                var blocked = false
+                for row in page.messages {
+                    switch ingest(row) {
+                    case .inserted:
+                        newMessages += 1
+                    case .duplicate, .discarded:
+                        break
+                    case .unreadable:
+                        blocked = true
+                    }
+                    if blocked { break }
+                    ackable = row.id
                 }
 
                 try context.save()
 
-                if let latest = page.latestID {
-                    bookmark = latest
-                }
+                if ackable > bookmark { bookmark = ackable }
+                if blocked { break pages }
                 if page.messages.count < 200 { break }
             }
         } catch {
@@ -66,30 +78,39 @@ final class SyncEngine {
         #endif
     }
 
-    @discardableResult
-    private func ingest(_ row: HistoryMessage) -> Bool {
+    private enum IngestResult {
+        case inserted
+        case duplicate
+        case discarded
+        case unreadable
+    }
+
+    private func ingest(_ row: HistoryMessage) -> IngestResult {
         let plaintext: Data
         do {
             plaintext = try identity.open(sealedB64: row.contentSealed, info: "content")
         } catch {
-            log.error("skip message \(row.id): open failed")
-            return false
+            log.error("message \(row.id): open failed")
+            return unreadableOrGiveUp(row.id, reason: "open failed")
         }
 
         guard let content = try? JSONDecoder().decode(MessageContent.self, from: plaintext) else {
-            log.error("skip message \(row.id): decode failed")
-            return false
+            log.error("message \(row.id): decode failed")
+            return unreadableOrGiveUp(row.id, reason: "decode failed")
         }
 
         guard content.keyID == row.keyID, content.createdAt == row.createdAt else {
-            log.error("skip message \(row.id): sealed identity mismatch (tampered)")
-            return false
+            log.error("discard message \(row.id): sealed identity mismatch (tampered)")
+            clearFailure(row.id)
+            return .discarded
         }
+
+        clearFailure(row.id)
 
         let serverID = row.id
         let descriptor = FetchDescriptor<Message>(predicate: #Predicate { $0.serverID == serverID })
         if let existing = try? context.fetch(descriptor), !existing.isEmpty {
-            return false
+            return .duplicate
         }
 
         let message = Message(
@@ -102,7 +123,26 @@ final class SyncEngine {
             createdAt: Date(timeIntervalSince1970: TimeInterval(row.createdAt))
         )
         context.insert(message)
-        return true
+        return .inserted
+    }
+
+    private func unreadableOrGiveUp(_ serverID: Int, reason: String) -> IngestResult {
+        let key = "\(failureKeyPrefix)\(serverID)"
+        let firstSeen = UserDefaults.standard.object(forKey: key) as? Double
+        guard let firstSeen else {
+            UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key)
+            return .unreadable
+        }
+        if Date().timeIntervalSince1970 - firstSeen > Self.unreadableGraceSeconds {
+            log.error("giving up on message \(serverID) after grace period: \(reason, privacy: .public)")
+            UserDefaults.standard.removeObject(forKey: key)
+            return .discarded
+        }
+        return .unreadable
+    }
+
+    private func clearFailure(_ serverID: Int) {
+        UserDefaults.standard.removeObject(forKey: "\(failureKeyPrefix)\(serverID)")
     }
 
     func refreshKeys() async {

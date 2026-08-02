@@ -1,3 +1,4 @@
+import OSLog
 import SwiftData
 import SwiftUI
 
@@ -11,6 +12,7 @@ struct MessageDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
     @Query private var messages: [Message]
+    private let log = Logger(subsystem: "it.notifi.app", category: "store")
 
     init(serverID: Int) {
         _messages = Query(filter: #Predicate<Message> { $0.serverID == serverID })
@@ -89,7 +91,7 @@ struct MessageDetailView: View {
                     .font(.inco(.caption))
                     .foregroundStyle(.secondary)
 
-                if let imageURL = message.imageURL {
+                if let imageURL = remoteImageURL(message.imageURL) {
                     AsyncImage(url: imageURL) { phase in
                         switch phase {
                         case let .success(image):
@@ -129,7 +131,11 @@ struct MessageDetailView: View {
     private func markRead() {
         guard let message, !message.isRead else { return }
         message.isRead = true
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            log.error("save failed: \(String(describing: error), privacy: .public)")
+        }
         model.sync?.updateBadge()
     }
 }

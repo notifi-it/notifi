@@ -1,7 +1,8 @@
 import type { Context, MiddlewareHandler } from 'hono';
 import { errBody } from './lib/respond.js';
 import { resolveDevice, verifyDeviceSignature } from './lib/signature.js';
-import { LAST_SEEN_STALE_S, now } from './lib/time.js';
+import { toHex } from './lib/bytes.js';
+import { LAST_SEEN_STALE_S, now, REPLAY_WINDOW_S } from './lib/time.js';
 import type { AppEnv, DeviceRow, Env } from './types.js';
 
 export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
@@ -25,6 +26,20 @@ export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
         : 'Invalid request signature.';
     return c.json(errBody(result.code, message), 401);
   }
+  const sigHeader = c.req.header('X-Notifi-Signature') ?? '';
+  const sigHash = toHex(
+    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(sigHeader)),
+  );
+  const fresh = await c.env.DB.prepare(
+    `INSERT INTO seen_signatures (sig_hash, expires_at) VALUES (?, ?)
+     ON CONFLICT(sig_hash) DO NOTHING RETURNING sig_hash`,
+  )
+    .bind(sigHash, nowS + REPLAY_WINDOW_S)
+    .first<{ sig_hash: string }>();
+  if (!fresh) {
+    return c.json(errBody('bad_signature', 'Request signature has already been used.'), 401);
+  }
+
   c.set('rawBody', rawBody);
   c.set('publicKey', result.publicKey);
   return next();

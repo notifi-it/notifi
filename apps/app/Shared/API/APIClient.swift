@@ -7,6 +7,18 @@ final class APIClient {
     private let identity: DeviceIdentity
     private let session: URLSession
 
+    // Signed requests are rejected outside a 60s window. A device with a skewed clock
+    // would fail every call forever, so track the server's own clock and sign with it.
+    private var serverOffset: TimeInterval = 0
+
+    private static let httpDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
+        return formatter
+    }()
+
     init(baseURL: URL, identity: DeviceIdentity, session: URLSession = .shared) {
         self.baseURL = baseURL
         self.identity = identity
@@ -15,24 +27,26 @@ final class APIClient {
 
     func registerDevice(_ body: RegisterDeviceBody) async throws -> RegisterDeviceResponse {
         let data = try encode(body)
-        let request = try signedRequest(method: "POST", path: "/devices", body: data)
-        return try await perform(request)
+        return try await performSigned {
+            try self.signedRequest(method: "POST", path: "/devices", body: data)
+        }
     }
 
     func listKeys() async throws -> ListKeysResponse {
-        let request = try signedRequest(method: "GET", path: "/keys")
-        return try await perform(request)
+        try await performSigned { try self.signedRequest(method: "GET", path: "/keys") }
     }
 
     func createKey(name: String) async throws -> CreateKeyResponse {
         let data = try encode(CreateKeyBody(name: name))
-        let request = try signedRequest(method: "POST", path: "/keys", body: data)
-        return try await perform(request)
+        return try await performSigned {
+            try self.signedRequest(method: "POST", path: "/keys", body: data)
+        }
     }
 
     func revokeKey(id: Int) async throws {
-        let request = try signedRequest(method: "DELETE", path: "/keys/\(id)")
-        _ = try await performVoid(request)
+        _ = try await performSignedVoid {
+            try self.signedRequest(method: "DELETE", path: "/keys/\(id)")
+        }
     }
 
     func history(since: Int, limit: Int) async throws -> HistoryResponse {
@@ -40,8 +54,9 @@ final class APIClient {
             URLQueryItem(name: "since", value: String(since)),
             URLQueryItem(name: "limit", value: String(limit)),
         ]
-        let request = try signedRequest(method: "GET", path: "/history", queryItems: items)
-        return try await perform(request)
+        return try await performSigned {
+            try self.signedRequest(method: "GET", path: "/history", queryItems: items)
+        }
     }
 
     func send(key: String, title: String, message: String?) async throws -> SendResponse {
@@ -53,7 +68,12 @@ final class APIClient {
         var request = URLRequest(url: components.url!)
         request.httpMethod = "POST"
         request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
-        return try await perform(request)
+        let data = try await performVoid(request)
+        do {
+            return try JSONDecoder().decode(SendResponse.self, from: data)
+        } catch {
+            throw APIError.decoding
+        }
     }
 
     private func signedRequest(
@@ -73,7 +93,7 @@ final class APIClient {
             }
             return components.host!.lowercased()
         }()
-        let timestamp = Int(Date().timeIntervalSince1970)
+        let timestamp = Int(Date().addingTimeInterval(serverOffset).timeIntervalSince1970)
         let bodyHash = SHA256.hash(data: body ?? Data())
             .map { String(format: "%02x", $0) }
             .joined()
@@ -103,12 +123,26 @@ final class APIClient {
         try JSONEncoder().encode(value)
     }
 
-    private func perform<T: Decodable>(_ request: URLRequest) async throws -> T {
-        let data = try await performVoid(request)
+    private func performSigned<T: Decodable>(_ build: () throws -> URLRequest) async throws -> T {
+        let data = try await performSignedVoid(build)
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch {
             throw APIError.decoding
+        }
+    }
+
+    // On a rejected timestamp the response's Date header has already corrected
+    // serverOffset, so re-signing and retrying once recovers a skewed clock.
+    @discardableResult
+    private func performSignedVoid(_ build: () throws -> URLRequest) async throws -> Data {
+        do {
+            return try await performVoid(try build())
+        } catch let APIError.http(status, code, message) {
+            guard status == 401, code == "stale_timestamp" else {
+                throw APIError.http(status: status, code: code, message: message)
+            }
+            return try await performVoid(try build())
         }
     }
 
@@ -123,6 +157,10 @@ final class APIClient {
         }
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
+        }
+        if let dateHeader = http.value(forHTTPHeaderField: "Date"),
+           let serverDate = Self.httpDateFormatter.date(from: dateHeader) {
+            serverOffset = serverDate.timeIntervalSince(Date())
         }
         guard (200 ..< 300).contains(http.statusCode) else {
             let envelope = try? JSONDecoder().decode(APIErrorEnvelope.self, from: data)

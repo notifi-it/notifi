@@ -1,11 +1,9 @@
 variable "cloudflare_account_id" {
-  type    = string
-  default = "TODO_CLOUDFLARE_ACCOUNT_ID"
+  type = string
 }
 
 variable "cloudflare_zone_id" {
-  type    = string
-  default = "TODO_NOTIFI_IT_ZONE_ID"
+  type = string
 }
 
 variable "zone_name" {

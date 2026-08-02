@@ -21,19 +21,32 @@ dashboard and any Logpush destination. This is the reason the API documents
 form is for one-off `curl` only. Accepted with eyes open — there is no way to redact
 the URI on the free plan.
 
-## Placeholders to fill
+## Configuration (nothing is hardcoded)
 
-- `var.cloudflare_account_id` — `TODO_CLOUDFLARE_ACCOUNT_ID` in `variables.tf`.
-- `var.cloudflare_zone_id` — `TODO_NOTIFI_IT_ZONE_ID` in `variables.tf`.
-- The R2 S3 endpoint host in `backend.tf` — `TODO_CLOUDFLARE_ACCOUNT_ID`.
+`cloudflare_account_id` and `cloudflare_zone_id` have no defaults, so Terraform fails
+loudly if they are unset rather than running against a placeholder. The R2 state
+endpoint embeds the account id and is passed at init time:
+
+```bash
+export TF_VAR_cloudflare_account_id=<account id>
+export TF_VAR_cloudflare_zone_id=<notifi.it zone id>
+terraform init -backend-config="endpoints={s3=\"https://$TF_VAR_cloudflare_account_id.r2.cloudflarestorage.com\"}"
+```
+
+State locking uses the S3 backend's native lockfile (`use_lockfile`), so a local apply
+cannot race CI. This requires Terraform 1.11+.
 
 ## Credentials (never committed)
 
 - `CLOUDFLARE_API_TOKEN` — used by the provider for zone/ruleset/R2 management.
+- `CLOUDFLARE_READONLY_API_TOKEN` — a read-only token used by the PR `plan` job only.
+  `terraform plan` runs provider and data-source code straight from the pull request,
+  so that job must never hold a token that can change anything.
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` — an R2 S3-API token pair used **only**
   by the state backend. Generate these as an R2 API token in the Cloudflare dashboard.
 
-CI wires all three from repository secrets (`CLOUDFLARE_API_TOKEN`,
+CI wires these from repository secrets (`CLOUDFLARE_API_TOKEN`,
+`CLOUDFLARE_READONLY_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID`,
 `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`) — see `.github/workflows/infra.yml`.
 
 ## Bootstrap ordering

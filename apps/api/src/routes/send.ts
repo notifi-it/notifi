@@ -4,11 +4,18 @@ import { push } from '../lib/apns.js';
 import { errBody } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
 import { hashKey } from '../lib/sendkey.js';
-import { MESSAGE_BACKSTOP_S, now, PER_KEY_WINDOW_S, windowStart } from '../lib/time.js';
+import {
+  MESSAGE_BACKSTOP_S,
+  now,
+  PER_KEY_LIMIT,
+  PER_KEY_WINDOW_S,
+  windowStart,
+} from '../lib/time.js';
 import type { AppEnv } from '../types.js';
 
 const PUSH_BUDGET_BYTES = 4000;
 const PREVIEW_MESSAGE_MAX = 1000;
+const MINIMAL_MESSAGE_MAX = 200;
 
 interface KeyDeviceRow {
   key_id: number;
@@ -28,6 +35,10 @@ function pushPayload(id: number, sealedB64: string, keyId: number): object {
     },
     notifi: { id, sealed: sealedB64 },
   };
+}
+
+function payloadBytes(payload: object): number {
+  return new TextEncoder().encode(JSON.stringify(payload)).length;
 }
 
 export const send = new Hono<AppEnv>();
@@ -101,13 +112,19 @@ send.on(['GET', 'POST'], '/send', async (c) => {
        sent_count      = sent_count + 1,
        last_used_at    = ?
      WHERE id = ? AND revoked_at IS NULL
-       AND (rl_window_start != ? OR rl_window_count < 120)
+       AND (rl_window_start != ? OR rl_window_count < ?)
      RETURNING id`,
   )
-    .bind(w, w, nowS, row.key_id, w)
+    .bind(w, w, nowS, row.key_id, w, PER_KEY_LIMIT)
     .first<{ id: number }>();
 
   if (!updated) {
+    const still = await c.env.DB.prepare('SELECT revoked_at FROM keys WHERE id = ?')
+      .bind(row.key_id)
+      .first<{ revoked_at: number | null }>();
+    if (!still || still.revoked_at !== null) {
+      return c.json(errBody('unknown_key', 'Unknown or revoked key.'), 401);
+    }
     c.header('Retry-After', String(w + PER_KEY_WINDOW_S - nowS));
     return c.json(errBody('rate_limited', 'Per-key rate limit exceeded.'), 429);
   }
@@ -133,9 +150,8 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const messageId = message!.id;
 
-  let payload = pushPayload(messageId, fullSealed, row.key_id);
-  if (JSON.stringify(payload).length > PUSH_BUDGET_BYTES) {
-    const preview: MessageContent = {
+  const fallbacks: MessageContent[] = [
+    {
       title: input.title,
       ...(input.message !== undefined
         ? { message: input.message.slice(0, PREVIEW_MESSAGE_MAX) }
@@ -143,9 +159,27 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       ...(input.image !== undefined ? { image: input.image } : {}),
       key_id: row.key_id,
       created_at: createdAt,
-    };
-    const previewSealed = await seal(row.encryption_public_key, 'content', JSON.stringify(preview));
-    payload = pushPayload(messageId, previewSealed, row.key_id);
+    },
+    {
+      title: input.title,
+      ...(input.message !== undefined
+        ? { message: input.message.slice(0, MINIMAL_MESSAGE_MAX) }
+        : {}),
+      key_id: row.key_id,
+      created_at: createdAt,
+    },
+    {
+      title: input.title,
+      key_id: row.key_id,
+      created_at: createdAt,
+    },
+  ];
+
+  let payload = pushPayload(messageId, fullSealed, row.key_id);
+  for (const candidate of fallbacks) {
+    if (payloadBytes(payload) <= PUSH_BUDGET_BYTES) break;
+    const sealed = await seal(row.encryption_public_key, 'content', JSON.stringify(candidate));
+    payload = pushPayload(messageId, sealed, row.key_id);
   }
 
   await push(

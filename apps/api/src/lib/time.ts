@@ -11,3 +11,4 @@ export const ABANDONED_DEVICE_S = 2592000;
 export const PER_KEY_WINDOW_S = 3600;
 export const PER_KEY_LIMIT = 120;
 export const LAST_SEEN_STALE_S = 3600;
+export const REPLAY_WINDOW_S = 60;

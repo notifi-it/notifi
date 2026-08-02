@@ -6,7 +6,8 @@ iPhone and Mac. The backend is a single Cloudflare Worker over a D1 database; th
 is a zero-dependency SwiftUI client for iOS 17+ and macOS 14+. There are no accounts,
 no sign-in, and no device linking — the device holds the only private key, message
 content is sealed to that key at ingest so the server cannot read it afterwards, and
-the server keeps messages for seven days. It is a relay, not a mailbox.
+the server deletes each message once the device acknowledges it, with a 90-day
+backstop for messages that are never collected. It is a relay, not a mailbox.
 
 The full design is in [docs/PLAN.md](docs/PLAN.md); manual verification steps are in
 [docs/VERIFYING.md](docs/VERIFYING.md). This project has **no automated tests and no
@@ -75,15 +76,22 @@ id `it.notifi.app`).
 
 ### CI secrets (GitHub repository / environment secrets)
 
-- `api.yml` — `CLOUDFLARE_API_TOKEN`. Production deploy is gated behind the
-  `production` GitHub Environment (manual approval).
-- `infra.yml` — `CLOUDFLARE_API_TOKEN`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
-  (the last two authenticate the R2-backed Terraform state; see `infra/README.md`).
-- `app.yml` TestFlight lane (tag pushes `v*` only) — `DISTRIBUTION_CERT_P12` (base64),
-  `DISTRIBUTION_CERT_PASSWORD`, `PROVISIONING_PROFILES` (base64 tar of the profiles),
-  `ASC_API_KEY_P8` (base64 App Store Connect API key), `ASC_KEY_ID`, `ASC_ISSUER_ID`.
-  Upload uses `xcodebuild -exportArchive` with the App Store Connect API key — never
-  `altool` (Apple discontinued it in 2023). PR builds run unsigned
+- `api.yml` — `CLOUDFLARE_API_TOKEN`. Each deploy job applies D1 migrations before
+  `wrangler deploy`, so schema and code go live together. Production deploy is gated
+  behind the `production` GitHub Environment; that gate is only a manual approval if
+  required reviewers are configured on the environment in repository settings —
+  nothing in this repo can enforce it.
+- `infra.yml` — `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID`, `R2_ACCESS_KEY_ID`,
+  `R2_SECRET_ACCESS_KEY` (the last two authenticate the R2-backed Terraform state; see
+  `infra/README.md`), plus `CLOUDFLARE_API_TOKEN` for the apply job and
+  `CLOUDFLARE_READONLY_API_TOKEN` for the PR plan job. The plan job runs provider code
+  from the pull request, so it never receives the write-capable token.
+- `app.yml` TestFlight lane (tag pushes `v*` only) — `APPLE_TEAM_ID`, `ASC_API_KEY_P8`
+  (base64 App Store Connect API key), `ASC_KEY_ID`, `ASC_ISSUER_ID`. Signing is
+  automatic: `xcodebuild` is given the App Store Connect key and
+  `-allowProvisioningUpdates` on both `archive` and `-exportArchive`, so certificates
+  and profiles are issued by Apple at build time rather than imported from secrets.
+  Upload never uses `altool` (Apple discontinued it in 2023). PR builds run unsigned
   (`CODE_SIGNING_ALLOWED=NO`) and do not upload.
 
 ## Three things to be honest about

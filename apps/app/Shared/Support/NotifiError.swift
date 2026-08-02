@@ -5,7 +5,6 @@ enum NotifiError: Error {
     case identityMissing
     case badSealedBlob
     case keychain(OSStatus)
-    case sealOpenFailed
 }
 
 enum APIError: Error {

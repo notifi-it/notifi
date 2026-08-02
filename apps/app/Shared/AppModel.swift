@@ -14,6 +14,7 @@ import AppKit
 enum BootState {
     case loading
     case unsupported
+    case unavailable
     case needsRestoreAck
     case ready
 }
@@ -23,13 +24,20 @@ enum AppRoute: Hashable {
     case settings
 }
 
+enum AppTab: Hashable {
+    case inbox
+    case keys
+    case settings
+}
+
 @MainActor
 @Observable
 final class AppModel {
-    static private(set) weak var shared: AppModel?
+    static private(set) var shared: AppModel?
 
     var bootState: BootState = .loading
     var path = NavigationPath()
+    var selectedTab: AppTab = .inbox
     var notificationStatus: UNAuthorizationStatus = .notDetermined
     var badgeEnabled: Bool {
         didSet { UserDefaults.standard.set(badgeEnabled, forKey: "badgeEnabled") }
@@ -44,11 +52,14 @@ final class AppModel {
 
     private var context: ModelContext?
     private var pendingToken: String?
+    private var registrationChain: Task<Void, Never>?
+    private var lastRegisteredToken: String?
     private let log = Logger(subsystem: "it.notifi.app", category: "app")
+
+    private static let realTokenKey = "lastRealAPNSToken"
 
     init() {
         badgeEnabled = UserDefaults.standard.object(forKey: "badgeEnabled") as? Bool ?? true
-        AppModel.shared = self
     }
 
     var baseURL: URL {
@@ -60,8 +71,10 @@ final class AppModel {
     }
 
     func bootstrap(context: ModelContext) {
-        guard case .loading = bootState else { return }
+        guard bootState == .loading || bootState == .unavailable else { return }
         self.context = context
+        AppModel.shared = self
+        bootState = .loading
 
         #if !targetEnvironment(simulator)
         guard SecureEnclave.isAvailable else {
@@ -70,8 +83,17 @@ final class AppModel {
         }
         #endif
 
-        if let identity = try? DeviceIdentity.load() {
-            finishBoot(with: identity)
+        do {
+            finishBoot(with: try DeviceIdentity.load())
+            return
+        } catch NotifiError.identityMissing {
+            // No identity yet — fall through and create one.
+        } catch {
+            // A transient keychain failure (locked data protection, -34018) must not be
+            // mistaken for "this device cannot run notifi", and must never fall through
+            // to createIdentity(), which would overwrite a live identity.
+            log.error("identity load failed: \(String(describing: error), privacy: .public)")
+            bootState = .unavailable
             return
         }
 
@@ -81,6 +103,12 @@ final class AppModel {
         }
 
         createIdentity()
+    }
+
+    func retryBootstrap() {
+        guard let context else { return }
+        bootState = .unavailable
+        bootstrap(context: context)
     }
 
     func acknowledgeRestore() {
@@ -95,7 +123,7 @@ final class AppModel {
             bootState = .unsupported
         } catch {
             log.error("identity creation failed: \(String(describing: error), privacy: .public)")
-            bootState = .unsupported
+            bootState = .unavailable
         }
     }
 
@@ -111,7 +139,7 @@ final class AppModel {
         pendingToken = nil
 
         Task {
-            await registerDevice(token: token)
+            await enqueueRegistration(token: token).value
             await refreshPermission()
             await sync?.sync()
             await sync?.refreshKeys()
@@ -121,7 +149,13 @@ final class AppModel {
 
     private func ensureDefaultKey() async {
         guard let api, let sync else { return }
-        if sync.keys.contains(where: { $0.name.lowercased() == "default" }) { return }
+        // Only act on an authoritative key list. If the refresh failed, sync.keys may be
+        // empty simply because we could not reach the server, and creating a key here
+        // would mint a duplicate "default" and orphan the previous secret.
+        guard !sync.keysRefreshFailed else { return }
+        if sync.keys.contains(where: { $0.name.lowercased() == "default" && $0.revokedAt == nil }) {
+            return
+        }
         do {
             let created = try await api.createKey(name: "default")
             DeviceIdentity.storeDefaultKey(created.key)
@@ -141,16 +175,33 @@ final class AppModel {
 
     func didReceiveDeviceToken(_ tokenData: Data) {
         let hex = tokenData.map { String(format: "%02x", $0) }.joined()
+        UserDefaults.standard.set(hex, forKey: Self.realTokenKey)
         guard bootState == .ready else {
             pendingToken = hex
             return
         }
-        Task { await registerDevice(token: hex) }
+        enqueueRegistration(token: hex)
+    }
+
+    // Registrations are chained so that a placeholder registration issued at boot can
+    // never land after — and overwrite — the real APNs token on the server.
+    @discardableResult
+    private func enqueueRegistration(token: String?) -> Task<Void, Never> {
+        let previous = registrationChain
+        let task = Task { @MainActor in
+            await previous?.value
+            await self.registerDevice(token: token)
+        }
+        registrationChain = task
+        return task
     }
 
     private func registerDevice(token: String?) async {
         guard let api, let identity else { return }
-        let apnsToken = token ?? Self.syntheticToken(for: identity)
+        if let token { UserDefaults.standard.set(token, forKey: Self.realTokenKey) }
+        let knownReal = token ?? UserDefaults.standard.string(forKey: Self.realTokenKey)
+        let apnsToken = knownReal ?? Self.syntheticToken(for: identity)
+        guard apnsToken != lastRegisteredToken else { return }
         let body = RegisterDeviceBody(
             publicKey: identity.publicKeyX963.base64EncodedString(),
             encryptionPublicKey: identity.encryptionPublicKeyX963.base64EncodedString(),
@@ -160,6 +211,7 @@ final class AppModel {
         )
         do {
             _ = try await api.registerDevice(body)
+            lastRegisteredToken = apnsToken
         } catch {
             log.error("device registration failed: \(String(describing: error), privacy: .public)")
         }
@@ -179,8 +231,12 @@ final class AppModel {
         Task {
             await sync?.sync()
             markRead(serverID: serverID)
+            selectedTab = .inbox
             path.append(serverID)
             sync?.updateBadge()
+            #if os(macOS)
+            NotificationCenter.default.post(name: .notifiOpenPanel, object: nil)
+            #endif
         }
     }
 
@@ -189,7 +245,11 @@ final class AppModel {
         let descriptor = FetchDescriptor<Message>(predicate: #Predicate { $0.serverID == serverID })
         if let message = try? context.fetch(descriptor).first, !message.isRead {
             message.isRead = true
-            try? context.save()
+            do {
+                try context.save()
+            } catch {
+                log.error("mark read failed: \(String(describing: error), privacy: .public)")
+            }
         }
     }
 
@@ -199,8 +259,13 @@ final class AppModel {
     }
 
     func refreshPermission() async {
-        let settings = await UNUserNotificationCenter.current().notificationSettings()
-        notificationStatus = settings.authorizationStatus
+        // UNNotificationSettings is not Sendable, so read the status inside the
+        // callback and let only that cross the isolation boundary.
+        notificationStatus = await withCheckedContinuation { continuation in
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                continuation.resume(returning: settings.authorizationStatus)
+            }
+        }
     }
 
     func requestNotificationPermission() async {
@@ -229,13 +294,23 @@ final class AppModel {
         guard let api else { return }
         let dateString = Self.testDateFormatter.string(from: Date())
         let created = try await api.createKey(name: "Test — \(dateString)")
+        defer {
+            // The test key's secret is never shown to the user, so it must not survive
+            // this call. Retry once before giving up loudly.
+            Task {
+                do {
+                    try await api.revokeKey(id: created.id)
+                } catch {
+                    try? await api.revokeKey(id: created.id)
+                }
+                await sync?.refreshKeys()
+            }
+        }
         _ = try await api.send(
             key: created.key,
             title: "Test notification",
             message: "If you can read this, notifi is working."
         )
-        try? await api.revokeKey(id: created.id)
-        await sync?.refreshKeys()
     }
 
     static var platformName: String {
