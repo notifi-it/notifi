@@ -57,6 +57,9 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")
+        #if os(macOS)
+        .scrollContentBackground(.hidden)
+        #endif
         .task { await model.refreshPermission() }
     }
 

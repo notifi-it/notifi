@@ -18,6 +18,11 @@ enum BootState {
     case ready
 }
 
+/// Pages the macOS popover pushes on top of the inbox.
+enum AppRoute: Hashable {
+    case settings
+}
+
 @MainActor
 @Observable
 final class AppModel {

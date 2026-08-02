@@ -10,7 +10,6 @@ import AppKit
 struct MessageDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
-    @Environment(\.dismiss) private var dismiss
     @Query private var messages: [Message]
 
     init(serverID: Int) {
@@ -48,18 +47,7 @@ struct MessageDetailView: View {
 
     #if os(macOS)
     private var macNavBar: some View {
-        HStack(spacing: 10) {
-            Button {
-                dismiss()
-            } label: {
-                Label("Inbox", systemImage: "chevron.backward")
-                    .font(.inco(.subheadline, weight: .medium))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Back to inbox")
-
-            Spacer(minLength: 0)
-
+        MacNavBar(backTitle: "Inbox") {
             if let imageURL = message?.imageURL {
                 Button {
                     downloadImage(imageURL)
@@ -70,9 +58,6 @@ struct MessageDetailView: View {
                 .accessibilityLabel("Download image")
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(.ultraThinMaterial)
     }
     #endif
 

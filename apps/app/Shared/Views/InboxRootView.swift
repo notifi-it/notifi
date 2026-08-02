@@ -32,6 +32,12 @@ struct InboxRootView: View {
                 .navigationDestination(for: Int.self) { serverID in
                     MessageDetailView(serverID: serverID)
                 }
+                .navigationDestination(for: AppRoute.self) { route in
+                    switch route {
+                    case .settings:
+                        SettingsTabsView()
+                    }
+                }
         }
         #endif
     }

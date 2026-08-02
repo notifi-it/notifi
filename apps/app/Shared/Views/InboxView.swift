@@ -119,8 +119,6 @@ struct InboxView: View {
     #if os(iOS)
     @State private var showingCreate = false
     @State private var showingSettings = false
-    #else
-    @Environment(\.openSettings) private var openSettings
     #endif
 
     private var filtered: [Message] {
@@ -379,7 +377,7 @@ struct InboxView: View {
         #if os(iOS)
         showingSettings = true
         #else
-        openSettings()
+        model.path.append(AppRoute.settings)
         #endif
     }
 

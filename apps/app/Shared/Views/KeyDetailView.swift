@@ -60,6 +60,10 @@ struct KeyDetailView: View {
         }
         .formStyle(.grouped)
         .navigationTitle(key?.name ?? "Key")
+        #if os(macOS)
+        .scrollContentBackground(.hidden)
+        .safeAreaInset(edge: .top) { MacNavBar(backTitle: "Keys") }
+        #endif
         .confirmationDialog(
             "Revoke this key? Anything still sending to it will start getting 401.",
             isPresented: $showingRevokeConfirm,

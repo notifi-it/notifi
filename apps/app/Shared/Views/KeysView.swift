@@ -46,30 +46,24 @@ struct KeysView: View {
             KeyDetailView(keyID: key.id)
         }
         .refreshable { await model.sync?.refreshKeys() }
+        #if os(iOS)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    createKey()
+                    showingCreate = true
                 } label: {
                     Label("Create Key", systemImage: "plus")
                 }
             }
         }
-        #if os(iOS)
         .sheet(isPresented: $showingCreate) {
             NavigationStack { CreateKeyView() }
                 .environment(model)
         }
+        #else
+        .scrollContentBackground(.hidden)
         #endif
         .task { await model.sync?.refreshKeys() }
-    }
-
-    private func createKey() {
-        #if os(iOS)
-        showingCreate = true
-        #else
-        model.presentingCreateKey = true
-        #endif
     }
 }
 

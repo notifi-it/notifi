@@ -34,11 +34,9 @@ struct NotifiApp: App {
         }
         .modelContainer(container)
         #else
-        Settings {
-            SettingsTabsView()
-                .environment(macAppModel)
-        }
-        .modelContainer(macContainer)
+        // The whole UI lives in the menu bar popover (see MenuBarController).
+        // This scene exists only because `App` needs one; it has no window.
+        Settings { EmptyView() }
         #endif
     }
 }
