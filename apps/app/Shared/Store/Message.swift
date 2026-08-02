@@ -10,6 +10,10 @@ final class Message {
     var imageURL: URL?
     var keyID: Int?
     var createdAt: Date
+    /// When the event actually happened, if the sender said so. Millisecond
+    /// precision, unlike `createdAt`, which the server records in whole seconds.
+    /// Never used for sorting — see the 0003 migration for why.
+    var occurredAt: Date?
     var isRead: Bool = false
 
     init(
@@ -20,6 +24,7 @@ final class Message {
         imageURL: URL? = nil,
         keyID: Int? = nil,
         createdAt: Date,
+        occurredAt: Date? = nil,
         isRead: Bool = false
     ) {
         self.serverID = serverID
@@ -29,6 +34,7 @@ final class Message {
         self.imageURL = imageURL
         self.keyID = keyID
         self.createdAt = createdAt
+        self.occurredAt = occurredAt
         self.isRead = isRead
     }
 }

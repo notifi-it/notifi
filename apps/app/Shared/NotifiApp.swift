@@ -66,6 +66,9 @@ struct RootContentView: View {
             switch model.bootState {
             case .loading:
                 ProgressView()
+                    .tint(Theme.muted)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Theme.bg)
             case .unsupported:
                 UnsupportedDeviceView()
             case .unavailable:
@@ -76,8 +79,12 @@ struct RootContentView: View {
                 InboxRootView()
             }
         }
-        .tint(Color(red: 0.737, green: 0.129, blue: 0.133))
+        .tint(Theme.brand)
         .font(.custom("Inconsolata", size: 17, relativeTo: .body))
+        .background(Theme.bg)
+        // Geist is a dark-only system — there is no light palette by design.
+        .preferredColorScheme(.dark)
+        .environment(\.colorScheme, .dark)
         #if os(macOS)
         .sheet(isPresented: $model.presentingCreateKey) {
             NavigationStack { CreateKeyView() }

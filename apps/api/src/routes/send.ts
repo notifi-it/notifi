@@ -1,4 +1,8 @@
-import { type MessageContent, sendParams } from '@notifi/contract';
+import {
+  type MessageContent,
+  OCCURRED_AT_MAX_SKEW_MS,
+  sendParams,
+} from '@notifi/contract';
 import { Hono } from 'hono';
 import { push } from '../lib/apns.js';
 import { errBody } from '../lib/respond.js';
@@ -130,6 +134,17 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   }
 
   const createdAt = nowS;
+
+  // The upper bound needs the server clock, so it is checked here rather than in
+  // the schema. A little skew is normal; a week in the future is not.
+  const occurredAt = input.occurred_at;
+  if (occurredAt !== undefined && occurredAt > nowS * 1000 + OCCURRED_AT_MAX_SKEW_MS) {
+    return c.json(
+      errBody('invalid_request', 'occurred_at is too far in the future.'),
+      400,
+    );
+  }
+
   const content: MessageContent = {
     title: input.title,
     ...(input.message !== undefined ? { message: input.message } : {}),
@@ -137,15 +152,16 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     ...(input.image !== undefined ? { image: input.image } : {}),
     key_id: row.key_id,
     created_at: createdAt,
+    ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
   };
   const fullSealed = await seal(row.encryption_public_key, 'content', JSON.stringify(content));
 
   const expiresAt = nowS + MESSAGE_BACKSTOP_S;
   const message = await c.env.DB.prepare(
-    `INSERT INTO messages (device_id, key_id, content_sealed, created_at, expires_at)
-     VALUES (?, ?, ?, ?, ?) RETURNING id`,
+    `INSERT INTO messages (device_id, key_id, content_sealed, created_at, expires_at, occurred_at)
+     VALUES (?, ?, ?, ?, ?, ?) RETURNING id`,
   )
-    .bind(row.device_id, row.key_id, fullSealed, createdAt, expiresAt)
+    .bind(row.device_id, row.key_id, fullSealed, createdAt, expiresAt, occurredAt ?? null)
     .first<{ id: number }>();
 
   const messageId = message!.id;
@@ -159,6 +175,10 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       ...(input.image !== undefined ? { image: input.image } : {}),
       key_id: row.key_id,
       created_at: createdAt,
+      // Every fallback has to carry occurred_at too. The app checks the sealed
+      // copy against the row, so a payload that dropped it would be treated as
+      // tampered and skipped.
+      ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
     },
     {
       title: input.title,
@@ -167,11 +187,13 @@ send.on(['GET', 'POST'], '/send', async (c) => {
         : {}),
       key_id: row.key_id,
       created_at: createdAt,
+      ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
     },
     {
       title: input.title,
       key_id: row.key_id,
       created_at: createdAt,
+      ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
     },
   ];
 

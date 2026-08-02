@@ -22,7 +22,7 @@ history.get('/history', async (c) => {
   const limit = parsed.data.limit ?? 50;
 
   const rows = await c.env.DB.prepare(
-    `SELECT id, content_sealed, key_id, created_at
+    `SELECT id, content_sealed, key_id, created_at, occurred_at
      FROM messages WHERE device_id = ? AND id > ? ORDER BY id ASC LIMIT ?`,
   )
     .bind(device.id, since, limit)

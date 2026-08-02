@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>notifi — push notifications from the command line</title>
+<meta name="description" content="Create a send key, curl a title and message to notifi.it/send, and the alert lands on your iPhone and Mac. No accounts. The server can't read your messages.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/wordmark.svg" type="image/svg+xml">
+
+<meta property="og:title" content="notifi — push notifications from the command line">
+<meta property="og:description" content="curl a title to notifi.it/send. It lands on your iPhone and Mac. No accounts, and the server can't read it.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://notifi.it">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300..800&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ─────────────────────────────────────────────────────────────
+   The same system as the app: pure black, hairline rules, mono
+   for everything that is not prose, and exactly one accent used
+   only where something is unread or urgent.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --bg:#000;
+  --fg:#EDEDED;
+  --muted:#A1A1A1;
+  --dim:#6E6E6E;
+  --line:#1F1F1F;
+  --chip:#2A2A2A;
+  --surface:#0B0B0B;
+  --brand:#BC2122;
+  --brand-text:#DB4A4B;      /* lifted to clear 4.5:1 on black */
+  --mono:'Inconsolata',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --gutter:clamp(20px,5vw,40px);
+  --max:1080px;
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--brand);color:#fff}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+.rule{height:1px;background:var(--line);border:0}
+
+/* ── type ───────────────────────────────────────────────────── */
+h1,h2,h3{font-family:var(--mono);font-weight:700;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
+h1{font-size:clamp(34px,6.4vw,60px)}
+h2{font-size:clamp(24px,3.6vw,34px)}
+h3{font-size:17px;letter-spacing:-.02em}
+p{max-width:62ch}
+.lede{font-size:clamp(17px,2.1vw,20px);color:var(--muted);line-height:1.55}
+.meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+}
+.section-head{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.section-head .rule{flex:1}
+
+/* ── header ─────────────────────────────────────────────────── */
+header{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:60px}
+.mark{display:flex;align-items:center;gap:9px;text-decoration:none}
+.mark img{height:17px;width:auto;display:block}
+.mark svg{height:21px;width:21px;display:block}
+nav{margin-left:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--fg)}
+@media(max-width:620px){nav .hide-sm{display:none}}
+
+/* ── buttons ────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:14px;font-weight:600;
+  padding:11px 18px;border-radius:8px;text-decoration:none;
+  border:1px solid var(--chip);color:var(--fg);background:transparent;
+  transition:background .14s,border-color .14s;
+}
+.btn:hover{background:#0E0E0E;border-color:#3A3A3A}
+.btn-primary{background:var(--fg);color:#000;border-color:var(--fg)}
+.btn-primary:hover{background:#fff;border-color:#fff}
+
+/* ── hero ───────────────────────────────────────────────────── */
+.hero{padding:clamp(56px,10vw,110px) 0 clamp(40px,7vw,72px)}
+.hero h1{margin-bottom:20px}
+.hero .lede{margin-bottom:34px}
+.cta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.cta .meta{width:100%;margin-top:6px}
+
+/* the terminal block that is the whole product */
+.term{
+  margin-top:40px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);overflow:hidden;
+}
+.term-bar{
+  display:flex;align-items:center;gap:9px;padding:9px 13px;
+  border-bottom:1px solid var(--line);
+}
+.dot3{display:flex;gap:5px}
+.dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
+.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
+.term pre{
+  margin:0;padding:16px 18px;overflow-x:auto;
+  font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--fg);
+}
+.term .p{color:var(--dim)}          /* prompt */
+.term .s{color:#7FA8E0}             /* string */
+.term .f{color:var(--muted)}        /* flag */
+.term .c{color:var(--dim)}          /* comment */
+.copy{
+  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
+  background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
+}
+.copy:hover{color:var(--fg);background:#141414}
+
+/* ── generic section ────────────────────────────────────────── */
+section{padding:clamp(48px,7vw,86px) 0}
+.section-alt{border-top:1px solid var(--line)}
+
+/* ── feature rows: hairline list, no cards ──────────────────── */
+.rows{border-top:1px solid var(--line)}
+.row{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);
+  gap:8px 40px;padding:22px 0;border-bottom:1px solid var(--line);
+  align-items:start;
+}
+.row h3{margin:0}
+.row p{color:var(--muted);margin:0}
+@media(max-width:720px){.row{grid-template-columns:1fr;gap:6px}}
+
+/* ── screenshots ────────────────────────────────────────────── */
+.shots{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,2.2vw,24px);
+  margin-top:30px;
+}
+.shot figure{margin:0}
+.shot img{
+  width:100%;height:auto;display:block;border-radius:12px;
+  border:1px solid var(--line);background:var(--surface);
+}
+.shot figcaption{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  margin-top:10px;
+}
+@media(max-width:860px){
+  .shots{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ── language tabs ──────────────────────────────────────────── */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{
+  font-family:var(--mono);font-size:13px;color:var(--muted);
+  padding:6px 12px;border:1px solid var(--line);border-radius:6px;
+  background:transparent;cursor:pointer;transition:.12s;
+}
+.tab:hover{color:var(--fg);border-color:var(--chip)}
+.tab[aria-selected="true"]{background:var(--fg);color:#000;border-color:var(--fg)}
+.panel[hidden]{display:none}
+
+/* ── parameter table ────────────────────────────────────────── */
+.tablewrap{overflow-x:auto;border-top:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:13px 16px 13px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);
+}
+td:first-child{font-family:var(--mono);color:var(--fg);white-space:nowrap}
+td{color:var(--muted);font-size:15px}
+td .req{color:var(--brand-text);font-family:var(--mono);font-size:12px}
+code{font-family:var(--mono);font-size:.92em;color:var(--fg)}
+
+/* ── footer ─────────────────────────────────────────────────── */
+footer{border-top:1px solid var(--line);padding:40px 0 56px}
+.foot{display:flex;flex-wrap:wrap;gap:18px 30px;align-items:center}
+.foot a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--fg)}
+.foot .meta{margin-left:auto}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="mark" href="/" aria-label="notifi">
+      <!-- bell, drawn inline so it inherits the text colour -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+        <path d="M6 10a6 6 0 0 1 12 0c0 3.2 .9 5 2 6H4c1.1-1 2-2.8 2-6Z" stroke-linejoin="round"/>
+        <path d="M10 19a2 2 0 0 0 4 0" stroke-linecap="round"/>
+      </svg>
+      <img src="/wordmark.svg" alt="notifi" width="51" height="17">
+    </a>
+    <nav>
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="#send">Send</a>
+      <a href="#api" class="hide-sm">API</a>
+      <a href="#download">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ══ hero ══════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow" style="margin-bottom:20px">Push notifications for people who live in a terminal</p>
+    <h1>Your scripts can<br>text your phone.</h1>
+    <p class="lede">
+      Create a send key. <code>curl</code> a title to <code>notifi.it/send</code>.
+      It arrives on your iPhone and Mac a moment later.
+      No accounts, no sign-in, and the server cannot read what you send.
+    </p>
+
+    <div class="cta">
+      <a class="btn btn-primary" href="#download">Download for iPhone</a>
+      <a class="btn" href="#send">See the API</a>
+      <p class="meta">Free. iOS&nbsp;17+ and macOS&nbsp;14+.</p>
+    </div>
+
+    <div class="term">
+      <div class="term-bar">
+        <span class="dot3"><i></i><i></i><i></i></span>
+        <span class="term-title">~/deploy.sh</span>
+        <button class="copy" data-copy='curl "https://notifi.it/send?key=$NOTIFI_KEY&title=Deploy+failed"'>Copy</button>
+      </div>
+<pre><span class="p">$</span> curl <span class="s">"https://notifi.it/send?key=$NOTIFI_KEY&amp;title=Deploy+failed"</span>
+<span class="c">{"id":8412,"ok":true}</span></pre>
+    </div>
+    <p class="meta" style="margin-top:12px">
+      That is the whole integration. One request, no SDK, no dependency.
+    </p>
+  </div>
+</section>
+
+<!-- ══ screenshots ═══════════════════════════════════════════ -->
+<section class="section-alt" id="app">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">The app</p><hr class="rule">
+    </div>
+    <h2>Everything you sent, in one quiet list.</h2>
+    <p class="lede" style="margin-top:14px">
+      Pure black, no chrome, and a single red dot for anything you have not read.
+      Search, swipe to delete, tap through for the full message.
+    </p>
+
+    <div class="shots">
+      <div class="shot"><figure>
+        <img src="/screens/notifications.webp" width="620" height="1348" loading="lazy"
+             alt="The notifi inbox: a black list of alerts, unread ones marked with a red dot, each showing an exact time above a relative one.">
+        <figcaption>Inbox</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <img src="/screens/detail.webp" width="620" height="1348" loading="lazy"
+             alt="A single notification with its title, message and attached image.">
+        <figcaption>Message</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <img src="/screens/keys.webp" width="620" height="1348" loading="lazy"
+             alt="The keys screen listing active and revoked send keys with their send counts.">
+        <figcaption>Keys</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <img src="/screens/settings.webp" width="620" height="1348" loading="lazy"
+             alt="Settings: notification permission, unread badge toggle, and a test send.">
+        <figcaption>Settings</figcaption>
+      </figure></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ how it works ══════════════════════════════════════════ -->
+<section class="section-alt" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">How it works</p><hr class="rule">
+    </div>
+
+    <div class="rows">
+      <div class="row">
+        <h3>No account, ever</h3>
+        <p>There is nothing to sign up for. The app makes a keypair on first launch and
+           that is your identity. Nothing to remember, nothing to leak.</p>
+      </div>
+      <div class="row">
+        <h3>The server cannot read your notifications</h3>
+        <p>Message content is sealed to your device's public key the moment it arrives.
+           Only your phone holds the private half, so the relay forwards ciphertext it
+           has no way to open.</p>
+      </div>
+      <div class="row">
+        <h3>A relay, not a mailbox</h3>
+        <p>Messages are held for seven days so a device that has been offline can catch
+           up, then dropped. Your copies stay on your device for as long as you want them.</p>
+      </div>
+      <div class="row">
+        <h3>Keys are per-script, and revocable</h3>
+        <p>Make one key per thing that sends — CI, a backup job, a scraper. If a key
+           leaks, revoke it and the rest keep working.</p>
+      </div>
+      <div class="row">
+        <h3>Send from anywhere</h3>
+        <p>It is plain HTTP with no SDK, so anything that can make a request can send:
+           a shell script, a cron job, a Lambda, a GitHub Action, an ESP32.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ languages ═════════════════════════════════════════════ -->
+<section class="section-alt" id="send">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Send</p><hr class="rule">
+    </div>
+    <h2>Eight ways to say the same thing.</h2>
+    <p class="lede" style="margin-top:14px;margin-bottom:26px">
+      <code>GET</code> or <code>POST</code>, JSON or form-encoded, key in the header or
+      the query string. Pick whichever is least effort where you are.
+    </p>
+
+    <div class="tabs" role="tablist" aria-label="Language">
+      <button class="tab" role="tab" aria-selected="true"  aria-controls="p-curl"   id="t-curl">curl</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-js"     id="t-js">JavaScript</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-py"     id="t-py">Python</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-go"     id="t-go">Go</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-swift"  id="t-swift">Swift</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-ruby"   id="t-ruby">Ruby</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-php"    id="t-php">PHP</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust"   id="t-rust">Rust</button>
+    </div>
+
+    <div class="term">
+      <div class="term-bar">
+        <span class="dot3"><i></i><i></i><i></i></span>
+        <span class="term-title" id="langname">send.sh</span>
+        <button class="copy" id="copycode">Copy</button>
+      </div>
+
+      <div class="panel" id="p-curl" role="tabpanel" aria-labelledby="t-curl" data-name="send.sh">
+<pre>curl -X POST https://notifi.it/send \
+  -H <span class="s">"Authorization: Bearer $NOTIFI_KEY"</span> \
+  -d <span class="s">"title=Backup complete"</span> \
+  -d <span class="s">"message=4.2 GB in 3m 11s"</span> \
+  -d <span class="s">"link=https://console.internal/backups"</span></pre>
+      </div>
+
+      <div class="panel" id="p-js" role="tabpanel" aria-labelledby="t-js" data-name="send.js" hidden>
+<pre><span class="c">// No dependencies. Works in Node 18+, Deno, Bun and the browser.</span>
+await fetch(<span class="s">"https://notifi.it/send"</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: {
+    <span class="s">"Authorization"</span>: <span class="s">`Bearer ${process.env.NOTIFI_KEY}`</span>,
+    <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
+  },
+  body: JSON.stringify({
+    title: <span class="s">"Backup complete"</span>,
+    message: <span class="s">"4.2 GB in 3m 11s"</span>,
+  }),
+});</pre>
+      </div>
+
+      <div class="panel" id="p-py" role="tabpanel" aria-labelledby="t-py" data-name="send.py" hidden>
+<pre><span class="f">import</span> os, requests
+
+requests.post(
+    <span class="s">"https://notifi.it/send"</span>,
+    headers={<span class="s">"Authorization"</span>: <span class="s">f"Bearer {os.environ['NOTIFI_KEY']}"</span>},
+    json={
+        <span class="s">"title"</span>: <span class="s">"Backup complete"</span>,
+        <span class="s">"message"</span>: <span class="s">"4.2 GB in 3m 11s"</span>,
+    },
+)</pre>
+      </div>
+
+      <div class="panel" id="p-go" role="tabpanel" aria-labelledby="t-go" data-name="send.go" hidden>
+<pre><span class="f">package</span> main
+
+<span class="f">import</span> (
+	<span class="s">"net/http"</span>
+	<span class="s">"net/url"</span>
+	<span class="s">"os"</span>
+	<span class="s">"strings"</span>
+)
+
+<span class="f">func</span> main() {
+	form := url.Values{
+		<span class="s">"title"</span>:   {<span class="s">"Backup complete"</span>},
+		<span class="s">"message"</span>: {<span class="s">"4.2 GB in 3m 11s"</span>},
+	}
+	req, _ := http.NewRequest(<span class="s">"POST"</span>, <span class="s">"https://notifi.it/send"</span>,
+		strings.NewReader(form.Encode()))
+	req.Header.Set(<span class="s">"Authorization"</span>, <span class="s">"Bearer "</span>+os.Getenv(<span class="s">"NOTIFI_KEY"</span>))
+	req.Header.Set(<span class="s">"Content-Type"</span>, <span class="s">"application/x-www-form-urlencoded"</span>)
+	http.DefaultClient.Do(req)
+}</pre>
+      </div>
+
+      <div class="panel" id="p-swift" role="tabpanel" aria-labelledby="t-swift" data-name="Send.swift" hidden>
+<pre><span class="f">import</span> Foundation
+
+<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">"https://notifi.it/send"</span>)!)
+request.httpMethod = <span class="s">"POST"</span>
+request.setValue(<span class="s">"Bearer \(key)"</span>, forHTTPHeaderField: <span class="s">"Authorization"</span>)
+request.setValue(<span class="s">"application/json"</span>, forHTTPHeaderField: <span class="s">"Content-Type"</span>)
+request.httpBody = <span class="f">try</span> JSONEncoder().encode([
+    <span class="s">"title"</span>: <span class="s">"Backup complete"</span>,
+    <span class="s">"message"</span>: <span class="s">"4.2 GB in 3m 11s"</span>,
+])
+
+_ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
+      </div>
+
+      <div class="panel" id="p-ruby" role="tabpanel" aria-labelledby="t-ruby" data-name="send.rb" hidden>
+<pre><span class="f">require</span> <span class="s">"net/http"</span>
+
+uri = URI(<span class="s">"https://notifi.it/send"</span>)
+req = Net::HTTP::Post.new(uri)
+req[<span class="s">"Authorization"</span>] = <span class="s">"Bearer #{ENV['NOTIFI_KEY']}"</span>
+req.set_form_data(
+  <span class="s">"title"</span> =&gt; <span class="s">"Backup complete"</span>,
+  <span class="s">"message"</span> =&gt; <span class="s">"4.2 GB in 3m 11s"</span>
+)
+
+Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
+      </div>
+
+      <div class="panel" id="p-php" role="tabpanel" aria-labelledby="t-php" data-name="send.php" hidden>
+<pre><span class="p">&lt;?php</span>
+$ch = curl_init(<span class="s">"https://notifi.it/send"</span>);
+curl_setopt_array($ch, [
+    CURLOPT_POST       =&gt; <span class="f">true</span>,
+    CURLOPT_HTTPHEADER =&gt; [<span class="s">"Authorization: Bearer "</span> . getenv(<span class="s">"NOTIFI_KEY"</span>)],
+    CURLOPT_POSTFIELDS =&gt; [
+        <span class="s">"title"</span>   =&gt; <span class="s">"Backup complete"</span>,
+        <span class="s">"message"</span> =&gt; <span class="s">"4.2 GB in 3m 11s"</span>,
+    ],
+]);
+curl_exec($ch);</pre>
+      </div>
+
+      <div class="panel" id="p-rust" role="tabpanel" aria-labelledby="t-rust" data-name="main.rs" hidden>
+<pre><span class="c">// reqwest = { version = "0.12", features = ["json"] }</span>
+<span class="f">let</span> key = std::env::var(<span class="s">"NOTIFI_KEY"</span>)?;
+
+reqwest::Client::new()
+    .post(<span class="s">"https://notifi.it/send"</span>)
+    .bearer_auth(key)
+    .form(&amp;[
+        (<span class="s">"title"</span>, <span class="s">"Backup complete"</span>),
+        (<span class="s">"message"</span>, <span class="s">"4.2 GB in 3m 11s"</span>),
+    ])
+    .send()
+    .<span class="f">await</span>?;</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ api reference ═════════════════════════════════════════ -->
+<section class="section-alt" id="api">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Reference</p><hr class="rule">
+    </div>
+    <h2>One endpoint.</h2>
+    <p class="lede" style="margin-top:14px;margin-bottom:8px">
+      <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
+    </p>
+    <p class="meta" style="margin-bottom:26px">
+      Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>, or pass
+      <code>key</code> as a parameter. Query parameters win over the body.
+    </p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Type</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>key <span class="req">required</span></td>
+            <td>string</td>
+            <td>Your send key. Prefer the <code>Authorization</code> header — query strings end up in logs.</td>
+          </tr>
+          <tr>
+            <td>title <span class="req">required</span></td>
+            <td>string</td>
+            <td>1–200 characters. The only field that always shows.</td>
+          </tr>
+          <tr>
+            <td>message</td>
+            <td>string</td>
+            <td>Up to 2,000 characters.</td>
+          </tr>
+          <tr>
+            <td>link</td>
+            <td>URL</td>
+            <td>Up to 2,048 characters. Opens when you tap the notification.</td>
+          </tr>
+          <tr>
+            <td>image</td>
+            <td>URL</td>
+            <td>Must be <code>https</code>. Up to 2,048 characters. PNG, JPEG or GIF, 5&nbsp;MB max.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="rows" style="margin-top:44px">
+      <div class="row">
+        <h3>Rate limits</h3>
+        <p>120 sends per hour per key. Over that you get <code>429</code> with a
+           <code>rate_limited</code> code. Make more keys if you need more headroom.</p>
+      </div>
+      <div class="row">
+        <h3>Errors</h3>
+        <p><code>400</code> invalid parameters · <code>401</code> unknown or revoked key
+           · <code>429</code> rate limited. Every error returns a JSON body with a
+           <code>code</code> and a human-readable <code>message</code>.</p>
+      </div>
+      <div class="row">
+        <h3>Retention</h3>
+        <p>Seven days on the server, then dropped. The copy on your device is yours to
+           keep or delete.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ download ══════════════════════════════════════════════ -->
+<section class="section-alt" id="download">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Download</p><hr class="rule">
+    </div>
+    <h2>iPhone and Mac.</h2>
+    <p class="lede" style="margin-top:14px;margin-bottom:28px">
+      One app, both platforms. On the Mac it lives in the menu bar.
+      Anything that can make an HTTP request can send to it — Linux boxes and Android
+      phones included — you just receive on Apple hardware.
+    </p>
+
+    <div class="cta">
+      <!-- TODO: replace with the real App Store URL before launch -->
+      <a class="btn btn-primary" href="#" data-todo="app-store-url">App&nbsp;Store</a>
+      <!-- TODO: replace with the real .dmg URL before launch -->
+      <a class="btn" href="#" data-todo="dmg-url">Download&nbsp;.dmg</a>
+      <p class="meta">Requires iOS&nbsp;17 or macOS&nbsp;14. Apple silicon or a T2 Mac.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a href="#how">How it works</a>
+    <a href="#send">Send</a>
+    <a href="#api">API</a>
+    <a href="#download">Download</a>
+    <span class="meta">Built by Maximilian Mitchell</span>
+  </div>
+</footer>
+
+<script>
+// ── language tabs ───────────────────────────────────────────
+(function () {
+  const tabs = [...document.querySelectorAll('.tab')];
+  const name = document.getElementById('langname');
+
+  function select(tab) {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    const panel = document.getElementById(tab.getAttribute('aria-controls'));
+    name.textContent = panel.dataset.name;
+  }
+
+  tabs.forEach(tab => tab.addEventListener('click', () => select(tab)));
+
+  // left/right arrows move between tabs, as a tablist should
+  document.querySelector('.tabs').addEventListener('keydown', e => {
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    const next = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : -1;
+    if (next < 0) return;
+    e.preventDefault();
+    const target = tabs[(next + tabs.length) % tabs.length];
+    target.focus();
+    select(target);
+  });
+})();
+
+// ── copy buttons ────────────────────────────────────────────
+(function () {
+  function flash(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const was = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = was; }, 1500);
+    });
+  }
+
+  document.querySelectorAll('.copy[data-copy]').forEach(btn =>
+    btn.addEventListener('click', () => flash(btn, btn.dataset.copy)));
+
+  const codeBtn = document.getElementById('copycode');
+  codeBtn.addEventListener('click', () => {
+    const open = document.querySelector('.panel:not([hidden]) pre');
+    if (open) flash(codeBtn, open.innerText);
+  });
+})();
+</script>
+
+</body>
+</html>

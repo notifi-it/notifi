@@ -20,6 +20,11 @@ export const apiError = z.object({
 });
 export type ApiError = z.infer<typeof apiError>;
 
+/// 2000-01-01T00:00:00Z. Anything older is a unit mistake — seconds passed as ms.
+export const OCCURRED_AT_MIN_MS = 946_684_800_000;
+/// How far ahead of the server clock a client timestamp may sit.
+export const OCCURRED_AT_MAX_SKEW_MS = 24 * 60 * 60 * 1000;
+
 export const sendParams = z.object({
   key: z.string(),
   title: z.string().min(1).max(200),
@@ -32,6 +37,17 @@ export const sendParams = z.object({
     .refine((u) => u.toLowerCase().startsWith('https:'), {
       message: 'image must be an https URL',
     })
+    .optional(),
+  // When the event actually happened, in unix MILLISECONDS. Optional — most
+  // senders will not set it and the server receipt time is used instead.
+  //
+  // Display only. It never affects ordering, the `since` bookmark or expiry,
+  // because the sender controls this value and could otherwise pin a message to
+  // the top or bottom of the feed. Bounded to keep obvious nonsense out.
+  occurred_at: z
+    .number()
+    .int()
+    .min(OCCURRED_AT_MIN_MS, { message: 'occurred_at must be after 2000-01-01' })
     .optional(),
 });
 export type SendParams = z.infer<typeof sendParams>;
@@ -105,6 +121,8 @@ export const historyMessage = z.object({
   content_sealed: z.string(),
   key_id: z.number().int().nullable(),
   created_at: z.number().int(),
+  /// Client-supplied event time in unix ms, or null. Display only.
+  occurred_at: z.number().int().nullable().optional(),
 });
 export type HistoryMessage = z.infer<typeof historyMessage>;
 

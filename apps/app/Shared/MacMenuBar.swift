@@ -3,12 +3,6 @@ import AppKit
 import SwiftData
 import SwiftUI
 
-extension Notification.Name {
-    static let notifiNewMessages = Notification.Name("notifi.newMessages")
-    static let notifiUnreadChanged = Notification.Name("notifi.unreadChanged")
-    static let notifiOpenPanel = Notification.Name("notifi.openPanel")
-}
-
 @MainActor
 final class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?

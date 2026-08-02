@@ -14,7 +14,7 @@ struct InboxRootView: View {
                         MessageDetailView(serverID: serverID)
                     }
             }
-            .tabItem { Label("Inbox", image: "akar-inbox") }
+            .tabItem { Label("Notifications", image: "akar-inbox") }
             .tag(AppTab.inbox)
 
             NavigationStack {
@@ -29,6 +29,7 @@ struct InboxRootView: View {
             .tabItem { Label("Settings", image: "akar-gear") }
             .tag(AppTab.settings)
         }
+        .tint(Theme.fg)
         #else
         NavigationStack(path: $model.path) {
             InboxView()

@@ -69,13 +69,9 @@ final class SyncEngine {
         }
 
         updateBadge()
-        #if os(macOS)
         if newMessages > 0 {
             NotificationCenter.default.post(name: .notifiNewMessages, object: nil)
         }
-        #else
-        _ = newMessages
-        #endif
     }
 
     private enum IngestResult {
@@ -99,7 +95,12 @@ final class SyncEngine {
             return unreadableOrGiveUp(row.id, reason: "decode failed")
         }
 
-        guard content.keyID == row.keyID, content.createdAt == row.createdAt else {
+        // occurred_at is checked here for the same reason created_at is: it is
+        // stored on the row as well as inside the sealed blob, so a server that
+        // altered one copy would be caught.
+        guard content.keyID == row.keyID,
+              content.createdAt == row.createdAt,
+              content.occurredAt == row.occurredAt else {
             log.error("discard message \(row.id): sealed identity mismatch (tampered)")
             clearFailure(row.id)
             return .discarded
@@ -120,7 +121,10 @@ final class SyncEngine {
             link: content.link.flatMap(URL.init(string:)),
             imageURL: content.image.flatMap(URL.init(string:)),
             keyID: content.keyID,
-            createdAt: Date(timeIntervalSince1970: TimeInterval(row.createdAt))
+            createdAt: Date(timeIntervalSince1970: TimeInterval(row.createdAt)),
+            occurredAt: content.occurredAt.map {
+                Date(timeIntervalSince1970: TimeInterval($0) / 1000)
+            }
         )
         context.insert(message)
         return .inserted

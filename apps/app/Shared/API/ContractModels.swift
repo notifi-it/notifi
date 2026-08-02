@@ -61,12 +61,15 @@ struct HistoryMessage: Codable, Sendable {
     let contentSealed: String
     let keyID: Int?
     let createdAt: Int
+    /// Client-supplied event time in unix milliseconds. Display only.
+    let occurredAt: Int?
 
     enum CodingKeys: String, CodingKey {
         case id
         case contentSealed = "content_sealed"
         case keyID = "key_id"
         case createdAt = "created_at"
+        case occurredAt = "occurred_at"
     }
 }
 
@@ -91,6 +94,9 @@ struct MessageContent: Codable, Sendable {
     let image: String?
     let keyID: Int?
     let createdAt: Int
+    /// Client-supplied event time in unix milliseconds, sealed alongside the rest
+    /// so it can be checked against the row the same way `createdAt` is.
+    let occurredAt: Int?
 
     enum CodingKeys: String, CodingKey {
         case title
@@ -99,6 +105,7 @@ struct MessageContent: Codable, Sendable {
         case image
         case keyID = "key_id"
         case createdAt = "created_at"
+        case occurredAt = "occurred_at"
     }
 }
 

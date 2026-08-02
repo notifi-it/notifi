@@ -290,24 +290,16 @@ final class AppModel {
         #endif
     }
 
+    /// Sends through the device's own `default` key.
+    ///
+    /// Every device mints a `default` key on first boot and its value is the only
+    /// one kept in the Keychain, so it is always available. This used to create a
+    /// throwaway key and revoke it, which flashed a junk entry through the Keys
+    /// list on every test.
     func sendTestNotification() async throws {
-        guard let api else { return }
-        let dateString = Self.testDateFormatter.string(from: Date())
-        let created = try await api.createKey(name: "Test — \(dateString)")
-        defer {
-            // The test key's secret is never shown to the user, so it must not survive
-            // this call. Retry once before giving up loudly.
-            Task {
-                do {
-                    try await api.revokeKey(id: created.id)
-                } catch {
-                    try? await api.revokeKey(id: created.id)
-                }
-                await sync?.refreshKeys()
-            }
-        }
+        guard let api, let key = defaultKeyValue else { throw NotifiError.identityMissing }
         _ = try await api.send(
-            key: created.key,
+            key: key,
             title: "Test notification",
             message: "If you can read this, notifi is working."
         )
@@ -325,10 +317,4 @@ final class AppModel {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "0"
     }
 
-    private static let testDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter
-    }()
 }

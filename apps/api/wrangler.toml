@@ -2,6 +2,12 @@ name = "notifi-api-dev"
 main = "src/index.ts"
 compatibility_date = "2026-07-01"
 
+# The marketing site. Static files are served straight from ./public for any
+# path that matches a file; every other request falls through to the Worker, so
+# /send, /keys, /devices and /history are untouched.
+[assets]
+directory = "./public"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "notifi-dev"
@@ -23,6 +29,9 @@ simple = { limit = 100, period = 60 }
 [env.production]
 name = "notifi-api"
 routes = [{ pattern = "notifi.it", custom_domain = true }]
+
+[env.production.assets]
+directory = "./public"
 
 [env.production.vars]
 APNS_HOST = "https://api.push.apple.com"

@@ -1,45 +1,15 @@
-import CoreImage
-import CoreImage.CIFilterBuiltins
 import OSLog
 import SwiftData
 import SwiftUI
 
-#if os(iOS)
-import UIKit
-#else
-import AppKit
-#endif
-
-enum Grain {
-    static let cgImage: CGImage? = {
-        let filter = CIFilter.randomGenerator()
-        guard let noise = filter.outputImage else { return nil }
-        let mono = noise.applyingFilter("CIColorControls", parameters: [
-            kCIInputSaturationKey: 0.0,
-            kCIInputContrastKey: 1.4,
-        ])
-        let rect = CGRect(x: 0, y: 0, width: 200, height: 200)
-        let context = CIContext(options: nil)
-        return context.createCGImage(mono, from: rect)
-    }()
-
-    @ViewBuilder
-    static var view: some View {
-        if let cgImage {
-            Image(decorative: cgImage, scale: 3)
-                .resizable(resizingMode: .tile)
-        } else {
-            Color.clear
-        }
-    }
-}
-
-// https only: a sender must not be able to point the reader at a local or plaintext host.
-func remoteImageURL(_ url: URL?) -> URL? {
-    guard let url, url.scheme?.lowercased() == "https" else { return nil }
-    return url
-}
-
+/// The feed.
+///
+/// Geist: pure black, hairline rules, no cards. Unread is a single brand-red dot —
+/// the only colour on the screen. Time reads exact-above-relative in a right-hand
+/// column with the thumbnail beneath it.
+///
+/// This stays a `List` rather than a `ScrollView` so swipe actions and
+/// pull-to-refresh keep working; the system chrome is styled away instead.
 struct InboxView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
@@ -47,266 +17,246 @@ struct InboxView: View {
 
     @State private var searchText = ""
     @State private var filterKeyID: Int?
-    private let log = Logger(subsystem: "it.notifi.app", category: "store")
-    #if os(iOS)
-    @State private var showingSettings = false
+    @FocusState private var searchFocused: Bool
+    #if os(macOS)
+    @Environment(\.openSettings) private var openSettings
     #endif
 
+    private var keys: [CachedKey] { model.sync?.keys ?? [] }
+
+    private var activeKeyName: String? {
+        filterKeyID.flatMap { id in keys.first { $0.id == id }?.name }
+    }
+
+    private var trimmedQuery: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Search matches title, message and link host. The key filter is separate and
+    /// ANDed with the query.
     private var filtered: [Message] {
-        messages.filter { message in
+        let needle = trimmedQuery.lowercased()
+        return messages.filter { message in
             let matchesKey = filterKeyID.map { message.keyID == $0 } ?? true
-            let matchesSearch: Bool = {
-                guard !searchText.isEmpty else { return true }
-                let needle = searchText.lowercased()
-                if message.title.lowercased().contains(needle) { return true }
-                if let body = message.body?.lowercased(), body.contains(needle) { return true }
-                return false
-            }()
-            return matchesKey && matchesSearch
+            guard matchesKey else { return false }
+            guard !needle.isEmpty else { return true }
+            if message.title.lowercased().contains(needle) { return true }
+            if let body = message.body?.lowercased(), body.contains(needle) { return true }
+            if let host = message.link?.host()?.lowercased(), host.contains(needle) { return true }
+            return false
         }
+    }
+
+    private var unreadCount: Int { messages.reduce(0) { $0 + ($1.isRead ? 0 : 1) } }
+
+    /// Built as concatenated `Text` so the unread count alone can take the brand
+    /// colour. `brandText` rather than `brand` — the flat brand red is under the
+    /// contrast floor for text this small.
+    private var subtitle: Text {
+        let total = messages.count == 1
+            ? "1 notification"
+            : "\(messages.count) notifications"
+        guard unreadCount > 0 else { return Text(total) }
+        return Text("\(total) · ")
+            + Text("\(unreadCount)").foregroundColor(Theme.brandText)
+            + Text(" unread")
     }
 
     var body: some View {
-        Group {
+        List {
+            // Header and rule must be one row. As two, the rule became its own
+            // list row and picked up the minimum row height, which opened a gap
+            // between the search field and the first message.
+            VStack(spacing: 0) {
+                header
+                    .padding(.top, 4)
+                    .padding(.bottom, 14)
+                Hairline()
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: Theme.gutter, bottom: 0, trailing: Theme.gutter))
+            .listRowBackground(Theme.bg)
+            .listRowSeparator(.hidden)
+
             if messages.isEmpty {
                 EmptyStateView()
+                    .padding(.top, 30)
+                    .plainRow()
+            } else if filtered.isEmpty {
+                NoResultsView(
+                    query: trimmedQuery,
+                    scopeNote: activeKeyName.map { "Filtered to the “\($0)” key." },
+                    onClear: clearFilters
+                )
+                .plainRow()
             } else {
-                list
-            }
-        }
-        .refreshable { await model.refresh() }
-        .searchable(text: $searchText, prompt: "Search")
-        #if os(iOS)
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) { menuButton }
-            ToolbarItem(placement: .principal) { bellTitle }
-        }
-        .sheet(isPresented: $showingSettings) {
-            NavigationStack { SettingsView() }.environment(model)
-        }
-        #else
-        .safeAreaInset(edge: .top) { header }
-        #endif
-    }
-
-    private var bellTitle: some View {
-        Image("BellLogo")
-            .resizable()
-            .scaledToFit()
-            .frame(height: 52)
-            .overlay {
-                if unreadCount > 0 {
-                    GeometryReader { geo in
-                        Text(unreadBadgeText)
-                            .font(.custom("Inconsolata", fixedSize: geo.size.height * 0.17).weight(.bold))
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                            .foregroundStyle(.white)
-                            .frame(width: geo.size.width * 0.30)
-                            .position(x: geo.size.width * 0.705, y: geo.size.height * 0.18)
-                    }
-                    .allowsHitTesting(false)
-                }
-            }
-    }
-
-    @ViewBuilder
-    private var menuButton: some View {
-        Menu {
-            Button("Mark All as Read") { markAllRead() }
-            if keys.count > 1 {
-                Divider()
-                Button {
-                    filterKeyID = nil
-                } label: {
-                    if filterKeyID == nil {
-                        Label("All keys", systemImage: "checkmark")
-                    } else {
-                        Text("All keys")
-                    }
-                }
-                Divider()
-                ForEach(keys) { key in
+                ForEach(filtered, id: \.serverID) { message in
                     Button {
-                        filterKeyID = key.id
+                        searchFocused = false
+                        model.path.append(message.serverID)
                     } label: {
-                        if filterKeyID == key.id {
-                            Label(key.name, systemImage: "checkmark")
-                        } else {
-                            Text(key.name)
+                        MessageRow(message: message)
+                    }
+                    .buttonStyle(.plain)
+                    .overlay(alignment: .bottom) { Hairline() }
+                    .plainRow(insets: EdgeInsets(top: 0, leading: Theme.gutter,
+                                                 bottom: 0, trailing: Theme.gutter))
+                    .swipeActions(edge: .leading) {
+                        Button { toggleRead(message) } label: {
+                            Label(message.isRead ? "Unread" : "Read",
+                                  systemImage: message.isRead
+                                      ? "envelope.badge.fill" : "envelope.open.fill")
                         }
+                        .tint(Theme.chip)
                     }
-                }
-            }
-        } label: {
-            Image("akar-more-horizontal")
-                .foregroundStyle(filterKeyID == nil
-                    ? Color.primary.opacity(0.6)
-                    : Color(red: 0.737, green: 0.129, blue: 0.133))
-        }
-    }
-
-    private var list: some View {
-        List {
-            ForEach(filtered, id: \.serverID) { message in
-                Button {
-                    model.path.append(message.serverID)
-                } label: {
-                    MessageRow(message: message, keyName: keyName(for: message))
-                }
-                .buttonStyle(.plain)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets())
-                .swipeActions(edge: .leading) {
-                    Button {
-                        message.isRead.toggle()
-                        save()
-                        model.sync?.updateBadge()
-                    } label: {
-                        Label(
-                            message.isRead ? "Unread" : "Read",
-                            systemImage: message.isRead ? "envelope.badge.fill" : "envelope.open.fill"
-                        )
-                    }
-                    .tint(.blue)
-                }
-                .swipeActions(edge: .trailing) {
-                    Button(role: .destructive) {
-                        delete(message)
-                    } label: {
-                        Label("Delete", systemImage: "trash.fill")
-                    }
-                }
-                .contextMenu {
-                    Button(message.isRead ? "Mark as Unread" : "Mark as Read") {
-                        message.isRead.toggle()
-                        save()
-                        model.sync?.updateBadge()
-                    }
-                    Divider()
-                    Button("Copy Title") { Clipboard.copy(message.title) }
-                    if let body = message.body {
-                        Button("Copy Message") { Clipboard.copy(body) }
-                    }
-                    if let link = message.link {
-                        Button("Open Link") {
-                            #if os(iOS)
-                            UIApplication.shared.open(link)
-                            #else
-                            NSWorkspace.shared.open(link)
-                            #endif
+                    .swipeActions(edge: .trailing) {
+                        // The tint has to be explicit. `role: .destructive` would
+                        // normally colour this red, but the TabView's near-white
+                        // tint cascades down and wins, giving white-on-white.
+                        Button(role: .destructive) { delete(message) } label: {
+                            Label("Delete", systemImage: "trash.fill")
                         }
+                        .tint(Theme.danger)
                     }
-                    Button("Delete", role: .destructive) { delete(message) }
+                    .contextMenu { menu(for: message) }
                 }
             }
         }
         .listStyle(.plain)
-        #if os(macOS)
         .scrollContentBackground(.hidden)
+        .background(Theme.bg)
+        .scrollDismissesKeyboard(.immediately)
+        .refreshable { await model.refresh() }
+        #if os(iOS)
+        .toolbar(.hidden, for: .navigationBar)
         #endif
     }
 
-    private var keys: [CachedKey] { model.sync?.keys ?? [] }
-
-    private func keyName(for message: Message) -> String {
-        guard let id = message.keyID, let name = keys.first(where: { $0.id == id })?.name else {
-            return "default"
-        }
-        return name
-    }
-
-    private var unreadCount: Int {
-        messages.reduce(0) { $0 + ($1.isRead ? 0 : 1) }
-    }
-
-    private var unreadBadgeText: String {
-        unreadCount > 99 ? "99+" : "\(unreadCount)"
-    }
-
-    @ViewBuilder
-    private func glassIcon(_ systemName: String) -> some View {
-        let img = Image(systemName: systemName)
-            .font(.body)
-            .foregroundStyle(.primary)
-            .frame(width: 32, height: 32)
-        if #available(iOS 26.0, macOS 26.0, *) {
-            img.glassEffect(in: Circle())
-        } else {
-            img.background(.regularMaterial, in: Circle())
-        }
-    }
-
-    private var bellLogo: some View {
-        Image("BellLogo")
-            .resizable()
-            .scaledToFit()
-            .frame(height: 44)
-            .overlay {
-                if unreadCount > 0 {
-                    GeometryReader { geo in
-                        Text(unreadBadgeText)
-                            .font(.custom("Inconsolata", fixedSize: geo.size.height * 0.19).weight(.heavy))
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                            .foregroundStyle(.white)
-                            .frame(width: geo.size.width * 0.30)
-                            .position(x: geo.size.width * 0.705, y: geo.size.height * 0.18)
-                    }
-                    .allowsHitTesting(false)
-                    .animation(.snappy, value: unreadCount)
-                }
-            }
-    }
+    // MARK: Header
 
     private var header: some View {
-        ZStack {
-            bellLogo
-            HStack(spacing: 0) {
-                Menu {
-                    Button("Mark All as Read") { markAllRead() }
-                    if keys.count > 1 {
-                        Picker("Filter by key", selection: $filterKeyID) {
-                            Text("All keys").tag(Int?.none)
-                            ForEach(keys) { key in
-                                Text(key.name).tag(Int?.some(key.id))
-                            }
-                        }
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 10) {
+                BrandMark(size: 17)
+                Spacer(minLength: 8)
+                if unreadCount > 0 {
+                    PillButton(title: "Mark all read", action: markAllRead)
+                }
+                overflowMenu
+            }
+            .padding(.bottom, 18)
+
+            // "Notifications" is a long word; beside a count it wrapped mid-word.
+            // Stacked, the title always gets its own line at any Dynamic Type size.
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Notifications")
+                    .font(Theme.screenTitle)
+                    .foregroundStyle(Theme.fg)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                subtitle
+                    .font(Theme.meta)
+                    .foregroundColor(Theme.muted)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, messages.isEmpty ? 0 : 14)
+
+            // Nothing to search through yet, so the field would just be furniture.
+            if !messages.isEmpty {
+                SearchField(text: $searchText, focused: $searchFocused)
+
+                if let activeKeyName {
+                    HStack(spacing: 8) {
+                        Chip(text: activeKeyName, color: Theme.fg,
+                             border: Theme.muted.opacity(0.5))
+                        Button("Clear") { filterKeyID = nil }
+                            .font(Theme.label)
+                            .foregroundStyle(Theme.dim)
+                            .buttonStyle(.plain)
+                        Spacer(minLength: 0)
                     }
-                    #if os(macOS)
-                    Divider()
-                    Button("Create Key…") { model.presentingCreateKey = true }
-                    #endif
-                } label: {
-                    glassIcon("ellipsis")
+                    .padding(.top, 10)
                 }
-                .menuIndicator(.hidden)
-                #if os(macOS)
-                .menuStyle(.borderlessButton)
-                #endif
-                .fixedSize()
-
-                Spacer(minLength: 0)
-
-                Button { openSettingsAction() } label: {
-                    glassIcon("gearshape")
-                }
-                .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(.ultraThinMaterial)
     }
 
-    private func openSettingsAction() {
-        #if os(iOS)
-        showingSettings = true
-        #else
-        model.path.append(AppRoute.settings)
-        #endif
+    private var overflowMenu: some View {
+        Menu {
+            Button("Mark All as Read", action: markAllRead)
+                .disabled(unreadCount == 0)
+
+            if keys.count > 1 {
+                Divider()
+                Picker("Filter by key", selection: $filterKeyID) {
+                    Text("All keys").tag(Int?.none)
+                    ForEach(keys) { key in
+                        Text(key.name).tag(Int?.some(key.id))
+                    }
+                }
+            }
+
+            // iOS reaches Keys and Settings through the tab bar, so putting them
+            // here as well would just be a second door to the same room. macOS has
+            // no tabs — the popover is the whole app — so it still needs them.
+            #if os(macOS)
+            Divider()
+            Button("Create Key…") { model.presentingCreateKey = true }
+            Button("Settings…") { openSettings() }
+            #endif
+
+            #if DEBUG
+            Divider()
+            Button("Seed sample data") { SampleData.seed(into: context) }
+            Button("Clear sample data", role: .destructive) { SampleData.clear(from: context) }
+            #endif
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(filterKeyID == nil ? Theme.muted : Theme.brand)
+                .frame(width: 30, height: 30)
+                .contentShape(Rectangle())
+        }
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .accessibilityLabel("More")
+    }
+
+    // MARK: Row menu
+
+    @ViewBuilder
+    private func menu(for message: Message) -> some View {
+        Button(message.isRead ? "Mark as Unread" : "Mark as Read") { toggleRead(message) }
+        Divider()
+        Button("Copy Title") { Clipboard.copy(message.title) }
+        if let body = message.body {
+            Button("Copy Message") { Clipboard.copy(body) }
+        }
+        if let link = message.link {
+            Button("Copy Link") { Clipboard.copy(link.absoluteString) }
+            Button("Open Link") { open(link) }
+        }
+        Divider()
+        Button("Delete", role: .destructive) { delete(message) }
+    }
+
+    // MARK: Actions
+
+    private func clearFilters() {
+        searchText = ""
+        filterKeyID = nil
+    }
+
+    private func toggleRead(_ message: Message) {
+        message.isRead.toggle()
+        save()
+        model.sync?.updateBadge()
+    }
+
+    private func markAllRead() {
+        for message in messages where !message.isRead { message.isRead = true }
+        save()
+        model.sync?.updateBadge()
     }
 
     private func delete(_ message: Message) {
@@ -315,124 +265,154 @@ struct InboxView: View {
         model.sync?.updateBadge()
     }
 
-    private func markAllRead() {
-        for message in messages where !message.isRead {
-            message.isRead = true
-        }
-        save()
-        model.sync?.updateBadge()
+    private func open(_ url: URL) {
+        #if os(iOS)
+        UIApplication.shared.open(url)
+        #else
+        NSWorkspace.shared.open(url)
+        #endif
     }
 
+    /// Every write goes through here so a failure is logged rather than swallowed.
     private func save() {
         do {
             try context.save()
         } catch {
-            log.error("save failed: \(String(describing: error), privacy: .public)")
+            Logger(subsystem: "it.notifi.app", category: "inbox")
+                .error("save failed: \(String(describing: error), privacy: .public)")
         }
     }
 }
 
+private extension View {
+    /// Strips every default List decoration so the row is drawn entirely by us.
+    ///
+    /// Insets are a parameter rather than a second `.listRowInsets` call — applying
+    /// that modifier twice keeps the innermost value, which silently made rows
+    /// full-bleed and pushed the thumbnails off the right edge.
+    func plainRow(insets: EdgeInsets = EdgeInsets()) -> some View {
+        listRowBackground(Theme.bg)
+            .listRowSeparator(.hidden)
+            .listRowInsets(insets)
+    }
+}
+
+// MARK: - Row
+
 private struct MessageRow: View {
     let message: Message
-    let keyName: String
-    @State private var hovering = false
 
-    private var accent: Color { Color(red: 0.737, green: 0.129, blue: 0.133) }
-
-    private var fillGradient: LinearGradient {
-        if message.isRead {
-            let top = hovering ? 0.12 : 0.07
-            let bottom = hovering ? 0.04 : 0.015
-            return LinearGradient(
-                colors: [Color.primary.opacity(top), Color.primary.opacity(bottom)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        } else {
-            let flat = accent.opacity(hovering ? 0.18 : 0.12)
-            return LinearGradient(colors: [flat, flat], startPoint: .top, endPoint: .bottom)
+    private var relative: String {
+        let basis = message.occurredAt ?? message.createdAt
+        let seconds = max(0, Int(Date().timeIntervalSince(basis)))
+        switch seconds {
+        case ..<60: return "now"
+        case ..<3_600: return "\(seconds / 60) min"
+        case ..<86_400: return "\(seconds / 3_600) hr"
+        case ..<604_800: return "\(seconds / 86_400) d"
+        default: return "\(seconds / 604_800) w"
         }
     }
+
+    /// Prefer the sender's own event time when there is one — it is what the
+    /// sender cares about, and it is the only source with sub-second precision.
+    /// The server records receipt in whole seconds, so `.SSS` is only shown when
+    /// it means something.
+    private var exact: String {
+        if let occurred = message.occurredAt {
+            return Self.msFormatter.string(from: occurred)
+        }
+        return message.createdAt.formatted(
+            .dateTime
+                .hour(.twoDigits(amPM: .omitted))
+                .minute(.twoDigits)
+                .second(.twoDigits)
+        )
+    }
+
+    private static let msFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss.SSS"
+        return f
+    }()
 
     var body: some View {
-        HStack(alignment: .top, spacing: 11) {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(message.title)
-                            .font(.inco(.headline, weight: .semibold))
-                            .lineLimit(1)
-                        Spacer(minLength: 6)
-                        Text(message.createdAt, format: .relative(presentation: .numeric, unitsStyle: .wide))
-                            .font(.inco(.caption))
-                            .foregroundStyle(.secondary)
-                            .fixedSize()
-                    }
-                    if let body = message.body {
-                        Text(body)
-                            .font(.karla(.subheadline))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    HStack(spacing: 8) {
-                        Text(keyName)
-                            .font(.inco(.caption2))
-                            .textCase(.uppercase)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(.quaternary, in: RoundedRectangle(cornerRadius: 4))
-                            .layoutPriority(1)
-                        Text(message.createdAt, format: .verbatim(
-                            "\(year: .defaultDigits)-\(month: .twoDigits)-\(day: .twoDigits)  \(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)",
-                            timeZone: .current,
-                            calendar: .current
-                        ))
-                        .font(.inco(.caption))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        Spacer(minLength: 0)
-                    }
-                }
-                if let imageURL = remoteImageURL(message.imageURL) {
-                    AsyncImage(url: imageURL) { phase in
-                        if case let .success(image) = phase {
-                            image.resizable().scaledToFill()
-                        } else {
-                            Rectangle().fill(.quaternary)
-                        }
-                    }
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .background {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(fillGradient)
-                Grain.view
-                    .blendMode(.overlay)
-                    .opacity(0.28)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            }
-            .allowsHitTesting(false)
-        }
-        .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .onHover { hovering = $0 }
-        .animation(.easeOut(duration: 0.12), value: hovering)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 4)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabel)
-    }
+        HStack(alignment: .top, spacing: Theme.rowGap) {
+            // The unread marker — the only colour in the system.
+            Circle()
+                .fill(message.isRead ? Color.clear : Theme.brand)
+                .frame(width: 6, height: 6)
+                .padding(.top, 8)
+                .accessibilityHidden(true)
 
-    private var accessibilityLabel: String {
-        var parts: [String] = []
-        if !message.isRead { parts.append("Unread") }
-        parts.append(message.title)
-        if let body = message.body { parts.append(body) }
-        return parts.joined(separator: ", ")
+            VStack(alignment: .leading, spacing: 5) {
+                Text(message.title)
+                    .font(message.isRead ? Theme.title : Theme.titleUnread)
+                    .foregroundStyle(message.isRead ? Theme.read : Theme.fg)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
+
+                if let body = message.body {
+                    Text(body)
+                        .font(Theme.body)
+                        .foregroundStyle(Theme.muted)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.leading)
+                }
+
+                if let link = message.link {
+                    Chip(text: link.host() ?? link.absoluteString, trailingGlyph: "↗")
+                        .padding(.top, 5)
+                }
+            }
+
+            Spacer(minLength: 8)
+
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(exact)
+                    .font(Theme.meta)
+                    .foregroundStyle(Theme.muted)
+                Text(relative)
+                    .font(Theme.metaSmall)
+                    .foregroundStyle(Theme.dim)
+                if let url = message.imageURL {
+                    Thumbnail(url: url).padding(.top, 8)
+                }
+            }
+            .monospacedDigit()
+        }
+        .padding(.vertical, 15)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel((message.isRead ? "" : "Unread, ") + message.title)
+    }
+}
+
+/// Reserves its slot while loading and marks failure rather than collapsing, so
+/// the list never reflows as images arrive.
+private struct Thumbnail: View {
+    let url: URL
+
+    var body: some View {
+        AsyncImage(url: url) { phase in
+            switch phase {
+            case .success(let image):
+                image.resizable().scaledToFill()
+            case .failure:
+                RoundedRectangle(cornerRadius: Theme.radius)
+                    .strokeBorder(Theme.chip, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .overlay(
+                        Image(systemName: "xmark")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(Theme.dim)
+                    )
+            default:
+                RoundedRectangle(cornerRadius: Theme.radius).fill(Theme.surface)
+            }
+        }
+        .frame(width: Theme.thumb, height: Theme.thumb)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radius))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.chip, lineWidth: 1))
+        .accessibilityHidden(true)
     }
 }

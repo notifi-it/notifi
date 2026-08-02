@@ -1,5 +1,10 @@
 import SwiftUI
 
+/// Keys.
+///
+/// A key is a bearer send-token shown exactly once at creation. This screen only
+/// ever holds the prefix, so the design leans on the name and the send count
+/// rather than the value.
 struct KeysView: View {
     @Environment(AppModel.self) private var model
     #if os(iOS)
@@ -10,78 +15,118 @@ struct KeysView: View {
     private var activeKeys: [CachedKey] { keys.filter { !$0.isRevoked } }
     private var revokedKeys: [CachedKey] { keys.filter { $0.isRevoked } }
 
-    var body: some View {
-        List {
-            if model.sync?.keysRefreshFailed == true {
-                Text("Couldn't refresh keys. Showing the last known list.")
-                    .font(.inco(.footnote))
-                    .foregroundStyle(.secondary)
-            }
+    private var subtitle: String {
+        let n = activeKeys.count
+        return n == 1 ? "1 active" : "\(n) active"
+    }
 
-            Section("Active") {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                GeistHeader(title: "Keys", subtitle: subtitle) {
+                    #if os(iOS)
+                    PillButton(title: "New key") { showingCreate = true }
+                    #else
+                    PillButton(title: "New key") { model.presentingCreateKey = true }
+                    #endif
+                }
+                .padding(.top, 4)
+                .padding(.bottom, 8)
+
+                if model.sync?.keysRefreshFailed == true {
+                    InlineError(message: "Couldn't refresh keys. Showing the last known list.")
+                        .padding(.top, 14)
+                }
+
+                SectionLabel(text: "Active", trailing: "\(activeKeys.count)")
+
                 if activeKeys.isEmpty {
                     Text("No active keys yet.")
-                        .foregroundStyle(.secondary)
-                }
-                ForEach(activeKeys) { key in
-                    NavigationLink(value: key) {
-                        KeyRow(key: key)
+                        .font(Theme.body)
+                        .foregroundStyle(Theme.muted)
+                        .padding(.vertical, 14)
+                    Hairline()
+                } else {
+                    ForEach(activeKeys) { key in
+                        NavigationLink(value: key) {
+                            KeyRow(key: key)
+                        }
+                        .buttonStyle(.plain)
+                        Hairline()
                     }
                 }
-            }
 
-            if !revokedKeys.isEmpty {
-                Section("Revoked") {
+                if !revokedKeys.isEmpty {
+                    SectionLabel(text: "Revoked", trailing: "\(revokedKeys.count)")
                     ForEach(revokedKeys) { key in
                         NavigationLink(value: key) {
                             KeyRow(key: key)
-                                .foregroundStyle(.secondary)
                         }
+                        .buttonStyle(.plain)
+                        Hairline()
                     }
                 }
+
+                Text("A key is shown once, when you create it. "
+                     + "notifi only ever stores the prefix.")
+                    .font(Theme.metaSmall)
+                    .foregroundStyle(Theme.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 18)
+                    .padding(.bottom, 40)
             }
+            .geistGutter()
         }
-        .navigationTitle("Keys")
+        .background(Theme.bg)
+        .scrollContentBackground(.hidden)
         .navigationDestination(for: CachedKey.self) { key in
             KeyDetailView(keyID: key.id)
         }
         .refreshable { await model.sync?.refreshKeys() }
-        #if os(iOS)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showingCreate = true
-                } label: {
-                    Label("Create Key", systemImage: "plus")
-                }
-            }
-        }
-        .sheet(isPresented: $showingCreate) {
-            NavigationStack { CreateKeyView() }
-                .environment(model)
-        }
-        #else
-        .scrollContentBackground(.hidden)
-        #endif
         .task { await model.sync?.refreshKeys() }
+        #if os(iOS)
+        .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showingCreate) {
+            NavigationStack { CreateKeyView() }.environment(model)
+        }
+        #endif
     }
 }
 
-struct KeyRow: View {
+private struct KeyRow: View {
     let key: CachedKey
 
+    private var sent: String {
+        key.sentCount == 1 ? "1 sent" : "\(key.sentCount) sent"
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(key.name)
-                .font(.inco(.headline, weight: .semibold))
-            Text(key.maskedValue)
-                .font(.inco(.subheadline))
-                .foregroundStyle(.secondary)
-            Text("\(key.sentCount) sent")
-                .font(.inco(.caption))
-                .foregroundStyle(.tertiary)
+        DisclosureRow {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Text(key.name)
+                        .font(.inco(.headline, weight: .semibold))
+                        .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
+                        .lineLimit(1)
+                    if key.isRevoked {
+                        Chip(text: "Revoked", color: Theme.dim)
+                    }
+                }
+                HStack(spacing: 10) {
+                    Text(key.maskedValue)
+                        .font(Theme.meta)
+                        .foregroundStyle(Theme.muted)
+                    Text(sent)
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(Theme.dim)
+                }
+            }
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Key, \(key.name), ends \(key.prefix.suffix(4))\(key.isRevoked ? ", revoked" : "")")
+        .padding(.vertical, 14)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(
+            "Key, \(key.name), ends \(key.prefix.suffix(4))"
+            + (key.isRevoked ? ", revoked" : "")
+        )
     }
 }
