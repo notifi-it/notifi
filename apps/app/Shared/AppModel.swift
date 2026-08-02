@@ -29,10 +29,13 @@ final class AppModel {
     var badgeEnabled: Bool {
         didSet { UserDefaults.standard.set(badgeEnabled, forKey: "badgeEnabled") }
     }
+    var presentingCreateKey = false
 
     private(set) var identity: DeviceIdentity?
     private(set) var api: APIClient?
     private(set) var sync: SyncEngine?
+
+    var hasUnread: Bool { (sync?.unread ?? 0) > 0 }
 
     private var context: ModelContext?
     private var pendingToken: String?
@@ -99,17 +102,31 @@ final class AppModel {
         self.sync = SyncEngine(api: api, identity: identity, context: context)
         bootState = .ready
 
-        if let token = pendingToken {
-            pendingToken = nil
-            Task { await registerDevice(token: token) }
-        }
+        let token = pendingToken
+        pendingToken = nil
 
         Task {
+            await registerDevice(token: token)
             await refreshPermission()
             await sync?.sync()
             await sync?.refreshKeys()
+            await ensureDefaultKey()
         }
     }
+
+    private func ensureDefaultKey() async {
+        guard let api, let sync else { return }
+        if sync.keys.contains(where: { $0.name.lowercased() == "default" }) { return }
+        do {
+            let created = try await api.createKey(name: "default")
+            DeviceIdentity.storeDefaultKey(created.key)
+            await sync.refreshKeys()
+        } catch {
+            log.error("default key creation failed: \(String(describing: error), privacy: .public)")
+        }
+    }
+
+    var defaultKeyValue: String? { DeviceIdentity.loadDefaultKey() }
 
     private func messagesExist() -> Bool {
         guard let context else { return false }
@@ -126,12 +143,13 @@ final class AppModel {
         Task { await registerDevice(token: hex) }
     }
 
-    private func registerDevice(token: String) async {
+    private func registerDevice(token: String?) async {
         guard let api, let identity else { return }
+        let apnsToken = token ?? Self.syntheticToken(for: identity)
         let body = RegisterDeviceBody(
             publicKey: identity.publicKeyX963.base64EncodedString(),
             encryptionPublicKey: identity.encryptionPublicKeyX963.base64EncodedString(),
-            apnsToken: token,
+            apnsToken: apnsToken,
             platform: Self.platformName,
             appVersion: Self.appVersion
         )
@@ -140,6 +158,10 @@ final class AppModel {
         } catch {
             log.error("device registration failed: \(String(describing: error), privacy: .public)")
         }
+    }
+
+    private static func syntheticToken(for identity: DeviceIdentity) -> String {
+        SHA256.hash(data: identity.publicKeyX963).map { String(format: "%02x", $0) }.joined()
     }
 
     func handleForegroundPush() {

@@ -34,7 +34,7 @@ struct SettingsView: View {
                 .disabled(testState == .sending)
                 if let testMessage {
                     Text(testMessage)
-                        .font(.footnote)
+                        .font(.inco(.footnote))
                         .foregroundStyle(.secondary)
                 }
             }

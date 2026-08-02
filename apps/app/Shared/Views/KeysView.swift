@@ -4,8 +4,6 @@ struct KeysView: View {
     @Environment(AppModel.self) private var model
     #if os(iOS)
     @State private var showingCreate = false
-    #else
-    @Environment(\.openWindow) private var openWindow
     #endif
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
@@ -16,7 +14,7 @@ struct KeysView: View {
         List {
             if model.sync?.keysRefreshFailed == true {
                 Text("Couldn't refresh keys. Showing the last known list.")
-                    .font(.footnote)
+                    .font(.inco(.footnote))
                     .foregroundStyle(.secondary)
             }
 
@@ -70,7 +68,7 @@ struct KeysView: View {
         #if os(iOS)
         showingCreate = true
         #else
-        openWindow(id: "create-key")
+        model.presentingCreateKey = true
         #endif
     }
 }
@@ -81,12 +79,12 @@ struct KeyRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(key.name)
-                .font(.headline)
+                .font(.inco(.headline, weight: .semibold))
             Text(key.maskedValue)
-                .font(.subheadline.monospaced())
+                .font(.inco(.subheadline))
                 .foregroundStyle(.secondary)
             Text("\(key.sentCount) sent")
-                .font(.caption)
+                .font(.inco(.caption))
                 .foregroundStyle(.tertiary)
         }
         .accessibilityElement(children: .ignore)

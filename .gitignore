@@ -6,6 +6,8 @@ dist/
 
 # Xcode
 apps/app/build/
+apps/app/build-ios/
+apps/app/build-macos/
 apps/app/DerivedData/
 *.xcuserstate
 xcuserdata/

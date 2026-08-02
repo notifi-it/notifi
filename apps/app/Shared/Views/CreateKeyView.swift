@@ -50,6 +50,10 @@ struct CreateKeyView: View {
                     .textInputAutocapitalization(.never)
                     #endif
             }
+            if isReserved {
+                Text("“default” is reserved — your device already has one.")
+                    .foregroundStyle(.secondary)
+            }
             if let errorMessage {
                 Text(errorMessage).foregroundStyle(.red)
             }
@@ -70,10 +74,10 @@ struct CreateKeyView: View {
         ScrollView {
             VStack(spacing: 20) {
                 Text("Copy your key now")
-                    .font(.title3.bold())
+                    .font(.inco(.title3, weight: .bold))
 
                 Text(response.key)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.inco(.body))
                     .textSelection(.enabled)
                     .multilineTextAlignment(.center)
                     .padding()
@@ -99,7 +103,7 @@ struct CreateKeyView: View {
                 }
 
                 Text(Self.caption)
-                    .font(.footnote)
+                    .font(.inco(.footnote))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
@@ -131,7 +135,11 @@ struct CreateKeyView: View {
 
     private var isNameValid: Bool {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return !trimmed.isEmpty && trimmed.count <= 64
+        return !trimmed.isEmpty && trimmed.count <= 64 && !isReserved
+    }
+
+    private var isReserved: Bool {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "default"
     }
 
     private var isRevealed: Bool {

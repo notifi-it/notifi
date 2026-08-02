@@ -14,17 +14,17 @@ struct InboxRootView: View {
                         MessageDetailView(serverID: serverID)
                     }
             }
-            .tabItem { Label("Inbox", systemImage: "tray") }
+            .tabItem { Label("Inbox", image: "akar-inbox") }
 
             NavigationStack {
                 KeysView()
             }
-            .tabItem { Label("Keys", systemImage: "key") }
+            .tabItem { Label("Keys", image: "akar-key") }
 
             NavigationStack {
                 SettingsView()
             }
-            .tabItem { Label("Settings", systemImage: "gearshape") }
+            .tabItem { Label("Settings", image: "akar-gear") }
         }
         #else
         NavigationStack(path: $model.path) {

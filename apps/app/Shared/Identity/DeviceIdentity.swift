@@ -180,6 +180,19 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
     }
 }
 
+extension DeviceIdentity {
+    static func storeDefaultKey(_ value: String) {
+        try? keychainSet(service: "it.notifi.defaultkey", accessGroup: nil, data: Data(value.utf8))
+    }
+
+    static func loadDefaultKey() -> String? {
+        guard let data = (try? keychainGet(service: "it.notifi.defaultkey", accessGroup: nil)) ?? nil else {
+            return nil
+        }
+        return String(data: data, encoding: .utf8)
+    }
+}
+
 private extension DeviceIdentity {
     static func keychainSet(service: String, accessGroup: String?, data: Data) throws {
         var deleteQuery: [String: Any] = [

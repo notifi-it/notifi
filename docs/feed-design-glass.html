@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>notifi — Feed · Liquid Glass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --tint: #d92d28;
+    --tint-deep: #bc2122;
+    --tint-bright: #ff453a;
+    --disp: "Bricolage Grotesque", -apple-system, system-ui, sans-serif;
+    --ui: "Hanken Grotesk", -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  body {
+    margin: 0; font-family: var(--ui); color: #211f1d; line-height: 1.5;
+    background:
+      radial-gradient(900px 500px at 12% -8%, #f6dcd6 0%, transparent 55%),
+      radial-gradient(800px 600px at 100% 0%, #e7e0f2 0%, transparent 50%),
+      #f0ede9;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px 110px; }
+
+  header.top { padding: 58px 0 8px; }
+  header.top .eyebrow { color: var(--tint); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-family: var(--ui); }
+  header.top h1 { font-family: var(--disp); font-size: 42px; font-weight: 800; letter-spacing: -.025em; margin: 8px 0 12px; line-height: 1.02; }
+  header.top p { color: #625d57; font-size: 16.5px; max-width: 66ch; margin: 0; }
+  header.top .chips { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 20px; }
+  header.top .chips span { background: rgba(255,255,255,.7); border: .5px solid rgba(0,0,0,.08); border-radius: 99px; padding: 6px 14px; font-size: 13px; font-weight: 500; backdrop-filter: blur(8px); }
+  header.top .chips b { color: var(--tint); font-weight: 700; }
+
+  .stage { display: flex; gap: 40px; align-items: flex-start; margin-top: 46px; flex-wrap: wrap; }
+  .hero { flex: 0 0 auto; }
+  .notes { flex: 1; min-width: 260px; padding-top: 8px; }
+  .note { position: relative; padding: 0 0 22px 22px; }
+  .note::before { content: ""; position: absolute; left: 0; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--tint); }
+  .note::after { content: ""; position: absolute; left: 4px; top: 14px; bottom: 0; width: 1px; background: rgba(0,0,0,.1); }
+  .note:last-child::after { display: none; }
+  .note h3 { margin: 0 0 3px; font-size: 16px; font-weight: 700; font-family: var(--disp); }
+  .note p { margin: 0; font-size: 14px; color: #625d57; }
+  .note code { font-family: "Hanken Grotesk", monospace; background: rgba(0,0,0,.05); padding: 1px 6px; border-radius: 5px; font-size: .92em; }
+
+  /* ------- phone ------- */
+  .phone {
+    width: 384px; height: 812px; border-radius: 56px; padding: 5px;
+    background: linear-gradient(160deg, #3a3a3c, #1a1a1c);
+    box-shadow: 0 30px 70px rgba(40,20,20,.35), 0 3px 8px rgba(0,0,0,.3);
+    position: relative;
+  }
+  .screen { position: absolute; inset: 5px; border-radius: 51px; overflow: hidden; background: #fff; }
+  .screen.dark { background: #000; color: #fff; }
+
+  /* wallpaper gives glass something to refract */
+  .wall { position: absolute; inset: 0; }
+  .light .wall { background:
+      radial-gradient(420px 300px at 80% 6%, #ffd9cf 0%, transparent 60%),
+      radial-gradient(420px 340px at 0% 40%, #e5ddf6 0%, transparent 55%),
+      linear-gradient(#fbf7f4, #f4eff0); }
+  .dark .wall { background:
+      radial-gradient(420px 320px at 85% 4%, #4a1512 0%, transparent 60%),
+      radial-gradient(460px 380px at -5% 44%, #241f38 0%, transparent 55%),
+      linear-gradient(#141315, #0a0a0b); }
+
+  .scroll { position: absolute; inset: 0; overflow: hidden; padding: 236px 16px 118px; }
+
+  /* content rows */
+  .group { border-radius: 22px; overflow: hidden; background: rgba(255,255,255,.72); border: .5px solid rgba(255,255,255,.7); box-shadow: 0 1px 1px rgba(0,0,0,.03), 0 10px 30px rgba(60,30,30,.06); backdrop-filter: blur(3px); }
+  .dark .group { background: rgba(28,28,30,.66); border-color: rgba(255,255,255,.08); box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+  .row { display: flex; gap: 12px; padding: 13px 15px; align-items: flex-start; cursor: pointer; }
+  .row + .row { border-top: .5px solid rgba(60,60,67,.16); }
+  .dark .row + .row { border-top-color: rgba(255,255,255,.1); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--tint); flex: none; margin-top: 6px; box-shadow: 0 0 0 3px rgba(217,45,40,.14); }
+  .dot.off { background: transparent; box-shadow: none; }
+  .rcol { flex: 1; min-width: 0; }
+  .rtop { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .rtitle { font-family: var(--disp); font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+  .rtime { font-size: 12.5px; color: rgba(60,60,67,.5); flex: none; font-weight: 500; }
+  .dark .rtime { color: rgba(235,235,245,.5); }
+  .rmsg { font-size: 14.5px; color: rgba(60,60,67,.68); margin-top: 1px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .dark .rmsg { color: rgba(235,235,245,.62); }
+  .rkey { font-size: 11px; font-weight: 600; color: var(--tint); margin-top: 5px; text-transform: uppercase; letter-spacing: .04em; }
+  .chev { color: rgba(60,60,67,.28); font-size: 19px; align-self: center; font-family: var(--ui); }
+  .dark .chev { color: rgba(235,235,245,.3); }
+  .grouplabel { font-size: 12.5px; font-weight: 600; color: rgba(60,60,67,.5); padding: 14px 8px 6px; }
+  .dark .grouplabel { color: rgba(235,235,245,.5); }
+
+  /* swipe */
+  .swipe { position: relative; overflow: hidden; }
+  .swipe + .swipe { border-top: .5px solid rgba(60,60,67,.16); }
+  .dark .swipe + .swipe { border-top-color: rgba(255,255,255,.1); }
+  .act { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; gap: 6px; padding: 0 20px; font-family: var(--disp); font-weight: 700; font-size: 14px; color: #fff; }
+  .act svg { width: 18px; height: 18px; }
+  .act-del { left: 0; right: 0; justify-content: flex-end; background: var(--tint); }
+  .act-read { left: 0; right: 0; justify-content: flex-start; background: #8e8e93; }
+  .rowfg { position: relative; z-index: 1; display: flex; gap: 12px; padding: 13px 15px; align-items: flex-start; background: #fbf7f4; touch-action: pan-y; cursor: grab; }
+  .dark .rowfg { background: #1b1b1d; }
+  .rowfg:active { cursor: grabbing; }
+
+  /* key-count toggle */
+  .seg { display: inline-flex; background: rgba(255,255,255,.6); border: .5px solid rgba(0,0,0,.08); border-radius: 11px; padding: 3px; gap: 3px; margin: 26px 0 0; backdrop-filter: blur(8px); }
+  .seg button { font-family: var(--ui); font-size: 13.5px; font-weight: 600; border: none; background: transparent; color: #55514c; padding: 7px 15px; border-radius: 9px; cursor: pointer; }
+  .seg button.on { background: #fff; color: var(--tint-deep); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .hint { font-size: 13px; color: #7a746d; margin: 10px 0 0; }
+
+  /* ------- glass chrome ------- */
+  .topglass {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 4; padding: 0 12px 12px;
+    background: rgba(250,247,245,.62);
+    backdrop-filter: blur(26px) saturate(1.9); -webkit-backdrop-filter: blur(26px) saturate(1.9);
+    border-bottom: .5px solid rgba(255,255,255,.5);
+    box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 8px 24px rgba(60,30,30,.07);
+  }
+  .dark .topglass { background: rgba(20,19,21,.55); border-bottom-color: rgba(255,255,255,.1); box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 8px 24px rgba(0,0,0,.4); }
+  .statusbar { height: 52px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 12px 2px; font-size: 15px; font-weight: 600; }
+  .statusbar .r { display: flex; gap: 5px; align-items: center; }
+  .statusbar svg { width: 17px; height: 12px; }
+  .light .statusbar svg [fill] { fill: #000; }
+  .dark .statusbar svg [fill] { fill: #fff; }
+
+  .titlerow { display: flex; align-items: center; justify-content: space-between; padding: 2px 6px 0; }
+  .wordmark { font-family: var(--disp); font-size: 32px; font-weight: 800; letter-spacing: -.03em; }
+  .wordmark .dotcolor { color: var(--tint); }
+  .titlerow .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(120,120,128,.16); display: grid; place-items: center; }
+  .titlerow .avatar svg { width: 18px; height: 18px; }
+
+  .search {
+    margin: 12px 6px 0; height: 40px; border-radius: 13px; display: flex; align-items: center; gap: 8px; padding: 0 12px;
+    background: rgba(120,120,128,.14); color: rgba(60,60,67,.5); font-size: 16px;
+    box-shadow: 0 1px 0 rgba(255,255,255,.5) inset;
+  }
+  .dark .search { background: rgba(120,120,128,.24); color: rgba(235,235,245,.5); }
+  .search svg { width: 16px; height: 16px; }
+
+  /* key filter bar */
+  .filters { display: flex; gap: 8px; margin: 12px 6px 0; overflow: hidden; }
+  .pill {
+    flex: none; padding: 7px 15px; border-radius: 99px; font-size: 14px; font-weight: 600; cursor: pointer;
+    background: rgba(255,255,255,.55); border: .5px solid rgba(255,255,255,.7);
+    backdrop-filter: blur(10px) saturate(1.6); -webkit-backdrop-filter: blur(10px) saturate(1.6);
+    box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 3px 10px rgba(60,30,30,.06);
+    color: #3a3735; transition: transform .12s;
+  }
+  .dark .pill { background: rgba(60,60,64,.5); border-color: rgba(255,255,255,.12); color: rgba(235,235,245,.85); box-shadow: 0 1px 0 rgba(255,255,255,.14) inset, 0 3px 10px rgba(0,0,0,.3); }
+  .pill.on {
+    background: linear-gradient(rgba(255,120,110,.35), rgba(217,45,40,.28));
+    border-color: rgba(255,140,130,.6); color: var(--tint-deep);
+    box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 4px 14px rgba(217,45,40,.28);
+  }
+  .dark .pill.on { color: #ffd9d5; background: linear-gradient(rgba(255,90,80,.4), rgba(217,45,40,.34)); border-color: rgba(255,120,110,.5); }
+  .pill:active { transform: scale(.95); }
+
+  /* floating glass tab bar */
+  .tabglass {
+    position: absolute; left: 14px; right: 14px; bottom: 16px; z-index: 4; height: 66px;
+    border-radius: 26px; display: flex; align-items: center; padding: 0 6px;
+    background: rgba(250,247,245,.6);
+    backdrop-filter: blur(26px) saturate(1.9); -webkit-backdrop-filter: blur(26px) saturate(1.9);
+    border: .5px solid rgba(255,255,255,.6);
+    box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 12px 34px rgba(60,30,30,.18);
+  }
+  .dark .tabglass { background: rgba(22,21,23,.55); border-color: rgba(255,255,255,.12); box-shadow: 0 1px 0 rgba(255,255,255,.14) inset, 0 12px 34px rgba(0,0,0,.5); }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 600; color: rgba(60,60,67,.5); cursor: pointer; }
+  .dark .tab { color: rgba(235,235,245,.5); }
+  .tab svg { width: 25px; height: 25px; }
+  .tab.on { color: var(--tint); }
+
+  /* push detail (glass nav over content) */
+  .detail { position: absolute; inset: 0; z-index: 6; transform: translateX(100%); transition: transform .36s cubic-bezier(.32,.72,.28,1); }
+  .detail.show { transform: translateX(0); }
+  .detail .dwall { position: absolute; inset: 0; }
+  .light .detail .dwall { background: linear-gradient(#fbf7f4, #f4eff0); }
+  .dark .detail .dwall { background: linear-gradient(#141315, #0a0a0b); }
+  .detail .dnavglass { position: absolute; top: 0; left: 0; right: 0; height: 100px; z-index: 2;
+    background: rgba(250,247,245,.62); backdrop-filter: blur(26px) saturate(1.9);
+    border-bottom: .5px solid rgba(255,255,255,.5); }
+  .dark .detail .dnavglass { background: rgba(20,19,21,.55); border-bottom-color: rgba(255,255,255,.1); }
+  .detail .navctl { display: flex; align-items: center; justify-content: space-between; padding: 4px 12px 0; }
+  .detail .back { color: var(--tint); font-size: 17px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 2px; font-family: var(--disp); }
+  .detail .navacts { display: flex; gap: 8px; }
+  .gbtn { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+    background: rgba(255,255,255,.55); border: .5px solid rgba(255,255,255,.7);
+    backdrop-filter: blur(10px) saturate(1.6); box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 3px 8px rgba(60,30,30,.1); color: var(--tint); }
+  .dark .gbtn { background: rgba(60,60,64,.5); border-color: rgba(255,255,255,.12); box-shadow: 0 1px 0 rgba(255,255,255,.14) inset; color: #ff8b84; }
+  .gbtn svg { width: 17px; height: 17px; }
+  .detail .dbody { position: absolute; inset: 100px 0 0; overflow: auto; padding: 22px 22px 40px; }
+  .metakey { color: var(--tint); font-weight: 700; }
+  .dimage { margin: 18px 0; border-radius: 18px; overflow: hidden; border: .5px solid rgba(0,0,0,.08); box-shadow: 0 8px 24px rgba(60,30,30,.1); background: #0e1117; aspect-ratio: 16/10; position: relative; }
+  .dark .dimage { border-color: rgba(255,255,255,.1); }
+  .dimage .imglabel { position: absolute; top: 10px; left: 12px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,.7); letter-spacing: .04em; text-transform: uppercase; }
+  .dfoot { margin-top: 20px; padding-top: 14px; border-top: .5px solid rgba(60,60,67,.16); font-size: 12.5px; color: rgba(60,60,67,.5); }
+  .dark .dfoot { border-top-color: rgba(255,255,255,.1); color: rgba(235,235,245,.5); }
+  .detail .dbody h2 { font-family: var(--disp); font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 4px; }
+  .detail .dmeta { font-size: 13.5px; color: rgba(60,60,67,.5); margin-bottom: 18px; }
+  .dark .detail .dmeta { color: rgba(235,235,245,.5); }
+  .detail .dbody p { font-size: 16.5px; line-height: 1.6; margin: 0 0 18px; }
+  .detail .linkbtn { display: inline-flex; align-items: center; gap: 7px; padding: 11px 18px; border-radius: 14px; font-weight: 700; color: #fff;
+    background: linear-gradient(var(--tint-bright), var(--tint)); box-shadow: 0 6px 18px rgba(217,45,40,.35); font-family: var(--disp); }
+
+  .cap { text-align: center; margin-top: 16px; font-size: 13px; color: #7a746d; font-weight: 500; }
+  .foot { margin-top: 50px; background: rgba(255,255,255,.72); border: .5px solid rgba(0,0,0,.06); border-radius: 20px; padding: 22px 26px; backdrop-filter: blur(10px); }
+  .foot h2 { font-family: var(--disp); margin: 0 0 8px; font-size: 20px; font-weight: 800; }
+  .foot p { margin: 0 0 6px; font-size: 14.5px; color: #55514c; }
+  .foot b { color: var(--tint); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">notifi · feed · option 1, refined</div>
+    <h1>The Mail feed, in Liquid&nbsp;Glass</h1>
+    <p>Inset-grouped rows and the search you liked, now on Apple's glass material — a floating, translucent nav and tab bar that let the feed glow through. A key-filter bar sits under the title, the type is Bricolage Grotesque, and red is the one accent. Live: switch keys, tap the long “Deploy failed” to push its detail.</p>
+    <div class="chips">
+      <span><b>Kept:</b> inset list + search</span>
+      <span><b>New:</b> key filter bar</span>
+      <span><b>Material:</b> Liquid Glass</span>
+      <span><b>Type:</b> Bricolage Grotesque</span>
+      <span><b>Accent:</b> notifi red</span>
+    </div>
+  </header>
+
+  <div class="seg" id="keyToggle">
+    <button data-kc="1">One key</button>
+    <button data-kc="3" class="on">Multiple keys</button>
+  </div>
+  <p class="hint">The filter bar only appears when you hold more than one key. Try it. Then on the phone: <b>swipe a row left to delete</b> (gone, no alert), <b>swipe right to mark read</b>, or tap “Deploy failed” to open the full page.</p>
+
+  <div class="stage">
+    <div class="hero">
+      <div class="phone"><div class="screen light" id="screenLight"></div></div>
+      <div class="cap">Light · filter · swipe to delete/read · tap for detail</div>
+    </div>
+    <div class="notes">
+      <div class="note"><h3>Floating glass chrome</h3><p>The nav and tab bar are Regular-variant Liquid Glass — translucent, blurred, refracting the feed behind them. In SwiftUI this is automatic: a <code>NavigationStack</code> + <code>.searchable</code> + a floating <code>TabView</code> adopt glass on iOS 26 with zero custom drawing.</p></div>
+      <div class="note"><h3>Key filter bar</h3><p>Appears only when you hold more than one key. Glass capsules; the selected one lifts with a red-tinted glass. It's a horizontal scroll of your keys — <b>All · Grafana · Deploy Bot · Mail</b> — filtering the feed by <code>keyID</code>.</p></div>
+      <div class="note"><h3>Search, kept</h3><p>The <code>.searchable</code> field lives in the glass header and scrolls away as you read, snapping back on pull-down. Searches title + message across the current key filter.</p></div>
+      <div class="note"><h3>Long message → push</h3><p>Rows clamp to two lines. Tapping pushes a detail screen where the full message, its link and image get real room — the glass nav slides with it.</p></div>
+      <div class="note"><h3>Red, once</h3><p>Red is the unread dot, the selected filter, the link button, and the tint on glass — nothing else. Everything structural is system grey so the accent always means “notifi”.</p></div>
+    </div>
+  </div>
+
+  <div class="cap" style="margin-top:44px;font-size:15px;color:#3a3735;font-family:var(--disp);font-weight:700">Same screen, dark — where glass really lenses</div>
+  <div class="stage" style="margin-top:18px;justify-content:center">
+    <div class="hero"><div class="phone"><div class="screen dark" id="screenDark"></div></div></div>
+  </div>
+
+  <header class="top" style="padding:64px 0 4px">
+    <div class="eyebrow">the full-screen page</div>
+    <h1 style="font-size:36px">Where a long message lives</h1>
+    <p>Tap a row and this is the push. The title gets a large Bricolage setting, the sending key is a red chip, the full message breathes, the image goes full-width in a rounded glass frame, and the link becomes a prominent red button. Share and more sit as glass buttons in the nav.</p>
+  </header>
+
+  <div class="stage" style="margin-top:34px; align-items:flex-start;">
+    <div class="hero">
+      <div class="phone"><div class="screen light" id="screenDetail"></div></div>
+      <div class="cap">Full-screen detail · light</div>
+    </div>
+    <div class="hero">
+      <div class="phone"><div class="screen dark" id="screenDetailDark"></div></div>
+      <div class="cap">Full-screen detail · dark</div>
+    </div>
+    <div class="notes" style="min-width:220px">
+      <div class="note"><h3>Title &amp; source</h3><p>Large Bricolage title; the key that sent it (<code>Grafana</code>) as a red chip beside the timestamp — you always know who buzzed you.</p></div>
+      <div class="note"><h3>Message, unclamped</h3><p>The whole body at reading size, 16.5px with generous leading. This is the room the two-line feed row was hiding.</p></div>
+      <div class="note"><h3>Image, full-width</h3><p>Fetched by the notification-service extension and shown edge-to-edge in a rounded glass frame — <code>AsyncImage</code> with a shimmer placeholder.</p></div>
+      <div class="note"><h3>Link → prominent glass</h3><p>The message's link becomes a <code>.glassProminent</code> red button. Share and ⋯ live as circular glass buttons in the nav.</p></div>
+      <div class="note"><h3>Provenance footer</h3><p>Delivery metadata — via APNs, message id, retry count — quiet at the bottom for when something looks off.</p></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <h2>What this is</h2>
+    <p><b>Option 1 you picked</b>, dressed in the native glass system with a key-filter bar, Bricolage Grotesque, and notifi red. No custom components — every piece here is a stock SwiftUI control that adopts Liquid Glass by building on iOS 26.</p>
+    <p>One security note carried over: the filter shows key <em>names</em> (Grafana, Deploy Bot, Mail) which the device decrypts locally — the server never sends them in the clear. Say the word and I'll build this into the real app.</p>
+  </div>
+
+</div>
+
+<script>
+const LONG = "Build #4127 failed on integration-tests — 3 of 214 tests failed after 6m22s. First failure: PaymentFlowTests.testDeclinedCardRetry expected 402, got 500. Runner web-ci-03 ran out of memory at 94% and was killed by the OOM reaper. A re-run was triggered automatically; this is attempt 2 of 3.";
+
+const iconBell = m => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${m?2:1.7}" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
+const iconKey = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.5 12.5 20 3m-3 0 3 3-3 3"/></svg>`;
+const iconGear = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>`;
+const iconSearch = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>`;
+const iconShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>`;
+const iconMore = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`;
+const chartSVG = `<svg viewBox="0 0 320 200" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+  <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6b5e" stop-opacity=".5"/><stop offset="1" stop-color="#ff6b5e" stop-opacity="0"/></linearGradient></defs>
+  <g stroke="#2a2f3a" stroke-width="1"><line x1="0" y1="50" x2="320" y2="50"/><line x1="0" y1="100" x2="320" y2="100"/><line x1="0" y1="150" x2="320" y2="150"/></g>
+  <path d="M0 150 L40 140 L80 120 L120 130 L160 90 L200 100 L240 60 L280 40 L320 30 L320 200 L0 200 Z" fill="url(#cg)"/>
+  <path d="M0 150 L40 140 L80 120 L120 130 L160 90 L200 100 L240 60 L280 40 L320 30" fill="none" stroke="#ff6b5e" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="240" cy="60" r="4" fill="#fff"/><circle cx="240" cy="60" r="7" fill="#ff453a" fill-opacity=".3"/>
+</svg>`;
+
+function detailBody() {
+  return `
+    <div class="dwall"></div>
+    <div class="dnavglass">
+      ${statusbar()}
+      <div class="navctl"><span class="back" data-back>‹ Feed</span><span class="navacts"><span class="gbtn">${iconShare}</span><span class="gbtn">${iconMore}</span></span></div>
+    </div>
+    <div class="dbody">
+      <h2>Deploy failed</h2>
+      <div class="dmeta"><span class="metakey">Grafana</span> · today at 9:41</div>
+      <p>${LONG}</p>
+      <div class="dimage"><span class="imglabel">web-01 · cpu</span>${chartSVG}</div>
+      <span class="linkbtn">${iconBell(true)} Open in Grafana</span>
+      <div class="dfoot">Delivered via APNs · message #4127 · attempt 2 of 3</div>
+    </div>`;
+}
+
+const KEYS = ["All", "Grafana", "Deploy Bot", "Mail"];
+const MSGS = [
+  { key: "Grafana",    title: "Deploy failed",    msg: LONG,                         time: "9:41", unread: true,  long: true },
+  { key: "Mail",       title: "Payment received", msg: "£4,200 from acme.co · inv #2231", time: "9:20", unread: true },
+  { key: "Deploy Bot", title: "Deploy finished",  msg: "main → prod in 42s",         time: "9:12", unread: true },
+  { key: "Grafana",    title: "CPU 92%",          msg: "web-01 · sustained 5m",      time: "8:47", unread: false },
+  { key: "Mail",       title: "New signup",       msg: "hello@acme.co joined",       time: "8:30", unread: false },
+  { key: "Deploy Bot", title: "Rollback complete",msg: "reverted to build 4126",     time: "8:03", unread: false }
+];
+
+function statusbar() {
+  return `<div class="statusbar"><span>9:41</span><span class="r">
+    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="4" rx="1" fill="#000"/><rect x="4" y="5" width="3" height="6" rx="1" fill="#000"/><rect x="8" y="3" width="3" height="8" rx="1" fill="#000"/><rect x="12" y="1" width="3" height="10" rx="1" fill="#000"/></svg>
+    <svg viewBox="0 0 24 12"><rect x="1" y="1" width="19" height="10" rx="3" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="3" y="3" width="13" height="6" rx="1.5" fill="#000"/><rect x="21" y="4" width="1.6" height="4" rx="1" fill="#000"/></svg>
+  </span></div>`;
+}
+
+const iconTrash = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7"/></svg>`;
+const iconRead = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>`;
+
+function render(root, opts) {
+  const dark = !!(opts && opts.dark);
+  let keyCount = (opts && opts.keyCount) || 3;
+  let active = "All";
+  const multi = () => keyCount > 1;
+
+  function rowsHTML() {
+    const list = (active === "All" || !multi()) ? MSGS : MSGS.filter(m => m.key === active);
+    return list.map((m) => `
+      <div class="swipe">
+        <div class="act act-read">${iconRead}<span>Read</span></div>
+        <div class="act act-del"><span>Delete</span>${iconTrash}</div>
+        <div class="rowfg" data-long="${m.long ? 1 : 0}">
+          <span class="dot ${m.unread ? "" : "off"}"></span>
+          <div class="rcol">
+            <div class="rtop"><span class="rtitle">${m.title}</span><span class="rtime">${m.time}</span></div>
+            <div class="rmsg">${m.msg}</div>
+            ${(multi() && active === "All") ? `<div class="rkey">${m.key}</div>` : ""}
+          </div>
+          <span class="chev">›</span>
+        </div>
+      </div>`).join("");
+  }
+
+  function paint() {
+    root.innerHTML = `
+      <div class="wall"></div>
+      <div class="scroll" id="scroll"></div>
+      <div class="topglass">
+        ${statusbar()}
+        <div class="titlerow"><div class="wordmark">notif<span class="dotcolor">i</span></div><div class="avatar">${iconBell()}</div></div>
+        <div class="search">${iconSearch}<span>Search</span></div>
+        ${multi() ? `<div class="filters">${KEYS.map(k => `<span class="pill ${k===active?"on":""}" data-k="${k}">${k}</span>`).join("")}</div>` : ""}
+      </div>
+      <div class="tabglass">
+        <div class="tab on">${iconBell()}<span>Feed</span></div>
+        <div class="tab">${iconKey}<span>Keys</span></div>
+        <div class="tab">${iconGear}<span>Settings</span></div>
+      </div>
+      <div class="detail" id="detail">${detailBody()}</div>`;
+    root.querySelector("#scroll").innerHTML = `<div class="group">${rowsHTML()}</div>`;
+
+    root.querySelectorAll(".pill").forEach(p => p.addEventListener("click", () => { active = p.dataset.k; paint(); }));
+    const detail = root.querySelector("#detail");
+    detail.querySelector("[data-back]").addEventListener("click", () => detail.classList.remove("show"));
+
+    root.querySelectorAll(".rowfg").forEach(fg => attachSwipe(fg, detail));
+  }
+
+  root._setKeyCount = (n) => { keyCount = n; active = "All"; paint(); };
+  paint();
+}
+
+function attachSwipe(fg, detail) {
+  let sx = 0, dx = 0, dragging = false, moved = false;
+  const T = 72;
+  fg.addEventListener("pointerdown", e => {
+    dragging = true; moved = false; sx = e.clientX; dx = 0;
+    fg.setPointerCapture(e.pointerId); fg.style.transition = "none";
+  });
+  fg.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    dx = e.clientX - sx;
+    if (Math.abs(dx) > 6) moved = true;
+    fg.style.transform = `translateX(${dx}px)`;
+  });
+  function settle() {
+    fg.style.transition = "transform .26s cubic-bezier(.3,.7,.3,1)";
+    if (dx < -T) {
+      fg.style.transform = "translateX(-100%)";
+      const sw = fg.closest(".swipe");
+      const h = sw.offsetHeight;
+      sw.style.height = h + "px"; sw.style.overflow = "hidden";
+      requestAnimationFrame(() => {
+        sw.style.transition = "height .24s ease, opacity .2s ease";
+        sw.style.height = "0"; sw.style.opacity = "0";
+      });
+      setTimeout(() => sw.remove(), 260);
+    } else if (dx > T) {
+      const dot = fg.querySelector(".dot");
+      dot.classList.toggle("off");
+      fg.style.transform = "translateX(0)";
+    } else {
+      fg.style.transform = "translateX(0)";
+      if (!moved && fg.dataset.long === "1") detail.classList.add("show");
+    }
+    dx = 0;
+  }
+  fg.addEventListener("pointerup", () => { if (!dragging) return; dragging = false; settle(); });
+  fg.addEventListener("pointercancel", () => { if (!dragging) return; dragging = false; settle(); });
+}
+
+function renderDetail(root) {
+  root.innerHTML = `<div class="detail show" style="transition:none">${detailBody()}</div>`;
+}
+
+const light = document.getElementById("screenLight");
+render(light, { dark: false, keyCount: 3 });
+render(document.getElementById("screenDark"), { dark: true, keyCount: 3 });
+renderDetail(document.getElementById("screenDetail"));
+renderDetail(document.getElementById("screenDetailDark"));
+
+document.querySelectorAll("#keyToggle button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("#keyToggle button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on");
+  light._setKeyCount(Number(b.dataset.kc));
+}));
+</script>
+</body>
+</html>

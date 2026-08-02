@@ -10,11 +10,11 @@ struct RestoreExplainerView: View {
                 .foregroundStyle(.tint)
 
             Text("This looks like a new device")
-                .font(.title2.bold())
+                .font(.inco(.title2, weight: .bold))
                 .multilineTextAlignment(.center)
 
             Text("Your old messages restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now get a 401 — create fresh keys to keep receiving notifications.")
-                .font(.body)
+                .font(.inco(.body))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)

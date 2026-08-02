@@ -1,9 +1,16 @@
 import SwiftData
 import SwiftUI
 
+#if os(iOS)
+import UIKit
+#else
+import AppKit
+#endif
+
 struct MessageDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
     @Query private var messages: [Message]
 
     init(serverID: Int) {
@@ -20,25 +27,81 @@ struct MessageDetailView: View {
                 ContentUnavailableView("Message not found", systemImage: "questionmark")
             }
         }
+        #if os(iOS)
         .toolbar {
-            if let message {
+            if let imageURL = message?.imageURL {
                 ToolbarItem(placement: .primaryAction) {
-                    ShareLink(item: shareText(for: message))
+                    Button {
+                        downloadImage(imageURL)
+                    } label: {
+                        Image("akar-download")
+                    }
+                    .accessibilityLabel("Download image")
                 }
             }
         }
+        #else
+        .safeAreaInset(edge: .top) { macNavBar }
+        #endif
         .onAppear { markRead() }
+    }
+
+    #if os(macOS)
+    private var macNavBar: some View {
+        HStack(spacing: 10) {
+            Button {
+                dismiss()
+            } label: {
+                Label("Inbox", systemImage: "chevron.backward")
+                    .font(.inco(.subheadline, weight: .medium))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Back to inbox")
+
+            Spacer(minLength: 0)
+
+            if let imageURL = message?.imageURL {
+                Button {
+                    downloadImage(imageURL)
+                } label: {
+                    Image("akar-download")
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Download image")
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(.ultraThinMaterial)
+    }
+    #endif
+
+    private func downloadImage(_ url: URL) {
+        Task {
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
+            #if os(iOS)
+            if let image = UIImage(data: data) {
+                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+            }
+            #else
+            let panel = NSSavePanel()
+            panel.nameFieldStringValue = url.lastPathComponent.isEmpty ? "image.jpg" : url.lastPathComponent
+            if panel.runModal() == .OK, let dest = panel.url {
+                try? data.write(to: dest)
+            }
+            #endif
+        }
     }
 
     private func content(for message: Message) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text(message.title)
-                    .font(.title2.bold())
+                    .font(.inco(.title2, weight: .bold))
                     .textSelection(.enabled)
 
                 Text(message.createdAt, format: .dateTime.day().month().year().hour().minute())
-                    .font(.caption)
+                    .font(.inco(.caption))
                     .foregroundStyle(.secondary)
 
                 if let imageURL = message.imageURL {
@@ -58,7 +121,7 @@ struct MessageDetailView: View {
 
                 if let body = message.body {
                     Text(body)
-                        .font(.body)
+                        .font(.karla(.body))
                         .textSelection(.enabled)
                 }
 
@@ -70,18 +133,12 @@ struct MessageDetailView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .textSelection(.enabled)
             .padding()
         }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-    }
-
-    private func shareText(for message: Message) -> String {
-        var text = message.title
-        if let body = message.body { text += "\n\n" + body }
-        if let link = message.link { text += "\n\n" + link.absoluteString }
-        return text
     }
 
     private func markRead() {

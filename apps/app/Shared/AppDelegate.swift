@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = notificationDelegate
         application.registerForRemoteNotifications()
+        UITabBar.appearance().unselectedItemTintColor = UIColor.secondaryLabel
         return true
     }
 
@@ -37,11 +38,22 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 
 #else
 import AppKit
+import SwiftData
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let menuBar = MenuBarController()
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = notificationDelegate
         NSApplication.shared.registerForRemoteNotifications()
+
+        menuBar.configure(model: macAppModel, container: macContainer)
+        macAppModel.bootstrap(context: macContainer.mainContext)
+        Task {
+            await macAppModel.refreshPermission()
+            await macAppModel.refresh()
+        }
     }
 
     func application(

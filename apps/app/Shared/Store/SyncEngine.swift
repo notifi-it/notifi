@@ -14,6 +14,7 @@ final class SyncEngine {
     var keys: [CachedKey]
     var keysRefreshFailed = false
     private(set) var isSyncing = false
+    private(set) var unread = 0
 
     private let bookmarkKey = "lastSyncedMessageID"
 
@@ -34,13 +35,14 @@ final class SyncEngine {
         isSyncing = true
         defer { isSyncing = false }
 
+        var newMessages = 0
         do {
             while true {
                 let page = try await api.history(since: bookmark, limit: 200)
                 if page.messages.isEmpty { break }
 
-                for row in page.messages {
-                    ingest(row)
+                for row in page.messages where ingest(row) {
+                    newMessages += 1
                 }
 
                 try context.save()
@@ -55,31 +57,39 @@ final class SyncEngine {
         }
 
         updateBadge()
+        #if os(macOS)
+        if newMessages > 0 {
+            NotificationCenter.default.post(name: .notifiNewMessages, object: nil)
+        }
+        #else
+        _ = newMessages
+        #endif
     }
 
-    private func ingest(_ row: HistoryMessage) {
+    @discardableResult
+    private func ingest(_ row: HistoryMessage) -> Bool {
         let plaintext: Data
         do {
             plaintext = try identity.open(sealedB64: row.contentSealed, info: "content")
         } catch {
             log.error("skip message \(row.id): open failed")
-            return
+            return false
         }
 
         guard let content = try? JSONDecoder().decode(MessageContent.self, from: plaintext) else {
             log.error("skip message \(row.id): decode failed")
-            return
+            return false
         }
 
         guard content.keyID == row.keyID, content.createdAt == row.createdAt else {
             log.error("skip message \(row.id): sealed identity mismatch (tampered)")
-            return
+            return false
         }
 
         let serverID = row.id
         let descriptor = FetchDescriptor<Message>(predicate: #Predicate { $0.serverID == serverID })
         if let existing = try? context.fetch(descriptor), !existing.isEmpty {
-            return
+            return false
         }
 
         let message = Message(
@@ -92,6 +102,7 @@ final class SyncEngine {
             createdAt: Date(timeIntervalSince1970: TimeInterval(row.createdAt))
         )
         context.insert(message)
+        return true
     }
 
     func refreshKeys() async {
@@ -130,7 +141,12 @@ final class SyncEngine {
 
     func updateBadge() {
         let enabled = UserDefaults.standard.object(forKey: "badgeEnabled") as? Bool ?? true
-        let count = enabled ? unreadCount() : 0
+        let raw = unreadCount()
+        unread = raw
+        #if os(macOS)
+        NotificationCenter.default.post(name: .notifiUnreadChanged, object: nil)
+        #endif
+        let count = enabled ? raw : 0
         Task {
             try? await UNUserNotificationCenter.current().setBadgeCount(count)
         }

@@ -17,9 +17,12 @@ struct KeyDetailView: View {
                     LabeledContent("Name", value: key.name)
                     LabeledContent("Key") {
                         Text(key.maskedValue)
-                            .font(.body.monospaced())
+                            .font(.inco(.body))
                     }
                     Button("Copy Masked Value") { Clipboard.copy(key.maskedValue) }
+                    if key.name.lowercased() == "default", let full = model.defaultKeyValue {
+                        Button("Copy Full Key") { Clipboard.copy(full) }
+                    }
                 }
 
                 Section("Usage") {
