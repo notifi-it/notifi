@@ -6,6 +6,9 @@ export interface RateLimitBinding {
 
 export interface Env {
   DB: D1Database;
+  /// Signed macOS builds. The repo is private, so a GitHub release asset would
+  /// need auth and 404 for the public; this is the download the site links to.
+  DOWNLOADS: R2Bucket;
   SEND_IP_LIMIT: RateLimitBinding;
   APNS_HOST: string;
   APNS_TOPIC: string;

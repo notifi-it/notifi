@@ -3,6 +3,7 @@ import { errBody } from './lib/respond.js';
 import { ABANDONED_DEVICE_S, now } from './lib/time.js';
 import { ipLimiter } from './middleware.js';
 import { devices } from './routes/devices.js';
+import { downloads } from './routes/downloads.js';
 import { history } from './routes/history.js';
 import { keys } from './routes/keys.js';
 import { send } from './routes/send.js';
@@ -36,6 +37,7 @@ app.route('/', send);
 app.route('/', devices);
 app.route('/', keys);
 app.route('/', history);
+app.route('/', downloads);
 
 app.notFound((c) => c.json(errBody('not_found', 'Not found.'), 404));
 

@@ -13,6 +13,10 @@ binding = "DB"
 database_name = "notifi-dev"
 database_id = "922cd206-7142-4b75-9af2-05f5fd7e1ba2"
 
+[[r2_buckets]]
+binding = "DOWNLOADS"
+bucket_name = "notifi-downloads"
+
 [vars]
 APNS_HOST = "https://api.sandbox.push.apple.com"
 APNS_TOPIC = "it.notifi.notifi"
@@ -32,6 +36,10 @@ routes = [{ pattern = "app.notifi.it", custom_domain = true }]
 
 [env.production.assets]
 directory = "./public"
+
+[[env.production.r2_buckets]]
+binding = "DOWNLOADS"
+bucket_name = "notifi-downloads"
 
 [env.production.vars]
 APNS_HOST = "https://api.push.apple.com"
