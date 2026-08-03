@@ -11,6 +11,12 @@ struct CachedKey: Codable, Identifiable, Hashable, Sendable {
 
     var isRevoked: Bool { revokedAt != nil }
 
+    /// The key notifi creates for you at registration. It is the only one whose
+    /// value stays on the device, so it is the only one that can be regenerated
+    /// rather than revoked-and-lost. The name is reserved at creation time, which
+    /// is what makes it safe to identify one by name.
+    var isDefault: Bool { name.lowercased() == "default" }
+
     var maskedValue: String { "\(prefix)…" }
 
     var createdDate: Date { Date(timeIntervalSince1970: TimeInterval(createdAt)) }

@@ -25,7 +25,9 @@ struct KeysView: View {
             VStack(alignment: .leading, spacing: 0) {
                 GeistHeader(title: "Keys", subtitle: subtitle) {
                     #if os(iOS)
-                    PillButton(title: "New key") { showingCreate = true }
+                    IconButton(systemImage: "plus", label: "New key", glass: true) {
+                        showingCreate = true
+                    }
                     #else
                     PillButton(title: "New key") { model.presentingCreateKey = true }
                     #endif
@@ -67,8 +69,10 @@ struct KeysView: View {
                     }
                 }
 
-                Text("A key is shown once, when you create it. "
-                     + "notifi only ever stores the prefix.")
+                Text("Your default key stays on this device, so you can copy it "
+                     + "again or regenerate it. Every other key is shown once, "
+                     + "when you create it — after that notifi only stores the "
+                     + "prefix, and the only thing left to do is revoke it.")
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
@@ -108,6 +112,10 @@ private struct KeyRow: View {
                         .font(.inco(.headline, weight: .semibold))
                         .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
                         .lineLimit(1)
+                    if key.isDefault {
+                        Chip(text: "Default", color: Theme.fg,
+                             border: Theme.muted.opacity(0.5))
+                    }
                     if key.isRevoked {
                         Chip(text: "Revoked", color: Theme.dim)
                     }

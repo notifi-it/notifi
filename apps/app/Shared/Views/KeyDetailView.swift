@@ -1,14 +1,21 @@
 import SwiftUI
 
-/// One key. Revoke is the only destructive action — keys are never deleted, so a
-/// revoked key stays visible with its history intact.
+/// One key. Keys are never deleted, so a revoked key stays visible with its
+/// history intact.
+///
+/// The destructive action differs by key. The default key regenerates: its value
+/// lives on the device, so it can be replaced and you are never left without one.
+/// Every other key was shown once and is gone, so the only thing left to do with
+/// it is revoke it.
 struct KeyDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     let keyID: Int
 
     @State private var showingRevokeConfirm = false
+    @State private var showingRegenerateConfirm = false
     @State private var isRevoking = false
+    @State private var isRegenerating = false
     @State private var errorMessage: String?
     @State private var copied = false
 
@@ -49,6 +56,15 @@ struct KeyDetailView: View {
             Button("Revoke", role: .destructive) { Task { await revoke() } }
             Button("Cancel", role: .cancel) {}
         }
+        .confirmationDialog(
+            "Regenerate this key? The current value stops working immediately, "
+                + "and anything still sending with it will start getting 401.",
+            isPresented: $showingRegenerateConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Regenerate", role: .destructive) { Task { await regenerate() } }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 
     @ViewBuilder
@@ -59,6 +75,9 @@ struct KeyDetailView: View {
                     .font(.inco(.title, weight: .bold))
                     .foregroundStyle(Theme.fg)
                     .fixedSize(horizontal: false, vertical: true)
+                if key.isDefault {
+                    Chip(text: "Default", color: Theme.fg, border: Theme.muted.opacity(0.5))
+                }
                 if key.isRevoked {
                     Chip(text: "Revoked", color: Theme.dim)
                 }
@@ -75,12 +94,18 @@ struct KeyDetailView: View {
             // Only the default key's value is retrievable — it is the one kept in
             // the Keychain. Every other key was shown once at creation and is gone,
             // so there is nothing here worth copying.
-            if key.name.lowercased() == "default", let full = model.defaultKeyValue {
+            if key.isDefault, let full = model.defaultKeyValue {
                 OutlineButton(title: copied ? "Copied" : "Copy key") {
                     Clipboard.copy(full)
                     flash()
                 }
                 .padding(.top, 18)
+                Text("notifi keeps this one on your device, so you can copy it "
+                     + "again whenever you need it, or regenerate it below.")
+                    .font(Theme.metaSmall)
+                    .foregroundStyle(Theme.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 10)
             } else {
                 Text("The value was shown once, when you created this key. "
                      + "It is not stored on the device.")
@@ -110,6 +135,22 @@ struct KeyDetailView: View {
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 20)
+            } else if key.isDefault {
+                // No revoke here. Losing the default would leave the device with
+                // no key it can hand out, so the only action is to replace it.
+                SectionLabel(text: "Danger")
+                OutlineButton(title: isRegenerating ? "Regenerating…" : "Regenerate key",
+                              color: Theme.danger) {
+                    showingRegenerateConfirm = true
+                }
+                .disabled(isRegenerating)
+                Text("Regenerating issues a new value and retires the old one. "
+                     + "Anything still sending with the old value will start "
+                     + "getting 401.")
+                    .font(Theme.metaSmall)
+                    .foregroundStyle(Theme.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 10)
             } else {
                 SectionLabel(text: "Danger")
                 OutlineButton(title: isRevoking ? "Revoking…" : "Revoke key",
@@ -136,6 +177,19 @@ struct KeyDetailView: View {
             try? await Task.sleep(for: .seconds(1.6))
             withAnimation(.easeOut(duration: 0.2)) { copied = false }
         }
+    }
+
+    private func regenerate() async {
+        isRegenerating = true
+        errorMessage = nil
+        do {
+            try await model.regenerateDefaultKey()
+            copied = false
+        } catch {
+            errorMessage = (error as? APIError)?.userMessage
+                ?? "Couldn't regenerate the key."
+        }
+        isRegenerating = false
     }
 
     private func revoke() async {

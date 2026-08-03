@@ -15,7 +15,10 @@ enum SampleData {
     static let idFloor = -10_000
 
     @MainActor
-    static func seed(into context: ModelContext) {
+    /// `keyIDs` should be the ids this device has actually synced. Seeding ids
+    /// that do not exist makes the detail screen fall back to "Key <id>", which
+    /// reads as a bug rather than as sample data.
+    static func seed(into context: ModelContext, keyIDs: [Int] = []) {
         clear(from: context)
 
         let now = Date()
@@ -136,7 +139,9 @@ enum SampleData {
                     body: body,
                     link: link.flatMap(URL.init(string:)),
                     imageURL: image.flatMap(URL.init(string:)),
-                    keyID: nil,
+                    // Cycle through the real keys so the detail screen shows real
+                    // names. With no keys synced yet, leave it unattributed.
+                    keyID: keyIDs.isEmpty ? nil : keyIDs[index % keyIDs.count],
                     createdAt: ago(minutes),
                     // Give every other row a client timestamp so the millisecond
                     // path is visible next to the whole-second server one.

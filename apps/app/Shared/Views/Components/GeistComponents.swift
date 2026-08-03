@@ -133,6 +133,48 @@ struct PillButton: View {
     }
 }
 
+/// A glyph-only control, sized to sit in a header's trailing slot beside the
+/// wordmark. The label is carried by `accessibilityLabel` rather than on screen.
+struct IconButton: View {
+    var systemImage: String
+    var label: String
+    var color: Color = Theme.fg
+    /// Draws the glyph on a Liquid Glass circle. Only iOS/macOS 26 have the real
+    /// material; older releases fall back to a filled circle rather than fake it.
+    var glass: Bool = false
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(color)
+                .frame(width: 34, height: 34)
+                .glassBackground(enabled: glass)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+    }
+}
+
+extension View {
+    /// Backs the view with Liquid Glass where the OS has it, and a plain fill
+    /// where it does not.
+    @ViewBuilder
+    func glassBackground(enabled: Bool = true, in shape: some Shape = Circle()) -> some View {
+        if enabled {
+            if #available(iOS 26.0, macOS 26.0, *) {
+                glassEffect(.regular, in: shape)
+            } else {
+                background(shape.fill(Theme.chip.opacity(0.6)))
+            }
+        } else {
+            self
+        }
+    }
+}
+
 /// An outlined control. The default for anything that is not the primary action.
 struct OutlineButton: View {
     var title: String
@@ -321,17 +363,13 @@ struct GeistBackBar: View {
 
     var body: some View {
         HStack(spacing: 7) {
-            Button(action: dismiss) {
-                HStack(spacing: 5) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 13, weight: .semibold))
-                    Text(label)
-                        .font(Theme.body)
-                }
-                .foregroundStyle(Theme.muted)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Back to \(label)")
+            // Glyph only. `label` still names the destination for VoiceOver, and
+            // `chevron.backward` rather than `.left` so it mirrors in right-to-left
+            // languages, as the system's own back button does.
+            IconButton(systemImage: "chevron.backward",
+                       label: "Back to \(label)",
+                       glass: true,
+                       action: dismiss)
 
             Spacer(minLength: 8)
             if let trailing { trailing }

@@ -80,23 +80,7 @@ struct MessageDetailView: View {
 
     private var backBar: some View {
         HStack(spacing: 7) {
-            Button {
-                #if os(iOS)
-                if !model.path.isEmpty { model.path.removeLast() } else { dismiss() }
-                #else
-                if !model.path.isEmpty { model.path.removeLast() } else { dismiss() }
-                #endif
-            } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 13, weight: .semibold))
-                    Text("Notifications").font(Theme.body)
-                }
-                .foregroundStyle(Theme.muted)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Back to Notifications")
+            backButton
 
             Spacer(minLength: 8)
 
@@ -135,6 +119,31 @@ struct MessageDetailView: View {
         .background(Theme.bg)
     }
 
+    private func goBack() {
+        if !model.path.isEmpty { model.path.removeLast() } else { dismiss() }
+    }
+
+    /// Glyph only — the destination is the one screen this can pop back to, so
+    /// naming it earned nothing. Same round button as the trailing actions.
+    private var backButton: some View {
+        IconButton(systemName: "chevron.backward",
+                   label: "Back to Notifications") { goBack() }
+    }
+
+    /// The key the notification was sent with, or nil when saying so adds nothing.
+    ///
+    /// The default key is the overwhelming case and naming it on every single
+    /// notification would be noise, so it is left unsaid — a named key here means
+    /// the send came from somewhere you set up deliberately. An id that resolves
+    /// to no key still shows, as the key may since have been revoked.
+    private func keyName(for message: Message) -> String? {
+        guard let id = message.keyID else { return nil }
+        guard let key = model.sync?.keys.first(where: { $0.id == id }) else {
+            return "Key \(id)"
+        }
+        return key.isDefault ? nil : key.name
+    }
+
     @ViewBuilder
     private func content(for message: Message) -> some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -155,6 +164,21 @@ struct MessageDetailView: View {
                 }
             }
             .padding(.top, 6)
+
+            // Which key sent this. The feed cannot show it without crowding the
+            // row, so detail is the one place it is stated outright.
+            if let keyName = keyName(for: message) {
+                HStack(spacing: 6) {
+                    Image(systemName: "key.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Theme.dim)
+                    Text(keyName)
+                        .font(Theme.meta)
+                        .foregroundStyle(Theme.muted)
+                        .lineLimit(1)
+                }
+                .padding(.top, 8)
+            }
 
             Text(message.title)
                 .font(.inco(.title, weight: .bold))

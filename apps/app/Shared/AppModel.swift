@@ -153,7 +153,7 @@ final class AppModel {
         // empty simply because we could not reach the server, and creating a key here
         // would mint a duplicate "default" and orphan the previous secret.
         guard !sync.keysRefreshFailed else { return }
-        if sync.keys.contains(where: { $0.name.lowercased() == "default" && $0.revokedAt == nil }) {
+        if sync.keys.contains(where: { $0.isDefault && !$0.isRevoked }) {
             return
         }
         do {
@@ -166,6 +166,29 @@ final class AppModel {
     }
 
     var defaultKeyValue: String? { DeviceIdentity.loadDefaultKey() }
+
+    /// Replaces the default key with a fresh one. The old value stops working, so
+    /// anything still sending with it starts getting 401 — same as a revoke, but
+    /// you are not left without a default.
+    ///
+    /// The replacement is minted before the old one is retired: if creation fails,
+    /// the working key is still in place rather than the device having none.
+    func regenerateDefaultKey() async throws {
+        guard let api, let sync else { throw NotifiError.identityMissing }
+        let superseded = sync.keys.filter { $0.isDefault && !$0.isRevoked }
+        let created = try await api.createKey(name: "default")
+        DeviceIdentity.storeDefaultKey(created.key)
+        for key in superseded {
+            do {
+                try await api.revokeKey(id: key.id)
+            } catch {
+                // The new key already works. A stranded old one is worth logging
+                // but not worth failing the whole regenerate over.
+                log.error("regenerate: revoking key \(key.id) failed")
+            }
+        }
+        await sync.refreshKeys()
+    }
 
     private func messagesExist() -> Bool {
         guard let context else { return false }

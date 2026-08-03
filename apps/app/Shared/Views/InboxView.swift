@@ -152,9 +152,6 @@ struct InboxView: View {
             HStack(spacing: 10) {
                 BrandMark(size: 17)
                 Spacer(minLength: 8)
-                if unreadCount > 0 {
-                    PillButton(title: "Mark all read", action: markAllRead)
-                }
                 overflowMenu
             }
             .padding(.bottom, 18)
@@ -221,15 +218,18 @@ struct InboxView: View {
 
             #if DEBUG
             Divider()
-            Button("Seed sample data") { SampleData.seed(into: context) }
+            Button("Seed sample data") {
+                SampleData.seed(into: context, keyIDs: keys.map(\.id))
+            }
             Button("Clear sample data", role: .destructive) { SampleData.clear(from: context) }
             #endif
         } label: {
             Image(systemName: "ellipsis")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(filterKeyID == nil ? Theme.muted : Theme.brand)
-                .frame(width: 30, height: 30)
-                .contentShape(Rectangle())
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(filterKeyID == nil ? Theme.fg : Theme.brand)
+                .frame(width: 34, height: 34)
+                .glassBackground()
+                .contentShape(Circle())
         }
         .menuIndicator(.hidden)
         .fixedSize()
