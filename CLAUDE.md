@@ -54,6 +54,24 @@ Run `cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes a
 `notifi-iOS` and `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi:
 installs fail silently there and cannot be screenshotted.
 
+## Layout changes apply to every screen, not one
+
+The three tabs — Inbox, Keys, Settings — are built on different containers: the
+Inbox is a `List`, the other two are `ScrollView`s. Anything that changes shared
+geometry (gutters, insets, header spacing, row rhythm) has to be checked and
+applied on all three, or the tabs drift apart by a few points and the app starts
+feeling untidy in a way nobody can name.
+
+The gutter is `Theme.gutter` (20pt), applied through `geistGutter()`. Use it
+rather than a literal number, and never correct one screen with a compensating
+offset — an inset that only exists to cancel a container quirk is a bug the next
+OS version will change under you. There was a `.padding(.horizontal, -8)` on the
+Inbox `List` for exactly that reason; by the time it was removed its own comment
+no longer described what the screen did.
+
+Verify on the Simulator across all three tabs before calling a layout change
+done. Screenshot them and compare the left edge.
+
 ## No automated tests
 
 By decision. `make typecheck` plus both `xcodebuild` schemes is the full

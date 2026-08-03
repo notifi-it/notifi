@@ -367,13 +367,15 @@ final class AppModel {
     /// one kept in the Keychain, so it is always available. This used to create a
     /// throwaway key and revoke it, which flashed a junk entry through the Keys
     /// list on every test.
-    func sendTestNotification() async throws {
+    /// The title and message are overridable so the onboarding step can send the
+    /// exact payload its curl snippet shows. A button that quietly sends
+    /// something else teaches the wrong thing about the API.
+    func sendTestNotification(
+        title: String = "Test notification",
+        message: String = "If you can read this, notifi is working."
+    ) async throws {
         guard let api, let key = defaultKeyValue else { throw NotifiError.identityMissing }
-        _ = try await api.send(
-            key: key,
-            title: "Test notification",
-            message: "If you can read this, notifi is working."
-        )
+        _ = try await api.send(key: key, title: title, message: message)
     }
 
     static var platformName: String {
