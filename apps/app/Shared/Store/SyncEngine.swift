@@ -20,6 +20,11 @@ final class SyncEngine {
     private let failureKeyPrefix = "ingestFailedAt."
     private static let unreadableGraceSeconds: TimeInterval = 14 * 24 * 60 * 60
     private static let seqMigrationKey = "didMigrateToDeviceSeq"
+    private static let pageSize = 200
+    // 200 rows a page, so this is 10k messages in one pass — far more than a real
+    // backlog. The cap exists because the loop is otherwise driven entirely by what
+    // the server returns.
+    private static let maxPagesPerSync = 50
 
     init(api: APIClient, identity: DeviceIdentity, context: ModelContext) {
         self.api = api
@@ -80,8 +85,10 @@ final class SyncEngine {
 
         var newMessages = 0
         do {
-            pages: while true {
-                let page = try await api.history(since: bookmark, limit: 200)
+            var pagesFetched = 0
+            pages: while pagesFetched < Self.maxPagesPerSync {
+                pagesFetched += 1
+                let page = try await api.history(since: bookmark, limit: Self.pageSize)
                 if page.messages.isEmpty { break }
 
                 var ackable = bookmark
@@ -93,17 +100,25 @@ final class SyncEngine {
                     case .duplicate, .discarded:
                         break
                     case .unreadable:
+                        // Hold the ack at the last good row so the server keeps this
+                        // one for a retry — but keep ingesting the rest of the page.
+                        // Stopping here would hide every later message behind one bad
+                        // blob until the grace period expired.
                         blocked = true
                     }
-                    if blocked { break }
-                    ackable = row.id
+                    if !blocked { ackable = row.id }
                 }
 
                 try context.save()
 
-                if ackable > bookmark { bookmark = ackable }
+                // /history acks whatever `since` it is given, so the bookmark cannot
+                // move past a held row and there is no point re-requesting the same
+                // page. A bookmark that fails to advance also means the server
+                // returned rows at or below it, which would otherwise spin forever.
+                guard ackable > bookmark else { break pages }
+                bookmark = ackable
                 if blocked { break pages }
-                if page.messages.count < 200 { break }
+                if page.messages.count < Self.pageSize { break }
             }
         } catch {
             log.error("sync failed: \(String(describing: error), privacy: .public)")

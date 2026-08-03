@@ -92,7 +92,10 @@ struct InboxView: View {
                         searchFocused = false
                         model.path.append(message.serverID)
                     } label: {
-                        MessageRow(message: message)
+                        MessageRow(
+                            message: message,
+                            allowAnyScheme: model.allowsAnyLink(keyID: message.keyID)
+                        )
                     }
                     .buttonStyle(.plain)
                     .overlay(alignment: .bottom) { Hairline() }
@@ -262,7 +265,9 @@ struct InboxView: View {
         }
         if let link = message.link {
             Button("Copy Link") { Clipboard.copy(link.absoluteString) }
-            Button("Open Link") { open(link) }
+            if LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
+                Button("Open Link") { open(link, keyID: message.keyID) }
+            }
         }
         Divider()
         Button("Delete", role: .destructive) { pendingDelete = message }
@@ -293,7 +298,8 @@ struct InboxView: View {
         model.sync?.updateBadge()
     }
 
-    private func open(_ url: URL) {
+    private func open(_ url: URL, keyID: Int?) {
+        guard LinkPolicy.allows(url, keyID: keyID) else { return }
         #if os(iOS)
         UIApplication.shared.open(url)
         #else
@@ -329,6 +335,7 @@ private extension View {
 
 private struct MessageRow: View {
     let message: Message
+    let allowAnyScheme: Bool
 
     private var relative: String {
         let basis = message.occurredAt ?? message.createdAt
@@ -401,7 +408,8 @@ private struct MessageRow: View {
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .lineLimit(1)
-                if let url = message.imageURL {
+                if let url = message.imageURL,
+                   LinkPolicy.allows(url, anyScheme: allowAnyScheme) {
                     Thumbnail(url: url).padding(.top, 8)
                 }
             }

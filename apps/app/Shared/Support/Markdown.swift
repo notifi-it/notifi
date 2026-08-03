@@ -15,6 +15,8 @@ import SwiftUI
 /// host learns the device's IP address — so it is gated on the same decision.
 struct MarkdownText: View {
     let source: String
+    /// Whether the key that sent this message is allowed to open non-https links.
+    let allowAnyScheme: Bool
     var allowsRemoteImages: Bool = false
 
     var body: some View {
@@ -29,6 +31,12 @@ struct MarkdownText: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .textSelection(.enabled)
+        // A body link shows only its label, so the scheme behind it is never on
+        // screen. It goes through the same policy as the message's own `link`
+        // field rather than straight to the OS.
+        .environment(\.openURL, OpenURLAction { url in
+            LinkPolicy.allows(url, anyScheme: allowAnyScheme) ? .systemAction : .discarded
+        })
     }
 
     private var markdown: some View {

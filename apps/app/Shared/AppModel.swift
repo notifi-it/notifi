@@ -42,6 +42,7 @@ final class AppModel {
     var remoteImagesEnabled: Bool {
         didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
     }
+    private(set) var keysAllowingAnyLink: Set<Int>
     var presentingCreateKey = false
 
     private(set) var identity: DeviceIdentity?
@@ -60,6 +61,23 @@ final class AppModel {
 
     init() {
         remoteImagesEnabled = RemoteImages.isEnabled
+        keysAllowingAnyLink = LinkPolicy.allowedKeyIDs()
+    }
+
+    /// Whether messages sent with this key may open links the strict rule rejects.
+    /// A message with no key — its key was revoked and swept — is never trusted.
+    func allowsAnyLink(keyID: Int?) -> Bool {
+        guard let keyID else { return false }
+        return keysAllowingAnyLink.contains(keyID)
+    }
+
+    func setAllowsAnyLink(_ allow: Bool, keyID: Int) {
+        if allow {
+            keysAllowingAnyLink.insert(keyID)
+        } else {
+            keysAllowingAnyLink.remove(keyID)
+        }
+        LinkPolicy.store(keysAllowingAnyLink)
     }
 
     var baseURL: URL {

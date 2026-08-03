@@ -88,14 +88,19 @@ struct MessageDetailView: View {
             Spacer(minLength: 8)
 
             if let message {
+                let anyScheme = model.allowsAnyLink(keyID: message.keyID)
                 HStack(spacing: 8) {
-                    if let url = message.imageURL {
+                    if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                         IconButton(systemName: "arrow.down.to.line",
-                                   label: "Download image") { downloadImage(url) }
+                                   label: "Download image") {
+                            downloadImage(url, keyID: message.keyID)
+                        }
                     }
 
-                    if let link = message.link {
-                        IconButton(systemName: "globe", label: "Open link") { open(link) }
+                    if let link = message.link, LinkPolicy.allows(link, anyScheme: anyScheme) {
+                        IconButton(systemName: "globe", label: "Open link") {
+                            open(link, keyID: message.keyID)
+                        }
                     }
 
                     // The feed already says "unread" with a filled dot, so the
@@ -149,6 +154,7 @@ struct MessageDetailView: View {
 
     @ViewBuilder
     private func content(for message: Message) -> some View {
+        let anyScheme = model.allowsAnyLink(keyID: message.keyID)
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(Self.stamp.string(from: message.occurredAt ?? message.createdAt))
@@ -191,11 +197,15 @@ struct MessageDetailView: View {
                 .padding(.top, 12)
 
             if let body = message.body {
-                MarkdownText(source: body, allowsRemoteImages: showsImage)
+                MarkdownText(source: body, allowAnyScheme: anyScheme,
+                             allowsRemoteImages: showsImage)
                     .padding(.top, 15)
             }
 
-            if let url = message.imageURL {
+            // Two gates, and both must pass. The scheme check is about what this
+            // key is trusted to point at; showsImage is about whether the host
+            // gets to learn this device's IP at all.
+            if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                 Group {
                     if showsImage {
                         AsyncImage(url: url) { phase in
@@ -243,19 +253,30 @@ struct MessageDetailView: View {
                     .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
 
                 HStack(spacing: 9) {
-                    Button { open(link) } label: {
-                        Text("Open ↗")
-                            .font(.inco(.footnote, weight: .semibold))
-                            .foregroundStyle(Theme.bg)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Theme.fg, in: RoundedRectangle(cornerRadius: 8))
+                    if LinkPolicy.allows(link, anyScheme: anyScheme) {
+                        Button { open(link, keyID: message.keyID) } label: {
+                            Text("Open ↗")
+                                .font(.inco(.footnote, weight: .semibold))
+                                .foregroundStyle(Theme.bg)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Theme.fg, in: RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
 
                     OutlineShareButton(title: "Share", item: link)
                 }
                 .padding(.top, 10)
+
+                if !LinkPolicy.allows(link, anyScheme: anyScheme) {
+                    Text("Not opened: this link is not https. Turn on "
+                         + "\"Open any link\" for this key to allow it.")
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(Theme.dim)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 8)
+                }
             }
 
             // Read/unread and delete moved to the top bar; copying the whole
@@ -362,7 +383,10 @@ struct MessageDetailView: View {
         model.sync?.updateBadge()
     }
 
-    private func open(_ url: URL) {
+    // The call sites already hide the controls that reach these, so the guards are
+    // a backstop: neither should ever hand the OS a URL the policy rejects.
+    private func open(_ url: URL, keyID: Int?) {
+        guard LinkPolicy.allows(url, keyID: keyID) else { return }
         #if os(iOS)
         UIApplication.shared.open(url)
         #else
@@ -370,7 +394,8 @@ struct MessageDetailView: View {
         #endif
     }
 
-    private func downloadImage(_ url: URL) {
+    private func downloadImage(_ url: URL, keyID: Int?) {
+        guard LinkPolicy.allows(url, keyID: keyID) else { return }
         Task {
             guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
             #if os(iOS)

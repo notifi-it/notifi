@@ -15,7 +15,7 @@ enum RemoteImages {
     static var isEnabled: Bool {
         let stored = try? DeviceIdentity.keychainGet(
             service: service,
-            accessGroup: IdentityConstants.accessGroup
+            accessGroup: IdentityConstants.sharedAccessGroup
         )
         guard let data = stored ?? nil, let value = String(data: data, encoding: .utf8) else {
             return false
@@ -26,7 +26,7 @@ enum RemoteImages {
     static func setEnabled(_ enabled: Bool) {
         try? DeviceIdentity.keychainSet(
             service: service,
-            accessGroup: IdentityConstants.accessGroup,
+            accessGroup: IdentityConstants.sharedAccessGroup,
             data: Data((enabled ? "1" : "0").utf8)
         )
     }

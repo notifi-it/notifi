@@ -57,8 +57,15 @@ targets:
         PRODUCT_NAME: notifi
         PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
         INFOPLIST_FILE: Support/Info/App-iOS-Info.plist
-        CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-iOS.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
+      # aps-environment has to track the configuration. Release points at the
+      # production Worker, and a production Worker talks to the production APNs
+      # host, which rejects a sandbox token as BadDeviceToken.
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-iOS-Debug.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-iOS-Release.entitlements
     dependencies:
       - target: NotificationService-iOS
       - package: MarkdownUI
@@ -74,8 +81,12 @@ targets:
         PRODUCT_NAME: notifi
         PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
         INFOPLIST_FILE: Support/Info/App-macOS-Info.plist
-        CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS.entitlements
         ENABLE_HARDENED_RUNTIME: "YES"
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-Debug.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-Release.entitlements
     dependencies:
       - target: NotificationService-macOS
       - package: Sparkle

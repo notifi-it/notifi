@@ -482,7 +482,10 @@ Body `{ name }`. Generates the key (§5b), inserts the row with a placeholder
 `meta_sealed` using `RETURNING id`, seals the `keyMeta` `{id, name, prefix}`, and
 updates the row with it (two writes — fine, this is a management route, not the hot
 path). Returns `200 { id, name, key }` — the only time the full key ever appears in
-a response. Cap: 50 active keys per device → `invalid_request` beyond that.
+a response. Cap: 5 active keys per device → `invalid_request` beyond that. Device
+registration is unauthenticated, so that cap and the per-IP limit are the only
+bounds on how many rows one party can create; one of the five is the app's own
+`default` key.
 
 ### `DELETE /keys/:id` — signature auth
 
@@ -884,6 +887,18 @@ SwiftData is a tar pit this product doesn't need).
   Phase 0 script) on hardware during Phase 1.
 
 ### 9g. Views (system components only — the point of the rewrite)
+
+- **Link policy (per key, device-local).** `link` accepts any scheme at ingest, and
+  `UIApplication.open` / `NSWorkspace.open` will launch `shortcuts:`, `prefs:` or
+  `file:` from one tap while the inbox row shows only `url.host()`. So a message's
+  `link` and `image` are opened only when the scheme is `https`, unless the key that
+  sent it has been opted in via **Open any link** on the key detail screen. The
+  allowance is per key because that is the granularity trust has: a key wired to your
+  own deploy script is not the key pasted into a third-party webhook. It is stored in
+  `UserDefaults` on the device — never sent to the server, never in the key metadata,
+  so a compromised server cannot grant it. A message whose key was revoked and swept
+  carries no `key_id` and gets the strict rule. Controls that would open a rejected
+  URL are hidden rather than disabled, and the open/download paths re-check.
 
 - **Inbox**: `NavigationStack` + `List`, large title. `.swipeActions` (leading: mark
   read/unread; trailing: delete, destructive). `.contextMenu`: Copy Title, Copy

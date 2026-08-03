@@ -11,6 +11,13 @@ final class APIClient {
     // would fail every call forever, so track the server's own clock and sign with it.
     private var serverOffset: TimeInterval = 0
 
+    // The offset is bounded because it ends up inside a signature. Left unbounded,
+    // anything that can set the Date header could make this client mint validly
+    // signed requests bearing a chosen future timestamp and harvest them. TLS
+    // already fails on a clock this far out, so a larger reading is a tampered
+    // header rather than a skewed device.
+    private static let maxClockOffset: TimeInterval = 24 * 60 * 60
+
     private static let httpDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -158,18 +165,27 @@ final class APIClient {
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
-        if let dateHeader = http.value(forHTTPHeaderField: "Date"),
-           let serverDate = Self.httpDateFormatter.date(from: dateHeader) {
-            serverOffset = serverDate.timeIntervalSince(Date())
-        }
         guard (200 ..< 300).contains(http.statusCode) else {
             let envelope = try? JSONDecoder().decode(APIErrorEnvelope.self, from: data)
+            // A rejected timestamp is the one failure that has to trust the server's
+            // clock, because the retry re-signs against it. Every other error leaves
+            // the offset alone.
+            if envelope?.error.code == "stale_timestamp" { adoptServerClock(http) }
             throw APIError.http(
                 status: http.statusCode,
                 code: envelope?.error.code,
                 message: envelope?.error.message
             )
         }
+        adoptServerClock(http)
         return data
+    }
+
+    private func adoptServerClock(_ http: HTTPURLResponse) {
+        guard let dateHeader = http.value(forHTTPHeaderField: "Date"),
+              let serverDate = Self.httpDateFormatter.date(from: dateHeader) else { return }
+        let offset = serverDate.timeIntervalSince(Date())
+        guard abs(offset) <= Self.maxClockOffset else { return }
+        serverOffset = offset
     }
 }

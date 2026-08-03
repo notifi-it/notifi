@@ -24,8 +24,13 @@ export async function verifyDeviceSignature(
   const bodyHashHex = toHex(await crypto.subtle.digest('SHA-256', rawBody));
   const canonical = [req.method, url.host.toLowerCase(), pathWithQuery, ts, bodyHashHex].join('\n');
 
+  // Both header decodes go inside the catch. atob throws on malformed base64, and
+  // an unhandled throw here would surface as a 500 rather than the 401 a bad
+  // signature deserves.
   let key: CryptoKey;
+  let sigBytes: Uint8Array;
   try {
+    sigBytes = fromB64(sig);
     key = await crypto.subtle.importKey(
       'raw',
       fromB64(pk),
@@ -40,7 +45,7 @@ export async function verifyDeviceSignature(
   const ok = await crypto.subtle.verify(
     { name: 'ECDSA', hash: 'SHA-256' },
     key,
-    fromB64(sig),
+    sigBytes,
     new TextEncoder().encode(canonical),
   );
   return ok ? { ok: true, publicKey: pk } : { ok: false, code: 'bad_signature' };

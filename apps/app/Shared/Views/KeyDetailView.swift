@@ -125,6 +125,35 @@ struct KeyDetailView: View {
             } ?? "Never")
             Hairline()
 
+            SectionLabel(text: "Links")
+
+            Toggle(isOn: Binding(
+                get: { model.allowsAnyLink(keyID: keyID) },
+                set: { model.setAllowsAnyLink($0, keyID: keyID) }
+            )) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Open any link")
+                        .font(Theme.body)
+                        .foregroundStyle(Theme.fg)
+                    Text("Off, messages from this key only open https links. "
+                         + "On, they can open anything — including other apps "
+                         + "on this device.")
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(Theme.dim)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .tint(Theme.brand)
+            .padding(.vertical, 12)
+            Hairline()
+
+            Text("Whoever holds this key writes the link, so this is a statement "
+                 + "about how much you trust them. It applies on this device only.")
+                .font(Theme.metaSmall)
+                .foregroundStyle(Theme.dim)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 10)
+
             if let errorMessage {
                 InlineError(message: errorMessage).padding(.top, 16)
             }

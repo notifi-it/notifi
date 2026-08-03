@@ -36,7 +36,14 @@ struct NotifiApp: App {
 
     static func makeContainer() -> ModelContainer {
         do {
-            return try ModelContainer(for: Message.self)
+            let container = try ModelContainer(for: Message.self)
+            // The store stays in backups on purpose: an archive that outlives its
+            // keychain identity is exactly how a restored phone is detected. What it
+            // does not need is to sit unprotected on disk between unlocks.
+            if let url = container.configurations.first?.url {
+                OnDiskProtection.protect(url)
+            }
+            return container
         } catch {
             fatalError("Failed to create the message store: \(error)")
         }

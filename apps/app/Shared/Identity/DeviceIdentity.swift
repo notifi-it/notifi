@@ -15,6 +15,7 @@ protocol SealedBoxOpener {
 enum IdentityConstants {
     static let service = "it.notifi.identity"
     static let encryptionService = "it.notifi.encryption"
+    static let defaultKeyService = "it.notifi.defaultkey"
 
     static let teamIdPrefix: String = {
         (Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String) ?? ""
@@ -24,8 +25,19 @@ enum IdentityConstants {
     // empty, an explicit group would not match the entitlement and every keychain
     // write would fail with errSecMissingEntitlement; nil resolves to the app's
     // default group, which is the shared group listed first in the entitlements.
-    static var accessGroup: String? {
+
+    // Shared with the Notification Service Extension. It holds the encryption key
+    // and nothing else.
+    static var sharedAccessGroup: String? {
         teamIdPrefix.isEmpty ? nil : "\(teamIdPrefix)it.notifi.shared"
+    }
+
+    // App only — the NSE does not list this group. The signing key and the default
+    // send key live here because the NSE needs neither: it parses an attacker-chosen
+    // payload and downloads an attacker-chosen image, so a foothold there should
+    // reach the one key required to unseal a push and no further.
+    static var appAccessGroup: String? {
+        teamIdPrefix.isEmpty ? nil : "\(teamIdPrefix)it.notifi.private"
     }
 }
 
@@ -111,7 +123,7 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
     }
 
     static func loadOpener() throws -> SealedBoxOpener {
-        guard let data = try keychainGet(service: encryptionService, accessGroup: accessGroup) else {
+        guard let data = try keychainGet(service: encryptionService, accessGroup: sharedGroup) else {
             throw NotifiError.identityMissing
         }
         let encryption = try P256.KeyAgreement.PrivateKey(rawRepresentation: data)
@@ -120,13 +132,14 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
 
     private static var service: String { IdentityConstants.service }
     private static var encryptionService: String { IdentityConstants.encryptionService }
-    private static var accessGroup: String? { IdentityConstants.accessGroup }
+    private static var sharedGroup: String? { IdentityConstants.sharedAccessGroup }
+    private static var appGroup: String? { IdentityConstants.appAccessGroup }
 
     private static func load(returnNilIfMissing: Bool) throws -> DeviceIdentity? {
-        guard let signingData = try keychainGet(service: service, accessGroup: nil) else {
+        guard let signingData = try loadMigrating(service: service) else {
             return nil
         }
-        guard let encryptionData = try keychainGet(service: encryptionService, accessGroup: accessGroup) else {
+        guard let encryptionData = try keychainGet(service: encryptionService, accessGroup: sharedGroup) else {
             return nil
         }
 
@@ -152,18 +165,18 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
         #if targetEnvironment(simulator)
         if SecureEnclave.isAvailable {
             let key = try makeSecureEnclaveKey()
-            try keychainSet(service: service, accessGroup: nil, data: key.dataRepresentation)
+            try storePrivately(service: service, data: key.dataRepresentation)
             return .secureEnclave(key)
         }
         let key = P256.Signing.PrivateKey()
-        try keychainSet(service: service, accessGroup: nil, data: key.rawRepresentation)
+        try storePrivately(service: service, data: key.rawRepresentation)
         return .simulatorSoftware(key)
         #else
         guard SecureEnclave.isAvailable else {
             throw NotifiError.unsupportedDevice
         }
         let key = try makeSecureEnclaveKey()
-        try keychainSet(service: service, accessGroup: nil, data: key.dataRepresentation)
+        try storePrivately(service: service, data: key.dataRepresentation)
         return .secureEnclave(key)
         #endif
     }
@@ -182,24 +195,72 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
     }
 
     private static func storeEncryptionKey(_ key: P256.KeyAgreement.PrivateKey) throws {
-        try keychainSet(service: encryptionService, accessGroup: accessGroup, data: key.rawRepresentation)
+        try keychainSet(service: encryptionService, accessGroup: sharedGroup, data: key.rawRepresentation)
     }
 }
 
 extension DeviceIdentity {
     static func storeDefaultKey(_ value: String) {
-        try? keychainSet(service: "it.notifi.defaultkey", accessGroup: nil, data: Data(value.utf8))
+        try? storePrivately(service: IdentityConstants.defaultKeyService, data: Data(value.utf8))
     }
 
     static func loadDefaultKey() -> String? {
-        guard let data = (try? keychainGet(service: "it.notifi.defaultkey", accessGroup: nil)) ?? nil else {
+        guard let data = (try? loadMigrating(service: IdentityConstants.defaultKeyService)) ?? nil else {
             return nil
         }
         return String(data: data, encoding: .utf8)
     }
 }
 
+// Not private: RemoteImages stores its flag through keychainSet/keychainGet too.
 extension DeviceIdentity {
+    // Writes to the app-only group. A build whose provisioning profile does not
+    // carry that group answers errSecMissingEntitlement; losing the isolation is
+    // bad, but failing to store an identity at all is worse, so that one status
+    // falls back to the shared group. Every other failure still throws.
+    static func storePrivately(service: String, data: Data) throws {
+        do {
+            try keychainSet(service: service, accessGroup: appGroup, data: data)
+        } catch NotifiError.keychain(errSecMissingEntitlement) {
+            guard appGroup != sharedGroup else {
+                throw NotifiError.keychain(errSecMissingEntitlement)
+            }
+            try keychainSet(service: service, accessGroup: sharedGroup, data: data)
+        }
+    }
+
+    // Items written before the group split sit in the shared group. Move them on
+    // first read, and keep using the copy that is already there if the move fails.
+    //
+    // The app-group read is deliberately non-throwing: a missing entitlement reads
+    // as an error rather than as "not found", and that must fall through to the
+    // shared group instead of failing the whole identity load. The shared-group read
+    // still throws, so AppModel can keep telling a transient keychain failure apart
+    // from a genuinely absent identity.
+    static func loadMigrating(service: String) throws -> Data? {
+        if let data = (try? keychainGet(service: service, accessGroup: appGroup)) ?? nil {
+            return data
+        }
+        guard appGroup != sharedGroup,
+              let legacy = try keychainGet(service: service, accessGroup: sharedGroup) else {
+            return nil
+        }
+        if (try? keychainSet(service: service, accessGroup: appGroup, data: legacy)) != nil {
+            keychainDelete(service: service, accessGroup: sharedGroup)
+        }
+        return legacy
+    }
+
+    static func keychainDelete(service: String, accessGroup: String?) {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecUseDataProtectionKeychain as String: true,
+        ]
+        if let accessGroup { query[kSecAttrAccessGroup as String] = accessGroup }
+        _ = SecItemDelete(query as CFDictionary)
+    }
+
     // Add first, and only update on an explicit duplicate. Deleting up front would
     // destroy a live identity whenever a read had failed for a transient reason.
     static func keychainSet(service: String, accessGroup: String?, data: Data) throws {

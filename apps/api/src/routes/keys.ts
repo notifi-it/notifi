@@ -7,7 +7,10 @@ import { now } from '../lib/time.js';
 import { bumpLastSeenIfStale, getDevice, signatureAuth } from '../middleware.js';
 import type { AppEnv } from '../types.js';
 
-const MAX_ACTIVE_KEYS = 50;
+// Device registration is unauthenticated by design, so this ceiling and the
+// per-IP limit are the only things bounding how many rows one party can create.
+// One of the five is the app's own `default` key.
+const MAX_ACTIVE_KEYS = 5;
 
 export const keys = new Hono<AppEnv>();
 

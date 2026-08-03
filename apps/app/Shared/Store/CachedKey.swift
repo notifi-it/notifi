@@ -41,8 +41,17 @@ enum KeyCacheStore {
         return keys
     }
 
+    // Unlike the message store this cache is rebuilt from /keys on every refresh, so
+    // it is excluded from backups. It holds each key's `prefix`, which the server
+    // keeps sealed precisely so a database dump does not yield the first characters
+    // of every key.
     static func save(_ keys: [CachedKey]) {
         guard let data = try? JSONEncoder().encode(keys) else { return }
+        #if os(iOS)
+        try? data.write(to: fileURL, options: [.atomic, .completeFileProtectionUnlessOpen])
+        #else
         try? data.write(to: fileURL, options: .atomic)
+        #endif
+        OnDiskProtection.excludeFromBackup(fileURL)
     }
 }
