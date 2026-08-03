@@ -31,6 +31,9 @@ struct KeySummary: Codable, Sendable {
     let lastUsedAt: Int?
     let sentCount: Int
     let revokedAt: Int?
+    /// 0 or 1. Unlike the name and prefix this is not sealed, because the server
+    /// has to read it to decide how the push sounds.
+    let critical: Int
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -39,6 +42,7 @@ struct KeySummary: Codable, Sendable {
         case lastUsedAt = "last_used_at"
         case sentCount = "sent_count"
         case revokedAt = "revoked_at"
+        case critical
     }
 }
 
@@ -54,6 +58,10 @@ struct CreateKeyResponse: Codable, Sendable {
     let id: Int
     let name: String
     let key: String
+}
+
+struct UpdateKeyBody: Codable, Sendable {
+    let critical: Bool
 }
 
 struct HistoryMessage: Codable, Sendable {

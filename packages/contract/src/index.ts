@@ -25,6 +25,12 @@ export const OCCURRED_AT_MIN_MS = 946_684_800_000;
 /// How far ahead of the server clock a client timestamp may sit.
 export const OCCURRED_AT_MAX_SKEW_MS = 24 * 60 * 60 * 1000;
 
+/// Senders reach /send from curl and from shell scripts, so a flag arrives as
+/// often as the string "1" in a query string as it does as a JSON true.
+const sendFlag = z
+  .union([z.boolean(), z.enum(['1', '0', 'true', 'false'])])
+  .transform((v) => v === true || v === '1' || v === 'true');
+
 export const sendParams = z.object({
   key: z.string(),
   title: z.string().min(1).max(200),
@@ -53,10 +59,19 @@ export const sendParams = z.object({
     .int()
     .min(OCCURRED_AT_MIN_MS, { message: 'occurred_at must be after 2000-01-01' })
     .optional(),
+  // Ask for a Critical Alert: one that sounds through the ringer switch and
+  // through Focus. Asking is not getting — the key must also be marked critical
+  // by the device that owns it, and the device owner must have granted the
+  // system permission. A send that asks without that standing is delivered as a
+  // normal notification rather than refused, because dropping an alert from a
+  // pager is worse than under-delivering it.
+  critical: sendFlag.optional(),
 });
 export type SendParams = z.infer<typeof sendParams>;
 
-export const messageContent = sendParams.omit({ key: true }).extend({
+/// `critical` is transport, not content: it decides how the push sounds, and
+/// nothing about it is worth sealing, storing or showing in the feed.
+export const messageContent = sendParams.omit({ key: true, critical: true }).extend({
   key_id: z.number().int(),
   created_at: z.number().int(),
 });
@@ -92,6 +107,10 @@ export const keySummary = z.object({
   last_used_at: z.number().int().nullable(),
   sent_count: z.number().int(),
   revoked_at: z.number().int().nullable(),
+  /// 0 or 1, straight off the row. Unlike name and prefix this cannot live in
+  /// the sealed meta, because the server is the one that has to act on it when
+  /// building the push.
+  critical: z.number().int(),
 });
 export type KeySummary = z.infer<typeof keySummary>;
 
@@ -113,6 +132,13 @@ export const createKeyResponse = z.object({
   key: z.string(),
 });
 export type CreateKeyResponse = z.infer<typeof createKeyResponse>;
+
+export const updateKeyBody = z
+  .object({
+    critical: z.boolean(),
+  })
+  .strict();
+export type UpdateKeyBody = z.infer<typeof updateKeyBody>;
 
 export const historyQuery = z.object({
   since: z.coerce.number().int().nonnegative().optional(),

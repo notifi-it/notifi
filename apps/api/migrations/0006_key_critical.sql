@@ -1,0 +1,11 @@
+-- Whether this key is allowed to raise a Critical Alert: a push that sounds
+-- through the ringer switch and through Focus.
+--
+-- The key's name and prefix live inside `meta_sealed` where the server cannot
+-- read them, but this one has to be a real column, because the server is what
+-- builds the `aps` dictionary and therefore what has to know.
+--
+-- Defaults to 0 for every existing and future key. Turning it on is a
+-- deliberate act by the device that owns the key, so a leaked send key cannot
+-- escalate itself past the volume the owner agreed to.
+ALTER TABLE keys ADD COLUMN critical INTEGER NOT NULL DEFAULT 0;

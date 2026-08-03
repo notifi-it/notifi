@@ -39,6 +39,10 @@ final class AppModel {
     var path = NavigationPath()
     var selectedTab: AppTab = .inbox
     var notificationStatus: UNAuthorizationStatus = .notDetermined
+    /// Whether the system will actually let a Critical Alert through. Stays
+    /// `.notSupported` until Apple grants the entitlement, which is what the key
+    /// screen keys off to explain itself rather than offering a dead switch.
+    var criticalAlertStatus: UNNotificationSetting = .notSupported
     var remoteImagesEnabled: Bool {
         didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
     }
@@ -185,6 +189,16 @@ final class AppModel {
 
     var defaultKeyValue: String? { DeviceIdentity.loadDefaultKey() }
 
+    /// Allows or stops Critical Alerts for one key. The server keeps the last word:
+    /// a send still has to ask for `critical=1`, and a key that was never switched
+    /// on here can never raise its own volume, however the key value is used.
+    func setKeyCritical(id: Int, critical: Bool) async throws {
+        guard let api, let sync else { throw NotifiError.identityMissing }
+        if critical { await requestCriticalAlertPermission() }
+        try await api.updateKey(id: id, critical: critical)
+        await sync.refreshKeys()
+    }
+
     /// Replaces the default key with a fresh one. The old value stops working, so
     /// anything still sending with it starts getting 401 — same as a revoke, but
     /// you are not left without a default.
@@ -300,19 +314,35 @@ final class AppModel {
     }
 
     func refreshPermission() async {
-        // UNNotificationSettings is not Sendable, so read the status inside the
-        // callback and let only that cross the isolation boundary.
-        notificationStatus = await withCheckedContinuation { continuation in
-            UNUserNotificationCenter.current().getNotificationSettings { settings in
-                continuation.resume(returning: settings.authorizationStatus)
+        // UNNotificationSettings is not Sendable, so read the statuses inside the
+        // callback and let only those cross the isolation boundary.
+        let settings: (UNAuthorizationStatus, UNNotificationSetting) =
+            await withCheckedContinuation { continuation in
+                UNUserNotificationCenter.current().getNotificationSettings { settings in
+                    continuation.resume(
+                        returning: (settings.authorizationStatus, settings.criticalAlertSetting)
+                    )
+                }
             }
-        }
+        notificationStatus = settings.0
+        criticalAlertStatus = settings.1
     }
 
     func requestNotificationPermission() async {
+        await requestAuthorization(options: [.alert, .sound, .badge])
+    }
+
+    /// Asked separately, the first time a key is switched to critical, rather than
+    /// bundled into the initial prompt. Critical Alerts get their own system
+    /// dialog, and asking for it before the user has expressed any interest is the
+    /// fastest way to have it denied for good.
+    func requestCriticalAlertPermission() async {
+        await requestAuthorization(options: [.alert, .sound, .badge, .criticalAlert])
+    }
+
+    private func requestAuthorization(options: UNAuthorizationOptions) async {
         do {
-            _ = try await UNUserNotificationCenter.current()
-                .requestAuthorization(options: [.alert, .sound, .badge])
+            _ = try await UNUserNotificationCenter.current().requestAuthorization(options: options)
         } catch {
             log.error("permission request failed: \(String(describing: error), privacy: .public)")
         }

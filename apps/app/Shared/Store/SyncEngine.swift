@@ -222,7 +222,8 @@ final class SyncEngine {
                     sentCount: summary.sentCount,
                     createdAt: summary.createdAt,
                     lastUsedAt: summary.lastUsedAt,
-                    revokedAt: summary.revokedAt
+                    revokedAt: summary.revokedAt,
+                    critical: summary.critical == 1
                 ))
             }
             keys = built

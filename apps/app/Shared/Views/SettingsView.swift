@@ -43,8 +43,8 @@ struct SettingsView: View {
                 // MARK: Privacy
                 SectionLabel(text: "Privacy")
 
-                toggleRow(
-                    "Load images automatically",
+                ToggleRow(
+                    title: "Load images automatically",
                     detail: "A message can carry an image hosted anywhere. "
                         + "Fetching it tells whoever sent the message your IP "
                         + "address and when it arrived. Off means images load "
@@ -106,8 +106,8 @@ struct SettingsView: View {
                 // Sparkle only exists in the macOS build; iOS updates through the
                 // App Store and does not link it.
                 #if os(macOS)
-                toggleRow(
-                    "Automatic updates",
+                ToggleRow(
+                    title: "Automatic updates",
                     detail: "Check for new versions in the background.",
                     isOn: Binding(
                         get: { Updater.shared.automaticallyChecks },
@@ -175,39 +175,6 @@ struct SettingsView: View {
         .toolbar(.hidden, for: .navigationBar)
         #endif
         .task { await model.refreshPermission() }
-    }
-
-    /// A switch sits hard against its own label, which puts it at a different
-    /// distance from the edge on every row. Detached and given the shared
-    /// control column, the switches line up with each other and with the values
-    /// in the rows above them.
-    private func toggleRow(
-        _ title: String,
-        detail: String? = nil,
-        isOn: Binding<Bool>
-    ) -> some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(Theme.body)
-                    .foregroundStyle(Theme.fg)
-                    .fixedSize(horizontal: false, vertical: true)
-                if let detail {
-                    Text(detail)
-                        .font(Theme.metaSmall)
-                        .foregroundStyle(Theme.dim)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            Spacer(minLength: 8)
-            Toggle("", isOn: isOn)
-                .labelsHidden()
-                .toggleStyle(.switch)
-                .controlSize(.small)
-                .tint(Theme.brand)
-                .frame(width: Theme.controlWidth, alignment: .trailing)
-        }
-        .padding(.vertical, Theme.rowPadV)
     }
 
     private var permissionText: String {

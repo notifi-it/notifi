@@ -50,6 +50,13 @@ final class APIClient {
         }
     }
 
+    func updateKey(id: Int, critical: Bool) async throws {
+        let data = try encode(UpdateKeyBody(critical: critical))
+        _ = try await performSignedVoid {
+            try self.signedRequest(method: "PATCH", path: "/keys/\(id)", body: data)
+        }
+    }
+
     func revokeKey(id: Int) async throws {
         _ = try await performSignedVoid {
             try self.signedRequest(method: "DELETE", path: "/keys/\(id)")

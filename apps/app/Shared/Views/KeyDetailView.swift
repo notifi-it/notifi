@@ -18,8 +18,28 @@ struct KeyDetailView: View {
     @State private var isRegenerating = false
     @State private var errorMessage: String?
     @State private var copied = false
+    @State private var isUpdatingCritical = false
 
     private var key: CachedKey? { model.sync?.keys.first { $0.id == keyID } }
+
+    /// The switch is offered either way. Whether the system honours it is a
+    /// separate question — the entitlement has to be granted to the app and the
+    /// permission has to be granted to the device — so say which one is missing
+    /// rather than showing a switch that quietly does nothing.
+    private var criticalDetail: String {
+        switch model.criticalAlertStatus {
+        case .enabled:
+            return "Sends from this key that ask for it will sound through "
+                + "silent mode and Focus. Add critical=1 to the send."
+        case .disabled:
+            return "Turned off for notifi in system settings, so these will "
+                + "arrive as ordinary notifications until you turn it back on."
+        default:
+            return "Not available yet — this needs an entitlement Apple has to "
+                + "grant notifi. Sends asking for it arrive as ordinary "
+                + "notifications in the meantime."
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -127,24 +147,16 @@ struct KeyDetailView: View {
 
             SectionLabel(text: "Links")
 
-            Toggle(isOn: Binding(
-                get: { model.allowsAnyLink(keyID: keyID) },
-                set: { model.setAllowsAnyLink($0, keyID: keyID) }
-            )) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Open any link")
-                        .font(Theme.body)
-                        .foregroundStyle(Theme.fg)
-                    Text("Off, messages from this key only open https links. "
-                         + "On, they can open anything — including other apps "
-                         + "on this device.")
-                        .font(Theme.metaSmall)
-                        .foregroundStyle(Theme.dim)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            .tint(Theme.brand)
-            .padding(.vertical, 12)
+            ToggleRow(
+                title: "Open any link",
+                detail: "Off, messages from this key only open https links. "
+                    + "On, they can open anything — including other apps "
+                    + "on this device.",
+                isOn: Binding(
+                    get: { model.allowsAnyLink(keyID: keyID) },
+                    set: { model.setAllowsAnyLink($0, keyID: keyID) }
+                )
+            )
             Hairline()
 
             Text("Whoever holds this key writes the link, so this is a statement "
@@ -153,6 +165,20 @@ struct KeyDetailView: View {
                 .foregroundStyle(Theme.dim)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 10)
+
+            if !key.isRevoked {
+                SectionLabel(text: "Alerts")
+                ToggleRow(
+                    title: "Critical Alerts",
+                    detail: criticalDetail,
+                    isOn: Binding(
+                        get: { key.isCritical },
+                        set: { on in Task { await setCritical(on) } }
+                    )
+                )
+                .disabled(isUpdatingCritical)
+                Hairline()
+            }
 
             if let errorMessage {
                 InlineError(message: errorMessage).padding(.top, 16)
@@ -219,6 +245,18 @@ struct KeyDetailView: View {
                 ?? "Couldn't regenerate the key."
         }
         isRegenerating = false
+    }
+
+    private func setCritical(_ critical: Bool) async {
+        isUpdatingCritical = true
+        errorMessage = nil
+        do {
+            try await model.setKeyCritical(id: keyID, critical: critical)
+        } catch {
+            errorMessage = (error as? APIError)?.userMessage
+                ?? "Couldn't change Critical Alerts for this key."
+        }
+        isUpdatingCritical = false
     }
 
     private func revoke() async {

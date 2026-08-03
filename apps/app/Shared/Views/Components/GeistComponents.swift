@@ -252,6 +252,41 @@ extension FieldRow where Trailing == FieldValue {
     }
 }
 
+/// A labelled switch. A switch sits hard against its own label, which puts it at
+/// a different distance from the edge on every row. Detached and given the shared
+/// control column, the switches line up with each other and with the values in the
+/// `FieldRow`s around them.
+struct ToggleRow: View {
+    let title: String
+    var detail: String?
+    @Binding var isOn: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(Theme.body)
+                    .foregroundStyle(Theme.fg)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let detail {
+                    Text(detail)
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(Theme.dim)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Spacer(minLength: 8)
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                .tint(Theme.brand)
+                .frame(width: Theme.controlWidth, alignment: .trailing)
+        }
+        .padding(.vertical, Theme.rowPadV)
+    }
+}
+
 /// A tappable row that pushes somewhere, with a chevron.
 struct DisclosureRow<Content: View>: View {
     @ViewBuilder var content: Content

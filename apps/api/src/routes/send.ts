@@ -24,16 +24,27 @@ const MINIMAL_MESSAGE_MAX = 200;
 interface KeyDeviceRow {
   key_id: number;
   revoked_at: number | null;
+  critical: number;
   device_id: number;
   apns_token: string;
   encryption_public_key: string;
 }
 
-function pushPayload(id: number, sealedB64: string, keyId: number): object {
+function pushPayload(
+  id: number,
+  sealedB64: string,
+  keyId: number,
+  critical: boolean,
+): object {
   return {
     aps: {
       alert: { title: 'notifi' },
-      sound: 'default',
+      // A critical sound is an object rather than a name, and it is what makes
+      // the alert audible through the ringer switch. `interruption-level` alone
+      // would get it past Focus but leave it silent on a muted phone, which for
+      // a pager is the same as not arriving.
+      sound: critical ? { critical: 1, name: 'default', volume: 1 } : 'default',
+      ...(critical ? { 'interruption-level': 'critical' } : {}),
       'mutable-content': 1,
       'thread-id': `key-${keyId}`,
     },
@@ -95,7 +106,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const secretHash = await hashKey(input.key);
   const row = await c.env.DB.prepare(
-    `SELECT k.id AS key_id, k.revoked_at AS revoked_at,
+    `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.critical AS critical,
             d.id AS device_id, d.apns_token AS apns_token,
             d.encryption_public_key AS encryption_public_key
      FROM keys k JOIN devices d ON d.id = k.device_id
@@ -223,11 +234,16 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     },
   ];
 
-  let payload = pushPayload(messageId, fullSealed, row.key_id);
+  // Both halves have to agree: the sender asks per message, the device owner
+  // allows it per key. A send key that leaks cannot raise its own volume, and a
+  // key marked critical stays quiet for the ordinary sends that share it.
+  const critical = input.critical === true && row.critical === 1;
+
+  let payload = pushPayload(messageId, fullSealed, row.key_id, critical);
   for (const candidate of fallbacks) {
     if (payloadBytes(payload) <= PUSH_BUDGET_BYTES) break;
     const sealed = await seal(row.encryption_public_key, 'content', JSON.stringify(candidate));
-    payload = pushPayload(messageId, sealed, row.key_id);
+    payload = pushPayload(messageId, sealed, row.key_id, critical);
   }
 
   await push(

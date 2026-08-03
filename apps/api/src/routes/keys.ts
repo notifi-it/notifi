@@ -1,4 +1,9 @@
-import { createKeyBody, type KeyMeta, type KeySummary } from '@notifi/contract';
+import {
+  createKeyBody,
+  type KeyMeta,
+  type KeySummary,
+  updateKeyBody,
+} from '@notifi/contract';
 import { Hono } from 'hono';
 import { errBody } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
@@ -23,7 +28,7 @@ keys.get('/keys', async (c) => {
   if (!device) return c.json(errBody('unknown_device', 'Device is not registered.'), 401);
 
   const rows = await c.env.DB.prepare(
-    `SELECT id, meta_sealed, created_at, last_used_at, sent_count, revoked_at
+    `SELECT id, meta_sealed, created_at, last_used_at, sent_count, revoked_at, critical
      FROM keys WHERE device_id = ? AND meta_sealed != '' ORDER BY id DESC`,
   )
     .bind(device.id)
@@ -71,6 +76,41 @@ keys.post('/keys', async (c) => {
 
   await bumpLastSeenIfStale(c.env, device, nowS);
   return c.json({ id, name: parsed.name, key: generated.key }, 200);
+});
+
+keys.patch('/keys/:id', async (c) => {
+  const nowS = now();
+  const device = await getDevice(c);
+  if (!device) return c.json(errBody('unknown_device', 'Device is not registered.'), 401);
+
+  const id = Number(c.req.param('id'));
+  if (!Number.isInteger(id)) {
+    return c.json(errBody('not_found', 'Key not found.'), 404);
+  }
+
+  let parsed;
+  try {
+    const text = new TextDecoder().decode(c.get('rawBody'));
+    parsed = updateKeyBody.parse(JSON.parse(text));
+  } catch {
+    return c.json(errBody('invalid_request', 'Invalid update-key body.'), 400);
+  }
+
+  // Scoped to this device and to live keys, so a revoked key cannot be brought
+  // back up to critical volume without being recreated.
+  const updated = await c.env.DB.prepare(
+    `UPDATE keys SET critical = ?
+     WHERE id = ? AND device_id = ? AND revoked_at IS NULL RETURNING id`,
+  )
+    .bind(parsed.critical ? 1 : 0, id, device.id)
+    .first<{ id: number }>();
+
+  if (!updated) {
+    return c.json(errBody('not_found', 'Key not found.'), 404);
+  }
+
+  await bumpLastSeenIfStale(c.env, device, nowS);
+  return c.body(null, 204);
 });
 
 keys.delete('/keys/:id', async (c) => {
