@@ -21,8 +21,7 @@ apps/
   api/        Cloudflare Worker (Hono, TypeScript) — @notifi/api
 packages/
   contract/   Zod schemas, the single source of truth — @notifi/contract
-infra/        Terraform: notifi.it zone settings, one edge rate-limit rule, R2 state
-.github/workflows/   api.yml, app.yml, infra.yml (all path-filtered)
+.github/workflows/   api.yml, app.yml (both path-filtered)
 Makefile      dev / deploy / migrate and friends
 ```
 
@@ -81,11 +80,6 @@ id `it.notifi.app`).
   behind the `production` GitHub Environment; that gate is only a manual approval if
   required reviewers are configured on the environment in repository settings —
   nothing in this repo can enforce it.
-- `infra.yml` — `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID`, `R2_ACCESS_KEY_ID`,
-  `R2_SECRET_ACCESS_KEY` (the last two authenticate the R2-backed Terraform state; see
-  `infra/README.md`), plus `CLOUDFLARE_API_TOKEN` for the apply job and
-  `CLOUDFLARE_READONLY_API_TOKEN` for the PR plan job. The plan job runs provider code
-  from the pull request, so it never receives the write-capable token.
 - `app.yml` TestFlight lane (tag pushes `v*` only) — `APPLE_TEAM_ID`, `ASC_API_KEY_P8`
   (base64 App Store Connect API key), `ASC_KEY_ID`, `ASC_ISSUER_ID`. Signing is
   automatic: `xcodebuild` is given the App Store Connect key and

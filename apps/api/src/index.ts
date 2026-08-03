@@ -10,6 +10,26 @@ import type { AppEnv, Env } from './types.js';
 
 const app = new Hono<AppEnv>();
 
+/// Cleartext is a key leak: a send key travels in the query string or an
+/// Authorization header, and over http both are readable by anything on the
+/// path. Redirect rather than serve, and set HSTS so a browser never tries
+/// http again. This replaces the zone-level `always_use_https` that
+/// infra/main.tf declared but never applied.
+///
+/// Cloudflare terminates TLS, so the scheme has to come off the URL the Worker
+/// was handed, not off the socket.
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  if (url.protocol === 'http:') {
+    url.protocol = 'https:';
+    // 301, not 307: this is permanent, and every method that reaches /send is
+    // safe to re-issue. Browsers and curl -L both follow it.
+    return c.redirect(url.toString(), 301);
+  }
+  await next();
+  c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+});
+
 app.use('*', ipLimiter);
 
 app.route('/', send);
