@@ -66,8 +66,11 @@ export async function push(
 
   if (res.status === 200) return;
 
+  let reason: string | null = null;
+
   if (res.status === 403) {
     const body = (await res.json().catch(() => null)) as { reason?: string } | null;
+    reason = body?.reason ?? null;
     if (body?.reason === 'ExpiredProviderToken') {
       cachedJwt = null;
       try {
@@ -91,6 +94,10 @@ export async function push(
   }
 
   if (res.status !== 200) {
-    console.error('apns non-200', res.status);
+    if (reason === null) {
+      const body = (await res.json().catch(() => null)) as { reason?: string } | null;
+      reason = body?.reason ?? null;
+    }
+    console.error('apns non-200', res.status, reason ?? 'no-reason');
   }
 }
