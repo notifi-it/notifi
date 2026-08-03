@@ -17,6 +17,7 @@ struct InboxView: View {
 
     @State private var searchText = ""
     @State private var filterKeyID: Int?
+    @State private var pendingDelete: Message?
     @FocusState private var searchFocused: Bool
     #if os(macOS)
     @Environment(\.openSettings) private var openSettings
@@ -64,15 +65,12 @@ struct InboxView: View {
 
     var body: some View {
         List {
-            // Header and rule must be one row. As two, the rule became its own
-            // list row and picked up the minimum row height, which opened a gap
-            // between the search field and the first message.
-            VStack(spacing: 0) {
-                header
-                    .padding(.top, 4)
-                    .padding(.bottom, 14)
-                Hairline()
-            }
+            // No rule under the header: the first message opens the list, and a
+            // line there only boxed the search field in. Rows still carry their
+            // own bottom rule, so every message is separated from the next.
+            header
+                .padding(.top, 4)
+                .padding(.bottom, 14)
             .listRowInsets(EdgeInsets(top: 0, leading: Theme.gutter, bottom: 0, trailing: Theme.gutter))
             .listRowBackground(Theme.bg)
             .listRowSeparator(.hidden)
@@ -112,7 +110,9 @@ struct InboxView: View {
                         // The tint has to be explicit. `role: .destructive` would
                         // normally colour this red, but the TabView's near-white
                         // tint cascades down and wins, giving white-on-white.
-                        Button(role: .destructive) { delete(message) } label: {
+                        // Asks first: a swipe is easy to do by accident and the
+                        // message cannot be recovered afterwards.
+                        Button(role: .destructive) { pendingDelete = message } label: {
                             Label("Delete", systemImage: "trash.fill")
                         }
                         .tint(Theme.danger)
@@ -126,6 +126,20 @@ struct InboxView: View {
         .background(Theme.bg)
         .scrollDismissesKeyboard(.immediately)
         .refreshable { await model.refresh() }
+        .alert(
+            "Delete this notification?",
+            isPresented: Binding(get: { pendingDelete != nil },
+                                 set: { if !$0 { pendingDelete = nil } }),
+            presenting: pendingDelete
+        ) { message in
+            Button("Delete", role: .destructive) {
+                delete(message)
+                pendingDelete = nil
+            }
+            Button("Cancel", role: .cancel) { pendingDelete = nil }
+        } message: { _ in
+            Text("This cannot be undone.")
+        }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
@@ -237,7 +251,7 @@ struct InboxView: View {
             Button("Open Link") { open(link) }
         }
         Divider()
-        Button("Delete", role: .destructive) { delete(message) }
+        Button("Delete", role: .destructive) { pendingDelete = message }
     }
 
     // MARK: Actions
@@ -314,25 +328,17 @@ private struct MessageRow: View {
         }
     }
 
-    /// Prefer the sender's own event time when there is one — it is what the
-    /// sender cares about, and it is the only source with sub-second precision.
-    /// The server records receipt in whole seconds, so `.SSS` is only shown when
-    /// it means something.
-    private var exact: String {
-        if let occurred = message.occurredAt {
-            return Self.msFormatter.string(from: occurred)
-        }
-        return message.createdAt.formatted(
-            .dateTime
-                .hour(.twoDigits(amPM: .omitted))
-                .minute(.twoDigits)
-                .second(.twoDigits)
-        )
+    /// The full date as digits only — "09:32 · 03.08.2026". Fixed rather than
+    /// locale-formatted so every row lines up on the same monospaced grid.
+    /// Milliseconds belong on the detail page, where precision is the point; in
+    /// the feed they are noise.
+    private var stamp: String {
+        Self.stampFormatter.string(from: message.occurredAt ?? message.createdAt)
     }
 
-    private static let msFormatter: DateFormatter = {
+    private static let stampFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "HH:mm:ss.SSS"
+        f.dateFormat = "HH:mm · dd.MM.yyyy"
         return f
     }()
 
@@ -353,7 +359,9 @@ private struct MessageRow: View {
                     .multilineTextAlignment(.leading)
 
                 if let body = message.body {
-                    Text(body)
+                    // The row is two lines: markers are stripped and inline styling
+                    // kept, so a bulleted body previews as prose rather than dashes.
+                    Text(MarkdownPreview.text(body))
                         .font(Theme.body)
                         .foregroundStyle(Theme.muted)
                         .lineLimit(2)
@@ -370,12 +378,15 @@ private struct MessageRow: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text(exact)
+                // Relative time leads — it is what you actually read. The exact
+                // stamp sits under it, one step paler, for when you need it.
+                Text(relative)
                     .font(Theme.meta)
                     .foregroundStyle(Theme.muted)
-                Text(relative)
+                Text(stamp)
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
+                    .lineLimit(1)
                 if let url = message.imageURL {
                     Thumbnail(url: url).padding(.top, 8)
                 }

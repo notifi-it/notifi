@@ -21,7 +21,7 @@ struct MessageDetailView: View {
     private let log = Logger(subsystem: "it.notifi.app", category: "store")
 
     @State private var copied = false
-    @State private var linkCopied = false
+    @State private var confirmingDelete = false
 
     init(serverID: Int) {
         _messages = Query(filter: #Predicate<Message> { $0.serverID == serverID })
@@ -60,6 +60,22 @@ struct MessageDetailView: View {
         .toolbar(.hidden, for: .navigationBar)
         #endif
         .onAppear { markRead() }
+        // Delete cannot be undone — the message is gone from this device and the
+        // server has already dropped it — so it always asks first.
+        .alert("Delete this notification?", isPresented: $confirmingDelete) {
+            Button("Delete", role: .destructive) { deleteMessage() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This cannot be undone.")
+        }
+    }
+
+    private func deleteMessage() {
+        guard let message else { return }
+        context.delete(message)
+        try? context.save()
+        model.sync?.updateBadge()
+        if !model.path.isEmpty { model.path.removeLast() } else { dismiss() }
     }
 
     private var backBar: some View {
@@ -84,20 +100,38 @@ struct MessageDetailView: View {
 
             Spacer(minLength: 8)
 
-            if let url = message?.imageURL {
-                Button { downloadImage(url) } label: {
-                    Image(systemName: "arrow.down.to.line")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Theme.muted)
-                        .frame(width: 30, height: 30)
-                        .contentShape(Rectangle())
+            if let message {
+                HStack(spacing: 8) {
+                    if let url = message.imageURL {
+                        IconButton(systemName: "arrow.down.to.line",
+                                   label: "Download image") { downloadImage(url) }
+                    }
+
+                    if let link = message.link {
+                        IconButton(systemName: "globe", label: "Open link") { open(link) }
+                    }
+
+                    // The feed already says "unread" with a filled dot, so the
+                    // button borrows it: solid dot to mark unread, empty ring to
+                    // mark read.
+                    IconButton(
+                        systemName: message.isRead ? "circle.fill" : "circle",
+                        label: message.isRead ? "Mark as unread" : "Mark as read"
+                    ) {
+                        message.isRead.toggle()
+                        try? context.save()
+                        model.sync?.updateBadge()
+                    }
+
+                    IconButton(systemName: "trash.fill", label: "Delete", tint: Theme.danger) {
+                        confirmingDelete = true
+                    }
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Download image")
             }
         }
         .geistGutter()
-        .padding(.vertical, 10)
+        .padding(.top, 22)
+        .padding(.bottom, 30)
         .background(Theme.bg)
     }
 
@@ -130,12 +164,7 @@ struct MessageDetailView: View {
                 .padding(.top, 12)
 
             if let body = message.body {
-                Text(body)
-                    .font(.karla(.body))
-                    .foregroundStyle(Theme.muted)
-                    .lineSpacing(3)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .textSelection(.enabled)
+                MarkdownText(source: body)
                     .padding(.top, 15)
             }
 
@@ -201,51 +230,61 @@ struct MessageDetailView: View {
                                 .stroke(Theme.chip, lineWidth: 1))
                     }
                     .buttonStyle(.plain)
-
-                    Button { Clipboard.copy(link.absoluteString) } label: {
-                        Text(linkCopied ? "Copied" : "Copy")
-                            .font(.inco(.footnote, weight: .semibold))
-                            .foregroundStyle(Theme.fg)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .stroke(Theme.chip, lineWidth: 1))
-                    }
-                    .buttonStyle(.plain)
-                    .simultaneousGesture(TapGesture().onEnded {
-                        withAnimation(.easeOut(duration: 0.15)) { linkCopied = true }
-                        Task {
-                            try? await Task.sleep(for: .seconds(1.6))
-                            withAnimation(.easeOut(duration: 0.2)) { linkCopied = false }
-                        }
-                    })
                 }
                 .padding(.top, 10)
             }
 
-            HStack(spacing: 9) {
-                OutlineButton(title: copied ? "Copied" : "Copy") {
-                    Clipboard.copy(plainText(for: message))
-                    withAnimation(.easeOut(duration: 0.15)) { copied = true }
-                    Task {
-                        try? await Task.sleep(for: .seconds(1.6))
-                        withAnimation(.easeOut(duration: 0.2)) { copied = false }
-                    }
-                }
-                OutlineButton(title: message.isRead ? "Unread" : "Read") {
-                    message.isRead.toggle()
-                    try? context.save()
-                    model.sync?.updateBadge()
-                }
-                OutlineButton(title: "Delete", color: Theme.danger) {
-                    context.delete(message)
-                    try? context.save()
-                    model.sync?.updateBadge()
-                    if !model.path.isEmpty { model.path.removeLast() } else { dismiss() }
+            // Read/unread and delete moved to the top bar; copying the whole
+            // message is the only action left that needs a labelled control.
+            OutlineButton(title: copied ? "Copied" : "Copy message") {
+                Clipboard.copy(plainText(for: message))
+                withAnimation(.easeOut(duration: 0.15)) { copied = true }
+                Task {
+                    try? await Task.sleep(for: .seconds(1.6))
+                    withAnimation(.easeOut(duration: 0.2)) { copied = false }
                 }
             }
             .padding(.top, 20)
             .padding(.bottom, 40)
+        }
+    }
+
+    /// A round icon button for the top bar.
+    ///
+    /// On OS 26 this is the system Liquid Glass style, so it picks up the real
+    /// material and its touch response for free. Before 26 there is no glass to
+    /// have, so it falls back to the design system's own inset circle — surface
+    /// fill, hairline border — which is what the rest of the app uses.
+    private struct IconButton: View {
+        let systemName: String
+        let label: String
+        var tint: Color = Theme.fg
+        let action: () -> Void
+
+        var body: some View {
+            if #available(iOS 26.0, macOS 26.0, *) {
+                Button(action: action) {
+                    icon.frame(width: 20, height: 20)
+                }
+                .buttonStyle(.glass)
+                .accessibilityLabel(label)
+            } else {
+                Button(action: action) {
+                    icon
+                        .frame(width: 34, height: 34)
+                        .background(Theme.surface, in: Circle())
+                        .overlay(Circle().stroke(Theme.chip, lineWidth: 1))
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(label)
+            }
+        }
+
+        private var icon: some View {
+            Image(systemName: systemName)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(tint)
         }
     }
 

@@ -57,6 +57,30 @@ enum SampleData {
              "https://picsum.photos/seed/notifi-digest/240",
              "https://notifi.sh/digest/2026-w31", 1_200, false),
 
+            // Markdown: headings, emphasis, a list, a quote, a rule and a code
+            // block, so the detail renderer and the flattened row preview can both
+            // be eyeballed in one row.
+            ("Deploy 4f2c1e9 finished",
+             """
+             ## Summary
+             Rolled out to **eu-west-2** in *42s*. One check is still amber.
+
+             - `queue-worker` — healthy
+             - `redrive` — restarting
+             - api — healthy
+
+             > Watch the redrive loop for the next 10 minutes.
+
+             ---
+
+             ```
+             kubectl rollout status deploy/redrive -n notifi
+             ```
+
+             Full log: [build #1284](https://ci.notifi.sh/builds/1284)
+             """,
+             nil, "https://ci.notifi.sh/builds/1284", 1_400, true),
+
             // Long title — must wrap, never truncate.
             ("Certificate for vault.internal.eu-west-2.compute.amazonaws.com expires in 7 days",
              "Renew before Friday or the workers start failing TLS handshakes.",

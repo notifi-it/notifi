@@ -29,6 +29,11 @@ settings:
     Release:
       API_BASE_URL: "https://notifi.it"
 
+packages:
+  MarkdownUI:
+    url: https://github.com/gonzalezreal/swift-markdown-ui
+    from: "2.4.0"
+
 targets:
   notifi-iOS:
     type: application
@@ -44,6 +49,7 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
     dependencies:
       - target: NotificationService-iOS
+      - package: MarkdownUI
 
   notifi-macOS:
     type: application
@@ -59,6 +65,7 @@ targets:
         ENABLE_HARDENED_RUNTIME: "YES"
     dependencies:
       - target: NotificationService-macOS
+      - package: MarkdownUI
 
   NotificationService-iOS:
     type: app-extension

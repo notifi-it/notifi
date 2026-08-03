@@ -14,7 +14,11 @@ struct InboxRootView: View {
                         MessageDetailView(serverID: serverID)
                     }
             }
-            .tabItem { Label("Notifications", image: "akar-inbox") }
+            // The app's own bell rather than a generic inbox tray — this tab is
+            // notifi itself, so it gets the logo.
+            // `BellLogo` is a 360px raster, and a tab item uses its asset at
+            // native size — hence a tab-sized copy of the same artwork.
+            .tabItem { Label("Notifications", image: "BellTab") }
             .tag(AppTab.inbox)
 
             NavigationStack {
