@@ -332,7 +332,8 @@ struct GeistHeader<Trailing: View>: View {
                 Spacer(minLength: 8)
                 trailing
             }
-            .padding(.bottom, 20)
+            .frame(height: Theme.headerBarHeight)
+            .padding(.bottom, Theme.headerBarGap)
 
             HStack(alignment: .firstTextBaseline, spacing: 11) {
                 Text(title)

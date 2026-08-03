@@ -3,7 +3,7 @@ import { webcrypto } from 'node:crypto';
 const subtle = (webcrypto as unknown as Crypto).subtle;
 
 const APNS_HOST = process.env.APNS_HOST ?? 'https://api.sandbox.push.apple.com';
-const APNS_TOPIC = process.env.APNS_TOPIC ?? 'it.notifi.app';
+const APNS_TOPIC = process.env.APNS_TOPIC ?? 'it.notifi.notifi';
 const APNS_TEAM_ID = required('APNS_TEAM_ID');
 const APNS_KEY_ID = required('APNS_KEY_ID');
 const APNS_PRIVATE_KEY = required('APNS_PRIVATE_KEY');

@@ -18,6 +18,15 @@ xcuserdata/
 *.p12
 *.mobileprovision
 ExportOptions.plist
+apps/app/.deploy.env
 
 # local-only manual smoke harness (not committed; run against wrangler dev)
 apps/api/local-e2e.mjs
+
+# fastlane
+apps/app/fastlane/report.xml
+apps/app/fastlane/Preview.html
+apps/app/fastlane/test_output/
+apps/app/fastlane/README.md
+apps/app/vendor/bundle/
+apps/app/.bundle/

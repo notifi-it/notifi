@@ -1,7 +1,7 @@
 # notifi
 
 notifi is a push-notification relay for people who live in a terminal. You create a
-send key, `curl` a title and message to `notifi.it/send`, and the alert lands on your
+send key, `curl` a title and message to `app.notifi.it/send`, and the alert lands on your
 iPhone and Mac. The backend is a single Cloudflare Worker over a D1 database; the app
 is a zero-dependency SwiftUI client for iOS 17+ and macOS 14+. There are no accounts,
 no sign-in, and no device linking — the device holds the only private key, message
@@ -37,7 +37,7 @@ make dev         # wrangler dev — local Worker + local D1
 
 ```bash
 make deploy-dev  # wrangler deploy            → notifi-api-dev on workers.dev
-make deploy      # wrangler deploy --env production → notifi-api on notifi.it
+make deploy      # wrangler deploy --env production → notifi-api on app.notifi.it
 ```
 
 Local `wrangler dev` cannot reach APNs sandbox without the real `.p8`; put dev copies
@@ -52,13 +52,80 @@ the single most common way APNs silently breaks — treat it as load-bearing:
 |---|---|---|
 | Worker | `notifi-api-dev` | `notifi-api` |
 | D1 | `notifi-dev` | `notifi-prod` |
-| Route | `workers.dev` | `notifi.it` |
+| Route | `workers.dev` | `app.notifi.it` |
 | `APNS_HOST` | `api.sandbox.push.apple.com` | `api.push.apple.com` |
 | App build | Xcode debug builds | TestFlight + App Store builds |
 
 **A TestFlight build gets a *production* APNs token, so it must point at the production
 Worker.** Only local Xcode debug builds use dev/sandbox. A sandbox token sent to the
 production host (or vice versa) is `400 BadDeviceToken` — 95% of "pushes stopped."
+
+## Shipping the app from your Mac
+
+**The two platforms ship differently, on purpose. macOS is never uploaded to the App
+Store** — it is a direct-download Developer ID DMG. iOS ships only through the App
+Store. CI (`app.yml`) uploads iOS to TestFlight on a `v*` tag; the DMG is built here.
+
+Release lanes are fastlane (`apps/app/fastlane/Fastfile`), same layout as
+converse-ios. One-time setup: `cd apps/app && bundle install`.
+
+```bash
+make app-preflight              # check tooling, identities + credentials, build nothing
+make app-dmg                    # macOS → Developer ID, notarized, stapled DMG
+SKIP_UPLOAD=1 make app-appstore # iOS   → build + sign, write the .ipa, publish nothing
+make app-appstore               # iOS   → upload to TestFlight
+```
+
+Both lanes build Release, so both point at the production Worker and get production
+APNs tokens — the environment table above applies. Output lands in `apps/app/build/`.
+
+Credentials come from the login Keychain, or from a gitignored `apps/app/.deploy.env`
+(copy `.deploy.env.example`). Same shape as converse-ios:
+
+```bash
+security add-generic-password -A -U -s notifi-release -a asc-key-id    -w '<key id>'
+security add-generic-password -A -U -s notifi-release -a asc-issuer-id -w '<issuer uuid>'
+```
+
+The `.p8` itself is found automatically in `~/.appstoreconnect/private_keys/`.
+`TEAM_ID` is read from your Developer ID certificate when left unset. Build numbers
+are a `YYYYMMDDHHMM` clock stamp, so they always increase and a failed upload can be
+retried on the same commit; override with `BUILD_NUMBER` if you need to.
+
+**Signing does not use the API key.** Creating provisioning profiles over the API
+("cloud signing") needs an *Admin* key; ours is App Manager, and passing it fails with
+`Cloud signing permission error` before Xcode can use the account signed in to Xcode
+itself. The key is passed only where it is actually needed — notarizing and uploading.
+
+The DMG lane needs a **Developer ID Application** certificate; the iOS lane needs an
+**Apple Distribution** certificate. Different certificates, neither substitutes for the
+other, and `make app-preflight` checks both. Notarization waits on Apple, usually a few
+minutes.
+
+Two things the mac lane does that are easy to get wrong, both learned the hard way:
+it notarizes **twice** — once for the `.app` so its ticket can be stapled into the
+bundle, once for the DMG — because a DMG-only staple leaves the app with no ticket
+after it is dragged to `/Applications`, and `spctl` will not tell you (it asks Apple
+over the network and passes anyway; `syspolicy_check distribution` is the honest
+check, and the lane fails on it). And it verifies the exported app is Developer ID
+signed, timestamped and hardened *before* submitting, so a wrong artifact fails in a
+second rather than after a round trip to Apple.
+
+### macOS auto-update (Sparkle)
+
+The macOS app updates itself through Sparkle; the iOS app does not link it and
+updates through the App Store. `SUFeedURL` points at
+`releases/latest/download/appcast.xml`, so **publishing the GitHub release is how a
+macOS update ships** — there is no separate step. Pushing a `v*` tag runs
+`release-macos`, which builds and notarizes the DMG, generates the signed appcast,
+and creates the release with both attached. The same DMG serves first install and
+updates, so there is only one artifact to get right.
+
+Updates are signed with an EdDSA key held in the login Keychain under the account
+**`notifi`** — not Sparkle's default account, which holds a different app's key.
+`generate_keys` with no arguments will silently hand you that other key; always pass
+`--account notifi`. The private key is backed up in 1Password ("notifi — Sparkle
+EdDSA private key"); losing it means never being able to update the app again.
 
 ## Secrets
 
@@ -71,7 +138,7 @@ committed** (local dev copies go in the gitignored `apps/api/.dev.vars`):
 - `ENCRYPTION_KEY` — 64 hex chars (32 bytes)
 
 Non-secret vars live in `wrangler.toml`: `APNS_HOST`, `APNS_TOPIC` (the shared bundle
-id `it.notifi.app`).
+id `it.notifi.notifi`).
 
 ### CI secrets (GitHub repository / environment secrets)
 
@@ -87,6 +154,11 @@ id `it.notifi.app`).
   and profiles are issued by Apple at build time rather than imported from secrets.
   Upload never uses `altool` (Apple discontinued it in 2023). PR builds run unsigned
   (`CODE_SIGNING_ALLOWED=NO`) and do not upload.
+- `app.yml` release-macos lane (tag pushes `v*` only) — `DEVELOPER_ID_CERT_P12`
+  (base64) and `DEVELOPER_ID_CERT_PASSWORD`, which are **not** the same as
+  `DISTRIBUTION_CERT_P12`: Apple Distribution cannot sign a Developer ID build.
+  Plus `SPARKLE_ED_PRIVATE_KEY`, piped to `generate_appcast --ed-key-file -` so it
+  is never written to the runner's disk.
 
 ## Three things to be honest about
 

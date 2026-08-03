@@ -124,9 +124,9 @@ curl -H "Authorization: Bearer $KEY" \
 This is the actual delivery guarantee, not the push.
 
 ```bash
-xcrun simctl terminate booted it.notifi.app          # 1. kill the app
+xcrun simctl terminate booted it.notifi.notifi          # 1. kill the app
 curl "$NB/send?key=$KEY&title=While%20you%20were%20out" # 2. send while dead
-xcrun simctl launch booted it.notifi.app             # 3. reopen → SyncEngine runs
+xcrun simctl launch booted it.notifi.notifi             # 3. reopen → SyncEngine runs
 ```
 
 - **Expect:** the missed message appears in the inbox on reopen (backfilled via
@@ -190,7 +190,7 @@ wrangler d1 execute notifi-dev --local \
 ### 8. NSE fallback when it can't decrypt — `simctl push`
 
 ```bash
-xcrun simctl push booted it.notifi.app bad-seal.apns.json
+xcrun simctl push booted it.notifi.notifi bad-seal.apns.json
 ```
 
 (`bad-seal.apns.json` = a §8-shaped payload sealed to the wrong recipient key.)
@@ -239,7 +239,7 @@ DELETE /keys/:id   → 204
 ### 11. Account death — 410 prune & restore explainer
 
 ```bash
-xcrun simctl uninstall booted it.notifi.app
+xcrun simctl uninstall booted it.notifi.notifi
 curl "$NB/send?key=$KEY&title=gone"          # APNs returns 410 Unregistered
 wrangler d1 execute notifi-dev --local --command "SELECT count(*) FROM devices"
 # → 0  (device + keys + messages cascade-deleted)

@@ -19,9 +19,6 @@ struct InboxView: View {
     @State private var filterKeyID: Int?
     @State private var pendingDelete: Message?
     @FocusState private var searchFocused: Bool
-    #if os(macOS)
-    @Environment(\.openSettings) private var openSettings
-    #endif
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
 
@@ -65,13 +62,16 @@ struct InboxView: View {
 
     var body: some View {
         List {
-            // No rule under the header: the first message opens the list, and a
+// No rule under the header: the first message opens the list, and a
             // line there only boxed the search field in. Rows still carry their
             // own bottom rule, so every message is separated from the next.
             header
-                .padding(.top, 4)
-                .padding(.bottom, 14)
-            .listRowInsets(EdgeInsets(top: 0, leading: Theme.gutter, bottom: 0, trailing: Theme.gutter))
+                .geistPageHeader()
+            // Gutter inside the row, with the row inset zeroed, so this matches
+            // Keys and Settings exactly. Setting it as a row inset instead let
+            // the List add a few points of its own on top.
+            .geistGutter()
+            .listRowInsets(EdgeInsets())
             .listRowBackground(Theme.bg)
             .listRowSeparator(.hidden)
 
@@ -96,8 +96,11 @@ struct InboxView: View {
                     }
                     .buttonStyle(.plain)
                     .overlay(alignment: .bottom) { Hairline() }
-                    .plainRow(insets: EdgeInsets(top: 0, leading: Theme.gutter,
-                                                 bottom: 0, trailing: Theme.gutter))
+                    .geistGutter()
+                    .plainRow()
+                    // Swiping is a touch idiom. On the Mac the same actions live in
+                    // the right-click menu below, which is where a Mac user looks.
+                    #if os(iOS)
                     .swipeActions(edge: .leading) {
                         Button { toggleRead(message) } label: {
                             Label(message.isRead ? "Unread" : "Read",
@@ -117,15 +120,23 @@ struct InboxView: View {
                         }
                         .tint(Theme.danger)
                     }
+                    #endif
                     .contextMenu { menu(for: message) }
                 }
             }
         }
         .listStyle(.plain)
+        // A plain List insets its content by 8pt horizontally, on top of
+        // whatever the rows ask for. Neither `contentMargins` nor zeroed
+        // `listRowInsets` removes it, so it is cancelled here: measured, this
+        // tab sat at 28pt while Keys and Settings — plain ScrollViews on
+        // `geistGutter()` — sat at 20pt. The rows carry the gutter themselves.
+        .padding(.horizontal, -8)
         .scrollContentBackground(.hidden)
         .background(Theme.bg)
         .scrollDismissesKeyboard(.immediately)
-        .refreshable { await model.refresh() }
+// Pull-to-refresh is a touch gesture. The Mac refreshes with ⌘R and the
+        // overflow menu instead; the iOS-only modifier is below.
         .alert(
             "Delete this notification?",
             isPresented: Binding(get: { pendingDelete != nil },
@@ -141,6 +152,7 @@ struct InboxView: View {
             Text("This cannot be undone.")
         }
         #if os(iOS)
+        .refreshable { await model.refresh() }
         .toolbar(.hidden, for: .navigationBar)
         #endif
     }
@@ -154,7 +166,8 @@ struct InboxView: View {
                 Spacer(minLength: 8)
                 overflowMenu
             }
-            .padding(.bottom, 18)
+            .frame(height: Theme.headerBarHeight)
+            .padding(.bottom, Theme.headerBarGap)
 
             // "Notifications" is a long word; beside a count it wrapped mid-word.
             // Stacked, the title always gets its own line at any Dynamic Type size.
@@ -207,13 +220,14 @@ struct InboxView: View {
                 }
             }
 
-            // iOS reaches Keys and Settings through the tab bar, so putting them
-            // here as well would just be a second door to the same room. macOS has
-            // no tabs — the popover is the whole app — so it still needs them.
+            // Keys and Settings are tabs on both platforms now, so listing them
+            // here too would be a second door to the same room. What the Mac does
+            // still need is a refresh: pull-to-refresh is a touch gesture and does
+            // not exist here.
             #if os(macOS)
             Divider()
-            Button("Create Key…") { model.presentingCreateKey = true }
-            Button("Settings…") { openSettings() }
+            Button("Refresh") { Task { await model.refresh() } }
+                .keyboardShortcut("r", modifiers: .command)
             #endif
 
             #if DEBUG

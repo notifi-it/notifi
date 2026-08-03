@@ -17,7 +17,12 @@ final class MenuBarController: NSObject {
         self.model = model
         self.container = container
 
-        popover.behavior = .transient
+        // Transient dismisses the moment focus moves, which makes the panel
+        // impossible to photograph or read with the accessibility API. Only ever
+        // relaxed for screenshots, the way transferme.it does it.
+        popover.behavior = ProcessInfo.processInfo.environment["NOTIFI_STICKY"] == nil
+            ? .transient
+            : .applicationDefined
         popover.animates = true
         popover.contentSize = panelSize
 
@@ -77,9 +82,7 @@ final class MenuBarController: NSObject {
 
     @objc private func openPanel() {
         guard !popover.isShown, let button = statusItem?.button else { return }
-        NSApp.activate(ignoringOtherApps: true)
-        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-        popover.contentViewController?.view.window?.makeFirstResponder(nil)
+        present(from: button)
     }
 
     @objc private func togglePanel(_ sender: Any?) {
@@ -88,9 +91,24 @@ final class MenuBarController: NSObject {
             return
         }
         guard let button = statusItem?.button else { return }
+        present(from: button)
+    }
+
+    private func present(from button: NSStatusBarButton) {
         NSApp.activate(ignoringOtherApps: true)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeFirstResponder(nil)
+
+        // The popover draws its own frame — the rounded corners and the arrow
+        // above them — in the system material, which reads as a pane of frosted
+        // glass sitting on top of a panel that is otherwise pure black. Filling
+        // the frame view matches it; the arrow is part of that view's shape, so
+        // it takes the colour too.
+        guard let frame = popover.contentViewController?.view.window?.contentView?.superview else {
+            return
+        }
+        frame.wantsLayer = true
+        frame.layer?.backgroundColor = NSColor.black.cgColor
     }
 }
 

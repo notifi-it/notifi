@@ -32,8 +32,7 @@ struct KeysView: View {
                     PillButton(title: "New key") { model.presentingCreateKey = true }
                     #endif
                 }
-                .padding(.top, 4)
-                .padding(.bottom, 8)
+                .geistPageHeader()
 
                 if model.sync?.keysRefreshFailed == true {
                     InlineError(message: "Couldn't refresh keys. Showing the last known list.")

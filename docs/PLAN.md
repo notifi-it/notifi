@@ -173,7 +173,7 @@ dev/sandbox.
 Secrets (`wrangler secret put`, per env): `APNS_TEAM_ID`, `APNS_KEY_ID`,
 `APNS_PRIVATE_KEY` (the `.p8` PEM contents), `ENCRYPTION_KEY` (64 hex chars = 32
 bytes). Vars (in `wrangler.toml`): `APNS_HOST`, `APNS_TOPIC` (the app bundle id — one
-bundle id shared by the iOS and macOS targets, e.g. `it.notifi.app`).
+bundle id shared by the iOS and macOS targets, e.g. `it.notifi.notifi`).
 
 `wrangler.toml` sketch:
 
@@ -189,17 +189,17 @@ database_id = "<filled by wrangler d1 create>"
 
 [vars]
 APNS_HOST = "https://api.sandbox.push.apple.com"
-APNS_TOPIC = "it.notifi.app"
+APNS_TOPIC = "it.notifi.notifi"
 
 [triggers]
 crons = ["0 3 * * *"]           # nightly expiry sweep
 
 [env.production]
 name = "notifi-api"
-routes = [{ pattern = "notifi.it", custom_domain = true }]
+routes = [{ pattern = "app.notifi.it", custom_domain = true }]
 [env.production.vars]
 APNS_HOST = "https://api.push.apple.com"
-APNS_TOPIC = "it.notifi.app"
+APNS_TOPIC = "it.notifi.notifi"
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "notifi-prod"
@@ -659,9 +659,9 @@ One Xcode project, Swift 6 strict concurrency, SwiftUI lifecycle. **Four targets
 
 | Target | Platform | Notes |
 |---|---|---|
-| `notifi` (iOS) | iOS 17+ | bundle id `it.notifi.app` |
-| `notifi` (macOS) | macOS 14+ | **same** bundle id `it.notifi.app` (legal across platforms; keeps one APNs topic) |
-| `NotificationService` (iOS) | NSE | `it.notifi.app.nse` |
+| `notifi` (iOS) | iOS 17+ | bundle id `it.notifi.notifi` |
+| `notifi` (macOS) | macOS 14+ | **same** bundle id `it.notifi.notifi` (legal across platforms; keeps one APNs topic) |
+| `NotificationService` (iOS) | NSE | `it.notifi.notifi.nse` |
 | `NotificationService` (macOS) | NSE | same source file, mac extension target |
 
 Capabilities: Push Notifications on both app targets (`aps-environment` on iOS,
@@ -877,7 +877,7 @@ SwiftData is a tar pit this product doesn't need).
   microseconds, so in practice this only fires mid-image-download — text will already
   be rewritten). If neither handler fires, the notification vanishes entirely — this
   override is not optional.
-- Test loop: `xcrun simctl push booted it.notifi.app payload.json` with a payload
+- Test loop: `xcrun simctl push booted it.notifi.notifi payload.json` with a payload
   matching §8, sealed with the committed test recipient key — **iOS only**; there is
   no simctl equivalent for macOS, and the mac NSE only runs for properly
   signed/provisioned builds. Verify the mac NSE with a real sandbox push (extend the
@@ -991,7 +991,7 @@ Only what wrangler can't express:
 
 ### Phase 0 — prove the pipe (~1 week; do nothing else first)
 
-- [ ] Apple Developer portal: create App ID `it.notifi.app` with Push Notifications;
+- [ ] Apple Developer portal: create App ID `it.notifi.notifi` with Push Notifications;
       create an APNs auth key (`.p8`), note key id + team id.
 - [ ] Minimal Xcode project, both app targets, push capability, `AppDelegate` that
       registers and prints the hex token for each platform.
@@ -1087,7 +1087,7 @@ Order matters; the first item is a day now or a week later:
 | Rate limiting | Three layers: edge WAF 300/min/IP, Worker binding 100/min/IP, D1 key window 120/hour. Key window is authoritative. |
 | Replay window | ±60 s. |
 | History paging | `since` exclusive, limit 50 default / 200 max. |
-| Bundle id | One (`it.notifi.app`) for both platforms; NSEs append `.nse`. Consequence: a single App Store Connect record with universal purchase — shared name, pricing, and ratings, effectively irreversible. Accepted. |
+| Bundle id | One (`it.notifi.notifi`) for both platforms; NSEs append `.nse`. Consequence: a single App Store Connect record with universal purchase — shared name, pricing, and ratings, effectively irreversible. Accepted. |
 | Rate limiting scope | The Worker IP binding runs on all six routes; `/send` additionally gets the edge rule and the per-key window. |
 | App dependencies | None. Zero SPM packages. (The Worker may use `@hpke/core`.) |
 | NSE scope | Decrypt + rewrite (Phase 1), image attachment (Phase 2); no DB, no App Group (until the Phase 3 widget). |

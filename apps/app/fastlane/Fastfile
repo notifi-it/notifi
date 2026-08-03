@@ -1,0 +1,207 @@
+# notifi release lanes. Driven by the Makefile at the repo root, which runs
+# xcodegen first and bridges the Keychain creds into ASC_KEY_ID / ASC_ISSUER_ID /
+# ASC_KEY_PATH.
+#
+#   make app-appstore   -> fastlane ios beta
+#   make app-dmg        -> fastlane mac dmg
+#
+# The two platforms ship differently on purpose: iOS goes to the App Store,
+# macOS is a direct-download Developer ID DMG and is never uploaded to the store.
+
+require "shellwords"
+
+# This folder's docs are hand-written; don't regenerate fastlane/README.md.
+skip_docs
+
+# Build number = local time as YYYYMMDDHHMM. It always moves forward, so it
+# outranks every earlier build with no shared-state lookup. A git commit count
+# does not survive re-running the same commit after a failed upload.
+def build_number
+  ENV.fetch("BUILD_NUMBER", Time.now.strftime("%Y%m%d%H%M"))
+end
+
+# Sparkle's tools ship as an SPM binary artifact, so they live under DerivedData
+# rather than anywhere stable. Resolve at call time and fail with the fix.
+# Generate the Xcode project inside the lane, where DEVELOPMENT_TEAM is exported.
+# Running xcodegen from a separate Makefile prerequisite loses it, project.yml
+# interpolates an empty team, and every signed build fails on "requires a
+# development team".
+def generate_project
+  # fastlane's `sh` runs inside fastlane/, not the project root, so the spec and
+  # output have to be absolute or xcodegen looks for fastlane/project.yml.
+  root = File.expand_path("..", __dir__)
+  sh("xcodegen", "generate", "--spec", "#{root}/project.yml", "--project", root)
+end
+
+def sparkle_bin(tool)
+  matches = Dir.glob(File.expand_path("~/Library/Developer/Xcode/DerivedData/**/artifacts/sparkle/Sparkle/bin/#{tool}"))
+  if matches.empty?
+    UI.user_error!("Sparkle's #{tool} not found. Resolve packages first: xcodebuild -resolvePackageDependencies -project notifi.xcodeproj")
+  end
+  matches.max_by { |f| File.mtime(f) }
+end
+
+def asc_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    key_filepath: ENV.fetch("ASC_KEY_PATH")
+  )
+end
+
+# Signing deliberately does not use the App Store Connect key. Creating signing
+# assets over the API ("cloud signing") needs an Admin key; ours is App Manager,
+# and passing it fails with "Cloud signing permission error" before Xcode gets a
+# chance to fetch profiles from the account signed in to Xcode itself. The key is
+# passed only to the steps that actually need it: uploading and notarizing.
+ALLOW_PROVISIONING = "-allowProvisioningUpdates".freeze
+
+# Notarization round-trips to Apple and takes minutes, so a binary that can never
+# pass should fail here instead -- locally, in a second, naming the reason.
+#
+# This exists because of a real mistake: `output_name: "notifi.app"` made gym
+# write notifi.app.app, leaving an Apple Development-signed bundle at the path
+# this lane expected. Apple rejected it with "not signed with a valid Developer
+# ID certificate" only after a full submission.
+def assert_distributable(app)
+  UI.user_error!("#{app} does not exist -- check gym's output_name.") unless File.exist?(app)
+  info = `codesign -dvv "#{app}" 2>&1`
+  unless info.include?("Developer ID Application")
+    UI.user_error!("#{app} is not signed with a Developer ID certificate:\n#{info}")
+  end
+  UI.user_error!("#{app} has no secure timestamp; notarization rejects that.") unless info.include?("Timestamp=")
+  UI.user_error!("#{app} does not have the hardened runtime enabled.") unless info.include?("flags=0x10000(runtime)")
+
+  # The app embeds Sparkle.framework, which carries its own nested signable code
+  # (Autoupdate, Updater.app, Downloader.xpc, Installer.xpc). A problem in any of
+  # them invalidates the outer signature, and checking only the top level would
+  # miss it. --deep here is *verification*, which is fine; what Quinn warns
+  # against is `codesign --deep` to *sign*, which this lane never does.
+  deep = `codesign --verify --deep --strict --verbose=2 "#{app}" 2>&1`
+  UI.user_error!("#{app} failed deep signature verification:\n#{deep}") unless $?.success?
+
+  UI.success("#{File.basename(app)}: Developer ID, timestamped, hardened runtime, nested code valid")
+end
+
+platform :ios do
+  desc "Build the Release app and upload it to TestFlight"
+  lane :beta do
+    generate_project
+    build_app(
+      project: "notifi.xcodeproj",
+      scheme: "notifi-iOS",
+      configuration: "Release",
+      output_directory: "build",
+      output_name: "notifi.ipa",
+      export_method: "app-store",
+      export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+      xcargs: "#{ALLOW_PROVISIONING} CURRENT_PROJECT_VERSION=#{build_number}",
+      export_xcargs: ALLOW_PROVISIONING
+    )
+
+    # SKIP_UPLOAD=1 builds and signs exactly as a real release but publishes
+    # nothing -- the way to prove signing works without putting a build in front
+    # of App Store Connect.
+    if ENV["SKIP_UPLOAD"]
+      UI.important("SKIP_UPLOAD set - nothing was uploaded")
+      next
+    end
+
+    upload_to_testflight(
+      api_key: asc_key,
+      skip_waiting_for_build_processing: true,
+      changelog: ENV.fetch("TF_CHANGELOG", "Latest build.")
+    )
+  end
+end
+
+platform :mac do
+  desc "Build a Developer ID app, notarize it, and package a stapled DMG"
+  lane :dmg do
+    generate_project
+    build_mac_app(
+      project: "notifi.xcodeproj",
+      scheme: "notifi-macOS",
+      configuration: "Release",
+      output_directory: "build",
+      # gym appends the extension: "notifi" yields build/notifi.app.
+      output_name: "notifi",
+      export_method: "developer-id",
+      export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+      xcargs: "#{ALLOW_PROVISIONING} CURRENT_PROJECT_VERSION=#{build_number}",
+      export_xcargs: ALLOW_PROVISIONING
+    )
+
+    app = File.expand_path("../build/notifi.app", __dir__)
+    version = get_version_number(xcodeproj: "notifi.xcodeproj", target: "notifi-macOS")
+    dmg = File.expand_path("../build/notifi-#{version}.dmg", __dir__)
+
+    # Round 1: notarize the .app so its ticket can be stapled into the bundle
+    # itself. Stapling only the DMG is not enough -- once the app is dragged to
+    # /Applications it carries no ticket, so a Mac that is offline and has never
+    # seen the app has nothing local to verify against. `spctl` hides this: it
+    # happily reports "accepted" by asking Apple. `syspolicy_check distribution`
+    # is the offline-truthful check, and it calls the missing ticket fatal.
+    assert_distributable(app)
+    notarize(package: app, api_key: asc_key, print_log: true)
+
+    identity = "Developer ID Application: Max Mitchell (Z28DW76Y3W)"
+    stage = File.expand_path("../build/dmg-stage", __dir__)
+    sh("rm", "-rf", stage, dmg)
+    sh("mkdir", "-p", stage)
+    sh("cp", "-R", app, "#{stage}/notifi.app")
+    sh("ln", "-s", "/Applications", "#{stage}/Applications")
+    sh("hdiutil", "create", "-volname", "notifi", "-srcfolder", stage,
+       "-ov", "-format", "UDZO", dmg)
+    sh("codesign", "--force", "--sign", identity, "--timestamp", dmg)
+
+    # Round 2 covers the DMG the user actually downloads. notarize reads the
+    # bundle id out of a .app's Info.plist, but a .dmg has none -- it has to be
+    # passed explicitly or the action fails after the DMG is already built.
+    notarize(package: dmg, api_key: asc_key, bundle_id: "it.notifi.notifi", print_log: true)
+
+    verify_distribution(dmg: dmg)
+
+    # The same stapled DMG serves both first install and Sparkle updates, so
+    # there is only ever one artifact to publish and one thing to get right.
+    # generate_appcast signs each entry with the EdDSA key held in the login
+    # Keychain under the "notifi" account -- deliberately not the default
+    # account, which holds a different app's key.
+    updates = File.expand_path("../build/updates", __dir__)
+    sh("mkdir", "-p", updates)
+    sh("cp", dmg, updates)
+
+    prefix = "https://github.com/notifi-it/notifi/releases/download/v#{version}/"
+    if ENV["SPARKLE_ED_PRIVATE_KEY"]
+      # CI has no login Keychain to read the key from. `--ed-key-file -` takes it
+      # on stdin, so the secret is never written to the runner's disk.
+      tool = Shellwords.escape(sparkle_bin("generate_appcast"))
+      sh("bash", "-c",
+         "printf '%s' \"$SPARKLE_ED_PRIVATE_KEY\" | #{tool} --ed-key-file - " \
+         "--download-url-prefix #{Shellwords.escape(prefix)} #{Shellwords.escape(updates)}")
+    else
+      sh(sparkle_bin("generate_appcast"), "--account", "notifi",
+         "--download-url-prefix", prefix, updates)
+    end
+
+    appcast = "#{updates}/appcast.xml"
+    UI.user_error!("generate_appcast produced no appcast.xml") unless File.exist?(appcast)
+    UI.success("==> #{dmg}")
+    UI.success("==> #{appcast}")
+    UI.important("Publish both to the v#{version} GitHub release; SUFeedURL reads appcast.xml from /releases/latest/download/.")
+  end
+
+  # A DMG that passes spctl can still be undistributable, because spctl consults
+  # Apple over the network. Fail the lane on anything syspolicy_check rejects.
+  private_lane :verify_distribution do |options|
+    dmg = options[:dmg]
+    mnt = File.expand_path("../build/verify-mnt", __dir__)
+    sh("xcrun", "stapler", "validate", dmg)
+    sh("hdiutil", "attach", dmg, "-nobrowse", "-readonly", "-mountpoint", mnt)
+    result = sh("syspolicy_check", "distribution", "#{mnt}/notifi.app",
+                log: false, error_callback: ->(r) { r })
+    sh("hdiutil", "detach", mnt)
+    UI.user_error!("app failed pre-distribution checks:\n#{result}") if result.include?("failed one or more")
+    UI.success("syspolicy_check: passed")
+  end
+end

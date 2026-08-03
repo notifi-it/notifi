@@ -9,7 +9,7 @@ final class SyncEngine {
     private let api: APIClient
     private let identity: DeviceIdentity
     private let context: ModelContext
-    private let log = Logger(subsystem: "it.notifi.app", category: "sync")
+    private let log = Logger(subsystem: "it.notifi.notifi", category: "sync")
 
     var keys: [CachedKey]
     var keysRefreshFailed = false
@@ -225,15 +225,13 @@ final class SyncEngine {
     }
 
     func updateBadge() {
-        let enabled = UserDefaults.standard.object(forKey: "badgeEnabled") as? Bool ?? true
         let raw = unreadCount()
         unread = raw
         #if os(macOS)
         NotificationCenter.default.post(name: .notifiUnreadChanged, object: nil)
         #endif
-        let count = enabled ? raw : 0
         Task {
-            try? await UNUserNotificationCenter.current().setBadgeCount(count)
+            try? await UNUserNotificationCenter.current().setBadgeCount(raw)
         }
     }
 }

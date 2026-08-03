@@ -42,7 +42,25 @@ enum Theme {
     // MARK: Metrics
 
     static let gutter: CGFloat = 20
+
+    /// The logo row above every tab title. Fixed, because its trailing control
+    /// differs per tab — the "New key" pill on Keys, the overflow menu on
+    /// Notifications, nothing on Settings — and a taller control was pushing
+    /// that tab's title further down than the others.
+    static let headerBarHeight: CGFloat = 30
+
+    /// Gap between the logo row and the title beneath it.
+    static let headerBarGap: CGFloat = 20
     static let rowGap: CGFloat = 13
+
+    /// Vertical padding on every settings row, so rows carrying a switch, a
+    /// value and a disclosure all stand the same height.
+    static let rowPadV: CGFloat = 12
+
+    /// Width of the control column on the right of a settings row. Switches and
+    /// values share it, so their edges form a line rather than following the
+    /// length of each label.
+    static let controlWidth: CGFloat = 88
     static let radius: CGFloat = 6
     static let thumb: CGFloat = 42
 
@@ -68,6 +86,13 @@ enum Theme {
 extension View {
     /// Standard horizontal inset for every screen in the system.
     func geistGutter() -> some View { padding(.horizontal, Theme.gutter) }
+
+    /// The header block on every tab. Held in one place because applying it per
+    /// view let the three drift apart — 14pt under Notifications against 8pt
+    /// under Keys and Settings, which read as the tabs being misaligned.
+    func geistPageHeader() -> some View {
+        padding(.top, 4).padding(.bottom, 14)
+    }
 }
 
 /// A one-pixel rule. `Divider()` picks up system colours and insets we do not want.

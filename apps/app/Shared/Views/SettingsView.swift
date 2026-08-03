@@ -20,8 +20,7 @@ struct SettingsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 GeistHeader(title: "Settings")
-                    .padding(.top, 4)
-                    .padding(.bottom, 8)
+                    .geistPageHeader()
 
                 // MARK: Notifications
                 SectionLabel(text: "Notifications")
@@ -41,42 +40,17 @@ struct SettingsView: View {
                     .padding(.top, 14)
                 }
 
-                // MARK: Display
-                SectionLabel(text: "Display")
-
-                Toggle(isOn: $model.badgeEnabled) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Unread badge")
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
-                        Text("Show the count on the app icon.")
-                            .font(Theme.metaSmall)
-                            .foregroundStyle(Theme.dim)
-                    }
-                }
-                .tint(Theme.brand)
-                .padding(.vertical, 12)
-                Hairline()
-
                 // MARK: Privacy
                 SectionLabel(text: "Privacy")
 
-                Toggle(isOn: $model.remoteImagesEnabled) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Load images automatically")
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
-                        Text("A message can carry an image hosted anywhere. "
-                             + "Fetching it tells whoever sent the message your IP "
-                             + "address and when it arrived. Off means images load "
-                             + "only when you tap them.")
-                            .font(Theme.metaSmall)
-                            .foregroundStyle(Theme.dim)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                .tint(Theme.brand)
-                .padding(.vertical, 12)
+                toggleRow(
+                    "Load images automatically",
+                    detail: "A message can carry an image hosted anywhere. "
+                        + "Fetching it tells whoever sent the message your IP "
+                        + "address and when it arrived. Off means images load "
+                        + "only when you tap them.",
+                    isOn: $model.remoteImagesEnabled
+                )
                 Hairline()
 
                 // MARK: Diagnostics
@@ -100,7 +74,7 @@ struct SettingsView: View {
                                 .foregroundStyle(Theme.dim)
                         }
                     }
-                    .padding(.vertical, 12)
+                    .padding(.vertical, Theme.rowPadV)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -129,16 +103,33 @@ struct SettingsView: View {
                 FieldRow("Version", AppModel.appVersion)
                 Hairline()
 
-                Link(destination: URL(string: "https://app.notifi.it")!) {
+                // Sparkle only exists in the macOS build; iOS updates through the
+                // App Store and does not link it.
+                #if os(macOS)
+                toggleRow(
+                    "Automatic updates",
+                    detail: "Check for new versions in the background.",
+                    isOn: Binding(
+                        get: { Updater.shared.automaticallyChecks },
+                        set: { Updater.shared.automaticallyChecks = $0 }
+                    )
+                )
+                Hairline()
+
+                Button {
+                    Updater.shared.checkForUpdates()
+                } label: {
                     DisclosureRow {
-                        Text("app.notifi.it")
+                        Text("Check for updates")
                             .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
+                            .foregroundStyle(Updater.shared.canCheck ? Theme.fg : Theme.dim)
                     }
-                    .padding(.vertical, 12)
+                    .padding(.vertical, Theme.rowPadV)
                 }
                 .buttonStyle(.plain)
+                .disabled(!Updater.shared.canCheck)
                 Hairline()
+                #endif
 
                 Link(destination: URL(string: "https://app.notifi.it/privacy")!) {
                     DisclosureRow {
@@ -157,7 +148,24 @@ struct SettingsView: View {
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 16)
-                    .padding(.bottom, 40)
+
+                // The site sits at the foot rather than in a row of its own: it
+                // leaves the app, which is not what the rows above it do.
+                Link(destination: URL(string: "https://app.notifi.it")!) {
+                    HStack(spacing: 5) {
+                        Text("app.notifi.it")
+                            .font(Theme.metaSmall)
+                        Image("akar-link-chain")
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 11, height: 11)
+                    }
+                    .foregroundStyle(Theme.muted)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 14)
+                .padding(.bottom, 40)
             }
             .geistGutter()
         }
@@ -167,6 +175,39 @@ struct SettingsView: View {
         .toolbar(.hidden, for: .navigationBar)
         #endif
         .task { await model.refreshPermission() }
+    }
+
+    /// A switch sits hard against its own label, which puts it at a different
+    /// distance from the edge on every row. Detached and given the shared
+    /// control column, the switches line up with each other and with the values
+    /// in the rows above them.
+    private func toggleRow(
+        _ title: String,
+        detail: String? = nil,
+        isOn: Binding<Bool>
+    ) -> some View {
+        HStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(Theme.body)
+                    .foregroundStyle(Theme.fg)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let detail {
+                    Text(detail)
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(Theme.dim)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Spacer(minLength: 8)
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                .tint(Theme.brand)
+                .frame(width: Theme.controlWidth, alignment: .trailing)
+        }
+        .padding(.vertical, Theme.rowPadV)
     }
 
     private var permissionText: String {

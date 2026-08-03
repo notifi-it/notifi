@@ -15,7 +15,7 @@ database_id = "922cd206-7142-4b75-9af2-05f5fd7e1ba2"
 
 [vars]
 APNS_HOST = "https://api.sandbox.push.apple.com"
-APNS_TOPIC = "it.notifi.app"
+APNS_TOPIC = "it.notifi.notifi"
 
 [triggers]
 crons = ["0 3 * * *"]
@@ -35,7 +35,7 @@ directory = "./public"
 
 [env.production.vars]
 APNS_HOST = "https://api.push.apple.com"
-APNS_TOPIC = "it.notifi.app"
+APNS_TOPIC = "it.notifi.notifi"
 
 [[env.production.d1_databases]]
 binding = "DB"

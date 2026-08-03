@@ -102,26 +102,67 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
-      - name: Archive and upload macOS
+      # macOS is deliberately not uploaded to the App Store. It ships as a
+      # direct-download Developer ID DMG, published by the release job below.
+
+  # A `v*` tag publishes the macOS build as a real GitHub Release: notarized DMG
+  # plus the Sparkle appcast. This is not cosmetic -- SUFeedURL in the app points
+  # at /releases/latest/download/appcast.xml, so shipping an update to existing
+  # macOS users *is* creating this release.
+  release-macos:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: macos-26
+    environment: production
+    permissions:
+      contents: write # create the release and upload assets
+    env:
+      DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: brew install xcodegen
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+          working-directory: apps/app
+      - name: Import Developer ID signing assets
+        env:
+          DEVELOPER_ID_CERT_P12: ${{ secrets.DEVELOPER_ID_CERT_P12 }}
+          DEVELOPER_ID_CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/devid.keychain-db"
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          echo "$DEVELOPER_ID_CERT_P12" | base64 --decode > "$RUNNER_TEMP/devid.p12"
+          security import "$RUNNER_TEMP/devid.p12" -k "$KEYCHAIN" -P "$DEVELOPER_ID_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN"
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/asc"
+          echo "$ASC_API_KEY_P8" | base64 --decode > "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8"
+      - name: Build, notarize, and generate appcast
         working-directory: apps/app
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
         run: |
-          xcodebuild archive \
-            -scheme notifi-macOS \
-            -destination 'generic/platform=macOS' \
-            -archivePath "$RUNNER_TEMP/notifi-macOS.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM"
-          xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/notifi-macOS.xcarchive" \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-appstore.plist" \
-            -exportPath "$RUNNER_TEMP/export-macOS" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          export ASC_KEY_PATH="$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8"
+          xcodegen generate
+          bundle exec fastlane mac dmg
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            apps/app/build/notifi-*.dmg \
+            apps/app/build/updates/appcast.xml

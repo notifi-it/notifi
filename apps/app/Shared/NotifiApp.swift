@@ -6,6 +6,7 @@ import AppKit
 
 @MainActor let macAppModel = AppModel()
 @MainActor let macContainer = NotifiApp.makeContainer()
+@MainActor let macMenuBar = MenuBarController()
 #endif
 
 @main
@@ -16,6 +17,21 @@ struct NotifiApp: App {
     private let container = NotifiApp.makeContainer()
     #else
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
+    #endif
+
+    #if os(macOS)
+    // The status item is built here, not in the app delegate.
+    //
+    // With `Settings` as the only scene the delegate was never instantiated, so
+    // nothing ever created a status item; the app then owned no UI at all and
+    // macOS terminated it about twelve seconds after launch, before it could
+    // register the device. `App.init()` runs at launch regardless of scenes, so
+    // the item — and with it the NSPopover — is guaranteed to exist.
+    init() {
+        MainActor.assumeIsolated {
+            macMenuBar.configure(model: macAppModel, container: macContainer)
+        }
+    }
     #endif
 
     static func makeContainer() -> ModelContainer {
@@ -34,9 +50,9 @@ struct NotifiApp: App {
         }
         .modelContainer(container)
         #else
-        // The whole UI lives in the menu bar popover (see MenuBarController).
-        // This scene exists only because `App` needs one; it has no window.
-        Settings { EmptyView() }
+        // The popover is the whole UI, so there is no scene to show — but `App`
+        // demands one, and an empty Settings scene never opens a window.
+        Settings {}
         #endif
     }
 }
@@ -81,6 +97,10 @@ struct RootContentView: View {
         }
         .tint(Theme.brand)
         .font(.custom("Inconsolata", size: 17, relativeTo: .body))
+        // Fill before painting the ground. States like the boot error size to
+        // their own content, so without this the popover shows the black panel
+        // as a band with the vibrancy material above and below it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.bg)
         // Geist is a dark-only system — there is no light palette by design.
         .preferredColorScheme(.dark)

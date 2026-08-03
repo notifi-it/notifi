@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 import UserNotifications
 
-private let delegateLog = Logger(subsystem: "it.notifi.app", category: "delegate")
+private let delegateLog = Logger(subsystem: "it.notifi.notifi", category: "delegate")
 private let notificationDelegate = NotificationDelegate()
 
 #if os(iOS)
@@ -42,13 +42,16 @@ import SwiftData
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private let menuBar = MenuBarController()
-
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Set in code as well as LSUIElement: the policy decides whether this is a
+        // Dock app or a menu bar accessory, and leaving it to the plist alone left
+        // the process with no owned UI at the moment macOS decides whether to keep
+        // it. The status item itself is created from `NotifiApp.init()`.
+        NSApp.setActivationPolicy(.accessory)
+
         UNUserNotificationCenter.current().delegate = notificationDelegate
         NSApplication.shared.registerForRemoteNotifications()
 
-        menuBar.configure(model: macAppModel, container: macContainer)
         macAppModel.bootstrap(context: macContainer.mainContext)
         Task {
             await macAppModel.refreshPermission()

@@ -35,17 +35,29 @@ struct InboxRootView: View {
         }
         .tint(Theme.fg)
         #else
-        NavigationStack(path: $model.path) {
-            InboxView()
-                .navigationDestination(for: Int.self) { serverID in
-                    MessageDetailView(serverID: serverID)
-                }
-                .navigationDestination(for: AppRoute.self) { route in
-                    switch route {
-                    case .settings:
-                        SettingsTabsView()
+        // The same three destinations as iOS, in the same order, so the two
+        // platforms are one product. SwiftUI's TabView is not used: on macOS it
+        // renders as a top segmented control, and inside a popover there is no
+        // tab bar at all. GeistTabBar draws it instead.
+        VStack(spacing: 0) {
+            Group {
+                switch model.selectedTab {
+                case .inbox:
+                    NavigationStack(path: $model.path) {
+                        InboxView()
+                            .navigationDestination(for: Int.self) { serverID in
+                                MessageDetailView(serverID: serverID)
+                            }
                     }
+                case .keys:
+                    NavigationStack { KeysView() }
+                case .settings:
+                    NavigationStack { SettingsView() }
                 }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            GeistTabBar(selection: $model.selectedTab)
         }
         #endif
     }

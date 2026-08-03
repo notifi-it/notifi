@@ -29,7 +29,18 @@ settings:
     Release:
       API_BASE_URL: "https://app.notifi.it"
 
+# Sparkle is the auto-updater for the direct-download macOS build. It is attached
+# to the macOS app target only: iOS updates through the App Store and must not
+# link it. Everything that imports Sparkle in Shared/ is behind #if os(macOS).
+# Pinned exactly, not a range. Package.resolved lives inside the generated
+# notifi.xcodeproj, which is gitignored, so a range would let CI and a fresh
+# checkout silently resolve a different Sparkle than the one that was verified --
+# in the component that signs and installs updates on users' machines. Bump
+# deliberately.
 packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: "2.9.5"
   MarkdownUI:
     url: https://github.com/gonzalezreal/swift-markdown-ui
     from: "2.4.0"
@@ -44,7 +55,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: notifi
-        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.app
+        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
         INFOPLIST_FILE: Support/Info/App-iOS-Info.plist
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-iOS.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -61,12 +72,13 @@ targets:
     settings:
       base:
         PRODUCT_NAME: notifi
-        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.app
+        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
         INFOPLIST_FILE: Support/Info/App-macOS-Info.plist
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS.entitlements
         ENABLE_HARDENED_RUNTIME: "YES"
     dependencies:
       - target: NotificationService-macOS
+      - package: Sparkle
       - package: MarkdownUI
 
   NotificationService-iOS:
@@ -82,7 +94,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: NotificationService
-        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.app.nse
+        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.nse
         INFOPLIST_FILE: Support/Info/NotificationService-Info.plist
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/NotificationService-iOS.entitlements
 
@@ -99,7 +111,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: NotificationService
-        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.app.nse
+        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.nse
         INFOPLIST_FILE: Support/Info/NotificationService-Info.plist
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/NotificationService-macOS.entitlements
         ENABLE_HARDENED_RUNTIME: "YES"

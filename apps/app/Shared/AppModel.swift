@@ -39,9 +39,6 @@ final class AppModel {
     var path = NavigationPath()
     var selectedTab: AppTab = .inbox
     var notificationStatus: UNAuthorizationStatus = .notDetermined
-    var badgeEnabled: Bool {
-        didSet { UserDefaults.standard.set(badgeEnabled, forKey: "badgeEnabled") }
-    }
     var remoteImagesEnabled: Bool {
         didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
     }
@@ -57,12 +54,11 @@ final class AppModel {
     private var pendingToken: String?
     private var registrationChain: Task<Void, Never>?
     private var lastRegisteredToken: String?
-    private let log = Logger(subsystem: "it.notifi.app", category: "app")
+    private let log = Logger(subsystem: "it.notifi.notifi", category: "app")
 
     private static let realTokenKey = "lastRealAPNSToken"
 
     init() {
-        badgeEnabled = UserDefaults.standard.object(forKey: "badgeEnabled") as? Bool ?? true
         remoteImagesEnabled = RemoteImages.isEnabled
     }
 
