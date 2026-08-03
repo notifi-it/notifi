@@ -9,14 +9,55 @@ import SwiftUI
 // library's own theme type is written out as `MarkdownUI.Theme`.
 
 /// A message body rendered as Markdown, styled to the Geist system.
+///
+/// A body can carry `![](https://…)`, which the library would fetch as the view
+/// appears. That is the same disclosure as the message's own image field — the
+/// host learns the device's IP address — so it is gated on the same decision.
 struct MarkdownText: View {
     let source: String
+    var allowsRemoteImages: Bool = false
 
     var body: some View {
-        Markdown(source)
-            .markdownTheme(.geist)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .textSelection(.enabled)
+        Group {
+            if allowsRemoteImages {
+                markdown
+            } else {
+                markdown
+                    .markdownImageProvider(BlockedImageProvider())
+                    .markdownInlineImageProvider(BlockedInlineImageProvider())
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .textSelection(.enabled)
+    }
+
+    private var markdown: some View {
+        Markdown(source).markdownTheme(.geist)
+    }
+}
+
+private struct RemoteImageBlocked: Error {}
+
+private struct BlockedImageProvider: ImageProvider {
+    func makeImage(url: URL?) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: "photo")
+                .font(.system(size: 12, weight: .medium))
+            Text("Image hidden")
+                .font(.inco(.footnote))
+        }
+        .foregroundStyle(Theme.dim)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 13)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.radius))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.chip, lineWidth: 1))
+    }
+}
+
+private struct BlockedInlineImageProvider: InlineImageProvider {
+    func image(with url: URL, label: String) async throws -> Image {
+        throw RemoteImageBlocked()
     }
 }
 

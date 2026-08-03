@@ -59,7 +59,11 @@ final class NotificationService: UNNotificationServiceExtension {
         best.title = content.title
         if let message = content.message { best.body = message }
 
-        guard let image = content.image,
+        // Downloading here would happen on arrival, before the user has seen
+        // anything, so the sender would learn the device's IP address and the
+        // exact delivery time from a message that was never opened.
+        guard RemoteImages.isEnabled,
+              let image = content.image,
               let url = URL(string: image),
               url.scheme == "https" else {
             delivery.finish()

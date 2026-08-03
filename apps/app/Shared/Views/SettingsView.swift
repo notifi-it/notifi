@@ -58,6 +58,27 @@ struct SettingsView: View {
                 .padding(.vertical, 12)
                 Hairline()
 
+                // MARK: Privacy
+                SectionLabel(text: "Privacy")
+
+                Toggle(isOn: $model.remoteImagesEnabled) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Load images automatically")
+                            .font(Theme.body)
+                            .foregroundStyle(Theme.fg)
+                        Text("A message can carry an image hosted anywhere. "
+                             + "Fetching it tells whoever sent the message your IP "
+                             + "address and when it arrived. Off means images load "
+                             + "only when you tap them.")
+                            .font(Theme.metaSmall)
+                            .foregroundStyle(Theme.dim)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .tint(Theme.brand)
+                .padding(.vertical, 12)
+                Hairline()
+
                 // MARK: Diagnostics
                 SectionLabel(text: "Diagnostics")
 
@@ -111,6 +132,17 @@ struct SettingsView: View {
                 Link(destination: URL(string: "https://app.notifi.it")!) {
                     DisclosureRow {
                         Text("app.notifi.it")
+                            .font(Theme.body)
+                            .foregroundStyle(Theme.fg)
+                    }
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.plain)
+                Hairline()
+
+                Link(destination: URL(string: "https://app.notifi.it/privacy")!) {
+                    DisclosureRow {
+                        Text("Privacy policy")
                             .font(Theme.body)
                             .foregroundStyle(Theme.fg)
                     }

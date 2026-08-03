@@ -40,6 +40,7 @@ targets:
     platform: iOS
     sources:
       - path: Shared
+      - path: Support/Privacy/App/PrivacyInfo.xcprivacy
     settings:
       base:
         PRODUCT_NAME: notifi
@@ -56,6 +57,7 @@ targets:
     platform: macOS
     sources:
       - path: Shared
+      - path: Support/Privacy/App/PrivacyInfo.xcprivacy
     settings:
       base:
         PRODUCT_NAME: notifi
@@ -75,6 +77,8 @@ targets:
       - path: Shared/Identity/DeviceIdentity.swift
       - path: Shared/API/ContractModels.swift
       - path: Shared/Support/NotifiError.swift
+      - path: Shared/Support/RemoteImages.swift
+      - path: Support/Privacy/NotificationService/PrivacyInfo.xcprivacy
     settings:
       base:
         PRODUCT_NAME: NotificationService
@@ -90,6 +94,8 @@ targets:
       - path: Shared/Identity/DeviceIdentity.swift
       - path: Shared/API/ContractModels.swift
       - path: Shared/Support/NotifiError.swift
+      - path: Shared/Support/RemoteImages.swift
+      - path: Support/Privacy/NotificationService/PrivacyInfo.xcprivacy
     settings:
       base:
         PRODUCT_NAME: NotificationService

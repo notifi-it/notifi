@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>notifi: privacy policy</title>
+<meta name="description" content="What notifi stores, for how long, what the server can and cannot read, and what a sender can learn about you.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<meta property="og:title" content="notifi: privacy policy">
+<meta property="og:description" content="What notifi stores, for how long, and what it cannot read.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://app.notifi.it/privacy">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300..800&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* Same tokens as the landing page. */
+:root{
+  --bg:#000;
+  --fg:#EDEDED;
+  --muted:#A1A1A1;
+  --dim:#6E6E6E;
+  --line:#1F1F1F;
+  --chip:#2A2A2A;
+  --surface:#0B0B0B;
+  --brand:#BC2122;
+  --brand-text:#DB4A4B;
+  --mono:'Inconsolata',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --gutter:clamp(20px,5vw,40px);
+  --max:1080px;
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--brand);color:#fff}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+.rule{height:1px;background:var(--line);border:0}
+
+h1,h2,h3{font-family:var(--mono);font-weight:700;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
+h1{font-size:clamp(30px,5.4vw,48px)}
+h2{font-size:clamp(21px,3vw,27px)}
+h3{font-size:16px;letter-spacing:-.02em}
+p,li{max-width:70ch}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+}
+
+header{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:60px}
+.mark{display:flex;align-items:center;gap:9px;text-decoration:none}
+.mark img{height:17px;width:auto;display:block}
+nav{margin-left:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--fg)}
+
+.bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
+.bell::before{
+  content:"";position:absolute;inset:0;background:currentColor;
+  -webkit-mask:url(/bell.png) center/contain no-repeat;
+          mask:url(/bell.png) center/contain no-repeat;
+}
+.bell::after{
+  content:"";position:absolute;left:70.28%;top:16.67%;
+  width:34.5%;height:34.5%;transform:translate(-50%,-50%);
+  border-radius:50%;background:var(--brand);
+}
+.lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
+.lockup img{display:block;height:var(--word,20px);width:auto}
+
+.doc{padding:clamp(44px,7vw,80px) 0 clamp(50px,8vw,90px)}
+.doc h1{margin-bottom:16px}
+.doc .lede{margin-bottom:12px}
+.doc section{margin-top:clamp(38px,5vw,58px)}
+.doc h2{margin-bottom:16px}
+.doc h3{margin-top:26px;margin-bottom:8px;color:var(--fg)}
+.doc p{color:var(--muted);margin-top:12px}
+.doc ul{margin:12px 0 0;padding:0;list-style:none}
+.doc li{
+  color:var(--muted);padding:11px 0;border-bottom:1px solid var(--line);
+  line-height:1.5;
+}
+.doc li:first-child{border-top:1px solid var(--line)}
+.doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
+.doc strong{color:var(--fg);font-weight:500}
+.doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
+.doc a:hover{text-decoration-color:var(--fg)}
+
+.card{
+  border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  padding:clamp(18px,2.4vw,26px);margin-top:20px;
+}
+.card p:first-child{margin-top:0}
+
+footer{border-top:1px solid var(--line);padding:40px 0 56px}
+.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+  font-family:var(--mono);font-size:13px;color:var(--dim)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--fg)}
+.foot .meta{margin-left:auto}
+@media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/#api">API</a>
+      <a href="/#download">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap doc">
+
+  <p class="eyebrow">Privacy</p>
+  <h1>Privacy policy</h1>
+  <p class="lede">
+    This describes what notifi stores, how long it keeps it, what the server can
+    and cannot read, and what the person sending you a notification can learn
+    about you.
+  </p>
+  <p class="meta">Last updated 3 August 2026</p>
+
+  <section>
+    <h2>There is no account</h2>
+    <p>
+      notifi has no sign-up, no email address, no password and no device linking.
+      On first launch the app generates two keypairs on the device. The private
+      halves never leave it: the signing key is held in the Secure Enclave and
+      cannot be exported at all, and the decryption key is held in the keychain,
+      marked so that it is not included in iCloud backups or synced to other
+      devices.
+    </p>
+    <p>
+      The server identifies a device only by its public key. Nothing in the system
+      links that key to a name, an email address or any other identity.
+    </p>
+  </section>
+
+  <section>
+    <h2>What the server stores</h2>
+
+    <h3>Your device</h3>
+    <ul>
+      <li>Two public keys — one for verifying requests, one for encrypting messages to you.</li>
+      <li>Your Apple push token, encrypted with a key held by the server, so notifications can be delivered.</li>
+      <li>The platform (<code>ios</code> or <code>macos</code>) and app version, encrypted with the same key.</li>
+      <li>When the device first registered and when it was last seen.</li>
+    </ul>
+
+    <h3>Your send keys</h3>
+    <ul>
+      <li>A SHA-256 hash of the key. The key itself is never stored, so it cannot be recovered or shown again.</li>
+      <li>The name and visible prefix you gave it, encrypted so only your device can read them.</li>
+      <li>How many messages it has sent, when it was created, when it was last used, and whether it is revoked.</li>
+    </ul>
+
+    <h3>Your messages</h3>
+    <ul>
+      <li>The message, encrypted to your device's public key at the moment it arrives.</li>
+      <li>Which key sent it, when the server received it, and the event time the sender supplied, if any.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>What the server cannot read</h2>
+    <p>
+      Message content — the title, body, link and image URL — is encrypted to your
+      device's public key before it is written to the database, using HPKE
+      (P-256 / HKDF-SHA256 / AES-256-GCM). The server holds no private key that
+      can undo this. A full copy of the database, together with every server
+      secret, does not reveal the contents of a single message. Your send key
+      names are encrypted the same way.
+    </p>
+    <p>
+      This is what "the server can't read your messages" means on the landing
+      page, and it is the limit of that claim. The sections below cover what
+      remains visible.
+    </p>
+  </section>
+
+  <section>
+    <h2>What the server can see</h2>
+    <p>
+      Encrypting the contents does not hide the fact that a message happened. The
+      server necessarily observes:
+    </p>
+    <ul>
+      <li>The IP address of whoever sends a message, and the IP address of your device when it collects one.</li>
+      <li>The time of every send and every collection, and the approximate size of each message.</li>
+      <li>Which of your keys sent which message, and how often each key is used.</li>
+      <li>Your Apple push token, which is required to deliver a notification at all.</li>
+    </ul>
+    <p>
+      Because the sender and the recipient both talk to the same server, that
+      server is in a position to correlate the two. If your threat model does not
+      allow for that, notifi is not the right tool.
+    </p>
+  </section>
+
+  <section>
+    <h2>How long it is kept</h2>
+    <ul>
+      <li><strong>Messages</strong> are deleted from the server as soon as your device confirms it has collected them. A daily job removes them.</li>
+      <li><strong>Uncollected messages</strong> are deleted 90 days after they arrive, whether or not they were ever collected.</li>
+      <li><strong>Devices</strong> with no active keys are deleted after 30 days without contact. Deleting a device deletes its messages with it.</li>
+      <li><strong>Send keys</strong> are kept while the device exists, including revoked ones, so that a revoked key cannot be reused.</li>
+    </ul>
+    <p>
+      notifi is a relay, not a mailbox. Once your device has a message, the server
+      copy is gone and the only copy is the one on your device.
+    </p>
+  </section>
+
+  <section>
+    <h2>Server logs</h2>
+    <p>
+      The service runs on Cloudflare Workers. Cloudflare records the metadata of
+      requests reaching the network, including source IP address, timestamp and
+      the full request URL. notifi does not control the contents of those logs and
+      does not write message contents to logs of its own.
+    </p>
+    <div class="card">
+      <p>
+        <strong>This matters for how you send.</strong> The <code>/send</code>
+        endpoint accepts a key and a message as URL query parameters, which is
+        convenient for a one-off <code>curl</code>. Anything placed in a URL
+        appears in those logs in the clear, before it is ever encrypted, and also
+        in your shell history and in any proxy between you and Cloudflare.
+      </p>
+      <p>
+        Send the key as an <code>Authorization: Bearer</code> header and the
+        message in a <code>POST</code> body instead. Neither is logged.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Images in messages</h2>
+    <p>
+      A message can carry a link to an image, and the host serving it is chosen by
+      whoever sent the message — not by notifi. Loading such an image means your
+      device makes a request to that host, which reveals your IP address, your
+      rough location, and the exact moment the message reached you. A sender can
+      use this to tell whether and when you received something.
+    </p>
+    <p>
+      Because of this, the app does not load images automatically. It shows a
+      placeholder and loads the image only when you tap it. If you would rather
+      images appear on their own, there is a switch in <strong>Settings &rsaquo;
+      Privacy</strong>. Turning it on applies to notifications as well, which
+      means images will be fetched on arrival, before you have opened anything.
+    </p>
+  </section>
+
+  <section>
+    <h2>On your device</h2>
+    <ul>
+      <li>Collected messages are stored locally and protected by the device's own encryption. They are readable only after the device has been unlocked at least once since it started.</li>
+      <li>Private keys are in the Secure Enclave and the keychain, marked as not backed up and not synced.</li>
+      <li>Deleting a message in the app deletes it from the device. The server copy is already gone.</li>
+      <li>Deleting the app deletes the messages, the keys and the identity. None of it can be recovered afterwards, and any send keys you had created stop working.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>No tracking</h2>
+    <p>
+      The app contains no analytics, no crash reporting, no advertising
+      identifiers and no third-party SDKs of any kind. It talks to
+      <code>app.notifi.it</code> and to Apple's push service, and to an image host
+      only when you ask it to load an image. This website sets no cookies and
+      loads no analytics. It does load a webfont from Google Fonts, which means
+      Google sees the IP address of visitors to this site.
+    </p>
+    <p>
+      No data is sold, rented or shared with anyone, and nothing here is used to
+      build a profile or to advertise.
+    </p>
+  </section>
+
+  <section>
+    <h2>Children</h2>
+    <p>
+      notifi is not directed at children and collects no information that would
+      identify anyone, of any age.
+    </p>
+  </section>
+
+  <section>
+    <h2>Changes and contact</h2>
+    <p>
+      If this policy changes, the date at the top of this page changes with it,
+      and the previous versions remain in the public git history of the project.
+    </p>
+    <p>
+      Questions about privacy, or a request to delete data held about a device,
+      can be raised at
+      <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.
+      Note that without your device's public key there is no way to identify which
+      records are yours — deleting the app is the faster and more complete route.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
+    </div>
+  </div>
+  <div class="wrap foot">
+    <a href="/#uses">Uses</a>
+    <a href="/#how">How it works</a>
+    <a href="/#send">Send</a>
+    <a href="/#api">API</a>
+    <a href="/#download">Download</a>
+    <a href="/privacy">Privacy</a>
+    <span class="meta">Built by Maximilian Mitchell</span>
+  </div>
+</footer>
+
+</body>
+</html>

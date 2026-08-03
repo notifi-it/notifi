@@ -42,6 +42,9 @@ final class AppModel {
     var badgeEnabled: Bool {
         didSet { UserDefaults.standard.set(badgeEnabled, forKey: "badgeEnabled") }
     }
+    var remoteImagesEnabled: Bool {
+        didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
+    }
     var presentingCreateKey = false
 
     private(set) var identity: DeviceIdentity?
@@ -60,6 +63,7 @@ final class AppModel {
 
     init() {
         badgeEnabled = UserDefaults.standard.object(forKey: "badgeEnabled") as? Bool ?? true
+        remoteImagesEnabled = RemoteImages.isEnabled
     }
 
     var baseURL: URL {

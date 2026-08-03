@@ -401,10 +401,35 @@ private struct MessageRow: View {
 
 /// Reserves its slot while loading and marks failure rather than collapsing, so
 /// the list never reflows as images arrive.
+///
+/// Scrolling the feed would otherwise fetch every image in it, so with automatic
+/// loading off this draws a placeholder and makes no request. The image is still
+/// one tap away in the detail view.
 private struct Thumbnail: View {
+    @Environment(AppModel.self) private var model
     let url: URL
 
     var body: some View {
+        Group {
+            if model.remoteImagesEnabled {
+                remote
+            } else {
+                RoundedRectangle(cornerRadius: Theme.radius)
+                    .fill(Theme.surface)
+                    .overlay(
+                        Image(systemName: "photo")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(Theme.dim)
+                    )
+            }
+        }
+        .frame(width: Theme.thumb, height: Theme.thumb)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radius))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.chip, lineWidth: 1))
+        .accessibilityHidden(true)
+    }
+
+    private var remote: some View {
         AsyncImage(url: url) { phase in
             switch phase {
             case .success(let image):
@@ -421,9 +446,5 @@ private struct Thumbnail: View {
                 RoundedRectangle(cornerRadius: Theme.radius).fill(Theme.surface)
             }
         }
-        .frame(width: Theme.thumb, height: Theme.thumb)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.radius))
-        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.chip, lineWidth: 1))
-        .accessibilityHidden(true)
     }
 }

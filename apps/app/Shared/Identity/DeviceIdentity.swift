@@ -199,7 +199,7 @@ extension DeviceIdentity {
     }
 }
 
-private extension DeviceIdentity {
+extension DeviceIdentity {
     // Add first, and only update on an explicit duplicate. Deleting up front would
     // destroy a live identity whenever a read had failed for a transient reason.
     static func keychainSet(service: String, accessGroup: String?, data: Data) throws {

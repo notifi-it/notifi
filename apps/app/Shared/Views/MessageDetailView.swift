@@ -22,6 +22,9 @@ struct MessageDetailView: View {
 
     @State private var copied = false
     @State private var confirmingDelete = false
+    // Reset on every open: revealing an image is a decision about this message on
+    // this visit, not a preference that should outlive it.
+    @State private var revealedImage = false
 
     init(serverID: Int) {
         _messages = Query(filter: #Predicate<Message> { $0.serverID == serverID })
@@ -188,26 +191,32 @@ struct MessageDetailView: View {
                 .padding(.top, 12)
 
             if let body = message.body {
-                MarkdownText(source: body)
+                MarkdownText(source: body, allowsRemoteImages: showsImage)
                     .padding(.top, 15)
             }
 
             if let url = message.imageURL {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFit()
-                    case .failure:
-                        VStack(spacing: 6) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 15, weight: .medium))
-                            Text("Image failed to load")
-                                .font(Theme.metaSmall)
+                Group {
+                    if showsImage {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image.resizable().scaledToFit()
+                            case .failure:
+                                VStack(spacing: 6) {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 15, weight: .medium))
+                                    Text("Image failed to load")
+                                        .font(Theme.metaSmall)
+                                }
+                                .foregroundStyle(Theme.dim)
+                                .frame(maxWidth: .infinity, minHeight: 140)
+                            default:
+                                Theme.surface.frame(maxWidth: .infinity, minHeight: 140)
+                            }
                         }
-                        .foregroundStyle(Theme.dim)
-                        .frame(maxWidth: .infinity, minHeight: 140)
-                    default:
-                        Theme.surface.frame(maxWidth: .infinity, minHeight: 140)
+                    } else {
+                        hiddenImage(host: url.host() ?? "another host")
                     }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -271,6 +280,38 @@ struct MessageDetailView: View {
             .padding(.top, 20)
             .padding(.bottom, 40)
         }
+    }
+
+    private var showsImage: Bool { model.remoteImagesEnabled || revealedImage }
+
+    /// Stands in for an image that has not been fetched yet.
+    ///
+    /// It names the host, because that is the party who learns the device's IP
+    /// address and the time of day the moment the image loads.
+    private func hiddenImage(host: String) -> some View {
+        VStack(spacing: 10) {
+            Text("Image hidden")
+                .font(.inco(.subheadline, weight: .semibold))
+                .foregroundStyle(Theme.fg)
+            Text("Loading it contacts \(host).")
+                .font(Theme.metaSmall)
+                .foregroundStyle(Theme.dim)
+                .multilineTextAlignment(.center)
+            Button {
+                revealedImage = true
+            } label: {
+                Text("Load image")
+                    .font(.inco(.footnote, weight: .semibold))
+                    .foregroundStyle(Theme.fg)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 9)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.vertical, 26)
+        .frame(maxWidth: .infinity)
+        .background(Theme.surface)
     }
 
     /// A round icon button for the top bar.
