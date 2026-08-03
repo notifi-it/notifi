@@ -25,7 +25,11 @@ export interface DeviceRow {
   app_version: string;
   created_at: number;
   last_seen_at: number;
+  /// Highest device_seq the device has confirmed collecting.
   acked_id: number;
+  /// Last device_seq handed out. Never decreases, so a number is not reused
+  /// after the message holding it has been deleted.
+  seq_counter: number;
 }
 
 export interface Variables {

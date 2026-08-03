@@ -21,9 +21,11 @@ history.get('/history', async (c) => {
   const since = parsed.data.since ?? 0;
   const limit = parsed.data.limit ?? 50;
 
+  // device_seq is the only id the device ever sees. The global rowid stays
+  // server-side — see migration 0005.
   const rows = await c.env.DB.prepare(
-    `SELECT id, content_sealed, key_id, created_at, occurred_at
-     FROM messages WHERE device_id = ? AND id > ? ORDER BY id ASC LIMIT ?`,
+    `SELECT device_seq AS id, content_sealed, key_id, created_at, occurred_at
+     FROM messages WHERE device_id = ? AND device_seq > ? ORDER BY device_seq ASC LIMIT ?`,
   )
     .bind(device.id, since, limit)
     .all<HistoryMessage>();

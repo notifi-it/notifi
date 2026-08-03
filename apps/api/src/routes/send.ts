@@ -157,14 +157,40 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   const fullSealed = await seal(row.encryption_public_key, 'content', JSON.stringify(content));
 
   const expiresAt = nowS + MESSAGE_BACKSTOP_S;
-  const message = await c.env.DB.prepare(
-    `INSERT INTO messages (device_id, key_id, content_sealed, created_at, expires_at, occurred_at)
-     VALUES (?, ?, ?, ?, ?, ?) RETURNING id`,
-  )
-    .bind(row.device_id, row.key_id, fullSealed, createdAt, expiresAt, occurredAt ?? null)
-    .first<{ id: number }>();
 
-  const messageId = message!.id;
+  // Allocate the device's next number first, and take it from the RETURNING
+  // rather than reading the counter back. Two sends racing on one device would
+  // otherwise both read the same value and collide on the unique index.
+  // A number burned by a failed insert leaves a gap, which is harmless: the
+  // device asks for everything above its bookmark, not for a dense run.
+  const counter = await c.env.DB.prepare(
+    'UPDATE devices SET seq_counter = seq_counter + 1 WHERE id = ? RETURNING seq_counter',
+  )
+    .bind(row.device_id)
+    .first<{ seq_counter: number }>();
+
+  if (!counter) {
+    return c.json(errBody('unknown_key', 'Unknown or revoked key.'), 401);
+  }
+  const deviceSeq = counter.seq_counter;
+
+  await c.env.DB.prepare(
+    `INSERT INTO messages
+       (device_id, device_seq, key_id, content_sealed, created_at, expires_at, occurred_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  )
+    .bind(
+      row.device_id,
+      deviceSeq,
+      row.key_id,
+      fullSealed,
+      createdAt,
+      expiresAt,
+      occurredAt ?? null,
+    )
+    .run();
+
+  const messageId = deviceSeq;
 
   const fallbacks: MessageContent[] = [
     {
@@ -213,7 +239,8 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     nowS,
   );
 
-  // Deliberately no id. Message ids are sequential, so returning one tells any
-  // sender how much traffic the relay has handled, and lets them watch it grow.
+  // Deliberately no id. It is now per-device rather than global, so returning it
+  // would no longer leak the relay's traffic — it would leak the recipient's,
+  // telling any one sender how much everything else sends to that device.
   return c.json({ ok: true }, 202);
 });

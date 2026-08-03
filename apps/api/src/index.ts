@@ -51,7 +51,7 @@ async function scheduled(_event: ScheduledController, env: Env): Promise<void> {
     const res = await env.DB.prepare(
       `DELETE FROM messages WHERE id IN (
          SELECT m.id FROM messages m JOIN devices d ON d.id = m.device_id
-         WHERE m.id <= d.acked_id LIMIT 1000
+         WHERE m.device_seq <= d.acked_id LIMIT 1000
        )`,
     ).run();
     if ((res.meta.changes ?? 0) < 1000) break;

@@ -234,7 +234,8 @@ CREATE TABLE devices (
   app_version            TEXT NOT NULL,
   created_at             INTEGER NOT NULL,
   last_seen_at           INTEGER NOT NULL,
-  acked_id               INTEGER NOT NULL DEFAULT 0
+  acked_id               INTEGER NOT NULL DEFAULT 0,
+  seq_counter            INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE keys (
@@ -253,13 +254,14 @@ CREATE TABLE keys (
 CREATE TABLE messages (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   device_id       INTEGER NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+  device_seq      INTEGER NOT NULL,
   key_id          INTEGER REFERENCES keys(id) ON DELETE SET NULL,
   content_sealed  TEXT NOT NULL,
   created_at      INTEGER NOT NULL,
   expires_at      INTEGER NOT NULL
 );
 
-CREATE INDEX idx_messages_device ON messages(device_id, id);
+CREATE UNIQUE INDEX idx_messages_device_seq ON messages(device_id, device_seq);
 CREATE INDEX idx_messages_expiry ON messages(expires_at);
 ```
 
@@ -269,10 +271,20 @@ operational-encrypted (§6b); `apns_token_hmac` is a deterministic HMAC-SHA-256 
 raw token hex, keyed with `ENCRYPTION_KEY` — its UNIQUE constraint guarantees one
 push token maps to one device row, so a stolen token cannot be registered under a
 second keypair alongside the victim's (§7 `/devices` handles the eviction).
-`devices.acked_id` is the retention watermark (§ Delivery): the highest message id the
-device has provably synced, advanced by `/history`. `messages.id` uses AUTOINCREMENT
-per §0.1; `expires_at = created_at + 7776000` (a 90-day **backstop**, not the delivery
-guarantee — see Delivery).
+`devices.acked_id` is the retention watermark (§ Delivery): the highest `device_seq`
+the device has provably synced, advanced by `/history`. `messages.id` uses
+AUTOINCREMENT per §0.1; `expires_at = created_at + 7776000` (a 90-day **backstop**,
+not the delivery guarantee — see Delivery).
+
+`messages.device_seq` is the only message id that leaves the server — in `/history`,
+in the push payload, and in `acked_id`. It counts 1, 2, 3 within each device.
+`messages.id` stays internal, because it is global: handed to a device it would
+report the relay's total traffic, and two messages sent to yourself an hour apart
+would fence how much everyone else sent in between. `devices.seq_counter` allocates
+the next value and never decreases — deriving it from `MAX(device_seq)` would reuse
+numbers after collected messages were deleted, and the device would never ask for
+them again. Gaps are expected and harmless: `/history` asks for everything above a
+bookmark, not for a dense run.
 
 Sealed blobs are one per row, not one per column. `messages.content_sealed` opens to
 the validated send content **plus the row's own identity** —
@@ -569,9 +581,11 @@ repeat.
   skips 42" bug is real on multi-writer stores (Postgres) but not on D1: SQLite is
   single-writer, so ids commit in order. Do not move this onto a multi-writer store
   without a fix.
-- *Id reuse after delete* — prevented by `messages.id AUTOINCREMENT` (§0.1); a plain
-  rowid would be reused after deleting the newest row and a device that already acked
-  it would skip the replacement. Load-bearing, not decoration.
+- *Id reuse after delete* — prevented by `devices.seq_counter`, which only ever
+  increments. Deriving the next `device_seq` from `MAX(device_seq)` over live rows
+  would reuse numbers as soon as collected messages were swept, and a device that
+  had already acked that number would never ask for the replacement. `messages.id`
+  keeps AUTOINCREMENT (§0.1) for the same reason on the internal side.
 - *Client ordering* — the bookmark must advance only **after** the page is durably
   saved on-device (§9d). Save-then-advance; a crash mid-sync just re-fetches. Reorder
   it and, under ack-based retention, you get permanent loss.
@@ -1151,7 +1165,7 @@ Every magic value in the system. If a value appears in code but not here, it's w
 | Operational blob layout | standard base64 of `iv(12 bytes) ‖ ciphertext‖tag` (AES-256-GCM) |
 | APNs JWT | header `{alg:"ES256", kid}`, claims `{iss: teamId, iat}`, cache 50 min |
 | Per-key rate window | 3600 s fixed, bucket `floor(now/3600)*3600`, limit 120 |
-| Message retention | ack-based: kept until `messages.id <= devices.acked_id`; 90-day backstop (`expires_at`, 7776000 s) only for devices that never sync back |
+| Message retention | ack-based: kept until `messages.device_seq <= devices.acked_id`; 90-day backstop (`expires_at`, 7776000 s) only for devices that never sync back |
 | `apns_token_hmac` | Lowercase hex HMAC-SHA-256 of the token hex string, keyed with `ENCRYPTION_KEY` |
 | Push preview truncation | `message` cut to 1000 chars, `link` dropped |
 | Base64 rule of thumb | base64url = send keys and JWT segments only; standard base64 = everything else |

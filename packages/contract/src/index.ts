@@ -121,6 +121,9 @@ export const historyQuery = z.object({
 export type HistoryQuery = z.infer<typeof historyQuery>;
 
 export const historyMessage = z.object({
+  /// Per-device: 1, 2, 3 within this device, with gaps where a send failed.
+  /// Not a global message id — that one stays on the server, because a global
+  /// id would tell every device how much traffic the whole relay handles.
   id: z.number().int(),
   content_sealed: z.string(),
   key_id: z.number().int().nullable(),

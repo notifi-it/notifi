@@ -16,15 +16,56 @@ final class SyncEngine {
     private(set) var isSyncing = false
     private(set) var unread = 0
 
-    private let bookmarkKey = "lastSyncedMessageID"
+    private let bookmarkKey = "lastSyncedDeviceSeq"
     private let failureKeyPrefix = "ingestFailedAt."
     private static let unreadableGraceSeconds: TimeInterval = 14 * 24 * 60 * 60
+    private static let seqMigrationKey = "didMigrateToDeviceSeq"
 
     init(api: APIClient, identity: DeviceIdentity, context: ModelContext) {
         self.api = api
         self.identity = identity
         self.context = context
         self.keys = KeyCacheStore.load()
+        migrateToDeviceSeqIfNeeded()
+    }
+
+    /// Moves the store off the server's old global message ids.
+    ///
+    /// Message ids used to be global and are now per-device, so they start again
+    /// from 1 and would otherwise collide with ids already held here — a new
+    /// message would look like one the store had seen and be dropped. Existing
+    /// rows move below zero, which cannot collide with anything the server will
+    /// ever send, and keeps the history intact. Nothing sorts or displays these,
+    /// so negating them is invisible.
+    ///
+    /// The bookmark goes with them. The old one counts in the old numbering and
+    /// is far past anything the device will be offered now, so left alone it
+    /// would hide every future message.
+    private func migrateToDeviceSeqIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: Self.seqMigrationKey) else { return }
+
+        if let existing = try? context.fetch(FetchDescriptor<Message>()) {
+            for message in existing where message.serverID > 0 {
+                message.serverID = -message.serverID
+            }
+            do {
+                try context.save()
+            } catch {
+                // Leaving the flag unset means this runs again next launch
+                // rather than the store being left half-renumbered.
+                log.error("device_seq migration failed: \(String(describing: error), privacy: .public)")
+                return
+            }
+        }
+
+        // Failure markers are keyed by the old ids, and a new message could
+        // reach the same number and inherit one.
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(failureKeyPrefix) {
+            defaults.removeObject(forKey: key)
+        }
+        defaults.removeObject(forKey: "lastSyncedMessageID")
+        defaults.set(true, forKey: Self.seqMigrationKey)
     }
 
     private var bookmark: Int {
