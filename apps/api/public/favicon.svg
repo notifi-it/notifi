@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="notifi">
+  <!-- Black tile so the mark reads on a light or a dark browser tab. Same
+       geometry as the app's BellMark: badge centred at 70.28%/16.67% of the
+       bell box, 34.5% of it across. -->
+  <rect width="32" height="32" rx="7" fill="#000"/>
+  <g transform="translate(4 4)" fill="none" stroke="#EDEDED" stroke-width="2"
+     stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 10a6 6 0 0 1 12 0c0 3.2 .9 5 2 6H4c1.1-1 2-2.8 2-6Z"/>
+    <path d="M10 19a2 2 0 0 0 4 0"/>
+  </g>
+  <circle cx="20.87" cy="8" r="4.14" fill="#000"/>
+  <circle cx="20.87" cy="8" r="3.1" fill="#BC2122"/>
+</svg>

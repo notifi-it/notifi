@@ -84,7 +84,7 @@ struct HistoryResponse: Codable, Sendable {
 }
 
 struct SendResponse: Codable, Sendable {
-    let id: Int
+    let ok: Bool
 }
 
 struct MessageContent: Codable, Sendable {

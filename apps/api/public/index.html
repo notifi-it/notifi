@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>notifi — push notifications from the command line</title>
-<meta name="description" content="Create a send key, curl a title and message to notifi.it/send, and the alert lands on your iPhone and Mac. No accounts. The server can't read your messages.">
+<title>notifi: push notifications from the command line</title>
+<meta name="description" content="Create a send key, curl a title and message to app.notifi.it/send, and the alert lands on your iPhone or your Mac. No accounts. The server can't read your messages.">
 <meta name="theme-color" content="#000000">
-<link rel="icon" href="/wordmark.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-<meta property="og:title" content="notifi — push notifications from the command line">
-<meta property="og:description" content="curl a title to notifi.it/send. It lands on your iPhone and Mac. No accounts, and the server can't read it.">
+<meta property="og:title" content="notifi: push notifications from the command line">
+<meta property="og:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and the server can't read it.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://notifi.it">
+<meta property="og:url" content="https://app.notifi.it">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,6 +119,7 @@ nav a:hover{color:var(--fg)}
 .term .s{color:#7FA8E0}             /* string */
 .term .f{color:var(--muted)}        /* flag */
 .term .c{color:var(--dim)}          /* comment */
+.term .k{color:var(--brand-text)}   /* the key you swap in */
 .copy{
   margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
   background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
@@ -137,7 +139,43 @@ section{padding:clamp(48px,7vw,86px) 0}
 }
 .row h3{margin:0}
 .row p{color:var(--muted);margin:0}
+.row .src{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
+.row .src:hover{text-decoration-color:var(--fg)}
 @media(max-width:720px){.row{grid-template-columns:1fr;gap:6px}}
+
+/* ── the brand mark ─────────────────────────────────────────── */
+.bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
+.bell::before{
+  content:"";position:absolute;inset:0;background:currentColor;
+  -webkit-mask:url(/bell.png) center/contain no-repeat;
+          mask:url(/bell.png) center/contain no-repeat;
+}
+/* badge disc, measured off the artwork: centre 70.28%/16.67%, 34.5% across */
+.bell::after{
+  content:"";position:absolute;left:70.28%;top:16.67%;
+  width:34.5%;height:34.5%;transform:translate(-50%,-50%);
+  border-radius:50%;background:var(--brand);
+}
+.lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
+.lockup img{display:block;height:var(--word,20px);width:auto}
+
+/* ── icons ──────────────────────────────────────────────────── */
+.ico{width:19px;height:19px;flex:0 0 auto;color:var(--dim)}
+.row h3{display:flex;align-items:center;gap:10px}
+.use-col .eyebrow{display:flex;align-items:center;gap:8px}
+.use-col .ico{width:15px;height:15px}
+
+/* ── uses: four hairline lists, no bullets, no boxes ────────── */
+.uses{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(20px,2.4vw,30px)}
+.use-col .eyebrow{padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:4px;min-height:calc(3.2em + 10px)}
+.use-col ul{list-style:none;margin:0;padding:0}
+.use-col li{
+  color:var(--muted);font-size:15px;line-height:1.45;
+  padding:11px 0;border-bottom:1px solid var(--line);
+}
+@media(max-width:1140px){.uses{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:920px){.uses{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.uses{grid-template-columns:1fr}}
 
 /* ── screenshots ────────────────────────────────────────────── */
 .shots{
@@ -194,17 +232,85 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
 <body>
 
+<!-- Icon sprite. Thin stroke, currentColor, so each icon inherits whatever
+     colour the text around it already has. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="s" fill="none" stroke="currentColor" stroke-width="1.7"
+       stroke-linecap="round" stroke-linejoin="round"></g>
+
+    <symbol id="i-noaccount" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="3.4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/><path d="M3 3l18 18"/>
+    </symbol>
+
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2.4"/>
+      <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>
+    </symbol>
+
+    <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="7.5" cy="16.5" r="3.5"/><path d="M10 14L20 4"/><path d="M17 7l2.5 2.5"/>
+    </symbol>
+
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/>
+      <path d="M12 3.5c2.4 2.4 3.6 5.3 3.6 8.5S14.4 18.1 12 20.5c-2.4-2.4-3.6-5.3-3.6-8.5S9.6 5.9 12 3.5Z"/>
+    </symbol>
+
+    <symbol id="i-branch" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="7" cy="5.5" r="2.4"/><circle cx="7" cy="18.5" r="2.4"/><circle cx="17" cy="9.5" r="2.4"/>
+      <path d="M7 8v8"/><path d="M17 12v.5a4 4 0 0 1-4 4H9.4"/>
+    </symbol>
+
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3.5 10.4 12 3.6l8.5 6.8"/>
+      <path d="M5.6 12v7.2a1 1 0 0 0 1 1h10.8a1 1 0 0 0 1-1V12"/>
+      <path d="M10 20.2v-5.1h4v5.1"/>
+    </symbol>
+
+    <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3.5" y="4" width="17" height="6.5" rx="1.8"/>
+      <rect x="3.5" y="13.5" width="17" height="6.5" rx="1.8"/>
+      <path d="M7 7.2h.01"/><path d="M7 16.8h.01"/>
+    </symbol>
+
+    <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="12" cy="6" rx="7.5" ry="3"/>
+      <path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/>
+      <path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/>
+    </symbol>
+
+    <symbol id="i-agent" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="7.5" width="16" height="12" rx="3"/>
+      <path d="M12 7.5V4"/><circle cx="12" cy="3" r="1.3"/>
+      <path d="M9 12.5h.01"/><path d="M15 12.5h.01"/><path d="M9.5 16h5"/>
+    </symbol>
+
+    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z"/>
+      <path d="M18.5 17.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>
+    </symbol>
+  </defs>
+</svg>
+
 <header>
   <div class="wrap bar">
-    <a class="mark" href="/" aria-label="notifi">
-      <!-- bell, drawn inline so it inherits the text colour -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
-        <path d="M6 10a6 6 0 0 1 12 0c0 3.2 .9 5 2 6H4c1.1-1 2-2.8 2-6Z" stroke-linejoin="round"/>
-        <path d="M10 19a2 2 0 0 0 4 0" stroke-linecap="round"/>
-      </svg>
-      <img src="/wordmark.svg" alt="notifi" width="51" height="17">
+    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
     </a>
     <nav>
+      <a href="#uses" class="hide-sm">Uses</a>
       <a href="#how" class="hide-sm">How it works</a>
       <a href="#send">Send</a>
       <a href="#api" class="hide-sm">API</a>
@@ -218,28 +324,28 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 <!-- ══ hero ══════════════════════════════════════════════════ -->
 <section class="hero">
   <div class="wrap">
-    <p class="eyebrow" style="margin-bottom:20px">Push notifications for people who live in a terminal</p>
-    <h1>Your scripts can<br>text your phone.</h1>
+    <p class="eyebrow" style="margin-bottom:20px">No SDK. No account. No sign-in.</p>
+    <h1>One request.<br>Straight to your pocket.</h1>
     <p class="lede">
-      Create a send key. <code>curl</code> a title to <code>notifi.it/send</code>.
-      It arrives on your iPhone and Mac a moment later.
+      Create a send key. <code>curl</code> a title to <code>app.notifi.it/send</code>.
+      It arrives on your iPhone or your Mac a moment later.
       No accounts, no sign-in, and the server cannot read what you send.
     </p>
 
     <div class="cta">
       <a class="btn btn-primary" href="#download">Download for iPhone</a>
       <a class="btn" href="#send">See the API</a>
-      <p class="meta">Free. iOS&nbsp;17+ and macOS&nbsp;14+.</p>
+      <p class="meta">Free. iOS&nbsp;17+ or macOS&nbsp;14+.</p>
     </div>
 
     <div class="term">
       <div class="term-bar">
         <span class="dot3"><i></i><i></i><i></i></span>
         <span class="term-title">~/deploy.sh</span>
-        <button class="copy" data-copy='curl "https://notifi.it/send?key=$NOTIFI_KEY&title=Deploy+failed"'>Copy</button>
+        <button class="copy" data-copy='curl "https://app.notifi.it/send?key=$NOTIFI_KEY&title=Deploy+finished"'>Copy</button>
       </div>
-<pre><span class="p">$</span> curl <span class="s">"https://notifi.it/send?key=$NOTIFI_KEY&amp;title=Deploy+failed"</span>
-<span class="c">{"id":8412,"ok":true}</span></pre>
+<pre><span class="p">$</span> curl <span class="s">"https://app.notifi.it/send?key=<span class="k">$NOTIFI_KEY</span>&amp;title=Deploy+finished"</span>
+<span class="c">{"ok":true}</span></pre>
     </div>
     <p class="meta" style="margin-top:12px">
       That is the whole integration. One request, no SDK, no dependency.
@@ -253,10 +359,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">The app</p><hr class="rule">
     </div>
-    <h2>Everything you sent, in one quiet list.</h2>
+    <h2>A list of everything<br>you have been sent.</h2>
     <p class="lede" style="margin-top:14px">
-      Pure black, no chrome, and a single red dot for anything you have not read.
-      Search, swipe to delete, tap through for the full message.
+      Unread items carry a red dot. Search the full history, swipe to delete, and tap
+      any item for its message, image and link.
     </p>
 
     <div class="shots">
@@ -284,6 +390,95 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </div>
 </section>
 
+<!-- ══ uses ══════════════════════════════════════════════════ -->
+<section class="section-alt" id="uses">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Uses</p><hr class="rule">
+    </div>
+    <h2>Anything that finishes,<br>fails, or changes.</h2>
+    <p class="lede" style="margin-top:14px;margin-bottom:34px">
+      Start something long, walk away, and get told the moment it lands. A headless run
+      has no window to watch, so a push is the only thing that tells you it is done.
+    </p>
+
+    <div class="uses">
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico"><use href="#i-agent"/></svg>Headless agents</p>
+        <ul>
+          <li>A headless Claude Code run finished</li>
+          <li>An agent stopped and needs a decision</li>
+          <li>An overnight refactor landed on the branch</li>
+          <li>A long review finished, with the verdict</li>
+          <li>An agent hit an error and gave up</li>
+          <li>A batch of tasks finished while you slept</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico"><use href="#i-branch"/></svg>Builds and deploys</p>
+        <ul>
+          <li>A deploy failed, with the failing step</li>
+          <li>A release went out, with the tag</li>
+          <li>A long CI run finally finished</li>
+          <li>A flaky test failed again on main</li>
+          <li>A dependency audit found something</li>
+          <li>A staging environment finished seeding</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico"><use href="#i-server"/></svg>Servers and infra</p>
+        <ul>
+          <li>A disk crossed 90%</li>
+          <li>A TLS certificate expires next week</li>
+          <li>Someone opened an SSH session on prod</li>
+          <li>A container restarted more than twice</li>
+          <li>A nightly backup finished, with the size</li>
+          <li>A health check has been failing for five minutes</li>
+          <li>The domain renewal did not go through</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico"><use href="#i-database"/></svg>Jobs and data</p>
+        <ul>
+          <li>A training run finished, with the final loss</li>
+          <li>A batch job crashed at 3am</li>
+          <li>An ETL wrote fewer rows than yesterday</li>
+          <li>A scraper noticed the page changed</li>
+          <li>A long query finally returned</li>
+          <li>A queue backed up past its threshold</li>
+          <li>An export is ready to download</li>
+          <li>A render finished, or the 3D print is done</li>
+          <li>Someone signed up, or a payment failed</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico"><use href="#i-home"/></svg>Home and hardware</p>
+        <ul>
+          <li>The garage door has been open for fifteen minutes</li>
+          <li>A washing machine's power draw dropped back to idle</li>
+          <li>The dishwasher finished its cycle</li>
+          <li>A leak sensor under the sink went wet</li>
+          <li>A freezer door was left ajar</li>
+          <li>A door was unlocked while nobody was home</li>
+          <li>An unknown device joined the home network</li>
+          <li>The UPS switched to battery</li>
+          <li>The car finished charging overnight</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <p class="meta" style="margin-top:30px">
+      And anything else you can think of. All of it is one HTTP request to
+      <code>app.notifi.it/send</code> at the end of a script you already have.
+    </p>
+  </div>
+</section>
+
 <!-- ══ how it works ══════════════════════════════════════════ -->
 <section class="section-alt" id="how">
   <div class="wrap">
@@ -293,30 +488,32 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
     <div class="rows">
       <div class="row">
-        <h3>No account, ever</h3>
+        <h3><svg class="ico"><use href="#i-noaccount"/></svg>No account</h3>
         <p>There is nothing to sign up for. The app makes a keypair on first launch and
            that is your identity. Nothing to remember, nothing to leak.</p>
       </div>
       <div class="row">
-        <h3>The server cannot read your notifications</h3>
-        <p>Message content is sealed to your device's public key the moment it arrives.
-           Only your phone holds the private half, so the relay forwards ciphertext it
-           has no way to open.</p>
+        <h3><svg class="ico"><use href="#i-lock"/></svg>The server cannot read your notifications</h3>
+        <div>
+          <p>Message content is sealed to your device's public key the moment it arrives.
+             Only your phone holds the private half, so the relay forwards ciphertext it
+             has no way to open.</p>
+          <p style="margin-top:12px">
+             Don't take our word for it. We wouldn't.
+             <!-- TODO: point at the public repo before launch -->
+             <a href="#" data-todo="repo-url" class="src">Read the code</a>, then run
+             your own copy of it.</p>
+        </div>
       </div>
       <div class="row">
-        <h3>A relay, not a mailbox</h3>
-        <p>Messages are held for seven days so a device that has been offline can catch
-           up, then dropped. Your copies stay on your device for as long as you want them.</p>
-      </div>
-      <div class="row">
-        <h3>Keys are per-script, and revocable</h3>
-        <p>Make one key per thing that sends — CI, a backup job, a scraper. If a key
+        <h3><svg class="ico"><use href="#i-key"/></svg>Keys are per-script, and revocable</h3>
+        <p>Make one key per thing that sends: CI, a backup job, a scraper. If a key
            leaks, revoke it and the rest keep working.</p>
       </div>
       <div class="row">
-        <h3>Send from anywhere</h3>
-        <p>It is plain HTTP with no SDK, so anything that can make a request can send:
-           a shell script, a cron job, a Lambda, a GitHub Action, an ESP32.</p>
+        <h3><svg class="ico"><use href="#i-globe"/></svg>Send from anywhere</h3>
+        <p>It is plain HTTP with no SDK, so anything that can make an HTTP request to it can
+           send. <a href="#uses" class="src">Uses</a> lists what that covers.</p>
       </div>
     </div>
   </div>
@@ -328,11 +525,23 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">Send</p><hr class="rule">
     </div>
-    <h2>Eight ways to say the same thing.</h2>
+    <h2>How to integrate it.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:26px">
       <code>GET</code> or <code>POST</code>, JSON or form-encoded, key in the header or
       the query string. Pick whichever is least effort where you are.
     </p>
+
+    <!-- Filled in only when the page is opened with a key in the URL fragment
+         (#key=…). The fragment never leaves the browser, so the key is never
+         sent to the server or written to any edge log. -->
+    <div class="term" id="keybar" hidden style="margin-bottom:22px">
+      <div class="term-bar">
+        <span class="dot3"><i></i><i></i><i></i></span>
+        <span class="term-title">your key</span>
+        <button class="copy" id="copykey">Copy</button>
+      </div>
+<pre><span class="p">$</span> export NOTIFI_KEY=<span class="k" id="keyval"></span></pre>
+    </div>
 
     <div class="tabs" role="tablist" aria-label="Language">
       <button class="tab" role="tab" aria-selected="true"  aria-controls="p-curl"   id="t-curl">curl</button>
@@ -343,6 +552,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-ruby"   id="t-ruby">Ruby</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-php"    id="t-php">PHP</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust"   id="t-rust">Rust</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-hook"   id="t-hook">Claude&nbsp;Code</button>
     </div>
 
     <div class="term">
@@ -353,8 +563,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
 
       <div class="panel" id="p-curl" role="tabpanel" aria-labelledby="t-curl" data-name="send.sh">
-<pre>curl -X POST https://notifi.it/send \
-  -H <span class="s">"Authorization: Bearer $NOTIFI_KEY"</span> \
+<pre>curl -X POST https://app.notifi.it/send \
+  -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
   -d <span class="s">"title=Backup complete"</span> \
   -d <span class="s">"message=4.2 GB in 3m 11s"</span> \
   -d <span class="s">"link=https://console.internal/backups"</span></pre>
@@ -362,10 +572,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
       <div class="panel" id="p-js" role="tabpanel" aria-labelledby="t-js" data-name="send.js" hidden>
 <pre><span class="c">// No dependencies. Works in Node 18+, Deno, Bun and the browser.</span>
-await fetch(<span class="s">"https://notifi.it/send"</span>, {
+await fetch(<span class="s">"https://app.notifi.it/send"</span>, {
   method: <span class="s">"POST"</span>,
   headers: {
-    <span class="s">"Authorization"</span>: <span class="s">`Bearer ${process.env.NOTIFI_KEY}`</span>,
+    <span class="s">"Authorization"</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
     <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
   },
   body: JSON.stringify({
@@ -379,8 +589,8 @@ await fetch(<span class="s">"https://notifi.it/send"</span>, {
 <pre><span class="f">import</span> os, requests
 
 requests.post(
-    <span class="s">"https://notifi.it/send"</span>,
-    headers={<span class="s">"Authorization"</span>: <span class="s">f"Bearer {os.environ['NOTIFI_KEY']}"</span>},
+    <span class="s">"https://app.notifi.it/send"</span>,
+    headers={<span class="s">"Authorization"</span>: <span class="s">f"Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}"</span>},
     json={
         <span class="s">"title"</span>: <span class="s">"Backup complete"</span>,
         <span class="s">"message"</span>: <span class="s">"4.2 GB in 3m 11s"</span>,
@@ -403,9 +613,9 @@ requests.post(
 		<span class="s">"title"</span>:   {<span class="s">"Backup complete"</span>},
 		<span class="s">"message"</span>: {<span class="s">"4.2 GB in 3m 11s"</span>},
 	}
-	req, _ := http.NewRequest(<span class="s">"POST"</span>, <span class="s">"https://notifi.it/send"</span>,
+	req, _ := http.NewRequest(<span class="s">"POST"</span>, <span class="s">"https://app.notifi.it/send"</span>,
 		strings.NewReader(form.Encode()))
-	req.Header.Set(<span class="s">"Authorization"</span>, <span class="s">"Bearer "</span>+os.Getenv(<span class="s">"NOTIFI_KEY"</span>))
+	req.Header.Set(<span class="s">"Authorization"</span>, <span class="s">"Bearer "</span>+os.Getenv(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>))
 	req.Header.Set(<span class="s">"Content-Type"</span>, <span class="s">"application/x-www-form-urlencoded"</span>)
 	http.DefaultClient.Do(req)
 }</pre>
@@ -414,7 +624,7 @@ requests.post(
       <div class="panel" id="p-swift" role="tabpanel" aria-labelledby="t-swift" data-name="Send.swift" hidden>
 <pre><span class="f">import</span> Foundation
 
-<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">"https://notifi.it/send"</span>)!)
+<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">"https://app.notifi.it/send"</span>)!)
 request.httpMethod = <span class="s">"POST"</span>
 request.setValue(<span class="s">"Bearer \(key)"</span>, forHTTPHeaderField: <span class="s">"Authorization"</span>)
 request.setValue(<span class="s">"application/json"</span>, forHTTPHeaderField: <span class="s">"Content-Type"</span>)
@@ -429,9 +639,9 @@ _ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for<
       <div class="panel" id="p-ruby" role="tabpanel" aria-labelledby="t-ruby" data-name="send.rb" hidden>
 <pre><span class="f">require</span> <span class="s">"net/http"</span>
 
-uri = URI(<span class="s">"https://notifi.it/send"</span>)
+uri = URI(<span class="s">"https://app.notifi.it/send"</span>)
 req = Net::HTTP::Post.new(uri)
-req[<span class="s">"Authorization"</span>] = <span class="s">"Bearer #{ENV['NOTIFI_KEY']}"</span>
+req[<span class="s">"Authorization"</span>] = <span class="s">"Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}"</span>
 req.set_form_data(
   <span class="s">"title"</span> =&gt; <span class="s">"Backup complete"</span>,
   <span class="s">"message"</span> =&gt; <span class="s">"4.2 GB in 3m 11s"</span>
@@ -442,10 +652,10 @@ Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |htt
 
       <div class="panel" id="p-php" role="tabpanel" aria-labelledby="t-php" data-name="send.php" hidden>
 <pre><span class="p">&lt;?php</span>
-$ch = curl_init(<span class="s">"https://notifi.it/send"</span>);
+$ch = curl_init(<span class="s">"https://app.notifi.it/send"</span>);
 curl_setopt_array($ch, [
     CURLOPT_POST       =&gt; <span class="f">true</span>,
-    CURLOPT_HTTPHEADER =&gt; [<span class="s">"Authorization: Bearer "</span> . getenv(<span class="s">"NOTIFI_KEY"</span>)],
+    CURLOPT_HTTPHEADER =&gt; [<span class="s">"Authorization: Bearer "</span> . getenv(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)],
     CURLOPT_POSTFIELDS =&gt; [
         <span class="s">"title"</span>   =&gt; <span class="s">"Backup complete"</span>,
         <span class="s">"message"</span> =&gt; <span class="s">"4.2 GB in 3m 11s"</span>,
@@ -454,12 +664,30 @@ curl_setopt_array($ch, [
 curl_exec($ch);</pre>
       </div>
 
+      <div class="panel" id="p-hook" role="tabpanel" aria-labelledby="t-hook" data-name=".claude/settings.json" hidden>
+<pre><span class="c">// Fires when Claude stops. Kick off a headless run, close the lid,</span>
+<span class="c">// and your phone tells you when it is done.</span>
+{
+  <span class="s">"hooks"</span>: {
+    <span class="s">"Stop"</span>: [{
+      <span class="s">"hooks"</span>: [{
+        <span class="s">"type"</span>: <span class="s">"command"</span>,
+        <span class="s">"command"</span>: <span class="s">"curl -s https://app.notifi.it/send \
+                     -H \"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>\" \
+                     -d \"title=Claude finished\" \
+                     -d \"message=$CLAUDE_PROJECT_DIR\""</span>
+      }]
+    }]
+  }
+}</pre>
+      </div>
+
       <div class="panel" id="p-rust" role="tabpanel" aria-labelledby="t-rust" data-name="main.rs" hidden>
 <pre><span class="c">// reqwest = { version = "0.12", features = ["json"] }</span>
-<span class="f">let</span> key = std::env::var(<span class="s">"NOTIFI_KEY"</span>)?;
+<span class="f">let</span> key = std::env::var(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)?;
 
 reqwest::Client::new()
-    .post(<span class="s">"https://notifi.it/send"</span>)
+    .post(<span class="s">"https://app.notifi.it/send"</span>)
     .bearer_auth(key)
     .form(&amp;[
         (<span class="s">"title"</span>, <span class="s">"Backup complete"</span>),
@@ -480,7 +708,7 @@ reqwest::Client::new()
     </div>
     <h2>One endpoint.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:8px">
-      <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
+      <code>GET</code> or <code>POST</code> <code>https://app.notifi.it/send</code>
     </p>
     <p class="meta" style="margin-bottom:26px">
       Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>, or pass
@@ -496,7 +724,7 @@ reqwest::Client::new()
           <tr>
             <td>key <span class="req">required</span></td>
             <td>string</td>
-            <td>Your send key. Prefer the <code>Authorization</code> header — query strings end up in logs.</td>
+            <td>Your send key. Prefer the <code>Authorization</code> header, because query strings end up in logs.</td>
           </tr>
           <tr>
             <td>title <span class="req">required</span></td>
@@ -506,7 +734,7 @@ reqwest::Client::new()
           <tr>
             <td>message</td>
             <td>string</td>
-            <td>Up to 2,000 characters.</td>
+            <td>Up to 16,000 characters. Long enough for a stack trace.</td>
           </tr>
           <tr>
             <td>link</td>
@@ -535,9 +763,10 @@ reqwest::Client::new()
            <code>code</code> and a human-readable <code>message</code>.</p>
       </div>
       <div class="row">
-        <h3>Retention</h3>
-        <p>Seven days on the server, then dropped. The copy on your device is yours to
-           keep or delete.</p>
+        <h3>Message size</h3>
+        <p>Up to 16,000 characters, so a full stack trace or a long log tail fits. The push
+           preview is shortened to fit Apple's 4&nbsp;KB budget; the app pulls the
+           complete message when it syncs.</p>
       </div>
     </div>
   </div>
@@ -549,11 +778,12 @@ reqwest::Client::new()
     <div class="section-head">
       <p class="eyebrow">Download</p><hr class="rule">
     </div>
-    <h2>iPhone and Mac.</h2>
+    <h2>iPhone or Mac.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:28px">
-      One app, both platforms. On the Mac it lives in the menu bar.
-      Anything that can make an HTTP request can send to it — Linux boxes and Android
-      phones included — you just receive on Apple hardware.
+      One app, either platform. On the Mac it lives in the menu bar. A key belongs to one
+      device, so you choose where a script lands, or make a key for each.
+      Anything that can make an HTTP request can send to it, Linux boxes and Android
+      phones included. You just receive on Apple hardware.
     </p>
 
     <div class="cta">
@@ -569,7 +799,14 @@ reqwest::Client::new()
 </main>
 
 <footer>
+  <div class="wrap">
+    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
+    </div>
+  </div>
   <div class="wrap foot">
+    <a href="#uses">Uses</a>
     <a href="#how">How it works</a>
     <a href="#send">Send</a>
     <a href="#api">API</a>
@@ -627,6 +864,39 @@ reqwest::Client::new()
     const open = document.querySelector('.panel:not([hidden]) pre');
     if (open) flash(codeBtn, open.innerText);
   });
+
+  // ── pre-filled key ────────────────────────────────────────
+  // The app links here as https://app.notifi.it/#key=… so a key created on the
+  // phone can be pasted straight into a terminal. Read the fragment first: it is
+  // never sent to the server. ?key= is accepted too, for anyone who types it by
+  // hand, but it lands in edge logs, so both forms are wiped from the address
+  // bar as soon as they are read.
+  (function () {
+    const hash = new URLSearchParams(location.hash.slice(1));
+    const query = new URLSearchParams(location.search);
+    const key = hash.get('key') || query.get('key');
+    if (!key) return;
+
+    history.replaceState(null, '', location.pathname);
+
+    // Anything that is not a plausible key is ignored rather than shown.
+    if (!/^[A-Za-z0-9._-]{8,128}$/.test(key)) return;
+
+    // Only the shell spots hold the key itself. NOTIFI_KEY inside a
+    // process.env / os.environ lookup is a variable name and must stay a name.
+    document.querySelectorAll('.k').forEach(el => {
+      if (el.textContent === '$NOTIFI_KEY') el.textContent = key;
+    });
+    document.querySelectorAll('[data-copy]').forEach(el => {
+      el.dataset.copy = el.dataset.copy.split('$NOTIFI_KEY').join(key);
+    });
+
+    const bar = document.getElementById('keybar');
+    document.getElementById('keyval').textContent = key;
+    bar.hidden = false;
+    document.getElementById('copykey')
+      .addEventListener('click', e => flash(e.currentTarget, 'export NOTIFI_KEY=' + key));
+  })();
 })();
 </script>
 

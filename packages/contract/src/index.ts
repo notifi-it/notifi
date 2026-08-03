@@ -28,7 +28,11 @@ export const OCCURRED_AT_MAX_SKEW_MS = 24 * 60 * 60 * 1000;
 export const sendParams = z.object({
   key: z.string(),
   title: z.string().min(1).max(200),
-  message: z.string().max(2000).optional(),
+  // The full message is sealed and stored, and /history serves it in full —
+  // the 4 KB APNs budget only ever truncates the push *preview*, which already
+  // degrades through fallbacks in send.ts. So this ceiling is a product choice,
+  // not a transport one. 16k comfortably holds a stack trace or a log tail.
+  message: z.string().max(16000).optional(),
   link: z.string().url().max(2048).optional(),
   image: z
     .string()
@@ -133,6 +137,6 @@ export const historyResponse = z.object({
 export type HistoryResponse = z.infer<typeof historyResponse>;
 
 export const sendResponse = z.object({
-  id: z.number().int(),
+  ok: z.literal(true),
 });
 export type SendResponse = z.infer<typeof sendResponse>;

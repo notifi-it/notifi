@@ -213,5 +213,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     nowS,
   );
 
-  return c.json({ id: messageId }, 202);
+  // Deliberately no id. Message ids are sequential, so returning one tells any
+  // sender how much traffic the relay has handled, and lets them watch it grow.
+  return c.json({ ok: true }, 202);
 });

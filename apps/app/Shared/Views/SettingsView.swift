@@ -108,9 +108,9 @@ struct SettingsView: View {
                 FieldRow("Version", AppModel.appVersion)
                 Hairline()
 
-                Link(destination: URL(string: "https://notifi.it")!) {
+                Link(destination: URL(string: "https://app.notifi.it")!) {
                     DisclosureRow {
-                        Text("notifi.it")
+                        Text("app.notifi.it")
                             .font(Theme.body)
                             .foregroundStyle(Theme.fg)
                     }

@@ -27,7 +27,7 @@ settings:
       API_BASE_URL: "https://notifi-api-dev.maxisme.workers.dev"
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
     Release:
-      API_BASE_URL: "https://notifi.it"
+      API_BASE_URL: "https://app.notifi.it"
 
 packages:
   MarkdownUI:
