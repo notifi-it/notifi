@@ -371,8 +371,28 @@ struct InlineError: View {
 
 // MARK: - Screen chrome
 
+/// The wordmark line at the top of every screen, with an optional trailing
+/// control. Held as its own type because the feed pins it above a scrolling list
+/// rather than stacking it in a `GeistHeader`.
+struct GeistBrandRow<Trailing: View>: View {
+    @ViewBuilder var trailing: Trailing
+
+    var body: some View {
+        HStack(spacing: 10) {
+            BrandMark(size: 17)
+            Spacer(minLength: 8)
+            trailing
+        }
+        .frame(height: Theme.headerBarHeight)
+    }
+}
+
+extension GeistBrandRow where Trailing == EmptyView {
+    init() { self.init { EmptyView() } }
+}
+
 /// The header every screen shares: wordmark, an optional trailing control, then a
-/// large title with a count beside it.
+/// large title with a count under it.
 struct GeistHeader<Trailing: View>: View {
     var title: String
     var subtitle: String?
@@ -380,16 +400,11 @@ struct GeistHeader<Trailing: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 10) {
-                BrandMark(size: 17)
-                Spacer(minLength: 8)
-                trailing
-            }
-            .frame(height: Theme.headerBarHeight)
-            .padding(.bottom, Theme.headerBarGap)
+            GeistBrandRow { trailing }
+                .padding(.bottom, Theme.headerBarGap)
 
-            HStack(alignment: .firstTextBaseline, spacing: 11) {
-                Text(title)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title.uppercased())
                     .font(Theme.screenTitle)
                     .foregroundStyle(Theme.fg)
                 if let subtitle {
@@ -397,8 +412,8 @@ struct GeistHeader<Trailing: View>: View {
                         .font(Theme.meta)
                         .foregroundStyle(Theme.muted)
                 }
-                Spacer(minLength: 0)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

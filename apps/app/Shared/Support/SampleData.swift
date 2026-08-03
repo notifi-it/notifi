@@ -10,6 +10,14 @@ import SwiftData
 /// a URL long enough to truncate, and an image URL that will fail to load.
 enum SampleData {
 
+    /// Off unless the run asks for it by name. `#if DEBUG` alone still exposed the
+    /// seed and clear commands on any debug build — including one handed to
+    /// someone to look at — where a menu that rewrites the feed is a trap. Set
+    /// `NOTIFI_SAMPLE_DATA=1` in the scheme's environment to get them back.
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.environment["NOTIFI_SAMPLE_DATA"] == "1"
+    }
+
     /// Negative server IDs so seeded rows can never collide with real ones, and
     /// so `clear` can find them again.
     static let idFloor = -10_000

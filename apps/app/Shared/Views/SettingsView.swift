@@ -45,10 +45,8 @@ struct SettingsView: View {
 
                 ToggleRow(
                     title: "Load images automatically",
-                    detail: "A message can carry an image hosted anywhere. "
-                        + "Fetching it tells whoever sent the message your IP "
-                        + "address and when it arrived. Off means images load "
-                        + "only when you tap them.",
+                    detail: "Fetching an image tells the sender your IP address "
+                        + "and when it arrived. Off, images load only when tapped.",
                     isOn: $model.remoteImagesEnabled
                 )
                 Hairline()

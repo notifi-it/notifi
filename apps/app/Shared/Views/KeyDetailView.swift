@@ -115,9 +115,12 @@ struct KeyDetailView: View {
             // the Keychain. Every other key was shown once at creation and is gone,
             // so there is nothing here worth copying.
             if key.isDefault, let full = model.defaultKeyValue {
-                OutlineButton(title: copied ? "Copied" : "Copy key") {
-                    Clipboard.copy(full)
-                    flash()
+                HStack(spacing: 9) {
+                    OutlineButton(title: copied ? "Copied" : "Copy key") {
+                        Clipboard.copy(full)
+                        flash()
+                    }
+                    OutlineShareButton(title: "Share key", item: full)
                 }
                 .padding(.top, 18)
                 Text("notifi keeps this one on your device, so you can copy it "

@@ -103,19 +103,20 @@ struct MessageDetailView: View {
                         }
                     }
 
-                    // The feed already says "unread" with a filled dot, so the
-                    // button borrows it: solid dot to mark unread, empty ring to
-                    // mark read.
+                    // Shows the state, not the action: a filled red dot while the
+                    // message is unread, matching the feed, and a hollow ring once
+                    // it has been read. The label still names what tapping does.
                     IconButton(
-                        systemName: message.isRead ? "circle.fill" : "circle",
-                        label: message.isRead ? "Mark as unread" : "Mark as read"
+                        systemName: message.isRead ? "circle" : "circle.fill",
+                        label: message.isRead ? "Mark as unread" : "Mark as read",
+                        tint: message.isRead ? Theme.fg : Theme.brand
                     ) {
                         message.isRead.toggle()
                         try? context.save()
                         model.sync?.updateBadge()
                     }
 
-                    IconButton(systemName: "trash.fill", label: "Delete", tint: Theme.danger) {
+                    IconButton(systemName: "trash.fill", label: "Delete") {
                         confirmingDelete = true
                     }
                 }

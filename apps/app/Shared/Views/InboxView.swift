@@ -18,6 +18,8 @@ struct InboxView: View {
     @State private var searchText = ""
     @State private var filterKeyID: Int?
     @State private var pendingDelete: Message?
+    /// iOS only — the Mac keeps its field on screen, where there is room for it.
+    @State private var showingSearch = false
     @FocusState private var searchFocused: Bool
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
@@ -129,12 +131,6 @@ struct InboxView: View {
             }
         }
         .listStyle(.plain)
-        // A plain List insets its content by 8pt horizontally, on top of
-        // whatever the rows ask for. Neither `contentMargins` nor zeroed
-        // `listRowInsets` removes it, so it is cancelled here: measured, this
-        // tab sat at 28pt while Keys and Settings — plain ScrollViews on
-        // `geistGutter()` — sat at 20pt. The rows carry the gutter themselves.
-        .padding(.horizontal, -8)
         .scrollContentBackground(.hidden)
         .background(Theme.bg)
         .scrollDismissesKeyboard(.immediately)
@@ -156,14 +152,66 @@ struct InboxView: View {
         }
         #if os(iOS)
         .refreshable { await model.refresh() }
-        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Theme.bg, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar { navBarContent }
         #endif
     }
+
+    #if os(iOS)
+    /// The wordmark is a logo, not a control, so it opts out of the toolbar's
+    /// shared Liquid Glass — otherwise iOS 26 draws it sitting in a tappable-
+    /// looking pill. The buttons keep their glass, because they are buttons.
+    @ToolbarContentBuilder
+    private var navBarContent: some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: .topBarLeading) { BrandMark(size: 17) }
+                .sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItem(placement: .topBarLeading) { BrandMark(size: 17) }
+        }
+        if !messages.isEmpty {
+            ToolbarItem(placement: .topBarTrailing) { searchToggle }
+        }
+        ToolbarItem(placement: .topBarTrailing) { overflowMenu }
+    }
+
+    /// Search is a button rather than a field kept on screen. The system one
+    /// could not be made to look like anything else here, and a field parked
+    /// above the feed is chrome that earns its space only when it is wanted.
+    private var searchToggle: some View {
+        IconButton(systemImage: showingSearch ? "xmark" : "magnifyingglass",
+                   label: showingSearch ? "Close search" : "Search",
+                   glass: true) {
+            if showingSearch {
+                closeSearch()
+            } else {
+                // Not animated. The field lives in a List row, so sliding it in
+                // animates the row's height, which drags the title and every row
+                // under it down the screen with it.
+                showingSearch = true
+                searchFocused = true
+            }
+        }
+    }
+
+    private func closeSearch() {
+        searchFocused = false
+        searchText = ""
+        showingSearch = false
+    }
+    #endif
 
     // MARK: Header
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
+            // iOS puts the wordmark and the overflow menu in the navigation bar,
+            // so that `.searchable` can hang its own field underneath them and
+            // hide it until the list is pulled down. A popover has no navigation
+            // bar, so the Mac still carries both here.
+            #if os(macOS)
             HStack(spacing: 10) {
                 BrandMark(size: 17)
                 Spacer(minLength: 8)
@@ -171,11 +219,12 @@ struct InboxView: View {
             }
             .frame(height: Theme.headerBarHeight)
             .padding(.bottom, Theme.headerBarGap)
+            #endif
 
             // "Notifications" is a long word; beside a count it wrapped mid-word.
             // Stacked, the title always gets its own line at any Dynamic Type size.
             VStack(alignment: .leading, spacing: 3) {
-                Text("Notifications")
+                Text("Notifications".uppercased())
                     .font(Theme.screenTitle)
                     .foregroundStyle(Theme.fg)
                     .lineLimit(1)
@@ -188,9 +237,18 @@ struct InboxView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, messages.isEmpty ? 0 : 14)
 
-            // Nothing to search through yet, so the field would just be furniture.
             if !messages.isEmpty {
+                // Nothing to search through yet, so the field would just be
+                // furniture. On iOS it appears only once the search button in
+                // the navigation bar asks for it.
+                #if os(macOS)
                 SearchField(text: $searchText, focused: $searchFocused)
+                #else
+                if showingSearch {
+                    SearchField(text: $searchText, focused: $searchFocused)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+                #endif
 
                 if let activeKeyName {
                     HStack(spacing: 8) {
@@ -234,11 +292,15 @@ struct InboxView: View {
             #endif
 
             #if DEBUG
-            Divider()
-            Button("Seed sample data") {
-                SampleData.seed(into: context, keyIDs: keys.map(\.id))
+            if SampleData.isEnabled {
+                Divider()
+                Button("Seed sample data") {
+                    SampleData.seed(into: context, keyIDs: keys.map(\.id))
+                }
+                Button("Clear sample data", role: .destructive) {
+                    SampleData.clear(from: context)
+                }
             }
-            Button("Clear sample data", role: .destructive) { SampleData.clear(from: context) }
             #endif
         } label: {
             Image(systemName: "ellipsis")
@@ -349,27 +411,15 @@ private struct MessageRow: View {
         }
     }
 
-    /// The full date as digits only — "09:32 · 03.08.2026". Fixed rather than
-    /// locale-formatted so every row lines up on the same monospaced grid.
-    /// Milliseconds belong on the detail page, where precision is the point; in
-    /// the feed they are noise.
-    private var stamp: String {
-        Self.stampFormatter.string(from: message.occurredAt ?? message.createdAt)
-    }
-
-    private static let stampFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm · dd.MM.yyyy"
-        return f
-    }()
-
     var body: some View {
-        HStack(alignment: .top, spacing: Theme.rowGap) {
-            // The unread marker — the only colour in the system.
+        HStack(alignment: .firstTextBaseline, spacing: Theme.rowGap) {
+            // The unread marker — the only colour in the system. Hung off the
+            // title's own baseline rather than a fixed top inset, so it stays
+            // centred on the first line as Dynamic Type resizes it.
             Circle()
                 .fill(message.isRead ? Color.clear : Theme.brand)
                 .frame(width: 6, height: 6)
-                .padding(.top, 8)
+                .alignmentGuide(.firstTextBaseline) { $0.height + 1 }
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 5) {
@@ -399,15 +449,13 @@ private struct MessageRow: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 2) {
-                // Relative time leads — it is what you actually read. The exact
-                // stamp sits under it, one step paler, for when you need it.
+                // Relative time only. The exact stamp is a fixed 18 characters, so
+                // it set the width of this column and squeezed titles into extra
+                // lines to buy a precision the feed never needed. The detail page
+                // carries the full date, down to the millisecond.
                 Text(relative)
                     .font(Theme.meta)
                     .foregroundStyle(Theme.muted)
-                Text(stamp)
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .lineLimit(1)
                 if let url = message.imageURL,
                    LinkPolicy.allows(url, anyScheme: allowAnyScheme) {
                     Thumbnail(url: url).padding(.top, 8)

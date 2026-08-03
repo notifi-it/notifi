@@ -1,56 +1,48 @@
 import SwiftUI
 
-/// The notifi wordmark: Inconsolata with the final `i`'s tittle replaced by a
-/// brand-red dot.
+/// The notifi wordmark, with the final `i`'s tittle picked out in brand red.
 ///
-/// The last `i` is swapped for a dotless `ı` (U+0131, which Inconsolata ships) and
-/// the dot is drawn back as a real circle, so it can take any colour without
-/// touching the glyph.
+/// Drawn from WordmarkLogo rather than set in Inconsolata, so the app and the
+/// site show the same mark: the asset carries the same outlines the site serves
+/// from apps/api/public/wordmark.svg, JetBrains Mono 700 at -0.03em. Setting it
+/// live in the app's body face left the two visibly different words.
 ///
-/// The geometry is measured off the real font rather than eyeballed — render `i`
-/// and `ı`, diff them, and the difference is the tittle:
+/// The glyphs are a template and the tittle is laid on top as a real circle, so
+/// each takes its own colour. Measured off the source, as fractions of the
+/// asset's 3450 × 1000 box:
 ///
-///     advance        0.5   em   (monospace, wdth 100)
-///     tittle centre  0.2475 em from the glyph origin
-///                    0.615  em above the baseline
-///     diameter       0.15  em
+///     tittle centre  0.9182 of the width
+///                    0.0858 of the height
+///     diameter       0.1543 of the height
 ///
 struct Wordmark: View {
-    /// Point size of the type. The dot scales with it.
+    /// Height of the em box, in points. The mark scales with it.
     var size: CGFloat = 17
     var color: Color = Theme.fg
     var dot: Color = Theme.brand
 
-    private static let text = "notifı"          // dotless final i
-    private static let advance: CGFloat = 0.5
-    private static let tittleX: CGFloat = 0.2475
-    private static let tittleY: CGFloat = 0.615
-    private static let tittleD: CGFloat = 0.15
+    private static let aspect: CGFloat = 3450.0 / 1000.0
+    private static let tittleX: CGFloat = 0.9182
+    private static let tittleY: CGFloat = 0.0858
+    private static let tittleD: CGFloat = 0.1543
 
-    /// Distance from the leading edge to the centre of the dot.
-    private var dotCenterX: CGFloat {
-        (Self.advance * CGFloat(Self.text.count - 1) + Self.tittleX) * size
-    }
-
-    /// Distance from the text baseline up to the centre of the dot.
-    private var dotRise: CGFloat { Self.tittleY * size }
+    private var width: CGFloat { size * Self.aspect }
+    private var dotSize: CGFloat { Self.tittleD * size }
 
     var body: some View {
-        Text(Self.text)
-            .font(.custom("Inconsolata", fixedSize: size).weight(.bold))
+        Image("WordmarkLogo")
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
             .foregroundStyle(color)
-            .overlay(alignment: .bottomLeading) {
-                // `.bottomLeading` of a Text sits on the descender, not the
-                // baseline, so lift by the descent (0.2 em for Inconsolata).
+            .frame(width: width, height: size)
+            .overlay {
                 Circle()
                     .fill(dot)
-                    .frame(width: Self.tittleD * size, height: Self.tittleD * size)
-                    .offset(
-                        x: dotCenterX - (Self.tittleD * size) / 2,
-                        y: -(dotRise - (Self.tittleD * size) / 2) - 0.20 * size
-                    )
+                    .frame(width: dotSize, height: dotSize)
+                    .position(x: Self.tittleX * width, y: Self.tittleY * size)
             }
-            .fixedSize()
+            .frame(width: width, height: size)
             .accessibilityElement()
             .accessibilityLabel("notifi")
     }
@@ -63,9 +55,10 @@ struct Wordmark: View {
 /// asset by flood-filling the disc:
 ///
 ///     centre    (0.7028, 0.1667) of the frame
-///     diameter  0.331 of the frame
+///     diameter  0.273 of the frame
 ///
-/// The overlay is a hair wider than the disc so no white rim survives.
+/// The overlay is a hair wider than the disc so no white rim survives. Both
+/// numbers are read off BellLogo — redraw that and they have to be re-measured.
 struct BellMark: View {
     var size: CGFloat = 21
     var hasUnread: Bool = false
@@ -74,7 +67,10 @@ struct BellMark: View {
     @State private var shake = 0
 
     private static let badgeCentre = CGPoint(x: 0.7028, y: 0.1667)
-    private static let badgeDiameter: CGFloat = 0.345
+    /// Sized to the badge drawn in BellLogo, plus a hair so the red fully covers
+    /// it. Shrinking the badge in the artwork means shrinking this to match, or
+    /// the unread dot overhangs the gap the bell cuts around it.
+    private static let badgeDiameter: CGFloat = 0.286
 
     var body: some View {
         Image("BellLogo")

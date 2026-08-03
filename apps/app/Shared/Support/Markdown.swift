@@ -211,6 +211,15 @@ enum MarkdownPreview {
         for run in attributed.runs where run.inlinePresentationIntent?.contains(.code) == true {
             attributed[run.range].font = .inco(.footnote)
         }
+
+        // Drop autolinks. The parser turns any bare address into a link run, and a
+        // link run carries the tint colour, which beats the row's muted style — so
+        // "hannah@shorepine.co upgraded to Pro" came out with the address in white
+        // and the rest grey. The row is a single button to the message anyway, so
+        // a tappable span inside it has nothing to do.
+        for run in attributed.runs where run.link != nil {
+            attributed[run.range].link = nil
+        }
         return attributed
     }
 

@@ -2,11 +2,13 @@
 # Regenerates menu_icon.imageset/menu.png — the macOS menu bar glyph.
 # Requires: rsvg-convert (librsvg), python3.
 #
-# The logo's bell is drawn as filled outlines, not strokes, so it renders far
-# thinner than the system menu bar glyphs (Bluetooth, Spotlight). STROKE adds a
-# stroke of the same colour to each outline, which grows it by STROKE/2 on both
-# edges and thickens the line by STROKE overall. Values above ~0.8 start closing
-# the gap inside the clapper.
+# STROKE adds a stroke of the same colour to each of the bell's filled outlines,
+# which grows it by STROKE/2 on both edges and thickens the line by STROKE
+# overall. Values above ~0.8 start closing the gap inside the clapper.
+#
+# It is 0 because notifi-logo.svg now carries that weight itself, so the whole
+# mark reads the same in the bar, the tab bar, the app icon and on the web.
+# Thicken there, not here — anything above 0 lands on top of it.
 #
 # The logo also carries a wide margin inside its viewBox, which left the bell
 # noticeably shorter than its neighbours in the bar. The glyph is therefore
@@ -19,7 +21,7 @@ OUT="../../Shared/Assets.xcassets/menu_icon.imageset/menu.png"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-STROKE=0.6
+STROKE=0
 CANVAS=102     # pixels, drawn by MacMenuBar into a 20pt square
 SLOT_PT=20
 GLYPH_PT=16
@@ -38,7 +40,9 @@ for i, m in enumerate(re.finditer(r"<path[^>]*>", src)):
     tag = m.group(0)
     if i == 0:
         tag = tag.replace('stroke-width="1.3"', 'stroke-width="%.3f"' % (1.3 + stroke))
-    elif i > 1:
+    elif i > 1 and stroke > 0:
+        # Skipped at 0: the source already carries these attributes, and adding
+        # a second copy is an XML parse error rather than a no-op.
         tag = tag.replace(
             "<path",
             '<path stroke="%s" stroke-width="%.3f" stroke-linejoin="round" stroke-linecap="round"'
