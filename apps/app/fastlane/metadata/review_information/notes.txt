@@ -1,0 +1,13 @@
+No account, no sign-in. The app mints a send key on first launch, so a reviewer
+can test it without credentials from us.
+
+To see a notification arrive:
+
+1. Open the app and allow notifications when asked.
+2. The empty inbox shows a curl command with this device's own key already in
+   it. Tap "Try It" to send that exact request from the app itself; the push
+   arrives within a few seconds and appears in the list.
+3. The same command can be run from any terminal to send from outside the app.
+
+Message content is end-to-end encrypted to the device. We cannot read it, and
+neither can Apple.

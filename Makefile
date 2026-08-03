@@ -1,5 +1,5 @@
 .PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck gen-vectors \
-	app-project app-preflight app-dmg app-appstore
+	app-project app-preflight app-dmg app-appstore app-metadata app-metadata-check
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -43,3 +43,13 @@ app-dmg:
 # iOS ships through the App Store. SKIP_UPLOAD=1 builds and signs without publishing.
 app-appstore:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios beta
+
+# App Store listing text lives in apps/app/fastlane/metadata and is pushed from
+# there, so the store copy is reviewed like the rest of the repo rather than
+# typed into a web form. Screenshots are not managed here -- see the metadata
+# lane in the Fastfile for why.
+app-metadata-check:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios metadata_check
+
+app-metadata:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios metadata

@@ -113,6 +113,36 @@ platform :ios do
       changelog: ENV.fetch("TF_CHANGELOG", "Latest build.")
     )
   end
+
+  desc "Push fastlane/metadata to App Store Connect (no binary, no screenshots)"
+  lane :metadata do
+    # Screenshots are deliberately not managed from here. The ones on the store
+    # were uploaded by hand and there is no generator in this repo; letting
+    # deliver manage an empty screenshots directory would delete them.
+    upload_to_app_store(
+      api_key: asc_key,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_app_version_update: true,
+      precheck_include_in_app_purchases: false,
+      force: true # no HTML preview to confirm; this runs unattended
+    )
+  end
+
+  desc "Show what would be pushed, without touching App Store Connect"
+  lane :metadata_check do
+    # deliver's own dry run. Catches a metadata field that is too long or a URL
+    # Apple will not accept, before the upload rather than after.
+    upload_to_app_store(
+      api_key: asc_key,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_app_version_update: true,
+      precheck_include_in_app_purchases: false,
+      verify_only: true,
+      force: true
+    )
+  end
 end
 
 platform :mac do

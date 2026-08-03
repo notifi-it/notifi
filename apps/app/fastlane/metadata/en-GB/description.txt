@@ -1,0 +1,1 @@
+A multi platform app to receive push notifications over simple HTTP(s) requests you can embed wherever.
