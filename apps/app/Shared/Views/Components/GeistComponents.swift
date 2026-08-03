@@ -196,6 +196,24 @@ struct OutlineButton: View {
     }
 }
 
+/// A share control drawn like `OutlineButton`.
+struct OutlineShareButton<Item: Transferable>: View {
+    var title: String
+    var item: Item
+
+    var body: some View {
+        ShareLink(item: item, preview: SharePreview(title)) {
+            Text(title)
+                .font(.inco(.footnote, weight: .semibold))
+                .foregroundStyle(Theme.fg)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 11)
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 /// A key/value line. Replaces `LabeledContent`, which brings system styling.
 struct FieldRow<Trailing: View>: View {
     var label: String

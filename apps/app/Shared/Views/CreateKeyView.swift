@@ -170,16 +170,7 @@ struct CreateKeyView: View {
                     Clipboard.copy(response.key)
                     withAnimation(.easeOut(duration: 0.15)) { hasCopied = true }
                 }
-                ShareLink(item: response.key) {
-                    Text("Share")
-                        .font(.inco(.footnote, weight: .semibold))
-                        .foregroundStyle(Theme.fg)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 11)
-                        .overlay(RoundedRectangle(cornerRadius: 8)
-                            .stroke(Theme.chip, lineWidth: 1))
-                }
-                .buttonStyle(.plain)
+                OutlineShareButton(title: "Share", item: response.key)
             }
             .padding(.top, 14)
 

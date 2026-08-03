@@ -253,16 +253,7 @@ struct MessageDetailView: View {
                     }
                     .buttonStyle(.plain)
 
-                    ShareLink(item: link) {
-                        Text("Share")
-                            .font(.inco(.footnote, weight: .semibold))
-                            .foregroundStyle(Theme.fg)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .stroke(Theme.chip, lineWidth: 1))
-                    }
-                    .buttonStyle(.plain)
+                    OutlineShareButton(title: "Share", item: link)
                 }
                 .padding(.top, 10)
             }
