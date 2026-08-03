@@ -1,0 +1,68 @@
+# Working in this repo
+
+Notes for anyone (human or agent) picking this up. The design lives in
+[docs/PLAN.md](docs/PLAN.md) and the manual test script in
+[docs/VERIFYING.md](docs/VERIFYING.md); this file is only for things that are
+easy to get wrong and expensive to discover.
+
+## Critical Alerts: the entitlement is requested, not granted
+
+Submitted to Apple on 2026-08-03, request ID **W8U762V6VJ**, against bundle ID
+`it.notifi.notifi`. Apple replies by email. Nothing has come back yet.
+
+**Do not add `com.apple.developer.usernotifications.critical-alerts` to
+`apps/app/Support/Entitlements/notifi-iOS.entitlements` or
+`notifi-macOS.entitlements` until Apple grants it.** An entitlement the App ID
+does not carry fails code signing, so adding it early breaks every signed build
+for a capability that still would not work.
+
+Everything else is already merged and live: the `keys.critical` column, the
+`critical=1` send parameter, `PATCH /keys/:id`, the `sound.critical` payload
+path, and the per-key toggle on the key detail screen. The toggle reads
+`criticalAlertSetting`, finds `.notSupported`, and says so rather than pretending
+to work. When the grant arrives, adding that one key to both files is the entire
+remaining change.
+
+A push is only marked critical when the key is switched on **and** the individual
+send asks for it. A send that asks without that standing is delivered as an
+ordinary notification rather than refused, because dropping an alert from a pager
+is worse than under-delivering one.
+
+## The contract is the source of truth, and Swift does not follow automatically
+
+`packages/contract/src/index.ts` holds the Zod schemas. The Swift mirrors in
+`apps/app/Shared/API/ContractModels.swift` are hand-written. Changing one without
+the other typechecks on both sides and fails at runtime. Edit them together.
+
+## Migrations
+
+`apps/api/migrations/NNNN_snake_case.sql`, four-digit sequence. CI applies them
+on merge to main **before** deploying the Worker, to dev and then production, so
+a migration and the code that needs it can land in the same PR. Additive columns
+with defaults only; there is no down-migration story.
+
+## Building the app
+
+`xcodebuild` needs the signing team passed by hand, because `project.yml` fills
+`DEVELOPMENT_TEAM` from an env var that only CI sets:
+
+```bash
+xcodebuild -project apps/app/notifi.xcodeproj -scheme notifi-iOS -configuration Debug -destination 'generic/platform=iOS Simulator' DEVELOPMENT_TEAM=Z28DW76Y3W build
+```
+
+Run `cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes are
+`notifi-iOS` and `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi:
+installs fail silently there and cannot be screenshotted.
+
+## No automated tests
+
+By decision. `make typecheck` plus both `xcodebuild` schemes is the full
+automated gate; everything else is checked by hand against
+[docs/VERIFYING.md](docs/VERIFYING.md). Do not add a test framework to make a
+change feel verified. Say plainly what was and was not exercised instead.
+
+## Comments explain why, never what
+
+The Swift and TypeScript here carry long comments justifying non-obvious
+decisions, and none restating the code. Match that. A comment that describes what
+the line below does should be deleted.
