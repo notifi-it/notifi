@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>notifi: push notifications from the command line</title>
-<meta name="description" content="No account and no SDK. The server can't read your messages. Create a send key, curl a title to app.notifi.it/send, and the alert lands on your iPhone or your Mac.">
+<meta name="description" content="No account and no SDK. Neither we nor Apple can read your messages. Create a send key, curl a title to app.notifi.it/send, and the alert lands on your iPhone or your Mac.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://app.notifi.it/">
 
 <meta property="og:title" content="notifi: push notifications from the command line">
-<meta property="og:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and the server can't read it.">
+<meta property="og:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and neither we nor Apple can read it.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://app.notifi.it/">
 <meta property="og:site_name" content="notifi">
@@ -26,7 +26,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="notifi: push notifications from the command line">
-<meta name="twitter:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and the server can't read it.">
+<meta name="twitter:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and neither we nor Apple can read it.">
 <meta name="twitter:image" content="https://app.notifi.it/og.png">
 <meta name="twitter:image:alt" content="One curl request to app.notifi.it/send, and a push notification lands on your iPhone.">
 
@@ -403,7 +403,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p class="lede">
       Create a send key. <code>curl</code> a title to <code>app.notifi.it/send</code>.
       It arrives on your iPhone or your Mac a moment later.
-      No accounts, no sign-in, and the server cannot read what you send.
+      No accounts, no sign-in, and neither we nor Apple can read what you send.
     </p>
 
     <div class="cta">
@@ -568,16 +568,21 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
            that is your identity. Nothing to remember, nothing to leak.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico"><use href="#i-lock"/></svg>The server cannot read your notifications</h3>
+        <h3><svg class="ico"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
         <div>
-          <p>Message content is sealed to your device's public key the moment it arrives.
-             Only your phone holds the private half, so the relay forwards ciphertext it
-             has no way to open.</p>
+          <p>The app makes a keypair when you install it and registers the public half.
+             That is the only half the server ever holds.</p>
           <p style="margin-top:12px">
-             Don't take our word for it. We wouldn't.
-             <!-- TODO: point at the public repo before launch -->
-             <a href="#" data-todo="repo-url" class="src">Read the code</a>, then run
-             your own copy of it.</p>
+             Every message is sealed to that key the moment it arrives, so what sits in
+             the database is ciphertext, not text. Your phone holds the private half and
+             is the only thing that can open it.</p>
+          <p style="margin-top:12px">
+             The push is sealed too. The alert Apple relays says only
+             <code>notifi</code>; your phone unseals the real title and message on
+             arrival, so it is never plaintext at Apple either.</p>
+          <p style="margin-top:12px">
+             What this does not hide: which device a send was for, when it happened, and
+             roughly how big it was. It is the message body that is sealed.</p>
         </div>
       </div>
       <div class="row">
@@ -915,7 +920,7 @@ reqwest::Client::new()
 
     <div class="cta">
       <!-- TODO: replace with the real App Store URL before launch -->
-      <a class="btn btn-primary" href="#" data-todo="app-store-url">App&nbsp;Store</a>
+      <a class="btn btn-primary" href="https://apps.apple.com/app/id1563961135">App&nbsp;Store</a>
       <!-- TODO: replace with the real .dmg URL before launch -->
       <a class="btn" href="#" data-todo="dmg-url">Download&nbsp;.dmg</a>
       <p class="meta">Requires iOS&nbsp;17 or macOS&nbsp;14. Apple silicon or a T2 Mac.</p>
