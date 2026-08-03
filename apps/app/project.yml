@@ -24,10 +24,10 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: "YES"
   configs:
     Debug:
-      API_BASE_URL: "https://notifi-api-dev.maxisme.workers.dev"
+      API_BASE_URL: "https://notifi.it"
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
     Release:
-      API_BASE_URL: "https://app.notifi.it"
+      API_BASE_URL: "https://notifi.it"
 
 # Sparkle is the auto-updater for the direct-download macOS build. It is attached
 # to the macOS app target only: iOS updates through the App Store and must not

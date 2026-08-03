@@ -8,4 +8,4 @@ Disallow: /keys
 Disallow: /devices
 Disallow: /history
 
-Sitemap: https://app.notifi.it/sitemap.xml
+Sitemap: https://notifi.it/sitemap.xml

@@ -129,7 +129,7 @@ struct SettingsView: View {
                 Hairline()
                 #endif
 
-                Link(destination: URL(string: "https://app.notifi.it/privacy")!) {
+                Link(destination: URL(string: "https://notifi.it/privacy")!) {
                     DisclosureRow {
                         Text("Privacy policy")
                             .font(Theme.body)
@@ -149,9 +149,9 @@ struct SettingsView: View {
 
                 // The site sits at the foot rather than in a row of its own: it
                 // leaves the app, which is not what the rows above it do.
-                Link(destination: URL(string: "https://app.notifi.it")!) {
+                Link(destination: URL(string: "https://notifi.it")!) {
                     HStack(spacing: 5) {
-                        Text("app.notifi.it")
+                        Text("notifi.it")
                             .font(Theme.metaSmall)
                         Image("akar-link-chain")
                             .renderingMode(.template)

@@ -4,31 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>notifi: push notifications from the command line</title>
-<meta name="description" content="No account and no SDK. Neither we nor Apple can read your messages. Create a send key, curl a title to app.notifi.it/send, and the alert lands on your iPhone or your Mac.">
+<meta name="description" content="No account and no SDK. Neither we nor Apple can read your messages. Create a send key, curl a title to notifi.it/send, and the alert lands on your iPhone or your Mac.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <!-- The page also answers on /?key=… (the sample key-prefill link), so every
      shared one of those would otherwise be a separate crawlable URL. -->
-<link rel="canonical" href="https://app.notifi.it/">
+<link rel="canonical" href="https://notifi.it/">
 
 <meta property="og:title" content="notifi: push notifications from the command line">
-<meta property="og:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and neither we nor Apple can read it.">
+<meta property="og:description" content="curl a title to notifi.it/send. It lands on your iPhone or your Mac. No accounts, and neither we nor Apple can read it.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://app.notifi.it/">
+<meta property="og:url" content="https://notifi.it/">
 <meta property="og:site_name" content="notifi">
 <meta property="og:locale" content="en_GB">
-<meta property="og:image" content="https://app.notifi.it/og.png">
+<meta property="og:image" content="https://notifi.it/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="One curl request to app.notifi.it/send, and a push notification lands on your iPhone.">
+<meta property="og:image:alt" content="One curl request to notifi.it/send, and a push notification lands on your iPhone.">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="notifi: push notifications from the command line">
-<meta name="twitter:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and neither we nor Apple can read it.">
-<meta name="twitter:image" content="https://app.notifi.it/og.png">
-<meta name="twitter:image:alt" content="One curl request to app.notifi.it/send, and a push notification lands on your iPhone.">
+<meta name="twitter:description" content="curl a title to notifi.it/send. It lands on your iPhone or your Mac. No accounts, and neither we nor Apple can read it.">
+<meta name="twitter:image" content="https://notifi.it/og.png">
+<meta name="twitter:image:alt" content="One curl request to notifi.it/send, and a push notification lands on your iPhone.">
 
 <!-- Self-hosted, so the page has no third-party request at all. A stylesheet
      link to fonts.googleapis.com is render-blocking and costs two serialised
@@ -265,28 +265,28 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://app.notifi.it/#org",
+      "@id": "https://notifi.it/#org",
       "name": "notifi",
-      "url": "https://app.notifi.it/",
-      "logo": "https://app.notifi.it/apple-touch-icon.png"
+      "url": "https://notifi.it/",
+      "logo": "https://notifi.it/apple-touch-icon.png"
     },
     {
       "@type": "WebSite",
-      "@id": "https://app.notifi.it/#website",
-      "url": "https://app.notifi.it/",
+      "@id": "https://notifi.it/#website",
+      "url": "https://notifi.it/",
       "name": "notifi",
       "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No SDK, no account, end-to-end encrypted.",
-      "publisher": { "@id": "https://app.notifi.it/#org" },
+      "publisher": { "@id": "https://notifi.it/#org" },
       "inLanguage": "en"
     },
     {
       "@type": "SoftwareApplication",
-      "@id": "https://app.notifi.it/#app",
+      "@id": "https://notifi.it/#app",
       "name": "notifi",
-      "url": "https://app.notifi.it/",
+      "url": "https://notifi.it/",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "iOS 17.0 or later, macOS 14.0 or later",
-      "description": "Create a send key, then make one HTTP request to app.notifi.it/send from any script. A native push notification arrives on your iPhone or Mac. No SDK, no account, no sign-in. Message content is end-to-end encrypted to the device.",
+      "description": "Create a send key, then make one HTTP request to notifi.it/send from any script. A native push notification arrives on your iPhone or Mac. No SDK, no account, no sign-in. Message content is end-to-end encrypted to the device.",
       "featureList": [
         "One plain HTTP request, GET or POST, JSON or form-encoded",
         "No SDK and no dependency",
@@ -296,7 +296,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         "Title, message, link and image parameters",
         "Searchable notification history"
       ],
-      "publisher": { "@id": "https://app.notifi.it/#org" },
+      "publisher": { "@id": "https://notifi.it/#org" },
       "offers": { "@type": "Offer", "price": 0, "priceCurrency": "GBP" }
     }
   ]
@@ -401,7 +401,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p class="eyebrow" style="margin-bottom:20px">No SDK. No account. No sign-in.</p>
     <h1>One request.<br>Straight to your pocket.</h1>
     <p class="lede">
-      Create a send key. <code>curl</code> a title to <code>app.notifi.it/send</code>.
+      Create a send key. <code>curl</code> a title to <code>notifi.it/send</code>.
       It arrives on your iPhone or your Mac a moment later.
       No accounts, no sign-in, and neither we nor Apple can read what you send.
     </p>
@@ -416,9 +416,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="term-bar">
         <span class="dot3"><i></i><i></i><i></i></span>
         <span class="term-title">~/deploy.sh</span>
-        <button class="copy" data-copy='curl "https://app.notifi.it/send?key=$NOTIFI_KEY&title=Deploy+finished"'>Copy</button>
+        <button class="copy" data-copy='curl "https://notifi.it/send?key=$NOTIFI_KEY&title=Deploy+finished"'>Copy</button>
       </div>
-<pre><span class="p">$</span> curl <span class="s">"https://app.notifi.it/send?key=<span class="k">$NOTIFI_KEY</span>&amp;title=Deploy+finished"</span>
+<pre><span class="p">$</span> curl <span class="s">"https://notifi.it/send?key=<span class="k">$NOTIFI_KEY</span>&amp;title=Deploy+finished"</span>
 <span class="c">{"ok":true}</span></pre>
     </div>
     <p class="meta" style="margin-top:12px">
@@ -548,7 +548,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
     <p class="meta" style="margin-top:30px">
       And anything else you can think of. All of it is one HTTP request to
-      <code>app.notifi.it/send</code> at the end of a script you already have.
+      <code>notifi.it/send</code> at the end of a script you already have.
     </p>
   </div>
 </section>
@@ -646,7 +646,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
 
       <div class="panel" id="p-curl" role="tabpanel" aria-labelledby="t-curl" data-name="send.sh">
-<pre>curl -X POST https://app.notifi.it/send \
+<pre>curl -X POST https://notifi.it/send \
   -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
   -d <span class="s">"title=Backup complete"</span> \
   -d <span class="s">"message=4.2 GB in 3m 11s"</span> \
@@ -655,7 +655,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
       <div class="panel" id="p-js" role="tabpanel" aria-labelledby="t-js" data-name="send.js" hidden>
 <pre><span class="c">// No dependencies. Works in Node 18+, Deno, Bun and the browser.</span>
-await fetch(<span class="s">"https://app.notifi.it/send"</span>, {
+await fetch(<span class="s">"https://notifi.it/send"</span>, {
   method: <span class="s">"POST"</span>,
   headers: {
     <span class="s">"Authorization"</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
@@ -672,7 +672,7 @@ await fetch(<span class="s">"https://app.notifi.it/send"</span>, {
 <pre><span class="f">import</span> os, requests
 
 requests.post(
-    <span class="s">"https://app.notifi.it/send"</span>,
+    <span class="s">"https://notifi.it/send"</span>,
     headers={<span class="s">"Authorization"</span>: <span class="s">f"Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}"</span>},
     json={
         <span class="s">"title"</span>: <span class="s">"Backup complete"</span>,
@@ -696,7 +696,7 @@ requests.post(
 		<span class="s">"title"</span>:   {<span class="s">"Backup complete"</span>},
 		<span class="s">"message"</span>: {<span class="s">"4.2 GB in 3m 11s"</span>},
 	}
-	req, _ := http.NewRequest(<span class="s">"POST"</span>, <span class="s">"https://app.notifi.it/send"</span>,
+	req, _ := http.NewRequest(<span class="s">"POST"</span>, <span class="s">"https://notifi.it/send"</span>,
 		strings.NewReader(form.Encode()))
 	req.Header.Set(<span class="s">"Authorization"</span>, <span class="s">"Bearer "</span>+os.Getenv(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>))
 	req.Header.Set(<span class="s">"Content-Type"</span>, <span class="s">"application/x-www-form-urlencoded"</span>)
@@ -707,7 +707,7 @@ requests.post(
       <div class="panel" id="p-swift" role="tabpanel" aria-labelledby="t-swift" data-name="Send.swift" hidden>
 <pre><span class="f">import</span> Foundation
 
-<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">"https://app.notifi.it/send"</span>)!)
+<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">"https://notifi.it/send"</span>)!)
 request.httpMethod = <span class="s">"POST"</span>
 request.setValue(<span class="s">"Bearer \(key)"</span>, forHTTPHeaderField: <span class="s">"Authorization"</span>)
 request.setValue(<span class="s">"application/json"</span>, forHTTPHeaderField: <span class="s">"Content-Type"</span>)
@@ -722,7 +722,7 @@ _ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for<
       <div class="panel" id="p-ruby" role="tabpanel" aria-labelledby="t-ruby" data-name="send.rb" hidden>
 <pre><span class="f">require</span> <span class="s">"net/http"</span>
 
-uri = URI(<span class="s">"https://app.notifi.it/send"</span>)
+uri = URI(<span class="s">"https://notifi.it/send"</span>)
 req = Net::HTTP::Post.new(uri)
 req[<span class="s">"Authorization"</span>] = <span class="s">"Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}"</span>
 req.set_form_data(
@@ -735,7 +735,7 @@ Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |htt
 
       <div class="panel" id="p-php" role="tabpanel" aria-labelledby="t-php" data-name="send.php" hidden>
 <pre><span class="p">&lt;?php</span>
-$ch = curl_init(<span class="s">"https://app.notifi.it/send"</span>);
+$ch = curl_init(<span class="s">"https://notifi.it/send"</span>);
 curl_setopt_array($ch, [
     CURLOPT_POST       =&gt; <span class="f">true</span>,
     CURLOPT_HTTPHEADER =&gt; [<span class="s">"Authorization: Bearer "</span> . getenv(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)],
@@ -755,7 +755,7 @@ curl_exec($ch);</pre>
     <span class="s">"Stop"</span>: [{
       <span class="s">"hooks"</span>: [{
         <span class="s">"type"</span>: <span class="s">"command"</span>,
-        <span class="s">"command"</span>: <span class="s">"curl -s https://app.notifi.it/send \
+        <span class="s">"command"</span>: <span class="s">"curl -s https://notifi.it/send \
                      -H \"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>\" \
                      -d \"title=Claude finished\" \
                      -d \"message=$CLAUDE_PROJECT_DIR\""</span>
@@ -771,7 +771,7 @@ curl_exec($ch);</pre>
 - <span class="s">name</span>: Tell me it broke
   <span class="s">if</span>: failure()
   <span class="s">run</span>: |
-    curl -s https://app.notifi.it/send \
+    curl -s https://notifi.it/send \
       -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
       -d <span class="s">"title=$GITHUB_WORKFLOW failed"</span> \
       -d <span class="s">"message=$GITHUB_REF_NAME at $(git log -1 --format=%s)"</span> \
@@ -789,7 +789,7 @@ _notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
 _notifi_end() {
   <span class="f">local</span> code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
   (( secs &lt; 60 )) &amp;&amp; <span class="f">return</span>
-  curl -s https://app.notifi.it/send \
+  curl -s https://notifi.it/send \
     -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
     -d <span class="s">"title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s"</span> \
     -d <span class="s">"message=$_NOTIFI_CMD"</span> &gt;/dev/null
@@ -808,7 +808,7 @@ add-zsh-hook precmd  _notifi_end</pre>
 [<span class="f">Service</span>]
 <span class="s">Type</span>=oneshot
 <span class="s">EnvironmentFile</span>=/etc/notifi.env
-<span class="s">ExecStart</span>=/usr/bin/curl -s https://app.notifi.it/send \
+<span class="s">ExecStart</span>=/usr/bin/curl -s https://notifi.it/send \
   -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
   -d <span class="s">"title=%i failed on %H"</span> \
   --data-urlencode <span class="s">"message=$(systemctl status %i --lines=10 --no-pager)"</span></pre>
@@ -819,7 +819,7 @@ add-zsh-hook precmd  _notifi_end</pre>
 <span class="f">let</span> key = std::env::var(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)?;
 
 reqwest::Client::new()
-    .post(<span class="s">"https://app.notifi.it/send"</span>)
+    .post(<span class="s">"https://notifi.it/send"</span>)
     .bearer_auth(key)
     .form(&amp;[
         (<span class="s">"title"</span>, <span class="s">"Backup complete"</span>),
@@ -840,7 +840,7 @@ reqwest::Client::new()
     </div>
     <h2>One endpoint.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:8px">
-      <code>GET</code> or <code>POST</code> <code>https://app.notifi.it/send</code>
+      <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
     </p>
     <p class="meta" style="margin-bottom:26px">
       Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>, or pass
@@ -999,7 +999,7 @@ reqwest::Client::new()
   });
 
   // ── pre-filled key ────────────────────────────────────────
-  // The app links here as https://app.notifi.it/#key=… so a key created on the
+  // The app links here as https://notifi.it/#key=… so a key created on the
   // phone can be pasted straight into a terminal. Read the fragment first: it is
   // never sent to the server. ?key= is accepted too, for anyone who types it by
   // hand, but it lands in edge logs, so both forms are wiped from the address

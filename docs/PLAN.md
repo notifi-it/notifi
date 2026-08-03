@@ -164,7 +164,7 @@ most common way APNs silently breaks — treat it as load-bearing.
 | D1 database | `notifi-dev` | `notifi-prod` |
 | Route | `workers.dev` subdomain | custom domain `notifi.it` |
 | `APNS_HOST` var | `api.sandbox.push.apple.com` | `api.push.apple.com` |
-| App build that talks to it | Xcode debug builds (Debug config `API_BASE_URL`) | TestFlight + App Store builds |
+| App build that talks to it | none — every build points at `notifi.it` | all builds, Debug included |
 
 **Gotcha to encode in the README:** a TestFlight build gets a *production* APNs token.
 TestFlight builds must point at the production Worker. Only local Xcode debug builds use
@@ -196,7 +196,7 @@ crons = ["0 3 * * *"]           # nightly expiry sweep
 
 [env.production]
 name = "notifi-api"
-routes = [{ pattern = "app.notifi.it", custom_domain = true }]
+routes = [{ pattern = "notifi.it", custom_domain = true }]
 [env.production.vars]
 APNS_HOST = "https://api.push.apple.com"
 APNS_TOPIC = "it.notifi.notifi"
@@ -787,8 +787,9 @@ the install. No export, no backup, no display of either private key anywhere.
 Plain `URLSession`, async/await, no dependencies. One method per route, typed with
 `ContractModels`. Signing interceptor builds the §5a canonical string (method,
 path+query, unix-seconds timestamp, body SHA-256 hex) and sets the three headers.
-`API_BASE_URL` comes from build settings: Debug → the dev workers.dev URL, Release →
-`https://notifi.it`. Non-2xx decodes `apiError` and throws a typed `APIError` enum the
+`API_BASE_URL` comes from build settings and is `https://notifi.it` in both Debug
+and Release. Debug builds therefore talk to production: local sends write to
+`notifi-prod` and go out through the live APNs host, not the sandbox. Non-2xx decodes `apiError` and throws a typed `APIError` enum the
 views can switch on.
 
 ### 9d. Store + sync

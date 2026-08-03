@@ -89,7 +89,7 @@ final class AppModel {
            let url = URL(string: raw), url.host != nil {
             return url
         }
-        return URL(string: "https://app.notifi.it")!
+        return URL(string: "https://notifi.it")!
     }
 
     func bootstrap(context: ModelContext) {

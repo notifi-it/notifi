@@ -1,7 +1,7 @@
 # notifi
 
 notifi is a push-notification relay for people who live in a terminal. You create a
-send key, `curl` a title and message to `app.notifi.it/send`, and the alert lands on your
+send key, `curl` a title and message to `notifi.it/send`, and the alert lands on your
 iPhone and Mac. The backend is a single Cloudflare Worker over a D1 database; the app
 is a zero-dependency SwiftUI client for iOS 17+ and macOS 14+. There are no accounts,
 no sign-in, and no device linking — the device holds the only private key, message
@@ -37,7 +37,7 @@ make dev         # wrangler dev — local Worker + local D1
 
 ```bash
 make deploy-dev  # wrangler deploy            → notifi-api-dev on workers.dev
-make deploy      # wrangler deploy --env production → notifi-api on app.notifi.it
+make deploy      # wrangler deploy --env production → notifi-api on notifi.it
 ```
 
 Local `wrangler dev` cannot reach APNs sandbox without the real `.p8`; put dev copies
@@ -52,7 +52,7 @@ the single most common way APNs silently breaks — treat it as load-bearing:
 |---|---|---|
 | Worker | `notifi-api-dev` | `notifi-api` |
 | D1 | `notifi-dev` | `notifi-prod` |
-| Route | `workers.dev` | `app.notifi.it` |
+| Route | `workers.dev` | `notifi.it` |
 | `APNS_HOST` | `api.sandbox.push.apple.com` | `api.push.apple.com` |
 | App build | Xcode debug builds | TestFlight + App Store builds |
 
