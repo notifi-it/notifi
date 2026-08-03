@@ -4,21 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>notifi: push notifications from the command line</title>
-<meta name="description" content="Create a send key, curl a title and message to app.notifi.it/send, and the alert lands on your iPhone or your Mac. No accounts. The server can't read your messages.">
+<meta name="description" content="No account and no SDK. The server can't read your messages. Create a send key, curl a title to app.notifi.it/send, and the alert lands on your iPhone or your Mac.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+<!-- The page also answers on /?key=… (the sample key-prefill link), so every
+     shared one of those would otherwise be a separate crawlable URL. -->
+<link rel="canonical" href="https://app.notifi.it/">
+
 <meta property="og:title" content="notifi: push notifications from the command line">
 <meta property="og:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and the server can't read it.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://app.notifi.it">
+<meta property="og:url" content="https://app.notifi.it/">
+<meta property="og:site_name" content="notifi">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://app.notifi.it/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="One curl request to app.notifi.it/send, and a push notification lands on your iPhone.">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300..800&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="notifi: push notifications from the command line">
+<meta name="twitter:description" content="curl a title to app.notifi.it/send. It lands on your iPhone or your Mac. No accounts, and the server can't read it.">
+<meta name="twitter:image" content="https://app.notifi.it/og.png">
+<meta name="twitter:image:alt" content="One curl request to app.notifi.it/send, and a push notification lands on your iPhone.">
+
+<!-- Self-hosted, so the page has no third-party request at all. A stylesheet
+     link to fonts.googleapis.com is render-blocking and costs two serialised
+     hops before the browser can even discover which font files it needs, and
+     the h1, which is the LCP element, is set in Inconsolata. Latin subset only. -->
+<link rel="preload" href="/fonts/inconsolata.woff2" as="font" type="font/woff2" crossorigin>
 
 <style>
+@font-face{font-family:'Inconsolata';font-style:normal;font-weight:300 800;font-display:swap;
+  src:url(/fonts/inconsolata.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:swap;
+  src:url(/fonts/karla.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
 /* ─────────────────────────────────────────────────────────────
    The same system as the app: pure black, hairline rules, mono
    for everything that is not prose, and exactly one accent used
@@ -228,6 +253,55 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+
+<!-- No aggregateRating: there are no reviews to report yet, and inventing them
+     is both a lie and a manual action. Google's SoftwareApplication rich result
+     needs one, so expect no stars in the SERP until the App Store listing has
+     real reviews. The markup still earns its place as entity data.
+     No FAQPage either: Google stopped rendering FAQ rich results in May 2026. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://app.notifi.it/#org",
+      "name": "notifi",
+      "url": "https://app.notifi.it/",
+      "logo": "https://app.notifi.it/apple-touch-icon.png"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://app.notifi.it/#website",
+      "url": "https://app.notifi.it/",
+      "name": "notifi",
+      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No SDK, no account, end-to-end encrypted.",
+      "publisher": { "@id": "https://app.notifi.it/#org" },
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://app.notifi.it/#app",
+      "name": "notifi",
+      "url": "https://app.notifi.it/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "iOS 17.0 or later, macOS 14.0 or later",
+      "description": "Create a send key, then make one HTTP request to app.notifi.it/send from any script. A native push notification arrives on your iPhone or Mac. No SDK, no account, no sign-in. Message content is end-to-end encrypted to the device.",
+      "featureList": [
+        "One plain HTTP request, GET or POST, JSON or form-encoded",
+        "No SDK and no dependency",
+        "No account and no sign-in",
+        "End-to-end encrypted message content",
+        "Per-script revocable send keys",
+        "Title, message, link and image parameters",
+        "Searchable notification history"
+      ],
+      "publisher": { "@id": "https://app.notifi.it/#org" },
+      "offers": { "@type": "Offer", "price": 0, "priceCurrency": "GBP" }
+    }
+  ]
+}
+</script>
 </head>
 
 <body>
@@ -485,6 +559,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">How it works</p><hr class="rule">
     </div>
+    <h2 style="margin-bottom:26px">What you get, and what you give up.</h2>
 
     <div class="rows">
       <div class="row">
@@ -553,6 +628,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-php"    id="t-php">PHP</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust"   id="t-rust">Rust</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-hook"   id="t-hook">Claude&nbsp;Code</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-gha"    id="t-gha">GitHub&nbsp;Actions</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-shell"  id="t-shell">Shell&nbsp;hook</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-systemd" id="t-systemd">systemd</button>
     </div>
 
     <div class="term">
@@ -680,6 +758,55 @@ curl_exec($ch);</pre>
     }]
   }
 }</pre>
+      </div>
+
+      <div class="panel" id="p-gha" role="tabpanel" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" hidden>
+<pre><span class="c"># Put NOTIFI_KEY in the repository's secrets, then add one step.</span>
+<span class="c"># if: failure() means it only fires when something actually broke.</span>
+- <span class="s">name</span>: Tell me it broke
+  <span class="s">if</span>: failure()
+  <span class="s">run</span>: |
+    curl -s https://app.notifi.it/send \
+      -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+      -d <span class="s">"title=$GITHUB_WORKFLOW failed"</span> \
+      -d <span class="s">"message=$GITHUB_REF_NAME at $(git log -1 --format=%s)"</span> \
+      -d <span class="s">"link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"</span>
+  <span class="s">env</span>:
+    <span class="s">NOTIFI_KEY</span>: ${{ secrets.NOTIFI_KEY }}</pre>
+      </div>
+
+      <div class="panel" id="p-shell" role="tabpanel" aria-labelledby="t-shell" data-name="~/.zshrc" hidden>
+<pre><span class="c"># Notify for any command that took longer than a minute, and say</span>
+<span class="c"># whether it worked. Nothing to remember, nothing to append.</span>
+<span class="f">autoload</span> -Uz add-zsh-hook
+
+_notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
+_notifi_end() {
+  <span class="f">local</span> code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
+  (( secs &lt; 60 )) &amp;&amp; <span class="f">return</span>
+  curl -s https://app.notifi.it/send \
+    -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+    -d <span class="s">"title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s"</span> \
+    -d <span class="s">"message=$_NOTIFI_CMD"</span> &gt;/dev/null
+}
+add-zsh-hook preexec _notifi_start
+add-zsh-hook precmd  _notifi_end</pre>
+      </div>
+
+      <div class="panel" id="p-systemd" role="tabpanel" aria-labelledby="t-systemd" data-name="notifi-failed@.service" hidden>
+<pre><span class="c"># Drop this in /etc/systemd/system/, then add one line to any unit:</span>
+<span class="c">#   OnFailure=notifi-failed@%n.service</span>
+<span class="c"># Every unit on the box can share it. %i is the unit that failed.</span>
+[<span class="f">Unit</span>]
+<span class="s">Description</span>=Push a notification when %i fails
+
+[<span class="f">Service</span>]
+<span class="s">Type</span>=oneshot
+<span class="s">EnvironmentFile</span>=/etc/notifi.env
+<span class="s">ExecStart</span>=/usr/bin/curl -s https://app.notifi.it/send \
+  -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+  -d <span class="s">"title=%i failed on %H"</span> \
+  --data-urlencode <span class="s">"message=$(systemctl status %i --lines=10 --no-pager)"</span></pre>
       </div>
 
       <div class="panel" id="p-rust" role="tabpanel" aria-labelledby="t-rust" data-name="main.rs" hidden>
