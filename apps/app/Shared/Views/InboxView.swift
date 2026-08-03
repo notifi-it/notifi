@@ -1,3 +1,4 @@
+import Combine
 import OSLog
 import SwiftData
 import SwiftUI
@@ -13,7 +14,23 @@ import SwiftUI
 struct InboxView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \Message.createdAt, order: .reverse) private var messages: [Message]
+
+    /// Ages are measured against this instead of reading the clock as each row
+    /// draws. A row that calls `Date()` inside its own body is only as fresh as
+    /// the last redraw SwiftUI happened to do for some other reason — so with no
+    /// network to deliver a change, every stamp on the feed sat frozen at the
+    /// age it had when the screen appeared. Ticking a piece of state is what
+    /// actually invalidates the rows.
+    ///
+    /// Half a minute rather than a full one because the first step is "now" to
+    /// "1 min": on a 60s tick that flip can land 59 seconds late, which on a
+    /// pager is the difference a reader is looking at.
+    @State private var now = Date()
+    private static let clock = Timer
+        .publish(every: 30, tolerance: 5, on: .main, in: .common)
+        .autoconnect()
 
     @State private var searchText = ""
     @State private var filterKeyID: Int?
@@ -94,14 +111,22 @@ struct InboxView: View {
                         searchFocused = false
                         model.path.append(message.serverID)
                     } label: {
+                        // The gutter is inside the button and the shape is
+                        // explicit, so the whole row answers a tap. With the
+                        // padding outside, the 20pt margins were dead, and
+                        // without the shape the gaps between title, time and
+                        // thumbnail were too: a stack only hit-tests where it
+                        // actually drew something.
                         MessageRow(
                             message: message,
-                            allowAnyScheme: model.allowsAnyLink(keyID: message.keyID)
+                            allowAnyScheme: model.allowsAnyLink(keyID: message.keyID),
+                            now: now
                         )
+                        .geistGutter()
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .overlay(alignment: .bottom) { Hairline() }
-                    .geistGutter()
+                    .overlay(alignment: .bottom) { Hairline().geistGutter() }
                     .plainRow()
                     // Swiping is a touch idiom. On the Mac the same actions live in
                     // the right-click menu below, which is where a Mac user looks.
@@ -134,6 +159,13 @@ struct InboxView: View {
         .scrollContentBackground(.hidden)
         .background(Theme.bg)
         .scrollDismissesKeyboard(.immediately)
+        .onReceive(Self.clock) { now = $0 }
+        // Timers do not fire while the app is suspended, so coming back to the
+        // foreground after a while would otherwise show the ages from whenever
+        // it was last put down until the next tick caught up.
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { now = Date() }
+        }
 // Pull-to-refresh is a touch gesture. The Mac refreshes with ⌘R and the
         // overflow menu instead; the iOS-only modifier is below.
         .alert(
@@ -398,10 +430,12 @@ private extension View {
 private struct MessageRow: View {
     let message: Message
     let allowAnyScheme: Bool
+    /// Passed in rather than read here — see the clock on `InboxView`.
+    let now: Date
 
     private var relative: String {
         let basis = message.occurredAt ?? message.createdAt
-        let seconds = max(0, Int(Date().timeIntervalSince(basis)))
+        let seconds = max(0, Int(now.timeIntervalSince(basis)))
         switch seconds {
         case ..<60: return "now"
         case ..<3_600: return "\(seconds / 60) min"
