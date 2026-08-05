@@ -22,10 +22,17 @@ struct KeyDetailView: View {
 
     private var key: CachedKey? { model.sync?.keys.first { $0.id == keyID } }
 
-    /// The switch is offered either way. Whether the system honours it is a
-    /// separate question — the entitlement has to be granted to the app and the
-    /// permission has to be granted to the device — so say which one is missing
-    /// rather than showing a switch that quietly does nothing.
+    /// Without the entitlement the switch would quietly do nothing, so it is
+    /// greyed out until Apple grants it. `.disabled` (turned off in system
+    /// settings) still allows toggling: that sets the key's standing on the
+    /// server, which starts working the moment the user flips it back on.
+    private var criticalUnavailable: Bool {
+        switch model.criticalAlertStatus {
+        case .enabled, .disabled: return false
+        default: return true
+        }
+    }
+
     private var criticalDetail: String {
         switch model.criticalAlertStatus {
         case .enabled:
@@ -179,7 +186,7 @@ struct KeyDetailView: View {
                         set: { on in Task { await setCritical(on) } }
                     )
                 )
-                .disabled(isUpdatingCritical)
+                .disabled(isUpdatingCritical || criticalUnavailable)
                 Hairline()
             }
 
