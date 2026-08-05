@@ -58,6 +58,7 @@ final class NotificationService: UNNotificationServiceExtension {
 
         best.title = content.title
         if let message = content.message { best.body = message }
+        best.categoryIdentifier = Self.category(for: content)
 
         // Downloading here would happen on arrival, before the user has seen
         // anything, so the sender would learn the device's IP address and the
@@ -105,6 +106,16 @@ final class NotificationService: UNNotificationServiceExtension {
             }
         }
         task.resume()
+    }
+
+    /// A message whose blob would not open gets no category at all: the buttons
+    /// would act on a link this side never read.
+    private static func category(for content: MessageContent) -> String {
+        var hasLink = false
+        if let link = content.link, let url = URL(string: link) {
+            hasLink = LinkPolicy.allows(url, anyScheme: false)
+        }
+        return NotificationCategories.categoryID(keyID: content.keyID, hasLink: hasLink)
     }
 
     override func serviceExtensionTimeWillExpire() {

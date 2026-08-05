@@ -14,6 +14,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = notificationDelegate
+        // From the cache rather than the network: the categories have to exist
+        // before the first push of the session lands, and /keys has not answered
+        // yet. `refreshKeys` re-registers with whatever it learns.
+        NotificationCategories.register(keys: SyncEngine.summaryKeys(KeyCacheStore.load()))
         application.registerForRemoteNotifications()
         UITabBar.appearance().unselectedItemTintColor = UIColor.secondaryLabel
         return true
@@ -50,6 +54,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
 
         UNUserNotificationCenter.current().delegate = notificationDelegate
+        // From the cache rather than the network: the categories have to exist
+        // before the first push of the session lands, and /keys has not answered
+        // yet. `refreshKeys` re-registers with whatever it learns.
+        NotificationCategories.register(keys: SyncEngine.summaryKeys(KeyCacheStore.load()))
         NSApplication.shared.registerForRemoteNotifications()
 
         macAppModel.bootstrap(context: macContainer.mainContext)

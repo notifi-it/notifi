@@ -30,10 +30,33 @@ enum AppTab: Hashable {
     case settings
 }
 
+/// What a notification asked for, in terms the model can act on once it exists.
+enum NotificationAction {
+    case show(serverID: Int)
+    case markRead(serverID: Int)
+    case openLink(URL, keyID: Int?, serverID: Int)
+}
+
 @MainActor
 @Observable
 final class AppModel {
     static private(set) var shared: AppModel?
+
+    /// iOS launches the app to deliver a tap or a button press, so the response
+    /// regularly arrives before any UI — and so before `bootstrap` has run and
+    /// there is a model to act on it. Anything that lands early waits here and is
+    /// drained by `bootstrap`, which is what makes a lock-screen button behave the
+    /// same whether the app was running or not. Before this existed a tap on a
+    /// notification with the app cold opened the inbox rather than the message.
+    private static var pendingActions: [NotificationAction] = []
+
+    static func perform(_ action: NotificationAction) {
+        if let shared {
+            shared.apply(action)
+        } else {
+            pendingActions.append(action)
+        }
+    }
 
     var bootState: BootState = .loading
     var path = NavigationPath()
@@ -97,6 +120,10 @@ final class AppModel {
         self.context = context
         AppModel.shared = self
         bootState = .loading
+
+        let queued = AppModel.pendingActions
+        AppModel.pendingActions = []
+        for action in queued { apply(action) }
 
         #if !targetEnvironment(simulator)
         guard SecureEnclave.isAvailable else {
@@ -279,6 +306,45 @@ final class AppModel {
     func handleForegroundPush() {
         Task {
             await sync?.sync()
+        }
+    }
+
+    private func apply(_ action: NotificationAction) {
+        switch action {
+        case .show(let serverID):
+            handleTap(serverID: serverID)
+        case .markRead(let serverID):
+            markReadAfterSync(serverID: serverID)
+        case .openLink(let url, let keyID, let serverID):
+            openLink(url, keyID: keyID, serverID: serverID)
+        }
+    }
+
+    /// The extension only offers the button for an https link, because it cannot
+    /// see the per-key allow-list. This side can, so the full policy is applied
+    /// here — and a link it rejects opens the message instead of nothing, which is
+    /// where the user can see the URL and decide.
+    private func openLink(_ url: URL, keyID: Int?, serverID: Int) {
+        guard LinkPolicy.allows(url, keyID: keyID) else {
+            handleTap(serverID: serverID)
+            return
+        }
+        #if os(iOS)
+        UIApplication.shared.open(url)
+        #else
+        NSWorkspace.shared.open(url)
+        #endif
+        markReadAfterSync(serverID: serverID)
+    }
+
+    /// The push can beat the message it announces into the store, so the sync has
+    /// to come first — otherwise the row a button acted on does not exist yet and
+    /// the message stays unread with its badge still counting it.
+    private func markReadAfterSync(serverID: Int) {
+        Task {
+            await sync?.sync()
+            markRead(serverID: serverID)
+            sync?.updateBadge()
         }
     }
 

@@ -34,6 +34,12 @@ final class SyncEngine {
         migrateToDeviceSeqIfNeeded()
     }
 
+    /// A revoked key cannot send, so it needs no summary and no category.
+    static func summaryKeys(_ keys: [CachedKey]) -> [NotificationCategories.SummaryKey] {
+        keys.filter { !$0.isRevoked }
+            .map { NotificationCategories.SummaryKey(id: $0.id, name: $0.name) }
+    }
+
     /// Moves the store off the server's old global message ids.
     ///
     /// Message ids used to be global and are now per-device, so they start again
@@ -229,6 +235,7 @@ final class SyncEngine {
             keys = built
             keysRefreshFailed = false
             KeyCacheStore.save(built)
+            NotificationCategories.register(keys: Self.summaryKeys(built))
         } catch {
             keysRefreshFailed = true
             log.error("key refresh failed: \(String(describing: error), privacy: .public)")

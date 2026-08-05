@@ -101,6 +101,12 @@ targets:
       - path: Shared/API/ContractModels.swift
       - path: Shared/Support/NotifiError.swift
       - path: Shared/Support/RemoteImages.swift
+      # LinkPolicy is compiled in for its https rule alone -- the extension
+      # decides which category a push carries. Its allow-list accessors read the
+      # app's UserDefaults, which the extension does not share, so they must not
+      # be called from here.
+      - path: Shared/Support/LinkPolicy.swift
+      - path: Shared/Push/NotificationCategories.swift
       - path: Support/Privacy/NotificationService/PrivacyInfo.xcprivacy
     settings:
       base:
@@ -118,6 +124,12 @@ targets:
       - path: Shared/API/ContractModels.swift
       - path: Shared/Support/NotifiError.swift
       - path: Shared/Support/RemoteImages.swift
+      # LinkPolicy is compiled in for its https rule alone -- the extension
+      # decides which category a push carries. Its allow-list accessors read the
+      # app's UserDefaults, which the extension does not share, so they must not
+      # be called from here.
+      - path: Shared/Support/LinkPolicy.swift
+      - path: Shared/Push/NotificationCategories.swift
       - path: Support/Privacy/NotificationService/PrivacyInfo.xcprivacy
     settings:
       base:

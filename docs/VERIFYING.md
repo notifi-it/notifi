@@ -202,6 +202,42 @@ xcrun simctl push booted it.notifi.notifi bad-seal.apns.json
   the "opener loads in the NSE" path (trap 16) only truly proves out on a device.
 - 📸 **Screenshot F** — the greyed, still-tappable fallback banner.
 
+### 8b. Rich notifications — image, link button, mark as read
+
+```bash
+curl "$NB/send?key=$KEY&title=Deploy%20failed" \
+  --data-urlencode "message=api-worker, run #412" \
+  --data-urlencode "link=https://example.com/runs/412" \
+  --data-urlencode "image=https://example.com/graph.png"
+```
+
+- **Image, Settings → Load images automatically ON:** the banner carries a
+  thumbnail; long-press expands it to the full picture. The extension enforces
+  ≤ 5 MB and `image/png|jpeg|gif` — a 10 MB file or an `image/svg+xml` must deliver
+  as a plain banner rather than nothing.
+- **Image, the same setting OFF:** no attachment, by design — downloading on arrival
+  would hand the sender the device's IP and the delivery time for a message the user
+  never opened. This is the one case where the notification deliberately shows less
+  than it could.
+- **Long-press the banner:** *Open Link* and *Mark as Read*.
+- **Open Link:** goes straight to the browser. Send the same message with a
+  `shortcuts:` link — the button must be **absent**, because the extension cannot
+  read the per-key allow-list and so applies the https-only rule. Opting that key in
+  on its key screen does *not* bring the button back; the link stays openable from
+  the message screen, where the URL is on show.
+- **Mark as Read:** the badge drops without the app coming forward. Do it from the
+  lock screen with the app force-quit — the action is queued until the model boots,
+  so it must still land.
+- **Tap with the app force-quit:** opens the message itself, not just the inbox.
+- **Grouping summary:** send three on one key without opening any. The stack
+  collapses to **"2 more from `<key name>`"**, not "2 more notifications" — the
+  app registers a category per key so the name is in the format string. Rename the
+  key, pull to refresh on Keys, send again: the summary follows the new name. A key
+  named with a `%` in it (`50% off`) must print literally.
+
+  A key the app has not registered yet — a push that beats the first `/keys` of a
+  fresh install — falls back to the generic category: buttons intact, plain count.
+
 ---
 
 ## macOS & lifecycle
