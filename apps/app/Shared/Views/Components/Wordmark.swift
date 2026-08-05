@@ -54,11 +54,12 @@ struct Wordmark: View {
 /// template and a red circle is laid exactly on top. Geometry measured off the
 /// asset by flood-filling the disc:
 ///
-///     centre    (0.7028, 0.1667) of the frame
-///     diameter  0.273 of the frame
+///     centre    (0.7006, 0.1498) of the frame
+///     diameter  0.270 of the frame
 ///
-/// The overlay is a hair wider than the disc so no white rim survives. Both
-/// numbers are read off BellLogo — redraw that and they have to be re-measured.
+/// The overlay is a hair wider than the disc so no white rim survives. All three
+/// are fractions of BellLogo's viewBox — redraw that, or reframe it, and they
+/// have to be re-measured.
 struct BellMark: View {
     var size: CGFloat = 21
     var hasUnread: Bool = false
@@ -66,11 +67,11 @@ struct BellMark: View {
     /// Bumped on every new-message post; drives the shake.
     @State private var shake = 0
 
-    private static let badgeCentre = CGPoint(x: 0.7028, y: 0.1667)
+    private static let badgeCentre = CGPoint(x: 0.7006, y: 0.1498)
     /// Sized to the badge drawn in BellLogo, plus a hair so the red fully covers
     /// it. Shrinking the badge in the artwork means shrinking this to match, or
     /// the unread dot overhangs the gap the bell cuts around it.
-    private static let badgeDiameter: CGFloat = 0.286
+    private static let badgeDiameter: CGFloat = 0.2835
 
     var body: some View {
         Image("BellLogo")

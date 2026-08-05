@@ -77,12 +77,16 @@ nav a:hover{color:var(--fg)}
 .bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
 .bell::before{
   content:"";position:absolute;inset:0;background:currentColor;
-  -webkit-mask:url(/bell.png) center/contain no-repeat;
-          mask:url(/bell.png) center/contain no-repeat;
+  -webkit-mask:url(/bell.svg) center/contain no-repeat;
+          mask:url(/bell.svg) center/contain no-repeat;
 }
+/* Badge disc, as fractions of BellLogo's viewBox, which bell.svg is generated
+   from: the artwork puts the disc at 70.06%/14.98% and 27.03% across, and this
+   is drawn wider so it covers the notch the bell cuts around it. Reframing that
+   box in generate-marks.sh moves all three — they are not free numbers. */
 .bell::after{
-  content:"";position:absolute;left:70.28%;top:16.67%;
-  width:34.5%;height:34.5%;transform:translate(-50%,-50%);
+  content:"";position:absolute;left:70.06%;top:14.98%;
+  width:34.19%;height:34.19%;transform:translate(-50%,-50%);
   border-radius:50%;background:var(--brand);
 }
 .lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}

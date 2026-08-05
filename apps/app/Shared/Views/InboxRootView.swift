@@ -15,9 +15,10 @@ struct InboxRootView: View {
                     }
             }
             // The app's own bell rather than a generic inbox tray — this tab is
-            // notifi itself, so it gets the logo.
-            // `BellLogo` is a 360px raster, and a tab item uses its asset at
-            // native size — hence a tab-sized copy of the same artwork.
+            // notifi itself, so it gets the logo. A tab item draws its asset at
+            // the asset's own framing, and BellLogo is framed tight to the ink,
+            // which would sit heavier here than the akar icons beside it — hence
+            // BellTab, the same drawing in a looser box.
             .tabItem { Label("Notifications", image: "BellTab") }
             .tag(AppTab.inbox)
 

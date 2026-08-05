@@ -54,6 +54,23 @@ Run `cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes a
 `notifi-iOS` and `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi:
 installs fail silently there and cannot be screenshotted.
 
+## The bell is drawn once, and every other copy is generated
+
+`apps/app/Support/Icon/notifi-logo.svg` is the mark. The tab icon, the wordmark
+bell, the empty state, the menu bar glyph, the app icons, the favicon, the touch
+icon and the bell the website masks are all produced from it by
+`Support/Icon/generate-marks.sh` — edit the master, run that, commit what it
+writes. Do not edit the generated SVGs; the header in each says so, and a change
+made there survives until the next person runs the script.
+
+Two viewBoxes are declared in that script rather than measured, because things
+outside it are positioned as fractions of them: `BellMark`'s unread dot in
+`Wordmark.swift`, and the badge disc in the site's CSS, which lives in both
+`index.html` and `privacy.html`. The script prints those fractions on every run
+and refuses to write a box the artwork no longer fits inside. If you reframe
+one, re-measure all of them — a release shipped with the site's disc sitting off
+the bell's shoulder because only the asset moved.
+
 ## Layout changes apply to every screen, not one
 
 The three tabs — Inbox, Keys, Settings — are built on different containers: the

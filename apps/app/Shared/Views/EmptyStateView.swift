@@ -50,9 +50,14 @@ struct EmptyStateView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Image("SadBell")
+            // The mark as a dashed outline, as if it were pencilled in and not
+            // yet filled: nothing has arrived to draw it properly. The bell that
+            // used to sit here was a face drawn on older, thinner artwork.
+            Image("EmptyBell")
+                .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
+                .foregroundStyle(Theme.muted)
                 .frame(width: 96)
                 .accessibilityHidden(true)
                 .padding(.bottom, 14)
