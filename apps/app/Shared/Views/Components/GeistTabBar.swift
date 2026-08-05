@@ -21,7 +21,7 @@ struct GeistTabBar: View {
     }
 
     private let items: [Item] = [
-        Item(tab: .inbox, title: "Notifications", icon: "akar-inbox"),
+        Item(tab: .inbox, title: "Notifications", icon: "BellTab"),
         Item(tab: .keys, title: "Keys", icon: "akar-key"),
         Item(tab: .settings, title: "Settings", icon: "akar-gear")
     ]

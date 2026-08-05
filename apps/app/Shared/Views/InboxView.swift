@@ -35,7 +35,6 @@ struct InboxView: View {
     @State private var searchText = ""
     @State private var filterKeyID: Int?
     @State private var pendingDelete: Message?
-    /// iOS only — the Mac keeps its field on screen, where there is room for it.
     @State private var showingSearch = false
     @FocusState private var searchFocused: Bool
 
@@ -208,6 +207,7 @@ struct InboxView: View {
         }
         ToolbarItem(placement: .topBarTrailing) { overflowMenu }
     }
+    #endif
 
     /// Search is a button rather than a field kept on screen. The system one
     /// could not be made to look like anything else here, and a field parked
@@ -233,23 +233,20 @@ struct InboxView: View {
         searchText = ""
         showingSearch = false
     }
-    #endif
 
     // MARK: Header
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // iOS puts the wordmark and the overflow menu in the navigation bar,
-            // so that `.searchable` can hang its own field underneath them and
-            // hide it until the list is pulled down. A popover has no navigation
-            // bar, so the Mac still carries both here.
+            // iOS puts the wordmark and the buttons in the navigation bar. A
+            // popover has no navigation bar, so the Mac carries the same row
+            // here — via `GeistBrandRow`, so it cannot drift from every other
+            // screen's header the way a hand-rolled copy did.
             #if os(macOS)
-            HStack(spacing: 10) {
-                BrandMark(size: 17)
-                Spacer(minLength: 8)
+            GeistBrandRow {
+                if !messages.isEmpty { searchToggle }
                 overflowMenu
             }
-            .frame(height: Theme.headerBarHeight)
             .padding(.bottom, Theme.headerBarGap)
             #endif
 
@@ -271,16 +268,11 @@ struct InboxView: View {
 
             if !messages.isEmpty {
                 // Nothing to search through yet, so the field would just be
-                // furniture. On iOS it appears only once the search button in
-                // the navigation bar asks for it.
-                #if os(macOS)
-                SearchField(text: $searchText, focused: $searchFocused)
-                #else
+                // furniture. It appears only once the search button asks for it.
                 if showingSearch {
                     SearchField(text: $searchText, focused: $searchFocused)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
-                #endif
 
                 if let activeKeyName {
                     HStack(spacing: 8) {

@@ -135,8 +135,11 @@ enum MenuBarIconRenderer {
             }
 
             if unread {
-                let diameter = rect.width * 0.30
-                let center = NSPoint(x: rect.width * 0.66, y: rect.height * 0.78)
+                // Same fractions `BellMark` uses, so the menu bar bell and the
+                // one in the app carry their dot in the same place. The y is
+                // flipped because this context has its origin at the bottom.
+                let diameter = rect.width * 0.286
+                let center = NSPoint(x: rect.width * 0.7028, y: rect.height * 0.8333)
                 let dot = NSRect(
                     x: center.x - diameter / 2,
                     y: center.y - diameter / 2,
