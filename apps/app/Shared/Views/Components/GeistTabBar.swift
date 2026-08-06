@@ -13,18 +13,29 @@ import SwiftUI
 /// unselected item toward the selected colour.
 struct GeistTabBar: View {
     @Binding var selection: AppTab
+    @Environment(AppModel.self) private var model
 
     private struct Item {
         let tab: AppTab
         let title: String
         let icon: String
+        /// The unread bell carries its own brand-red badge, so it is drawn as
+        /// artwork rather than a tinted glyph — the tab tint would flatten the
+        /// badge back into the bell.
+        var templated = true
     }
 
-    private let items: [Item] = [
-        Item(tab: .inbox, title: "Notifications", icon: "BellTab"),
-        Item(tab: .keys, title: "Keys", icon: "akar-key"),
-        Item(tab: .settings, title: "Settings", icon: "akar-gear")
-    ]
+    /// The bell's own badge carries the unread state, the same way it does in
+    /// the iOS tab bar — not a second dot stacked beside it.
+    private var items: [Item] {
+        [
+            Item(tab: .inbox, title: "Notifications",
+                 icon: model.hasUnread ? "BellTabUnread" : "BellTab",
+                 templated: !model.hasUnread),
+            Item(tab: .keys, title: "Keys", icon: "akar-key"),
+            Item(tab: .settings, title: "Settings", icon: "akar-gear")
+        ]
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,6 +45,7 @@ struct GeistTabBar: View {
                     TabButton(
                         title: item.title,
                         icon: item.icon,
+                        templated: item.templated,
                         isSelected: selection == item.tab
                     ) {
                         selection = item.tab
@@ -50,6 +62,7 @@ struct GeistTabBar: View {
 private struct TabButton: View {
     let title: String
     let icon: String
+    let templated: Bool
     let isSelected: Bool
     let action: () -> Void
 
@@ -64,7 +77,7 @@ private struct TabButton: View {
         Button(action: action) {
             VStack(spacing: 4) {
                 Image(icon)
-                    .renderingMode(.template)
+                    .renderingMode(templated ? .template : .original)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)

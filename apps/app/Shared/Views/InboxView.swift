@@ -198,7 +198,6 @@ struct InboxView: View {
         #endif
     }
 
-    #if os(iOS)
     /// Search is a button rather than a field kept on screen. The system one
     /// could not be made to look like anything else here, and a field parked
     /// above the feed is chrome that earns its space only when it is wanted.
@@ -223,7 +222,6 @@ struct InboxView: View {
         searchText = ""
         showingSearch = false
     }
-    #endif
 
     // MARK: Header
 
@@ -247,9 +245,7 @@ struct InboxView: View {
                 }
                 Spacer(minLength: 8)
                 HStack(spacing: 8) {
-                    #if os(iOS)
                     if !messages.isEmpty { searchToggle }
-                    #endif
                     overflowMenu
                 }
                 .frame(height: Theme.headerBarHeight)
