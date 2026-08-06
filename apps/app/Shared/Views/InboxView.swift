@@ -307,7 +307,7 @@ struct InboxView: View {
 
     private var overflowMenu: some View {
         Menu {
-            Button("Mark All as Read", action: markAllRead)
+            Button("Mark all as read", action: markAllRead)
                 .disabled(unreadCount == 0)
 
             if keys.count > 1 {
@@ -365,16 +365,16 @@ struct InboxView: View {
 
     @ViewBuilder
     private func menu(for message: Message) -> some View {
-        Button(message.isRead ? "Mark as Unread" : "Mark as Read") { toggleRead(message) }
+        Button(message.isRead ? "Mark as unread" : "Mark as read") { toggleRead(message) }
         Divider()
-        Button("Copy Title") { Clipboard.copy(message.title) }
+        Button("Copy title") { Clipboard.copy(message.title) }
         if let body = message.body {
-            Button("Copy Message") { Clipboard.copy(body) }
+            Button("Copy message") { Clipboard.copy(body) }
         }
         if let link = message.link {
-            Button("Copy Link") { Clipboard.copy(link.absoluteString) }
+            Button("Copy link") { Clipboard.copy(link.absoluteString) }
             if LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
-                Button("Open Link") { open(link, keyID: message.keyID) }
+                Button("Open link") { open(link, keyID: message.keyID) }
             }
         }
         Divider()

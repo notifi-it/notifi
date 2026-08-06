@@ -89,7 +89,7 @@ struct KeyDetailView: View {
             Button("Revoke", role: .destructive) { Task { await revoke() } }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Anything still sending to it will start getting 401.")
+            Text("Anything still sending to it will be rejected.")
         }
         .alert(
             "Regenerate this key?",
@@ -99,7 +99,7 @@ struct KeyDetailView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("The current value stops working immediately, and anything "
-                 + "still sending with it will start getting 401.")
+                 + "still sending with it will be rejected.")
         }
     }
 
@@ -211,8 +211,8 @@ struct KeyDetailView: View {
                 }
                 .disabled(isRegenerating)
                 Text("Regenerating issues a new value and retires the old one. "
-                     + "Anything still sending with the old value will start "
-                     + "getting 401.")
+                     + "Anything still sending with the old value will be "
+                     + "rejected.")
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
@@ -225,7 +225,7 @@ struct KeyDetailView: View {
                 }
                 .disabled(isRevoking)
                 Text("Revoking is permanent. Anything still sending to this key "
-                     + "will start getting 401.")
+                     + "will be rejected.")
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
@@ -253,7 +253,7 @@ struct KeyDetailView: View {
             copied = false
         } catch {
             errorMessage = (error as? APIError)?.userMessage
-                ?? "Couldn't regenerate the key."
+                ?? "Couldn't regenerate the key. Check your connection and try again."
         }
         isRegenerating = false
     }
@@ -265,7 +265,7 @@ struct KeyDetailView: View {
             try await model.setKeyCritical(id: keyID, critical: critical)
         } catch {
             errorMessage = (error as? APIError)?.userMessage
-                ?? "Couldn't change Critical Alerts for this key."
+                ?? "Couldn't change Critical Alerts for this key. Check your connection and try again."
         }
         isUpdatingCritical = false
     }
@@ -278,7 +278,7 @@ struct KeyDetailView: View {
             try await api.revokeKey(id: keyID)
             await model.sync?.refreshKeys()
         } catch {
-            errorMessage = (error as? APIError)?.userMessage ?? "Couldn't revoke the key."
+            errorMessage = (error as? APIError)?.userMessage ?? "Couldn't revoke the key. Check your connection and try again."
         }
         isRevoking = false
     }

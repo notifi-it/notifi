@@ -13,7 +13,7 @@ struct RestoreExplainerView: View {
                 .font(.inco(.title2, weight: .bold))
                 .multilineTextAlignment(.center)
 
-            Text("Your old messages restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now get a 401 — create fresh keys to keep receiving notifications.")
+            Text("Your old messages restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now be rejected — create fresh keys to keep receiving notifications.")
                 .font(.inco(.body))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

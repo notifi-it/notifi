@@ -94,7 +94,7 @@ enum NotificationCategories {
     private static var openLinkAction: UNNotificationAction {
         UNNotificationAction(
             identifier: Action.openLink,
-            title: "Open Link",
+            title: "Open link",
             // Foreground because handing a URL to the OS is the app's job, and a
             // process launched only to service a background action is not reliably
             // allowed to do it. A tap that does not reach the browser has failed.
@@ -103,7 +103,7 @@ enum NotificationCategories {
     }
 
     private static var markReadAction: UNNotificationAction {
-        UNNotificationAction(identifier: Action.markRead, title: "Mark as Read", options: [])
+        UNNotificationAction(identifier: Action.markRead, title: "Mark as read", options: [])
     }
 }
 

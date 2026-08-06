@@ -218,10 +218,10 @@ struct SettingsView: View {
             testMessage = "Sent. It should arrive momentarily."
         } catch NotifiError.identityMissing {
             testFailed = true
-            testMessage = "No default key on this device yet. Pull to refresh and try again."
+            testMessage = "No default key on this device yet. Refresh and try again."
         } catch {
             testFailed = true
-            testMessage = (error as? APIError)?.userMessage ?? "Test failed."
+            testMessage = (error as? APIError)?.userMessage ?? "Couldn't send the test. Check your connection and try again."
         }
         testState = .idle
     }

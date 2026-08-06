@@ -261,7 +261,7 @@ struct MessageDetailView: View {
                 HStack(spacing: 9) {
                     if LinkPolicy.allows(link, anyScheme: anyScheme) {
                         Button { open(link, keyID: message.keyID) } label: {
-                            Text("Open ↗")
+                            Text("Open link")
                                 .font(.inco(.footnote, weight: .semibold))
                                 .foregroundStyle(Theme.bg)
                                 .frame(maxWidth: .infinity)

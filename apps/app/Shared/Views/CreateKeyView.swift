@@ -271,7 +271,7 @@ struct CreateKeyView: View {
             await model.sync?.refreshKeys()
             withAnimation(Theme.reveal) { phase = .revealed(response) }
         } catch {
-            errorMessage = (error as? APIError)?.userMessage ?? "Couldn't create the key."
+            errorMessage = (error as? APIError)?.userMessage ?? "Couldn't create the key. Check your connection and try again."
             phase = .entering
         }
     }

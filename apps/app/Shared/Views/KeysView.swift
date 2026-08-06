@@ -63,9 +63,24 @@ struct KeysView: View {
                     .geistGutter()
 
                 if otherActiveKeys.isEmpty {
-                    Text("No active keys yet.")
-                        .font(Theme.body)
-                        .foregroundStyle(Theme.muted)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("No active keys yet")
+                            .font(Theme.body)
+                            .foregroundStyle(Theme.fg)
+                        Text("A key is what a script sends with. Make one per source so you can revoke them separately.")
+                            .font(Theme.metaSmall)
+                            .foregroundStyle(Theme.dim)
+                            .fixedSize(horizontal: false, vertical: true)
+                        OutlineButton(title: "New key", fill: false) {
+                            #if os(iOS)
+                            showingCreate = true
+                            #else
+                            model.presentingCreateKey = true
+                            #endif
+                        }
+                        .padding(.top, 2)
+                    }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.vertical, 14)
                         .geistGutter()
                     Hairline()
