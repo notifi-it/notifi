@@ -113,10 +113,18 @@ struct RootContentView: View {
         .preferredColorScheme(.dark)
         .environment(\.colorScheme, .dark)
         #if os(macOS)
-        .sheet(isPresented: $model.presentingCreateKey) {
-            NavigationStack { CreateKeyView() }
-                .environment(model)
+        // Covers the popover rather than being presented into it. See the note
+        // on `CreateKeyView.onClose` for why this is not a sheet.
+        .overlay {
+            if model.presentingCreateKey {
+                CreateKeyView { model.presentingCreateKey = false }
+                    .environment(model)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Theme.bg)
+                    .transition(.move(edge: .bottom))
+            }
         }
+        .animation(.easeOut(duration: 0.2), value: model.presentingCreateKey)
         #endif
         .task {
             model.bootstrap(context: modelContext)

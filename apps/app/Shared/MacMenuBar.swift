@@ -134,20 +134,18 @@ enum MenuBarIconRenderer {
                 rect.fill(using: .sourceAtop)
             }
 
-            if unread {
-                // Same fractions `BellMark` uses, so the menu bar bell and the
-                // one in the app carry their dot in the same place. The y is
-                // flipped because this context has its origin at the bottom.
-                let diameter = rect.width * 0.286
-                let center = NSPoint(x: rect.width * 0.7028, y: rect.height * 0.8333)
-                let dot = NSRect(
-                    x: center.x - diameter / 2,
-                    y: center.y - diameter / 2,
-                    width: diameter,
-                    height: diameter
-                )
-                NSColor.systemRed.setFill()
-                NSBezierPath(ovalIn: dot).fill()
+            // The badge is a second layer cropped from the same artwork by the
+            // same box, so it lands where the drawing puts it. Nothing here
+            // knows the position — see Support/Icon/generate-menu-icon.sh.
+            // Tinted in its own image rather than in place: `sourceAtop` covers
+            // the whole rect, so filling here would repaint the bell red too.
+            if unread, let dot = NSImage(named: "menu_dot") {
+                NSImage(size: size, flipped: false) { dotRect in
+                    dot.draw(in: dotRect)
+                    NSColor(Theme.brand).set()
+                    dotRect.fill(using: .sourceAtop)
+                    return true
+                }.draw(in: rect)
             }
             return true
         }

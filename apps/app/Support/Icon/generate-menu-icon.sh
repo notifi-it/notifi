@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
-# Regenerates menu_icon.imageset/menu.png — the macOS menu bar glyph.
+# Regenerates the macOS menu bar glyph: menu_icon.imageset/menu.png, the bell,
+# and menu_dot.imageset/dot.png, its unread badge alone on the same canvas.
 # Requires: rsvg-convert (librsvg), python3.
+#
+# Two files rather than one so nothing downstream has to know where the badge
+# sits. MacMenuBar used to place it by hand as a fraction of the icon's frame,
+# which is a copy of a measurement that lives in notifi-logo.svg — and because
+# this glyph is trimmed and re-centred, its fraction was not the one BellMark
+# uses either. Both layers are now cropped by the same box, so drawing one over
+# the other puts the badge exactly where the artwork puts it.
 #
 # STROKE adds a stroke of the same colour to each of the bell's filled outlines,
 # which grows it by STROKE/2 on both edges and thickens the line by STROKE
@@ -18,6 +26,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 OUT="../../Shared/Assets.xcassets/menu_icon.imageset/menu.png"
+OUT_DOT="../../Shared/Assets.xcassets/menu_dot.imageset/dot.png"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -26,10 +35,10 @@ CANVAS=102     # pixels, drawn by MacMenuBar into a 20pt square
 SLOT_PT=20
 GLYPH_PT=16
 
-python3 - "$TMP/menu.svg" "$STROKE" <<'PY'
+python3 - "$TMP/menu.svg" "$STROKE" "$TMP/dot.svg" <<'PY'
 import re, sys
 
-out_path, stroke = sys.argv[1], float(sys.argv[2])
+out_path, stroke, dot_path = sys.argv[1], float(sys.argv[2]), sys.argv[3]
 src = open("notifi-logo.svg").read()
 BRAND = "rgb(73.699951%, 12.89978%, 13.299561%)"
 
@@ -54,6 +63,12 @@ for i, m in enumerate(re.finditer(r"<path[^>]*>", src)):
     cursor = m.end()
 parts.append(src[cursor:])
 open(out_path, "w").write("".join(parts))
+
+# The badge on its own, in the same viewBox, so a crop that suits one suits the
+# other. Path 1 is the badge — see the comment at the top of the master.
+badge = re.findall(r"<path[^>]*>", src)[1].replace(BRAND, "rgb(0%,0%,0%)")
+head = src[:src.index("<path")]
+open(dot_path, "w").write(head + badge + "\n</svg>\n")
 PY
 
 GLYPH_PX=$(python3 -c "print(round($CANVAS * $GLYPH_PT / $SLOT_PT))")
@@ -61,7 +76,22 @@ GLYPH_PX=$(python3 -c "print(round($CANVAS * $GLYPH_PT / $SLOT_PT))")
 # Rendered oversized so the trim lands on solid pixels rather than the SVG's
 # antialiased fringe, then scaled down to the height the bar wants.
 rsvg-convert -w 1024 -h 1024 "$TMP/menu.svg" -o "$TMP/raw.png"
-magick "$TMP/raw.png" -trim +repage -resize "x$GLYPH_PX" \
-  -background none -gravity center -extent "${CANVAS}x${CANVAS}" "$OUT"
+rsvg-convert -w 1024 -h 1024 "$TMP/dot.svg" -o "$TMP/raw-dot.png"
 
+# The crop box comes from the bell and is then applied to the badge unchanged.
+# Trimming the badge to its own ink would centre it on the canvas, which is the
+# one thing it must not be.
+BOX="$(magick "$TMP/raw.png" -format "%@" info:)"
+
+for pair in "raw.png:$OUT" "raw-dot.png:$OUT_DOT"; do
+  # PNG32 explicitly: the badge layer is one shape on empty space, and left to
+  # itself magick writes that as opaque greyscale, which draws as a filled
+  # square over the bell.
+  magick "$TMP/${pair%%:*}" -crop "$BOX" +repage -resize "x$GLYPH_PX" \
+    -background none -gravity center -extent "${CANVAS}x${CANVAS}" \
+    "PNG32:${pair#*:}"
+done
+
+mkdir -p "$(dirname "$OUT_DOT")"
 echo "Wrote $(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
+echo "Wrote $(cd "$(dirname "$OUT_DOT")" && pwd)/$(basename "$OUT_DOT")"

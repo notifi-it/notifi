@@ -79,20 +79,28 @@ struct InboxView: View {
     }
 
     var body: some View {
-        List {
-// No rule under the header: the first message opens the list, and a
-            // line there only boxed the search field in. Rows still carry their
-            // own bottom rule, so every message is separated from the next.
+        // The header sits outside the List rather than in its first row, so it
+        // stays put while the feed moves under it. In the row it scrolled away,
+        // which took the title, the count, the search field and the overflow
+        // menu off screen together — on the Mac that left a popover with no
+        // chrome at all and nothing to get back to.
+        //
+        // No rule under it: the first message opens the list, and a line there
+        // only boxed the search field in. Rows still carry their own bottom
+        // rule, so every message is separated from the next.
+        VStack(spacing: 0) {
             header
                 .geistPageHeader()
-            // Gutter inside the row, with the row inset zeroed, so this matches
-            // Keys and Settings exactly. Setting it as a row inset instead let
-            // the List add a few points of its own on top.
-            .geistGutter()
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Theme.bg)
-            .listRowSeparator(.hidden)
+                .geistGutter()
+                .background(Theme.bg)
 
+            list
+        }
+        .background(Theme.bg)
+    }
+
+    private var list: some View {
+        List {
             if messages.isEmpty {
                 EmptyStateView()
                     .padding(.top, 30)
@@ -255,9 +263,12 @@ struct InboxView: View {
             if !messages.isEmpty {
                 // Nothing to search through yet, so the field would just be
                 // furniture. It appears only once the search button asks for it.
+                //
+                // No transition. Sliding it in animates the header's height,
+                // which shoves the title up and drags the whole feed after it —
+                // the field is the only thing that should be arriving.
                 if showingSearch {
                     SearchField(text: $searchText, focused: $searchFocused)
-                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
                 if let activeKeyName {
@@ -317,13 +328,20 @@ struct InboxView: View {
             }
             #endif
         } label: {
+            // Deliberately the same body as `IconButton(glass: true)`, which is
+            // what sits next to it. A Menu draws its own pill around whatever
+            // label it is given unless the style and the button style below
+            // both stand down, and the two controls stopped matching.
             Image(systemName: "ellipsis")
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(filterKeyID == nil ? Theme.fg : Theme.brand)
                 .frame(width: 34, height: 34)
-                .glassBackground()
+                .glassBackground(enabled: true)
                 .contentShape(Circle())
+                .geistHitArea(expandedBy: 5)
         }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
         .accessibilityLabel("More")

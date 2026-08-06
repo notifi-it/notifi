@@ -333,12 +333,13 @@ struct MessageDetailView: View {
         .background(Theme.surface)
     }
 
-    /// A round icon button for the top bar.
+    /// The top bar's round icon button — the one the headers use, under this
+    /// screen's own argument label.
     ///
-    /// On OS 26 this is the system Liquid Glass style, so it picks up the real
-    /// material and its touch response for free. Before 26 there is no glass to
-    /// have, so it falls back to the design system's own inset circle — surface
-    /// fill, hairline border — which is what the rest of the app uses.
+    /// It used to be a second implementation with `.buttonStyle(.glass)`. That
+    /// style fills from the app's accent, which is the brand red, so on macOS
+    /// the back bar came out as a row of red tiles while the identical control
+    /// one screen away was a dark glass disc.
     private struct IconButton: View {
         let systemName: String
         let label: String
@@ -346,29 +347,8 @@ struct MessageDetailView: View {
         let action: () -> Void
 
         var body: some View {
-            if #available(iOS 26.0, macOS 26.0, *) {
-                Button(action: action) {
-                    icon.frame(width: 20, height: 20)
-                }
-                .buttonStyle(.glass)
-                .accessibilityLabel(label)
-            } else {
-                Button(action: action) {
-                    icon
-                        .frame(width: 34, height: 34)
-                        .background(Theme.surface, in: Circle())
-                        .overlay(Circle().stroke(Theme.controlBorder, lineWidth: 1))
-                        .geistHitArea(expandedBy: 5)
-                }
-                .buttonStyle(.geist)
-                .accessibilityLabel(label)
-            }
-        }
-
-        private var icon: some View {
-            Image(systemName: systemName)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(tint)
+            notifi.IconButton(systemImage: systemName, label: label,
+                              color: tint, glass: true, action: action)
         }
     }
 

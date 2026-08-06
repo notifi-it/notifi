@@ -5,9 +5,19 @@ import SwiftUI
 /// Two phases. Naming is deliberately plain; the reveal is the important one,
 /// because the value is shown exactly once and never again.
 struct CreateKeyView: View {
+    /// Set when the screen is shown in place rather than presented. The Mac
+    /// shows it inside the popover — a sheet there is drawn by AppKit as a
+    /// panel sliding over part of the window, which in a 486pt popover reads as
+    /// a second window that got stuck halfway.
+    var onClose: (() -> Void)?
+
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private func close() {
+        if let onClose { onClose() } else { dismiss() }
+    }
 
     private enum Phase: Equatable {
         case entering
@@ -78,7 +88,7 @@ struct CreateKeyView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Spacer(minLength: 8)
-                Button("Cancel") { dismiss() }
+                Button("Cancel") { close() }
                     .font(Theme.body)
                     .foregroundStyle(Theme.muted)
                     .buttonStyle(.geist)
@@ -269,7 +279,7 @@ struct CreateKeyView: View {
     private func revokeAndClose(_ response: CreateKeyResponse) async {
         try? await model.api?.revokeKey(id: response.id)
         await model.sync?.refreshKeys()
-        dismiss()
+        close()
     }
 
     private func attemptClose() {
@@ -278,7 +288,7 @@ struct CreateKeyView: View {
 
     private func finish() {
         let shouldPrompt = model.notificationStatus == .notDetermined
-        dismiss()
+        close()
         if shouldPrompt {
             Task { await model.requestNotificationPermission() }
         }

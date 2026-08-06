@@ -187,8 +187,16 @@ extension View {
     /// The header block on every tab. Held in one place because applying it per
     /// view let the three drift apart — 14pt under Notifications against 8pt
     /// under Keys and Settings, which read as the tabs being misaligned.
+    /// The Mac needs more room above the title than iOS does. On iOS a
+    /// navigation bar sits over this block and supplies the separation; in the
+    /// popover the title is the first thing under the window's own edge, and at
+    /// 4pt it read as pinned to it.
     func geistPageHeader() -> some View {
+        #if os(macOS)
+        padding(.top, 18).padding(.bottom, 14)
+        #else
         padding(.top, 4).padding(.bottom, 14)
+        #endif
     }
 
     /// Fades scrolling content into the ground at the bottom edge.

@@ -79,6 +79,22 @@ and refuses to write a box the artwork no longer fits inside. If you reframe
 one, re-measure all of them — a release shipped with the site's disc sitting off
 the bell's shoulder because only the asset moved.
 
+### The badge has one position, and it is in the artwork
+
+`notifi-logo.svg` is where the unread badge sits. Never place it a second time
+by hand. A hard-coded fraction is a copy of that measurement, and every copy has
+drifted: the menu bar's dot was placed at fractions of its own frame, which is
+trimmed and re-centred and so does not share `BellLogo`'s framing at all —
+"matching" the two by giving them the same numbers moved it off the bell.
+
+Where a badge is needed, generate it: `generate-marks.sh` bakes it into
+`BellTabUnread`, and `generate-menu-icon.sh` writes `menu_dot` as a separate
+layer cropped by the same box as the bell, so drawing one over the other aligns
+by construction. `MacMenuBar` composites those two images and knows no
+coordinates. The two exceptions are `BellMark` and the site's CSS, which overlay
+a live view on a static asset and cannot bake anything in; both take their
+fractions from the numbers the script prints, and both are named above.
+
 ## Layout changes apply to every screen, not one
 
 The three tabs — Inbox, Keys, Settings — are built on different containers: the
