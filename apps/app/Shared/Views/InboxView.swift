@@ -187,6 +187,12 @@ struct InboxView: View {
         .toolbarBackground(Theme.bg, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar { navBarContent }
+        // Last in the chain, so the fade sits over the finished screen rather
+        // than having the toolbar and the refresh control layered back on top
+        // of it. Applied to the feed only: Keys and Settings are short enough
+        // to end on their own, and a fade over content that never reaches the
+        // bottom edge is a gradient with nothing to dissolve.
+        .geistBottomFade()
         #endif
     }
 

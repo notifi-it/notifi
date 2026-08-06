@@ -87,6 +87,12 @@ enum Theme {
     /// 170 characters a line.
     static let measure: CGFloat = 620
 
+    /// Height of the fade that closes a scrolling screen at the bottom, measured
+    /// from the safe-area edge upward. Roughly two lines of body copy: enough that
+    /// a row dissolves rather than being clipped mid-letter, short enough that a
+    /// row sitting at rest under it is still readable.
+    static let bottomFade: CGFloat = 72
+
     // MARK: Type
     //
     // Inconsolata carries every label, number and title; Karla carries message
@@ -140,6 +146,45 @@ extension View {
     /// under Keys and Settings, which read as the tabs being misaligned.
     func geistPageHeader() -> some View {
         padding(.top, 4).padding(.bottom, 14)
+    }
+
+    /// Fades scrolling content into the ground at the bottom edge.
+    ///
+    /// An overlay rather than a mask: masking the container would fade the tab
+    /// bar and the safe-area chrome sitting in front of it too. Because the fade
+    /// ends in `Theme.bg` and the screen behind it *is* `Theme.bg`, it is
+    /// invisible wherever there is nothing scrolling under it — a short feed
+    /// needs no special case.
+    func geistBottomFade() -> some View {
+        overlay(alignment: .bottom) { BottomFade() }
+    }
+}
+
+/// See `geistBottomFade()`.
+struct BottomFade: View {
+    var body: some View {
+        LinearGradient(
+            // Hand-placed stops rather than a two-colour ramp. Linear alpha over
+            // 72pt of pure black bands visibly on an OLED panel; weighting the
+            // stops toward the bottom spreads the steps out where the eye is
+            // looking and reads as smooth.
+            stops: [
+                .init(color: Theme.bg.opacity(0), location: 0),
+                .init(color: Theme.bg.opacity(0.35), location: 0.4),
+                .init(color: Theme.bg.opacity(0.75), location: 0.7),
+                .init(color: Theme.bg, location: 1)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: Theme.bottomFade)
+        // The fade belongs to the screen, not the scroll view, so it has to cover
+        // the home-indicator inset as well — otherwise content re-emerges at full
+        // strength in the strip below it.
+        .ignoresSafeArea(edges: .bottom)
+        // Rows run underneath it and still have to answer a tap.
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
