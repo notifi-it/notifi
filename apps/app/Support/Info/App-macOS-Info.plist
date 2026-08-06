@@ -31,7 +31,7 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://github.com/notifi-it/notifi/releases/latest/download/appcast.xml</string>
+	<string>https://notifi.it/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>Xlsia4hLTja1GdypYg25beFydOefBfX+TkL2v8cLlNU=</string>
 	<key>SUEnableInstallerLauncherService</key>

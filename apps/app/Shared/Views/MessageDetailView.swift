@@ -129,7 +129,10 @@ struct MessageDetailView: View {
         .geistGutter()
         .geistMeasure()
         .padding(.top, 22)
-        .padding(.bottom, 30)
+        // Matches the gap the tabs put under their own header row. At 30, plus
+        // the title's own inset, the back bar looked detached from the message
+        // it belongs to.
+        .padding(.bottom, 14)
         .background(Theme.bg)
     }
 
@@ -162,26 +165,16 @@ struct MessageDetailView: View {
     private func content(for message: Message) -> some View {
         let anyScheme = model.allowsAnyLink(keyID: message.keyID)
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(Self.stamp.string(from: message.occurredAt ?? message.createdAt))
-                    .font(Theme.meta)
-                    .foregroundStyle(Theme.dim)
-                    .monospacedDigit()
+            // The title leads, then who sent it, then when. The stamps used to
+            // come first, which opened every message with its least interesting
+            // fact — and the second line read "sent by client", which is the
+            // shape of the API rather than anything a reader can act on.
+            Text(message.title)
+                .font(.inco(.title, weight: .bold))
+                .foregroundStyle(Theme.fg)
+                .fixedSize(horizontal: false, vertical: true)
+                .textSelection(.enabled)
 
-                // Two clocks only when they are genuinely different things: the
-                // sender's event time, and when notifi received it.
-                if message.occurredAt != nil {
-                    Text("sent by client · received "
-                         + Self.stamp.string(from: message.createdAt))
-                        .font(Theme.metaSmall)
-                        .foregroundStyle(Theme.dim)
-                        .monospacedDigit()
-                }
-            }
-            .padding(.top, 6)
-
-            // Which key sent this. The feed cannot show it without crowding the
-            // row, so detail is the one place it is stated outright.
             if let keyName = keyName(for: message) {
                 HStack(spacing: 6) {
                     Image(systemName: "key")
@@ -192,20 +185,27 @@ struct MessageDetailView: View {
                         .foregroundStyle(Theme.muted)
                         .lineLimit(1)
                 }
-                .padding(.top, 8)
+                .padding(.top, 10)
             }
 
-            Text(message.title)
-                .font(.inco(.title, weight: .bold))
-                .foregroundStyle(Theme.fg)
-                .fixedSize(horizontal: false, vertical: true)
-                .textSelection(.enabled)
-                .padding(.top, 12)
+            // One clock. The sender's own event time when it gave one, and the
+            // time it arrived otherwise — the difference between the two is a
+            // detail of how it was sent, not something worth a second line.
+            Text(Self.stamp.string(from: message.occurredAt ?? message.createdAt))
+                .font(Theme.meta)
+                .foregroundStyle(Theme.dim)
+                .monospacedDigit()
+                .padding(.top, 6)
+
+            // The rule divides what notifi says about the message from what the
+            // sender put in it.
+            Hairline()
+                .padding(.top, 16)
 
             if let body = message.body {
                 MarkdownText(source: body, allowAnyScheme: anyScheme,
                              allowsRemoteImages: showsImage)
-                    .padding(.top, 15)
+                    .padding(.top, 16)
             }
 
             // Two gates, and both must pass. The scheme check is about what this

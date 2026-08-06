@@ -23,29 +23,36 @@ struct KeysView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                GeistHeader(title: "Keys", subtitle: subtitle) {
-                    #if os(iOS)
-                    IconButton(systemImage: "plus", label: "New key", glass: true) {
-                        showingCreate = true
+                // The gutter is applied per block rather than to the stack, so
+                // the rules between rows can run the full width of the screen
+                // while the content they separate stays inside the margin.
+                Group {
+                    GeistHeader(title: "Keys", subtitle: subtitle) {
+                        #if os(iOS)
+                        IconButton(systemImage: "plus", label: "New key", glass: true) {
+                            showingCreate = true
+                        }
+                        #else
+                        PillButton(title: "New key") { model.presentingCreateKey = true }
+                        #endif
                     }
-                    #else
-                    PillButton(title: "New key") { model.presentingCreateKey = true }
-                    #endif
-                }
-                .geistPageHeader()
+                    .geistPageHeader()
 
-                if model.sync?.keysRefreshFailed == true {
-                    InlineError(message: "Couldn't refresh keys. Showing the last known list.")
-                        .padding(.top, 14)
-                }
+                    if model.sync?.keysRefreshFailed == true {
+                        InlineError(message: "Couldn't refresh keys. Showing the last known list.")
+                            .padding(.top, 14)
+                    }
 
-                SectionLabel(text: "Active", trailing: "\(activeKeys.count)")
+                    SectionLabel(text: "Active", trailing: "\(activeKeys.count)")
+                }
+                .geistGutter()
 
                 if activeKeys.isEmpty {
                     Text("No active keys yet.")
                         .font(Theme.body)
                         .foregroundStyle(Theme.muted)
                         .padding(.vertical, 14)
+                        .geistGutter()
                     Hairline()
                 } else {
                     ForEach(activeKeys) { key in
@@ -53,32 +60,34 @@ struct KeysView: View {
                             KeyRow(key: key)
                         }
                         .buttonStyle(.geistRow)
+                        .geistGutter()
                         Hairline()
                     }
                 }
 
                 if !revokedKeys.isEmpty {
                     SectionLabel(text: "Revoked", trailing: "\(revokedKeys.count)")
+                        .geistGutter()
                     ForEach(revokedKeys) { key in
                         NavigationLink(value: key) {
                             KeyRow(key: key)
                         }
                         .buttonStyle(.geistRow)
+                        .geistGutter()
                         Hairline()
                     }
                 }
 
-                Text("Your default key stays on this device, so you can copy it "
-                     + "again or regenerate it. Every other key is shown once, "
-                     + "when you create it — after that notifi only stores the "
-                     + "prefix, and the only thing left to do is revoke it.")
+                Text("A key is shown once, when it is created; notifi stores "
+                     + "only the prefix. The default key can be copied again "
+                     + "or regenerated from its detail page.")
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 18)
                     .padding(.bottom, 40)
+                    .geistGutter()
             }
-            .geistGutter()
             .geistMeasure()
         }
         .background(Theme.bg)

@@ -16,6 +16,17 @@ export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
 };
 
 export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
+  // At most once per request. `keys.ts` registers this on both `/keys` and
+  // `/keys/*`, and Hono matches a request for `/keys` against both, so it ran
+  // twice: the first pass consumed the signature and the second rejected the
+  // same signature as a replay. Every signed request to /keys failed with
+  // "Request signature has already been used", which reads like an attack being
+  // blocked rather than the guard eating its own requests.
+  //
+  // Guarded here rather than by de-duplicating the route table, because the
+  // failure mode of a missed registration is an unauthenticated endpoint.
+  if (c.get('signatureChecked')) return next();
+
   const nowS = now();
   const rawBody = await c.req.arrayBuffer();
   const result = await verifyDeviceSignature(c.req.raw, rawBody, nowS);
@@ -40,6 +51,7 @@ export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
     return c.json(errBody('bad_signature', 'Request signature has already been used.'), 401);
   }
 
+  c.set('signatureChecked', true);
   c.set('rawBody', rawBody);
   c.set('publicKey', result.publicKey);
   return next();

@@ -5,9 +5,10 @@ import SwiftData
 /// Debug-only fixtures.
 ///
 /// Wrapped in `#if DEBUG` so none of this reaches a release build. The set is
-/// chosen to exercise the layout rather than to look tidy: it covers all eight
-/// combinations of the three optional fields, plus a title long enough to wrap,
-/// a URL long enough to truncate, and an image URL that will fail to load.
+/// chosen to exercise the layout rather than to look tidy: bodies present and
+/// absent, links present and absent, a title long enough to wrap and a URL long
+/// enough to truncate. Exactly one row carries an image, because a feed where
+/// every row has a thumbnail is not what one looks like in use.
 enum SampleData {
 
     /// Off unless the run asks for it by name. `#if DEBUG` alone still exposed the
@@ -32,40 +33,67 @@ enum SampleData {
         let now = Date()
         func ago(_ minutes: Int) -> Date { now.addingTimeInterval(-Double(minutes) * 60) }
 
+        // One image, served from the marketing site rather than a random image
+        // host, so the seeded feed looks the same on every machine and the
+        // screenshots on the site can be regenerated from it.
+        let demo = "https://notifi.it/demo"
+
         // title, body, image, link, minutes ago, unread, client-supplied ms offset
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
-            ("Deploy failed",
-             nil, nil, nil, 1, true),
+            // The rich case, and the one the marketing screenshots are taken from:
+            // a body that uses most of what the renderer styles — heading, emphasis,
+            // list, code span, quote, fenced block and link — next to an attached
+            // image, and still short enough that the image stays above the fold.
+            // The first line has to read on its own, because the inbox row flattens
+            // all of this to two lines.
+            ("p99 latency crossed 800 ms",
+             """
+             api.eu-west-2 — **782 ms**, up from 214 ms over 12 minutes.
+
+             ## What moved
+
+             - `checkout-api` — 782 ms *(was 214 ms)*
+             - `search` — 240 ms, flat
+             - `payments` — 198 ms, flat
+
+             Connection pool saturation on the primary, not the app tier.
+
+             > Auto-scaling is held until 08:00 while the migration drains.
+
+             ```
+             kubectl -n api top pods --sort-by=cpu | head -5
+             ```
+
+             [Open the dashboard](https://grafana.internal/d/api-latency)
+             """,
+             "\(demo)/latency.png",
+             "https://grafana.internal/d/api-latency", 9, true),
 
             ("Disk 91% full",
              "vault-01 /dev/nvme0n1 — 41 GB free of 460 GB.",
              nil, nil, 6, true),
 
             ("Error rate spiked to 4.1%",
-             nil,
-             "https://picsum.photos/seed/notifi-spike/240",
-             nil, 18, true),
+             nil, nil, nil, 18, true),
 
             ("Release v2.4.0 published",
              nil, nil, "https://github.com/notifi/notifi/releases/tag/v2.4.0", 40, false),
 
             ("Nightly backup complete",
              "pg → r2, 4.2 GB in 3m 11s. Retention trimmed to 30 snapshots.",
-             "https://picsum.photos/seed/notifi-backup/240",
-             nil, 300, false),
+             nil, nil, 300, false),
 
             ("New signup",
              "hannah@shorepine.co upgraded to Pro — seat 12 of 25.",
              nil, "https://dashboard.stripe.com/customers/cus_Qk29fJ", 660, false),
 
             ("Certificate expires in 7 days",
-             nil,
-             "https://picsum.photos/seed/notifi-cert/240",
+             nil, nil,
              "https://vault.internal/pki/certs/star-notifi-it", 960, true),
 
             ("Weekly digest ready",
              "412 messages, 38 alerts, 2 incidents. Median delivery 240 ms.",
-             "https://picsum.photos/seed/notifi-digest/240",
+             nil,
              "https://notifi.sh/digest/2026-w31", 1_200, false),
 
             // Markdown: headings, emphasis, a list, a quote, a rule and a code
@@ -115,15 +143,9 @@ enum SampleData {
              + "which silently dropped acknowledgements and caused the redrive worker to "
              + "loop. 41,208 notifications were delayed and 112 were lost outright. "
              + "Remediation, owners and dates are in the linked document.",
-             "https://picsum.photos/seed/notifi-postmortem/240",
+             nil,
              "https://notifi.sh/incidents/INC-2049/postmortem",
              1_680, false),
-
-            // Image that will 404 — exercises the failure slot.
-            ("Screenshot from CI",
-             "The image URL is dead on purpose, so this row shows the failed state.",
-             "https://notifi.invalid/definitely-not-here.png",
-             nil, 1_800, false),
 
             // Very long URL — the row shows the host, the detail shows all of it.
             ("Build artefact published",

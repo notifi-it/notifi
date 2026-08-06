@@ -32,6 +32,24 @@ downloads.get('/download/mac', async (c) => {
   return c.redirect(`/download/${key.replace(/^mac\//, '')}`, 302);
 });
 
+/// Sparkle's feed. It sits next to the builds it describes rather than on the
+/// GitHub release, because the repo is private and a release asset would need a
+/// token the updater has no way to carry. Cached for minutes, not a year: this
+/// object is overwritten on every release, unlike the versioned DMGs.
+downloads.get('/download/appcast.xml', async (c) => {
+  const obj = await c.env.DOWNLOADS.get('mac/appcast.xml');
+  if (!obj) {
+    return c.json(errBody('not_found', 'No macOS build has been published yet.'), 404);
+  }
+  return new Response(obj.body, {
+    headers: {
+      'content-type': 'application/xml; charset=utf-8',
+      etag: obj.httpEtag,
+      'cache-control': 'public, max-age=300',
+    },
+  });
+});
+
 downloads.get('/download/:file{[A-Za-z0-9._-]+\\.dmg}', async (c) => {
   const file = c.req.param('file');
   const obj = await c.env.DOWNLOADS.get(`mac/${file}`);

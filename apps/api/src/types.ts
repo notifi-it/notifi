@@ -38,6 +38,7 @@ export interface DeviceRow {
 export interface Variables {
   rawBody: ArrayBuffer;
   publicKey: string;
+  signatureChecked: boolean;
 }
 
 export interface AppEnv {

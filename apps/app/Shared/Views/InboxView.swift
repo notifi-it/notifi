@@ -125,7 +125,10 @@ struct InboxView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.geistRow)
-                    .overlay(alignment: .bottom) { Hairline().geistGutter() }
+                    // The row's content carries the gutter, the rule does not,
+                    // so the message stays inside the margin while the line
+                    // between messages runs edge to edge.
+                    .overlay(alignment: .bottom) { Hairline() }
                     .plainRow()
                     // Swiping is a touch idiom. On the Mac the same actions live in
                     // the right-click menu below, which is where a Mac user looks.
@@ -183,38 +186,19 @@ struct InboxView: View {
         }
         #if os(iOS)
         .refreshable { await model.refresh() }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Theme.bg, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbar { navBarContent }
+        // The screen's own header carries the title and both controls, so the
+        // navigation bar would only add an empty strip above them.
+        .toolbar(.hidden, for: .navigationBar)
         // Last in the chain, so the fade sits over the finished screen rather
-        // than having the toolbar and the refresh control layered back on top
-        // of it. Applied to the feed only: Keys and Settings are short enough
-        // to end on their own, and a fade over content that never reaches the
-        // bottom edge is a gradient with nothing to dissolve.
+        // than having the refresh control layered back on top of it. Applied to
+        // the feed only: Keys and Settings are short enough to end on their own,
+        // and a fade over content that never reaches the bottom edge is a
+        // gradient with nothing to dissolve.
         .geistBottomFade()
         #endif
     }
 
     #if os(iOS)
-    /// The wordmark is a logo, not a control, so it opts out of the toolbar's
-    /// shared Liquid Glass — otherwise iOS 26 draws it sitting in a tappable-
-    /// looking pill. The buttons keep their glass, because they are buttons.
-    @ToolbarContentBuilder
-    private var navBarContent: some ToolbarContent {
-        if #available(iOS 26.0, *) {
-            ToolbarItem(placement: .topBarLeading) { BrandMark(size: 17) }
-                .sharedBackgroundVisibility(.hidden)
-        } else {
-            ToolbarItem(placement: .topBarLeading) { BrandMark(size: 17) }
-        }
-        if !messages.isEmpty {
-            ToolbarItem(placement: .topBarTrailing) { searchToggle }
-        }
-        ToolbarItem(placement: .topBarTrailing) { overflowMenu }
-    }
-    #endif
-
     /// Search is a button rather than a field kept on screen. The system one
     /// could not be made to look like anything else here, and a field parked
     /// above the feed is chrome that earns its space only when it is wanted.
@@ -239,37 +223,37 @@ struct InboxView: View {
         searchText = ""
         showingSearch = false
     }
+    #endif
 
     // MARK: Header
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // iOS puts the wordmark and the buttons in the navigation bar. A
-            // popover has no navigation bar, so the Mac carries the same row
-            // here — via `GeistBrandRow`, so it cannot drift from every other
-            // screen's header the way a hand-rolled copy did.
-            #if os(macOS)
-            GeistBrandRow {
-                if !messages.isEmpty { searchToggle }
-                overflowMenu
+            // Built here rather than with `GeistHeader` because "Notifications"
+            // is a long word: beside a count it wrapped mid-word, so the title
+            // and its count stack while the controls sit on the title's line.
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Notifications".uppercased())
+                        .font(Theme.screenTitle)
+                        .foregroundStyle(Theme.fg)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(height: Theme.headerBarHeight, alignment: .leading)
+                    subtitle
+                        .font(Theme.meta)
+                        .foregroundColor(Theme.muted)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 8)
+                HStack(spacing: 8) {
+                    #if os(iOS)
+                    if !messages.isEmpty { searchToggle }
+                    #endif
+                    overflowMenu
+                }
+                .frame(height: Theme.headerBarHeight)
             }
-            .padding(.bottom, Theme.headerBarGap)
-            #endif
-
-            // "Notifications" is a long word; beside a count it wrapped mid-word.
-            // Stacked, the title always gets its own line at any Dynamic Type size.
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Notifications".uppercased())
-                    .font(Theme.screenTitle)
-                    .foregroundStyle(Theme.fg)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                subtitle
-                    .font(Theme.meta)
-                    .foregroundColor(Theme.muted)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, messages.isEmpty ? 0 : 14)
 
             if !messages.isEmpty {
@@ -452,10 +436,14 @@ private struct MessageRow: View {
             // The unread marker — the only colour in the system. Hung off the
             // title's own baseline rather than a fixed top inset, so it stays
             // centred on the first line as Dynamic Type resizes it.
+            //
+            // The offset centres the dot on the title's cap height, not on its
+            // baseline. Sitting it just above the baseline, which is what a
+            // one-point offset did, left it visibly low against uppercase text.
             Circle()
                 .fill(message.isRead ? Color.clear : Theme.brand)
                 .frame(width: 6, height: 6)
-                .alignmentGuide(.firstTextBaseline) { $0.height + 1 }
+                .alignmentGuide(.firstTextBaseline) { $0.height / 2 + 6 }
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 5) {

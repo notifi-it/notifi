@@ -79,22 +79,27 @@ struct KeyDetailView: View {
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
-        .confirmationDialog(
-            "Revoke this key? Anything still sending to it will start getting 401.",
-            isPresented: $showingRevokeConfirm,
-            titleVisibility: .visible
+        // Centred alerts, not confirmationDialog: the dialog anchors to its
+        // source as a popover and reads as a stray tooltip. House rule — see
+        // CLAUDE.md.
+        .alert(
+            "Revoke this key?",
+            isPresented: $showingRevokeConfirm
         ) {
             Button("Revoke", role: .destructive) { Task { await revoke() } }
             Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Anything still sending to it will start getting 401.")
         }
-        .confirmationDialog(
-            "Regenerate this key? The current value stops working immediately, "
-                + "and anything still sending with it will start getting 401.",
-            isPresented: $showingRegenerateConfirm,
-            titleVisibility: .visible
+        .alert(
+            "Regenerate this key?",
+            isPresented: $showingRegenerateConfirm
         ) {
             Button("Regenerate", role: .destructive) { Task { await regenerate() } }
             Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("The current value stops working immediately, and anything "
+                 + "still sending with it will start getting 401.")
         }
     }
 

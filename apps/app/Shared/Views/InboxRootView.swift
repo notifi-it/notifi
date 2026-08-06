@@ -19,7 +19,13 @@ struct InboxRootView: View {
             // the asset's own framing, and BellLogo is framed tight to the ink,
             // which would sit heavier here than the akar icons beside it — hence
             // BellTab, the same drawing in a looser box.
-            .tabItem { Label("Notifications", image: "BellTab") }
+            // The mark's own badge carries the unread state, rather than a
+            // second dot stacked next to it: the bell already has one, and two
+            // would be the same fact twice.
+            .tabItem {
+                Label("Notifications",
+                      image: model.hasUnread ? "BellTabUnread" : "BellTab")
+            }
             .tag(AppTab.inbox)
 
             NavigationStack {

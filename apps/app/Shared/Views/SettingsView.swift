@@ -19,11 +19,16 @@ struct SettingsView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
+                // The gutter sits on each block rather than on the stack, so
+                // the rules between rows run the full width of the screen while
+                // the content they separate stays inside the margin.
                 GeistHeader(title: "Settings")
                     .geistPageHeader()
+                    .geistGutter()
 
                 // MARK: Notifications
                 SectionLabel(text: "Notifications")
+                    .geistGutter()
 
                 FieldRow(label: "Permission") {
                     Text(permissionText)
@@ -31,6 +36,7 @@ struct SettingsView: View {
                         .foregroundStyle(model.notificationStatus == .authorized
                                          ? Theme.fg : Theme.muted)
                 }
+                .geistGutter()
                 Hairline()
 
                 if model.notificationStatus != .authorized {
@@ -38,10 +44,12 @@ struct SettingsView: View {
                         model.openSystemNotificationSettings()
                     }
                     .padding(.top, 14)
+                    .geistGutter()
                 }
 
                 // MARK: Privacy
                 SectionLabel(text: "Privacy")
+                    .geistGutter()
 
                 ToggleRow(
                     title: "Load images automatically",
@@ -49,10 +57,12 @@ struct SettingsView: View {
                         + "and when it arrived. Off, images load only when tapped.",
                     isOn: $model.remoteImagesEnabled
                 )
+                .geistGutter()
                 Hairline()
 
                 // MARK: Diagnostics
                 SectionLabel(text: "Diagnostics")
+                    .geistGutter()
 
                 Button {
                     Task { await sendTest() }
@@ -77,14 +87,18 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.geistRow)
                 .disabled(testState == .sending)
+                .geistGutter()
 
                 if let testMessage {
-                    if testFailed {
-                        InlineError(message: testMessage).padding(.bottom, 12)
-                    } else {
-                        AnnouncedText(message: testMessage)
-                            .padding(.bottom, 12)
+                    Group {
+                        if testFailed {
+                            InlineError(message: testMessage).padding(.bottom, 12)
+                        } else {
+                            AnnouncedText(message: testMessage)
+                                .padding(.bottom, 12)
+                        }
                     }
+                    .geistGutter()
                 }
                 Hairline()
 
@@ -92,11 +106,14 @@ struct SettingsView: View {
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .padding(.top, 10)
+                    .geistGutter()
 
                 // MARK: About
                 SectionLabel(text: "About")
+                    .geistGutter()
 
                 FieldRow("Version", AppModel.appVersion)
+                    .geistGutter()
                 Hairline()
 
                 // Sparkle only exists in the macOS build; iOS updates through the
@@ -110,6 +127,7 @@ struct SettingsView: View {
                         set: { Updater.shared.automaticallyChecks = $0 }
                     )
                 )
+                .geistGutter()
                 Hairline()
 
                 Button {
@@ -124,6 +142,7 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.geistRow)
                 .disabled(!Updater.shared.canCheck)
+                .geistGutter()
                 Hairline()
                 #endif
 
@@ -136,6 +155,7 @@ struct SettingsView: View {
                     .padding(.vertical, 12)
                 }
                 .buttonStyle(.geistRow)
+                .geistGutter()
                 Hairline()
 
                 Text("Keys live and die with this device. If you lose it, "
@@ -144,6 +164,7 @@ struct SettingsView: View {
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 16)
+                    .geistGutter()
 
                 // The site sits at the foot rather than in a row of its own: it
                 // leaves the app, which is not what the rows above it do.
@@ -165,8 +186,8 @@ struct SettingsView: View {
                 .geistHitArea(expandedBy: 15)
                 .padding(.top, 14)
                 .padding(.bottom, 40)
+                .geistGutter()
             }
-            .geistGutter()
             .geistMeasure()
         }
         .background(Theme.bg)

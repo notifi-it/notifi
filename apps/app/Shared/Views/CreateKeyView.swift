@@ -47,10 +47,12 @@ struct CreateKeyView: View {
         .toolbar(.hidden, for: .navigationBar)
         #endif
         .interactiveDismissDisabled(isRevealed)
-        .confirmationDialog(
-            "Haven't copied it? This key will never be shown again.",
-            isPresented: $showingCloseConfirm,
-            titleVisibility: .visible
+        // A centred alert, not confirmationDialog — the dialog anchors to its
+        // source as a popover and reads as a stray tooltip. House rule — see
+        // CLAUDE.md.
+        .alert(
+            "Haven't copied it?",
+            isPresented: $showingCloseConfirm
         ) {
             if case let .revealed(response) = phase {
                 Button("Copy and close") {
@@ -62,6 +64,8 @@ struct CreateKeyView: View {
                 }
             }
             Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This key will never be shown again.")
         }
     }
 
@@ -70,7 +74,6 @@ struct CreateKeyView: View {
     private var entryForm: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                BrandMark(size: 17)
                 Spacer(minLength: 8)
                 Button("Cancel") { dismiss() }
                     .font(Theme.body)
@@ -81,7 +84,7 @@ struct CreateKeyView: View {
             .padding(.top, 14)
             .padding(.bottom, 22)
 
-            Text("New key")
+            Text("New key".uppercased())
                 .font(Theme.screenTitle)
                 .foregroundStyle(Theme.fg)
 
@@ -155,14 +158,14 @@ struct CreateKeyView: View {
 
     private func revealScreen(_ response: CreateKeyResponse) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                BrandMark(size: 17)
-                Spacer(minLength: 0)
-            }
-            .padding(.top, 14)
-            .padding(.bottom, 22)
+            // Holds the space the naming phase gives its Cancel button, so the
+            // title does not jump up the screen between the two phases.
+            Color.clear
+                .frame(height: 22)
+                .padding(.top, 14)
+                .padding(.bottom, 22)
 
-            Text("Copy your key now")
+            Text("Copy your key now".uppercased())
                 .font(Theme.screenTitle)
                 .foregroundStyle(Theme.fg)
 

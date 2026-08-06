@@ -426,49 +426,35 @@ struct AnnouncedText: View {
 
 // MARK: - Screen chrome
 
-/// The wordmark line at the top of every screen, with an optional trailing
-/// control. Held as its own type because the feed pins it above a scrolling list
-/// rather than stacking it in a `GeistHeader`.
-struct GeistBrandRow<Trailing: View>: View {
-    @ViewBuilder var trailing: Trailing
-
-    var body: some View {
-        HStack(spacing: 10) {
-            BrandMark(size: 17)
-            Spacer(minLength: 8)
-            trailing
-        }
-        .frame(height: Theme.headerBarHeight)
-    }
-}
-
-extension GeistBrandRow where Trailing == EmptyView {
-    init() { self.init { EmptyView() } }
-}
-
-/// The header every screen shares: wordmark, an optional trailing control, then a
-/// large title with a count under it.
+/// The header every screen shares: a large title with a count under it, and any
+/// screen control on the same line.
+///
+/// The title and the control share a row rather than stacking, so the screen
+/// starts with the thing it is rather than with a bar above it. `.firstTextBaseline`
+/// would sit the control on the title's baseline, which drops it well below the
+/// cap height of a title this large; centring on the title line keeps the two
+/// optically level whether or not there is a subtitle under it.
 struct GeistHeader<Trailing: View>: View {
     var title: String
     var subtitle: String?
     @ViewBuilder var trailing: Trailing
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            GeistBrandRow { trailing }
-                .padding(.bottom, Theme.headerBarGap)
-
+        HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title.uppercased())
                     .font(Theme.screenTitle)
                     .foregroundStyle(Theme.fg)
+                    .frame(height: Theme.headerBarHeight, alignment: .leading)
                 if let subtitle {
                     Text(subtitle)
                         .font(Theme.meta)
                         .foregroundStyle(Theme.muted)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer(minLength: 8)
+            trailing
+                .frame(height: Theme.headerBarHeight)
         }
     }
 }

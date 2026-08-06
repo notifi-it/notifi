@@ -54,6 +54,14 @@ Run `cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes a
 `notifi-iOS` and `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi:
 installs fail silently there and cannot be screenshotted.
 
+## Confirmations are centred alerts, never confirmationDialog
+
+Use `.alert` with a title, a `message:`, and the action buttons. Never
+`confirmationDialog`: on iOS 26 it anchors to the control that opened it as a
+popover, which reads as a stray tooltip rather than a decision the app is
+asking the user to make. Put the question in the title and the consequence in
+the message.
+
 ## The bell is drawn once, and every other copy is generated
 
 `apps/app/Support/Icon/notifi-logo.svg` is the mark. The tab icon, the wordmark
