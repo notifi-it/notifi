@@ -158,6 +158,25 @@ enum SampleData {
 
             ("OK",
              nil, nil, nil, 4_320, false),
+
+            // The feed's older time bands. Nothing here was seeded past three days
+            // before, so "Earlier This Month" and the per-month headings below it
+            // had nothing to draw and could not be checked by hand.
+            //
+            // Relative to a seed at any point in a month, 12 days back can land in
+            // the same month or the one before it, and either is a band worth
+            // seeing; 70 and 400 days are far enough to always be their own.
+            ("Certificate rotated",
+             "The star.notifi.it wildcard was reissued and deployed to every edge.",
+             nil, nil, 12 * 24 * 60, false),
+
+            ("Quarterly usage summary",
+             "1.2M notifications delivered, 99.98% within five seconds of send.",
+             nil, "https://notifi.sh/reports/q2", 70 * 24 * 60, false),
+
+            ("Welcome to notifi",
+             "This is what a notification looks like. Send one with your first key.",
+             nil, nil, 400 * 24 * 60, false),
         ]
 
         for (index, row) in rows.enumerated() {

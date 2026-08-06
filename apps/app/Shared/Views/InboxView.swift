@@ -63,6 +63,47 @@ struct InboxView: View {
         }
     }
 
+    /// The feed, cut into time bands in the order they are shown.
+    ///
+    /// Banded on `occurredAt ?? createdAt` — what the row's own age is measured
+    /// from — rather than on the sort key. A sender that backdates an event would
+    /// otherwise land a row reading "3 d" under a heading saying Today. The two
+    /// differ rarely enough that a band's members stay in the query's order, so
+    /// nothing is re-sorted inside a band.
+    private var bands: [BandedMessages] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today) ?? today
+        let week = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? today
+        let month = calendar.dateInterval(of: .month, for: now)?.start ?? today
+
+        var order: [TimeBand] = []
+        var bucketed: [TimeBand: [Message]] = [:]
+        for message in filtered {
+            let basis = message.occurredAt ?? message.createdAt
+            let band: TimeBand
+            // `>= today` rather than `isDateInToday`, so an event stamped a little
+            // ahead of the clock — the send API allows some skew — files under
+            // Today instead of dropping into whichever band happens to catch it.
+            if basis >= today {
+                band = .today
+            } else if basis >= yesterday {
+                band = .yesterday
+            } else if basis >= week {
+                band = .thisWeek
+            } else if basis >= month {
+                band = .thisMonth
+            } else {
+                band = .month(calendar.dateInterval(of: .month, for: basis)?.start ?? basis)
+            }
+            if bucketed[band] == nil { order.append(band) }
+            bucketed[band, default: []].append(message)
+        }
+        return order
+            .sorted(by: TimeBand.precedes)
+            .map { BandedMessages(band: $0, messages: bucketed[$0] ?? []) }
+    }
+
     /// Whether anything is drawn under the title row — the search field, the key
     /// filter chip, or both.
     private var hasHeaderControls: Bool {
@@ -120,68 +161,79 @@ struct InboxView: View {
                 )
                 .plainRow()
             } else {
-                ForEach(filtered, id: \.serverID) { message in
-                    Button {
-                        searchFocused = false
-                        model.path.append(message.serverID)
-                    } label: {
-                        // The gutter is inside the button and the shape is
-                        // explicit, so the whole row answers a tap. With the
-                        // padding outside, the 20pt margins were dead, and
-                        // without the shape the gaps between title, time and
-                        // thumbnail were too: a stack only hit-tests where it
-                        // actually drew something.
-                        MessageRow(
-                            message: message,
-                            allowAnyScheme: model.allowsAnyLink(keyID: message.keyID),
-                            now: now
-                        )
+                // Bound once: it is a computed property, and reading it inside the
+                // loop as well would band the whole feed again on every row.
+                let banded = bands
+                ForEach(banded) { band in
+                    BandHeader(title: band.band.title(now: now),
+                               count: band.messages.count,
+                               isFirst: band.id == banded.first?.id)
                         .geistGutter()
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.geistRow)
-                    // The row's content carries the gutter, the rule does not,
-                    // so the message stays inside the margin while the line
-                    // between messages runs edge to edge.
-                    .overlay(alignment: .bottom) { Hairline() }
-                    // Unread sits one step off the ground. The dot alone made the
-                    // state a thing you find rather than a thing you see, which on
-                    // a screen whose whole job is "what have I not read" is the
-                    // wrong way round.
-                    .plainRow(background: message.isRead ? Theme.bg : Theme.surface)
-                    // Swiping is a touch idiom. On the Mac the same actions live in
-                    // the right-click menu below, which is where a Mac user looks.
-                    #if os(iOS)
-                    .swipeActions(edge: .leading) {
-                        Button { toggleRead(message) } label: {
-                            // The same ring/dot the detail screen uses for this
-                            // action, so the two places that toggle read state
-                            // are not drawn from different icon families.
-                            //
-                            // An `Image` rather than a `Label`: a swipe action
-                            // renders the title under the glyph, and the word was
-                            // doing nothing the icon and the swipe direction did
-                            // not already say. The spoken name is kept.
-                            Image(systemName: message.isRead ? "circle.fill" : "circle")
-                                .accessibilityLabel(
-                                    message.isRead ? "Mark as unread" : "Mark as read")
+                        .plainRow()
+
+                    ForEach(band.messages, id: \.serverID) { message in
+                        Button {
+                            searchFocused = false
+                            model.path.append(message.serverID)
+                        } label: {
+                            // The gutter is inside the button and the shape is
+                            // explicit, so the whole row answers a tap. With the
+                            // padding outside, the 20pt margins were dead, and
+                            // without the shape the gaps between title, time and
+                            // thumbnail were too: a stack only hit-tests where it
+                            // actually drew something.
+                            MessageRow(
+                                message: message,
+                                allowAnyScheme: model.allowsAnyLink(keyID: message.keyID),
+                                now: now
+                            )
+                            .geistGutter()
+                            .contentShape(Rectangle())
                         }
-                        .tint(Theme.chip)
-                    }
-                    .swipeActions(edge: .trailing) {
-                        // The tint has to be explicit. `role: .destructive` would
-                        // normally colour this red, but the TabView's near-white
-                        // tint cascades down and wins, giving white-on-white.
-                        // Asks first: a swipe is easy to do by accident and the
-                        // message cannot be recovered afterwards.
-                        Button(role: .destructive) { pendingDelete = message } label: {
-                            Image(systemName: "trash")
-                                .accessibilityLabel("Delete")
+                        .buttonStyle(.geistRow)
+                        // The row's content carries the gutter, the rule does not,
+                        // so the message stays inside the margin while the line
+                        // between messages runs edge to edge.
+                        .overlay(alignment: .bottom) { Hairline() }
+                        // Unread sits one step off the ground. The dot alone made the
+                        // state a thing you find rather than a thing you see, which on
+                        // a screen whose whole job is "what have I not read" is the
+                        // wrong way round.
+                        .plainRow(background: message.isRead ? Theme.bg : Theme.surface)
+                        // Swiping is a touch idiom. On the Mac the same actions live in
+                        // the right-click menu below, which is where a Mac user looks.
+                        #if os(iOS)
+                        .swipeActions(edge: .leading) {
+                            Button { toggleRead(message) } label: {
+                                // The same ring/dot the detail screen uses for this
+                                // action, so the two places that toggle read state
+                                // are not drawn from different icon families.
+                                //
+                                // An `Image` rather than a `Label`: a swipe action
+                                // renders the title under the glyph, and the word was
+                                // doing nothing the icon and the swipe direction did
+                                // not already say. The spoken name is kept.
+                                Image(systemName: message.isRead ? "circle.fill" : "circle")
+                                    .accessibilityLabel(
+                                        message.isRead ? "Mark as unread" : "Mark as read")
+                            }
+                            .tint(Theme.chip)
                         }
-                        .tint(Theme.danger)
+                        .swipeActions(edge: .trailing) {
+                            // The tint has to be explicit. `role: .destructive` would
+                            // normally colour this red, but the TabView's near-white
+                            // tint cascades down and wins, giving white-on-white.
+                            // Asks first: a swipe is easy to do by accident and the
+                            // message cannot be recovered afterwards.
+                            Button(role: .destructive) { pendingDelete = message } label: {
+                                Image(systemName: "trash")
+                                    .accessibilityLabel("Delete")
+                            }
+                            .tint(Theme.danger)
+                        }
+                        #endif
+                        .contextMenu { menu(for: message) }
                     }
-                    #endif
-                    .contextMenu { menu(for: message) }
                 }
             }
         }
@@ -439,6 +491,109 @@ struct InboxView: View {
             Logger(subsystem: "it.notifi.app", category: "inbox")
                 .error("save failed: \(String(describing: error), privacy: .public)")
         }
+    }
+}
+
+// MARK: - Time bands
+
+/// One band and the messages under it.
+///
+/// A struct rather than a tuple because `ForEach` needs an identity, and a key
+/// path cannot reach into a tuple.
+private struct BandedMessages: Identifiable {
+    let band: TimeBand
+    let messages: [Message]
+    var id: TimeBand { band }
+}
+
+/// Where a message sits in the feed's time structure.
+///
+/// Ranked rather than ordered by date. A week that began in the previous month
+/// starts before that month does, so sorting the bands by their own start would
+/// file "Earlier This Week" underneath "Earlier This Month" on the first days of
+/// a month — which is where a reader is most likely to be looking.
+private enum TimeBand: Hashable {
+    case today
+    case yesterday
+    case thisWeek
+    case thisMonth
+    /// Anything older, one band per calendar month, carrying that month's start.
+    case month(Date)
+
+    private var rank: Int {
+        switch self {
+        case .today: 0
+        case .yesterday: 1
+        case .thisWeek: 2
+        case .thisMonth: 3
+        case .month: 4
+        }
+    }
+
+    static func precedes(_ a: TimeBand, _ b: TimeBand) -> Bool {
+        guard a.rank == b.rank else { return a.rank < b.rank }
+        if case .month(let x) = a, case .month(let y) = b { return x > y }
+        return false
+    }
+
+    /// "Earlier This Week" rather than "This Week": Today and Yesterday are their
+    /// own bands above it, so a heading claiming the whole week would be lying
+    /// about what is under it.
+    func title(now: Date) -> String {
+        switch self {
+        case .today: "Today"
+        case .yesterday: "Yesterday"
+        case .thisWeek: "Earlier This Week"
+        case .thisMonth: "Earlier This Month"
+        case .month(let start):
+            Calendar.current.isDate(start, equalTo: now, toGranularity: .year)
+                ? Self.monthName.string(from: start)
+                : Self.monthAndYear.string(from: start)
+        }
+    }
+
+    /// Built from templates rather than literal patterns, so a locale that writes
+    /// the year first, or names its months differently, is respected.
+    private static let monthName = formatter(template: "MMMM")
+    private static let monthAndYear = formatter(template: "MMMM y")
+
+    private static func formatter(template: String) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate(template)
+        return formatter
+    }
+}
+
+/// The rule between two time bands.
+///
+/// Not `SectionLabel`: that one's spacing is tuned to the 12pt rows on Keys and
+/// Settings, and against the feed's taller rows its 34pt gap opened a hole big
+/// enough to read as the end of the list.
+private struct BandHeader: View {
+    let title: String
+    let count: Int
+    /// The page header already leaves a gap beneath itself, so the first band
+    /// only needs to clear it rather than open its own.
+    let isFirst: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Text(title.uppercased())
+                .font(Theme.sectionLabel)
+                .tracking(1.4)
+                .foregroundStyle(Theme.dim)
+                .lineLimit(1)
+            Hairline()
+            Text("\(count)")
+                .font(Theme.metaSmall)
+                .foregroundStyle(Theme.dim)
+                .monospacedDigit()
+        }
+        .padding(.top, isFirst ? 2 : 26)
+        .padding(.bottom, 10)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(count == 1 ? "\(title), 1 notification"
+                                       : "\(title), \(count) notifications")
     }
 }
 

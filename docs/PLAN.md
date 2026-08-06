@@ -906,7 +906,10 @@ SwiftData is a tar pit this product doesn't need).
   Message, Open Link (if any), Delete. `.searchable` over title+body, with a
   filter-by-key menu in the toolbar (keys fetched via `GET /keys`, matched on
   `keyID`). `.refreshable { await sync() }`. Rows: title, 2-line `lineLimit` body,
-  relative timestamp, unread dot. Detail view: full text selectable, `AsyncImage`
+  relative timestamp, unread dot. Rows sit under time bands — Today, Yesterday,
+  Earlier This Week, Earlier This Month, then one per calendar month — banded on
+  the same timestamp the row's age is measured from, so a heading never disagrees
+  with the age beneath it. Detail view: full text selectable, `AsyncImage`
   full-width for `imageURL`, `Link` button for `link`, `ShareLink` in the toolbar.
 - **Empty state**: `ContentUnavailableView` with the app icon, one-line pitch, and the
   two onboarding actions: Create First Key, Enable Notifications. Shown when the

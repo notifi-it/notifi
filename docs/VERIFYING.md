@@ -238,6 +238,27 @@ curl "$NB/send?key=$KEY&title=Deploy%20failed" \
   A key the app has not registered yet — a push that beats the first `/keys` of a
   fresh install — falls back to the generic category: buttons intact, plain count.
 
+### 8c. Inbox time bands
+
+Seed the feed from the overflow menu (**Seed sample data**, DEBUG builds only) —
+it spans three days, twelve days, seventy days and a year, so every kind of band
+has something under it.
+
+- **Expect, top to bottom:** `TODAY`, `YESTERDAY`, `EARLIER THIS WEEK`,
+  `EARLIER THIS MONTH`, then one heading per calendar month — `JULY`, and
+  `AUGUST 2025` for anything outside the current year. Bands with nothing in them
+  do not appear at all, so early in a week or a month the list is shorter.
+- **The count on the right of each rule** sums to the total in the header.
+- **Search, and filter by key:** headings re-band to the results. A query that
+  matches only old messages must not leave an empty `TODAY` at the top.
+- **The age on each row agrees with the heading above it** — nothing reading
+  `3 d` under `TODAY`. Send with `occurred_at` set a few days back to check the
+  case directly; it bands where the age says, not where the arrival time says.
+- **Across midnight:** with the app open, the top band flips from `TODAY` to
+  `YESTERDAY` within 30 seconds of the hour, on the same tick that moves the ages.
+- **All three tabs:** the headings sit on the same left edge as the message titles
+  and as the section labels on Keys and Settings.
+
 ---
 
 ## macOS & lifecycle
