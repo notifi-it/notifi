@@ -168,22 +168,14 @@ struct KeyDetailView: View {
 
             ToggleRow(
                 title: "Open any link",
-                detail: "Off, messages from this key only open https links. "
-                    + "On, they can open anything — including other apps "
-                    + "on this device.",
+                detail: "Off, only https links open. On, other schemes open too, "
+                    + "including ones that launch other apps on this device.",
                 isOn: Binding(
                     get: { model.allowsAnyLink(keyID: keyID) },
                     set: { model.setAllowsAnyLink($0, keyID: keyID) }
                 )
             )
             Hairline()
-
-            Text("Whoever holds this key writes the link, so this is a statement "
-                 + "about how much you trust them. It applies on this device only.")
-                .font(Theme.metaSmall)
-                .foregroundStyle(Theme.dim)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 10)
 
             if !key.isRevoked {
                 SectionLabel(text: "Alerts")
