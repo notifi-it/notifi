@@ -43,7 +43,7 @@
 	     same question, and two answers to it on one bundle id is a contradiction
 	     waiting to be noticed. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<true/>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

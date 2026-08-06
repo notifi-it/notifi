@@ -111,22 +111,30 @@ minutes.
 
 ### Export compliance
 
-`ITSAppUsesNonExemptEncryption` is `true` in both `Support/Info/App-iOS-Info.plist`
+`ITSAppUsesNonExemptEncryption` is `false` in both `Support/Info/App-iOS-Info.plist`
 and `App-macOS-Info.plist`, and `make app-submit` refuses to build if either loses
-the key or the two stop agreeing. It is true because the app seals notification
-bodies to the device with HPKE (`P256_SHA256_AES_GCM_256`) and signs requests with a
-Secure Enclave P-256 key — Apple's "answer false" exemptions stop at OS-provided
-TLS, authentication-only use, and keys of 56 bits or fewer, and none of them reach
-this. Declaring it in the plist is also what stops App Store Connect asking the
-question once per build and parking every TestFlight upload on it.
+the key or the two stop agreeing. Declaring it in the plist is what stops App Store
+Connect asking the question once per build and parking every TestFlight upload
+until someone clicks through it.
 
-Answering `true` is not the end of it. App Store Connect asks once per version
-whether the app qualifies for an exemption; the encryption here is standard
-published algorithms from Apple's own CryptoKit with nothing proprietary and no
-third-party crypto, which is the mass-market case under EAR 740.17(b)(1). Claiming
-that carries an annual self-classification report to BIS and the NSA. That is a
-filing, not a build step, so no lane does it for you and none of this is legal
-advice — Apple's own summary is at
+`false` despite the app sealing notification bodies with HPKE
+(`P256_SHA256_AES_GCM_256`) and signing with a Secure Enclave P-256 key, because
+every primitive comes from the operating system. `otool -L` on the signed binary
+shows `CryptoKit` and `Security` under `/System/Library` and no embedded frameworks
+at all; there is no third-party or proprietary crypto to declare. App Store Connect
+asks for documentation only when an app uses proprietary algorithms, or standard
+ones *instead of or in addition to* the encryption inside Apple's OS — neither
+applies.
+
+**Do not "correct" this to `true` without uploading encryption documentation
+first.** It was `true` for one afternoon and every upload died at ingest with
+`Invalid Export Compliance Code ... [] doesn't match`: `true` obliges the bundle to
+carry an `ITSEncryptionExportComplianceCode` issued from approved documentation,
+and there is none on file for this app. If the crypto ever stops being purely
+Apple's, upload documentation under App Information → App Encryption Documentation,
+then set both the key and the returned code together.
+
+None of this is legal advice; Apple's summary is at
 <https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations>.
 
 Two things the mac lane does that are easy to get wrong, both learned the hard way:

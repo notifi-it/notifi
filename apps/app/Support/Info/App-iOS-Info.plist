@@ -33,17 +33,22 @@
 		<string>Inconsolata.ttf</string>
 			<string>Karla.ttf</string>
 	</array>
-	<!-- True because the app does more than call HTTPS: it seals notification
-	     bodies to the device with HPKE (P256_SHA256_AES_GCM_256) and signs
-	     requests with a Secure Enclave P-256 key. None of Apple's "answer false"
-	     exemptions cover that — they stop at OS-provided TLS, authentication-only
-	     use, and keys of 56 bits or fewer. Declaring it here rather than in App
-	     Store Connect also stops the question being asked once per build, which
-	     otherwise parks every TestFlight upload until someone clicks through it.
-	     Claiming the mass-market exemption for it is a separate, human step: see
-	     "Export compliance" in the README. -->
+	<!-- The app seals notification bodies with HPKE (P256_SHA256_AES_GCM_256) and
+	     signs requests with a Secure Enclave P-256 key, but every one of those
+	     primitives comes from the operating system: `otool -L` on the signed
+	     binary shows CryptoKit and Security under /System/Library and no embedded
+	     frameworks at all. App Store Connect asks for documentation only when an
+	     app uses proprietary algorithms, or standard ones instead of or in
+	     addition to the encryption inside Apple's OS. Neither is true here.
+
+	     This said `true` for one afternoon and every upload failed at ingest with
+	     "Invalid Export Compliance Code ... [] doesn't match", because `true`
+	     obliges the bundle to carry an ITSEncryptionExportComplianceCode from
+	     approved documentation, and this app has none on file — nor needs any.
+	     Declaring it either way is what stops the question being asked once per
+	     build and parking every TestFlight upload on a click. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<true/>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
