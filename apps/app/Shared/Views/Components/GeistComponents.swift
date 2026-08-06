@@ -72,8 +72,8 @@ struct SearchField: View {
                 .stroke(focused.wrappedValue ? Theme.muted : Theme.controlBorder,
                         lineWidth: focused.wrappedValue ? 2 : 1)
         )
-        .animation(.easeOut(duration: 0.12), value: text.isEmpty)
-        .animation(.easeOut(duration: 0.12), value: focused.wrappedValue)
+        .animation(Theme.press, value: text.isEmpty)
+        .animation(Theme.press, value: focused.wrappedValue)
     }
 }
 

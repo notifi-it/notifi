@@ -7,6 +7,7 @@ import SwiftUI
 struct CreateKeyView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private enum Phase: Equatable {
         case entering
@@ -33,8 +34,10 @@ struct CreateKeyView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 switch phase {
-                case .entering, .creating: entryForm
-                case let .revealed(response): revealScreen(response)
+                case .entering, .creating:
+                    entryForm.transition(phaseTransition)
+                case let .revealed(response):
+                    revealScreen(response).transition(phaseTransition)
                 }
             }
             .geistGutter()
@@ -194,7 +197,7 @@ struct CreateKeyView: View {
             HStack(spacing: 9) {
                 OutlineButton(title: hasCopied ? "Copied" : "Copy") {
                     Clipboard.copy(response.key)
-                    withAnimation(.easeOut(duration: 0.15)) { hasCopied = true }
+                    withAnimation(Theme.press) { hasCopied = true }
                 }
                 OutlineShareButton(title: "Share", item: response.key)
             }
@@ -213,6 +216,18 @@ struct CreateKeyView: View {
     }
 
     // MARK: Logic
+
+    /// How the naming form gives way to the reveal.
+    ///
+    /// The two phases are different screens in the same sheet, and swapping them
+    /// on the same frame read as a glitch rather than as arriving somewhere. The
+    /// scale is small on purpose — this is a step forward in one flow, not a new
+    /// context — and never `scale(0)`, which collapses the layout on the way in.
+    /// Under Reduce Motion the crossfade stays and the scale goes; a hard cut
+    /// would be its own jarring change.
+    private var phaseTransition: AnyTransition {
+        reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.98))
+    }
 
     private var isNameValid: Bool { validationProblem == nil }
 
@@ -244,7 +259,7 @@ struct CreateKeyView: View {
             let response = try await api.createKey(
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines))
             await model.sync?.refreshKeys()
-            phase = .revealed(response)
+            withAnimation(Theme.reveal) { phase = .revealed(response) }
         } catch {
             errorMessage = (error as? APIError)?.userMessage ?? "Couldn't create the key."
             phase = .entering

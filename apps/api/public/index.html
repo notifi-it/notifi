@@ -62,6 +62,15 @@
   --mono:'Inconsolata',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --gutter:clamp(20px,5vw,40px);
+
+  /* Motion. Three durations and one curve, mirroring the app's Theme tokens so
+     the site and the product decelerate the same way. These are duplicated in
+     privacy.html by hand — the site has no build step, so a token added here
+     has to be added there too. */
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --dur-press:.12s;
+  --dur-state:.2s;
+  --dur-reveal:.25s;
   --max:1080px;
 }
 *{box-sizing:border-box;margin:0}
@@ -111,9 +120,14 @@ nav a:hover{color:var(--fg)}
   font-family:var(--mono);font-size:14px;font-weight:600;
   padding:11px 18px;border-radius:8px;text-decoration:none;
   border:1px solid var(--chip);color:var(--fg);background:transparent;
-  transition:background .14s,border-color .14s;
+  transition:background var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out),
+             transform var(--dur-press) var(--ease-out);
 }
 .btn:hover{background:#0E0E0E;border-color:#3A3A3A}
+/* Hover does not exist on a phone, so without this a tap on the download
+   buttons produced nothing at all until the navigation happened. */
+.btn:active{transform:scale(.98)}
 .btn-primary{background:var(--fg);color:#000;border-color:var(--fg)}
 .btn-primary:hover{background:#fff;border-color:#fff}
 
@@ -150,6 +164,26 @@ nav a:hover{color:var(--fg)}
   background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
 }
 .copy:hover{color:var(--fg);background:#141414}
+.copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
+.copy:active{color:var(--fg);background:#1C1C1C}
+
+/* The key bar is filled in from the URL fragment after the page has painted, so
+   it cannot be rendered up front — it arrives above the tabs and pushes the
+   whole code block down. Uncollapsing a grid row animates that height without
+   anyone having to measure it. `hidden` still does the real hiding, so a visitor
+   without a key gets no empty landmark; the class only runs the reveal.
+
+   minmax(0,…) rather than a bare 0fr: an fr track keeps an automatic minimum
+   sized to its content, so 0fr alone left the terminal's title bar standing at
+   42px instead of collapsing. */
+#keybar-slot{
+  display:grid;grid-template-rows:minmax(0,0fr);opacity:0;
+  transition:grid-template-rows var(--dur-reveal) var(--ease-out),
+             opacity var(--dur-state) var(--ease-out),
+             margin-bottom var(--dur-reveal) var(--ease-out);
+}
+#keybar-slot>*{min-height:0;overflow:hidden}
+#keybar-slot.is-open{grid-template-rows:minmax(0,1fr);opacity:1;margin-bottom:22px}
 
 /* ── generic section ────────────────────────────────────────── */
 section{padding:clamp(48px,7vw,86px) 0}
@@ -228,11 +262,23 @@ section{padding:clamp(48px,7vw,86px) 0}
 .tab{
   font-family:var(--mono);font-size:13px;color:var(--muted);
   padding:6px 12px;border:1px solid var(--line);border-radius:6px;
-  background:transparent;cursor:pointer;transition:.12s;
+  background:transparent;cursor:pointer;
+  transition:color var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out),
+             background var(--dur-press) var(--ease-out);
 }
 .tab:hover{color:var(--fg);border-color:var(--chip)}
+.tab:active{border-color:var(--fg)}
 .tab[aria-selected="true"]{background:var(--fg);color:#000;border-color:var(--fg)}
 .panel[hidden]{display:none}
+
+/* Panels differ in height by hundreds of pixels, so switching language used to
+   snap the page. The incoming panel fades; the outgoing one does not, because
+   crossfading two blocks of different heights looks worse than replacing one.
+   The height itself is deliberately not animated — the tablist is arrow-key
+   navigable, and a growing container under a held arrow key is unreadable. */
+.panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
+@keyframes panel-in{from{opacity:0}to{opacity:1}}
 
 /* ── parameter table ────────────────────────────────────────── */
 .tablewrap{overflow-x:auto;border-top:1px solid var(--line)}
@@ -254,7 +300,14 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .foot a:hover{color:var(--fg)}
 .foot .meta{margin-left:auto}
 
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Reduce Motion asks for less movement, not for none. Killing every transition
+   outright turned each of these into a hard cut, which is the jarring change the
+   motion was added to prevent. So: nothing moves or resizes, and the fades stay. */
+@media(prefers-reduced-motion:reduce){
+  .btn:active{transform:none}
+  /* The row snaps to its height; only the fade is left to carry the arrival. */
+  #keybar-slot{transition:opacity var(--dur-state) var(--ease-out)}
+}
 </style>
 
 <!-- No aggregateRating: there are no reviews to report yet, and inventing them
@@ -617,13 +670,15 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <!-- Filled in only when the page is opened with a key in the URL fragment
          (#key=…). The fragment never leaves the browser, so the key is never
          sent to the server or written to any edge log. -->
-    <div class="term" id="keybar" hidden style="margin-bottom:22px">
-      <div class="term-bar">
-        <span class="dot3"><i></i><i></i><i></i></span>
-        <span class="term-title">your key</span>
-        <button class="copy" id="copykey">Copy</button>
-      </div>
+    <div id="keybar-slot">
+      <div class="term" id="keybar" hidden>
+        <div class="term-bar">
+          <span class="dot3"><i></i><i></i><i></i></span>
+          <span class="term-title">your key</span>
+          <button class="copy" id="copykey">Copy</button>
+        </div>
 <pre><span class="p">$</span> export NOTIFI_KEY=<span class="k" id="keyval"></span></pre>
+      </div>
     </div>
 
     <div class="tabs" role="tablist" aria-label="Language">
@@ -1028,8 +1083,16 @@ reqwest::Client::new()
     });
 
     const bar = document.getElementById('keybar');
+    const slot = document.getElementById('keybar-slot');
     document.getElementById('keyval').textContent = key;
     bar.hidden = false;
+    // Reading a layout property flushes the collapsed state, so the class that
+    // follows has something to transition from. Deliberately not requestAnimation-
+    // Frame: rAF does not run in a background tab, and this page is usually opened
+    // from a link on the phone — the bar would have sat at zero height with the
+    // key in it until the tab was looked at.
+    void slot.offsetHeight;
+    slot.classList.add('is-open');
     document.getElementById('copykey')
       .addEventListener('click', e => flash(e.currentTarget, 'export NOTIFI_KEY=' + key));
   })();

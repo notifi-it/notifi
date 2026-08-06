@@ -161,10 +161,17 @@ private struct OnboardingStep<Content: View>: View {
                         Image(systemName: "checkmark")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundStyle(Theme.bg)
+                            // The one deliberately expressive moment in the app.
+                            // It is affordable here and nowhere else: this screen
+                            // is only ever seen before the first notification
+                            // lands, so nobody sees this twice.
+                            .symbolEffect(.bounce, value: done)
+                            .transition(.opacity)
                     } else {
                         Text("\(number)")
                             .font(.inco(.footnote, weight: .bold))
                             .foregroundStyle(Theme.fg)
+                            .transition(.opacity)
                     }
                 }
                 .frame(width: 20, height: 20)
@@ -180,5 +187,11 @@ private struct OnboardingStep<Content: View>: View {
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // Granting notifications changed the number to a tick, filled the disc,
+        // greyed the title and removed the Enable button beneath it, all on one
+        // frame — the step went from "do this" to "done" with nothing marking
+        // that it had been the user who did it. Scoped to `done` so typing or
+        // sending elsewhere in the step does not animate.
+        .animation(Theme.state, value: done)
     }
 }

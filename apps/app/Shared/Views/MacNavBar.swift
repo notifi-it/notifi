@@ -22,7 +22,7 @@ struct MacNavBar<Trailing: View>: View {
                 Label(backTitle, systemImage: "chevron.backward")
                     .font(.inco(.subheadline, weight: .medium))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.geist)
             .accessibilityLabel("Back to \(backTitle)")
 
             Spacer(minLength: 0)

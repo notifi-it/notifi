@@ -1,4 +1,9 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#else
+import AppKit
+#endif
 
 // The Geist design system: pure black, monochrome, hairline rules.
 // Brand red appears in exactly two places — the wordmark dot and the unread marker.
@@ -92,6 +97,44 @@ enum Theme {
     /// a row dissolves rather than being clipped mid-letter, short enough that a
     /// row sitting at rest under it is still readable.
     static let bottomFade: CGFloat = 72
+
+    // MARK: Motion
+    //
+    // Three durations, and nothing outside them. Every animation in the app is
+    // one of: a control acknowledging a press, a state changing in place, or a
+    // screen arriving. Anything that does not fit one of those three does not
+    // animate — the durations are named so a fourth is a decision rather than a
+    // literal someone typed.
+    //
+    // 0.12 was already the app's de facto curve, at the search field and the
+    // press styles below; these tokens name it rather than introduce anything.
+
+    /// Press feedback. Fast enough to read as the control reacting rather than
+    /// as an animation playing.
+    static let press = Animation.easeOut(duration: 0.12)
+
+    /// A state changing in place — a fill, a tint, a glyph swap.
+    static let state = Animation.easeOut(duration: 0.2)
+
+    /// One screen replacing another, or a block of content arriving. The top of
+    /// the budget; past this it stops reading as motion and starts reading as
+    /// waiting.
+    static let reveal = Animation.easeOut(duration: 0.25)
+
+    /// Whether the system is asking for less movement.
+    ///
+    /// Read directly from the platform rather than through the environment,
+    /// because `SyncEngine` animates a `ModelContext` save from outside any view.
+    /// Views that can see the environment should prefer
+    /// `@Environment(\.accessibilityReduceMotion)`, which updates them when the
+    /// setting changes mid-session.
+    static var reduceMotion: Bool {
+        #if os(iOS)
+        UIAccessibility.isReduceMotionEnabled
+        #else
+        NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        #endif
+    }
 
     // MARK: Type
     //
@@ -195,9 +238,23 @@ struct BottomFade: View {
 /// already finished. 0.96 is the whole effect; below 0.95 it reads as a flinch.
 struct GeistPressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.96 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+        PressBody(configuration: configuration)
+    }
+
+    /// A nested view rather than the label directly, because `ButtonStyle` is not
+    /// a `View` and cannot read `@Environment` itself. Under Reduce Motion the
+    /// scale is dropped for a dim, which acknowledges the press without moving
+    /// anything.
+    private struct PressBody: View {
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
+        let configuration: Configuration
+
+        var body: some View {
+            configuration.label
+                .scaleEffect(reduceMotion || !configuration.isPressed ? 1 : 0.96)
+                .opacity(reduceMotion && configuration.isPressed ? 0.6 : 1)
+                .animation(Theme.press, value: configuration.isPressed)
+        }
     }
 }
 
@@ -209,7 +266,7 @@ struct GeistRowStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(configuration.isPressed ? 0.55 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .animation(Theme.press, value: configuration.isPressed)
     }
 }
 

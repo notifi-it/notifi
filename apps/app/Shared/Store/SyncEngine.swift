@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 import SwiftData
+import SwiftUI
 import UserNotifications
 
 @MainActor
@@ -97,6 +98,7 @@ final class SyncEngine {
                 let page = try await api.history(since: bookmark, limit: Self.pageSize)
                 if page.messages.isEmpty { break }
 
+                let insertedBefore = newMessages
                 var ackable = bookmark
                 var blocked = false
                 for row in page.messages {
@@ -115,7 +117,20 @@ final class SyncEngine {
                     if !blocked { ackable = row.id }
                 }
 
-                try context.save()
+                // The save is what the feed's `@Query` sees, so it is the only
+                // place the arrival of a message can be animated from — the
+                // inserts above are invisible until it lands. Without this, a
+                // sync that runs while the feed is on screen shoves rows in
+                // under the reader's eyes with nothing bridging the jump.
+                //
+                // Only a page that actually inserted something animates; a
+                // routine sync that finds nothing new must not make the list
+                // twitch. Reduce Motion is read from the platform rather than
+                // the environment because there is no view here to read.
+                let arrived = newMessages > insertedBefore
+                try withAnimation(arrived && !Theme.reduceMotion ? Theme.reveal : nil) {
+                    try context.save()
+                }
 
                 // /history acks whatever `since` it is given, so the bookmark cannot
                 // move past a held row and there is no point re-requesting the same
