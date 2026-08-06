@@ -51,9 +51,25 @@
 	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<!-- iPhone keeps three: upside-down on a phone puts the earpiece at the
+	     bottom, and iOS ignores it on notched hardware anyway. -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<!-- iPad has to offer all four or App Store Connect refuses the upload
+	     outright: TARGETED_DEVICE_FAMILY is "1,2", and an iPad app that cannot
+	     be used in every orientation cannot hold up its half of a Split View.
+	     A three-orientation build failed validation with a 409 before this key
+	     existed, after a clean build and a full upload — the check is Apple's,
+	     at ingest, not Xcode's. There is no home button to point down on any
+	     iPad that runs this, so the fourth orientation costs nothing. -->
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
