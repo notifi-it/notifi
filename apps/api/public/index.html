@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>notifi: push notifications from the command line</title>
-<meta name="description" content="No account and no SDK. Neither we nor Apple can read your messages. Create a send key, curl a title to notifi.it/send, and the alert lands on your iPhone or your Mac.">
+<meta name="description" content="No account and no SDK. End-to-end encrypted and open source, so neither we nor Apple can read your messages. Create a send key, curl a title to notifi.it/send, and the alert lands on your iPhone or your Mac.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://notifi.it/">
 
 <meta property="og:title" content="notifi: push notifications from the command line">
-<meta property="og:description" content="curl a title to notifi.it/send. It lands on your iPhone or your Mac. No accounts, and neither we nor Apple can read it.">
+<meta property="og:description" content="curl a title to notifi.it/send. It lands on your iPhone or your Mac. No accounts, end-to-end encrypted and open source.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://notifi.it/">
 <meta property="og:site_name" content="notifi">
@@ -26,7 +26,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="notifi: push notifications from the command line">
-<meta name="twitter:description" content="curl a title to notifi.it/send. It lands on your iPhone or your Mac. No accounts, and neither we nor Apple can read it.">
+<meta name="twitter:description" content="curl a title to notifi.it/send. It lands on your iPhone or your Mac. No accounts, end-to-end encrypted and open source.">
 <meta name="twitter:image" content="https://notifi.it/og.png">
 <meta name="twitter:image:alt" content="One curl request to notifi.it/send, and a push notification lands on your iPhone.">
 
@@ -331,7 +331,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "@id": "https://notifi.it/#website",
       "url": "https://notifi.it/",
       "name": "notifi",
-      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No SDK, no account, end-to-end encrypted.",
+      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No SDK, no account, end-to-end encrypted and open source.",
       "publisher": { "@id": "https://notifi.it/#org" },
       "inLanguage": "en"
     },
@@ -348,6 +348,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         "No SDK and no dependency",
         "No account and no sign-in",
         "End-to-end encrypted message content",
+        "Open source",
         "Per-script revocable send keys",
         "Title, message, link and image parameters",
         "Searchable notification history"
@@ -460,6 +461,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       Create a send key. <code>curl</code> a title to <code>notifi.it/send</code>.
       It arrives on your iPhone or your Mac a moment later.
       No accounts, no sign-in, and neither we nor Apple can read what you send.
+      End-to-end encrypted, and <a href="https://github.com/notifi-it/notifi" class="src">open source</a>.
     </p>
 
     <div class="cta">
@@ -650,6 +652,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <h3><svg class="ico"><use href="#i-globe"/></svg>Send from anywhere</h3>
         <p>It is plain HTTP with no SDK, so anything that can make an HTTP request to it can
            send. <a href="#uses" class="src">Uses</a> lists what that covers.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico"><use href="#i-branch"/></svg>Open source</h3>
+        <p>The app, the API and the crypto are on
+           <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>. The
+           encryption claim above is the kind you should be able to check rather than
+           take on trust.</p>
       </div>
     </div>
   </div>
@@ -1002,6 +1011,7 @@ reqwest::Client::new()
     <a href="#api">API</a>
     <a href="#download">Download</a>
     <a href="/privacy">Privacy</a>
+    <a href="https://github.com/notifi-it/notifi">Source</a>
     <span class="meta">Built by Maximilian Mitchell</span>
   </div>
 </footer>
