@@ -219,11 +219,32 @@ final class AppModel {
     /// Allows or stops Critical Alerts for one key. The server keeps the last word:
     /// a send still has to ask for `critical=1`, and a key that was never switched
     /// on here can never raise its own volume, however the key value is used.
-    func setKeyCritical(id: Int, critical: Bool) async throws {
+    ///
+    /// Returns the OS's standing once the work is done. Switching the key on is not
+    /// the same as being allowed to sound through silent mode, and the caller has to
+    /// be able to say so rather than let the switch imply an authorisation that is
+    /// not there. `.disabled` — the user turned Critical Alerts off for notifi in
+    /// system settings — still writes the key's standing on purpose: it starts
+    /// working the moment they turn it back on, and the caller says as much.
+    ///
+    /// All of this is dormant while Apple has not granted the entitlement (request
+    /// W8U762V6VJ): the status is `.notSupported`, the guard below refuses, and the
+    /// switch that would reach here is disabled. It activates the day the grant
+    /// lands, with no further change.
+    @discardableResult
+    func setKeyCritical(id: Int, critical: Bool) async throws -> UNNotificationSetting {
         guard let api, let sync else { throw NotifiError.identityMissing }
-        if critical { await requestCriticalAlertPermission() }
+        if critical, criticalAlertStatus != .enabled {
+            // Re-reads the setting itself, so the check below is the OS's answer to
+            // this request rather than whatever was cached when the screen appeared.
+            await requestCriticalAlertPermission()
+            guard criticalAlertStatus != .notSupported else {
+                throw NotifiError.criticalAlertsUnavailable
+            }
+        }
         try await api.updateKey(id: id, critical: critical)
         await sync.refreshKeys()
+        return criticalAlertStatus
     }
 
     /// Replaces the default key with a fresh one. The old value stops working, so

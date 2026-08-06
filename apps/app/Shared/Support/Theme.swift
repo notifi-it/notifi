@@ -204,6 +204,20 @@ extension View {
         #endif
     }
 
+    /// Copy stating what happens to something that cannot be undone.
+    ///
+    /// One treatment, in one place, because these sentences were each written at
+    /// `metaSmall` in `dim` — the faintest token the system has, the one carrying
+    /// footnotes and captions. That put "cannot be recovered" and "will be
+    /// rejected" at the bottom of the reading order on the screens where they are
+    /// the point. `body` in `muted` is a step up from a footnote and a step below
+    /// the row it explains, which is where a consequence belongs.
+    func geistConsequence() -> some View {
+        font(Theme.body)
+            .foregroundStyle(Theme.muted)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
     /// Fades scrolling content into the ground at the bottom edge.
     ///
     /// An overlay rather than a mask: masking the container would fade the tab

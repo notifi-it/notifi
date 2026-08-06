@@ -18,17 +18,31 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://notifi.it/privacy">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300..800&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+<!-- Self-hosted, so the page has no third-party request at all. This page used
+     to link fonts.googleapis.com, which handed every visitor's IP address to
+     Google from a page whose subject is what is and is not observed. Latin
+     subset only. -->
+<link rel="preload" href="/fonts/inconsolata.woff2" as="font" type="font/woff2" crossorigin>
 
 <style>
-/* Same tokens as the landing page. */
+@font-face{font-family:'Inconsolata';font-style:normal;font-weight:300 800;font-display:swap;
+  src:url(/fonts/inconsolata.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:swap;
+  src:url(/fonts/karla.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+/* This block, and the @font-face rules above it, are a copy of the ones in
+   index.html. The two pages are standalone documents with no shared stylesheet,
+   so there is nowhere else to put them; a token changed in one has to be
+   changed in the other or the pages drift apart. */
 :root{
   --bg:#000;
   --fg:#EDEDED;
   --muted:#A1A1A1;
-  --dim:#6E6E6E;
+  /* 4.86:1 on --bg and 4.56:1 on --surface. It was #6E6E6E, which measured
+     4.26:1 on --surface, below the 4.5:1 floor for text under 18px. */
+  --dim:#808080;
   --line:#1F1F1F;
   --chip:#2A2A2A;
   --surface:#0B0B0B;
@@ -40,7 +54,9 @@
   --max:1080px;
 }
 *{box-sizing:border-box;margin:0}
-html{-webkit-text-size-adjust:100%}
+/* scroll-padding-top clears the 60px sticky header, which would otherwise sit
+   on top of whatever an in-page anchor just jumped to. */
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
@@ -123,6 +139,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .foot a:hover{color:var(--fg)}
 .foot .meta{margin-left:auto}
 @media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -300,9 +318,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       The app contains no analytics, no crash reporting, no advertising
       identifiers and no third-party SDKs of any kind. It talks to
       <code>notifi.it</code> and to Apple's push service, and to an image host
-      only when you ask it to load an image. This website sets no cookies and
-      loads no analytics. It does load a webfont from Google Fonts, which means
-      Google sees the IP address of visitors to this site.
+      only when you ask it to load an image. This website sets no cookies, loads
+      no analytics, and makes no third-party request of any kind: its fonts are
+      served from <code>notifi.it</code>.
     </p>
     <p>
       No data is sold, rented or shared with anyone, and nothing here is used to

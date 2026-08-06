@@ -63,6 +63,12 @@ struct InboxView: View {
         }
     }
 
+    /// Whether anything is drawn under the title row — the search field, the key
+    /// filter chip, or both.
+    private var hasHeaderControls: Bool {
+        !messages.isEmpty && (showingSearch || activeKeyName != nil)
+    }
+
     private var unreadCount: Int { messages.reduce(0) { $0 + ($1.isRead ? 0 : 1) } }
 
     /// Built as concatenated `Text` so the unread count alone can take the brand
@@ -192,8 +198,11 @@ struct InboxView: View {
         }
 // Pull-to-refresh is a touch gesture. The Mac refreshes with ⌘R and the
         // overflow menu instead; the iOS-only modifier is below.
+        // The title names the message. A swipe is easy to start by accident and
+        // easy to land on the wrong row, and "Delete this notification?" looks
+        // identical whichever row summoned it.
         .alert(
-            "Delete this notification?",
+            pendingDelete.map { "Delete “\($0.title)”?" } ?? "Delete this notification?",
             isPresented: Binding(get: { pendingDelete != nil },
                                  set: { if !$0 { pendingDelete = nil } }),
             presenting: pendingDelete
@@ -270,9 +279,16 @@ struct InboxView: View {
                     if !messages.isEmpty { searchToggle }
                     overflowMenu
                 }
-                .frame(height: Theme.headerBarHeight)
+                // See `GeistHeader`: the discs draw at 34 and were clipped by a
+                // hard 30 on the other two tabs as well.
+                .frame(minHeight: Theme.headerBarHeight)
             }
-            .padding(.bottom, messages.isEmpty ? 0 : 14)
+            // Separates the title row from the search field or the filter chip,
+            // and only then. `geistPageHeader()` already puts 14 under the whole
+            // block, so with neither of those on screen this was a second 14
+            // stacked on it and the feed started 28pt lower than Keys and
+            // Settings do.
+            .padding(.bottom, hasHeaderControls ? 14 : 0)
 
             if !messages.isEmpty {
                 // Nothing to search through yet, so the field would just be

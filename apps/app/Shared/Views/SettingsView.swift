@@ -160,9 +160,7 @@ struct SettingsView: View {
 
                 Text("Keys live and die with this device. If you lose it, "
                      + "the keys stop working and cannot be recovered.")
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .geistConsequence()
                     .padding(.top, 16)
                     .geistGutter()
 
@@ -176,6 +174,11 @@ struct SettingsView: View {
                             .renderingMode(.template)
                             .resizable()
                             .frame(width: 11, height: 11)
+                            // A bundle image with no label falls back to its own
+                            // filename, so this read out as "notifi.it, akar link
+                            // chain". The glyph only says the link leaves the app,
+                            // which the link itself already says.
+                            .accessibilityHidden(true)
                     }
                     .foregroundStyle(Theme.muted)
                     .contentShape(Rectangle())

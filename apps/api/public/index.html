@@ -53,9 +53,16 @@
   --bg:#000;
   --fg:#EDEDED;
   --muted:#A1A1A1;
-  --dim:#6E6E6E;
+  /* 4.86:1 on --bg and 4.56:1 on --surface. It was #6E6E6E, which measured
+     4.26:1 on --surface, below the 4.5:1 floor for text under 18px, and
+     .term .c, .term .p, .term-title and the .copy label all sit on --surface. */
+  --dim:#808080;
   --line:#1F1F1F;
   --chip:#2A2A2A;
+  /* 3.06:1 on --bg, the floor for a control identifiable only by its border.
+     Kept separate from --line (1.27:1) and --chip (1.44:1), which stay
+     decorative hairlines everywhere else. */
+  --control-border:#4A4A4A;
   --surface:#0B0B0B;
   --brand:#BC2122;
   --brand-text:#DB4A4B;      /* lifted to clear 4.5:1 on black */
@@ -74,7 +81,9 @@
   --max:1080px;
 }
 *{box-sizing:border-box;margin:0}
-html{-webkit-text-size-adjust:100%}
+/* scroll-padding-top clears the 60px sticky header, which would otherwise sit
+   on top of whatever an in-page anchor just jumped to. */
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
@@ -119,17 +128,25 @@ nav a:hover{color:var(--fg)}
   display:inline-flex;align-items:center;gap:8px;
   font-family:var(--mono);font-size:14px;font-weight:600;
   padding:11px 18px;border-radius:8px;text-decoration:none;
-  border:1px solid var(--chip);color:var(--fg);background:transparent;
+  border:1px solid var(--control-border);color:var(--fg);background:transparent;
   transition:background var(--dur-press) var(--ease-out),
              border-color var(--dur-press) var(--ease-out),
              transform var(--dur-press) var(--ease-out);
 }
-.btn:hover{background:#0E0E0E;border-color:#3A3A3A}
+.btn:hover{background:#0E0E0E;border-color:#6A6A6A}
 /* Hover does not exist on a phone, so without this a tap on the download
    buttons produced nothing at all until the navigation happened. */
 .btn:active{transform:scale(.98)}
 .btn-primary{background:var(--fg);color:#000;border-color:var(--fg)}
 .btn-primary:hover{background:#fff;border-color:#fff}
+/* A control that has nowhere to go yet. Kept in the flow so the reader can see
+   what is coming and that it is not ready, rather than clicking a live-looking
+   link that does nothing. Declared after .btn-primary so it wins on the
+   primary variant too. */
+.btn[aria-disabled="true"],
+.btn[aria-disabled="true"]:hover{
+  background:transparent;color:var(--dim);border-color:var(--line);cursor:default;
+}
 
 /* ── hero ───────────────────────────────────────────────────── */
 .hero{padding:clamp(56px,10vw,110px) 0 clamp(40px,7vw,72px)}
@@ -166,6 +183,7 @@ nav a:hover{color:var(--fg)}
 .copy:hover{color:var(--fg);background:#141414}
 .copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
 .copy:active{color:var(--fg);background:#1C1C1C}
+.copy[data-state="failed"]{color:var(--brand-text)}
 
 /* The key bar is filled in from the URL fragment after the page has painted, so
    it cannot be rendered up front — it arrives above the tabs and pushes the
@@ -261,13 +279,13 @@ section{padding:clamp(48px,7vw,86px) 0}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 .tab{
   font-family:var(--mono);font-size:13px;color:var(--muted);
-  padding:6px 12px;border:1px solid var(--line);border-radius:6px;
+  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
   background:transparent;cursor:pointer;
   transition:color var(--dur-press) var(--ease-out),
              border-color var(--dur-press) var(--ease-out),
              background var(--dur-press) var(--ease-out);
 }
-.tab:hover{color:var(--fg);border-color:var(--chip)}
+.tab:hover{color:var(--fg);border-color:#6A6A6A}
 .tab:active{border-color:var(--fg)}
 .tab[aria-selected="true"]{background:var(--fg);color:#000;border-color:var(--fg)}
 .panel[hidden]{display:none}
@@ -304,6 +322,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
    outright turned each of these into a hard cut, which is the jarring change the
    motion was added to prevent. So: nothing moves or resizes, and the fades stay. */
 @media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
   .btn:active{transform:none}
   /* The row snaps to its height; only the fade is left to carry the arrival. */
   #keybar-slot{transition:opacity var(--dur-state) var(--ease-out)}
@@ -465,7 +484,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </p>
 
     <div class="cta">
-      <a class="btn btn-primary" href="#download">Download the app</a>
+      <!-- Points at the three steps rather than at #download, because the
+           builds are not published yet and a primary button promising a
+           download would be the page's loudest untrue claim. -->
+      <a class="btn btn-primary" href="#start">Get started</a>
       <a class="btn" href="#send">See the API</a>
       <p class="meta">Free. iOS&nbsp;17+ or macOS&nbsp;14+.</p>
     </div>
@@ -474,14 +496,47 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="term-bar">
         <span class="dot3"><i></i><i></i><i></i></span>
         <span class="term-title">~/deploy.sh</span>
-        <button class="copy" data-copy='curl "https://notifi.it/send?key=$NOTIFI_KEY&title=Deploy+finished"'>Copy</button>
+        <!-- A literal placeholder rather than $NOTIFI_KEY: a first-time reader
+             has nothing in that variable, so pasting the shell-variable form
+             sends an empty key and answers 401. -->
+        <button class="copy" aria-label="Copy the example curl command" data-copy='curl "https://notifi.it/send?key=nk_yourkeyhere&title=Deploy+finished"'>Copy</button>
       </div>
-<pre><span class="p">$</span> curl <span class="s">"https://notifi.it/send?key=<span class="k">$NOTIFI_KEY</span>&amp;title=Deploy+finished"</span>
+<pre><span class="p">$</span> curl <span class="s">"https://notifi.it/send?key=<span class="k">nk_yourkeyhere</span>&amp;title=Deploy+finished"</span>
 <span class="c">{"ok":true}</span></pre>
     </div>
     <p class="meta" style="margin-top:12px">
       That is the whole integration. One request, no SDK, no dependency.
     </p>
+  </div>
+</section>
+
+<!-- ══ start ═════════════════════════════════════════════════ -->
+<section class="section-alt" id="start">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Start</p><hr class="rule">
+    </div>
+    <h2 style="margin-bottom:26px">Where the key comes from.</h2>
+
+    <div class="rows">
+      <div class="row">
+        <h3>1. Install the app</h3>
+        <p>notifi runs on your iPhone or your Mac and is where notifications land.
+           The builds are not published yet; <a href="#download" class="src">Download</a>
+           says what is and is not available.</p>
+      </div>
+      <div class="row">
+        <h3>2. Create a send key</h3>
+        <p>Open the Keys tab and make one. The app shows the key once and cannot show
+           it again, so copy it then.</p>
+      </div>
+      <div class="row">
+        <h3>3. Send</h3>
+        <p>Put that key where the samples say <code>nk_yourkeyhere</code>, or export it
+           as <code>NOTIFI_KEY</code>, and make the request.
+           <a href="#send" class="src">Send</a> has one for each language.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -536,7 +591,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
     <div class="uses">
       <div class="use-col">
-        <p class="eyebrow"><svg class="ico"><use href="#i-agent"/></svg>Headless agents</p>
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>Headless agents</p>
         <ul>
           <li>A headless Claude Code run finished</li>
           <li>An agent stopped and needs a decision</li>
@@ -548,7 +603,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
 
       <div class="use-col">
-        <p class="eyebrow"><svg class="ico"><use href="#i-branch"/></svg>Builds and deploys</p>
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Builds and deploys</p>
         <ul>
           <li>A deploy failed, with the failing step</li>
           <li>A release went out, with the tag</li>
@@ -560,7 +615,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
 
       <div class="use-col">
-        <p class="eyebrow"><svg class="ico"><use href="#i-server"/></svg>Servers and infra</p>
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-server"/></svg>Servers and infra</p>
         <ul>
           <li>A disk crossed 90%</li>
           <li>A TLS certificate expires next week</li>
@@ -573,7 +628,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
 
       <div class="use-col">
-        <p class="eyebrow"><svg class="ico"><use href="#i-database"/></svg>Jobs and data</p>
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-database"/></svg>Jobs and data</p>
         <ul>
           <li>A training run finished, with the final loss</li>
           <li>A batch job crashed at 3am</li>
@@ -588,7 +643,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
 
       <div class="use-col">
-        <p class="eyebrow"><svg class="ico"><use href="#i-home"/></svg>Home and hardware</p>
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-home"/></svg>Home and hardware</p>
         <ul>
           <li>The garage door has been open for fifteen minutes</li>
           <li>A washing machine's power draw dropped back to idle</li>
@@ -621,12 +676,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
     <div class="rows">
       <div class="row">
-        <h3><svg class="ico"><use href="#i-noaccount"/></svg>No account</h3>
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>No account</h3>
         <p>There is nothing to sign up for. The app makes a keypair on first launch and
            that is your identity. Nothing to remember, nothing to leak.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
         <div>
           <p>The app makes a keypair when you install it and registers the public half.
              That is the only half the server ever holds.</p>
@@ -644,17 +699,17 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         </div>
       </div>
       <div class="row">
-        <h3><svg class="ico"><use href="#i-key"/></svg>Keys are per-script, and revocable</h3>
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>Keys are per-script, and revocable</h3>
         <p>Make one key per thing that sends: CI, a backup job, a scraper. If a key
            leaks, revoke it and the rest keep working.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico"><use href="#i-globe"/></svg>Send from anywhere</h3>
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>Send from anywhere</h3>
         <p>It is plain HTTP with no SDK, so anything that can make an HTTP request to it can
            send. <a href="#uses" class="src">Uses</a> lists what that covers.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico"><use href="#i-branch"/></svg>Open source</h3>
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Open source</h3>
         <p>The app, the API and the crypto are on
            <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>. The
            encryption claim above is the kind you should be able to check rather than
@@ -684,7 +739,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <div class="term-bar">
           <span class="dot3"><i></i><i></i><i></i></span>
           <span class="term-title">your key</span>
-          <button class="copy" id="copykey">Copy</button>
+          <button class="copy" id="copykey" aria-label="Copy the export line for your key">Copy</button>
         </div>
 <pre><span class="p">$</span> export NOTIFI_KEY=<span class="k" id="keyval"></span></pre>
       </div>
@@ -709,10 +764,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="term-bar">
         <span class="dot3"><i></i><i></i><i></i></span>
         <span class="term-title" id="langname">send.sh</span>
-        <button class="copy" id="copycode">Copy</button>
+        <button class="copy" id="copycode" aria-label="Copy the sample for the selected language">Copy</button>
       </div>
 
-      <div class="panel" id="p-curl" role="tabpanel" aria-labelledby="t-curl" data-name="send.sh">
+      <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh">
 <pre>curl -X POST https://notifi.it/send \
   -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
   -d <span class="s">"title=Backup complete"</span> \
@@ -720,7 +775,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   -d <span class="s">"link=https://console.internal/backups"</span></pre>
       </div>
 
-      <div class="panel" id="p-js" role="tabpanel" aria-labelledby="t-js" data-name="send.js" hidden>
+      <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" hidden>
 <pre><span class="c">// No dependencies. Works in Node 18+, Deno, Bun and the browser.</span>
 await fetch(<span class="s">"https://notifi.it/send"</span>, {
   method: <span class="s">"POST"</span>,
@@ -735,7 +790,7 @@ await fetch(<span class="s">"https://notifi.it/send"</span>, {
 });</pre>
       </div>
 
-      <div class="panel" id="p-py" role="tabpanel" aria-labelledby="t-py" data-name="send.py" hidden>
+      <div class="panel" id="p-py" role="tabpanel" tabindex="0" aria-labelledby="t-py" data-name="send.py" hidden>
 <pre><span class="f">import</span> os, requests
 
 requests.post(
@@ -748,7 +803,7 @@ requests.post(
 )</pre>
       </div>
 
-      <div class="panel" id="p-go" role="tabpanel" aria-labelledby="t-go" data-name="send.go" hidden>
+      <div class="panel" id="p-go" role="tabpanel" tabindex="0" aria-labelledby="t-go" data-name="send.go" hidden>
 <pre><span class="f">package</span> main
 
 <span class="f">import</span> (
@@ -771,7 +826,7 @@ requests.post(
 }</pre>
       </div>
 
-      <div class="panel" id="p-swift" role="tabpanel" aria-labelledby="t-swift" data-name="Send.swift" hidden>
+      <div class="panel" id="p-swift" role="tabpanel" tabindex="0" aria-labelledby="t-swift" data-name="Send.swift" hidden>
 <pre><span class="f">import</span> Foundation
 
 <span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">"https://notifi.it/send"</span>)!)
@@ -786,7 +841,7 @@ request.httpBody = <span class="f">try</span> JSONEncoder().encode([
 _ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
       </div>
 
-      <div class="panel" id="p-ruby" role="tabpanel" aria-labelledby="t-ruby" data-name="send.rb" hidden>
+      <div class="panel" id="p-ruby" role="tabpanel" tabindex="0" aria-labelledby="t-ruby" data-name="send.rb" hidden>
 <pre><span class="f">require</span> <span class="s">"net/http"</span>
 
 uri = URI(<span class="s">"https://notifi.it/send"</span>)
@@ -800,7 +855,7 @@ req.set_form_data(
 Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
       </div>
 
-      <div class="panel" id="p-php" role="tabpanel" aria-labelledby="t-php" data-name="send.php" hidden>
+      <div class="panel" id="p-php" role="tabpanel" tabindex="0" aria-labelledby="t-php" data-name="send.php" hidden>
 <pre><span class="p">&lt;?php</span>
 $ch = curl_init(<span class="s">"https://notifi.it/send"</span>);
 curl_setopt_array($ch, [
@@ -814,7 +869,7 @@ curl_setopt_array($ch, [
 curl_exec($ch);</pre>
       </div>
 
-      <div class="panel" id="p-hook" role="tabpanel" aria-labelledby="t-hook" data-name=".claude/settings.json" hidden>
+      <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" hidden>
 <pre><span class="c">// Fires when Claude stops. Kick off a headless run, close the lid,</span>
 <span class="c">// and your phone tells you when it is done.</span>
 {
@@ -832,7 +887,7 @@ curl_exec($ch);</pre>
 }</pre>
       </div>
 
-      <div class="panel" id="p-gha" role="tabpanel" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" hidden>
+      <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" hidden>
 <pre><span class="c"># Put NOTIFI_KEY in the repository's secrets, then add one step.</span>
 <span class="c"># if: failure() means it only fires when something actually broke.</span>
 - <span class="s">name</span>: Tell me it broke
@@ -847,7 +902,7 @@ curl_exec($ch);</pre>
     <span class="s">NOTIFI_KEY</span>: ${{ secrets.NOTIFI_KEY }}</pre>
       </div>
 
-      <div class="panel" id="p-shell" role="tabpanel" aria-labelledby="t-shell" data-name="~/.zshrc" hidden>
+      <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" hidden>
 <pre><span class="c"># Notify for any command that took longer than a minute, and say</span>
 <span class="c"># whether it worked. Nothing to remember, nothing to append.</span>
 <span class="f">autoload</span> -Uz add-zsh-hook
@@ -865,7 +920,7 @@ add-zsh-hook preexec _notifi_start
 add-zsh-hook precmd  _notifi_end</pre>
       </div>
 
-      <div class="panel" id="p-systemd" role="tabpanel" aria-labelledby="t-systemd" data-name="notifi-failed@.service" hidden>
+      <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" hidden>
 <pre><span class="c"># Drop this in /etc/systemd/system/, then add one line to any unit:</span>
 <span class="c">#   OnFailure=notifi-failed@%n.service</span>
 <span class="c"># Every unit on the box can share it. %i is the unit that failed.</span>
@@ -881,7 +936,7 @@ add-zsh-hook precmd  _notifi_end</pre>
   --data-urlencode <span class="s">"message=$(systemctl status %i --lines=10 --no-pager)"</span></pre>
       </div>
 
-      <div class="panel" id="p-rust" role="tabpanel" aria-labelledby="t-rust" data-name="main.rs" hidden>
+      <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" hidden>
 <pre><span class="c">// reqwest = { version = "0.12", features = ["json"] }</span>
 <span class="f">let</span> key = std::env::var(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)?;
 
@@ -914,7 +969,10 @@ reqwest::Client::new()
       <code>key</code> as a parameter. Query parameters win over the body.
     </p>
 
-    <div class="tablewrap">
+    <!-- The table has a min-width and this scrolls, so on a narrow viewport part
+         of it is off-screen. Focusable and named, or a keyboard user cannot
+         reach the scroll container to move it. -->
+    <div class="tablewrap" tabindex="0" role="group" aria-label="Send parameters, scrollable">
       <table>
         <thead>
           <tr><th>Parameter</th><th>Type</th><th>Notes</th></tr>
@@ -985,12 +1043,18 @@ reqwest::Client::new()
       phones included. You just receive on Apple hardware.
     </p>
 
+    <!-- Rendered as spans, not links, until the URLs exist. The App Store id
+         here was a placeholder that pointed at somebody else's app, and the
+         .dmg href was "#", so both looked live and neither worked.
+         TODO: replace with the real App Store URL before launch, and make this
+         an <a class="btn btn-primary">.
+         TODO: replace with the real .dmg URL before launch, and make this an
+         <a class="btn">. -->
     <div class="cta">
-      <!-- TODO: replace with the real App Store URL before launch -->
-      <a class="btn btn-primary" href="https://apps.apple.com/app/id1563961135">App&nbsp;Store</a>
-      <!-- TODO: replace with the real .dmg URL before launch -->
-      <a class="btn" href="#" data-todo="dmg-url">Download&nbsp;.dmg</a>
-      <p class="meta">Requires iOS&nbsp;17 or macOS&nbsp;14. Apple silicon or a T2 Mac.</p>
+      <span class="btn btn-primary" aria-disabled="true">App&nbsp;Store</span>
+      <span class="btn" aria-disabled="true">Download&nbsp;.dmg</span>
+      <p class="meta">Neither build is published yet, so there is nothing to download
+        today. When they are: iOS&nbsp;17 or macOS&nbsp;14, Apple silicon or a T2 Mac.</p>
     </div>
   </div>
 </section>
@@ -1005,6 +1069,7 @@ reqwest::Client::new()
     </div>
   </div>
   <div class="wrap foot">
+    <a href="#start">Start</a>
     <a href="#uses">Uses</a>
     <a href="#how">How it works</a>
     <a href="#send">Send</a>
@@ -1016,6 +1081,11 @@ reqwest::Client::new()
   </div>
 </footer>
 
+<!-- The copy buttons swap their own label, which a screen reader does not
+     announce because focus never moves. This is where the outcome is said. -->
+<p id="copystatus" role="status" aria-live="polite"
+   style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap"></p>
+
 <script>
 // ── language tabs ───────────────────────────────────────────
 (function () {
@@ -1026,22 +1096,32 @@ reqwest::Client::new()
     tabs.forEach(t => {
       const on = t === tab;
       t.setAttribute('aria-selected', String(on));
+      // Roving tabindex: the tablist is one Tab stop, not twelve, and the
+      // arrow keys below move within it.
+      t.tabIndex = on ? 0 : -1;
       document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
     });
     const panel = document.getElementById(tab.getAttribute('aria-controls'));
     name.textContent = panel.dataset.name;
   }
 
-  tabs.forEach(tab => tab.addEventListener('click', () => select(tab)));
+  tabs.forEach(tab => {
+    tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
+    tab.addEventListener('click', () => select(tab));
+  });
 
-  // left/right arrows move between tabs, as a tablist should
+  // arrows, Home and End move between tabs, as a tablist should
   document.querySelector('.tabs').addEventListener('keydown', e => {
     const i = tabs.indexOf(document.activeElement);
     if (i < 0) return;
-    const next = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : -1;
-    if (next < 0) return;
+    let next;
+    if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    else return;
     e.preventDefault();
-    const target = tabs[(next + tabs.length) % tabs.length];
+    const target = tabs[next];
     target.focus();
     select(target);
   });
@@ -1049,12 +1129,32 @@ reqwest::Client::new()
 
 // ── copy buttons ────────────────────────────────────────────
 (function () {
+  const status = document.getElementById('copystatus');
+
   function flash(btn, text) {
-    navigator.clipboard.writeText(text).then(() => {
-      const was = btn.textContent;
-      btn.textContent = 'Copied';
-      setTimeout(() => { btn.textContent = was; }, 1500);
-    });
+    // Read the label before awaiting, or a second click inside the 1.5s window
+    // captures "Copied" as the label to restore and it never goes back.
+    const was = btn.dataset.label || btn.textContent;
+    btn.dataset.label = was;
+
+    const settle = (label, state, said) => {
+      btn.textContent = label;
+      if (state) btn.dataset.state = state; else delete btn.dataset.state;
+      status.textContent = said;
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => {
+        btn.textContent = was;
+        delete btn.dataset.state;
+        status.textContent = '';
+      }, state ? 4000 : 1500);
+    };
+
+    // Rejects on an insecure origin or a denied permission, and the button
+    // would otherwise sit reading "Copy" as though nothing had been asked.
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+      .then(() => settle('Copied', null, 'Copied to the clipboard'),
+            () => settle('Select and copy', 'failed',
+                         'Could not copy. Select the text and copy it yourself.'));
   }
 
   document.querySelectorAll('.copy[data-copy]').forEach(btn =>
@@ -1085,11 +1185,14 @@ reqwest::Client::new()
 
     // Only the shell spots hold the key itself. NOTIFI_KEY inside a
     // process.env / os.environ lookup is a variable name and must stay a name.
+    // nk_yourkeyhere is the paste-ready placeholder the hero shows a reader who
+    // has no key yet; it is a value, so it is replaced too.
+    const slots = ['$NOTIFI_KEY', 'nk_yourkeyhere'];
     document.querySelectorAll('.k').forEach(el => {
-      if (el.textContent === '$NOTIFI_KEY') el.textContent = key;
+      if (slots.includes(el.textContent)) el.textContent = key;
     });
     document.querySelectorAll('[data-copy]').forEach(el => {
-      el.dataset.copy = el.dataset.copy.split('$NOTIFI_KEY').join(key);
+      el.dataset.copy = slots.reduce((s, slot) => s.split(slot).join(key), el.dataset.copy);
     });
 
     const bar = document.getElementById('keybar');

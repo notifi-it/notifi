@@ -10,6 +10,11 @@ struct KeysView: View {
     #if os(iOS)
     @State private var showingCreate = false
     #endif
+    /// Whether a key list has been seen at all. The first refresh runs on appear,
+    /// and until it lands `keys` is empty for the same reason it is empty when
+    /// there are none — so the screen was answering "no active keys yet" to a
+    /// question it had not asked the server yet.
+    @State private var hasLoaded = false
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
     private var activeKeys: [CachedKey] { keys.filter { !$0.isRevoked } }
@@ -19,9 +24,16 @@ struct KeysView: View {
     // under it rather than one more than the reader can see.
     private var otherActiveKeys: [CachedKey] { activeKeys.filter { !$0.isDefault } }
 
+    private var criticalKeys: [CachedKey] { activeKeys.filter(\.isCritical) }
+
+    /// The count of keys that can sound through silent mode is the one fact a
+    /// pager's key list should not make you go two screens to find, so it joins
+    /// the active count rather than living only on the detail page.
     private var subtitle: String {
         let n = activeKeys.count
-        return n == 1 ? "1 active" : "\(n) active"
+        let active = n == 1 ? "1 active" : "\(n) active"
+        guard !criticalKeys.isEmpty else { return active }
+        return "\(active) · \(criticalKeys.count) critical"
     }
 
     var body: some View {
@@ -62,7 +74,12 @@ struct KeysView: View {
                 SectionLabel(text: "Active", trailing: "\(otherActiveKeys.count)")
                     .geistGutter()
 
-                if otherActiveKeys.isEmpty {
+                if otherActiveKeys.isEmpty && !hasLoaded && keys.isEmpty {
+                    // Nothing is claimed while the answer is still in flight. A
+                    // spinner would be the other option; at the length of a key
+                    // refresh it reads as the screen being slow rather than busy.
+                    Color.clear.frame(height: 1)
+                } else if otherActiveKeys.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("No active keys yet")
                             .font(Theme.body)
@@ -126,7 +143,10 @@ struct KeysView: View {
             KeyDetailView(keyID: key.id)
         }
         .refreshable { await model.sync?.refreshKeys() }
-        .task { await model.sync?.refreshKeys() }
+        .task {
+            await model.sync?.refreshKeys()
+            hasLoaded = true
+        }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showingCreate) {
@@ -162,6 +182,14 @@ private struct KeyRow: View {
                     if key.isRevoked {
                         Chip(text: "Revoked", color: Theme.dim)
                     }
+                    // Which keys can sound through silent mode is the defining
+                    // attribute of a pager, and it was visible only on the key's
+                    // own screen. Revoked keys do not carry it: they send nothing
+                    // at all, so saying how loudly would be a lie.
+                    if key.isCritical && !key.isRevoked {
+                        Chip(text: "Critical", color: Theme.brandText,
+                             border: Theme.brandText.opacity(0.45))
+                    }
                 }
                 HStack(spacing: 10) {
                     Text(key.maskedValue)
@@ -178,6 +206,7 @@ private struct KeyRow: View {
         .accessibilityLabel(
             "Key, \(key.name), ends \(key.prefix.suffix(4))"
             + (key.isRevoked ? ", revoked" : "")
+            + (key.isCritical && !key.isRevoked ? ", Critical Alerts on" : "")
         )
     }
 }

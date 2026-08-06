@@ -99,7 +99,10 @@ struct MessageDetailView: View {
         #endif
         // Delete cannot be undone — the message is gone from this device and the
         // server has already dropped it — so it always asks first.
-        .alert("Delete this notification?", isPresented: $confirmingDelete) {
+        // Named, the same way the feed's own delete alert is: an alert that could
+        // have been raised by any row should say which one raised it.
+        .alert(message.map { "Delete “\($0.title)”?" } ?? "Delete this notification?",
+               isPresented: $confirmingDelete) {
             Button("Delete", role: .destructive) { deleteMessage() }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -213,12 +216,18 @@ struct MessageDetailView: View {
                     Image(systemName: "key")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Theme.dim)
+                        .accessibilityHidden(true)
                     Text(keyName)
                         .font(Theme.meta)
                         .foregroundStyle(Theme.muted)
                         .lineLimit(1)
                 }
                 .padding(.top, 10)
+                // One element, and it says what the glyph means. Left as two, the
+                // key icon was its own stop in the rotor and the name that followed
+                // it arrived with nothing to say it was a key.
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Sent with key \(keyName)")
             }
 
             // One clock, read twice. The age is what the feed showed and what a

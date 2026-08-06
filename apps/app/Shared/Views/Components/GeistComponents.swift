@@ -200,19 +200,36 @@ extension View {
 struct OutlineButton: View {
     var title: String
     var color: Color = Theme.fg
+    /// Destructive controls take the destructive colour on their border as well as
+    /// their label. The border was always `controlBorder`, so "Revoke key" drew the
+    /// same grey box as "Copy key" with red words inside it — the one difference
+    /// between an irreversible action and a clipboard one being a hue applied to
+    /// the smallest part of the control.
+    var role: ButtonRole?
     var fill: Bool = true
     var action: () -> Void
 
+    private var tint: Color { role == .destructive ? Theme.danger : color }
+    /// `danger` measures 5.36:1 on the ground, well past the 3:1 a control boundary
+    /// has to clear, so the destructive border is the full colour rather than a
+    /// wash of it.
+    private var border: Color { role == .destructive ? Theme.danger : Theme.controlBorder }
+
     var body: some View {
-        Button(action: action) {
+        Button(role: role, action: action) {
             Text(title)
                 .font(.inco(.footnote, weight: .semibold))
-                .foregroundStyle(color)
+                .foregroundStyle(tint)
                 .frame(maxWidth: fill ? .infinity : nil)
                 .padding(.horizontal, fill ? 0 : 14)
                 .padding(.vertical, 11)
+                // The drawn box is about 37pt. Everything in the app that is not a
+                // row or a glyph is one of these, so the shortfall was the app's
+                // primary control missing the target floor everywhere at once.
+                .frame(minHeight: Theme.minTarget)
+                .contentShape(Rectangle())
                 .overlay(RoundedRectangle(cornerRadius: 8)
-                    .stroke(Theme.controlBorder, lineWidth: 1))
+                    .stroke(border, lineWidth: 1))
         }
         .buttonStyle(.geist)
     }
@@ -230,6 +247,10 @@ struct OutlineShareButton<Item: Transferable>: View {
                 .foregroundStyle(Theme.fg)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 11)
+                // Sits beside an `OutlineButton` wherever it appears, so it takes
+                // the same target floor as well as the same box.
+                .frame(minHeight: Theme.minTarget)
+                .contentShape(Rectangle())
                 .overlay(RoundedRectangle(cornerRadius: 8)
                     .stroke(Theme.controlBorder, lineWidth: 1))
         }
@@ -311,6 +332,12 @@ struct ToggleRow: View {
                 .controlSize(.small)
                 .tint(Theme.brand)
                 .frame(width: Theme.controlWidth, alignment: .trailing)
+                // A small switch draws about 26pt tall, and the row's own tap area
+                // does not reach it — the switch is the only thing here that
+                // answers a touch, so what the row is padded to is beside the
+                // point. Expanded rather than grown, because the row's height is
+                // shared with every other settings row.
+                .geistHitArea(expandedBy: 9)
                 .accessibilityHint(detail ?? "")
         }
         .padding(.vertical, Theme.rowPadV)
@@ -367,7 +394,7 @@ struct NoResultsView: View {
                 .padding(.top, 6)
         }
         .frame(maxWidth: 320)
-        .padding(.horizontal, Theme.gutter)
+        .geistGutter()
         .padding(.vertical, 60)
         .frame(maxWidth: .infinity)
     }
@@ -445,6 +472,15 @@ struct GeistHeader<Trailing: View>: View {
                 Text(title.uppercased())
                     .font(Theme.screenTitle)
                     .foregroundStyle(Theme.fg)
+                    // A 28pt face that scales with Dynamic Type inside a 30pt
+                    // frame: without these two the title simply overflowed it at
+                    // the accessibility sizes, and "KEYS" lost its own descenderless
+                    // top. The Inbox builds its own header and has always set both,
+                    // which is why "NOTIFICATIONS" survived where the shared header
+                    // did not. The frame stays fixed so the three tabs' titles sit
+                    // on the same line as each other.
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                     .frame(height: Theme.headerBarHeight, alignment: .leading)
                 if let subtitle {
                     Text(subtitle)
@@ -454,7 +490,12 @@ struct GeistHeader<Trailing: View>: View {
             }
             Spacer(minLength: 8)
             trailing
-                .frame(height: Theme.headerBarHeight)
+                // Minimum, not fixed. `IconButton` draws a 34pt glyph frame, so a
+                // hard 30 clipped 2pt off the top and bottom of the disc at the
+                // default text size, before Dynamic Type came into it. The title
+                // beside it keeps its own fixed frame and is top-aligned, so
+                // letting this one grow does not move the title.
+                .frame(minHeight: Theme.headerBarHeight)
         }
     }
 }

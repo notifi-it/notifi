@@ -83,7 +83,7 @@ struct KeyDetailView: View {
         // source as a popover and reads as a stray tooltip. House rule — see
         // CLAUDE.md.
         .alert(
-            "Revoke this key?",
+            key.map { "Revoke “\($0.name)”?" } ?? "Revoke this key?",
             isPresented: $showingRevokeConfirm
         ) {
             Button("Revoke", role: .destructive) { Task { await revoke() } }
@@ -92,7 +92,7 @@ struct KeyDetailView: View {
             Text("Anything still sending to it will be rejected.")
         }
         .alert(
-            "Regenerate this key?",
+            key.map { "Regenerate “\($0.name)”?" } ?? "Regenerate this key?",
             isPresented: $showingRegenerateConfirm
         ) {
             Button("Regenerate", role: .destructive) { Task { await regenerate() } }
@@ -141,16 +141,12 @@ struct KeyDetailView: View {
                 .padding(.top, 18)
                 Text("notifi keeps this one on your device, so you can copy it "
                      + "again whenever you need it, or regenerate it below.")
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .geistConsequence()
                     .padding(.top, 10)
             } else {
                 Text("The value was shown once, when you created this key. "
                      + "It is not stored on the device.")
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .geistConsequence()
                     .padding(.top, 14)
             }
 
@@ -197,38 +193,32 @@ struct KeyDetailView: View {
 
             if key.isRevoked {
                 Text("This key is revoked and no longer accepts sends.")
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .geistConsequence()
                     .padding(.top, 20)
             } else if key.isDefault {
                 // No revoke here. Losing the default would leave the device with
                 // no key it can hand out, so the only action is to replace it.
                 SectionLabel(text: "Danger")
                 OutlineButton(title: isRegenerating ? "Regenerating…" : "Regenerate key",
-                              color: Theme.danger) {
+                              role: .destructive) {
                     showingRegenerateConfirm = true
                 }
                 .disabled(isRegenerating)
                 Text("Regenerating issues a new value and retires the old one. "
                      + "Anything still sending with the old value will be "
                      + "rejected.")
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .geistConsequence()
                     .padding(.top, 10)
             } else {
                 SectionLabel(text: "Danger")
                 OutlineButton(title: isRevoking ? "Revoking…" : "Revoke key",
-                              color: Theme.danger) {
+                              role: .destructive) {
                     showingRevokeConfirm = true
                 }
                 .disabled(isRevoking)
                 Text("Revoking is permanent. Anything still sending to this key "
                      + "will be rejected.")
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .geistConsequence()
                     .padding(.top, 10)
             }
 
@@ -251,6 +241,13 @@ struct KeyDetailView: View {
         do {
             try await model.regenerateDefaultKey()
             copied = false
+            // Failure announces itself through `InlineError`; success changed the
+            // masked value in place and said nothing, so the only outcome a
+            // VoiceOver user ever heard from a destructive action was the one that
+            // did not happen. Posted the same way `AnnouncedText` does it.
+            AccessibilityNotification.Announcement(
+                "Key regenerated. The old value no longer works."
+            ).post()
         } catch {
             errorMessage = (error as? APIError)?.userMessage
                 ?? "Couldn't regenerate the key. Check your connection and try again."
@@ -262,7 +259,19 @@ struct KeyDetailView: View {
         isUpdatingCritical = true
         errorMessage = nil
         do {
-            try await model.setKeyCritical(id: keyID, critical: critical)
+            let granted = try await model.setKeyCritical(id: keyID, critical: critical)
+            // The switch moving is not evidence the OS agreed. Switching a key on
+            // while notifi has no authorisation records the standing and delivers
+            // nothing louder than an ordinary notification, so the refusal is said
+            // out loud instead of being left to be discovered by a missed page.
+            if critical, granted != .enabled {
+                errorMessage = "This key is set to ask for Critical Alerts, but "
+                    + "notifi is not allowed to sound through silent mode. Turn "
+                    + "Critical Alerts on for notifi in system settings."
+            }
+        } catch NotifiError.criticalAlertsUnavailable {
+            errorMessage = "Critical Alerts aren't available in this build yet, so "
+                + "nothing was changed."
         } catch {
             errorMessage = (error as? APIError)?.userMessage
                 ?? "Couldn't change Critical Alerts for this key. Check your connection and try again."
@@ -277,6 +286,9 @@ struct KeyDetailView: View {
         do {
             try await api.revokeKey(id: keyID)
             await model.sync?.refreshKeys()
+            // See `regenerate()`: the success half of a destructive action has to
+            // announce itself too.
+            AccessibilityNotification.Announcement("Key revoked.").post()
         } catch {
             errorMessage = (error as? APIError)?.userMessage ?? "Couldn't revoke the key. Check your connection and try again."
         }

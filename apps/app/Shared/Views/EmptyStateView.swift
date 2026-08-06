@@ -138,7 +138,7 @@ struct EmptyStateView: View {
             }
         }
         .frame(maxWidth: 360)
-        .padding(.horizontal, Theme.gutter)
+        .geistGutter()
         .padding(.vertical, 40)
         .frame(maxWidth: .infinity)
     }

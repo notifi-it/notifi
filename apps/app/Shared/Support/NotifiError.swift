@@ -5,6 +5,10 @@ enum NotifiError: Error {
     case identityMissing
     case badSealedBlob
     case keychain(OSStatus)
+    /// The OS will not grant Critical Alerts at all — the entitlement is absent.
+    /// Distinct from the user having turned them off, which is recoverable from
+    /// system settings and does not stop a key's standing being recorded.
+    case criticalAlertsUnavailable
 }
 
 enum APIError: Error {

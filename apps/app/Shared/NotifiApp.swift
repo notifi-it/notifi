@@ -82,6 +82,7 @@ struct RootContentView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         @Bindable var model = model
@@ -121,7 +122,11 @@ struct RootContentView: View {
                     .environment(model)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Theme.bg)
-                    .transition(.move(edge: .bottom))
+                    // A full-window pane sliding up is the largest movement the
+                    // app makes, and it was the one piece of motion still
+                    // ungated. Under Reduce Motion it crossfades instead of
+                    // travelling; it still arrives, it just does not fly.
+                    .transition(reduceMotion ? .opacity : .move(edge: .bottom))
             }
         }
         .animation(.easeOut(duration: 0.2), value: model.presentingCreateKey)
