@@ -20,17 +20,45 @@ struct MessageDetailView: View {
     @Query private var messages: [Message]
     private let log = Logger(subsystem: "it.notifi.app", category: "store")
 
-    @State private var copied = false
     @State private var confirmingDelete = false
     // Reset on every open: revealing an image is a decision about this message on
     // this visit, not a preference that should outlive it.
     @State private var revealedImage = false
+    /// The image being looked at full screen, if any. Carries the URL rather
+    /// than being a flag, so the presented view never reaches back for it.
+    @State private var viewingImage: ViewedImage?
+
+    /// `URL` is not `Identifiable`, and making it so app-wide to satisfy one
+    /// presentation is a conformance the whole target would then inherit.
+    private struct ViewedImage: Identifiable {
+        let url: URL
+        var id: URL { url }
+    }
 
     init(serverID: Int) {
         _messages = Query(filter: #Predicate<Message> { $0.serverID == serverID })
     }
 
     private var message: Message? { messages.first }
+
+    /// The same wording the feed row uses, so arriving here does not restate the
+    /// age in a different vocabulary.
+    ///
+    /// Read once, when the screen is built. The feed keeps a ticking clock
+    /// because a row can sit on screen for minutes while others arrive around it;
+    /// a message you have opened is a screen you are reading, and an age that
+    /// counts up under your eyes is movement with nothing behind it.
+    private static func age(of message: Message) -> String {
+        let basis = message.occurredAt ?? message.createdAt
+        let seconds = max(0, Int(Date().timeIntervalSince(basis)))
+        switch seconds {
+        case ..<60: return "now"
+        case ..<3_600: return "\(seconds / 60) min"
+        case ..<86_400: return "\(seconds / 3_600) hr"
+        case ..<604_800: return "\(seconds / 86_400) d"
+        default: return "\(seconds / 604_800) w"
+        }
+    }
 
     private static let stamp: DateFormatter = {
         let f = DateFormatter()
@@ -64,6 +92,11 @@ struct MessageDetailView: View {
         .toolbar(.hidden, for: .navigationBar)
         #endif
         .onAppear { markRead() }
+        #if os(iOS)
+        .fullScreenCover(item: $viewingImage) { ImageViewer(url: $0.url) }
+        #else
+        .sheet(item: $viewingImage) { ImageViewer(url: $0.url) }
+        #endif
         // Delete cannot be undone — the message is gone from this device and the
         // server has already dropped it — so it always asks first.
         .alert("Delete this notification?", isPresented: $confirmingDelete) {
@@ -188,14 +221,26 @@ struct MessageDetailView: View {
                 .padding(.top, 10)
             }
 
-            // One clock. The sender's own event time when it gave one, and the
-            // time it arrived otherwise — the difference between the two is a
-            // detail of how it was sent, not something worth a second line.
-            Text(Self.stamp.string(from: message.occurredAt ?? message.createdAt))
-                .font(Theme.meta)
-                .foregroundStyle(Theme.dim)
-                .monospacedDigit()
-                .padding(.top, 6)
+            // One clock, read twice. The age is what the feed showed and what a
+            // reader arriving from it is still holding — dropping it here made
+            // the screen restate the moment in a format nobody scans. The exact
+            // stamp follows it rather than replacing it, because detail is also
+            // where you come to find out precisely when.
+            //
+            // The sender's own event time when it gave one, and the time it
+            // arrived otherwise — the difference between the two is a detail of
+            // how it was sent, not something worth a second line.
+            HStack(spacing: 7) {
+                Text(Self.age(of: message))
+                    .foregroundStyle(Theme.muted)
+                Text("·")
+                    .foregroundStyle(Theme.chip)
+                Text(Self.stamp.string(from: message.occurredAt ?? message.createdAt))
+                    .foregroundStyle(Theme.dim)
+            }
+            .font(Theme.meta)
+            .monospacedDigit()
+            .padding(.top, 6)
 
             // The rule divides what notifi says about the message from what the
             // sender put in it.
@@ -217,7 +262,14 @@ struct MessageDetailView: View {
                         AsyncImage(url: url) { phase in
                             switch phase {
                             case .success(let image):
-                                image.resizable().scaledToFit()
+                                // Tap to open it properly. The column-width
+                                // version is the right size for reading past
+                                // and the wrong size for reading.
+                                Button { viewingImage = ViewedImage(url: url) } label: {
+                                    image.resizable().scaledToFit()
+                                }
+                                .buttonStyle(.geist)
+                                .accessibilityLabel("View image full screen")
                             case .failure:
                                 VStack(spacing: 6) {
                                     Image(systemName: "xmark")
@@ -240,64 +292,17 @@ struct MessageDetailView: View {
                 .padding(.top, 20)
             }
 
-            if let link = message.link {
-                SectionLabel(text: "Link")
-
-                // The whole URL, wrapped. Detail is where you come to read it, so
-                // truncating here would defeat the point — the row already shows
-                // the short form.
-                Text(link.absoluteString)
-                    .font(.inco(.subheadline, weight: .regular))
-                    .foregroundStyle(Theme.fg)
-                    .textSelection(.enabled)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .multilineTextAlignment(.leading)
-                    .lineSpacing(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(13)
-                    .background(Theme.surface, in: RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
-
-                HStack(spacing: 9) {
-                    if LinkPolicy.allows(link, anyScheme: anyScheme) {
-                        Button { open(link, keyID: message.keyID) } label: {
-                            Text("Open link")
-                                .font(.inco(.footnote, weight: .semibold))
-                                .foregroundStyle(Theme.bg)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(Theme.fg, in: RoundedRectangle(cornerRadius: 8))
-                        }
-                        .buttonStyle(.geist)
-                    }
-
-                    OutlineShareButton(title: "Share", item: link)
-                }
-                .padding(.top, 10)
-
-                if !LinkPolicy.allows(link, anyScheme: anyScheme) {
-                    Text("Not opened: this link is not https. Turn on "
-                         + "\"Open any link\" for this key to allow it.")
-                        .font(Theme.metaSmall)
-                        .foregroundStyle(Theme.dim)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 8)
-                }
-            }
-
-            // Read/unread and delete moved to the top bar; copying the whole
-            // message is the only action left that needs a labelled control.
-            OutlineButton(title: copied ? "Copied" : "Copy message") {
-                Clipboard.copy(plainText(for: message))
-                withAnimation(.easeOut(duration: 0.15)) { copied = true }
-                Task {
-                    try? await Task.sleep(for: .seconds(1.6))
-                    withAnimation(.easeOut(duration: 0.2)) { copied = false }
-                }
-            }
-            .padding(.top, 20)
-            .padding(.bottom, 40)
+            // The link block and the copy button are gone on purpose. Every
+            // action they carried is in the top bar — the globe opens the link,
+            // and the body is selectable — and the URL itself is already in the
+            // message, either as the rendered link or as the row's own chip.
+            // Repeating it in a boxed panel with two buttons under it made the
+            // page end in furniture rather than in the message.
+            //
+            // What went with them: sharing the link, and copying the whole
+            // message in one gesture. Neither has a replacement here.
         }
+        .padding(.bottom, 40)
     }
 
     private var showsImage: Bool { model.remoteImagesEnabled || revealedImage }
@@ -350,13 +355,6 @@ struct MessageDetailView: View {
             notifi.IconButton(systemImage: systemName, label: label,
                               color: tint, glass: true, action: action)
         }
-    }
-
-    private func plainText(for message: Message) -> String {
-        var parts = [message.title]
-        if let body = message.body { parts.append(body) }
-        if let link = message.link { parts.append(link.absoluteString) }
-        return parts.joined(separator: "\n\n")
     }
 
     private func markRead() {
