@@ -2,7 +2,8 @@
 # xcodegen first and bridges the Keychain creds into ASC_KEY_ID / ASC_ISSUER_ID /
 # ASC_KEY_PATH.
 #
-#   make app-appstore   -> fastlane ios beta
+#   make app-testflight -> fastlane ios beta
+#   make app-submit     -> fastlane ios submit
 #   make app-dmg        -> fastlane mac dmg
 #
 # The two platforms ship differently on purpose: iOS goes to the App Store,
@@ -49,6 +50,52 @@ def asc_key
   )
 end
 
+# TestFlight and the App Store ship the identical binary; only what happens after
+# the upload differs. Keeping one build here means a build that reached testers
+# cannot differ from the one submitted for review.
+def build_ios_release
+  generate_project
+  build_app(
+    project: "notifi.xcodeproj",
+    scheme: "notifi-iOS",
+    configuration: "Release",
+    output_directory: "build",
+    output_name: "notifi.ipa",
+    export_method: "app-store",
+    export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+    xcargs: "#{ALLOW_PROVISIONING} CURRENT_PROJECT_VERSION=#{build_number}",
+    export_xcargs: ALLOW_PROVISIONING
+  )
+end
+
+# Without ITSAppUsesNonExemptEncryption in the Info.plist, App Store Connect asks
+# the export compliance question once per build and parks the version until
+# someone answers it in the web UI -- `submit_for_review` reports success and the
+# submission then sits there. Both plists declare it; this fails a signed build in
+# a second if that ever stops being true, or if the two platforms disagree on a
+# bundle id they share.
+def assert_export_compliance_declared
+  declared = %w[App-iOS-Info.plist App-macOS-Info.plist].to_h do |name|
+    path = File.expand_path("../Support/Info/#{name}", __dir__)
+    [name, `/usr/libexec/PlistBuddy -c "Print :ITSAppUsesNonExemptEncryption" #{path.shellescape} 2>&1`.strip]
+  end
+
+  missing = declared.select { |_, v| !%w[true false].include?(v) }
+  unless missing.empty?
+    UI.user_error!(<<~MSG)
+      ITSAppUsesNonExemptEncryption is missing or unreadable in: #{missing.keys.join(', ')}
+      App Store Connect will park the submission on the export compliance question.
+      Apple's guidance: https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations
+    MSG
+  end
+
+  if declared.values.uniq.size > 1
+    UI.user_error!("iOS and macOS disagree on ITSAppUsesNonExemptEncryption (#{declared.map { |k, v| "#{k}=#{v}" }.join(', ')}). They are one App Store Connect record; the answer has to match.")
+  end
+
+  UI.message("Export compliance: ITSAppUsesNonExemptEncryption = #{declared.values.first}")
+end
+
 # Signing deliberately does not use the App Store Connect key. Creating signing
 # assets over the API ("cloud signing") needs an Admin key; ours is App Manager,
 # and passing it fails with "Cloud signing permission error" before Xcode gets a
@@ -86,18 +133,7 @@ end
 platform :ios do
   desc "Build the Release app and upload it to TestFlight"
   lane :beta do
-    generate_project
-    build_app(
-      project: "notifi.xcodeproj",
-      scheme: "notifi-iOS",
-      configuration: "Release",
-      output_directory: "build",
-      output_name: "notifi.ipa",
-      export_method: "app-store",
-      export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
-      xcargs: "#{ALLOW_PROVISIONING} CURRENT_PROJECT_VERSION=#{build_number}",
-      export_xcargs: ALLOW_PROVISIONING
-    )
+    build_ios_release
 
     # SKIP_UPLOAD=1 builds and signs exactly as a real release but publishes
     # nothing -- the way to prove signing works without putting a build in front
@@ -111,6 +147,45 @@ platform :ios do
       api_key: asc_key,
       skip_waiting_for_build_processing: true,
       changelog: ENV.fetch("TF_CHANGELOG", "Latest build.")
+    )
+  end
+
+  # The production release. Same binary as `beta`, but attached to the App Store
+  # version and submitted for review rather than handed to testers. Approval does
+  # not release: `automatic_release` is off, so the version sits in "Pending
+  # Developer Release" until someone presses Release in App Store Connect. That
+  # is the one manual gate worth keeping -- the store build and the Worker it
+  # talks to have to go live in an order a human chooses.
+  desc "Build, attach the binary to the App Store version, and submit for review"
+  lane :submit do
+    assert_export_compliance_declared
+
+    build_ios_release
+
+    if ENV["SKIP_UPLOAD"]
+      UI.important("SKIP_UPLOAD set - nothing was uploaded and nothing was submitted")
+      next
+    end
+
+    upload_to_app_store(
+      api_key: asc_key,
+      app_version: get_version_number(xcodeproj: "notifi.xcodeproj", target: "notifi-iOS"),
+      ipa: lane_context[SharedValues::IPA_OUTPUT_PATH],
+      # Same reason as the `metadata` lane: the store screenshots were uploaded
+      # by hand and there is no generator in this repo, so letting deliver manage
+      # an empty directory would delete them off the listing mid-submission.
+      skip_screenshots: true,
+      submit_for_review: true,
+      automatic_release: false,
+      force: true, # no HTML preview to confirm; this runs unattended
+      run_precheck_before_submit: true,
+      precheck_include_in_app_purchases: false, # API-key auth cannot read IAP, and there are none
+      submission_information: {
+        # No ad SDKs and nothing that touches the IDFA -- the only packages the
+        # app links are Sparkle and MarkdownUI. Export compliance is answered by
+        # ITSAppUsesNonExemptEncryption in the Info.plist, checked above.
+        add_id_info_uses_idfa: false
+      }
     )
   end
 

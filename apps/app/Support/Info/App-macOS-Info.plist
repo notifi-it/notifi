@@ -36,6 +36,14 @@
 	<string>Xlsia4hLTja1GdypYg25beFydOefBfX+TkL2v8cLlNU=</string>
 	<key>SUEnableInstallerLauncherService</key>
 	<true/>
+	<!-- Same declaration as App-iOS-Info.plist, and it has to be the same: both
+	     platforms are one App Store Connect record under it.notifi.notifi, and
+	     they run the same HPKE sealing code out of Shared/. The Mac build is a
+	     Developer ID DMG that never reaches the store, but notarization asks the
+	     same question, and two answers to it on one bundle id is a contradiction
+	     waiting to be noticed. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

@@ -1,5 +1,6 @@
 .PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck gen-vectors \
-	app-project app-preflight app-dmg app-appstore app-metadata app-metadata-check
+	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
+	app-metadata app-metadata-check
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -40,9 +41,28 @@ app-preflight:
 app-dmg:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac dmg
 
-# iOS ships through the App Store. SKIP_UPLOAD=1 builds and signs without publishing.
-app-appstore:
+# iOS ships through the App Store, in two steps. `app-testflight` puts a build in
+# front of testers; `app-submit` builds the same thing again and submits that
+# version for review. SKIP_UPLOAD=1 works on both: it builds and signs without
+# uploading or submitting anything.
+app-testflight:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios beta
+
+# Submitting for review is not undoable from here -- withdrawing a submission is a
+# click in App Store Connect -- so it gets its own target rather than a flag on the
+# TestFlight one. Push the listing copy with `app-metadata` first if it changed:
+# this lane attaches the binary and submits, it does not upload metadata.
+app-submit:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios submit
+
+# `app-appstore` used to mean TestFlight, which stopped being an honest name once
+# a real submission target existed. Refuse rather than guess: one of the two
+# things it could now mean submits the app for review.
+app-appstore:
+	@echo "app-appstore is gone -- it meant TestFlight, which was misleading."
+	@echo "  make app-testflight   upload a build to TestFlight"
+	@echo "  make app-submit       submit the current version for App Store review"
+	@exit 1
 
 # App Store listing text lives in apps/app/fastlane/metadata and is pushed from
 # there, so the store copy is reviewed like the rest of the repo rather than

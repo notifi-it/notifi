@@ -72,7 +72,7 @@ if [[ "${1:-}" == "preflight" ]]; then
   security find-identity -v -p codesigning | grep -q "Developer ID Application.*($TEAM_ID)" \
     || die "No 'Developer ID Application' identity for team $TEAM_ID -- 'make app-dmg' cannot sign."
   security find-identity -v -p codesigning | grep -q "Apple Distribution" \
-    || die "No 'Apple Distribution' identity in your keychain -- 'make app-appstore' cannot sign."
+    || die "No 'Apple Distribution' identity in your keychain -- 'make app-testflight' and 'make app-submit' cannot sign."
   echo "team           $TEAM_ID"
   echo "asc key        $ASC_KEY_ID"
   echo "asc key file   $ASC_KEY_PATH"

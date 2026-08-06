@@ -33,6 +33,17 @@
 		<string>Inconsolata.ttf</string>
 			<string>Karla.ttf</string>
 	</array>
+	<!-- True because the app does more than call HTTPS: it seals notification
+	     bodies to the device with HPKE (P256_SHA256_AES_GCM_256) and signs
+	     requests with a Secure Enclave P-256 key. None of Apple's "answer false"
+	     exemptions cover that — they stop at OS-provided TLS, authentication-only
+	     use, and keys of 56 bits or fewer. Declaring it here rather than in App
+	     Store Connect also stops the question being asked once per build, which
+	     otherwise parks every TestFlight upload until someone clicks through it.
+	     Claiming the mass-market exemption for it is a separate, human step: see
+	     "Export compliance" in the README. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
