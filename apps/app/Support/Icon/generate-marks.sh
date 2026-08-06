@@ -207,7 +207,7 @@ svg("%s/bell.svg" % web, 32, 32, logo_box, mark(logo_box, "#000", "#000"))
 
 # The favicon carries the plate and the real colours, and is the only one that
 # is not a template.
-plate = ('  <rect width="32" height="32" rx="7" fill="#000"/>\n'
+plate = ('  <rect width="32" height="32" rx="7" fill="#1C1C1E"/>\n'
          '  <g transform="translate(16 16) scale(0.78) translate(-16 -16)">\n'
          '%s\n  </g>' % mark("0 0 32 32", "#EDEDED", "#BC2122", indent="    "))
 svg("%s/favicon.svg" % web, 32, 32, "0 0 32 32", plate)

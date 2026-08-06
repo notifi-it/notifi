@@ -5,15 +5,18 @@ import UIKit
 import AppKit
 #endif
 
-// The Geist design system: pure black, monochrome, hairline rules.
+// The Geist design system: soft black, monochrome, hairline rules.
 // Brand red appears in exactly two places — the wordmark dot and the unread marker.
 // Dark only; there is no light palette by design.
 
 enum Theme {
     // MARK: Colour
 
-    /// The ground. Pure black, not a near-black — the hairlines do the separating.
-    static let bg = Color.black
+    /// The ground. Apple's near-black (#1C1C1E), not pure black — the same
+    /// charcoal the Watch app icon and system dark surfaces sit on. Pure black
+    /// made the app read as a hole punched in the home screen; every other
+    /// value below is lifted to hold its contrast ratio against this one.
+    static let bg = Color(white: 0.11)           // #1C1C1C
     /// Primary text and the app's only "bright" value.
     static let fg = Color(white: 0.929)          // #EDEDED
     /// Titles of messages that have been read.
@@ -22,16 +25,16 @@ enum Theme {
     static let muted = Color(white: 0.631)       // #A1A1A1
     /// Timestamps and anything that should recede completely.
     ///
-    /// 4.9:1 on the ground and 4.6:1 on `surface`. It was #6E6E6E, which measured
+    /// 4.75:1 on the ground and 4.6:1 on `surface`. It was #6E6E6E, which measured
     /// 4.1:1 and 3.9:1 — under the 4.5:1 floor for body text. That was easy to
     /// miss because this reads as a receding colour, but it carries every
     /// explanatory paragraph in the app, including the ones stating what happens
     /// to a key when the device is lost.
-    static let dim = Color(white: 0.48)          // #7A7A7A
+    static let dim = Color(white: 0.54)          // #8A8A8A
     /// Row separators and section rules.
-    static let line = Color(white: 0.122)        // #1F1F1F
+    static let line = Color(white: 0.20)         // #333333
     /// Borders on chips and thumbnails — decoration, not a control boundary.
-    static let chip = Color(white: 0.165)        // #2A2A2A
+    static let chip = Color(white: 0.235)        // #3C3C3C
 
     /// The boundary of anything tappable: outlined buttons and text fields.
     ///
@@ -39,17 +42,21 @@ enum Theme {
     /// nothing on a decorative one. At `chip`'s 1.5:1 an `OutlineButton` was
     /// distinguishable from the prose beside it only by its label — which on the
     /// key screen means a destructive action reading as a heading.
-    static let controlBorder = Color(white: 0.38) // #616161
+    static let controlBorder = Color(white: 0.44) // #707070
     /// One step up from the ground, for inset fields.
-    static let surface = Color(white: 0.043)     // #0B0B0B
+    static let surface = Color(white: 0.15)      // #262626
 
-    /// #BC2122. Unread marker and the wordmark dot — nothing else.
-    /// 3.4:1 on black: fine for a dot (WCAG wants 3:1 for non-text), never for text.
-    static let brand = Color(red: 0.737, green: 0.129, blue: 0.133)
-
-    /// The brand red, lifted for use as *text* on black.
+    /// Unread marker and the wordmark dot — nothing else.
     ///
-    /// `brand` itself is 3.4:1 against the ground — fine for a dot, which only has
+    /// #C82A2A rather than the artwork's #BC2122: the latter measured 3.4:1 on
+    /// pure black and only 2.7:1 once the ground was lifted to `bg`, under the
+    /// 3:1 WCAG wants for a non-text mark. This sits at 3.1:1 on the new ground
+    /// at the same hue. Never use it for text.
+    static let brand = Color(red: 0.784, green: 0.160, blue: 0.165)
+
+    /// The brand red, lifted for use as *text* on the ground.
+    ///
+    /// `brand` itself is 3.1:1 against the ground — fine for a dot, which only has
     /// to clear the 3:1 non-text floor, but under the 4.5:1 that body text needs.
     /// This sits at roughly 5:1 while staying the same hue.
     static let brandText = Color(red: 0.859, green: 0.290, blue: 0.294)

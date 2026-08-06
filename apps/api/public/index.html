@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>notifi: push notifications from the command line</title>
 <meta name="description" content="No account and no SDK. End-to-end encrypted and open source, so neither we nor Apple can read your messages. Create a send key, curl a title to notifi.it/send, and the alert lands on your iPhone or your Mac.">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
@@ -50,22 +50,22 @@
    only where something is unread or urgent.
    ───────────────────────────────────────────────────────────── */
 :root{
-  --bg:#000;
+  --bg:#1C1C1E;
   --fg:#EDEDED;
   --muted:#A1A1A1;
-  /* 4.86:1 on --bg and 4.56:1 on --surface. It was #6E6E6E, which measured
+  /* 4.75:1 on --bg and 4.6:1 on --surface. It was #6E6E6E, which measured
      4.26:1 on --surface, below the 4.5:1 floor for text under 18px, and
      .term .c, .term .p, .term-title and the .copy label all sit on --surface. */
-  --dim:#808080;
-  --line:#1F1F1F;
-  --chip:#2A2A2A;
-  /* 3.06:1 on --bg, the floor for a control identifiable only by its border.
-     Kept separate from --line (1.27:1) and --chip (1.44:1), which stay
-     decorative hairlines everywhere else. */
-  --control-border:#4A4A4A;
-  --surface:#0B0B0B;
-  --brand:#BC2122;
-  --brand-text:#DB4A4B;      /* lifted to clear 4.5:1 on black */
+  --dim:#8A8A8A;
+  --line:#333333;
+  --chip:#3C3C3C;
+  /* 3.45:1 on --bg, clearing the floor for a control identifiable only by its
+     border. Kept separate from --line and --chip, which stay decorative
+     hairlines everywhere else. */
+  --control-border:#707070;
+  --surface:#262628;
+  --brand:#C82A2A;
+  --brand-text:#DB4A4B;      /* lifted to clear 4.5:1 on the ground */
   --mono:'Inconsolata',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --gutter:clamp(20px,5vw,40px);
@@ -113,7 +113,7 @@ p{max-width:62ch}
 .section-head .rule{flex:1}
 
 /* ── header ─────────────────────────────────────────────────── */
-header{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:20;background:rgba(28,28,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
 .mark img{height:17px;width:auto;display:block}
@@ -137,7 +137,7 @@ nav a:hover{color:var(--fg)}
 /* Hover does not exist on a phone, so without this a tap on the download
    buttons produced nothing at all until the navigation happened. */
 .btn:active{transform:scale(.98)}
-.btn-primary{background:var(--fg);color:#000;border-color:var(--fg)}
+.btn-primary{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
 .btn-primary:hover{background:#fff;border-color:#fff}
 /* A control that has nowhere to go yet. Kept in the flow so the reader can see
    what is coming and that it is not ready, rather than clicking a live-looking
@@ -287,7 +287,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 }
 .tab:hover{color:var(--fg);border-color:#6A6A6A}
 .tab:active{border-color:var(--fg)}
-.tab[aria-selected="true"]{background:var(--fg);color:#000;border-color:var(--fg)}
+.tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
 .panel[hidden]{display:none}
 
 /* Panels differ in height by hundreds of pixels, so switching language used to

@@ -3,20 +3,20 @@
        direction; the radial pool sits behind the bell so the glyph reads as
        standing in light rather than on a flat field; the vignette closes the
        corners so the icon keeps its shape against a light home screen.
-       Every step is within #05–#22: at any smaller size than 1024 it should
+       Every step is within #14–#3A: at any smaller size than 1024 it should
        register as depth, never as a visible gradient. -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0.25" y2="1">
-      <stop offset="0" stop-color="#1A1A1A"/><stop offset="0.55" stop-color="#0B0B0B"/><stop offset="1" stop-color="#050505"/>
+      <stop offset="0" stop-color="#2B2B2D"/><stop offset="0.55" stop-color="#1C1C1E"/><stop offset="1" stop-color="#141416"/>
     </linearGradient>
     <radialGradient id="pool" cx="0.5" cy="0.38" r="0.62">
-      <stop offset="0" stop-color="#242424" stop-opacity="0.85"/>
-      <stop offset="0.55" stop-color="#141414" stop-opacity="0.35"/>
+      <stop offset="0" stop-color="#3A3A3C" stop-opacity="0.85"/>
+      <stop offset="0.55" stop-color="#252527" stop-opacity="0.35"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="vignette" cx="0.5" cy="0.5" r="0.75">
       <stop offset="0.6" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.45"/>
     </radialGradient>
   </defs>
   <rect width="1024" height="1024" fill="url(#bg)"/>
