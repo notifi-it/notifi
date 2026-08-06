@@ -75,21 +75,22 @@ private struct TabButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
-                Image(icon)
-                    .renderingMode(templated ? .template : .original)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                Text(title)
-                    .font(.inco(.caption2, weight: isSelected ? .semibold : .regular))
-            }
-            .foregroundStyle(tint)
+            // Icon only, matching iOS. Three destinations whose glyphs are a
+            // bell, a key and a gear do not need naming, and the name is still
+            // spoken and shown on hover.
+            Image(icon)
+                .renderingMode(templated ? .template : .original)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+                .padding(.vertical, 4)
+                .foregroundStyle(tint)
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
+        .help(title)
         .accessibilityLabel(title)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }

@@ -73,9 +73,10 @@ struct InboxView: View {
             ? "1 notification"
             : "\(messages.count) notifications"
         guard unreadCount > 0 else { return Text(total) }
-        return Text("\(total) · ")
-            + Text("\(unreadCount)").foregroundColor(Theme.brandText)
-            + Text(" unread")
+        // Unread leads: it is the number the screen exists to answer, and the
+        // total is the context for it.
+        return Text("\(unreadCount)").foregroundColor(Theme.brandText)
+            + Text(" unread · \(total)")
     }
 
     var body: some View {
@@ -137,15 +138,27 @@ struct InboxView: View {
                     // so the message stays inside the margin while the line
                     // between messages runs edge to edge.
                     .overlay(alignment: .bottom) { Hairline() }
-                    .plainRow()
+                    // Unread sits one step off the ground. The dot alone made the
+                    // state a thing you find rather than a thing you see, which on
+                    // a screen whose whole job is "what have I not read" is the
+                    // wrong way round.
+                    .plainRow(background: message.isRead ? Theme.bg : Theme.surface)
                     // Swiping is a touch idiom. On the Mac the same actions live in
                     // the right-click menu below, which is where a Mac user looks.
                     #if os(iOS)
                     .swipeActions(edge: .leading) {
                         Button { toggleRead(message) } label: {
-                            Label(message.isRead ? "Unread" : "Read",
-                                  systemImage: message.isRead
-                                      ? "envelope.badge" : "envelope.open")
+                            // The same ring/dot the detail screen uses for this
+                            // action, so the two places that toggle read state
+                            // are not drawn from different icon families.
+                            //
+                            // An `Image` rather than a `Label`: a swipe action
+                            // renders the title under the glyph, and the word was
+                            // doing nothing the icon and the swipe direction did
+                            // not already say. The spoken name is kept.
+                            Image(systemName: message.isRead ? "circle.fill" : "circle")
+                                .accessibilityLabel(
+                                    message.isRead ? "Mark as unread" : "Mark as read")
                         }
                         .tint(Theme.chip)
                     }
@@ -156,7 +169,8 @@ struct InboxView: View {
                         // Asks first: a swipe is easy to do by accident and the
                         // message cannot be recovered afterwards.
                         Button(role: .destructive) { pendingDelete = message } label: {
-                            Label("Delete", systemImage: "trash")
+                            Image(systemName: "trash")
+                                .accessibilityLabel("Delete")
                         }
                         .tint(Theme.danger)
                     }
@@ -418,8 +432,9 @@ private extension View {
     /// Insets are a parameter rather than a second `.listRowInsets` call — applying
     /// that modifier twice keeps the innermost value, which silently made rows
     /// full-bleed and pushed the thumbnails off the right edge.
-    func plainRow(insets: EdgeInsets = EdgeInsets()) -> some View {
-        listRowBackground(Theme.bg)
+    func plainRow(insets: EdgeInsets = EdgeInsets(),
+                  background: Color = Theme.bg) -> some View {
+        listRowBackground(background)
             .listRowSeparator(.hidden)
             .listRowInsets(insets)
     }
@@ -446,20 +461,10 @@ private struct MessageRow: View {
     }
 
     var body: some View {
+        // Unread is carried by the row's ground and the title's weight, so the
+        // text starts at the gutter like every other screen rather than being
+        // indented past a marker column.
         HStack(alignment: .firstTextBaseline, spacing: Theme.rowGap) {
-            // The unread marker — the only colour in the system. Hung off the
-            // title's own baseline rather than a fixed top inset, so it stays
-            // centred on the first line as Dynamic Type resizes it.
-            //
-            // The offset centres the dot on the title's cap height, not on its
-            // baseline. Sitting it just above the baseline, which is what a
-            // one-point offset did, left it visibly low against uppercase text.
-            Circle()
-                .fill(message.isRead ? Color.clear : Theme.brand)
-                .frame(width: 6, height: 6)
-                .alignmentGuide(.firstTextBaseline) { $0.height / 2 + 6 }
-                .accessibilityHidden(true)
-
             VStack(alignment: .leading, spacing: 5) {
                 Text(message.title)
                     .font(message.isRead ? Theme.title : Theme.titleUnread)
@@ -472,7 +477,7 @@ private struct MessageRow: View {
                     // kept, so a bulleted body previews as prose rather than dashes.
                     Text(MarkdownPreview.text(body))
                         .font(Theme.body)
-                        .foregroundStyle(Theme.muted)
+                        .foregroundStyle(Theme.dim)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .multilineTextAlignment(.leading)
@@ -491,9 +496,12 @@ private struct MessageRow: View {
                 // it set the width of this column and squeezed titles into extra
                 // lines to buy a precision the feed never needed. The detail page
                 // carries the full date, down to the millisecond.
+                // Smaller and quieter than the body it sits beside: the age is a
+                // coordinate, and at `meta`/`muted` it was the brightest thing in
+                // the row after the title.
                 Text(relative)
-                    .font(Theme.meta)
-                    .foregroundStyle(Theme.muted)
+                    .font(Theme.metaSmall)
+                    .foregroundStyle(Theme.dim)
                 if let url = message.imageURL,
                    LinkPolicy.allows(url, anyScheme: allowAnyScheme) {
                     Thumbnail(url: url).padding(.top, 8)

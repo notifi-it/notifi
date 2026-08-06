@@ -93,10 +93,15 @@ enum Theme {
     static let measure: CGFloat = 620
 
     /// Height of the fade that closes a scrolling screen at the bottom, measured
-    /// from the safe-area edge upward. Roughly two lines of body copy: enough that
-    /// a row dissolves rather than being clipped mid-letter, short enough that a
-    /// row sitting at rest under it is still readable.
-    static let bottomFade: CGFloat = 72
+    /// from the safe-area edge upward. Enough that a row dissolves rather than
+    /// being clipped mid-letter, short enough that a row sitting at rest under it
+    /// is still readable.
+    ///
+    /// It lives entirely below the floating tab bar. Running it up through the
+    /// bar dimmed the rows either side of it and read as a smear; confined to the
+    /// strip underneath, it only does the job it exists for, which is stopping a
+    /// row from being clipped mid-letter at the screen edge.
+    static let bottomFade: CGFloat = 44
 
     // MARK: Motion
     //

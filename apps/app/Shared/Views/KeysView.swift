@@ -14,6 +14,10 @@ struct KeysView: View {
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
     private var activeKeys: [CachedKey] { keys.filter { !$0.isRevoked } }
     private var revokedKeys: [CachedKey] { keys.filter { $0.isRevoked } }
+    private var defaultKey: CachedKey? { activeKeys.first { $0.isDefault } }
+    // The default key sits above the count, so Active counts what is listed
+    // under it rather than one more than the reader can see.
+    private var otherActiveKeys: [CachedKey] { activeKeys.filter { !$0.isDefault } }
 
     private var subtitle: String {
         let n = activeKeys.count
@@ -43,11 +47,22 @@ struct KeysView: View {
                             .padding(.top, 14)
                     }
 
-                    SectionLabel(text: "Active", trailing: "\(activeKeys.count)")
                 }
                 .geistGutter()
 
-                if activeKeys.isEmpty {
+                if let defaultKey {
+                    NavigationLink(value: defaultKey) {
+                        KeyRow(key: defaultKey, chipOnlyTitle: true)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                    Hairline()
+                }
+
+                SectionLabel(text: "Active", trailing: "\(otherActiveKeys.count)")
+                    .geistGutter()
+
+                if otherActiveKeys.isEmpty {
                     Text("No active keys yet.")
                         .font(Theme.body)
                         .foregroundStyle(Theme.muted)
@@ -55,7 +70,7 @@ struct KeysView: View {
                         .geistGutter()
                     Hairline()
                 } else {
-                    ForEach(activeKeys) { key in
+                    ForEach(otherActiveKeys) { key in
                         NavigationLink(value: key) {
                             KeyRow(key: key)
                         }
@@ -108,6 +123,9 @@ struct KeysView: View {
 
 private struct KeyRow: View {
     let key: CachedKey
+    // The default key gets its own untitled block, where the chip is the only
+    // label the row needs; repeating the name above it read as a duplicate.
+    var chipOnlyTitle = false
 
     private var sent: String {
         key.sentCount == 1 ? "1 sent" : "\(key.sentCount) sent"
@@ -117,13 +135,14 @@ private struct KeyRow: View {
         DisclosureRow {
             VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 8) {
-                    Text(key.name)
-                        .font(.inco(.headline, weight: .semibold))
-                        .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
-                        .lineLimit(1)
-                    if key.isDefault {
+                    if chipOnlyTitle {
                         Chip(text: "Default", color: Theme.fg,
                              border: Theme.muted.opacity(0.5))
+                    } else {
+                        Text(key.name)
+                            .font(.inco(.headline, weight: .semibold))
+                            .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
+                            .lineLimit(1)
                     }
                     if key.isRevoked {
                         Chip(text: "Revoked", color: Theme.dim)

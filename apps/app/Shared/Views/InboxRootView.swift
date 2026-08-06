@@ -22,22 +22,26 @@ struct InboxRootView: View {
             // The mark's own badge carries the unread state, rather than a
             // second dot stacked next to it: the bell already has one, and two
             // would be the same fact twice.
+            // Icon only. A bell, a key and a gear name themselves, and the
+            // titles were the only text competing with the content scrolling
+            // behind the bar. The label is kept for VoiceOver.
             .tabItem {
                 Label("Notifications",
                       image: model.hasUnread ? "BellTabUnread" : "BellTab")
+                    .labelStyle(.iconOnly)
             }
             .tag(AppTab.inbox)
 
             NavigationStack {
                 KeysView()
             }
-            .tabItem { Label("Keys", image: "akar-key") }
+            .tabItem { Label("Keys", image: "akar-key").labelStyle(.iconOnly) }
             .tag(AppTab.keys)
 
             NavigationStack {
                 SettingsView()
             }
-            .tabItem { Label("Settings", image: "akar-gear") }
+            .tabItem { Label("Settings", image: "akar-gear").labelStyle(.iconOnly) }
             .tag(AppTab.settings)
         }
         .tint(Theme.fg)
