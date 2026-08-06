@@ -46,18 +46,31 @@ struct SearchField: View {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 15))
                         .foregroundStyle(Theme.dim)
+                        // Sized rather than outset: this one sits against the
+                        // field's own tap area, so an expanded shape would start
+                        // clearing the text when you meant to put the caret at
+                        // the end of it. Full field height, 32 wide, which clears
+                        // the 24pt floor without reaching the words.
+                        .frame(width: 32, height: 38)
+                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.geist)
                 .accessibilityLabel("Clear search")
                 .transition(.opacity)
             }
         }
         .padding(.horizontal, 11)
-        .frame(height: 38)
+        // Minimum, not fixed: the field's text scales with Dynamic Type, and a
+        // hard height clipped it at the accessibility sizes.
+        .frame(minHeight: 38)
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 9))
+        // 2pt when focused, and `muted` rather than a half-opacity wash of it —
+        // the old ring composited to 2.7:1 against the field it sat on, under the
+        // 3:1 a focus indicator has to clear.
         .overlay(
             RoundedRectangle(cornerRadius: 9)
-                .stroke(focused.wrappedValue ? Theme.muted.opacity(0.5) : Theme.chip, lineWidth: 1)
+                .stroke(focused.wrappedValue ? Theme.muted : Theme.controlBorder,
+                        lineWidth: focused.wrappedValue ? 2 : 1)
         )
         .animation(.easeOut(duration: 0.12), value: text.isEmpty)
         .animation(.easeOut(duration: 0.12), value: focused.wrappedValue)
@@ -108,7 +121,11 @@ struct SectionLabel: View {
                     .foregroundStyle(Theme.dim)
             }
         }
-        .padding(.top, 22)
+        // 34, not 22. Adjacent rows inside a section already sit 24pt apart
+        // (12 above and below each), so at 22 the gap that separated two sections
+        // was narrower than the gap between two rows of the same one — the label
+        // and its rule were carrying the structure unaided.
+        .padding(.top, 34)
         .padding(.bottom, 9)
     }
 }
@@ -129,7 +146,7 @@ struct PillButton: View {
                 .background(role == .destructive ? Theme.danger : Theme.fg,
                             in: RoundedRectangle(cornerRadius: Theme.radius))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
     }
 }
 
@@ -151,9 +168,13 @@ struct IconButton: View {
                 .foregroundStyle(color)
                 .frame(width: 34, height: 34)
                 .glassBackground(enabled: glass)
-                .contentShape(Circle())
+                // Drawn at 34 and tapped at 44. The disc cannot simply grow:
+                // it sits in `GeistBrandRow`, whose height is fixed so the
+                // trailing control cannot push one tab's title lower than
+                // another's — the exact drift the header row exists to prevent.
+                .geistHitArea(expandedBy: 5)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
         .accessibilityLabel(label)
     }
 }
@@ -190,9 +211,10 @@ struct OutlineButton: View {
                 .frame(maxWidth: fill ? .infinity : nil)
                 .padding(.horizontal, fill ? 0 : 14)
                 .padding(.vertical, 11)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .stroke(Theme.controlBorder, lineWidth: 1))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
     }
 }
 
@@ -208,9 +230,10 @@ struct OutlineShareButton<Item: Transferable>: View {
                 .foregroundStyle(Theme.fg)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 11)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .stroke(Theme.controlBorder, lineWidth: 1))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
     }
 }
 
@@ -276,12 +299,19 @@ struct ToggleRow: View {
                 }
             }
             Spacer(minLength: 8)
-            Toggle("", isOn: $isOn)
+            // The title goes into the `Toggle`, not just the label beside it.
+            // `Toggle("")` with `labelsHidden()` draws the same switch but names
+            // it the empty string, so VoiceOver announced "switch, off" with no
+            // way to tell which of the three this was — two of them being link
+            // policy and Critical Alerts. `labelsHidden()` still keeps the label
+            // off screen, so the row looks exactly as it did.
+            Toggle(title, isOn: $isOn)
                 .labelsHidden()
                 .toggleStyle(.switch)
                 .controlSize(.small)
                 .tint(Theme.brand)
                 .frame(width: Theme.controlWidth, alignment: .trailing)
+                .accessibilityHint(detail ?? "")
         }
         .padding(.vertical, Theme.rowPadV)
     }
@@ -366,6 +396,31 @@ struct InlineError: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Theme.danger.opacity(0.3), lineWidth: 1)
         )
+        // An error inserted into the tree is silent: VoiceOver announces it only
+        // if focus happens to land on it, so someone who just tapped Send heard
+        // nothing at all and had no way to tell failure from still-working.
+        .onAppear { AccessibilityNotification.Announcement(message).post() }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Error. \(message)")
+    }
+}
+
+/// Non-error status copy that appears in response to an action.
+///
+/// Same problem as `InlineError` and the same fix — the success half of a result
+/// has to announce itself too, or the only outcome a VoiceOver user ever hears
+/// is the failure.
+struct AnnouncedText: View {
+    var message: String
+    var font: Font = Theme.metaSmall
+    var color: Color = Theme.dim
+
+    var body: some View {
+        Text(message)
+            .font(font)
+            .foregroundStyle(color)
+            .fixedSize(horizontal: false, vertical: true)
+            .onAppear { AccessibilityNotification.Announcement(message).post() }
     }
 }
 

@@ -23,7 +23,11 @@ struct EmptyStateView: View {
                 )
                 sent = true
             } catch {
-                sendError = error.localizedDescription
+                // Every other call site maps through `userMessage`; this one was
+                // handing the reader whatever `localizedDescription` happened to
+                // produce, which for a decoding failure is Swift's own diagnostic.
+                sendError = (error as? APIError)?.userMessage
+                    ?? "Couldn't send. Check your connection and try again."
             }
             sending = false
         }
@@ -83,7 +87,7 @@ struct EmptyStateView: View {
                     done: notificationsAllowed
                 ) {
                     if !notificationsAllowed {
-                        OutlineButton(title: "Enable Notifications", fill: true) {
+                        OutlineButton(title: "Enable notifications", fill: true) {
                             Task { await model.requestNotificationPermission() }
                         }
                     }
@@ -109,7 +113,7 @@ struct EmptyStateView: View {
                             copied = true
                         }
 
-                        OutlineButton(title: sending ? "Sending…" : "Try It", fill: true) {
+                        OutlineButton(title: sending ? "Sending…" : "Send a test", fill: true) {
                             send()
                         }
                         .disabled(sending)
@@ -117,10 +121,14 @@ struct EmptyStateView: View {
 
                     if let sendError {
                         InlineError(message: sendError)
+                    } else if sent {
+                        AnnouncedText(
+                            message: "Sent. It arrives here and on your lock screen in a moment.",
+                            color: Theme.muted
+                        )
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     } else {
-                        Text(sent
-                             ? "Sent. It arrives here and on your lock screen in a moment."
-                             : "It arrives here and on your lock screen. Make more keys under Keys to keep sources apart.")
+                        Text("It arrives here and on your lock screen. Make more keys under Keys to keep sources apart.")
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.muted)
                             .fixedSize(horizontal: false, vertical: true)

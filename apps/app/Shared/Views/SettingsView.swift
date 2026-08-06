@@ -34,7 +34,7 @@ struct SettingsView: View {
                 Hairline()
 
                 if model.notificationStatus != .authorized {
-                    OutlineButton(title: "Open System Settings") {
+                    OutlineButton(title: "Open system settings") {
                         model.openSystemNotificationSettings()
                     }
                     .padding(.top, 14)
@@ -75,16 +75,14 @@ struct SettingsView: View {
                     .padding(.vertical, Theme.rowPadV)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.geistRow)
                 .disabled(testState == .sending)
 
                 if let testMessage {
                     if testFailed {
                         InlineError(message: testMessage).padding(.bottom, 12)
                     } else {
-                        Text(testMessage)
-                            .font(Theme.metaSmall)
-                            .foregroundStyle(Theme.dim)
+                        AnnouncedText(message: testMessage)
                             .padding(.bottom, 12)
                     }
                 }
@@ -124,7 +122,7 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, Theme.rowPadV)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.geistRow)
                 .disabled(!Updater.shared.canCheck)
                 Hairline()
                 #endif
@@ -137,7 +135,7 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, 12)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.geistRow)
                 Hairline()
 
                 Text("Keys live and die with this device. If you lose it, "
@@ -161,11 +159,15 @@ struct SettingsView: View {
                     .foregroundStyle(Theme.muted)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.geist)
+                // 11pt text and an 11pt glyph, so the drawn target is about a
+                // third of the minimum.
+                .geistHitArea(expandedBy: 15)
                 .padding(.top, 14)
                 .padding(.bottom, 40)
             }
             .geistGutter()
+            .geistMeasure()
         }
         .background(Theme.bg)
         .scrollContentBackground(.hidden)

@@ -52,7 +52,7 @@ struct KeysView: View {
                         NavigationLink(value: key) {
                             KeyRow(key: key)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.geistRow)
                         Hairline()
                     }
                 }
@@ -63,7 +63,7 @@ struct KeysView: View {
                         NavigationLink(value: key) {
                             KeyRow(key: key)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.geistRow)
                         Hairline()
                     }
                 }
@@ -79,6 +79,7 @@ struct KeysView: View {
                     .padding(.bottom, 40)
             }
             .geistGutter()
+            .geistMeasure()
         }
         .background(Theme.bg)
         .scrollContentBackground(.hidden)

@@ -16,11 +16,25 @@ enum Theme {
     /// Body copy and secondary labels.
     static let muted = Color(white: 0.631)       // #A1A1A1
     /// Timestamps and anything that should recede completely.
-    static let dim = Color(white: 0.431)         // #6E6E6E
+    ///
+    /// 4.9:1 on the ground and 4.6:1 on `surface`. It was #6E6E6E, which measured
+    /// 4.1:1 and 3.9:1 — under the 4.5:1 floor for body text. That was easy to
+    /// miss because this reads as a receding colour, but it carries every
+    /// explanatory paragraph in the app, including the ones stating what happens
+    /// to a key when the device is lost.
+    static let dim = Color(white: 0.48)          // #7A7A7A
     /// Row separators and section rules.
     static let line = Color(white: 0.122)        // #1F1F1F
-    /// Borders on chips, thumbnails and inputs.
+    /// Borders on chips and thumbnails — decoration, not a control boundary.
     static let chip = Color(white: 0.165)        // #2A2A2A
+
+    /// The boundary of anything tappable: outlined buttons and text fields.
+    ///
+    /// Separate from `chip` because WCAG wants 3:1 on a control's boundary and
+    /// nothing on a decorative one. At `chip`'s 1.5:1 an `OutlineButton` was
+    /// distinguishable from the prose beside it only by its label — which on the
+    /// key screen means a destructive action reading as a heading.
+    static let controlBorder = Color(white: 0.38) // #616161
     /// One step up from the ground, for inset fields.
     static let surface = Color(white: 0.043)     // #0B0B0B
 
@@ -64,6 +78,15 @@ enum Theme {
     static let radius: CGFloat = 6
     static let thumb: CGFloat = 42
 
+    /// The narrowest touch target the system ships. Controls drawn smaller than
+    /// this keep their drawn size and widen their hit area instead.
+    static let minTarget: CGFloat = 44
+
+    /// Reading measure. Phones are already narrower than this, so it only bites
+    /// on iPad, where a full-width `ScrollView` was running explanatory copy past
+    /// 170 characters a line.
+    static let measure: CGFloat = 620
+
     // MARK: Type
     //
     // Inconsolata carries every label, number and title; Karla carries message
@@ -87,12 +110,70 @@ extension View {
     /// Standard horizontal inset for every screen in the system.
     func geistGutter() -> some View { padding(.horizontal, Theme.gutter) }
 
+    /// Caps the reading measure and centres the column inside the screen.
+    ///
+    /// Applied outside `geistGutter()`, so the gutter stays a property of the
+    /// column rather than of the window. No effect at phone widths — the column
+    /// is already narrower than the cap there.
+    func geistMeasure() -> some View {
+        frame(maxWidth: Theme.measure, alignment: .leading)
+            .frame(maxWidth: .infinity)
+    }
+
+    /// Widens a control's touch target without moving anything.
+    ///
+    /// SwiftUI hit-tests what a `.plain` button actually draws, so an 11pt label
+    /// or a bare glyph ships a target a third of the required size. Growing the
+    /// frame instead would push the surrounding layout around, and several of
+    /// these sit in rows whose height is doing other work — so the drawn size
+    /// stays and only the interaction shape grows.
+    ///
+    /// `pad` is per-site because it depends on what the control already draws.
+    /// Keep expanded areas from overlapping another *control*; overlapping
+    /// static text is fine, since nothing there competes for the tap.
+    func geistHitArea(expandedBy pad: CGFloat) -> some View {
+        contentShape(.interaction, Rectangle().inset(by: -pad))
+    }
+
     /// The header block on every tab. Held in one place because applying it per
     /// view let the three drift apart — 14pt under Notifications against 8pt
     /// under Keys and Settings, which read as the tabs being misaligned.
     func geistPageHeader() -> some View {
         padding(.top, 4).padding(.bottom, 14)
     }
+}
+
+/// Press feedback for discrete controls.
+///
+/// Every control in the app was `.buttonStyle(.plain)`, which draws no pressed
+/// state on iOS at all — so nothing acknowledged a touch until the action had
+/// already finished. 0.96 is the whole effect; below 0.95 it reads as a flinch.
+struct GeistPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+/// Press feedback for full-width rows.
+///
+/// A row that scales makes the whole screen look like it twitched, so rows dim
+/// the way a system list row does instead.
+struct GeistRowStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.55 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == GeistPressStyle {
+    static var geist: GeistPressStyle { GeistPressStyle() }
+}
+
+extension ButtonStyle where Self == GeistRowStyle {
+    static var geistRow: GeistRowStyle { GeistRowStyle() }
 }
 
 /// A one-pixel rule. `Divider()` picks up system colours and insets we do not want.

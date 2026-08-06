@@ -51,7 +51,7 @@ struct KeyDetailView: View {
     var body: some View {
         ScrollView {
             if let key {
-                content(for: key).geistGutter()
+                content(for: key).geistGutter().geistMeasure()
             } else {
                 VStack(spacing: 10) {
                     Text("Key not found")
@@ -70,6 +70,10 @@ struct KeyDetailView: View {
         .safeAreaInset(edge: .top) {
             GeistBackBar(label: "Keys", dismiss: { dismiss() }, trailing: nil)
                 .geistGutter()
+                // Capped with the content rather than spanning the window, so on
+                // iPad the back button stays on the column's leading edge instead
+                // of drifting away from the screen it belongs to.
+                .geistMeasure()
                 .background(Theme.bg)
         }
         #if os(iOS)

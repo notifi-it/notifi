@@ -38,6 +38,7 @@ struct CreateKeyView: View {
                 }
             }
             .geistGutter()
+            .geistMeasure()
             .padding(.bottom, 40)
         }
         .background(Theme.bg)
@@ -52,11 +53,11 @@ struct CreateKeyView: View {
             titleVisibility: .visible
         ) {
             if case let .revealed(response) = phase {
-                Button("Copy and Close") {
+                Button("Copy and close") {
                     Clipboard.copy(response.key)
                     finish()
                 }
-                Button("Close and Revoke", role: .destructive) {
+                Button("Close and revoke", role: .destructive) {
                     Task { await revokeAndClose(response) }
                 }
             }
@@ -74,7 +75,8 @@ struct CreateKeyView: View {
                 Button("Cancel") { dismiss() }
                     .font(Theme.body)
                     .foregroundStyle(Theme.muted)
-                    .buttonStyle(.plain)
+                    .buttonStyle(.geist)
+                    .geistHitArea(expandedBy: 13)
             }
             .padding(.top, 14)
             .padding(.bottom, 22)
@@ -105,12 +107,19 @@ struct CreateKeyView: View {
                 .autocorrectionDisabled()
                 #endif
                 .padding(.horizontal, 13)
-                .frame(height: 44)
+                // Minimum, not fixed — the field's text scales with Dynamic Type.
+                .frame(minHeight: 44)
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: 9))
                 .overlay(
                     RoundedRectangle(cornerRadius: 9)
-                        .stroke(nameFocused ? Theme.muted.opacity(0.5) : Theme.chip, lineWidth: 1)
+                        .stroke(nameFocused ? Theme.muted : Theme.controlBorder,
+                                lineWidth: nameFocused ? 2 : 1)
                 )
+                // The field is titled by the section rule above it, which is not
+                // something VoiceOver can associate. Without this it announced the
+                // prompt — an example of a key name, offered as the name of the
+                // field itself.
+                .accessibilityLabel("Key name")
 
             if isReserved {
                 Text("“default” is reserved — your device already has one.")
@@ -123,9 +132,19 @@ struct CreateKeyView: View {
                 InlineError(message: errorMessage).padding(.top, 12)
             }
 
+            // Enabled whenever a request is not already in flight, rather than
+            // whenever the name happens to be valid. A disabled button announces
+            // "dimmed" and says nothing about what is missing, so an empty field
+            // left the flow with no way to ask what was wrong — validation now
+            // happens on the tap and says it.
             PillButtonWide(title: phase == .creating ? "Creating…" : "Create key",
-                           enabled: isNameValid && phase != .creating) {
-                Task { await create() }
+                           enabled: phase != .creating) {
+                guard let problem = validationProblem else {
+                    Task { await create() }
+                    return
+                }
+                errorMessage = problem
+                nameFocused = true
             }
             .padding(.top, 22)
         }
@@ -162,8 +181,12 @@ struct CreateKeyView: View {
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: 9))
                 .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.chip, lineWidth: 1))
                 .padding(.top, 22)
+                // The value is on screen in plain text and selectable, so
+                // withholding it from VoiceOver hid it from one set of users
+                // only — and the copy claiming it was hidden for security was
+                // not true of the screen it was describing.
                 .accessibilityLabel("Your new key")
-                .accessibilityValue("Hidden for security. Use Copy.")
+                .accessibilityValue(response.key)
 
             HStack(spacing: 9) {
                 OutlineButton(title: hasCopied ? "Copied" : "Copy") {
@@ -188,9 +211,16 @@ struct CreateKeyView: View {
 
     // MARK: Logic
 
-    private var isNameValid: Bool {
+    private var isNameValid: Bool { validationProblem == nil }
+
+    /// What to say when the name will not do, phrased as the thing to do next
+    /// rather than as what went wrong. `nil` means the name is fine.
+    private var validationProblem: String? {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return !trimmed.isEmpty && trimmed.count <= 64 && !isReserved
+        if trimmed.isEmpty { return "Enter a name for this key." }
+        if trimmed.count > 64 { return "Use 64 characters or fewer." }
+        if isReserved { return "Choose another name — “default” is your device's own key." }
+        return nil
     }
 
     private var isReserved: Bool {
@@ -254,10 +284,10 @@ private struct PillButtonWide: View {
                             in: RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(enabled ? Color.clear : Theme.chip, lineWidth: 1)
+                        .stroke(enabled ? Color.clear : Theme.controlBorder, lineWidth: 1)
                 )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
         .disabled(!enabled)
     }
 }

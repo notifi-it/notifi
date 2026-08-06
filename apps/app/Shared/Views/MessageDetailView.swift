@@ -43,6 +43,7 @@ struct MessageDetailView: View {
             if let message {
                 content(for: message)
                     .geistGutter()
+                    .geistMeasure()
             } else {
                 VStack(spacing: 10) {
                     Text("Message not found")
@@ -89,7 +90,10 @@ struct MessageDetailView: View {
 
             if let message {
                 let anyScheme = model.allowsAnyLink(keyID: message.keyID)
-                HStack(spacing: 8) {
+                // 10, not 8. The buttons draw at 34 and are tapped at 44, so the
+                // gap has to be at least 10 or two neighbouring targets overlap
+                // and the row starts answering taps with the wrong action.
+                HStack(spacing: 10) {
                     if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                         IconButton(systemName: "arrow.down.to.line",
                                    label: "Download image") {
@@ -116,13 +120,14 @@ struct MessageDetailView: View {
                         model.sync?.updateBadge()
                     }
 
-                    IconButton(systemName: "trash.fill", label: "Delete") {
+                    IconButton(systemName: "trash", label: "Delete") {
                         confirmingDelete = true
                     }
                 }
             }
         }
         .geistGutter()
+        .geistMeasure()
         .padding(.top, 22)
         .padding(.bottom, 30)
         .background(Theme.bg)
@@ -179,7 +184,7 @@ struct MessageDetailView: View {
             // row, so detail is the one place it is stated outright.
             if let keyName = keyName(for: message) {
                 HStack(spacing: 6) {
-                    Image(systemName: "key.fill")
+                    Image(systemName: "key")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Theme.dim)
                     Text(keyName)
@@ -263,7 +268,7 @@ struct MessageDetailView: View {
                                 .padding(.vertical, 12)
                                 .background(Theme.fg, in: RoundedRectangle(cornerRadius: 8))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.geist)
                     }
 
                     OutlineShareButton(title: "Share", item: link)
@@ -318,9 +323,10 @@ struct MessageDetailView: View {
                     .foregroundStyle(Theme.fg)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 9)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 8)
+                        .stroke(Theme.controlBorder, lineWidth: 1))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.geist)
         }
         .padding(.vertical, 26)
         .frame(maxWidth: .infinity)
@@ -351,10 +357,10 @@ struct MessageDetailView: View {
                     icon
                         .frame(width: 34, height: 34)
                         .background(Theme.surface, in: Circle())
-                        .overlay(Circle().stroke(Theme.chip, lineWidth: 1))
-                        .contentShape(Circle())
+                        .overlay(Circle().stroke(Theme.controlBorder, lineWidth: 1))
+                        .geistHitArea(expandedBy: 5)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.geist)
                 .accessibilityLabel(label)
             }
         }

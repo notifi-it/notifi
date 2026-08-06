@@ -124,7 +124,7 @@ struct InboxView: View {
                         .geistGutter()
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.geistRow)
                     .overlay(alignment: .bottom) { Hairline().geistGutter() }
                     .plainRow()
                     // Swiping is a touch idiom. On the Mac the same actions live in
@@ -134,7 +134,7 @@ struct InboxView: View {
                         Button { toggleRead(message) } label: {
                             Label(message.isRead ? "Unread" : "Read",
                                   systemImage: message.isRead
-                                      ? "envelope.badge.fill" : "envelope.open.fill")
+                                      ? "envelope.badge" : "envelope.open")
                         }
                         .tint(Theme.chip)
                     }
@@ -145,7 +145,7 @@ struct InboxView: View {
                         // Asks first: a swipe is easy to do by accident and the
                         // message cannot be recovered afterwards.
                         Button(role: .destructive) { pendingDelete = message } label: {
-                            Label("Delete", systemImage: "trash.fill")
+                            Label("Delete", systemImage: "trash")
                         }
                         .tint(Theme.danger)
                     }
@@ -281,7 +281,11 @@ struct InboxView: View {
                         Button("Clear") { filterKeyID = nil }
                             .font(Theme.label)
                             .foregroundStyle(Theme.dim)
-                            .buttonStyle(.plain)
+                            .buttonStyle(.geist)
+                            // An 11pt label draws an 11pt target. Expanded rather
+                            // than padded so the filter row keeps the height of
+                            // the chip beside it.
+                            .geistHitArea(expandedBy: 16)
                         Spacer(minLength: 0)
                     }
                     .padding(.top, 10)
@@ -491,7 +495,28 @@ private struct MessageRow: View {
         }
         .padding(.vertical, 15)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel((message.isRead ? "" : "Unread, ") + message.title)
+        .accessibilityLabel(spokenDescription)
+    }
+
+    /// Everything the row shows, in the order it is read on screen.
+    ///
+    /// Overriding the label at all discards what `children: .combine` gathered,
+    /// so the previous one-line version silently dropped the body preview and the
+    /// age — on a pager, the two things you scan the feed for. Rebuilt here
+    /// rather than removing the override, because the combined default reads the
+    /// title and the preview as one run-on sentence and never says "unread".
+    private var spokenDescription: String {
+        var parts: [String] = []
+        if !message.isRead { parts.append("Unread") }
+        parts.append(message.title)
+        if let body = message.body {
+            parts.append(String(MarkdownPreview.text(body).characters))
+        }
+        if let link = message.link, let host = link.host() {
+            parts.append("Link to \(host)")
+        }
+        parts.append(relative == "now" ? "just now" : "\(relative) ago")
+        return parts.joined(separator: ", ")
     }
 }
 

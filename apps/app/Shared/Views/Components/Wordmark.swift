@@ -67,6 +67,12 @@ struct BellMark: View {
     /// Bumped on every new-message post; drives the shake.
     @State private var shake = 0
 
+    /// The shake is triggered by an inbound push rather than by anything the
+    /// reader did, which is the case Reduce Motion exists for: it arrives with no
+    /// warning and there is nothing to brace against. The badge still turns red,
+    /// so the unread state is never carried by the movement alone.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private static let badgeCentre = CGPoint(x: 0.7006, y: 0.1498)
     /// Sized to the badge drawn in BellLogo, plus a hair so the red fully covers
     /// it. Shrinking the badge in the artwork means shrinking this to match, or
@@ -105,6 +111,7 @@ struct BellMark: View {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .notifiNewMessages)) { _ in
+                guard !reduceMotion else { return }
                 shake &+= 1
             }
             .animation(.easeOut(duration: 0.2), value: hasUnread)
