@@ -76,20 +76,23 @@ body{
   display:block;width:100%;height:100%;
 }
 body>*:not(#static){position:relative;z-index:1}
-/* Scroll reveal: the text resolves out of the static, word by word.
-   The arrival is faded rather than snapped. Each word carries its own long
-   ease, so what travels down the paragraph is a soft front a few words wide
-   instead of a hard edge — the words are still lit one at a time, it is only
-   the colour that takes its time.
-   Words start at full contrast and are dimmed by script only once it has taken
-   over, so a reader with no JS — or one who arrives before it runs — gets the
-   text at its designed contrast rather than buried in the ground. */
-.reveal.armed .w{color:#2B2B2D;transition:color .55s var(--ease-out)}
-.reveal.armed .w.on{color:var(--fg)}
-.lede.reveal.armed .w.on{color:var(--muted)}
+/* Scroll reveal: the text resolves out of the static, letter by letter.
+   The arrival is faded rather than snapped. Each letter carries its own long
+   ease, so what travels down a paragraph is a soft front a few characters wide
+   instead of a hard edge — they still light one at a time, it is only the
+   colour that takes its time.
+   Letters start at full contrast and are dimmed by script only once it has
+   taken over, so a reader with no JS — or one who arrives before it runs —
+   gets the text at its designed contrast rather than buried in the ground. */
+.reveal.armed .c{color:#2B2B2D;transition:color .55s var(--ease-out)}
+.reveal.armed .c.on{color:var(--fg)}
+.lede.reveal.armed .c.on{color:var(--muted)}
+/* Letters are wrapped inside their word so a line can still only break at a
+   space. Splitting straight to characters let the browser break mid-word. */
+.reveal .w{white-space:nowrap}
 
 @media (prefers-reduced-motion:reduce){
-  .reveal.armed .w{color:inherit}
+  .reveal.armed .c{color:inherit}
 }
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
@@ -509,15 +512,22 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       for (var p = 0; p < parts.length; p++){
         if (!parts[p]) continue;
         if (/^\s+$/.test(parts[p])) { frag.appendChild(document.createTextNode(parts[p])); continue; }
-        var s = document.createElement("span");
-        s.className = "w";
-        s.textContent = parts[p];
-        frag.appendChild(s);
+        // A word span holds the line-breaking, and one span per character
+        // inside it holds the reveal.
+        var word = document.createElement("span");
+        word.className = "w";
+        for (var ch = 0; ch < parts[p].length; ch++){
+          var c = document.createElement("span");
+          c.className = "c";
+          c.textContent = parts[p][ch];
+          word.appendChild(c);
+        }
+        frag.appendChild(word);
       }
       el.replaceChild(frag, node);
     }
     el.classList.add("reveal", "armed");
-    return { el: el, words: el.querySelectorAll(".w"), lit: -1 };
+    return { el: el, words: el.querySelectorAll(".c"), lit: -1 };
   }
 
   // The band the reveal happens over: a word is lit once the element has risen
