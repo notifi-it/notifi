@@ -75,7 +75,14 @@ struct MessageFeed<Empty: View>: View {
                 }
             }
         }
+        .modifier(TrackingRoll())
         .listStyle(.plain)
+        // A List cell is at least 44pt tall unless told otherwise, and the band
+        // header is shorter than that — so the list was padding it out to the
+        // minimum and the gap under a heading had nothing to do with the
+        // padding written on it. Every row here draws its own vertical space,
+        // so the floor is only ever adding space nobody asked for.
+        .environment(\.defaultMinListRowHeight, 0)
         .scrollContentBackground(.hidden)
         // Room under the last row for the tab bar to float over. Measured as the
         // fade rather than as the bar: the fade is what actually obscures the
@@ -248,6 +255,11 @@ struct MessageFeed<Empty: View>: View {
             Button("Copy link") { Clipboard.copy(link.absoluteString) }
             if LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
                 Button("Open link") { open(link, keyID: message.keyID) }
+                // Sharing the URL rather than the message: what a reader wants
+                // to hand on from a page like this is the thing it points at,
+                // and the title and body are already one tap from being copied
+                // above.
+                ShareLink(item: link) { Label("Share link", systemImage: "square.and.arrow.up") }
             }
         }
         Divider()
@@ -285,6 +297,73 @@ struct MessageFeed<Empty: View>: View {
             Logger(subsystem: "it.notifi.app", category: "feed")
                 .error("save failed: \(String(describing: error), privacy: .public)")
         }
+    }
+}
+
+/// A CRT losing tracking when the picture moves faster than it can hold.
+///
+/// Driven by scroll velocity rather than by the gesture, so it answers a flick
+/// and ignores a careful drag — the point is that the feed can be scrolled past
+/// what the tube can keep up with, and a wobble that fired on every touch would
+/// just read as a rendering fault. Below the threshold nothing happens at all.
+///
+/// The displacement is deliberately small. At more than a couple of points the
+/// text stops being readable while it moves, and an effect that has to be
+/// waited out is one the reader learns to resent.
+private struct TrackingRoll: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @State private var slip: CGFloat = 0
+    @State private var flicker: Double = 0
+    @State private var lastOffset: CGFloat?
+    @State private var lastSample = Date()
+
+    /// Points per second the feed has to be moving before the picture starts to
+    /// slip, and the span above it over which the effect reaches full strength.
+    private let floor: CGFloat = 900
+    private let span: CGFloat = 3_500
+
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, macOS 15.0, *), !reduceMotion {
+            content
+                .offset(x: slip)
+                .brightness(flicker)
+                .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y } action: { _, new in
+                    react(to: new)
+                }
+        } else {
+            content
+        }
+    }
+
+    private func react(to offset: CGFloat) {
+        let now = Date()
+        // Floored: two samples in the same frame would divide by something near
+        // zero and report a velocity in the millions.
+        let elapsed = max(now.timeIntervalSince(lastSample), 1.0 / 120.0)
+        lastSample = now
+
+        let previous = lastOffset ?? offset
+        lastOffset = offset
+        let velocity = abs(offset - previous) / elapsed
+
+        let strength = min(max((velocity - floor) / span, 0), 1)
+        guard strength > 0 else {
+            guard slip != 0 || flicker != 0 else { return }
+            // Eased rather than snapped: the picture settling back is the half
+            // of the effect that says it was a tracking problem and not a jump.
+            withAnimation(.easeOut(duration: 0.2)) {
+                slip = 0
+                flicker = 0
+            }
+            return
+        }
+
+        // Re-rolled per sample rather than animated. A tracking fault is noise,
+        // and anything smoothly interpolated between two values reads as a
+        // deliberate slide instead.
+        slip = .random(in: -2.5...2.5) * strength
+        flicker = .random(in: -0.02...0.04) * strength
     }
 }
 
@@ -386,19 +465,22 @@ private struct BandHeader: View {
 
     var body: some View {
         HStack(spacing: 10) {
+            // The name of the band is what the eye is looking for when it scans
+            // back through the feed; the count is a footnote on it. Giving them
+            // the same value made the header read as one undifferentiated
+            // string, so the label steps up and the count stays where it was.
             Text(title.uppercased())
                 .font(Theme.sectionLabel)
                 .tracking(1.4)
-                .foregroundStyle(Theme.dim)
+                .foregroundStyle(Theme.fg)
                 .lineLimit(1)
-            // Not `Hairline`. A band is a bigger break than a message, and at
-            // the same weight as the rule between two rows it was announcing
-            // that without looking like it. 4pt — four times the rule it has to
-            // be told apart from — and in the colour of the labels at either end
-            // of it rather than a rule colour, so the three read as one object.
+            // Not `Hairline`: a band is a bigger break than a message, so it
+            // stays a step heavier than the rule between two rows. It does not
+            // need four times the weight to say so — at 4pt it was a bar with
+            // labels on it rather than a rule between them.
             Rectangle()
                 .fill(Theme.dim)
-                .frame(height: 4)
+                .frame(height: 1.5)
                 .accessibilityHidden(true)
             Text("\(count)")
                 .font(Theme.metaSmall)
@@ -417,28 +499,15 @@ private struct BandHeader: View {
 
 /// The widest the stamp column can get, drawn hidden to reserve that width.
 ///
-/// One definition, used twice: the column sizes itself against it and the rule
-/// between rows insets by it, so the two agree by construction. Reserving the
-/// width rather than measuring the string that happens to be there is also what
-/// keeps the column still while an age ticks from "now" to "22 min".
+/// Reserving the width rather than measuring the string that happens to be
+/// there is what keeps the column still while an age ticks from "now" to
+/// "22 min".
 private struct StampTemplate: View {
-    /// Two digits of hour at 22:38 — "22:38" where the clock runs to 24 and
-    /// "10:38 PM" where it does not, which is the longest either locale writes.
-    private static let widestTime = Calendar.current
-        .date(bySettingHour: 22, minute: 38, second: 0, of: Date()) ?? Date()
-
-    /// Stacked rather than listed, because only the width is wanted. Laid out as
-    /// two lines this also became a floor on how short a row could be, which put
-    /// a second line of height under every title that had no body to fill it.
     var body: some View {
-        ZStack(alignment: .leading) {
-            Text(Self.widestTime, format: MessageRow.clockFormat)
-                .font(Theme.meta)
-            Text("00 min")
-                .font(Theme.metaUnread)
-        }
-        .monospacedDigit()
-        .accessibilityHidden(true)
+        Text("00 min")
+            .font(Theme.metaUnread)
+            .monospacedDigit()
+            .accessibilityHidden(true)
     }
 }
 
@@ -462,15 +531,8 @@ private struct MessageRow: View {
     /// the difference between them moves with them.
     @ScaledMetric(relativeTo: .headline) private var capHeightOffset: CGFloat = 1.18
 
-    /// Two-digit hour, so the column is a column.
-    ///
-    /// The short time style follows the locale for 12- versus 24-hour, which is
-    /// right, but it also drops the leading zero — and "9:36" against "14:30"
-    /// leaves the left edge ragged, which is the one thing a log's clock cannot
-    /// be. Asking for two digits keeps the locale's shape and fixes the width.
-    static let clockFormat = Date.FormatStyle.dateTime
-        .hour(.twoDigits(amPM: .abbreviated))
-        .minute(.twoDigits)
+    /// Trial switch while the feed is being tuned — see the rule below.
+    static let drawsRules = false
 
     private var basis: Date { message.occurredAt ?? message.createdAt }
 
@@ -499,9 +561,34 @@ private struct MessageRow: View {
         if let keyLabel {
             line = Text(keyLabel.uppercased()).foregroundStyle(Theme.dim)
         }
-        if let host = message.link?.host() {
-            let link = Text("↗ \(host.uppercased())").foregroundStyle(Theme.muted)
+        if message.link != nil {
+            // An SF Symbol rather than U+2197. The arrow was whatever the text
+            // face happened to draw at that codepoint — a different weight and
+            // baseline in each of the two faces this line can be set in, and a
+            // missing-glyph box in any face that has no arrow there at all. A
+            // symbol is drawn from the label's own metrics, so it sits on the
+            // line and takes the same colour by construction.
+            //
+            // The same globe the detail screen's toolbar opens a link with, so
+            // the mark that says a message has somewhere to go and the button
+            // that goes there are the same object seen twice.
+            //
+            // The host itself is not written out here. A row is scanned for
+            // whether there is anywhere to go, not for where — and the domain
+            // was the longest thing on the line, taking the width that the
+            // message's own text wanted. The detail screen names it, which is
+            // where the question is actually asked.
+            let link = Text(Image(systemName: "globe")).foregroundStyle(Theme.muted)
             line = line.map { $0 + Text(" · ").foregroundStyle(Theme.dim) + link } ?? link
+        }
+        // A symbol rather than the picture itself. Drawing the thumbnail here
+        // would fetch it from the sender's host for every row on screen, which
+        // is the request the detail screen deliberately holds back until the
+        // reader asks for it — the feed would be leaking the device's IP to
+        // every sender at once just by being scrolled past.
+        if message.imageURL != nil {
+            let marker = Text(Image(systemName: "photo")).foregroundStyle(Theme.dim)
+            line = line.map { $0 + Text(" · ").foregroundStyle(Theme.dim) + marker } ?? marker
         }
         return line
     }
@@ -509,7 +596,7 @@ private struct MessageRow: View {
     var body: some View {
         VStack(spacing: 0) {
             content
-            if showsRule { rule }
+            if showsRule && Self.drawsRules { rule }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(spokenDescription)
@@ -561,34 +648,23 @@ private struct MessageRow: View {
         .geistGutter()
     }
 
-    /// The clock, and how long ago that was beneath it.
+    /// How long ago the message arrived.
     ///
-    /// The clock stays dim in both states: it is the anchor, and a stamp that
-    /// changed colour as well would leave the eye nothing to hold still against.
-    /// Unread is carried by the age alone — brand red, and a weight up.
+    /// The wall clock underneath this was dropped: a pager is scanned for how
+    /// long something has gone unanswered, and the band headers already say
+    /// which day a row belongs to, so the second stamp was restating the first
+    /// in a form nobody was reading it in.
+    ///
     /// Ranged right, against the message rather than against the margin. "5 min"
     /// and "17 min" are different lengths, so aligning left left the column's
     /// inner edge ragged where it meets the text it belongs to.
     private var stamp: some View {
         ZStack(alignment: .topTrailing) {
             StampTemplate().hidden()
-            // The age reads first, level with the title, because how long a page
-            // has gone unanswered is the question the feed is scanned for; the
-            // clock falls to the foot of the message as the record of when. The
-            // spacer is what stretches, so both ends stay put however many lines
-            // the preview runs to.
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(relative)
-                    .font(message.isRead ? Theme.meta : Theme.metaUnread)
-                    .foregroundStyle(message.isRead ? Theme.dim : Theme.brandText)
-                Spacer(minLength: 2)
-                Text(basis, format: Self.clockFormat)
-                    .font(Theme.meta)
-                    .foregroundStyle(Theme.dim)
-            }
-            .frame(maxHeight: .infinity, alignment: .topTrailing)
+            Text(relative)
+                .font(message.isRead ? Theme.meta : Theme.metaUnread)
+                .foregroundStyle(message.isRead ? Theme.dim : Theme.brandText)
         }
-        .frame(maxHeight: .infinity)
         .monospacedDigit()
         .alignmentGuide(.top) { $0[.top] - capHeightOffset }
     }
@@ -624,6 +700,7 @@ private struct MessageRow: View {
         if let link = message.link, let host = link.host() {
             parts.append("Link to \(host)")
         }
+        if message.imageURL != nil { parts.append("Has an image") }
         parts.append(relative == "now" ? "just now" : "\(relative) ago")
         return parts.joined(separator: ", ")
     }

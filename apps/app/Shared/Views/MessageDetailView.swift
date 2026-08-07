@@ -234,6 +234,26 @@ struct MessageDetailView: View {
                 .accessibilityLabel("Sent with key \(keyName)")
             }
 
+            // Where the message points, named. The feed only marks that a link
+            // exists — this is the screen where a reader decides whether to
+            // follow it, and that decision is made on the host.
+            if let host = message.link?.host() {
+                HStack(spacing: 6) {
+                    Image(systemName: "globe")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Theme.dim)
+                        .accessibilityHidden(true)
+                    Text(host.uppercased())
+                        .font(Theme.meta)
+                        .foregroundStyle(Theme.muted)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                .padding(.top, 8)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Links to \(host)")
+            }
+
             // One clock, read twice. The age is what the feed showed and what a
             // reader arriving from it is still holding — dropping it here made
             // the screen restate the moment in a format nobody scans. The exact
@@ -260,12 +280,11 @@ struct MessageDetailView: View {
             Hairline()
                 .padding(.top, 16)
 
-            if let body = message.body {
-                MarkdownText(source: body, allowAnyScheme: anyScheme,
-                             allowsRemoteImages: showsImage)
-                    .padding(.top, 16)
-            }
-
+            // Above the body rather than under it. A sender that attaches an
+            // image attaches the thing itself and writes the caption second, so
+            // a page that made you read past the words to reach it was showing
+            // them in the opposite order to the one they were written in.
+            //
             // Two gates, and both must pass. The scheme check is about what this
             // key is trusted to point at; showsImage is about whether the host
             // gets to learn this device's IP at all.
@@ -279,7 +298,13 @@ struct MessageDetailView: View {
                                 // version is the right size for reading past
                                 // and the wrong size for reading.
                                 Button { viewingImage = ViewedImage(url: url) } label: {
-                                    image.resizable().scaledToFit()
+                                    // Filled and cropped to the fixed frame
+                                    // below rather than fitted inside it: a
+                                    // fitted image leaves bars down the sides of
+                                    // anything tall, and the frame is already
+                                    // drawn with a border that would then be
+                                    // bounding empty space.
+                                    image.resizable().scaledToFill()
                                 }
                                 .buttonStyle(.geist)
                                 .accessibilityLabel("View image full screen")
@@ -291,18 +316,32 @@ struct MessageDetailView: View {
                                         .font(Theme.metaSmall)
                                 }
                                 .foregroundStyle(Theme.dim)
-                                .frame(maxWidth: .infinity, minHeight: 140)
+                                .frame(maxWidth: .infinity)
                             default:
-                                Theme.surface.frame(maxWidth: .infinity, minHeight: 140)
+                                Theme.surface.frame(maxWidth: .infinity)
                             }
                         }
                     } else {
                         hiddenImage(host: url.host() ?? "another host")
                     }
                 }
+                // One frame, whatever the image turns out to be. Sized by the
+                // picture, the page jumped as each one arrived and every message
+                // laid its text out at a different height — and the placeholder,
+                // the failure state and the loaded image were three sizes for
+                // the same block. 16:9 because that is what a screenshot of a
+                // window or a chart tends to be.
+                .frame(maxWidth: .infinity)
+                .aspectRatio(16.0 / 9.0, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
-                .padding(.top, 20)
+                .padding(.top, 16)
+            }
+
+            if let body = message.body {
+                MarkdownText(source: body, allowAnyScheme: anyScheme,
+                             allowsRemoteImages: showsImage)
+                    .padding(.top, 16)
             }
 
             // The link block and the copy button are gone on purpose. Every
