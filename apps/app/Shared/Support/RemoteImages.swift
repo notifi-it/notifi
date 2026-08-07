@@ -3,8 +3,8 @@ import Foundation
 /// Whether an image URL carried by a message may be fetched from its host.
 ///
 /// The host is chosen by whoever sent the message, so every fetch hands that
-/// sender the device's IP address and the moment the message arrived. It is off
-/// until the user turns it on.
+/// sender the device's IP address and the moment the message arrived. It is on
+/// until the user turns it off; the toggle in Settings says what it discloses.
 ///
 /// The value lives in the shared keychain group rather than UserDefaults because
 /// the notification extension has to read it before it downloads an attachment,
@@ -17,10 +17,12 @@ enum RemoteImages {
             service: service,
             accessGroup: IdentityConstants.sharedAccessGroup
         )
+        // Nothing stored means the user has never touched the toggle, which is
+        // the default-on case; only an explicit "0" turns fetching off.
         guard let data = stored ?? nil, let value = String(data: data, encoding: .utf8) else {
-            return false
+            return true
         }
-        return value == "1"
+        return value != "0"
     }
 
     static func setEnabled(_ enabled: Bool) {
