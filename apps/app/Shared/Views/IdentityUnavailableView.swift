@@ -5,11 +5,11 @@ struct IdentityUnavailableView: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("Can't unlock notifi", systemImage: "lock.trianglebadge.exclamationmark")
+            Label(Copy.Identity.title, systemImage: "lock.trianglebadge.exclamationmark")
         } description: {
-            Text("notifi could not read its identity key from the keychain. This usually clears once the device has been unlocked. Your messages and send keys are unaffected.")
+            Text(Copy.Identity.detail)
         } actions: {
-            Button("Try again") { model.retryBootstrap() }
+            Button(Copy.Common.tryAgain) { model.retryBootstrap() }
                 .buttonStyle(.borderedProminent)
         }
         .padding()

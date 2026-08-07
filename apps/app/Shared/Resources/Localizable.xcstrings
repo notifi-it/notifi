@@ -1,0 +1,2562 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "age.absoluteFormat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EEE d MMM yyyy, HH:mm:ss.SSS"
+          }
+        }
+      }
+    },
+    "age.ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ ago"
+          }
+        }
+      }
+    },
+    "age.days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ d"
+          }
+        }
+      }
+    },
+    "age.hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ hr"
+          }
+        }
+      }
+    },
+    "age.justNow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "just now"
+          }
+        }
+      }
+    },
+    "age.minutes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ min"
+          }
+        }
+      }
+    },
+    "age.now": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "now"
+          }
+        }
+      }
+    },
+    "age.weeks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ w"
+          }
+        }
+      }
+    },
+    "clientErrors.decoding": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server returned something unexpected. Try again in a moment."
+          }
+        }
+      }
+    },
+    "clientErrors.generic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The request didn't go through. Try again."
+          }
+        }
+      }
+    },
+    "clientErrors.notFound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That is no longer on the server. Refresh and try again."
+          }
+        }
+      }
+    },
+    "clientErrors.rateLimited": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many requests just now. Try again in a moment."
+          }
+        }
+      }
+    },
+    "clientErrors.server": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server is having trouble. Try again in a moment."
+          }
+        }
+      }
+    },
+    "clientErrors.transport": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't reach the server. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "clientErrors.unauthorized": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This key is no longer accepted. Create a new one under Keys."
+          }
+        }
+      }
+    },
+    "common.cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "common.clear": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
+    "common.close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "common.collapse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collapse"
+          }
+        }
+      }
+    },
+    "common.continueAction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "common.copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        }
+      }
+    },
+    "common.copy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        }
+      }
+    },
+    "common.delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "common.done": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "common.expand": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expand"
+          }
+        }
+      }
+    },
+    "common.markAsRead": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as read"
+          }
+        }
+      }
+    },
+    "common.markAsUnread": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as unread"
+          }
+        }
+      }
+    },
+    "common.never": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        }
+      }
+    },
+    "common.openLink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open link"
+          }
+        }
+      }
+    },
+    "common.quit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit"
+          }
+        }
+      }
+    },
+    "common.search": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        }
+      }
+    },
+    "common.share": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        }
+      }
+    },
+    "common.tryAgain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        }
+      }
+    },
+    "components.backTo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to %1$@"
+          }
+        }
+      }
+    },
+    "components.clearSearch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear search"
+          }
+        }
+      }
+    },
+    "components.createKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create key"
+          }
+        }
+      }
+    },
+    "components.errorLabel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error. %1$@"
+          }
+        }
+      }
+    },
+    "components.noMatches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matches"
+          }
+        }
+      }
+    },
+    "components.noMatchesDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing here with that filter."
+          }
+        }
+      }
+    },
+    "components.noMatchesQuery": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing matching “%1$@”."
+          }
+        }
+      }
+    },
+    "components.wordmark": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi"
+          }
+        }
+      }
+    },
+    "createKey.create": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create key"
+          }
+        }
+      }
+    },
+    "createKey.createFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't create the key. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "createKey.creating": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creating…"
+          }
+        }
+      }
+    },
+    "createKey.intro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A name only you see. It shows up on the key list and in filters."
+          }
+        }
+      }
+    },
+    "createKey.leaveCloseAndRevoke": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close and revoke"
+          }
+        }
+      }
+    },
+    "createKey.leaveCopyAndClose": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy and close"
+          }
+        }
+      }
+    },
+    "createKey.leaveMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This key will never be shown again."
+          }
+        }
+      }
+    },
+    "createKey.leaveTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haven't copied it?"
+          }
+        }
+      }
+    },
+    "createKey.nameLabel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key name"
+          }
+        }
+      }
+    },
+    "createKey.namePrompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. Grafana alerts"
+          }
+        }
+      }
+    },
+    "createKey.nameReserved": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“default” is reserved — your device already has one."
+          }
+        }
+      }
+    },
+    "createKey.revealDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is the only time it is shown."
+          }
+        }
+      }
+    },
+    "createKey.revealLabel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your new key"
+          }
+        }
+      }
+    },
+    "createKey.revealTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy your key now"
+          }
+        }
+      }
+    },
+    "createKey.revealWarning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This key lives and dies with this device. If you lose the device, the key stops working and cannot be recovered."
+          }
+        }
+      }
+    },
+    "createKey.sectionName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
+    "createKey.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New key"
+          }
+        }
+      }
+    },
+    "createKey.validationEmpty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a name for this key."
+          }
+        }
+      }
+    },
+    "createKey.validationReserved": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose another name — “default” is your device's own key."
+          }
+        }
+      }
+    },
+    "createKey.validationTooLong": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use 64 characters or fewer."
+          }
+        }
+      }
+    },
+    "empty.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send your first notification and it lands here."
+          }
+        }
+      }
+    },
+    "empty.enableNotifications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable notifications"
+          }
+        }
+      }
+    },
+    "empty.makeKeyFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't make a key. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "empty.makingKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Making your key…"
+          }
+        }
+      }
+    },
+    "empty.notificationsOn": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are on."
+          }
+        }
+      }
+    },
+    "empty.sampleMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi is working."
+          }
+        }
+      }
+    },
+    "empty.sampleTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It lives"
+          }
+        }
+      }
+    },
+    "empty.sendFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't send. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "empty.sending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending…"
+          }
+        }
+      }
+    },
+    "empty.sendTest": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a test"
+          }
+        }
+      }
+    },
+    "empty.sent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent. It arrives here and on your lock screen in a moment."
+          }
+        }
+      }
+    },
+    "empty.sentDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It arrives here and on your lock screen. Make more keys under Keys to keep sources apart."
+          }
+        }
+      }
+    },
+    "empty.stepAllow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow notifications"
+          }
+        }
+      }
+    },
+    "empty.stepDone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " Done."
+          }
+        }
+      }
+    },
+    "empty.stepLabel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %1$@. %2$@."
+          }
+        }
+      }
+    },
+    "empty.stepSend": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send one"
+          }
+        }
+      }
+    },
+    "empty.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing yet"
+          }
+        }
+      }
+    },
+    "identity.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi could not read its identity key from the keychain. This usually clears once the device has been unlocked. Your messages and send keys are unaffected."
+          }
+        }
+      }
+    },
+    "identity.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can't unlock notifi"
+          }
+        }
+      }
+    },
+    "inbox.allKeys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All keys"
+          }
+        }
+      }
+    },
+    "inbox.bandEarlierThisMonth": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Earlier This Month"
+          }
+        }
+      }
+    },
+    "inbox.bandEarlierThisWeek": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Earlier This Week"
+          }
+        }
+      }
+    },
+    "inbox.bandLabel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, %2$@"
+          }
+        }
+      }
+    },
+    "inbox.bandToday": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        }
+      }
+    },
+    "inbox.bandYesterday": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday"
+          }
+        }
+      }
+    },
+    "inbox.clearSampleData": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear sample data"
+          }
+        }
+      }
+    },
+    "inbox.closeSearch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close search"
+          }
+        }
+      }
+    },
+    "inbox.copyLink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy link"
+          }
+        }
+      }
+    },
+    "inbox.copyMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy message"
+          }
+        }
+      }
+    },
+    "inbox.copyTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy title"
+          }
+        }
+      }
+    },
+    "inbox.count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "1 notification"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld notifications"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "inbox.deleteMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This cannot be undone."
+          }
+        }
+      }
+    },
+    "inbox.deleteTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete “%1$@”?"
+          }
+        }
+      }
+    },
+    "inbox.deleteTitleFallback": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this notification?"
+          }
+        }
+      }
+    },
+    "inbox.filterByKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter by key"
+          }
+        }
+      }
+    },
+    "inbox.filteredToKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtered to the “%1$@” key."
+          }
+        }
+      }
+    },
+    "inbox.linkTo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link to %1$@"
+          }
+        }
+      }
+    },
+    "inbox.markAllAsRead": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark all as read"
+          }
+        }
+      }
+    },
+    "inbox.more": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        }
+      }
+    },
+    "inbox.refresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        }
+      }
+    },
+    "inbox.rowKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key %1$@"
+          }
+        }
+      }
+    },
+    "inbox.seedSampleData": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seed sample data"
+          }
+        }
+      }
+    },
+    "inbox.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "inbox.unread": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unread"
+          }
+        }
+      }
+    },
+    "inbox.unreadSummary": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " unread · %1$@"
+          }
+        }
+      }
+    },
+    "keyDetail.copyKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy key"
+          }
+        }
+      }
+    },
+    "keyDetail.criticalAlerts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical Alerts"
+          }
+        }
+      }
+    },
+    "keyDetail.criticalChangeFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't change Critical Alerts for this key. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "keyDetail.criticalDenied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turned off for notifi in system settings, so these will arrive as ordinary notifications until you turn it back on."
+          }
+        }
+      }
+    },
+    "keyDetail.criticalNotBuilt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical Alerts aren't available in this build yet, so nothing was changed."
+          }
+        }
+      }
+    },
+    "keyDetail.criticalNotPermitted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This key is set to ask for Critical Alerts, but notifi is not allowed to sound through silent mode. Turn Critical Alerts on for notifi in system settings."
+          }
+        }
+      }
+    },
+    "keyDetail.criticalOn": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sends from this key that ask for it will sound through silent mode and Focus. Add critical=1 to the send."
+          }
+        }
+      }
+    },
+    "keyDetail.criticalUnavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not available yet — this needs an entitlement Apple has to grant notifi. Sends asking for it arrive as ordinary notifications in the meantime."
+          }
+        }
+      }
+    },
+    "keyDetail.defaultKeyDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi keeps this one on your device, so you can copy it again whenever you need it, or regenerate it below."
+          }
+        }
+      }
+    },
+    "keyDetail.fieldCreated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Created"
+          }
+        }
+      }
+    },
+    "keyDetail.fieldLastUsed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last used"
+          }
+        }
+      }
+    },
+    "keyDetail.fieldSent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent"
+          }
+        }
+      }
+    },
+    "keyDetail.notFound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key not found"
+          }
+        }
+      }
+    },
+    "keyDetail.notFoundDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It may have been removed on another device."
+          }
+        }
+      }
+    },
+    "keyDetail.openAnyLink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open any link"
+          }
+        }
+      }
+    },
+    "keyDetail.openAnyLinkDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off, only https links open. On, other schemes open too, including ones that launch other apps on this device."
+          }
+        }
+      }
+    },
+    "keyDetail.regenerate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate key"
+          }
+        }
+      }
+    },
+    "keyDetail.regenerateConfirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate"
+          }
+        }
+      }
+    },
+    "keyDetail.regeneratedAnnouncement": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key regenerated. The old value no longer works."
+          }
+        }
+      }
+    },
+    "keyDetail.regenerateDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerating issues a new value and retires the old one. Anything still sending with the old value will be rejected."
+          }
+        }
+      }
+    },
+    "keyDetail.regenerateFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't regenerate the key. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "keyDetail.regenerateMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The current value stops working immediately, and anything still sending with it will be rejected."
+          }
+        }
+      }
+    },
+    "keyDetail.regenerateTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate “%1$@”?"
+          }
+        }
+      }
+    },
+    "keyDetail.regenerateTitleFallback": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate this key?"
+          }
+        }
+      }
+    },
+    "keyDetail.regenerating": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerating…"
+          }
+        }
+      }
+    },
+    "keyDetail.revoke": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke key"
+          }
+        }
+      }
+    },
+    "keyDetail.revokeConfirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke"
+          }
+        }
+      }
+    },
+    "keyDetail.revokedAnnouncement": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key revoked."
+          }
+        }
+      }
+    },
+    "keyDetail.revokeDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoking is permanent. Anything still sending to this key will be rejected."
+          }
+        }
+      }
+    },
+    "keyDetail.revokedNotice": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This key is revoked and no longer accepts sends."
+          }
+        }
+      }
+    },
+    "keyDetail.revokeFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't revoke the key. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "keyDetail.revokeMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anything still sending to it will be rejected."
+          }
+        }
+      }
+    },
+    "keyDetail.revokeTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke “%1$@”?"
+          }
+        }
+      }
+    },
+    "keyDetail.revokeTitleFallback": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke this key?"
+          }
+        }
+      }
+    },
+    "keyDetail.revoking": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoking…"
+          }
+        }
+      }
+    },
+    "keyDetail.sectionAlerts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alerts"
+          }
+        }
+      }
+    },
+    "keyDetail.sectionDanger": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danger"
+          }
+        }
+      }
+    },
+    "keyDetail.sectionLinks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links"
+          }
+        }
+      }
+    },
+    "keyDetail.sectionUsage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage"
+          }
+        }
+      }
+    },
+    "keyDetail.shareKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share key"
+          }
+        }
+      }
+    },
+    "keyDetail.shownOnceDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The value was shown once, when you created this key. It is not stored on the device."
+          }
+        }
+      }
+    },
+    "keys.active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "1 active"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld active"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "keys.chipCritical": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical"
+          }
+        }
+      }
+    },
+    "keys.chipDefault": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default"
+          }
+        }
+      }
+    },
+    "keys.chipRevoked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoked"
+          }
+        }
+      }
+    },
+    "keys.criticalSummary": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ critical"
+          }
+        }
+      }
+    },
+    "keys.emptyDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A key is what a script sends with. Make one per source so you can revoke them separately."
+          }
+        }
+      }
+    },
+    "keys.emptyTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No active keys yet"
+          }
+        }
+      }
+    },
+    "keys.footnote": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A key is shown once, when it is created; notifi stores only the prefix. The default key can be copied again or regenerated from its detail page."
+          }
+        }
+      }
+    },
+    "keys.maskedValue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@…"
+          }
+        }
+      }
+    },
+    "keys.newKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New key"
+          }
+        }
+      }
+    },
+    "keys.refreshFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't refresh keys. Showing the last known list."
+          }
+        }
+      }
+    },
+    "keys.rowLabel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key, %1$@, ends %2$@"
+          }
+        }
+      }
+    },
+    "keys.rowLabelCritical": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", Critical Alerts on"
+          }
+        }
+      }
+    },
+    "keys.rowLabelRevoked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", revoked"
+          }
+        }
+      }
+    },
+    "keys.sectionActive": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
+          }
+        }
+      }
+    },
+    "keys.sectionRevoked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoked"
+          }
+        }
+      }
+    },
+    "keys.sent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "1 sent"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld sent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "keys.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keys"
+          }
+        }
+      }
+    },
+    "message.backToNotifications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to Notifications"
+          }
+        }
+      }
+    },
+    "message.downloadImage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download image"
+          }
+        }
+      }
+    },
+    "message.imageFailedToLoad": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image failed to load"
+          }
+        }
+      }
+    },
+    "message.imageHidden": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image hidden"
+          }
+        }
+      }
+    },
+    "message.imageHost": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "another host"
+          }
+        }
+      }
+    },
+    "message.imageLoadWarning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading it contacts %1$@."
+          }
+        }
+      }
+    },
+    "message.keyFallbackName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key %1$@"
+          }
+        }
+      }
+    },
+    "message.linksTo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links to %1$@"
+          }
+        }
+      }
+    },
+    "message.loadImage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load image"
+          }
+        }
+      }
+    },
+    "message.notFound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message not found"
+          }
+        }
+      }
+    },
+    "message.notFoundDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It may have been deleted on this device."
+          }
+        }
+      }
+    },
+    "message.sentWithKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent with key %1$@"
+          }
+        }
+      }
+    },
+    "message.shareLink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share link"
+          }
+        }
+      }
+    },
+    "message.viewImageFullScreen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View image full screen"
+          }
+        }
+      }
+    },
+    "push.actionMarkAsRead": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as read"
+          }
+        }
+      }
+    },
+    "push.actionOpenLink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open link"
+          }
+        }
+      }
+    },
+    "push.fallbackBody": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open notifi to view"
+          }
+        }
+      }
+    },
+    "push.fallbackTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi"
+          }
+        }
+      }
+    },
+    "push.summaryFormat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u more from %1$@"
+          }
+        }
+      }
+    },
+    "restore.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your old messages restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now be rejected — create fresh keys to keep receiving notifications."
+          }
+        }
+      }
+    },
+    "restore.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This looks like a new device"
+          }
+        }
+      }
+    },
+    "search.matches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "1 match"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld matches"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "search.prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search notifications"
+          }
+        }
+      }
+    },
+    "settings.automaticUpdates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic updates"
+          }
+        }
+      }
+    },
+    "settings.automaticUpdatesDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for new versions in the background."
+          }
+        }
+      }
+    },
+    "settings.checkForUpdates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for updates"
+          }
+        }
+      }
+    },
+    "settings.ground": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ground"
+          }
+        }
+      }
+    },
+    "settings.groundDark": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
+          }
+        }
+      }
+    },
+    "settings.groundDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app starts dark whatever the phone is set to, and stays on whichever of these you pick."
+          }
+        }
+      }
+    },
+    "settings.groundLight": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
+          }
+        }
+      }
+    },
+    "settings.keysAreDeviceBound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keys live and die with this device. If you lose it, the keys stop working and cannot be recovered."
+          }
+        }
+      }
+    },
+    "settings.loadImages": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load images automatically"
+          }
+        }
+      }
+    },
+    "settings.loadImagesDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fetching an image tells the sender your IP address and when it arrived. Off, images load only when tapped."
+          }
+        }
+      }
+    },
+    "settings.openSystemSettings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open system settings"
+          }
+        }
+      }
+    },
+    "settings.permission": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission"
+          }
+        }
+      }
+    },
+    "settings.permissionEnabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enabled"
+          }
+        }
+      }
+    },
+    "settings.permissionEphemeral": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ephemeral"
+          }
+        }
+      }
+    },
+    "settings.permissionNotSet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not set"
+          }
+        }
+      }
+    },
+    "settings.permissionOff": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
+    "settings.permissionProvisional": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provisional"
+          }
+        }
+      }
+    },
+    "settings.permissionUnknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown"
+          }
+        }
+      }
+    },
+    "settings.privacyPolicy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy policy"
+          }
+        }
+      }
+    },
+    "settings.sectionAbout": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        }
+      }
+    },
+    "settings.sectionAppearance": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        }
+      }
+    },
+    "settings.sectionDiagnostics": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnostics"
+          }
+        }
+      }
+    },
+    "settings.sectionNotifications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "settings.sectionPrivacy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        }
+      }
+    },
+    "settings.sendTest": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send test notification"
+          }
+        }
+      }
+    },
+    "settings.sendTestDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sends through your default key."
+          }
+        }
+      }
+    },
+    "settings.testBody": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you can read this, notifi is working."
+          }
+        }
+      }
+    },
+    "settings.testFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't send the test. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "settings.testNoDefaultKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No default key on this device yet. Refresh and try again."
+          }
+        }
+      }
+    },
+    "settings.testSent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent. It should arrive momentarily."
+          }
+        }
+      }
+    },
+    "settings.testTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test notification"
+          }
+        }
+      }
+    },
+    "settings.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "settings.version": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "settings.website": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi.it"
+          }
+        }
+      }
+    },
+    "tabs.inbox": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inbox"
+          }
+        }
+      }
+    },
+    "tabs.keys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keys"
+          }
+        }
+      }
+    },
+    "tabs.notifications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "tabs.settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "unsupported.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi requires a Mac with Apple silicon or a T2 chip. This Mac has no Secure Enclave, which notifi uses to protect your identity key."
+          }
+        }
+      }
+    },
+    "unsupported.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported Mac"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

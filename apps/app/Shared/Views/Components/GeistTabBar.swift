@@ -29,11 +29,11 @@ struct GeistTabBar: View {
     /// the iOS tab bar — not a second dot stacked beside it.
     private var items: [Item] {
         [
-            Item(tab: .inbox, title: "Notifications",
+            Item(tab: .inbox, title: Copy.Tabs.notifications,
                  icon: model.hasUnread ? "BellTabUnread" : "BellTab",
                  templated: !model.hasUnread),
-            Item(tab: .keys, title: "Keys", icon: "akar-key"),
-            Item(tab: .settings, title: "Settings", icon: "akar-gear")
+            Item(tab: .keys, title: Copy.Tabs.keys, icon: "akar-key"),
+            Item(tab: .settings, title: Copy.Tabs.settings, icon: "akar-gear")
         ]
     }
 

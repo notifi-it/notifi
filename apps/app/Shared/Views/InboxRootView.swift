@@ -75,7 +75,7 @@ struct InboxRootView: View {
                         }
                 }
             } label: {
-                Label("Notifications",
+                Label(Copy.Tabs.notifications,
                       image: model.hasUnread ? "BellTabUnread" : "BellTab")
                     .labelStyle(.iconOnly)
             }
@@ -83,13 +83,13 @@ struct InboxRootView: View {
             Tab(value: AppTab.keys) {
                 NavigationStack { KeysView() }
             } label: {
-                Label("Keys", image: "akar-key").labelStyle(.iconOnly)
+                Label(Copy.Tabs.keys, image: "akar-key").labelStyle(.iconOnly)
             }
 
             Tab(value: AppTab.settings) {
                 NavigationStack { SettingsView() }
             } label: {
-                Label("Settings", image: "akar-gear").labelStyle(.iconOnly)
+                Label(Copy.Tabs.settings, image: "akar-gear").labelStyle(.iconOnly)
             }
 
             // The role is what buys the morph: on iOS 26 the tab bar itself
@@ -133,7 +133,7 @@ struct InboxRootView: View {
                 // titles were the only text competing with the content scrolling
                 // behind the bar. The label is kept for VoiceOver.
                 .tabItem {
-                    Label("Notifications",
+                    Label(Copy.Tabs.notifications,
                           image: model.hasUnread ? "BellTabUnread" : "BellTab")
                         .labelStyle(.iconOnly)
                 }
@@ -142,13 +142,13 @@ struct InboxRootView: View {
                 NavigationStack {
                     KeysView()
                 }
-                .tabItem { Label("Keys", image: "akar-key").labelStyle(.iconOnly) }
+                .tabItem { Label(Copy.Tabs.keys, image: "akar-key").labelStyle(.iconOnly) }
                 .tag(AppTab.keys)
 
                 NavigationStack {
                     SettingsView()
                 }
-                .tabItem { Label("Settings", image: "akar-gear").labelStyle(.iconOnly) }
+                .tabItem { Label(Copy.Tabs.settings, image: "akar-gear").labelStyle(.iconOnly) }
                 .tag(AppTab.settings)
             }
         .tint(Theme.fg)

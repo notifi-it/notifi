@@ -34,6 +34,63 @@ is worse than under-delivering one.
 `apps/app/Shared/API/ContractModels.swift` are hand-written. Changing one without
 the other typechecks on both sides and fails at runtime. Edit them together.
 
+## Copy is written once, in packages/copy
+
+Every sentence the product says to a person lives in
+`packages/copy/src/strings.ts`. Nothing else may hold a user-facing literal.
+
+The app does not read that file. `make gen-copy` writes two things from it:
+
+- `apps/app/Shared/Resources/Localizable.xcstrings`, the string catalog, keyed by
+  dotted path (`inbox.deleteMessage`) rather than by English source text. Keying
+  by source text is Apple's default and makes every wording fix invalidate every
+  translation of it.
+- `apps/app/Shared/Support/Copy.swift`, typed accessors that look up those keys.
+
+Edit neither: they are generated, and `make check-copy` regenerates them in
+memory and fails if the committed ones have drifted. CI runs it.
+
+The server reads the TypeScript directly, but never as `copy`. It negotiates a
+language from `Accept-Language` once per request and every handler reads `t(c)`,
+so a response cannot answer in a language of its own choosing. The app sends its
+reader's `Locale.preferredLanguages` on every signed request — outside the signed
+canonical string, because it changes the wording of a reply and never what the
+request does.
+
+### Adding a language
+
+Add the code to `LANGUAGE_CODES` in `src/languages.ts`, add
+`src/translations/<code>.ts`, run `make gen-copy`. The generator refuses to write
+anything if a declared language is missing a key or has lost a `{placeholder}`,
+so a half-translated language fails the build rather than shipping half in
+English. There is no machine-translation step, by decision.
+
+### Two rules the generator enforces
+
+Placeholders are `{name}` and become positional format specifiers in
+first-appearance order, so a translator can reorder them.
+
+Counted things are `plural(one, other)`, and a plural leaf may contain **nothing
+but `{n}`**. That restriction is what keeps the catalog able to pluralise on the
+count while a language with six plural forms gets six. Anything mixing a count
+with other text composes an already-rendered count — `inbox.bandLabel` takes the
+output of `inbox.count`, it does not pluralise itself.
+
+### What is deliberately not in the app's catalog
+
+The `api` namespace. Those are the server's responses, shown to the reader as-is
+in the language the request asked for; a second translation of them inside the
+app would give the reader two wordings, differing by which one answered.
+
+The push fallback title is the one string the server sends in the source language
+regardless: it is read by the recipient, and the request that produced it came
+from the sender's script, whose `Accept-Language` says nothing about them.
+Localising it needs the device's language recorded at registration.
+
+The website is not in this at all. Its prose still lives in
+`apps/api/public/index.html` and `privacy.html`, and several sentences there are
+hand-kept duplicates of in-app copy.
+
 ## Migrations
 
 `apps/api/migrations/NNNN_snake_case.sql`, four-digit sequence. CI applies them

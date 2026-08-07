@@ -5,7 +5,7 @@ import {
   updateKeyBody,
 } from '@notifi/contract';
 import { Hono } from 'hono';
-import { errBody } from '../lib/respond.js';
+import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
 import { generateSendKey } from '../lib/sendkey.js';
 import { now } from '../lib/time.js';
@@ -25,7 +25,7 @@ keys.use('/keys/*', signatureAuth);
 keys.get('/keys', async (c) => {
   const nowS = now();
   const device = await getDevice(c);
-  if (!device) return c.json(errBody('unknown_device', 'Device is not registered.'), 401);
+  if (!device) return c.json(errBody('unknown_device', t(c).api.unknownDevice), 401);
 
   const rows = await c.env.DB.prepare(
     `SELECT id, meta_sealed, created_at, last_used_at, sent_count, revoked_at, critical
@@ -41,14 +41,14 @@ keys.get('/keys', async (c) => {
 keys.post('/keys', async (c) => {
   const nowS = now();
   const device = await getDevice(c);
-  if (!device) return c.json(errBody('unknown_device', 'Device is not registered.'), 401);
+  if (!device) return c.json(errBody('unknown_device', t(c).api.unknownDevice), 401);
 
   let parsed;
   try {
     const text = new TextDecoder().decode(c.get('rawBody'));
     parsed = createKeyBody.parse(JSON.parse(text));
   } catch {
-    return c.json(errBody('invalid_request', 'Invalid create-key body.'), 400);
+    return c.json(errBody('invalid_request', t(c).api.invalidCreateKeyBody), 400);
   }
 
   const generated = await generateSendKey();
@@ -63,7 +63,7 @@ keys.post('/keys', async (c) => {
     .first<{ id: number }>();
 
   if (!inserted) {
-    return c.json(errBody('invalid_request', 'Active key limit reached.'), 400);
+    return c.json(errBody('invalid_request', t(c).api.activeKeyLimit), 400);
   }
 
   const id = inserted.id;
@@ -81,11 +81,11 @@ keys.post('/keys', async (c) => {
 keys.patch('/keys/:id', async (c) => {
   const nowS = now();
   const device = await getDevice(c);
-  if (!device) return c.json(errBody('unknown_device', 'Device is not registered.'), 401);
+  if (!device) return c.json(errBody('unknown_device', t(c).api.unknownDevice), 401);
 
   const id = Number(c.req.param('id'));
   if (!Number.isInteger(id)) {
-    return c.json(errBody('not_found', 'Key not found.'), 404);
+    return c.json(errBody('not_found', t(c).api.keyNotFound), 404);
   }
 
   let parsed;
@@ -93,7 +93,7 @@ keys.patch('/keys/:id', async (c) => {
     const text = new TextDecoder().decode(c.get('rawBody'));
     parsed = updateKeyBody.parse(JSON.parse(text));
   } catch {
-    return c.json(errBody('invalid_request', 'Invalid update-key body.'), 400);
+    return c.json(errBody('invalid_request', t(c).api.invalidUpdateKeyBody), 400);
   }
 
   // Scoped to this device and to live keys, so a revoked key cannot be brought
@@ -106,7 +106,7 @@ keys.patch('/keys/:id', async (c) => {
     .first<{ id: number }>();
 
   if (!updated) {
-    return c.json(errBody('not_found', 'Key not found.'), 404);
+    return c.json(errBody('not_found', t(c).api.keyNotFound), 404);
   }
 
   await bumpLastSeenIfStale(c.env, device, nowS);
@@ -116,11 +116,11 @@ keys.patch('/keys/:id', async (c) => {
 keys.delete('/keys/:id', async (c) => {
   const nowS = now();
   const device = await getDevice(c);
-  if (!device) return c.json(errBody('unknown_device', 'Device is not registered.'), 401);
+  if (!device) return c.json(errBody('unknown_device', t(c).api.unknownDevice), 401);
 
   const id = Number(c.req.param('id'));
   if (!Number.isInteger(id)) {
-    return c.json(errBody('not_found', 'Key not found.'), 404);
+    return c.json(errBody('not_found', t(c).api.keyNotFound), 404);
   }
 
   const revoked = await c.env.DB.prepare(
@@ -131,7 +131,7 @@ keys.delete('/keys/:id', async (c) => {
     .first<{ id: number }>();
 
   if (!revoked) {
-    return c.json(errBody('not_found', 'Key not found.'), 404);
+    return c.json(errBody('not_found', t(c).api.keyNotFound), 404);
   }
 
   await bumpLastSeenIfStale(c.env, device, nowS);

@@ -7,12 +7,12 @@ import AppKit
 struct UnsupportedDeviceView: View {
     var body: some View {
         ContentUnavailableView {
-            Label("Unsupported Mac", systemImage: "exclamationmark.shield")
+            Label(Copy.Unsupported.title, systemImage: "exclamationmark.shield")
         } description: {
-            Text("notifi requires a Mac with Apple silicon or a T2 chip. This Mac has no Secure Enclave, which notifi uses to protect your identity key.")
+            Text(Copy.Unsupported.detail)
         } actions: {
             #if os(macOS)
-            Button("Quit") { NSApplication.shared.terminate(nil) }
+            Button(Copy.Common.quit) { NSApplication.shared.terminate(nil) }
                 .buttonStyle(.borderedProminent)
             #endif
         }

@@ -32,7 +32,7 @@ enum Appearance: String, CaseIterable {
 
     var colorScheme: ColorScheme { self == .dark ? .dark : .light }
 
-    var title: String { self == .dark ? "Dark" : "Light" }
+    var title: String { self == .dark ? Copy.Settings.groundDark : Copy.Settings.groundLight }
 }
 
 /// Pages the macOS popover pushes on top of the inbox.
@@ -493,8 +493,8 @@ final class AppModel {
     /// exact payload its curl snippet shows. A button that quietly sends
     /// something else teaches the wrong thing about the API.
     func sendTestNotification(
-        title: String = "Test notification",
-        message: String = "If you can read this, notifi is working."
+        title: String = Copy.Settings.testTitle,
+        message: String = Copy.Settings.testBody
     ) async throws {
         guard let api, let key = defaultKeyValue else { throw NotifiError.identityMissing }
         _ = try await api.send(key: key, title: title, message: message)

@@ -3,9 +3,10 @@ import {
   OCCURRED_AT_MAX_SKEW_MS,
   sendParams,
 } from '@notifi/contract';
+import { copyFor, SOURCE_LANGUAGE, type Strings } from '@notifi/copy';
 import { Hono } from 'hono';
 import { push } from '../lib/apns.js';
-import { errBody } from '../lib/respond.js';
+import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
 import { hashKey } from '../lib/sendkey.js';
 import {
@@ -35,10 +36,13 @@ function pushPayload(
   sealedB64: string,
   keyId: number,
   critical: boolean,
+  strings: Strings,
 ): object {
   return {
     aps: {
-      alert: { title: 'notifi' },
+      // What the lock screen shows if the service extension never runs. The
+      // real title is inside `sealed`, which only the device can open.
+      alert: { title: strings.push.fallbackTitle },
       // A critical sound is an object rather than a name, and it is what makes
       // the alert audible through the ringer switch. `interruption-level` alone
       // would get it past Focus but leave it silent on a muted phone, which for
@@ -100,7 +104,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const parsed = sendParams.safeParse(merged);
   if (!parsed.success) {
-    return c.json(errBody('invalid_request', 'Invalid send parameters.'), 400);
+    return c.json(errBody('invalid_request', t(c).api.invalidSendParams), 400);
   }
   const input = parsed.data;
 
@@ -116,7 +120,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     .first<KeyDeviceRow>();
 
   if (!row || row.revoked_at !== null) {
-    return c.json(errBody('unknown_key', 'Unknown or revoked key.'), 401);
+    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
   }
 
   const w = windowStart(nowS);
@@ -138,10 +142,10 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       .bind(row.key_id)
       .first<{ revoked_at: number | null }>();
     if (!still || still.revoked_at !== null) {
-      return c.json(errBody('unknown_key', 'Unknown or revoked key.'), 401);
+      return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
     }
     c.header('Retry-After', String(w + PER_KEY_WINDOW_S - nowS));
-    return c.json(errBody('rate_limited', 'Per-key rate limit exceeded.'), 429);
+    return c.json(errBody('rate_limited', t(c).api.rateLimitedKey), 429);
   }
 
   const createdAt = nowS;
@@ -151,7 +155,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   const occurredAt = input.occurred_at;
   if (occurredAt !== undefined && occurredAt > nowS * 1000 + OCCURRED_AT_MAX_SKEW_MS) {
     return c.json(
-      errBody('invalid_request', 'occurred_at is too far in the future.'),
+      errBody('invalid_request', t(c).api.occurredAtTooFuture),
       400,
     );
   }
@@ -181,7 +185,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     .first<{ seq_counter: number }>();
 
   if (!counter) {
-    return c.json(errBody('unknown_key', 'Unknown or revoked key.'), 401);
+    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
   }
   const deviceSeq = counter.seq_counter;
 
@@ -239,11 +243,18 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   // key marked critical stays quiet for the ordinary sends that share it.
   const critical = input.critical === true && row.critical === 1;
 
-  let payload = pushPayload(messageId, fullSealed, row.key_id, critical);
+  // Not `t(c)`: this text is read by the recipient, and the request that
+  // produced it came from the sender's script, whose Accept-Language says
+  // nothing about them. Localising it properly needs the device's language
+  // recorded at registration; until then it is the source language, and the
+  // service extension replaces it with the decrypted title in almost every case.
+  const deviceStrings = copyFor(SOURCE_LANGUAGE);
+
+  let payload = pushPayload(messageId, fullSealed, row.key_id, critical, deviceStrings);
   for (const candidate of fallbacks) {
     if (payloadBytes(payload) <= PUSH_BUDGET_BYTES) break;
     const sealed = await seal(row.encryption_public_key, 'content', JSON.stringify(candidate));
-    payload = pushPayload(messageId, sealed, row.key_id, critical);
+    payload = pushPayload(messageId, sealed, row.key_id, critical, deviceStrings);
   }
 
   await push(

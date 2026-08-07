@@ -46,8 +46,8 @@ final class NotificationService: UNNotificationServiceExtension {
         let delivery = Delivery(handler: contentHandler, content: best)
         self.delivery = delivery
 
-        best.title = "notifi"
-        best.body = "Open notifi to view"
+        best.title = Copy.Push.fallbackTitle
+        best.body = Copy.Push.fallbackBody
 
         guard let notifi = request.content.userInfo["notifi"] as? [String: Any],
               let sealed = notifi["sealed"] as? String,

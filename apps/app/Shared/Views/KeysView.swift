@@ -30,10 +30,9 @@ struct KeysView: View {
     /// pager's key list should not make you go two screens to find, so it joins
     /// the active count rather than living only on the detail page.
     private var subtitle: String {
-        let n = activeKeys.count
-        let active = n == 1 ? "1 active" : "\(n) active"
+        let active = Copy.Keys.active(activeKeys.count)
         guard !criticalKeys.isEmpty else { return active }
-        return "\(active) · \(criticalKeys.count) critical"
+        return Copy.Keys.criticalSummary(active, "\(criticalKeys.count)")
     }
 
     var body: some View {
@@ -43,19 +42,19 @@ struct KeysView: View {
                 // the rules between rows can run the full width of the screen
                 // while the content they separate stays inside the margin.
                 Group {
-                    GeistHeader(title: "Keys", subtitle: subtitle) {
+                    GeistHeader(title: Copy.Keys.title, subtitle: subtitle) {
                         #if os(iOS)
-                        IconButton(systemImage: "plus", label: "New key", glass: true) {
+                        IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
                             showingCreate = true
                         }
                         #else
-                        PillButton(title: "New key") { model.presentingCreateKey = true }
+                        PillButton(title: Copy.Keys.newKey) { model.presentingCreateKey = true }
                         #endif
                     }
                     .geistPageHeader()
 
                     if model.sync?.keysRefreshFailed == true {
-                        InlineError(message: "Couldn't refresh keys. Showing the last known list.")
+                        InlineError(message: Copy.Keys.refreshFailed)
                             .padding(.top, 14)
                     }
 
@@ -71,7 +70,7 @@ struct KeysView: View {
                     Hairline()
                 }
 
-                SectionLabel(text: "Active", trailing: "\(otherActiveKeys.count)")
+                SectionLabel(text: Copy.Keys.sectionActive, trailing: "\(otherActiveKeys.count)")
                     .geistGutter()
 
                 if otherActiveKeys.isEmpty && !hasLoaded && keys.isEmpty {
@@ -81,14 +80,14 @@ struct KeysView: View {
                     Color.clear.frame(height: 1)
                 } else if otherActiveKeys.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("No active keys yet")
+                        Text(Copy.Keys.emptyTitle)
                             .font(Theme.body)
                             .foregroundStyle(Theme.fg)
-                        Text("A key is what a script sends with. Make one per source so you can revoke them separately.")
+                        Text(Copy.Keys.emptyDetail)
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.dim)
                             .fixedSize(horizontal: false, vertical: true)
-                        OutlineButton(title: "New key", fill: false) {
+                        OutlineButton(title: Copy.Keys.newKey, fill: false) {
                             #if os(iOS)
                             showingCreate = true
                             #else
@@ -113,7 +112,7 @@ struct KeysView: View {
                 }
 
                 if !revokedKeys.isEmpty {
-                    SectionLabel(text: "Revoked", trailing: "\(revokedKeys.count)")
+                    SectionLabel(text: Copy.Keys.sectionRevoked, trailing: "\(revokedKeys.count)")
                         .geistGutter()
                     ForEach(revokedKeys) { key in
                         NavigationLink(value: key) {
@@ -125,9 +124,7 @@ struct KeysView: View {
                     }
                 }
 
-                Text("A key is shown once, when it is created; notifi stores "
-                     + "only the prefix. The default key can be copied again "
-                     + "or regenerated from its detail page.")
+                Text(Copy.Keys.footnote)
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
@@ -166,7 +163,7 @@ private struct KeyRow: View {
     var chipOnlyTitle = false
 
     private var sent: String {
-        key.sentCount == 1 ? "1 sent" : "\(key.sentCount) sent"
+        Copy.Keys.sent(key.sentCount)
     }
 
     var body: some View {
@@ -174,7 +171,7 @@ private struct KeyRow: View {
             VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 8) {
                     if chipOnlyTitle {
-                        Chip(text: "Default", color: Theme.fg,
+                        Chip(text: Copy.Keys.chipDefault, color: Theme.fg,
                              border: Theme.muted.opacity(0.5))
                     } else {
                         Text(key.name)
@@ -183,14 +180,14 @@ private struct KeyRow: View {
                             .lineLimit(1)
                     }
                     if key.isRevoked {
-                        Chip(text: "Revoked", color: Theme.dim)
+                        Chip(text: Copy.Keys.chipRevoked, color: Theme.dim)
                     }
                     // Which keys can sound through silent mode is the defining
                     // attribute of a pager, and it was visible only on the key's
                     // own screen. Revoked keys do not carry it: they send nothing
                     // at all, so saying how loudly would be a lie.
                     if key.isCritical && !key.isRevoked {
-                        Chip(text: "Critical", color: Theme.brandText,
+                        Chip(text: Copy.Keys.chipCritical, color: Theme.brandText,
                              border: Theme.brandText.opacity(0.45))
                     }
                 }
@@ -207,9 +204,9 @@ private struct KeyRow: View {
         .padding(.vertical, 14)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "Key, \(key.name), ends \(key.prefix.suffix(4))"
-            + (key.isRevoked ? ", revoked" : "")
-            + (key.isCritical && !key.isRevoked ? ", Critical Alerts on" : "")
+            Copy.Keys.rowLabel(key.name, String(key.prefix.suffix(4)))
+            + (key.isRevoked ? Copy.Keys.rowLabelRevoked : "")
+            + (key.isCritical && !key.isRevoked ? Copy.Keys.rowLabelCritical : "")
         )
     }
 }

@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { errBody } from '../lib/respond.js';
+import { errBody, t } from '../lib/respond.js';
 import type { AppEnv } from '../types.js';
 
 export const downloads = new Hono<AppEnv>();
@@ -26,7 +26,7 @@ function assetHeaders(obj: R2ObjectBody, filename: string): Headers {
 downloads.get('/download/mac', async (c) => {
   const pointer = await c.env.DOWNLOADS.get(LATEST_POINTER);
   if (!pointer) {
-    return c.json(errBody('not_found', 'No macOS build has been published yet.'), 404);
+    return c.json(errBody('not_found', t(c).api.noMacBuild), 404);
   }
   const key = (await pointer.text()).trim();
   return c.redirect(`/download/${key.replace(/^mac\//, '')}`, 302);
@@ -39,7 +39,7 @@ downloads.get('/download/mac', async (c) => {
 downloads.get('/download/appcast.xml', async (c) => {
   const obj = await c.env.DOWNLOADS.get('mac/appcast.xml');
   if (!obj) {
-    return c.json(errBody('not_found', 'No macOS build has been published yet.'), 404);
+    return c.json(errBody('not_found', t(c).api.noMacBuild), 404);
   }
   return new Response(obj.body, {
     headers: {
@@ -54,7 +54,7 @@ downloads.get('/download/:file{[A-Za-z0-9._-]+\\.dmg}', async (c) => {
   const file = c.req.param('file');
   const obj = await c.env.DOWNLOADS.get(`mac/${file}`);
   if (!obj) {
-    return c.json(errBody('not_found', 'No such build.'), 404);
+    return c.json(errBody('not_found', t(c).api.noSuchBuild), 404);
   }
   return new Response(obj.body, { headers: assetHeaders(obj, file) });
 });

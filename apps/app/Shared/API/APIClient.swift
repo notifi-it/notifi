@@ -124,8 +124,27 @@ final class APIClient {
         if body != nil {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
+        // The server has no locale of its own and answers in whatever this asks
+        // for. Its `message` is shown to the reader as-is, so without this a
+        // refused request is the one sentence in the app that is not in their
+        // language. Deliberately outside the signed canonical string: it changes
+        // the wording of a reply, never what the request does.
+        request.setValue(Self.acceptLanguage, forHTTPHeaderField: "Accept-Language")
         return request
     }
+
+    /// The reader's languages, best first, in the header's own q-value form.
+    /// `Locale.preferredLanguages` is the OS-level order, which is what the app
+    /// itself resolves its catalog against.
+    private static let acceptLanguage: String = {
+        let languages = Locale.preferredLanguages.prefix(5)
+        guard !languages.isEmpty else { return "en" }
+        return languages.enumerated()
+            .map { index, tag in
+                index == 0 ? tag : "\(tag);q=\(String(format: "%.1f", 1.0 - Double(index) * 0.1))"
+            }
+            .joined(separator: ", ")
+    }()
 
     private func baseComponents(path: String) -> URLComponents {
         var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!

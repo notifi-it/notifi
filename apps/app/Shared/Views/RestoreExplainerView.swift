@@ -9,17 +9,17 @@ struct RestoreExplainerView: View {
                 .font(.system(size: 52))
                 .foregroundStyle(.tint)
 
-            Text("This looks like a new device")
+            Text(Copy.Restore.title)
                 .font(.inco(.title2, weight: .bold))
                 .multilineTextAlignment(.center)
 
-            Text("Your old messages restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now be rejected — create fresh keys to keep receiving notifications.")
+            Text(Copy.Restore.detail)
                 .font(.inco(.body))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Continue") {
+            Button(Copy.Common.continueAction) {
                 model.acknowledgeRestore()
             }
             .buttonStyle(.borderedProminent)

@@ -46,10 +46,9 @@ struct SearchView: View {
     /// when nothing has been typed, because then it *is* the mailbox.
     private var subtitle: Text {
         guard !trimmed.isEmpty else {
-            return Text(messages.count == 1 ? "1 notification"
-                                            : "\(messages.count) notifications")
+            return Text(Copy.Inbox.count(messages.count))
         }
-        return Text(results.count == 1 ? "1 match" : "\(results.count) matches")
+        return Text(Copy.Search.matches(results.count))
     }
 
     var body: some View {
@@ -75,7 +74,7 @@ struct SearchView: View {
                 NoResultsView(query: trimmed, scopeNote: nil) { query = "" }
             }
         }
-        .searchable(text: $query, prompt: "Search notifications")
+        .searchable(text: $query, prompt: Copy.Search.prompt)
         // The tab bar is the field, so a navigation bar above it would only be
         // an empty strip — the same reason the Inbox hides its own.
         .toolbar(.hidden, for: .navigationBar)

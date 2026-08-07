@@ -12,7 +12,7 @@ struct SettingsTabsView: View {
         case settings
 
         var id: String { rawValue }
-        var title: String { self == .keys ? "Keys" : "Settings" }
+        var title: String { self == .keys ? Copy.Tabs.keys : Copy.Tabs.settings }
     }
 
     var body: some View {
@@ -25,7 +25,7 @@ struct SettingsTabsView: View {
             }
         }
         .safeAreaInset(edge: .top) {
-            MacNavBar(backTitle: "Inbox") {
+            MacNavBar(backTitle: Copy.Tabs.inbox) {
                 HStack(spacing: 10) {
                     Picker("", selection: $tab) {
                         ForEach(Tab.allCases) { tab in
@@ -43,7 +43,7 @@ struct SettingsTabsView: View {
                             Image(systemName: "plus")
                         }
                         .buttonStyle(.geist)
-                        .accessibilityLabel("Create key")
+                        .accessibilityLabel(Copy.Components.createKey)
                     }
                 }
             }

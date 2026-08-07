@@ -99,6 +99,10 @@ targets:
       - path: NotificationService
       - path: Shared/Identity/DeviceIdentity.swift
       - path: Shared/API/ContractModels.swift
+      # The catalog, not just the accessors: NSLocalizedString resolves against
+      # the running bundle, which for an extension is the extension's own.
+      - path: Shared/Resources/Localizable.xcstrings
+      - path: Shared/Support/Copy.swift
       - path: Shared/Support/NotifiError.swift
       - path: Shared/Support/RemoteImages.swift
       # LinkPolicy is compiled in for its https rule alone -- the extension
@@ -122,6 +126,10 @@ targets:
       - path: NotificationService
       - path: Shared/Identity/DeviceIdentity.swift
       - path: Shared/API/ContractModels.swift
+      # The catalog, not just the accessors: NSLocalizedString resolves against
+      # the running bundle, which for an extension is the extension's own.
+      - path: Shared/Resources/Localizable.xcstrings
+      - path: Shared/Support/Copy.swift
       - path: Shared/Support/NotifiError.swift
       - path: Shared/Support/RemoteImages.swift
       # LinkPolicy is compiled in for its https rule alone -- the extension

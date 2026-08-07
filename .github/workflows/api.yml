@@ -6,10 +6,12 @@ on:
     paths:
       - "apps/api/**"
       - "packages/contract/**"
+      - "packages/copy/**"
   pull_request:
     paths:
       - "apps/api/**"
       - "packages/contract/**"
+      - "packages/copy/**"
 
 permissions:
   contents: read
@@ -29,7 +31,11 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @notifi/contract --filter @notifi/api typecheck
+      - run: pnpm --filter @notifi/contract --filter @notifi/copy --filter @notifi/api typecheck
+      # Copy.swift is generated from packages/copy. Regenerate in memory and fail
+      # if what is committed has drifted -- the app compiles either way, so
+      # nothing else would notice.
+      - run: pnpm --filter @notifi/copy check-copy
 
   deploy-dev:
     needs: check

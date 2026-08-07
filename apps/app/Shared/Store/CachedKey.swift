@@ -22,7 +22,7 @@ struct CachedKey: Codable, Identifiable, Hashable, Sendable {
     /// is what makes it safe to identify one by name.
     var isDefault: Bool { name.lowercased() == "default" }
 
-    var maskedValue: String { "\(prefix)…" }
+    var maskedValue: String { Copy.Keys.maskedValue(prefix) }
 
     var createdDate: Date { Date(timeIntervalSince1970: TimeInterval(createdAt)) }
 

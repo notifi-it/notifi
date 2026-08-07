@@ -67,14 +67,12 @@ struct InboxView: View {
     /// colour. `brandText` rather than `brand` — the flat brand red is under the
     /// contrast floor for text this small.
     private var subtitle: Text {
-        let total = messages.count == 1
-            ? "1 notification"
-            : "\(messages.count) notifications"
+        let total = Copy.Inbox.count(messages.count)
         guard unreadCount > 0 else { return Text(total) }
         // Unread leads: it is the number the screen exists to answer, and the
         // total is the context for it.
         return Text("\(unreadCount)").foregroundColor(Theme.brandText)
-            + Text(" unread · \(total)")
+            + Text(Copy.Inbox.unreadSummary(total))
     }
 
     var body: some View {
@@ -124,7 +122,7 @@ struct InboxView: View {
         MessageFeed(messages: filtered) {
             NoResultsView(
                 query: trimmedQuery,
-                scopeNote: activeKeyName.map { "Filtered to the \u{201C}\($0)\u{201D} key." },
+                scopeNote: activeKeyName.map { Copy.Inbox.filteredToKey($0) },
                 onClear: clearFilters
             )
         }
@@ -152,7 +150,7 @@ struct InboxView: View {
     /// there is no bar to morph.
     private var searchToggle: some View {
         IconButton(systemImage: showingSearch ? "xmark" : "magnifyingglass",
-                   label: showingSearch ? "Close search" : "Search",
+                   label: showingSearch ? Copy.Inbox.closeSearch : Copy.Common.search,
                    glass: true) {
             if showingSearch {
                 closeSearch()
@@ -216,7 +214,7 @@ struct InboxView: View {
                     HStack(spacing: 8) {
                         Chip(text: activeKeyName, color: Theme.fg,
                              border: Theme.muted.opacity(0.5))
-                        Button("Clear") { filterKeyID = nil }
+                        Button(Copy.Common.clear) { filterKeyID = nil }
                             .font(Theme.label)
                             .foregroundStyle(Theme.dim)
                             .buttonStyle(.geist)

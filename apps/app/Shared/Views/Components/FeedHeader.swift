@@ -32,7 +32,7 @@ struct FeedHeader<Trailing: View>: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Notifications".uppercased())
+                Text(Copy.Inbox.title.uppercased())
                     .font(Theme.screenTitle)
                     .foregroundStyle(Theme.fg)
                     .lineLimit(1)
@@ -55,13 +55,13 @@ struct FeedHeader<Trailing: View>: View {
     }
     private var overflowMenu: some View {
         Menu {
-            Button("Mark all as read", action: markAllRead)
+            Button(Copy.Inbox.markAllAsRead, action: markAllRead)
                 .disabled(unreadCount == 0)
 
             if keys.count > 1 {
                 Divider()
-                Picker("Filter by key", selection: $filterKeyID) {
-                    Text("All keys").tag(Int?.none)
+                Picker(Copy.Inbox.filterByKey, selection: $filterKeyID) {
+                    Text(Copy.Inbox.allKeys).tag(Int?.none)
                     ForEach(keys) { key in
                         Text(key.name).tag(Int?.some(key.id))
                     }
@@ -74,17 +74,17 @@ struct FeedHeader<Trailing: View>: View {
             // not exist here.
             #if os(macOS)
             Divider()
-            Button("Refresh") { Task { await model.refresh() } }
+            Button(Copy.Inbox.refresh) { Task { await model.refresh() } }
                 .keyboardShortcut("r", modifiers: .command)
             #endif
 
             #if DEBUG
             if SampleData.isEnabled {
                 Divider()
-                Button("Seed sample data") {
+                Button(Copy.Inbox.seedSampleData) {
                     SampleData.seed(into: context, keyIDs: keys.map(\.id))
                 }
-                Button("Clear sample data", role: .destructive) {
+                Button(Copy.Inbox.clearSampleData, role: .destructive) {
                     SampleData.clear(from: context)
                 }
             }
@@ -106,7 +106,7 @@ struct FeedHeader<Trailing: View>: View {
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
-        .accessibilityLabel("More")
+        .accessibilityLabel(Copy.Inbox.more)
     }
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }

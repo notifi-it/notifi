@@ -2,7 +2,7 @@ import { registerDeviceBody } from '@notifi/contract';
 import { Hono } from 'hono';
 import { fromB64 } from '../lib/bytes.js';
 import { encryptField, encryptPadded, tokenHmacHex } from '../lib/fieldcrypto.js';
-import { errBody } from '../lib/respond.js';
+import { errBody, t } from '../lib/respond.js';
 import { now } from '../lib/time.js';
 import { signatureAuth } from '../middleware.js';
 import type { AppEnv } from '../types.js';
@@ -20,11 +20,11 @@ devices.post('/devices', async (c) => {
     const text = new TextDecoder().decode(c.get('rawBody'));
     parsed = registerDeviceBody.parse(JSON.parse(text));
   } catch {
-    return c.json(errBody('invalid_request', 'Invalid device registration body.'), 400);
+    return c.json(errBody('invalid_request', t(c).api.invalidDeviceBody), 400);
   }
 
   if (parsed.public_key !== headerPk) {
-    return c.json(errBody('invalid_request', 'public_key must match the signing public key.'), 400);
+    return c.json(errBody('invalid_request', t(c).api.publicKeyMismatch), 400);
   }
 
   try {
@@ -37,7 +37,7 @@ devices.post('/devices', async (c) => {
     );
   } catch {
     return c.json(
-      errBody('invalid_request', 'encryption_public_key is not a valid P-256 point.'),
+      errBody('invalid_request', t(c).api.invalidEncryptionKey),
       400,
     );
   }

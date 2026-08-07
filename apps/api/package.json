@@ -13,6 +13,7 @@
   "dependencies": {
     "@hpke/core": "^1.7.4",
     "@notifi/contract": "workspace:*",
+    "@notifi/copy": "workspace:*",
     "hono": "^4.6.3"
   },
   "devDependencies": {

@@ -51,7 +51,7 @@ private struct BlockedImageProvider: ImageProvider {
         HStack(spacing: 7) {
             Image(systemName: "photo")
                 .font(.system(size: 12, weight: .medium))
-            Text("Image hidden")
+            Text(Copy.Message.imageHidden)
                 .font(.inco(.footnote))
         }
         .foregroundStyle(Theme.dim)

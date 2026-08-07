@@ -1,6 +1,6 @@
 import { type HistoryMessage, historyQuery } from '@notifi/contract';
 import { Hono } from 'hono';
-import { errBody } from '../lib/respond.js';
+import { errBody, t } from '../lib/respond.js';
 import { now } from '../lib/time.js';
 import { getDevice, signatureAuth } from '../middleware.js';
 import type { AppEnv } from '../types.js';
@@ -12,11 +12,11 @@ history.use('/history', signatureAuth);
 history.get('/history', async (c) => {
   const nowS = now();
   const device = await getDevice(c);
-  if (!device) return c.json(errBody('unknown_device', 'Device is not registered.'), 401);
+  if (!device) return c.json(errBody('unknown_device', t(c).api.unknownDevice), 401);
 
   const parsed = historyQuery.safeParse(c.req.query());
   if (!parsed.success) {
-    return c.json(errBody('invalid_request', 'Invalid history query.'), 400);
+    return c.json(errBody('invalid_request', t(c).api.invalidHistoryQuery), 400);
   }
   const since = parsed.data.since ?? 0;
   const limit = parsed.data.limit ?? 50;

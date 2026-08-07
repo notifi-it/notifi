@@ -13,8 +13,8 @@ struct EmptyStateView: View {
     /// both at once is what pushed the send command below the fold on a phone.
     @State private var openStep = 1
 
-    private static let sampleTitle = "It lives"
-    private static let sampleMessage = "notifi is working."
+    private static let sampleTitle = Copy.Empty.sampleTitle
+    private static let sampleMessage = Copy.Empty.sampleMessage
 
     private func send() {
         sending = true
@@ -32,7 +32,7 @@ struct EmptyStateView: View {
                 // handing the reader whatever `localizedDescription` happened to
                 // produce, which for a decoding failure is Swift's own diagnostic.
                 sendError = (error as? APIError)?.userMessage
-                    ?? "Couldn't send. Check your connection and try again."
+                    ?? Copy.Empty.sendFailed
             }
             sending = false
         }
@@ -86,11 +86,11 @@ struct EmptyStateView: View {
                 .accessibilityHidden(true)
                 .padding(.bottom, 14)
 
-            Text("Nothing yet")
+            Text(Copy.Empty.title)
                 .font(.inco(.title3, weight: .bold))
                 .foregroundStyle(Theme.fg)
 
-            Text("Send your first notification and it lands here.")
+            Text(Copy.Empty.detail)
                 .font(Theme.body)
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)
@@ -103,17 +103,17 @@ struct EmptyStateView: View {
             VStack(alignment: .leading, spacing: 22) {
                 OnboardingStep(
                     number: 1,
-                    title: "Allow notifications",
+                    title: Copy.Empty.stepAllow,
                     done: notificationsAllowed,
                     open: openStep == 1,
                     toggle: { openStep = openStep == 1 ? 0 : 1 }
                 ) {
                     if notificationsAllowed {
-                        Text("Notifications are on.")
+                        Text(Copy.Empty.notificationsOn)
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.muted)
                     } else {
-                        OutlineButton(title: "Enable notifications", fill: true) {
+                        OutlineButton(title: Copy.Empty.enableNotifications, fill: true) {
                             Task {
                                 await model.requestNotificationPermission()
                             }
@@ -123,7 +123,7 @@ struct EmptyStateView: View {
 
                 OnboardingStep(
                     number: 2,
-                    title: "Send one",
+                    title: Copy.Empty.stepSend,
                     open: openStep == 2,
                     toggle: { openStep = openStep == 2 ? 0 : 2 }
                 ) {
@@ -144,12 +144,12 @@ struct EmptyStateView: View {
                             )
 
                         HStack(spacing: 10) {
-                            OutlineButton(title: copied ? "Copied" : "Copy", fill: true) {
+                            OutlineButton(title: copied ? Copy.Common.copied : Copy.Common.copy, fill: true) {
                                 Clipboard.copy(command)
                                 copied = true
                             }
 
-                            OutlineButton(title: sending ? "Sending…" : "Send a test", fill: true) {
+                            OutlineButton(title: sending ? Copy.Empty.sending : Copy.Empty.sendTest, fill: true) {
                                 send()
                             }
                             .disabled(sending)
@@ -159,25 +159,25 @@ struct EmptyStateView: View {
                             InlineError(message: sendError)
                         } else if sent {
                             AnnouncedText(
-                                message: "Sent. It arrives here and on your lock screen in a moment.",
+                                message: Copy.Empty.sent,
                                 color: Theme.muted
                             )
                             .frame(maxWidth: .infinity, alignment: .leading)
                         } else {
-                            Text("It arrives here and on your lock screen. Make more keys under Keys to keep sources apart.")
+                            Text(Copy.Empty.sentDetail)
                                 .font(Theme.metaSmall)
                                 .foregroundStyle(Theme.muted)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     } else if keyFailed {
-                        InlineError(message: "Couldn't make a key. Check your connection and try again.")
+                        InlineError(message: Copy.Empty.makeKeyFailed)
 
-                        OutlineButton(title: "Try again", fill: true) {
+                        OutlineButton(title: Copy.Common.tryAgain, fill: true) {
                             Task { await loadKey() }
                         }
                     } else {
-                        Text("Making your key…")
+                        Text(Copy.Empty.makingKey)
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.muted)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -252,8 +252,8 @@ private struct OnboardingStep<Content: View>: View {
             }
             .buttonStyle(.plain)
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("Step \(number). \(title).\(done ? " Done." : "")")
-            .accessibilityHint(open ? "Collapse" : "Expand")
+            .accessibilityLabel(Copy.Empty.stepLabel("\(number)", title) + (done ? Copy.Empty.stepDone : ""))
+            .accessibilityHint(open ? Copy.Common.collapse : Copy.Common.expand)
 
             // Opening and closing is not animated. The height change here is a
             // large one — a code block and two buttons — and no curve made it

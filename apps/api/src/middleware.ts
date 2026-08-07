@@ -1,5 +1,5 @@
 import type { Context, MiddlewareHandler } from 'hono';
-import { errBody } from './lib/respond.js';
+import { errBody, t } from './lib/respond.js';
 import { resolveDevice, verifyDeviceSignature } from './lib/signature.js';
 import { toHex } from './lib/bytes.js';
 import { LAST_SEEN_STALE_S, now, REPLAY_WINDOW_S } from './lib/time.js';
@@ -10,7 +10,7 @@ export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
   const { success } = await c.env.SEND_IP_LIMIT.limit({ key: ip });
   if (!success) {
     c.header('Retry-After', '60');
-    return c.json(errBody('rate_limited', 'Too many requests from this IP.'), 429);
+    return c.json(errBody('rate_limited', t(c).api.rateLimitedIP), 429);
   }
   return next();
 };
@@ -32,9 +32,7 @@ export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
   const result = await verifyDeviceSignature(c.req.raw, rawBody, nowS);
   if (!result.ok) {
     const message =
-      result.code === 'stale_timestamp'
-        ? 'Request timestamp is outside the allowed window.'
-        : 'Invalid request signature.';
+      result.code === 'stale_timestamp' ? t(c).api.staleTimestamp : t(c).api.badSignature;
     return c.json(errBody(result.code, message), 401);
   }
   const sigHeader = c.req.header('X-Notifi-Signature') ?? '';
@@ -48,7 +46,7 @@ export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
     .bind(sigHash, nowS + REPLAY_WINDOW_S)
     .first<{ sig_hash: string }>();
   if (!fresh) {
-    return c.json(errBody('bad_signature', 'Request signature has already been used.'), 401);
+    return c.json(errBody('bad_signature', t(c).api.replayedSignature), 401);
   }
 
   c.set('signatureChecked', true);

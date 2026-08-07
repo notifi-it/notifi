@@ -109,18 +109,18 @@ struct MessageFeed<Empty: View>: View {
         // easy to land on the wrong row, and "Delete this notification?" looks
         // identical whichever row summoned it.
         .alert(
-            pendingDelete.map { "Delete \u{201C}\($0.title)\u{201D}?" } ?? "Delete this notification?",
+            pendingDelete.map { Copy.Inbox.deleteTitle($0.title) } ?? Copy.Inbox.deleteTitleFallback,
             isPresented: Binding(get: { pendingDelete != nil },
                                  set: { if !$0 { pendingDelete = nil } }),
             presenting: pendingDelete
         ) { message in
-            Button("Delete", role: .destructive) {
+            Button(Copy.Common.delete, role: .destructive) {
                 delete(message)
                 pendingDelete = nil
             }
-            Button("Cancel", role: .cancel) { pendingDelete = nil }
+            Button(Copy.Common.cancel, role: .cancel) { pendingDelete = nil }
         } message: { _ in
-            Text("This cannot be undone.")
+            Text(Copy.Inbox.deleteMessage)
         }
         #if os(iOS)
         // Pull-to-refresh is a touch gesture. The Mac refreshes with ⌘R and the
@@ -167,7 +167,7 @@ struct MessageFeed<Empty: View>: View {
                 // name is kept.
                 Image(systemName: message.isRead ? "circle.fill" : "circle")
                     .accessibilityLabel(
-                        message.isRead ? "Mark as unread" : "Mark as read")
+                        message.isRead ? Copy.Common.markAsUnread : Copy.Common.markAsRead)
             }
             .tint(Theme.chip)
         }
@@ -178,7 +178,7 @@ struct MessageFeed<Empty: View>: View {
             // do by accident and the message cannot be recovered afterwards.
             Button(role: .destructive) { pendingDelete = message } label: {
                 Image(systemName: "trash")
-                    .accessibilityLabel("Delete")
+                    .accessibilityLabel(Copy.Common.delete)
             }
             .tint(Theme.danger)
         }
@@ -245,25 +245,25 @@ struct MessageFeed<Empty: View>: View {
 
     @ViewBuilder
     private func menu(for message: Message) -> some View {
-        Button(message.isRead ? "Mark as unread" : "Mark as read") { toggleRead(message) }
+        Button(message.isRead ? Copy.Common.markAsUnread : Copy.Common.markAsRead) { toggleRead(message) }
         Divider()
-        Button("Copy title") { Clipboard.copy(message.title) }
+        Button(Copy.Inbox.copyTitle) { Clipboard.copy(message.title) }
         if let body = message.body {
-            Button("Copy message") { Clipboard.copy(body) }
+            Button(Copy.Inbox.copyMessage) { Clipboard.copy(body) }
         }
         if let link = message.link {
-            Button("Copy link") { Clipboard.copy(link.absoluteString) }
+            Button(Copy.Inbox.copyLink) { Clipboard.copy(link.absoluteString) }
             if LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
-                Button("Open link") { open(link, keyID: message.keyID) }
+                Button(Copy.Common.openLink) { open(link, keyID: message.keyID) }
                 // Sharing the URL rather than the message: what a reader wants
                 // to hand on from a page like this is the thing it points at,
                 // and the title and body are already one tap from being copied
                 // above.
-                ShareLink(item: link) { Label("Share link", systemImage: "square.and.arrow.up") }
+                ShareLink(item: link) { Label(Copy.Message.shareLink, systemImage: "square.and.arrow.up") }
             }
         }
         Divider()
-        Button("Delete", role: .destructive) { pendingDelete = message }
+        Button(Copy.Common.delete, role: .destructive) { pendingDelete = message }
     }
 
     // MARK: Actions
@@ -428,10 +428,10 @@ private enum TimeBand: Hashable {
     /// about what is under it.
     func title(now: Date) -> String {
         switch self {
-        case .today: "Today"
-        case .yesterday: "Yesterday"
-        case .thisWeek: "Earlier This Week"
-        case .thisMonth: "Earlier This Month"
+        case .today: Copy.Inbox.bandToday
+        case .yesterday: Copy.Inbox.bandYesterday
+        case .thisWeek: Copy.Inbox.bandEarlierThisWeek
+        case .thisMonth: Copy.Inbox.bandEarlierThisMonth
         case .month(let start):
             Calendar.current.isDate(start, equalTo: now, toGranularity: .year)
                 ? Self.monthName.string(from: start)
@@ -490,8 +490,7 @@ private struct BandHeader: View {
         .padding(.top, isFirst ? 2 : 26)
         .padding(.bottom, 10)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(count == 1 ? "\(title), 1 notification"
-                                       : "\(title), \(count) notifications")
+        .accessibilityLabel(Copy.Inbox.bandLabel(title, Copy.Inbox.count(count)))
     }
 }
 
@@ -539,11 +538,11 @@ private struct MessageRow: View {
     private var relative: String {
         let seconds = max(0, Int(now.timeIntervalSince(basis)))
         switch seconds {
-        case ..<60: return "now"
-        case ..<3_600: return "\(seconds / 60) min"
-        case ..<86_400: return "\(seconds / 3_600) hr"
-        case ..<604_800: return "\(seconds / 86_400) d"
-        default: return "\(seconds / 604_800) w"
+        case ..<60: return Copy.Age.now
+        case ..<3_600: return Copy.Age.minutes("\(seconds / 60)")
+        case ..<86_400: return Copy.Age.hours("\(seconds / 3_600)")
+        case ..<604_800: return Copy.Age.days("\(seconds / 86_400)")
+        default: return Copy.Age.weeks("\(seconds / 604_800)")
         }
     }
 
@@ -691,12 +690,12 @@ private struct MessageRow: View {
     /// title and the preview as one run-on sentence and never says "unread".
     private var spokenDescription: String {
         var parts: [String] = []
-        if !message.isRead { parts.append("Unread") }
+        if !message.isRead { parts.append(Copy.Inbox.unread) }
         parts.append(message.title)
         if let body = message.body {
             parts.append(String(MarkdownPreview.text(body).characters))
         }
-        if let keyLabel { parts.append("Key \(keyLabel)") }
+        if let keyLabel { parts.append(Copy.Inbox.rowKey(keyLabel)) }
         if let link = message.link, let host = link.host() {
             parts.append("Link to \(host)")
         }

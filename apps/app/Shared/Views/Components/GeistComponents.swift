@@ -15,7 +15,7 @@ import SwiftUI
 /// a clear button, submit-to-dismiss-keyboard, and a focus ring.
 struct SearchField: View {
     @Binding var text: String
-    var placeholder: String = "Search"
+    var placeholder: String = Copy.Common.search
     /// Owned by the parent so the field can be dismissed from anywhere —
     /// scrolling, tapping a row, or tapping empty space.
     var focused: FocusState<Bool>.Binding
@@ -57,7 +57,7 @@ struct SearchField: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.geist)
-                .accessibilityLabel("Clear search")
+                .accessibilityLabel(Copy.Components.clearSearch)
                 .transition(.opacity)
             }
         }
@@ -445,13 +445,13 @@ struct NoResultsView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Text("No matches")
+            Text(Copy.Components.noMatches)
                 .font(.inco(.title3, weight: .bold))
                 .foregroundStyle(Theme.fg)
 
             Text(query.isEmpty
-                 ? "Nothing here with that filter."
-                 : "Nothing matching “\(query)”.")
+                 ? Copy.Components.noMatchesDetail
+                 : Copy.Components.noMatchesQuery(query))
                 .font(Theme.body)
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)
@@ -463,7 +463,7 @@ struct NoResultsView: View {
                     .multilineTextAlignment(.center)
             }
 
-            OutlineButton(title: "Clear", fill: false, action: onClear)
+            OutlineButton(title: Copy.Common.clear, fill: false, action: onClear)
                 .padding(.top, 6)
         }
         .frame(maxWidth: 320)
@@ -501,7 +501,7 @@ struct InlineError: View {
         // nothing at all and had no way to tell failure from still-working.
         .onAppear { AccessibilityNotification.Announcement(message).post() }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Error. \(message)")
+        .accessibilityLabel(Copy.Components.errorLabel(message))
     }
 }
 
@@ -581,7 +581,7 @@ extension GeistHeader where Trailing == EmptyView {
 
 /// A back bar for pushed screens.
 struct GeistBackBar: View {
-    var label: String = "Notifications"
+    var label: String = Copy.Tabs.notifications
     var dismiss: () -> Void
     var trailing: AnyView?
 
@@ -591,7 +591,7 @@ struct GeistBackBar: View {
             // `chevron.backward` rather than `.left` so it mirrors in right-to-left
             // languages, as the system's own back button does.
             IconButton(systemImage: "chevron.backward",
-                       label: "Back to \(label)",
+                       label: Copy.Components.backTo(label),
                        glass: true,
                        action: dismiss)
 

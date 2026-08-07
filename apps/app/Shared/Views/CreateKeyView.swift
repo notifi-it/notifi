@@ -64,21 +64,21 @@ struct CreateKeyView: View {
         // source as a popover and reads as a stray tooltip. House rule — see
         // CLAUDE.md.
         .alert(
-            "Haven't copied it?",
+            Copy.CreateKey.leaveTitle,
             isPresented: $showingCloseConfirm
         ) {
             if case let .revealed(response) = phase {
-                Button("Copy and close") {
+                Button(Copy.CreateKey.leaveCopyAndClose) {
                     Clipboard.copy(response.key)
                     finish()
                 }
-                Button("Close and revoke", role: .destructive) {
+                Button(Copy.CreateKey.leaveCloseAndRevoke, role: .destructive) {
                     Task { await revokeAndClose(response) }
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(Copy.Common.cancel, role: .cancel) {}
         } message: {
-            Text("This key will never be shown again.")
+            Text(Copy.CreateKey.leaveMessage)
         }
     }
 
@@ -88,7 +88,7 @@ struct CreateKeyView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Spacer(minLength: 8)
-                Button("Cancel") { close() }
+                Button(Copy.Common.cancel) { close() }
                     .font(Theme.body)
                     .foregroundStyle(Theme.muted)
                     .buttonStyle(.geist)
@@ -97,20 +97,20 @@ struct CreateKeyView: View {
             .padding(.top, 14)
             .padding(.bottom, 22)
 
-            Text("New key".uppercased())
+            Text(Copy.CreateKey.title.uppercased())
                 .font(Theme.screenTitle)
                 .foregroundStyle(Theme.fg)
 
-            Text("A name only you see. It shows up on the key list and in filters.")
+            Text(Copy.CreateKey.intro)
                 .font(Theme.body)
                 .foregroundStyle(Theme.muted)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
 
-            SectionLabel(text: "Name")
+            SectionLabel(text: Copy.CreateKey.sectionName)
 
             TextField("", text: $name, prompt:
-                Text("e.g. Grafana alerts").foregroundStyle(Theme.dim))
+                Text(Copy.CreateKey.namePrompt).foregroundStyle(Theme.dim))
                 .textFieldStyle(.plain)
                 .font(.inco(.body, weight: .medium))
                 .foregroundStyle(Theme.fg)
@@ -135,10 +135,10 @@ struct CreateKeyView: View {
                 // something VoiceOver can associate. Without this it announced the
                 // prompt — an example of a key name, offered as the name of the
                 // field itself.
-                .accessibilityLabel("Key name")
+                .accessibilityLabel(Copy.CreateKey.nameLabel)
 
             if isReserved {
-                Text("“default” is reserved — your device already has one.")
+                Text(Copy.CreateKey.nameReserved)
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .padding(.top, 8)
@@ -153,7 +153,7 @@ struct CreateKeyView: View {
             // "dimmed" and says nothing about what is missing, so an empty field
             // left the flow with no way to ask what was wrong — validation now
             // happens on the tap and says it.
-            PillButtonWide(title: phase == .creating ? "Creating…" : "Create key",
+            PillButtonWide(title: phase == .creating ? Copy.CreateKey.creating : Copy.CreateKey.create,
                            enabled: phase != .creating) {
                 guard let problem = validationProblem else {
                     Task { await create() }
@@ -178,11 +178,11 @@ struct CreateKeyView: View {
                 .padding(.top, 14)
                 .padding(.bottom, 22)
 
-            Text("Copy your key now".uppercased())
+            Text(Copy.CreateKey.revealTitle.uppercased())
                 .font(Theme.screenTitle)
                 .foregroundStyle(Theme.fg)
 
-            Text("This is the only time it is shown.")
+            Text(Copy.CreateKey.revealDetail)
                 .font(Theme.body)
                 .foregroundStyle(Theme.muted)
                 .padding(.top, 8)
@@ -201,26 +201,25 @@ struct CreateKeyView: View {
                 // withholding it from VoiceOver hid it from one set of users
                 // only — and the copy claiming it was hidden for security was
                 // not true of the screen it was describing.
-                .accessibilityLabel("Your new key")
+                .accessibilityLabel(Copy.CreateKey.revealLabel)
                 .accessibilityValue(response.key)
 
             HStack(spacing: 9) {
-                OutlineButton(title: hasCopied ? "Copied" : "Copy") {
+                OutlineButton(title: hasCopied ? Copy.Common.copied : Copy.Common.copy) {
                     Clipboard.copy(response.key)
                     withAnimation(Theme.press) { hasCopied = true }
                 }
-                OutlineShareButton(title: "Share", item: response.key)
+                OutlineShareButton(title: Copy.Common.share, item: response.key)
             }
             .padding(.top, 14)
 
-            Text("This key lives and dies with this device. If you lose the device, "
-                 + "the key stops working and cannot be recovered.")
+            Text(Copy.CreateKey.revealWarning)
                 .font(Theme.metaSmall)
                 .foregroundStyle(Theme.dim)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 20)
 
-            PillButtonWide(title: "Done", enabled: true) { attemptClose() }
+            PillButtonWide(title: Copy.Common.done, enabled: true) { attemptClose() }
                 .padding(.top, 22)
         }
     }
@@ -245,9 +244,9 @@ struct CreateKeyView: View {
     /// rather than as what went wrong. `nil` means the name is fine.
     private var validationProblem: String? {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty { return "Enter a name for this key." }
-        if trimmed.count > 64 { return "Use 64 characters or fewer." }
-        if isReserved { return "Choose another name — “default” is your device's own key." }
+        if trimmed.isEmpty { return Copy.CreateKey.validationEmpty }
+        if trimmed.count > 64 { return Copy.CreateKey.validationTooLong }
+        if isReserved { return Copy.CreateKey.validationReserved }
         return nil
     }
 
@@ -271,7 +270,7 @@ struct CreateKeyView: View {
             await model.sync?.refreshKeys()
             withAnimation(Theme.reveal) { phase = .revealed(response) }
         } catch {
-            errorMessage = (error as? APIError)?.userMessage ?? "Couldn't create the key. Check your connection and try again."
+            errorMessage = (error as? APIError)?.userMessage ?? Copy.CreateKey.createFailed
             phase = .entering
         }
     }

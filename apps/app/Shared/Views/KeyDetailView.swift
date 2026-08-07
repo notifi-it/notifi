@@ -36,15 +36,11 @@ struct KeyDetailView: View {
     private var criticalDetail: String {
         switch model.criticalAlertStatus {
         case .enabled:
-            return "Sends from this key that ask for it will sound through "
-                + "silent mode and Focus. Add critical=1 to the send."
+            return Copy.KeyDetail.criticalOn
         case .disabled:
-            return "Turned off for notifi in system settings, so these will "
-                + "arrive as ordinary notifications until you turn it back on."
+            return Copy.KeyDetail.criticalDenied
         default:
-            return "Not available yet — this needs an entitlement Apple has to "
-                + "grant notifi. Sends asking for it arrive as ordinary "
-                + "notifications in the meantime."
+            return Copy.KeyDetail.criticalUnavailable
         }
     }
 
@@ -54,10 +50,10 @@ struct KeyDetailView: View {
                 content(for: key).geistGutter().geistMeasure()
             } else {
                 VStack(spacing: 10) {
-                    Text("Key not found")
+                    Text(Copy.KeyDetail.notFound)
                         .font(.inco(.title3, weight: .bold))
                         .foregroundStyle(Theme.fg)
-                    Text("It may have been removed on another device.")
+                    Text(Copy.KeyDetail.notFoundDetail)
                         .font(Theme.body)
                         .foregroundStyle(Theme.muted)
                 }
@@ -71,7 +67,7 @@ struct KeyDetailView: View {
         .background(StaticField())
         .scrollContentBackground(.hidden)
         .safeAreaInset(edge: .top) {
-            GeistBackBar(label: "Keys", dismiss: { dismiss() }, trailing: nil)
+            GeistBackBar(label: Copy.Tabs.keys, dismiss: { dismiss() }, trailing: nil)
                 .geistGutter()
                 // Capped with the content rather than spanning the window, so on
                 // iPad the back button stays on the column's leading edge instead
@@ -87,23 +83,22 @@ struct KeyDetailView: View {
         // source as a popover and reads as a stray tooltip. House rule — see
         // CLAUDE.md.
         .alert(
-            key.map { "Revoke “\($0.name)”?" } ?? "Revoke this key?",
+            key.map { Copy.KeyDetail.revokeTitle($0.name) } ?? Copy.KeyDetail.revokeTitleFallback,
             isPresented: $showingRevokeConfirm
         ) {
-            Button("Revoke", role: .destructive) { Task { await revoke() } }
-            Button("Cancel", role: .cancel) {}
+            Button(Copy.KeyDetail.revokeConfirm, role: .destructive) { Task { await revoke() } }
+            Button(Copy.Common.cancel, role: .cancel) {}
         } message: {
-            Text("Anything still sending to it will be rejected.")
+            Text(Copy.KeyDetail.revokeMessage)
         }
         .alert(
-            key.map { "Regenerate “\($0.name)”?" } ?? "Regenerate this key?",
+            key.map { Copy.KeyDetail.regenerateTitle($0.name) } ?? Copy.KeyDetail.regenerateTitleFallback,
             isPresented: $showingRegenerateConfirm
         ) {
-            Button("Regenerate", role: .destructive) { Task { await regenerate() } }
-            Button("Cancel", role: .cancel) {}
+            Button(Copy.KeyDetail.regenerateConfirm, role: .destructive) { Task { await regenerate() } }
+            Button(Copy.Common.cancel, role: .cancel) {}
         } message: {
-            Text("The current value stops working immediately, and anything "
-                 + "still sending with it will be rejected.")
+            Text(Copy.KeyDetail.regenerateMessage)
         }
     }
 
@@ -116,10 +111,10 @@ struct KeyDetailView: View {
                     .foregroundStyle(Theme.fg)
                     .fixedSize(horizontal: false, vertical: true)
                 if key.isDefault {
-                    Chip(text: "Default", color: Theme.fg, border: Theme.muted.opacity(0.5))
+                    Chip(text: Copy.Keys.chipDefault, color: Theme.fg, border: Theme.muted.opacity(0.5))
                 }
                 if key.isRevoked {
-                    Chip(text: "Revoked", color: Theme.dim)
+                    Chip(text: Copy.Keys.chipRevoked, color: Theme.dim)
                 }
                 Spacer(minLength: 0)
             }
@@ -136,40 +131,37 @@ struct KeyDetailView: View {
             // so there is nothing here worth copying.
             if key.isDefault, let full = model.defaultKeyValue {
                 HStack(spacing: 9) {
-                    OutlineButton(title: copied ? "Copied" : "Copy key") {
+                    OutlineButton(title: copied ? Copy.Common.copied : Copy.KeyDetail.copyKey) {
                         Clipboard.copy(full)
                         flash()
                     }
-                    OutlineShareButton(title: "Share key", item: full)
+                    OutlineShareButton(title: Copy.KeyDetail.shareKey, item: full)
                 }
                 .padding(.top, 18)
-                Text("notifi keeps this one on your device, so you can copy it "
-                     + "again whenever you need it, or regenerate it below.")
+                Text(Copy.KeyDetail.defaultKeyDetail)
                     .geistConsequence()
                     .padding(.top, 10)
             } else {
-                Text("The value was shown once, when you created this key. "
-                     + "It is not stored on the device.")
+                Text(Copy.KeyDetail.shownOnceDetail)
                     .geistConsequence()
                     .padding(.top, 14)
             }
 
-            SectionLabel(text: "Usage")
-            FieldRow("Sent", "\(key.sentCount)")
+            SectionLabel(text: Copy.KeyDetail.sectionUsage)
+            FieldRow(Copy.KeyDetail.fieldSent, "\(key.sentCount)")
             Hairline()
-            FieldRow("Created", key.createdDate.formatted(date: .abbreviated, time: .shortened))
+            FieldRow(Copy.KeyDetail.fieldCreated, key.createdDate.formatted(date: .abbreviated, time: .shortened))
             Hairline()
-            FieldRow("Last used", key.lastUsedDate.map {
+            FieldRow(Copy.KeyDetail.fieldLastUsed, key.lastUsedDate.map {
                 $0.formatted(date: .abbreviated, time: .shortened)
-            } ?? "Never")
+            } ?? Copy.Common.never)
             Hairline()
 
-            SectionLabel(text: "Links")
+            SectionLabel(text: Copy.KeyDetail.sectionLinks)
 
             ToggleRow(
-                title: "Open any link",
-                detail: "Off, only https links open. On, other schemes open too, "
-                    + "including ones that launch other apps on this device.",
+                title: Copy.KeyDetail.openAnyLink,
+                detail: Copy.KeyDetail.openAnyLinkDetail,
                 isOn: Binding(
                     get: { model.allowsAnyLink(keyID: keyID) },
                     set: { model.setAllowsAnyLink($0, keyID: keyID) }
@@ -178,9 +170,9 @@ struct KeyDetailView: View {
             Hairline()
 
             if !key.isRevoked {
-                SectionLabel(text: "Alerts")
+                SectionLabel(text: Copy.KeyDetail.sectionAlerts)
                 ToggleRow(
-                    title: "Critical Alerts",
+                    title: Copy.KeyDetail.criticalAlerts,
                     detail: criticalDetail,
                     isOn: Binding(
                         get: { key.isCritical },
@@ -196,32 +188,29 @@ struct KeyDetailView: View {
             }
 
             if key.isRevoked {
-                Text("This key is revoked and no longer accepts sends.")
+                Text(Copy.KeyDetail.revokedNotice)
                     .geistConsequence()
                     .padding(.top, 20)
             } else if key.isDefault {
                 // No revoke here. Losing the default would leave the device with
                 // no key it can hand out, so the only action is to replace it.
-                SectionLabel(text: "Danger")
-                OutlineButton(title: isRegenerating ? "Regenerating…" : "Regenerate key",
+                SectionLabel(text: Copy.KeyDetail.sectionDanger)
+                OutlineButton(title: isRegenerating ? Copy.KeyDetail.regenerating : Copy.KeyDetail.regenerate,
                               role: .destructive) {
                     showingRegenerateConfirm = true
                 }
                 .disabled(isRegenerating)
-                Text("Regenerating issues a new value and retires the old one. "
-                     + "Anything still sending with the old value will be "
-                     + "rejected.")
+                Text(Copy.KeyDetail.regenerateDetail)
                     .geistConsequence()
                     .padding(.top, 10)
             } else {
-                SectionLabel(text: "Danger")
-                OutlineButton(title: isRevoking ? "Revoking…" : "Revoke key",
+                SectionLabel(text: Copy.KeyDetail.sectionDanger)
+                OutlineButton(title: isRevoking ? Copy.KeyDetail.revoking : Copy.KeyDetail.revoke,
                               role: .destructive) {
                     showingRevokeConfirm = true
                 }
                 .disabled(isRevoking)
-                Text("Revoking is permanent. Anything still sending to this key "
-                     + "will be rejected.")
+                Text(Copy.KeyDetail.revokeDetail)
                     .geistConsequence()
                     .padding(.top, 10)
             }
@@ -250,11 +239,11 @@ struct KeyDetailView: View {
             // VoiceOver user ever heard from a destructive action was the one that
             // did not happen. Posted the same way `AnnouncedText` does it.
             AccessibilityNotification.Announcement(
-                "Key regenerated. The old value no longer works."
+                Copy.KeyDetail.regeneratedAnnouncement
             ).post()
         } catch {
             errorMessage = (error as? APIError)?.userMessage
-                ?? "Couldn't regenerate the key. Check your connection and try again."
+                ?? Copy.KeyDetail.regenerateFailed
         }
         isRegenerating = false
     }
@@ -269,16 +258,13 @@ struct KeyDetailView: View {
             // nothing louder than an ordinary notification, so the refusal is said
             // out loud instead of being left to be discovered by a missed page.
             if critical, granted != .enabled {
-                errorMessage = "This key is set to ask for Critical Alerts, but "
-                    + "notifi is not allowed to sound through silent mode. Turn "
-                    + "Critical Alerts on for notifi in system settings."
+                errorMessage = Copy.KeyDetail.criticalNotPermitted
             }
         } catch NotifiError.criticalAlertsUnavailable {
-            errorMessage = "Critical Alerts aren't available in this build yet, so "
-                + "nothing was changed."
+            errorMessage = Copy.KeyDetail.criticalNotBuilt
         } catch {
             errorMessage = (error as? APIError)?.userMessage
-                ?? "Couldn't change Critical Alerts for this key. Check your connection and try again."
+                ?? Copy.KeyDetail.criticalChangeFailed
         }
         isUpdatingCritical = false
     }
@@ -292,9 +278,9 @@ struct KeyDetailView: View {
             await model.sync?.refreshKeys()
             // See `regenerate()`: the success half of a destructive action has to
             // announce itself too.
-            AccessibilityNotification.Announcement("Key revoked.").post()
+            AccessibilityNotification.Announcement(Copy.KeyDetail.revokedAnnouncement).post()
         } catch {
-            errorMessage = (error as? APIError)?.userMessage ?? "Couldn't revoke the key. Check your connection and try again."
+            errorMessage = (error as? APIError)?.userMessage ?? Copy.KeyDetail.revokeFailed
         }
         isRevoking = false
     }

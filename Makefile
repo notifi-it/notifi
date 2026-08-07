@@ -1,4 +1,4 @@
-.PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck gen-vectors \
+.PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-metadata app-metadata-check
 
@@ -25,6 +25,15 @@ typecheck:
 
 gen-vectors:
 	pnpm --filter @notifi/contract gen-vectors
+
+# Copy lives in packages/copy and nowhere else. The API imports it; the app reads
+# the Swift file this writes. `check-copy` is the CI half: it regenerates in
+# memory and fails if Copy.swift on disk has drifted.
+gen-copy:
+	pnpm --filter @notifi/copy gen-copy
+
+check-copy:
+	pnpm --filter @notifi/copy check-copy
 
 app-project:
 	cd apps/app && xcodegen generate

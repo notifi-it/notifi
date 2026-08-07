@@ -1,4 +1,5 @@
 import type { ErrorCode } from '@notifi/contract';
+import type { LanguageCode } from '@notifi/copy';
 
 export interface RateLimitBinding {
   limit(options: { key: string }): Promise<{ success: boolean }>;
@@ -39,6 +40,10 @@ export interface Variables {
   rawBody: ArrayBuffer;
   publicKey: string;
   signatureChecked: boolean;
+  /// Negotiated from `Accept-Language` once per request. The server has no
+  /// locale of its own -- it answers in the language the caller asked for, and
+  /// the app asks for the reader's.
+  language: LanguageCode;
 }
 
 export interface AppEnv {

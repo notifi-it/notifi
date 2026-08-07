@@ -28,16 +28,16 @@ extension APIError {
         case let .http(status, _, message):
             if let message, !message.isEmpty { return message }
             switch status {
-            case 401, 403: return "This key is no longer accepted. Create a new one under Keys."
-            case 404: return "That is no longer on the server. Refresh and try again."
-            case 429: return "Too many requests just now. Try again in a moment."
-            case 500...599: return "The server is having trouble. Try again in a moment."
-            default: return "The request didn't go through. Try again."
+            case 401, 403: return Copy.ClientErrors.unauthorized
+            case 404: return Copy.ClientErrors.notFound
+            case 429: return Copy.ClientErrors.rateLimited
+            case 500...599: return Copy.ClientErrors.server
+            default: return Copy.ClientErrors.generic
             }
         case .transport:
-            return "Couldn't reach the server. Check your connection and try again."
+            return Copy.ClientErrors.transport
         case .decoding, .invalidResponse:
-            return "The server returned something unexpected. Try again in a moment."
+            return Copy.ClientErrors.decoding
         }
     }
 }

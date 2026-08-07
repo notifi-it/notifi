@@ -23,7 +23,7 @@ struct MacNavBar<Trailing: View>: View {
                     .font(.inco(.subheadline, weight: .medium))
             }
             .buttonStyle(.geist)
-            .accessibilityLabel("Back to \(backTitle)")
+            .accessibilityLabel(Copy.Components.backTo(backTitle))
 
             Spacer(minLength: 0)
 

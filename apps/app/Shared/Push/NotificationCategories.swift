@@ -44,7 +44,7 @@ enum NotificationCategories {
                 actions: [markReadAction],
                 intentIdentifiers: [],
                 hiddenPreviewsBodyPlaceholder: nil,
-                categorySummaryFormat: "%u more from \(name)",
+                categorySummaryFormat: Copy.Push.summaryFormat(name),
                 options: []
             ),
             UNNotificationCategory(
@@ -52,7 +52,7 @@ enum NotificationCategories {
                 actions: [openLinkAction, markReadAction],
                 intentIdentifiers: [],
                 hiddenPreviewsBodyPlaceholder: nil,
-                categorySummaryFormat: "%u more from \(name)",
+                categorySummaryFormat: Copy.Push.summaryFormat(name),
                 options: []
             ),
         ]
@@ -94,7 +94,7 @@ enum NotificationCategories {
     private static var openLinkAction: UNNotificationAction {
         UNNotificationAction(
             identifier: Action.openLink,
-            title: "Open link",
+            title: Copy.Push.actionOpenLink,
             // Foreground because handing a URL to the OS is the app's job, and a
             // process launched only to service a background action is not reliably
             // allowed to do it. A tap that does not reach the browser has failed.
@@ -103,7 +103,7 @@ enum NotificationCategories {
     }
 
     private static var markReadAction: UNNotificationAction {
-        UNNotificationAction(identifier: Action.markRead, title: "Mark as read", options: [])
+        UNNotificationAction(identifier: Action.markRead, title: Copy.Push.actionMarkAsRead, options: [])
     }
 }
 

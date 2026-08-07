@@ -52,17 +52,17 @@ struct MessageDetailView: View {
         let basis = message.occurredAt ?? message.createdAt
         let seconds = max(0, Int(Date().timeIntervalSince(basis)))
         switch seconds {
-        case ..<60: return "now"
-        case ..<3_600: return "\(seconds / 60) min"
-        case ..<86_400: return "\(seconds / 3_600) hr"
-        case ..<604_800: return "\(seconds / 86_400) d"
-        default: return "\(seconds / 604_800) w"
+        case ..<60: return Copy.Age.now
+        case ..<3_600: return Copy.Age.minutes("\(seconds / 60)")
+        case ..<86_400: return Copy.Age.hours("\(seconds / 3_600)")
+        case ..<604_800: return Copy.Age.days("\(seconds / 86_400)")
+        default: return Copy.Age.weeks("\(seconds / 604_800)")
         }
     }
 
     private static let stamp: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "EEE d MMM yyyy, HH:mm:ss.SSS"
+        f.dateFormat = Copy.Age.absoluteFormat
         return f
     }()
 
@@ -74,10 +74,10 @@ struct MessageDetailView: View {
                     .geistMeasure()
             } else {
                 VStack(spacing: 10) {
-                    Text("Message not found")
+                    Text(Copy.Message.notFound)
                         .font(.inco(.title3, weight: .bold))
                         .foregroundStyle(Theme.fg)
-                    Text("It may have been deleted on this device.")
+                    Text(Copy.Message.notFoundDetail)
                         .font(Theme.body)
                         .foregroundStyle(Theme.muted)
                 }
@@ -104,12 +104,12 @@ struct MessageDetailView: View {
         // server has already dropped it — so it always asks first.
         // Named, the same way the feed's own delete alert is: an alert that could
         // have been raised by any row should say which one raised it.
-        .alert(message.map { "Delete “\($0.title)”?" } ?? "Delete this notification?",
+        .alert(message.map { Copy.Inbox.deleteTitle($0.title) } ?? Copy.Inbox.deleteTitleFallback,
                isPresented: $confirmingDelete) {
-            Button("Delete", role: .destructive) { deleteMessage() }
-            Button("Cancel", role: .cancel) {}
+            Button(Copy.Common.delete, role: .destructive) { deleteMessage() }
+            Button(Copy.Common.cancel, role: .cancel) {}
         } message: {
-            Text("This cannot be undone.")
+            Text(Copy.Inbox.deleteMessage)
         }
     }
 
@@ -135,13 +135,13 @@ struct MessageDetailView: View {
                 HStack(spacing: 10) {
                     if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                         IconButton(systemName: "arrow.down.to.line",
-                                   label: "Download image") {
+                                   label: Copy.Message.downloadImage) {
                             downloadImage(url, keyID: message.keyID)
                         }
                     }
 
                     if let link = message.link, LinkPolicy.allows(link, anyScheme: anyScheme) {
-                        IconButton(systemName: "globe", label: "Open link") {
+                        IconButton(systemName: "globe", label: Copy.Common.openLink) {
                             open(link, keyID: message.keyID)
                         }
                     }
@@ -151,7 +151,7 @@ struct MessageDetailView: View {
                     // it has been read. The label still names what tapping does.
                     IconButton(
                         systemName: message.isRead ? "circle" : "circle.fill",
-                        label: message.isRead ? "Mark as unread" : "Mark as read",
+                        label: message.isRead ? Copy.Common.markAsUnread : Copy.Common.markAsRead,
                         tint: message.isRead ? Theme.fg : Theme.brand
                     ) {
                         message.isRead.toggle()
@@ -159,7 +159,7 @@ struct MessageDetailView: View {
                         model.sync?.updateBadge()
                     }
 
-                    IconButton(systemName: "trash", label: "Delete") {
+                    IconButton(systemName: "trash", label: Copy.Common.delete) {
                         confirmingDelete = true
                     }
                 }
@@ -184,7 +184,7 @@ struct MessageDetailView: View {
     /// naming it earned nothing. Same round button as the trailing actions.
     private var backButton: some View {
         IconButton(systemName: "chevron.backward",
-                   label: "Back to Notifications") { goBack() }
+                   label: Copy.Message.backToNotifications) { goBack() }
     }
 
     /// The key the notification was sent with, or nil when saying so adds nothing.
@@ -196,7 +196,7 @@ struct MessageDetailView: View {
     private func keyName(for message: Message) -> String? {
         guard let id = message.keyID else { return nil }
         guard let key = model.sync?.keys.first(where: { $0.id == id }) else {
-            return "Key \(id)"
+            return Copy.Message.keyFallbackName("\(id)")
         }
         return key.isDefault ? nil : key.name
     }
@@ -231,7 +231,7 @@ struct MessageDetailView: View {
                 // key icon was its own stop in the rotor and the name that followed
                 // it arrived with nothing to say it was a key.
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Sent with key \(keyName)")
+                .accessibilityLabel(Copy.Message.sentWithKey(keyName))
             }
 
             // Where the message points, named. The feed only marks that a link
@@ -251,7 +251,7 @@ struct MessageDetailView: View {
                 }
                 .padding(.top, 8)
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Links to \(host)")
+                .accessibilityLabel(Copy.Message.linksTo(host))
             }
 
             // One clock, read twice. The age is what the feed showed and what a
@@ -307,12 +307,12 @@ struct MessageDetailView: View {
                                     image.resizable().scaledToFill()
                                 }
                                 .buttonStyle(.geist)
-                                .accessibilityLabel("View image full screen")
+                                .accessibilityLabel(Copy.Message.viewImageFullScreen)
                             case .failure:
                                 VStack(spacing: 6) {
                                     Image(systemName: "xmark")
                                         .font(.system(size: 15, weight: .medium))
-                                    Text("Image failed to load")
+                                    Text(Copy.Message.imageFailedToLoad)
                                         .font(Theme.metaSmall)
                                 }
                                 .foregroundStyle(Theme.dim)
@@ -322,7 +322,7 @@ struct MessageDetailView: View {
                             }
                         }
                     } else {
-                        hiddenImage(host: url.host() ?? "another host")
+                        hiddenImage(host: url.host() ?? Copy.Message.imageHost)
                     }
                 }
                 // One frame, whatever the image turns out to be. Sized by the
@@ -365,17 +365,17 @@ struct MessageDetailView: View {
     /// address and the time of day the moment the image loads.
     private func hiddenImage(host: String) -> some View {
         VStack(spacing: 10) {
-            Text("Image hidden")
+            Text(Copy.Message.imageHidden)
                 .font(.inco(.subheadline, weight: .semibold))
                 .foregroundStyle(Theme.fg)
-            Text("Loading it contacts \(host).")
+            Text(Copy.Message.imageLoadWarning(host))
                 .font(Theme.metaSmall)
                 .foregroundStyle(Theme.dim)
                 .multilineTextAlignment(.center)
             Button {
                 revealedImage = true
             } label: {
-                Text("Load image")
+                Text(Copy.Message.loadImage)
                     .font(.inco(.footnote, weight: .semibold))
                     .foregroundStyle(Theme.fg)
                     .padding(.horizontal, 16)

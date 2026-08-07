@@ -1,5 +1,6 @@
+import { negotiate } from '@notifi/copy';
 import { Hono } from 'hono';
-import { errBody } from './lib/respond.js';
+import { errBody, t } from './lib/respond.js';
 import { ABANDONED_DEVICE_S, now } from './lib/time.js';
 import { ipLimiter } from './middleware.js';
 import { devices } from './routes/devices.js';
@@ -31,6 +32,13 @@ app.use('*', async (c, next) => {
   c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 });
 
+// Negotiated once, before anything can answer. Every user-facing message is read
+// through `t(c)`, so a handler cannot accidentally answer in a language of its own.
+app.use('*', async (c, next) => {
+  c.set('language', negotiate(c.req.header('Accept-Language')));
+  await next();
+});
+
 app.use('*', ipLimiter);
 
 app.route('/', send);
@@ -39,11 +47,11 @@ app.route('/', keys);
 app.route('/', history);
 app.route('/', downloads);
 
-app.notFound((c) => c.json(errBody('not_found', 'Not found.'), 404));
+app.notFound((c) => c.json(errBody('not_found', t(c).api.notFound), 404));
 
 app.onError((err, c) => {
   console.error('unhandled', String(err));
-  return c.json(errBody('internal_error', 'Unexpected error.'), 500);
+  return c.json(errBody('internal_error', t(c).api.unexpected), 500);
 });
 
 async function scheduled(_event: ScheduledController, env: Env): Promise<void> {

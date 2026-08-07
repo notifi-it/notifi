@@ -53,7 +53,7 @@ struct ImageViewer: View {
                             .gesture(magnify(in: proxy.size))
                             .onTapGesture(count: 2) { toggleZoom(in: proxy.size) }
                     case .failure:
-                        message("Image failed to load")
+                        message(Copy.Message.imageFailedToLoad)
                     default:
                         ProgressView().tint(Theme.dim)
                     }
@@ -91,7 +91,7 @@ struct ImageViewer: View {
                 .geistHitArea(expandedBy: 5)
         }
         .buttonStyle(.geist)
-        .accessibilityLabel("Close")
+        .accessibilityLabel(Copy.Common.close)
         .padding(.leading, Theme.gutter)
         .padding(.top, 12)
     }

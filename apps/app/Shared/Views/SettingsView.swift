@@ -22,15 +22,15 @@ struct SettingsView: View {
                 // The gutter sits on each block rather than on the stack, so
                 // the rules between rows run the full width of the screen while
                 // the content they separate stays inside the margin.
-                GeistHeader(title: "Settings")
+                GeistHeader(title: Copy.Settings.title)
                     .geistPageHeader()
                     .geistGutter()
 
                 // MARK: Notifications
-                SectionLabel(text: "Notifications")
+                SectionLabel(text: Copy.Settings.sectionNotifications)
                     .geistGutter()
 
-                FieldRow(label: "Permission") {
+                FieldRow(label: Copy.Settings.permission) {
                     Text(permissionText)
                         .font(.inco(.subheadline, weight: .medium))
                         .foregroundStyle(model.notificationStatus == .authorized
@@ -40,7 +40,7 @@ struct SettingsView: View {
                 Hairline()
 
                 if model.notificationStatus != .authorized {
-                    OutlineButton(title: "Open system settings") {
+                    OutlineButton(title: Copy.Settings.openSystemSettings) {
                         model.openSystemNotificationSettings()
                     }
                     .padding(.top, 14)
@@ -48,11 +48,11 @@ struct SettingsView: View {
                 }
 
                 // MARK: Appearance
-                SectionLabel(text: "Appearance")
+                SectionLabel(text: Copy.Settings.sectionAppearance)
                     .geistGutter()
 
                 SegmentedRow(
-                    title: "Ground",
+                    title: Copy.Settings.ground,
                     options: Appearance.allCases,
                     label: \.title,
                     selection: $model.appearance
@@ -60,8 +60,7 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                Text("The app starts dark whatever the phone is set to, and stays "
-                     + "on whichever of these you pick.")
+                Text(Copy.Settings.groundDetail)
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
@@ -69,27 +68,26 @@ struct SettingsView: View {
                     .geistGutter()
 
                 // MARK: Privacy
-                SectionLabel(text: "Privacy")
+                SectionLabel(text: Copy.Settings.sectionPrivacy)
                     .geistGutter()
 
                 ToggleRow(
-                    title: "Load images automatically",
-                    detail: "Fetching an image tells the sender your IP address "
-                        + "and when it arrived. Off, images load only when tapped.",
+                    title: Copy.Settings.loadImages,
+                    detail: Copy.Settings.loadImagesDetail,
                     isOn: $model.remoteImagesEnabled
                 )
                 .geistGutter()
                 Hairline()
 
                 // MARK: Diagnostics
-                SectionLabel(text: "Diagnostics")
+                SectionLabel(text: Copy.Settings.sectionDiagnostics)
                     .geistGutter()
 
                 Button {
                     Task { await sendTest() }
                 } label: {
                     HStack(spacing: 10) {
-                        Text("Send test notification")
+                        Text(Copy.Settings.sendTest)
                             .font(Theme.body)
                             .foregroundStyle(Theme.fg)
                         Spacer(minLength: 8)
@@ -123,17 +121,17 @@ struct SettingsView: View {
                 }
                 Hairline()
 
-                Text("Sends through your default key.")
+                Text(Copy.Settings.sendTestDetail)
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .padding(.top, 10)
                     .geistGutter()
 
                 // MARK: About
-                SectionLabel(text: "About")
+                SectionLabel(text: Copy.Settings.sectionAbout)
                     .geistGutter()
 
-                FieldRow("Version", AppModel.appVersion)
+                FieldRow(Copy.Settings.version, AppModel.appVersion)
                     .geistGutter()
                 Hairline()
 
@@ -141,8 +139,8 @@ struct SettingsView: View {
                 // App Store and does not link it.
                 #if os(macOS)
                 ToggleRow(
-                    title: "Automatic updates",
-                    detail: "Check for new versions in the background.",
+                    title: Copy.Settings.automaticUpdates,
+                    detail: Copy.Settings.automaticUpdatesDetail,
                     isOn: Binding(
                         get: { Updater.shared.automaticallyChecks },
                         set: { Updater.shared.automaticallyChecks = $0 }
@@ -155,7 +153,7 @@ struct SettingsView: View {
                     Updater.shared.checkForUpdates()
                 } label: {
                     DisclosureRow {
-                        Text("Check for updates")
+                        Text(Copy.Settings.checkForUpdates)
                             .font(Theme.body)
                             .foregroundStyle(Updater.shared.canCheck ? Theme.fg : Theme.dim)
                     }
@@ -169,7 +167,7 @@ struct SettingsView: View {
 
                 Link(destination: URL(string: "https://notifi.it/privacy")!) {
                     DisclosureRow {
-                        Text("Privacy policy")
+                        Text(Copy.Settings.privacyPolicy)
                             .font(Theme.body)
                             .foregroundStyle(Theme.fg)
                     }
@@ -179,8 +177,7 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                Text("Keys live and die with this device. If you lose it, "
-                     + "the keys stop working and cannot be recovered.")
+                Text(Copy.Settings.keysAreDeviceBound)
                     .geistConsequence()
                     .padding(.top, 16)
                     .geistGutter()
@@ -189,7 +186,7 @@ struct SettingsView: View {
                 // leaves the app, which is not what the rows above it do.
                 Link(destination: URL(string: "https://notifi.it")!) {
                     HStack(spacing: 5) {
-                        Text("notifi.it")
+                        Text(Copy.Settings.website)
                             .font(Theme.metaSmall)
                         Image("akar-link-chain")
                             .renderingMode(.template)
@@ -227,12 +224,12 @@ struct SettingsView: View {
 
     private var permissionText: String {
         switch model.notificationStatus {
-        case .authorized: "Enabled"
-        case .denied: "Off"
-        case .provisional: "Provisional"
-        case .ephemeral: "Ephemeral"
-        case .notDetermined: "Not set"
-        @unknown default: "Unknown"
+        case .authorized: Copy.Settings.permissionEnabled
+        case .denied: Copy.Settings.permissionOff
+        case .provisional: Copy.Settings.permissionProvisional
+        case .ephemeral: Copy.Settings.permissionEphemeral
+        case .notDetermined: Copy.Settings.permissionNotSet
+        @unknown default: Copy.Settings.permissionUnknown
         }
     }
 
@@ -242,13 +239,13 @@ struct SettingsView: View {
         testFailed = false
         do {
             try await model.sendTestNotification()
-            testMessage = "Sent. It should arrive momentarily."
+            testMessage = Copy.Settings.testSent
         } catch NotifiError.identityMissing {
             testFailed = true
-            testMessage = "No default key on this device yet. Refresh and try again."
+            testMessage = Copy.Settings.testNoDefaultKey
         } catch {
             testFailed = true
-            testMessage = (error as? APIError)?.userMessage ?? "Couldn't send the test. Check your connection and try again."
+            testMessage = (error as? APIError)?.userMessage ?? Copy.Settings.testFailed
         }
         testState = .idle
     }

@@ -44,7 +44,7 @@ struct Wordmark: View {
             }
             .frame(width: width, height: size)
             .accessibilityElement()
-            .accessibilityLabel("notifi")
+            .accessibilityLabel(Copy.Components.wordmark)
     }
 }
 
