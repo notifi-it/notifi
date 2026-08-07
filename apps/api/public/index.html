@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>notifi: push notifications from the command line</title>
-<meta name="description" content="No account and no SDK. End-to-end encrypted and open source, so neither we nor Apple can read your messages. Create a send key, curl a title to notifi.it/send, and the alert lands on your iPhone or your Mac.">
+<meta name="description" content="One HTTP request from any script, and a native push lands on your iPhone or your Mac. No account, no SDK, and the message is sealed to your device, so neither we nor Apple can read it.">
 <meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://notifi.it/">
 
 <meta property="og:title" content="notifi: push notifications from the command line">
-<meta property="og:description" content="curl a title to notifi.it/send. It lands on your iPhone or your Mac. No accounts, end-to-end encrypted and open source.">
+<meta property="og:description" content="curl a title to notifi.it/send and it lands on your iPhone or your Mac. No account, no SDK, end-to-end encrypted.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://notifi.it/">
 <meta property="og:site_name" content="notifi">
@@ -26,7 +26,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="notifi: push notifications from the command line">
-<meta name="twitter:description" content="curl a title to notifi.it/send. It lands on your iPhone or your Mac. No accounts, end-to-end encrypted and open source.">
+<meta name="twitter:description" content="curl a title to notifi.it/send and it lands on your iPhone or your Mac. No account, no SDK, end-to-end encrypted.">
 <meta name="twitter:image" content="https://notifi.it/og.png">
 <meta name="twitter:image:alt" content="One curl request to notifi.it/send, and a push notification lands on your iPhone.">
 
@@ -199,15 +199,6 @@ nav a:hover{color:var(--fg)}
 .btn:active{transform:scale(.98)}
 .btn-primary{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
 .btn-primary:hover{background:#fff;border-color:#fff}
-/* A control that has nowhere to go yet. Kept in the flow so the reader can see
-   what is coming and that it is not ready, rather than clicking a live-looking
-   link that does nothing. Declared after .btn-primary so it wins on the
-   primary variant too. */
-.btn[aria-disabled="true"],
-.btn[aria-disabled="true"]:hover{
-  background:transparent;color:var(--dim);border-color:var(--line);cursor:default;
-}
-
 /* ── hero ───────────────────────────────────────────────────── */
 .hero{padding:clamp(56px,10vw,110px) 0 clamp(40px,7vw,72px)}
 .hero h1{margin-bottom:20px}
@@ -414,7 +405,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "@id": "https://notifi.it/#website",
       "url": "https://notifi.it/",
       "name": "notifi",
-      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No SDK, no account, end-to-end encrypted and open source.",
+      "description": "Push notifications to your iPhone or Mac from one plain HTTP request.",
       "publisher": { "@id": "https://notifi.it/#org" },
       "inLanguage": "en"
     },
@@ -425,11 +416,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "url": "https://notifi.it/",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "iOS 17.0 or later, macOS 14.0 or later",
-      "description": "Create a send key, then make one HTTP request to notifi.it/send from any script. A native push notification arrives on your iPhone or Mac. No SDK, no account, no sign-in. Message content is end-to-end encrypted to the device.",
+      "installUrl": "https://apps.apple.com/app/id1563961135",
+      "downloadUrl": "https://notifi.it/download/mac",
+      "description": "The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it/send from any script, and a native push notification arrives on your iPhone or Mac. No SDK, no account, no sign-in. Message content is end-to-end encrypted to the device.",
       "featureList": [
         "One plain HTTP request, GET or POST, JSON or form-encoded",
-        "No SDK and no dependency",
-        "No account and no sign-in",
+        "No SDK, no account and no sign-in",
         "End-to-end encrypted message content",
         "Open source",
         "Per-script revocable send keys",
@@ -539,22 +531,21 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 <!-- ══ hero ══════════════════════════════════════════════════ -->
 <section class="hero">
   <div class="wrap">
-    <p class="eyebrow" style="margin-bottom:20px">No SDK. No account. No sign-in.</p>
-    <h1>Anything you run<br>can reach you.<span class="caret" aria-hidden="true"></span></h1>
+    <!-- "No account" and "no sign-in" were the same claim twice; the third slot
+         buys the open-source line, which is the only trust claim on the page a
+         reader can go and check for themselves. -->
+    <p class="eyebrow" style="margin-bottom:20px">No SDK. No account. Open source.</p>
+    <h1>A pager for<br>anything you run.<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede">
-      Create a send key. <code>curl</code> a title to <code>notifi.it/send</code>.
-      It arrives on your iPhone or your Mac a moment later.
-      No accounts, no sign-in, and neither we nor Apple can read what you send.
-      End-to-end encrypted, and <a href="https://github.com/notifi-it/notifi" class="src">open source</a>.
+      Install the app, copy the key it makes you, <code>curl</code> a title to
+      <code>notifi.it/send</code>. It arrives on your iPhone or your Mac a moment later,
+      sealed to your device, where neither we nor Apple can read it.
     </p>
 
     <div class="cta">
-      <!-- Points at the three steps rather than at #download, because the
-           builds are not published yet and a primary button promising a
-           download would be the page's loudest untrue claim. -->
-      <a class="btn btn-primary" href="#start">Get started</a>
-      <a class="btn" href="#send">See the API</a>
-      <p class="meta">Free. iOS&nbsp;17+ or macOS&nbsp;14+.</p>
+      <a class="btn btn-primary" href="https://apps.apple.com/app/id1563961135">Get&nbsp;it&nbsp;on&nbsp;the&nbsp;App&nbsp;Store</a>
+      <a class="btn" href="/download/mac">Download&nbsp;for&nbsp;Mac</a>
+      <p class="meta">Free.</p>
     </div>
 
     <div class="term">
@@ -570,7 +561,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 <span class="c">{"ok":true}</span></pre>
     </div>
     <p class="meta" style="margin-top:12px">
-      That is the whole integration. One request, no SDK, no dependency.
+      That is the whole integration.
     </p>
   </div>
 </section>
@@ -581,25 +572,22 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">Start</p><hr class="rule">
     </div>
-    <h2 style="margin-bottom:26px">Where the key comes from.</h2>
+    <h2 style="margin-bottom:26px">The key is already there.</h2>
 
     <div class="rows">
       <div class="row">
         <h3>1. Install the app</h3>
-        <p>notifi runs on your iPhone or your Mac and is where notifications land.
-           The builds are not published yet; <a href="#download" class="src">Download</a>
-           says what is and is not available.</p>
+        <p>It is where the alerts land, on your iPhone or your Mac.</p>
       </div>
       <div class="row">
-        <h3>2. Create a send key</h3>
-        <p>Open the Keys tab and make one. The app shows the key once and cannot show
-           it again, so copy it then.</p>
+        <h3>2. Copy your key</h3>
+        <p>The app makes one for you on first launch. Open it under Keys and copy it —
+           that one is kept on the device, so you can come back for it.</p>
       </div>
       <div class="row">
         <h3>3. Send</h3>
-        <p>Put that key where the samples say <code>nk_yourkeyhere</code>, or export it
-           as <code>NOTIFI_KEY</code>, and make the request.
-           <a href="#send" class="src">Send</a> has one for each language.</p>
+        <p>Put the key where the samples say <code>nk_yourkeyhere</code>, or export it
+           as <code>NOTIFI_KEY</code>, and make the request.</p>
       </div>
     </div>
   </div>
@@ -613,8 +601,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
     <h2>A list of everything<br>you have been sent.</h2>
     <p class="lede" style="margin-top:14px">
-      Unread items carry a red dot. Search the full history, swipe to delete, and tap
-      any item for its message, image and link.
+      Search the whole history, tap any alert for its message, image and link, swipe
+      to delete.
     </p>
 
     <div class="shots">
@@ -650,8 +638,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
     <h2>Anything that finishes,<br>fails, or changes.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:34px">
-      Start something long, walk away, and get told the moment it lands. A headless run
-      has no window to watch, so a push is the only thing that tells you it is done.
+      Start something long and walk away. A headless run has no window to watch, so the
+      choice is a push or checking back every ten minutes to find out it failed at the start.
     </p>
 
     <div class="uses">
@@ -660,10 +648,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <ul>
           <li>A headless Claude Code run finished</li>
           <li>An agent stopped and needs a decision</li>
+          <li>An agent hit an error and gave up</li>
           <li>An overnight refactor landed on the branch</li>
           <li>A long review finished, with the verdict</li>
-          <li>An agent hit an error and gave up</li>
-          <li>A batch of tasks finished while you slept</li>
         </ul>
       </div>
 
@@ -672,10 +659,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <ul>
           <li>A deploy failed, with the failing step</li>
           <li>A release went out, with the tag</li>
-          <li>A long CI run finally finished</li>
           <li>A flaky test failed again on main</li>
           <li>A dependency audit found something</li>
-          <li>A staging environment finished seeding</li>
+          <li>Staging finished seeding</li>
         </ul>
       </div>
 
@@ -683,12 +669,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-server"/></svg>Servers and infra</p>
         <ul>
           <li>A disk crossed 90%</li>
-          <li>A TLS certificate expires next week</li>
           <li>Someone opened an SSH session on prod</li>
-          <li>A container restarted more than twice</li>
-          <li>A nightly backup finished, with the size</li>
-          <li>A health check has been failing for five minutes</li>
-          <li>The domain renewal did not go through</li>
+          <li>A health check has been down five minutes</li>
+          <li>A TLS certificate expires next week</li>
+          <li>The nightly backup finished, with the size</li>
         </ul>
       </div>
 
@@ -698,25 +682,17 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <li>A training run finished, with the final loss</li>
           <li>A batch job crashed at 3am</li>
           <li>An ETL wrote fewer rows than yesterday</li>
-          <li>A scraper noticed the page changed</li>
-          <li>A long query finally returned</li>
           <li>A queue backed up past its threshold</li>
-          <li>An export is ready to download</li>
           <li>A render finished, or the 3D print is done</li>
-          <li>Someone signed up, or a payment failed</li>
         </ul>
       </div>
 
       <div class="use-col">
         <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-home"/></svg>Home and hardware</p>
         <ul>
-          <li>The garage door has been open for fifteen minutes</li>
-          <li>A washing machine's power draw dropped back to idle</li>
-          <li>The dishwasher finished its cycle</li>
+          <li>The garage door has been open fifteen minutes</li>
           <li>A leak sensor under the sink went wet</li>
-          <li>A freezer door was left ajar</li>
-          <li>A door was unlocked while nobody was home</li>
-          <li>An unknown device joined the home network</li>
+          <li>An unknown device joined the network</li>
           <li>The UPS switched to battery</li>
           <li>The car finished charging overnight</li>
         </ul>
@@ -725,8 +701,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
 
     <p class="meta" style="margin-top:30px">
-      And anything else you can think of. All of it is one HTTP request to
-      <code>notifi.it/send</code> at the end of a script you already have.
+      If something can tell when it happened, it can tell you.
     </p>
   </div>
 </section>
@@ -742,43 +717,40 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="rows">
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>No account</h3>
-        <p>There is nothing to sign up for. The app makes a keypair on first launch and
-           that is your identity. Nothing to remember, nothing to leak.</p>
+        <p>Nothing to sign up for. The app makes a keypair on first launch and that is
+           your identity — nothing to remember, nothing to leak.</p>
       </div>
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
         <div>
-          <p>The app makes a keypair when you install it and registers the public half.
-             That is the only half the server ever holds.</p>
-          <p style="margin-top:12px">
-             Every message is sealed to that key the moment it arrives, so what sits in
-             the database is ciphertext, not text. Your phone holds the private half and
-             is the only thing that can open it.</p>
+          <p>The server only ever holds the public half of that keypair. Every message is
+             sealed to it the moment it arrives, so what sits in the database is
+             encrypted text.</p>
           <p style="margin-top:12px">
              The push is sealed too. The alert Apple relays says only
-             <code>notifi</code>; your phone unseals the real title and message on
-             arrival, so it is never plaintext at Apple either.</p>
+             <code>notifi</code>; your phone unseals the real title on arrival.</p>
           <p style="margin-top:12px">
-             What this does not hide: which device a send was for, when it happened, and
-             roughly how big it was. It is the message body that is sealed.</p>
+             It is the body that is sealed, not the fact of it —
+             <a href="/privacy" class="src">Privacy</a> lists exactly what the server can
+             still see.</p>
         </div>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>Keys are per-script, and revocable</h3>
-        <p>Make one key per thing that sends: CI, a backup job, a scraper. If a key
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>One key per script, revocable</h3>
+        <p>CI gets a key, the backup job gets a key, the scraper gets a key. If one
            leaks, revoke it and the rest keep working.</p>
       </div>
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>Send from anywhere</h3>
-        <p>It is plain HTTP with no SDK, so anything that can make an HTTP request to it can
-           send. <a href="#uses" class="src">Uses</a> lists what that covers.</p>
+        <p>Plain HTTP and no SDK, so anything that can make a request can send: a Linux
+           box, a CI runner, a router, a home hub, another phone.</p>
       </div>
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Open source</h3>
         <p>The app, the API and the crypto are on
            <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>. The
-           encryption claim above is the kind you should be able to check rather than
-           take on trust.</p>
+           sealing above is one short file,
+           <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">seal.ts</a>.</p>
       </div>
     </div>
   </div>
@@ -790,10 +762,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">Send</p><hr class="rule">
     </div>
-    <h2>How to integrate it.</h2>
+    <h2>Your language,<br>the same one request.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:26px">
-      <code>GET</code> or <code>POST</code>, JSON or form-encoded, key in the header or
-      the query string. Pick whichever is least effort where you are.
+      Copy one and put your key in it.
     </p>
 
     <!-- Filled in only when the page is opened with a key in the URL fragment
@@ -1030,8 +1001,9 @@ reqwest::Client::new()
       <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
     </p>
     <p class="meta" style="margin-bottom:26px">
-      Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>, or pass
-      <code>key</code> as a parameter. Query parameters win over the body.
+      JSON or form-encoded. Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>,
+      or pass <code>key</code> as a parameter — the header keeps it out of logs.
+      Query parameters win over the body.
     </p>
 
     <!-- The table has a min-width and this scrolls, so on a narrow viewport part
@@ -1046,7 +1018,7 @@ reqwest::Client::new()
           <tr>
             <td>key <span class="req">required</span></td>
             <td>string</td>
-            <td>Your send key. Prefer the <code>Authorization</code> header, because query strings end up in logs.</td>
+            <td>Your send key.</td>
           </tr>
           <tr>
             <td>title <span class="req">required</span></td>
@@ -1056,7 +1028,8 @@ reqwest::Client::new()
           <tr>
             <td>message</td>
             <td>string</td>
-            <td>Up to 16,000 characters. Long enough for a stack trace.</td>
+            <td>Up to 16,000 characters, so a stack trace or a log tail fits. The push preview
+                is shortened to Apple's 4&nbsp;KB budget; the app pulls the rest when it syncs.</td>
           </tr>
           <tr>
             <td>link</td>
@@ -1077,10 +1050,11 @@ reqwest::Client::new()
           <tr>
             <td>critical</td>
             <td>boolean</td>
-            <td>Ask for a Critical Alert, which sounds through the ringer switch and through Focus.
+            <td>Ask for an urgent alert: it breaks through Focus and stays on the lock screen.
                 Accepts <code>1</code>/<code>0</code> or <code>true</code>/<code>false</code>. The key
-                must also be marked critical on the device that owns it; a send that asks without
-                that arrives as an ordinary notification rather than failing.</td>
+                must also have <em>Urgent alerts</em> switched on in the app; a send that asks
+                without that arrives as an ordinary notification rather than failing. Sounding
+                through silent mode needs an entitlement Apple has yet to grant.</td>
           </tr>
         </tbody>
       </table>
@@ -1098,12 +1072,6 @@ reqwest::Client::new()
            · <code>429</code> rate limited. Every error returns a JSON body with a
            <code>code</code> and a human-readable <code>message</code>.</p>
       </div>
-      <div class="row">
-        <h3>Message size</h3>
-        <p>Up to 16,000 characters, so a full stack trace or a long log tail fits. The push
-           preview is shortened to fit Apple's 4&nbsp;KB budget; the app pulls the
-           complete message when it syncs.</p>
-      </div>
     </div>
   </div>
 </section>
@@ -1116,24 +1084,18 @@ reqwest::Client::new()
     </div>
     <h2>iPhone or Mac.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:28px">
-      One app, either platform. On the Mac it lives in the menu bar. A key belongs to one
-      device, so you choose where a script lands, or make a key for each.
-      Anything that can make an HTTP request can send to it, Linux boxes and Android
-      phones included. You just receive on Apple hardware.
+      On the Mac it lives in the menu bar. Receiving is the part that is Apple-only. A key
+      belongs to one device, so you choose where a script lands — or give it a key on each.
     </p>
 
-    <!-- Rendered as spans, not links, until the URLs exist. The App Store id
-         here was a placeholder that pointed at somebody else's app, and the
-         .dmg href was "#", so both looked live and neither worked.
-         TODO: replace with the real App Store URL before launch, and make this
-         an <a class="btn btn-primary">.
-         TODO: replace with the real .dmg URL before launch, and make this an
-         <a class="btn">. -->
+    <!-- The Mac link is /download/mac rather than a versioned filename: the
+         Worker resolves the pointer and redirects, so the URL here never has to
+         be edited on a release. See apps/api/src/routes/downloads.ts. -->
     <div class="cta">
-      <span class="btn btn-primary" aria-disabled="true">App&nbsp;Store</span>
-      <span class="btn" aria-disabled="true">Download&nbsp;.dmg</span>
-      <p class="meta">Neither build is published yet, so there is nothing to download
-        today. When they are: iOS&nbsp;17 or macOS&nbsp;14, Apple silicon or a T2 Mac.</p>
+      <a class="btn btn-primary" href="https://apps.apple.com/app/id1563961135">App&nbsp;Store</a>
+      <a class="btn" href="/download/mac">Download&nbsp;.dmg</a>
+      <p class="meta">iOS&nbsp;17 or macOS&nbsp;14, Apple silicon or a T2 Mac. The Mac
+        build updates itself.</p>
     </div>
   </div>
 </section>
