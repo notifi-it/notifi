@@ -29,7 +29,7 @@ export const copy = {
     unexpected: 'Unexpected error.',
 
     rateLimitedIP: 'Too many requests from this IP.',
-    rateLimitedKey: 'Per-key rate limit exceeded.',
+    rateLimitedAccount: 'Rate limit exceeded. Too many notifications this hour.',
 
     badSignature: 'Invalid request signature.',
     staleTimestamp: 'Request timestamp is outside the allowed window.',

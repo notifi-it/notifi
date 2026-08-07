@@ -12,8 +12,8 @@ import { hashKey } from '../lib/sendkey.js';
 import {
   MESSAGE_BACKSTOP_S,
   now,
-  PER_KEY_LIMIT,
-  PER_KEY_WINDOW_S,
+  PER_DEVICE_LIMIT,
+  PER_DEVICE_WINDOW_S,
   windowStart,
 } from '../lib/time.js';
 import type { AppEnv } from '../types.js';
@@ -140,29 +140,56 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
   }
 
+  // The window belongs to the account, and a device is the account. Counting
+  // per key meant the ceiling was really "60 an hour times however many keys
+  // you thought to create", which is not a limit — and it charged the careful
+  // sender, who splits one script's alerts across several named keys, more than
+  // the careless one.
+  //
+  // The device's next sequence number is allocated in the same UPDATE, so a
+  // send still costs three row writes. It has to come from the RETURNING rather
+  // than a read-back: two sends racing on one device would otherwise see the
+  // same value and collide on the unique index. A number burned by a request
+  // that fails after this point leaves a gap, which is harmless — the device
+  // asks for everything above its bookmark, not for a dense run.
   const w = windowStart(nowS);
-  const updated = await c.env.DB.prepare(
-    `UPDATE keys SET
+  const allowed = await c.env.DB.prepare(
+    `UPDATE devices SET
        rl_window_count = CASE WHEN rl_window_start = ? THEN rl_window_count + 1 ELSE 1 END,
        rl_window_start = ?,
-       sent_count      = sent_count + 1,
-       last_used_at    = ?
-     WHERE id = ? AND revoked_at IS NULL
+       seq_counter     = seq_counter + 1
+     WHERE id = ?
        AND (rl_window_start != ? OR rl_window_count < ?)
-     RETURNING id`,
+     RETURNING seq_counter`,
   )
-    .bind(w, w, nowS, row.key_id, w, PER_KEY_LIMIT)
-    .first<{ id: number }>();
+    .bind(w, w, row.device_id, w, PER_DEVICE_LIMIT)
+    .first<{ seq_counter: number }>();
 
-  if (!updated) {
-    const still = await c.env.DB.prepare('SELECT revoked_at FROM keys WHERE id = ?')
-      .bind(row.key_id)
-      .first<{ revoked_at: number | null }>();
-    if (!still || still.revoked_at !== null) {
+  if (!allowed) {
+    const still = await c.env.DB.prepare('SELECT id FROM devices WHERE id = ?')
+      .bind(row.device_id)
+      .first<{ id: number }>();
+    if (!still) {
       return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
     }
-    c.header('Retry-After', String(w + PER_KEY_WINDOW_S - nowS));
-    return c.json(errBody('rate_limited', t(c).api.rateLimitedKey), 429);
+    c.header('Retry-After', String(w + PER_DEVICE_WINDOW_S - nowS));
+    return c.json(errBody('rate_limited', t(c).api.rateLimitedAccount), 429);
+  }
+  const deviceSeq = allowed.seq_counter;
+
+  // Usage accounting; the limit no longer rides along with it. The revocation
+  // re-check does, because the key was live when it was looked up and a revoke
+  // landing since then must not deliver.
+  const keyLive = await c.env.DB.prepare(
+    `UPDATE keys SET sent_count = sent_count + 1, last_used_at = ?
+     WHERE id = ? AND revoked_at IS NULL
+     RETURNING id`,
+  )
+    .bind(nowS, row.key_id)
+    .first<{ id: number }>();
+
+  if (!keyLive) {
+    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
   }
 
   const createdAt = nowS;
@@ -189,22 +216,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   const fullSealed = await seal(row.encryption_public_key, 'content', JSON.stringify(content));
 
   const expiresAt = nowS + MESSAGE_BACKSTOP_S;
-
-  // Allocate the device's next number first, and take it from the RETURNING
-  // rather than reading the counter back. Two sends racing on one device would
-  // otherwise both read the same value and collide on the unique index.
-  // A number burned by a failed insert leaves a gap, which is harmless: the
-  // device asks for everything above its bookmark, not for a dense run.
-  const counter = await c.env.DB.prepare(
-    'UPDATE devices SET seq_counter = seq_counter + 1 WHERE id = ? RETURNING seq_counter',
-  )
-    .bind(row.device_id)
-    .first<{ seq_counter: number }>();
-
-  if (!counter) {
-    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
-  }
-  const deviceSeq = counter.seq_counter;
 
   await c.env.DB.prepare(
     `INSERT INTO messages

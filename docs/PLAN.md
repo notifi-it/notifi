@@ -38,10 +38,11 @@ listed here so nobody "fixes" them back.
 3. **The APNs JWT is not "hourly".** Apple requires refresh between 20 and 60 minutes;
    refreshing more often than every 20 minutes gets `TooManyProviderTokenUpdates`.
    Cache the JWT in isolate memory for 50 minutes.
-4. **One UPDATE, not three.** The send path folds `sent_count`, `last_used_at`, and the
-   rate-limit window into a single UPDATE on `keys`, keeping a send at exactly 2 row
-   writes (key update + message insert) — the free-tier math in the original plan
-   depends on this.
+4. **One UPDATE per row, not three.** The send path folds the rate-limit window and
+   the sequence allocation into a single UPDATE on `devices`, and `sent_count` +
+   `last_used_at` into a single UPDATE on `keys`, keeping a send at 3 row writes
+   (device update + key update + message insert) — the free-tier math in the
+   original plan depends on this staying small.
 5. **Registering for a device token does not need notification permission.** Register
    for remote notifications on every launch unconditionally; ask for *notification
    permission* contextually (first key created / "Enable notifications" button), never
@@ -235,7 +236,9 @@ CREATE TABLE devices (
   created_at             INTEGER NOT NULL,
   last_seen_at           INTEGER NOT NULL,
   acked_id               INTEGER NOT NULL DEFAULT 0,
-  seq_counter            INTEGER NOT NULL DEFAULT 0
+  seq_counter            INTEGER NOT NULL DEFAULT 0,
+  rl_window_start        INTEGER NOT NULL DEFAULT 0,
+  rl_window_count        INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE keys (
@@ -244,6 +247,9 @@ CREATE TABLE keys (
   meta_sealed      TEXT NOT NULL,
   secret_hash      TEXT NOT NULL UNIQUE,
   sent_count       INTEGER NOT NULL DEFAULT 0,
+  -- Frozen. The rate-limit window moved to `devices` when the limit became
+  -- per-account; these are left in place because there is no down-migration
+  -- story and dropping a column rewrites the table.
   rl_window_start  INTEGER NOT NULL DEFAULT 0,
   rl_window_count  INTEGER NOT NULL DEFAULT 0,
   created_at       INTEGER NOT NULL,
@@ -503,14 +509,14 @@ one-off curl: keys in query strings end up in shell history, proxies, and edge
 firewall logs (§11). Validate with `sendParams` → `400 invalid_request`. All `/send`
 responses set `Cache-Control: no-store`.
 
-Rate limiting is layered — IP first (cheap, pre-database), key second
+Rate limiting is layered — IP first (cheap, pre-database), account second
 (authoritative):
 
 | Layer | Where | Limit | Purpose |
 |---|---|---|---|
 | Edge WAF rule | zone, Terraform (§11) | 300 req/min/IP on `/send`, block 60 s | pre-Worker flood backstop on `notifi.it` (free plan includes exactly one rule) |
 | Worker IP limiter | rate-limiting binding | 100 req/min/IP → `429` | caps key-guessing and 401-probe DB reads; also covers the dev `workers.dev` URL the zone WAF can't see |
-| Per-key window | D1, in the send UPDATE | 120/hour/key → `429` | the product-level limit; exact, survives colo distribution |
+| Per-account window | D1, in the send UPDATE | 60/hour/device → `429` | the product-level limit; exact, survives colo distribution. Counted per device, not per key — a device is the account, so minting keys must not buy allowance |
 
 The Worker IP limiter is **not** `/send`-only: the same binding check runs first on
 all six routes. Signed routes are otherwise free to flood — a script can mint
@@ -537,21 +543,29 @@ Flow (exactly this order):
    → `429 rate_limited` before touching the database.
 1. `secret_hash` lookup joined to `devices` → key row + device `apns_token`
    (decrypted) + `encryption_public_key`, else `401 unknown_key`.
-2. Rate limit + usage bump in **one** UPDATE (fixed 1-hour window, limit 120/hour):
+2. Rate limit + sequence allocation in **one** UPDATE on the device (fixed 1-hour
+   window, limit 60/hour):
 
    ```sql
-   UPDATE keys SET
+   UPDATE devices SET
      rl_window_count = CASE WHEN rl_window_start = ?w THEN rl_window_count + 1 ELSE 1 END,
      rl_window_start = ?w,
-     sent_count      = sent_count + 1,
-     last_used_at    = ?now
-   WHERE id = ?key_id AND revoked_at IS NULL
-     AND (rl_window_start != ?w OR rl_window_count < 120)
-   RETURNING id
+     seq_counter     = seq_counter + 1
+   WHERE id = ?device_id
+     AND (rl_window_start != ?w OR rl_window_count < 60)
+   RETURNING seq_counter
    ```
 
    `?w` = `floor(now/3600)*3600`. No row returned → `429 rate_limited` with
-   `Retry-After: <seconds to window end>`.
+   `Retry-After: <seconds to window end>` (or `401 unknown_key` if the device row
+   is gone). Then the usage bump on the key, which re-checks revocation because
+   the lookup in step 1 and this write are not one statement:
+
+   ```sql
+   UPDATE keys SET sent_count = sent_count + 1, last_used_at = ?now
+   WHERE id = ?key_id AND revoked_at IS NULL
+   RETURNING id
+   ```
 3. Seal the validated `messageContent` — including `key_id` and `created_at` — to
    the device's `encryption_public_key` (§6a); INSERT the message (`content_sealed`,
    `expires_at = now + 7776000`, the 90-day backstop) `RETURNING id`. Plaintext is not
@@ -560,7 +574,7 @@ Flow (exactly this order):
    delivery guarantee; the push is a hint. `410` prunes the device (§8).
 5. `202 { id }`.
 
-That's 2 row writes per send, 1 read. Do not add more.
+That's 3 row writes per send, 1 read. Do not add more.
 
 ### `GET /history` — signature auth
 
@@ -1069,7 +1083,7 @@ Order matters; the first item is a day now or a week later:
       permission health check row.
 - [ ] macOS `MenuBarExtra` + Settings scene + optional window; unread count tints the
       menu bar icon.
-- [ ] Edge rate limit (Terraform) live; per-key 429s verified under a scripted loop.
+- [ ] Edge rate limit (Terraform) live; per-device 429s verified under a scripted loop.
 - [ ] App Store submission for both platforms (budget real time for the first macOS
       App Review pass — and note "notarisation" is Developer ID distribution, not
       App Store; the store's own processing is what costs the time here).
@@ -1110,11 +1124,11 @@ Order matters; the first item is a day now or a week later:
 | Signature format | Raw 64-byte P-256 `r‖s`, base64. Never DER. |
 | Public key formats | Both keys X9.63 uncompressed (65 bytes), base64. Signing key Secure Enclave required (no-SE Macs unsupported; simulator-only software fallback); encryption key software, shared Keychain group. |
 | Send key format | `nk_` + 43 base64url chars; prefix = `nk_` + 4 chars; SHA-256 hex hash. |
-| Rate limiting | Three layers: edge WAF 300/min/IP, Worker binding 100/min/IP, D1 key window 120/hour. Key window is authoritative. |
+| Rate limiting | Three layers: edge WAF 300/min/IP, Worker binding 100/min/IP, D1 device window 60/hour. Device window is authoritative. |
 | Replay window | ±60 s. |
 | History paging | `since` exclusive, limit 50 default / 200 max. |
 | Bundle id | One (`it.notifi.notifi`) for both platforms; NSEs append `.nse`. Consequence: a single App Store Connect record with universal purchase — shared name, pricing, and ratings, effectively irreversible. Accepted. |
-| Rate limiting scope | The Worker IP binding runs on all six routes; `/send` additionally gets the edge rule and the per-key window. |
+| Rate limiting scope | The Worker IP binding runs on all six routes; `/send` additionally gets the edge rule and the per-device window. |
 | App dependencies | None. Zero SPM packages. (The Worker may use `@hpke/core`.) |
 | NSE scope | Decrypt + rewrite (Phase 1), image attachment (Phase 2); no DB, no App Group (until the Phase 3 widget). |
 | Sent-count freshness | Bumped in the send UPDATE; Keys page reads it live. Do not add a counter cache. |
@@ -1190,7 +1204,7 @@ Every magic value in the system. If a value appears in code but not here, it's w
 | Sealed blob layout | standard base64 of `enc(65 bytes) ‖ hpke ciphertext` |
 | Operational blob layout | standard base64 of `iv(12 bytes) ‖ ciphertext‖tag` (AES-256-GCM) |
 | APNs JWT | header `{alg:"ES256", kid}`, claims `{iss: teamId, iat}`, cache 50 min |
-| Per-key rate window | 3600 s fixed, bucket `floor(now/3600)*3600`, limit 120 |
+| Per-device rate window | 3600 s fixed, bucket `floor(now/3600)*3600`, limit 60. Shared by every key on the device |
 | Message retention | ack-based: kept until `messages.device_seq <= devices.acked_id`; 90-day backstop (`expires_at`, 7776000 s) only for devices that never sync back |
 | `apns_token_hmac` | Lowercase hex HMAC-SHA-256 of the token hex string, keyed with `ENCRYPTION_KEY` |
 | Push preview truncation | `message` cut to 1000 chars, `link` dropped |

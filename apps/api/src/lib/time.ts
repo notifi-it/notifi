@@ -8,7 +8,7 @@ export function windowStart(nowS: number): number {
 
 export const MESSAGE_BACKSTOP_S = 7776000;
 export const ABANDONED_DEVICE_S = 2592000;
-export const PER_KEY_WINDOW_S = 3600;
-export const PER_KEY_LIMIT = 120;
+export const PER_DEVICE_WINDOW_S = 3600;
+export const PER_DEVICE_LIMIT = 60;
 export const LAST_SEEN_STALE_S = 3600;
 export const REPLAY_WINDOW_S = 60;

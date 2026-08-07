@@ -161,16 +161,19 @@ curl -i "$NB/send?key=$KEY&title=x"
 - **Expect:** both `401`; revocation is effective on the **next** request, nothing to
   propagate.
 
-### 6. Per-key rate limit → 429 + Retry-After
+### 6. Per-account rate limit → 429 + Retry-After
 
 ```bash
-for i in $(seq 1 121); do
+for i in $(seq 1 61); do
   curl -s -o /dev/null -w "%{http_code} " "$NB/send?key=$KEY2&title=n$i"
 done
-# → 202 …(×120)… 429
+# → 202 …(×60)… 429
 ```
 
-- **Expect:** the 121st in the hour is `429` with a `Retry-After` header.
+- **Expect:** the 61st in the hour is `429` with a `Retry-After` header.
+- **Per account, not per key:** immediately send with `$KEY` — a *different* key on
+  the same device — and expect `429` as well. Both keys share one allowance, so a
+  second key buys nothing. This is the half that regressed silently before.
 - **IP layer:** the Worker binding also caps 100 req/min/IP across all six routes;
   hammer any route to confirm.
 
