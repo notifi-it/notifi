@@ -171,12 +171,22 @@ struct MessageFeed<Empty: View>: View {
             }
             .tint(Theme.chip)
         }
-        .swipeActions(edge: .trailing) {
-            // The tint has to be explicit. `role: .destructive` would normally
-            // colour this red, but the TabView's near-white tint cascades down
-            // and wins, giving white-on-white. Asks first: a swipe is easy to
-            // do by accident and the message cannot be recovered afterwards.
-            Button(role: .destructive) { pendingDelete = message } label: {
+        // No full swipe. Throwing the row off the edge is the gesture that means
+        // "gone, now" in Mail and Notes, and it means that there because those
+        // apps can put it back. This one asks a question instead, so offering
+        // the gesture would promise something the next screen takes away.
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            // No `role: .destructive`, and not for the colour — the tint has to
+            // be explicit either way, because the TabView's near-white tint
+            // cascades down and beats the role's red. The role is what made the
+            // row fly out and come back: a List reads a destructive swipe action
+            // as the deletion itself and plays the removal animation on tap,
+            // then puts the row back when the store turns out to be unchanged.
+            // Nothing here has been agreed to yet, so nothing should move.
+            //
+            // Asks first: a swipe is easy to do by accident and the message
+            // cannot be recovered afterwards.
+            Button { pendingDelete = message } label: {
                 Image(systemName: "trash")
                     .accessibilityLabel(Copy.Common.delete)
             }
@@ -275,8 +285,14 @@ struct MessageFeed<Empty: View>: View {
     }
 
     private func delete(_ message: Message) {
-        context.delete(message)
-        save()
+        // Explicit, because the swipe no longer carries an animation of its own:
+        // a store change that a List picks up on its next diff takes the row out
+        // between one frame and the next, which reads as the feed glitching
+        // rather than as the thing the reader just asked for.
+        withAnimation {
+            context.delete(message)
+            save()
+        }
         model.sync?.reconcileNotifications()
     }
 
