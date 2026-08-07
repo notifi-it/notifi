@@ -17,7 +17,7 @@ rsvg-convert -w 1024 -h 1024 black-bg.svg -o "$TMP/bg-flat.png"
 magick -size 1024x1024 -seed 42 xc: +noise Random -colorspace Gray -blur 0x0.4 "$TMP/grain.png"
 # png:color-type=6 is required: the background is neutral, so ImageMagick would
 # otherwise store it as greyscale and desaturate the red dot when compositing.
-magick "$TMP/bg-flat.png" "$TMP/grain.png" -compose Blend -define compose:args=6% \
+magick "$TMP/bg-flat.png" "$TMP/grain.png" -compose Blend -define compose:args=22% \
   -composite -colorspace sRGB -define png:color-type=6 "$TMP/bg.png"
 
 # --- logo: white bell, red dot ----------------------------------------------
