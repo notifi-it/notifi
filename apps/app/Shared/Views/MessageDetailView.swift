@@ -117,7 +117,7 @@ struct MessageDetailView: View {
         guard let message else { return }
         context.delete(message)
         try? context.save()
-        model.sync?.updateBadge()
+        model.sync?.reconcileNotifications()
         if !model.path.isEmpty { model.path.removeLast() } else { dismiss() }
     }
 
@@ -156,7 +156,7 @@ struct MessageDetailView: View {
                     ) {
                         message.isRead.toggle()
                         try? context.save()
-                        model.sync?.updateBadge()
+                        model.sync?.reconcileNotifications()
                     }
 
                     IconButton(systemName: "trash", label: Copy.Common.delete) {
@@ -417,7 +417,7 @@ struct MessageDetailView: View {
         } catch {
             log.error("save failed: \(String(describing: error), privacy: .public)")
         }
-        model.sync?.updateBadge()
+        model.sync?.reconcileNotifications()
     }
 
     // The call sites already hide the controls that reach these, so the guards are

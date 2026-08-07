@@ -5,28 +5,47 @@ Notes for anyone (human or agent) picking this up. The design lives in
 [docs/VERIFYING.md](docs/VERIFYING.md); this file is only for things that are
 easy to get wrong and expensive to discover.
 
-## Critical Alerts: the entitlement is requested, not granted
+## Urgent alerts: one switch, two ceilings
 
-Submitted to Apple on 2026-08-03, request ID **W8U762V6VJ**, against bundle ID
-`it.notifi.notifi`. Apple replies by email. Nothing has come back yet.
+There is a single per-key toggle — "Urgent alerts", backed by the `keys.critical`
+column — and it means "escalate this key". What escalation buys depends on what
+the App ID carries.
 
-**Do not add `com.apple.developer.usernotifications.critical-alerts` to
-`apps/app/Support/Entitlements/notifi-iOS.entitlements` or
-`notifi-macOS.entitlements` until Apple grants it.** An entitlement the App ID
-does not carry fails code signing, so adding it early breaks every signed build
-for a capability that still would not work.
+**Time Sensitive is the floor and is live.**
+`com.apple.developer.usernotifications.time-sensitive` is in all four app
+entitlements files. It needs no Apple approval, and it gets a page past Focus and
+onto the lock screen. It does **not** sound through silent mode.
 
-Everything else is already merged and live: the `keys.critical` column, the
-`critical=1` send parameter, `PATCH /keys/:id`, the `sound.critical` payload
-path, and the per-key toggle on the key detail screen. The toggle reads
-`criticalAlertSetting`, finds `.notSupported`, and says so rather than pretending
-to work. When the grant arrives, adding that one key to both files is the entire
-remaining change.
+**Critical Alerts are the ceiling and are still pending.** Submitted 2026-08-03,
+request ID **W8U762V6VJ**, against bundle ID `it.notifi.notifi`. Apple replies by
+email; nothing has come back.
 
-A push is only marked critical when the key is switched on **and** the individual
-send asks for it. A send that asks without that standing is delivered as an
-ordinary notification rather than refused, because dropping an alert from a pager
-is worse than under-delivering one.
+**Do not add `com.apple.developer.usernotifications.critical-alerts` to the
+entitlements files until Apple grants it.** An entitlement the App ID does not
+carry fails code signing, so adding it early breaks every signed build for a
+capability that still would not work. When the grant lands, add that key to all
+four files and flip `CRITICAL_ENTITLED` in `apps/api/src/routes/send.ts` in the
+same change — the same toggle then reaches the higher ceiling with no other work.
+
+That constant is why the two levels are not both wired up at once: a push that
+claims an interruption level the app is not entitled to is dropped by the OS
+rather than downgraded, so `critical` and `time-sensitive` are mutually exclusive
+in the payload, not layered.
+
+A push is only escalated when the key is switched on **and** the individual send
+asks for it with `critical=1`. A send that asks without that standing is
+delivered as an ordinary notification rather than refused, because dropping an
+alert from a pager is worse than under-delivering one.
+
+### Adding an entitlement needs a portal change first
+
+Enabling Time Sensitive Notifications on the App ID in the Apple Developer portal
+is a manual step, and until it is done every signed build fails with
+"Provisioning profile ... doesn't include the Time Sensitive Notifications
+capability". `xcodebuild` from the command line will not add the capability for
+you; Xcode.app with automatic signing will, or you can tick it under Identifiers
+→ `it.notifi.notifi`. The iOS Simulator build does not sign and so passes either
+way — it is not evidence the entitlement works.
 
 ## The contract is the source of truth, and Swift does not follow automatically
 

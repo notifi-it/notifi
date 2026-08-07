@@ -145,7 +145,7 @@ final class SyncEngine {
             log.error("sync failed: \(String(describing: error), privacy: .public)")
         }
 
-        updateBadge()
+        reconcileNotifications()
         if newMessages > 0 {
             NotificationCenter.default.post(name: .notifiNewMessages, object: nil)
         }
@@ -262,14 +262,56 @@ final class SyncEngine {
         return (try? context.fetchCount(descriptor)) ?? 0
     }
 
-    func updateBadge() {
+    /// Brings everything the OS shows about unread messages back in line with the
+    /// store: the badge, the menu bar dot, and the notifications still sitting in
+    /// Notification Center.
+    ///
+    /// One entry point rather than three, because they are the same fact told in
+    /// three places and every call site that changes read state has to tell all of
+    /// them. Clearing the delivered notification is the half that used to be
+    /// missing: a message read in the app, or marked read from the notification's
+    /// own button, left its banner sitting in Notification Center still looking
+    /// unread, so the pager and the list it fed disagreed for as long as the user
+    /// left them alone.
+    ///
+    /// Marking something unread again does not bring its notification back. Nothing
+    /// can — a delivered notification cannot be re-delivered — and re-posting a copy
+    /// would sound an alert for a page the user has already seen.
+    func reconcileNotifications() {
         let raw = unreadCount()
         unread = raw
         #if os(macOS)
         NotificationCenter.default.post(name: .notifiUnreadChanged, object: nil)
         #endif
+
+        let read = readServerIDs()
         Task {
-            try? await UNUserNotificationCenter.current().setBadgeCount(raw)
+            let center = UNUserNotificationCenter.current()
+            try? await center.setBadgeCount(raw)
+            let stale = await center.deliveredNotifications().filter { delivered in
+                guard let id = Self.serverID(from: delivered.request.content.userInfo)
+                else { return false }
+                return read.contains(id)
+            }
+            guard !stale.isEmpty else { return }
+            center.removeDeliveredNotifications(
+                withIdentifiers: stale.map(\.request.identifier)
+            )
         }
+    }
+
+    private func readServerIDs() -> Set<Int> {
+        let descriptor = FetchDescriptor<Message>(predicate: #Predicate { $0.isRead == true })
+        let messages = (try? context.fetch(descriptor)) ?? []
+        return Set(messages.map(\.serverID))
+    }
+
+    /// The same shape `NotificationDelegate` reads, and for the same reason: the
+    /// id is the only part of the push that is not sealed.
+    private static func serverID(from userInfo: [AnyHashable: Any]) -> Int? {
+        guard let notifi = userInfo["notifi"] as? [String: Any] else { return nil }
+        if let id = notifi["id"] as? Int { return id }
+        if let id = notifi["id"] as? NSNumber { return id.intValue }
+        return nil
     }
 }

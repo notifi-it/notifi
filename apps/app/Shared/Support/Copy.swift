@@ -126,8 +126,7 @@ enum Copy {
         static var notFound: String { NSLocalizedString("keyDetail.notFound", comment: "") }
         static var notFoundDetail: String { NSLocalizedString("keyDetail.notFoundDetail", comment: "") }
         static var criticalOn: String { NSLocalizedString("keyDetail.criticalOn", comment: "") }
-        static var criticalDenied: String { NSLocalizedString("keyDetail.criticalDenied", comment: "") }
-        static var criticalUnavailable: String { NSLocalizedString("keyDetail.criticalUnavailable", comment: "") }
+        static var criticalTimeSensitive: String { NSLocalizedString("keyDetail.criticalTimeSensitive", comment: "") }
         static var copyKey: String { NSLocalizedString("keyDetail.copyKey", comment: "") }
         static var shareKey: String { NSLocalizedString("keyDetail.shareKey", comment: "") }
         static var defaultKeyDetail: String { NSLocalizedString("keyDetail.defaultKeyDetail", comment: "") }
@@ -162,7 +161,6 @@ enum Copy {
         static var revokedAnnouncement: String { NSLocalizedString("keyDetail.revokedAnnouncement", comment: "") }
         static var revokeFailed: String { NSLocalizedString("keyDetail.revokeFailed", comment: "") }
         static var criticalNotPermitted: String { NSLocalizedString("keyDetail.criticalNotPermitted", comment: "") }
-        static var criticalNotBuilt: String { NSLocalizedString("keyDetail.criticalNotBuilt", comment: "") }
         static var criticalChangeFailed: String { NSLocalizedString("keyDetail.criticalChangeFailed", comment: "") }
     }
     enum CreateKey {

@@ -22,25 +22,16 @@ struct KeyDetailView: View {
 
     private var key: CachedKey? { model.sync?.keys.first { $0.id == keyID } }
 
-    /// Without the entitlement the switch would quietly do nothing, so it is
-    /// greyed out until Apple grants it. `.disabled` (turned off in system
-    /// settings) still allows toggling: that sets the key's standing on the
-    /// server, which starts working the moment the user flips it back on.
-    private var criticalUnavailable: Bool {
-        switch model.criticalAlertStatus {
-        case .enabled, .disabled: return false
-        default: return true
-        }
-    }
-
+    /// What "on" actually buys, which depends on how far the OS lets notifi go.
+    /// Time Sensitive is the floor and is always available; Critical Alerts are
+    /// the ceiling and are not, so the switch stays usable either way and the
+    /// text says which one the user is getting.
     private var criticalDetail: String {
         switch model.criticalAlertStatus {
         case .enabled:
             return Copy.KeyDetail.criticalOn
-        case .disabled:
-            return Copy.KeyDetail.criticalDenied
         default:
-            return Copy.KeyDetail.criticalUnavailable
+            return Copy.KeyDetail.criticalTimeSensitive
         }
     }
 
@@ -179,7 +170,7 @@ struct KeyDetailView: View {
                         set: { on in Task { await setCritical(on) } }
                     )
                 )
-                .disabled(isUpdatingCritical || criticalUnavailable)
+                .disabled(isUpdatingCritical)
                 Hairline()
             }
 
@@ -253,15 +244,13 @@ struct KeyDetailView: View {
         errorMessage = nil
         do {
             let granted = try await model.setKeyCritical(id: keyID, critical: critical)
-            // The switch moving is not evidence the OS agreed. Switching a key on
-            // while notifi has no authorisation records the standing and delivers
-            // nothing louder than an ordinary notification, so the refusal is said
-            // out loud instead of being left to be discovered by a missed page.
-            if critical, granted != .enabled {
+            // Only the case the row's own text cannot cover: the user turned
+            // Critical Alerts off themselves, so the ceiling is lower than it
+            // would otherwise be and nothing on screen would say why. Every other
+            // standing is described by `criticalDetail` and needs no error.
+            if critical, granted == .disabled {
                 errorMessage = Copy.KeyDetail.criticalNotPermitted
             }
-        } catch NotifiError.criticalAlertsUnavailable {
-            errorMessage = Copy.KeyDetail.criticalNotBuilt
         } catch {
             errorMessage = (error as? APIError)?.userMessage
                 ?? Copy.KeyDetail.criticalChangeFailed

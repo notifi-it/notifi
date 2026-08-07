@@ -1196,7 +1196,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Critical Alerts"
+            "value": "Urgent alerts"
           }
         }
       }
@@ -1207,29 +1207,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't change Critical Alerts for this key. Check your connection and try again."
-          }
-        }
-      }
-    },
-    "keyDetail.criticalDenied": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Turned off for notifi in system settings, so these will arrive as ordinary notifications until you turn it back on."
-          }
-        }
-      }
-    },
-    "keyDetail.criticalNotBuilt": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Critical Alerts aren't available in this build yet, so nothing was changed."
+            "value": "Couldn't change urgent alerts for this key. Check your connection and try again."
           }
         }
       }
@@ -1240,7 +1218,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This key is set to ask for Critical Alerts, but notifi is not allowed to sound through silent mode. Turn Critical Alerts on for notifi in system settings."
+            "value": "Critical Alerts are turned off for notifi in system settings. These will still break through Focus, but they will not sound through silent mode."
           }
         }
       }
@@ -1256,13 +1234,13 @@
         }
       }
     },
-    "keyDetail.criticalUnavailable": {
+    "keyDetail.criticalTimeSensitive": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not available yet — this needs an entitlement Apple has to grant notifi. Sends asking for it arrive as ordinary notifications in the meantime."
+            "value": "Sends from this key that ask for it break through Focus and stay on the lock screen. Add critical=1 to the send. They will not sound through silent mode — that needs an entitlement Apple has yet to grant notifi."
           }
         }
       }

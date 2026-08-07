@@ -203,12 +203,12 @@ export const copy = {
     criticalOn:
       'Sends from this key that ask for it will sound through silent mode and Focus. ' +
       'Add critical=1 to the send.',
-    criticalDenied:
-      'Turned off for notifi in system settings, so these will arrive as ordinary ' +
-      'notifications until you turn it back on.',
-    criticalUnavailable:
-      'Not available yet — this needs an entitlement Apple has to grant notifi. ' +
-      'Sends asking for it arrive as ordinary notifications in the meantime.',
+    /// What the switch buys without the Critical Alerts entitlement, which is
+    /// still the usual case: Time Sensitive, which needs no grant from Apple.
+    criticalTimeSensitive:
+      'Sends from this key that ask for it break through Focus and stay on the lock ' +
+      'screen. Add critical=1 to the send. They will not sound through silent mode — ' +
+      'that needs an entitlement Apple has yet to grant notifi.',
 
     copyKey: 'Copy key',
     shareKey: 'Share key',
@@ -230,7 +230,7 @@ export const copy = {
       'launch other apps on this device.',
 
     sectionAlerts: 'Alerts',
-    criticalAlerts: 'Critical Alerts',
+    criticalAlerts: 'Urgent alerts',
 
     revokedNotice: 'This key is revoked and no longer accepts sends.',
 
@@ -263,11 +263,10 @@ export const copy = {
     revokeFailed: "Couldn't revoke the key. Check your connection and try again.",
 
     criticalNotPermitted:
-      'This key is set to ask for Critical Alerts, but notifi is not allowed to sound ' +
-      'through silent mode. Turn Critical Alerts on for notifi in system settings.',
-    criticalNotBuilt: "Critical Alerts aren't available in this build yet, so nothing was changed.",
+      'Critical Alerts are turned off for notifi in system settings. These will still ' +
+      'break through Focus, but they will not sound through silent mode.',
     criticalChangeFailed:
-      "Couldn't change Critical Alerts for this key. Check your connection and try again.",
+      "Couldn't change urgent alerts for this key. Check your connection and try again.",
   },
 
   createKey: {

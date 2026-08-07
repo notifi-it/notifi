@@ -271,13 +271,13 @@ struct MessageFeed<Empty: View>: View {
     private func toggleRead(_ message: Message) {
         message.isRead.toggle()
         save()
-        model.sync?.updateBadge()
+        model.sync?.reconcileNotifications()
     }
 
     private func delete(_ message: Message) {
         context.delete(message)
         save()
-        model.sync?.updateBadge()
+        model.sync?.reconcileNotifications()
     }
 
     private func open(_ url: URL, keyID: Int?) {

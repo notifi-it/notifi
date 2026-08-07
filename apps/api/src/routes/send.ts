@@ -31,24 +31,41 @@ interface KeyDeviceRow {
   encryption_public_key: string;
 }
 
+// One switch, two ceilings. `critical` is the one the product wants — audible
+// through the ringer switch — but it needs an entitlement Apple has not granted
+// (request W8U762V6VJ), and a push claiming an interruption level the app is not
+// entitled to is dropped rather than downgraded. `time-sensitive` needs no
+// approval and already gets the page past Focus and onto the lock screen, so it
+// is what an escalated send means until the grant lands. Flip this the same day
+// the entitlement goes into the .entitlements files, not before.
+const CRITICAL_ENTITLED = false;
+
 function pushPayload(
   id: number,
   sealedB64: string,
   keyId: number,
-  critical: boolean,
+  escalate: boolean,
   strings: Strings,
 ): object {
+  const escalation = escalate
+    ? CRITICAL_ENTITLED
+      ? {
+          // A critical sound is an object rather than a name, and it is what
+          // makes the alert audible through the ringer switch. The interruption
+          // level alone would get it past Focus but leave it silent on a muted
+          // phone, which for a pager is the same as not arriving.
+          sound: { critical: 1, name: 'default', volume: 1 },
+          'interruption-level': 'critical',
+        }
+      : { sound: 'default', 'interruption-level': 'time-sensitive' }
+    : { sound: 'default' };
+
   return {
     aps: {
       // What the lock screen shows if the service extension never runs. The
       // real title is inside `sealed`, which only the device can open.
       alert: { title: strings.push.fallbackTitle },
-      // A critical sound is an object rather than a name, and it is what makes
-      // the alert audible through the ringer switch. `interruption-level` alone
-      // would get it past Focus but leave it silent on a muted phone, which for
-      // a pager is the same as not arriving.
-      sound: critical ? { critical: 1, name: 'default', volume: 1 } : 'default',
-      ...(critical ? { 'interruption-level': 'critical' } : {}),
+      ...escalation,
       'mutable-content': 1,
       'thread-id': `key-${keyId}`,
     },
@@ -241,7 +258,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   // Both halves have to agree: the sender asks per message, the device owner
   // allows it per key. A send key that leaks cannot raise its own volume, and a
   // key marked critical stays quiet for the ordinary sends that share it.
-  const critical = input.critical === true && row.critical === 1;
+  const escalate = input.critical === true && row.critical === 1;
 
   // Not `t(c)`: this text is read by the recipient, and the request that
   // produced it came from the sender's script, whose Accept-Language says
@@ -250,11 +267,11 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   // service extension replaces it with the decrypted title in almost every case.
   const deviceStrings = copyFor(SOURCE_LANGUAGE);
 
-  let payload = pushPayload(messageId, fullSealed, row.key_id, critical, deviceStrings);
+  let payload = pushPayload(messageId, fullSealed, row.key_id, escalate, deviceStrings);
   for (const candidate of fallbacks) {
     if (payloadBytes(payload) <= PUSH_BUDGET_BYTES) break;
     const sealed = await seal(row.encryption_public_key, 'content', JSON.stringify(candidate));
-    payload = pushPayload(messageId, sealed, row.key_id, critical, deviceStrings);
+    payload = pushPayload(messageId, sealed, row.key_id, escalate, deviceStrings);
   }
 
   await push(

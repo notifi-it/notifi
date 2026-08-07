@@ -7,7 +7,11 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate, @u
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        completionHandler([.banner, .sound, .badge])
+        // `.list` as well as `.banner`, so a page that arrives while the app is
+        // open still lands in Notification Center. Without it the banner is the
+        // only copy that ever exists and it is gone in four seconds — which for
+        // anything the user did not happen to be looking at is a lost alert.
+        completionHandler([.banner, .list, .sound, .badge])
         Task { @MainActor in
             AppModel.shared?.handleForegroundPush()
         }

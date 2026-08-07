@@ -121,7 +121,7 @@ struct FeedHeader<Trailing: View>: View {
             Logger(subsystem: "it.notifi.app", category: "feed")
                 .error("save failed: \(String(describing: error), privacy: .public)")
         }
-        model.sync?.updateBadge()
+        model.sync?.reconcileNotifications()
     }
 }
 

@@ -83,8 +83,10 @@ final class AppModel {
     var selectedTab: AppTab = .inbox
     var notificationStatus: UNAuthorizationStatus = .notDetermined
     /// Whether the system will actually let a Critical Alert through. Stays
-    /// `.notSupported` until Apple grants the entitlement, which is what the key
-    /// screen keys off to explain itself rather than offering a dead switch.
+    /// `.notSupported` until Apple grants the entitlement. The key screen reads
+    /// this to say how loud an urgent send will be — Time Sensitive on its own, or
+    /// Time Sensitive plus audible through silent mode — not to decide whether the
+    /// switch works, which it does either way.
     var criticalAlertStatus: UNNotificationSetting = .notSupported
     var remoteImagesEnabled: Bool {
         didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
@@ -251,31 +253,25 @@ final class AppModel {
 
     var defaultKeyValue: String? { DeviceIdentity.loadDefaultKey() }
 
-    /// Allows or stops Critical Alerts for one key. The server keeps the last word:
+    /// Allows or stops escalated alerts for one key. The server keeps the last word:
     /// a send still has to ask for `critical=1`, and a key that was never switched
     /// on here can never raise its own volume, however the key value is used.
     ///
-    /// Returns the OS's standing once the work is done. Switching the key on is not
-    /// the same as being allowed to sound through silent mode, and the caller has to
-    /// be able to say so rather than let the switch imply an authorisation that is
-    /// not there. `.disabled` — the user turned Critical Alerts off for notifi in
-    /// system settings — still writes the key's standing on purpose: it starts
-    /// working the moment they turn it back on, and the caller says as much.
-    ///
-    /// All of this is dormant while Apple has not granted the entitlement (request
-    /// W8U762V6VJ): the status is `.notSupported`, the guard below refuses, and the
-    /// switch that would reach here is disabled. It activates the day the grant
-    /// lands, with no further change.
+    /// The switch is not gated on Critical Alerts, because escalation does not
+    /// depend on them: until Apple grants request W8U762V6VJ the server sends these
+    /// as Time Sensitive, which needs no approval and already carries the page past
+    /// Focus. Critical Alerts are the ceiling this reaches once the grant lands, so
+    /// the permission is still asked for and the OS's standing is still returned —
+    /// the caller uses it to say how loud "on" is actually going to be, rather than
+    /// to decide whether "on" is allowed at all.
     @discardableResult
     func setKeyCritical(id: Int, critical: Bool) async throws -> UNNotificationSetting {
         guard let api, let sync else { throw NotifiError.identityMissing }
         if critical, criticalAlertStatus != .enabled {
-            // Re-reads the setting itself, so the check below is the OS's answer to
-            // this request rather than whatever was cached when the screen appeared.
+            // Re-reads the setting itself, so what the caller reports is the OS's
+            // answer to this request rather than whatever was cached when the
+            // screen appeared.
             await requestCriticalAlertPermission()
-            guard criticalAlertStatus != .notSupported else {
-                throw NotifiError.criticalAlertsUnavailable
-            }
         }
         try await api.updateKey(id: id, critical: critical)
         await sync.refreshKeys()
@@ -400,7 +396,7 @@ final class AppModel {
         Task {
             await sync?.sync()
             markRead(serverID: serverID)
-            sync?.updateBadge()
+            sync?.reconcileNotifications()
         }
     }
 
@@ -410,7 +406,7 @@ final class AppModel {
             markRead(serverID: serverID)
             selectedTab = .inbox
             path.append(serverID)
-            sync?.updateBadge()
+            sync?.reconcileNotifications()
             #if os(macOS)
             NotificationCenter.default.post(name: .notifiOpenPanel, object: nil)
             #endif
