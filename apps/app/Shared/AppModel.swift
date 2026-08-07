@@ -28,6 +28,10 @@ enum AppTab: Hashable {
     case inbox
     case keys
     case settings
+    /// iOS only. `GeistTabBar` lists its items explicitly, so this case never
+    /// reaches the Mac's bar — where it would be a tab that opens a field the
+    /// Mac draws in the Inbox header instead.
+    case search
 }
 
 /// What a notification asked for, in terms the model can act on once it exists.
