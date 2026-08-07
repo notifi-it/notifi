@@ -196,7 +196,10 @@ final class AppModel {
         }
     }
 
-    private func ensureDefaultKey() async {
+    /// Callable from the first-run screen as well as boot: the boot task races the
+    /// empty state onto the screen, and a walkthrough that shows a placeholder key
+    /// hands the user a command that 401s.
+    func ensureDefaultKey() async {
         guard let api, let sync else { return }
         // Only act on an authoritative key list. If the refresh failed, sync.keys may be
         // empty simply because we could not reach the server, and creating a key here

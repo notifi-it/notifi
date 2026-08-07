@@ -7,6 +7,11 @@ struct EmptyStateView: View {
     @State private var sending = false
     @State private var sent = false
     @State private var sendError: String?
+    @State private var key: String?
+    @State private var keyFailed = false
+    /// Which step is open. One at a time: the two steps are ordered, and showing
+    /// both at once is what pushed the send command below the fold on a phone.
+    @State private var openStep = 1
 
     private static let sampleTitle = "It lives"
     private static let sampleMessage = "notifi is working."
@@ -34,15 +39,13 @@ struct EmptyStateView: View {
     }
 
     /// The snippet is built from the device's own default key so the first send
-    /// works on paste. Without a key there is nothing to paste, so it shows the
-    /// placeholder rather than a command that would 401.
+    /// works on paste.
     ///
     /// `--get -d` rather than a hand-built query string: curl does the escaping,
     /// which keeps each parameter on its own readable line instead of a wall of
     /// percent codes.
-    private var command: String {
-        let key = model.defaultKeyValue ?? "nk_your_key"
-        return """
+    private func command(key: String) -> String {
+        """
         curl --get "\(model.baseURL.absoluteString)/send" \\
           -d key=\(key) \\
           -d title="\(Self.sampleTitle)" \\
@@ -51,6 +54,23 @@ struct EmptyStateView: View {
     }
 
     private var notificationsAllowed: Bool { model.notificationStatus == .authorized }
+
+    /// The key is minted by a boot task that this screen regularly beats onto the
+    /// display. Rather than print a `nk_your_key` placeholder — a command that
+    /// looks copyable and answers 401 — step 2 waits, and asks for the key itself
+    /// in case the boot attempt failed while offline.
+    private func loadKey() async {
+        if let existing = model.defaultKeyValue {
+            key = existing
+            return
+        }
+        keyFailed = false
+        await model.ensureDefaultKey()
+        key = model.defaultKeyValue
+        // `ensureDefaultKey` swallows its own failures into the log, so a key
+        // that is still missing afterwards is the only signal the screen gets.
+        keyFailed = key == nil
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -84,54 +104,82 @@ struct EmptyStateView: View {
                 OnboardingStep(
                     number: 1,
                     title: "Allow notifications",
-                    done: notificationsAllowed
+                    done: notificationsAllowed,
+                    open: openStep == 1,
+                    toggle: { openStep = openStep == 1 ? 0 : 1 }
                 ) {
-                    if !notificationsAllowed {
+                    if notificationsAllowed {
+                        Text("Notifications are on.")
+                            .font(Theme.metaSmall)
+                            .foregroundStyle(Theme.muted)
+                    } else {
                         OutlineButton(title: "Enable notifications", fill: true) {
-                            Task { await model.requestNotificationPermission() }
+                            Task {
+                                await model.requestNotificationPermission()
+                            }
                         }
                     }
                 }
 
-                OnboardingStep(number: 2, title: "Send one") {
-                    Text(command)
-                        .font(Theme.metaSmall)
-                        .foregroundStyle(Theme.fg)
-                        .textSelection(.enabled)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(12)
-                        .background(RoundedRectangle(cornerRadius: Theme.radius).fill(Theme.surface))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Theme.radius)
-                                .stroke(Theme.line, lineWidth: 1)
-                        )
+                OnboardingStep(
+                    number: 2,
+                    title: "Send one",
+                    open: openStep == 2,
+                    toggle: { openStep = openStep == 2 ? 0 : 2 }
+                ) {
+                    if let key {
+                        let command = command(key: key)
 
-                    HStack(spacing: 10) {
-                        OutlineButton(title: copied ? "Copied" : "Copy", fill: true) {
-                            Clipboard.copy(command)
-                            copied = true
+                        Text(command)
+                            .font(Theme.metaSmall)
+                            .foregroundStyle(Theme.fg)
+                            .textSelection(.enabled)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12)
+                            .background(RoundedRectangle(cornerRadius: Theme.radius).fill(Theme.surface))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: Theme.radius)
+                                    .stroke(Theme.line, lineWidth: 1)
+                            )
+
+                        HStack(spacing: 10) {
+                            OutlineButton(title: copied ? "Copied" : "Copy", fill: true) {
+                                Clipboard.copy(command)
+                                copied = true
+                            }
+
+                            OutlineButton(title: sending ? "Sending…" : "Send a test", fill: true) {
+                                send()
+                            }
+                            .disabled(sending)
                         }
 
-                        OutlineButton(title: sending ? "Sending…" : "Send a test", fill: true) {
-                            send()
+                        if let sendError {
+                            InlineError(message: sendError)
+                        } else if sent {
+                            AnnouncedText(
+                                message: "Sent. It arrives here and on your lock screen in a moment.",
+                                color: Theme.muted
+                            )
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Text("It arrives here and on your lock screen. Make more keys under Keys to keep sources apart.")
+                                .font(Theme.metaSmall)
+                                .foregroundStyle(Theme.muted)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .disabled(sending)
-                    }
+                    } else if keyFailed {
+                        InlineError(message: "Couldn't make a key. Check your connection and try again.")
 
-                    if let sendError {
-                        InlineError(message: sendError)
-                    } else if sent {
-                        AnnouncedText(
-                            message: "Sent. It arrives here and on your lock screen in a moment.",
-                            color: Theme.muted
-                        )
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        OutlineButton(title: "Try again", fill: true) {
+                            Task { await loadKey() }
+                        }
                     } else {
-                        Text("It arrives here and on your lock screen. Make more keys under Keys to keep sources apart.")
+                        Text("Making your key…")
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.muted)
-                            .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
@@ -141,20 +189,32 @@ struct EmptyStateView: View {
         .geistGutter()
         .padding(.vertical, 40)
         .frame(maxWidth: .infinity)
+        .task { await loadKey() }
+        .onAppear {
+            openStep = notificationsAllowed ? 2 : 1
+        }
+        // Granting permission finishes step 1, so step 2 is what the user came for
+        // next. Moving there beats leaving a finished step open above a closed one.
+        .onChange(of: notificationsAllowed) { _, allowed in
+            if allowed, openStep == 1 { openStep = 2 }
+        }
     }
 }
 
-/// One numbered step of the first-run walkthrough. A finished step keeps its
-/// place in the list rather than disappearing, so the numbering the user was
-/// just reading does not shift under them.
+/// One numbered step of the first-run walkthrough, collapsible. A finished step
+/// keeps its place in the list rather than disappearing, so the numbering the
+/// user was just reading does not shift under them.
 private struct OnboardingStep<Content: View>: View {
     var number: Int
     var title: String
     var done: Bool = false
+    var open: Bool
+    var toggle: () -> Void
     @ViewBuilder var content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
+            Button(action: toggle) {
             HStack(spacing: 8) {
                 Group {
                     if done {
@@ -180,11 +240,32 @@ private struct OnboardingStep<Content: View>: View {
                 Text(title)
                     .font(.inco(.footnote, weight: .semibold))
                     .foregroundStyle(done ? Theme.dim : Theme.fg)
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Theme.muted)
+                    .rotationEffect(.degrees(open ? 0 : -90))
             }
+            .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Step \(number). \(title).\(done ? " Done." : "")")
+            .accessibilityHint(open ? "Collapse" : "Expand")
 
-            content
+            // Opening and closing is not animated. The height change here is a
+            // large one — a code block and two buttons — and no curve made it
+            // read as anything but the rest of the screen being shoved. The
+            // chevron carries the state change instead.
+            VStack(alignment: .leading, spacing: 10) {
+                if open {
+                    content
+                }
+            }
+            .padding(.top, open ? 10 : 0)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         // Granting notifications changed the number to a tick, filled the disc,

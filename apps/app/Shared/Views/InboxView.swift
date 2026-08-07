@@ -147,13 +147,27 @@ struct InboxView: View {
         .background(Theme.bg)
     }
 
+    @ViewBuilder
     private var list: some View {
+        if messages.isEmpty {
+            // Not a List row: the walkthrough is the whole screen at this point,
+            // and centring it means measuring the space it has, which a row inside
+            // a List cannot do. It stays scrollable for the case where both steps
+            // are open on a short device.
+            GeometryReader { proxy in
+                ScrollView {
+                    EmptyStateView()
+                        .frame(minHeight: proxy.size.height)
+                }
+            }
+        } else {
+            messageList
+        }
+    }
+
+    private var messageList: some View {
         List {
-            if messages.isEmpty {
-                EmptyStateView()
-                    .padding(.top, 30)
-                    .plainRow()
-            } else if filtered.isEmpty {
+            if filtered.isEmpty {
                 NoResultsView(
                     query: trimmedQuery,
                     scopeNote: activeKeyName.map { "Filtered to the “\($0)” key." },
