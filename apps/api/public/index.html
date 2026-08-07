@@ -301,14 +301,17 @@ section{padding:clamp(48px,7vw,86px) 0}
 .use-col .ico{width:15px;height:15px}
 
 /* ── uses: four hairline lists, no bullets, no boxes ────────── */
-.uses{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(20px,2.4vw,30px)}
-.use-col .eyebrow{padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:4px;min-height:calc(3.2em + 10px)}
+.uses{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,2.4vw,30px)}
+/* Four columns rather than five, so every heading fits on two lines and the
+   reserved height came down with it. It is still reserved rather than
+   auto — the first list item has to start on the same baseline across all
+   four, or the hairlines under the headings stop reading as one rule. */
+.use-col .eyebrow{padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:4px;min-height:calc(2.2em + 10px)}
 .use-col ul{list-style:none;margin:0;padding:0}
 .use-col li{
   color:var(--muted);font-size:15px;line-height:1.45;
   padding:11px 0;border-bottom:1px solid var(--line);
 }
-@media(max-width:1140px){.uses{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:920px){.uses{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.uses{grid-template-columns:1fr}}
 
@@ -443,9 +446,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
      colour the text around it already has. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
-    <g id="s" fill="none" stroke="currentColor" stroke-width="1.7"
-       stroke-linecap="round" stroke-linejoin="round"></g>
-
     <symbol id="i-noaccount" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="8" r="3.4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/><path d="M3 3l18 18"/>
@@ -488,24 +488,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <path d="M7 7.2h.01"/><path d="M7 16.8h.01"/>
     </symbol>
 
-    <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-      <ellipse cx="12" cy="6" rx="7.5" ry="3"/>
-      <path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/>
-      <path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/>
-    </symbol>
-
     <symbol id="i-agent" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
       <rect x="4" y="7.5" width="16" height="12" rx="3"/>
       <path d="M12 7.5V4"/><circle cx="12" cy="3" r="1.3"/>
       <path d="M9 12.5h.01"/><path d="M15 12.5h.01"/><path d="M9.5 16h5"/>
-    </symbol>
-
-    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z"/>
-      <path d="M18.5 17.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>
     </symbol>
   </defs>
 </svg>
@@ -560,36 +547,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 <pre><span class="p">$</span> curl <span class="s">"https://notifi.it/send?key=<span class="k">nk_yourkeyhere</span>&amp;title=Deploy+finished"</span>
 <span class="c">{"ok":true}</span></pre>
     </div>
+    <!-- Carries the one instruction the removed three-step section was for:
+         nk_yourkeyhere is the slot, and the app is where the key comes from. -->
     <p class="meta" style="margin-top:12px">
-      That is the whole integration.
+      Swap in the key the app made you. That is the whole integration.
     </p>
-  </div>
-</section>
-
-<!-- ══ start ═════════════════════════════════════════════════ -->
-<section class="section-alt" id="start">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Start</p><hr class="rule">
-    </div>
-    <h2 style="margin-bottom:26px">The key is already there.</h2>
-
-    <div class="rows">
-      <div class="row">
-        <h3>1. Install the app</h3>
-        <p>It is where the alerts land, on your iPhone or your Mac.</p>
-      </div>
-      <div class="row">
-        <h3>2. Copy your key</h3>
-        <p>The app makes one for you on first launch. Open it under Keys and copy it —
-           that one is kept on the device, so you can come back for it.</p>
-      </div>
-      <div class="row">
-        <h3>3. Send</h3>
-        <p>Put the key where the samples say <code>nk_yourkeyhere</code>, or export it
-           as <code>NOTIFI_KEY</code>, and make the request.</p>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -601,8 +563,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
     <h2>A list of everything<br>you have been sent.</h2>
     <p class="lede" style="margin-top:14px">
-      Search the whole history, tap any alert for its message, image and link, swipe
-      to delete.
+      Searchable history. Tap for the message, image and link.
     </p>
 
     <div class="shots">
@@ -638,19 +599,19 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
     <h2>Anything that finishes,<br>fails, or changes.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:34px">
-      Start something long and walk away. A headless run has no window to watch, so the
-      choice is a push or checking back every ten minutes to find out it failed at the start.
+      Start something long and walk away. A headless run has no window to watch.
     </p>
 
+    <!-- Three examples a column, not five. The list is here to make a reader
+         recognise their own case, and that happens on the first line or two;
+         everything after it is read as inventory. -->
     <div class="uses">
       <div class="use-col">
         <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>Headless agents</p>
         <ul>
           <li>A headless Claude Code run finished</li>
           <li>An agent stopped and needs a decision</li>
-          <li>An agent hit an error and gave up</li>
           <li>An overnight refactor landed on the branch</li>
-          <li>A long review finished, with the verdict</li>
         </ul>
       </div>
 
@@ -660,39 +621,22 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <li>A deploy failed, with the failing step</li>
           <li>A release went out, with the tag</li>
           <li>A flaky test failed again on main</li>
-          <li>A dependency audit found something</li>
-          <li>Staging finished seeding</li>
         </ul>
       </div>
 
       <div class="use-col">
-        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-server"/></svg>Servers and infra</p>
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-server"/></svg>Servers and jobs</p>
         <ul>
           <li>A disk crossed 90%</li>
-          <li>Someone opened an SSH session on prod</li>
           <li>A health check has been down five minutes</li>
-          <li>A TLS certificate expires next week</li>
-          <li>The nightly backup finished, with the size</li>
-        </ul>
-      </div>
-
-      <div class="use-col">
-        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-database"/></svg>Jobs and data</p>
-        <ul>
           <li>A training run finished, with the final loss</li>
-          <li>A batch job crashed at 3am</li>
-          <li>An ETL wrote fewer rows than yesterday</li>
-          <li>A queue backed up past its threshold</li>
-          <li>A render finished, or the 3D print is done</li>
         </ul>
       </div>
 
       <div class="use-col">
         <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-home"/></svg>Home and hardware</p>
         <ul>
-          <li>The garage door has been open fifteen minutes</li>
           <li>A leak sensor under the sink went wet</li>
-          <li>An unknown device joined the network</li>
           <li>The UPS switched to battery</li>
           <li>The car finished charging overnight</li>
         </ul>
@@ -723,12 +667,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
         <div>
-          <p>The server only ever holds the public half of that keypair. Every message is
-             sealed to it the moment it arrives, so what sits in the database is
-             encrypted text.</p>
-          <p style="margin-top:12px">
-             The push is sealed too. The alert Apple relays says only
-             <code>notifi</code>; your phone unseals the real title on arrival.</p>
+          <p>The server only ever holds the public half of that keypair, so what sits in
+             the database is encrypted text. The push is sealed too: the alert Apple
+             relays says only <code>notifi</code>, and your phone unseals the real title
+             on arrival.</p>
           <p style="margin-top:12px">
              It is the body that is sealed, not the fact of it —
              <a href="/privacy" class="src">Privacy</a> lists exactly what the server can
@@ -764,7 +706,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
     <h2>Your language,<br>the same one request.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:26px">
-      Copy one and put your key in it.
+      Copy one and put your key in it. Anything that can make an HTTP request can send.
     </p>
 
     <!-- Filled in only when the page is opened with a key in the URL fragment
@@ -781,6 +723,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
     </div>
 
+    <!-- Seven, and they fit on one line. Twelve wrapped to three rows of chips,
+         which is a lot of furniture above a block only one of them can fill —
+         and Ruby, PHP, Rust and Swift were each the same six-line POST written
+         out again, so the row cost more than the samples were worth. Anyone on
+         those reads the curl one. -->
     <div class="tabs" role="tablist" aria-label="Language">
       <button class="tab" role="tab" aria-selected="true"  aria-controls="p-curl"   id="t-curl">curl</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-js"     id="t-js">JavaScript</button>
@@ -1029,7 +976,7 @@ reqwest::Client::new()
             <td>message</td>
             <td>string</td>
             <td>Up to 16,000 characters, so a stack trace or a log tail fits. The push preview
-                is shortened to Apple's 4&nbsp;KB budget; the app pulls the rest when it syncs.</td>
+                is shortened; the app pulls the rest.</td>
           </tr>
           <tr>
             <td>link</td>
@@ -1044,35 +991,28 @@ reqwest::Client::new()
           <tr>
             <td>occurred_at</td>
             <td>integer</td>
-            <td>When the event happened, in unix <em>milliseconds</em>. Display only — it never
-                changes ordering or expiry. Leave it out and the time we receive it is used.</td>
+            <td>When the event happened, in unix <em>milliseconds</em>. Display only. Defaults
+                to the time we receive it.</td>
           </tr>
           <tr>
             <td>critical</td>
             <td>boolean</td>
-            <td>Ask for an urgent alert: it breaks through Focus and stays on the lock screen.
-                Accepts <code>1</code>/<code>0</code> or <code>true</code>/<code>false</code>. The key
-                must also have <em>Urgent alerts</em> switched on in the app; a send that asks
-                without that arrives as an ordinary notification rather than failing. Sounding
-                through silent mode needs an entitlement Apple has yet to grant.</td>
+            <td>Ask for an urgent alert: it breaks through Focus and stays on the lock screen,
+                but does not sound through silent mode. The key must also have <em>Urgent
+                alerts</em> switched on in the app; a send that asks without that arrives as an
+                ordinary notification rather than failing.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="rows" style="margin-top:44px">
-      <div class="row">
-        <h3>Rate limits</h3>
-        <p>120 sends per hour per key. Over that you get <code>429</code> with a
-           <code>rate_limited</code> code. Make more keys if you need more headroom.</p>
-      </div>
-      <div class="row">
-        <h3>Errors</h3>
-        <p><code>400</code> invalid parameters · <code>401</code> unknown or revoked key
-           · <code>429</code> rate limited. Every error returns a JSON body with a
-           <code>code</code> and a human-readable <code>message</code>.</p>
-      </div>
-    </div>
+    <!-- Two hairline rows for four facts read as a section; the facts are the
+         same size as the sentence they now sit in. -->
+    <p class="meta" style="margin-top:22px">
+      120 sends an hour per key. Errors return JSON with a <code>code</code> and a readable
+      <code>message</code>: <code>400</code> invalid parameters · <code>401</code> unknown or
+      revoked key · <code>429</code> rate limited.
+    </p>
   </div>
 </section>
 
@@ -1084,8 +1024,8 @@ reqwest::Client::new()
     </div>
     <h2>iPhone or Mac.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:28px">
-      On the Mac it lives in the menu bar. Receiving is the part that is Apple-only. A key
-      belongs to one device, so you choose where a script lands — or give it a key on each.
+      On the Mac it lives in the menu bar. A key belongs to one device, so you choose where
+      a script lands — or give it a key on each.
     </p>
 
     <!-- The Mac link is /download/mac rather than a versioned filename: the
@@ -1109,13 +1049,11 @@ reqwest::Client::new()
       <img src="/wordmark.svg" alt="notifi">
     </div>
   </div>
+  <!-- The section links are not repeated here. The header is sticky, so it is
+       already on screen at the bottom of the page; a second copy of the same
+       six anchors is furniture, and it buried the two links that only exist
+       down here. -->
   <div class="wrap foot">
-    <a href="#start">Start</a>
-    <a href="#uses">Uses</a>
-    <a href="#how">How it works</a>
-    <a href="#send">Send</a>
-    <a href="#api">API</a>
-    <a href="#download">Download</a>
     <a href="/privacy">Privacy</a>
     <a href="https://github.com/notifi-it/notifi">Source</a>
     <span class="meta">Built by Maximilian Mitchell</span>
