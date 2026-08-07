@@ -161,6 +161,11 @@ enum Theme {
     static var titleUnread: Font { .inco(.headline, weight: .bold) }
     static var body: Font { .karla(.subheadline) }
     static var meta: Font { .inco(.caption, weight: .medium) }
+
+    /// The age on an unread feed row. Paired with `meta` the way `titleUnread` is
+    /// paired with `title`: the weight is the half of the unread signal that
+    /// survives a colour filter, and the red is the half that carries at a glance.
+    static var metaUnread: Font { .inco(.caption, weight: .semibold) }
     static var metaSmall: Font { .inco(.caption2, weight: .regular) }
     static var label: Font { .inco(.caption2, weight: .medium) }
     static var screenTitle: Font { .inco(.title, weight: .bold) }

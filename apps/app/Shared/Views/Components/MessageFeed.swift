@@ -12,6 +12,16 @@ import SwiftUI
 /// show when there are none; everything below that is fixed here, banding
 /// included, because a feed that groups by day on one screen and not the other
 /// is the same drift in a different place.
+/// How much of a key name a row will draw.
+///
+/// The server accepts 64 characters. A name anywhere near that pushes the link
+/// host off the end of the line it shares, and the line is small — there is no
+/// second line to wrap onto that would not read as body copy.
+///
+/// At file scope because `MessageFeed` is generic over its empty state, and a
+/// generic type cannot hold a stored static.
+private let keyLabelLimit = 18
+
 struct MessageFeed<Empty: View>: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
@@ -38,7 +48,8 @@ struct MessageFeed<Empty: View>: View {
     }
 
     var body: some View {
-        List {
+        let labels = keyLabels
+        return List {
             if messages.isEmpty {
                 empty().plainRow()
             } else {
@@ -52,14 +63,30 @@ struct MessageFeed<Empty: View>: View {
                         .geistGutter()
                         .plainRow()
 
-                    ForEach(band.messages, id: \.serverID) { message in
-                        row(for: message)
+                    ForEach(Array(band.messages.enumerated()),
+                            id: \.element.serverID) { index, message in
+                        // The last message in a band draws no rule of its own.
+                        // The next band's rule is already the divider under it,
+                        // and two lines a few points apart read as a mistake.
+                        row(for: message,
+                            keyLabel: message.keyID.flatMap { labels[$0] },
+                            showsRule: index < band.messages.count - 1)
                     }
                 }
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        // Room under the last row for the tab bar to float over. Measured as the
+        // fade rather than as the bar: the fade is what actually obscures the
+        // bottom of the feed, so clearing it clears the bar inside it, and the
+        // last message can be scrolled to fully lit instead of half dissolved.
+        .contentMargins(.bottom, Theme.bottomFade, for: .scrollContent)
+        // A plain List opens with an inset of its own, which sat on top of the
+        // header's own bottom padding and left the first band floating in the
+        // middle of nothing. The header spaces the feed; the list should not
+        // space it a second time.
+        .contentMargins(.top, 0, for: .scrollContent)
         .background(Theme.bg)
         .scrollDismissesKeyboard(.immediately)
         .onReceive(clock) { now = $0 }
@@ -94,7 +121,8 @@ struct MessageFeed<Empty: View>: View {
     }
 
     @ViewBuilder
-    private func row(for message: Message) -> some View {
+    private func row(for message: Message, keyLabel: String?,
+                     showsRule: Bool) -> some View {
         Button {
             model.path.append(message.serverID)
         } label: {
@@ -103,23 +131,18 @@ struct MessageFeed<Empty: View>: View {
             // margins were dead, and without the shape the gaps between title,
             // time and thumbnail were too: a stack only hit-tests where it
             // actually drew something.
-            MessageRow(
-                message: message,
-                allowAnyScheme: model.allowsAnyLink(keyID: message.keyID),
-                now: now
-            )
-            .geistGutter()
-            .contentShape(Rectangle())
+            MessageRow(message: message, keyLabel: keyLabel, now: now,
+                       showsRule: showsRule)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.geistRow)
-        // The row's content carries the gutter, the rule does not, so the
-        // message stays inside the margin while the line between messages runs
-        // edge to edge.
-        .overlay(alignment: .bottom) { Hairline() }
-        // Unread sits one step off the ground. The dot alone made the state a
-        // thing you find rather than a thing you see, which on a screen whose
-        // whole job is "what have I not read" is the wrong way round.
-        .plainRow(background: message.isRead ? Theme.bg : Theme.surface)
+        // One ground for every row. Raising the unread ones banded the feed
+        // into blocks that had nothing to do with the time bands it is already
+        // cut into, and on a screen this dark the step read as a rendering fault
+        // before it read as a state. Unread is the red age and the heavier
+        // title. The rule between messages is drawn by the row itself, so that
+        // it can be left off where a band header follows.
+        .plainRow()
         // Swiping is a touch idiom. On the Mac the same actions live in the
         // right-click menu below, which is where a Mac user looks.
         #if os(iOS)
@@ -152,6 +175,20 @@ struct MessageFeed<Empty: View>: View {
         }
         #endif
         .contextMenu { menu(for: message) }
+    }
+
+    /// Key names ready to draw, by key id.
+    ///
+    /// The default key is deliberately absent. Every account has one and messages
+    /// land there unless a key was named, so labelling it says nothing the reader
+    /// did not already assume — and it would put a label on the majority of rows
+    /// for the sake of the minority that need one.
+    private var keyLabels: [Int: String] {
+        var labels: [Int: String] = [:]
+        for key in model.sync?.keys ?? [] where !key.isDefault {
+            labels[key.id] = key.name.middleTruncated(to: keyLabelLimit)
+        }
+        return labels
     }
 
     /// The feed, cut into time bands in the order they are shown.
@@ -352,7 +389,15 @@ private struct BandHeader: View {
                 .tracking(1.4)
                 .foregroundStyle(Theme.dim)
                 .lineLimit(1)
-            Hairline()
+            // Not `Hairline`. A band is a bigger break than a message, and at
+            // the same weight as the rule between two rows it was announcing
+            // that without looking like it. 4pt — four times the rule it has to
+            // be told apart from — and in the colour of the labels at either end
+            // of it rather than a rule colour, so the three read as one object.
+            Rectangle()
+                .fill(Theme.dim)
+                .frame(height: 4)
+                .accessibilityHidden(true)
             Text("\(count)")
                 .font(Theme.metaSmall)
                 .foregroundStyle(Theme.dim)
@@ -368,14 +413,66 @@ private struct BandHeader: View {
 
 // MARK: - Row
 
+/// The widest the stamp column can get, drawn hidden to reserve that width.
+///
+/// One definition, used twice: the column sizes itself against it and the rule
+/// between rows insets by it, so the two agree by construction. Reserving the
+/// width rather than measuring the string that happens to be there is also what
+/// keeps the column still while an age ticks from "now" to "22 min".
+private struct StampTemplate: View {
+    /// Two digits of hour at 22:38 — "22:38" where the clock runs to 24 and
+    /// "10:38 PM" where it does not, which is the longest either locale writes.
+    private static let widestTime = Calendar.current
+        .date(bySettingHour: 22, minute: 38, second: 0, of: Date()) ?? Date()
+
+    /// Stacked rather than listed, because only the width is wanted. Laid out as
+    /// two lines this also became a floor on how short a row could be, which put
+    /// a second line of height under every title that had no body to fill it.
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Text(Self.widestTime, format: MessageRow.clockFormat)
+                .font(Theme.meta)
+            Text("00 min")
+                .font(Theme.metaUnread)
+        }
+        .monospacedDigit()
+        .accessibilityHidden(true)
+    }
+}
+
 private struct MessageRow: View {
     let message: Message
-    let allowAnyScheme: Bool
-    /// Passed in rather than read here — see the clock on `MessageFeed`.
+    /// Already resolved and shortened — see `InboxView.keyLabels`. Nil for the
+    /// default key, which is not worth naming on a row.
+    let keyLabel: String?
+    /// Passed in rather than read here — see the clock on `InboxView`.
     let now: Date
+    /// False before a day marker and at the foot of the feed — see the caller.
+    let showsRule: Bool
+
+    /// Drops the stamp column so its capitals start level with the title's.
+    ///
+    /// `.top` lines the two frames up, not the two rows of type. A frame carries
+    /// the gap between the font's ascent and its capitals, and that gap grows
+    /// with point size: measured off Inconsolata it is 4.01pt at the title's 17
+    /// and 2.83pt at the stamp's 12, so the smaller text starts 1.18pt high.
+    /// Scaled rather than fixed, because both sizes move under Dynamic Type and
+    /// the difference between them moves with them.
+    @ScaledMetric(relativeTo: .headline) private var capHeightOffset: CGFloat = 1.18
+
+    /// Two-digit hour, so the column is a column.
+    ///
+    /// The short time style follows the locale for 12- versus 24-hour, which is
+    /// right, but it also drops the leading zero — and "9:36" against "14:30"
+    /// leaves the left edge ragged, which is the one thing a log's clock cannot
+    /// be. Asking for two digits keeps the locale's shape and fixes the width.
+    static let clockFormat = Date.FormatStyle.dateTime
+        .hour(.twoDigits(amPM: .abbreviated))
+        .minute(.twoDigits)
+
+    private var basis: Date { message.occurredAt ?? message.createdAt }
 
     private var relative: String {
-        let basis = message.occurredAt ?? message.createdAt
         let seconds = max(0, Int(now.timeIntervalSince(basis)))
         switch seconds {
         case ..<60: return "now"
@@ -386,12 +483,40 @@ private struct MessageRow: View {
         }
     }
 
+    /// `PROD-DEPLOY · ↗ GITHUB.COM`, or nothing.
+    ///
+    /// Both halves are optional and most rows carry neither, so the line is
+    /// dropped rather than drawn as a stray separator — a message on the default
+    /// key with no link ends on its own text.
+    ///
+    /// The host is a step brighter than the key beside it. They read as one line
+    /// otherwise, and only one of the two is somewhere you can go; the palette
+    /// has no second accent to spend on that, so brightness carries it.
+    private var meta: Text? {
+        var line: Text?
+        if let keyLabel {
+            line = Text(keyLabel.uppercased()).foregroundStyle(Theme.dim)
+        }
+        if let host = message.link?.host() {
+            let link = Text("↗ \(host.uppercased())").foregroundStyle(Theme.muted)
+            line = line.map { $0 + Text(" · ").foregroundStyle(Theme.dim) + link } ?? link
+        }
+        return line
+    }
+
     var body: some View {
-        // Unread is carried by the row's ground and the title's weight, so the
-        // text starts at the gutter like every other screen rather than being
-        // indented past a marker column.
-        HStack(alignment: .firstTextBaseline, spacing: Theme.rowGap) {
-            VStack(alignment: .leading, spacing: 5) {
+        VStack(spacing: 0) {
+            content
+            if showsRule { rule }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(spokenDescription)
+    }
+
+    private var content: some View {
+        HStack(alignment: .top, spacing: Theme.rowGap) {
+            stamp
+            VStack(alignment: .leading, spacing: 3) {
                 Text(message.title)
                     .font(message.isRead ? Theme.title : Theme.titleUnread)
                     .foregroundStyle(message.isRead ? Theme.read : Theme.fg)
@@ -409,35 +534,74 @@ private struct MessageRow: View {
                         .multilineTextAlignment(.leading)
                 }
 
-                if let link = message.link {
-                    Chip(text: link.host() ?? link.absoluteString, trailingGlyph: "↗")
-                        .padding(.top, 5)
+                if let meta {
+                    // The same size as the clock across from it, so the two sit
+                    // on one baseline at the foot of the row. At 11pt against the
+                    // clock's 12 they were bottom-aligned by frame and a point
+                    // apart by eye, which is the kind of miss you feel before you
+                    // can name it.
+                    meta
+                        .font(Theme.meta)
+                        .tracking(0.9)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .padding(.top, 3)
                 }
             }
-
-            Spacer(minLength: 8)
-
-            VStack(alignment: .trailing, spacing: 2) {
-                // Relative time only. The exact stamp is a fixed 18 characters, so
-                // it set the width of this column and squeezed titles into extra
-                // lines to buy a precision the feed never needed. The detail page
-                // carries the full date, down to the millisecond.
-                // Smaller and quieter than the body it sits beside: the age is a
-                // coordinate, and at `meta`/`muted` it was the brightest thing in
-                // the row after the title.
-                Text(relative)
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                if let url = message.imageURL,
-                   LinkPolicy.allows(url, anyScheme: allowAnyScheme) {
-                    Thumbnail(url: url).padding(.top, 8)
-                }
-            }
-            .monospacedDigit()
+            Spacer(minLength: 0)
         }
-        .padding(.vertical, 15)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(spokenDescription)
+        // 16 rather than 13. With a rule between rows as well, the tighter value
+        // put the line close enough to the key name to read as an underline on
+        // it; the extra 3pt is what tells the two apart.
+        .padding(.vertical, 16)
+        // Carried here rather than applied by the feed, so the rule below can run
+        // off the trailing edge while the message stays inside the margin.
+        .geistGutter()
+    }
+
+    /// The clock, and how long ago that was beneath it.
+    ///
+    /// The clock stays dim in both states: it is the anchor, and a stamp that
+    /// changed colour as well would leave the eye nothing to hold still against.
+    /// Unread is carried by the age alone — brand red, and a weight up.
+    /// Ranged right, against the message rather than against the margin. "5 min"
+    /// and "17 min" are different lengths, so aligning left left the column's
+    /// inner edge ragged where it meets the text it belongs to.
+    private var stamp: some View {
+        ZStack(alignment: .topTrailing) {
+            StampTemplate().hidden()
+            // The age reads first, level with the title, because how long a page
+            // has gone unanswered is the question the feed is scanned for; the
+            // clock falls to the foot of the message as the record of when. The
+            // spacer is what stretches, so both ends stay put however many lines
+            // the preview runs to.
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(relative)
+                    .font(message.isRead ? Theme.meta : Theme.metaUnread)
+                    .foregroundStyle(message.isRead ? Theme.dim : Theme.brandText)
+                Spacer(minLength: 2)
+                Text(basis, format: Self.clockFormat)
+                    .font(Theme.meta)
+                    .foregroundStyle(Theme.dim)
+            }
+            .frame(maxHeight: .infinity, alignment: .topTrailing)
+        }
+        .frame(maxHeight: .infinity)
+        .monospacedDigit()
+        .alignmentGuide(.top) { $0[.top] - capHeightOffset }
+    }
+
+    /// Drawn as the last thing in the row rather than as an overlay on its edge.
+    ///
+    /// On the edge it landed exactly on the boundary between two cells, and the
+    /// list rounded it onto one side or the other depending on where the row
+    /// happened to fall — so the separators appeared under some messages and not
+    /// others, with nothing about those messages in common.
+    private var rule: some View {
+        // Full width, under the stamp column as well as the message. Inset to
+        // where the text starts it drew a second vertical edge down the feed,
+        // one the column had already established and drawn better.
+        Hairline()
     }
 
     /// Everything the row shows, in the order it is read on screen.
@@ -454,6 +618,7 @@ private struct MessageRow: View {
         if let body = message.body {
             parts.append(String(MarkdownPreview.text(body).characters))
         }
+        if let keyLabel { parts.append("Key \(keyLabel)") }
         if let link = message.link, let host = link.host() {
             parts.append("Link to \(host)")
         }
@@ -462,52 +627,18 @@ private struct MessageRow: View {
     }
 }
 
-/// Reserves its slot while loading and marks failure rather than collapsing, so
-/// the list never reflows as images arrive.
-///
-/// Scrolling the feed would otherwise fetch every image in it, so with automatic
-/// loading off this draws a placeholder and makes no request. The image is still
-/// one tap away in the detail view.
-private struct Thumbnail: View {
-    @Environment(AppModel.self) private var model
-    let url: URL
 
-    var body: some View {
-        Group {
-            if model.remoteImagesEnabled {
-                remote
-            } else {
-                RoundedRectangle(cornerRadius: Theme.radius)
-                    .fill(Theme.surface)
-                    .overlay(
-                        Image(systemName: "photo")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(Theme.dim)
-                    )
-            }
-        }
-        .frame(width: Theme.thumb, height: Theme.thumb)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.radius))
-        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.chip, lineWidth: 1))
-        .accessibilityHidden(true)
-    }
-
-    private var remote: some View {
-        AsyncImage(url: url) { phase in
-            switch phase {
-            case .success(let image):
-                image.resizable().scaledToFill()
-            case .failure:
-                RoundedRectangle(cornerRadius: Theme.radius)
-                    .strokeBorder(Theme.chip, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-                    .overlay(
-                        Image(systemName: "xmark")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(Theme.dim)
-                    )
-            default:
-                RoundedRectangle(cornerRadius: Theme.radius).fill(Theme.surface)
-            }
-        }
+private extension String {
+    /// Shortens from the middle, keeping both ends.
+    ///
+    /// Keys are named by what they belong to and where it runs —
+    /// "staging-payments-webhook" — so the two halves distinguish different
+    /// things, and cutting the tail alone would make a set of related keys
+    /// identical on screen.
+    func middleTruncated(to limit: Int) -> String {
+        guard count > limit, limit > 1 else { return self }
+        let kept = limit - 1
+        let head = (kept + 1) / 2
+        return "\(prefix(head))…\(suffix(kept - head))"
     }
 }
