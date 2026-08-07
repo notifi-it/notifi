@@ -89,11 +89,12 @@ struct MessageFeed<Empty: View>: View {
         // bottom of the feed, so clearing it clears the bar inside it, and the
         // last message can be scrolled to fully lit instead of half dissolved.
         .contentMargins(.bottom, Theme.bottomFade, for: .scrollContent)
-        // A plain List opens with an inset of its own, which sat on top of the
-        // header's own bottom padding and left the first band floating in the
-        // middle of nothing. The header spaces the feed; the list should not
-        // space it a second time.
-        .contentMargins(.top, 0, for: .scrollContent)
+        // Room under the header for the fade that dissolves rows as they pass
+        // beneath it, the same way the bottom margin clears the fade at the
+        // other end. Measured rather than left to the list: a plain List opens
+        // with an inset of its own, which sat on top of the header's bottom
+        // padding and left the first band floating in the middle of nothing.
+        .contentMargins(.top, Theme.topFade, for: .scrollContent)
         // Clear: the screen behind paints the static ground, and repainting
         // it flat here would cover the texture across the whole feed.
         .background(Color.clear)

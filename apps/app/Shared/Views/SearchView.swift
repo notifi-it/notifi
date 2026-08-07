@@ -56,11 +56,14 @@ struct SearchView: View {
             FeedHeader(subtitle: subtitle, filterKeyID: .constant(nil))
                 .geistPageHeader()
                 .geistGutter()
-                .background(Theme.bg)
+                // The static runs under the header here as it does on the Inbox:
+                // this screen is the same feed seen through a query, and it was
+                // the one screen still standing on a flat ground.
+                .background(StaticField())
 
             feed
         }
-        .background(Theme.bg)
+        .background(StaticField())
     }
 
     private var feed: some View {
@@ -74,6 +77,9 @@ struct SearchView: View {
                 NoResultsView(query: trimmed, scopeNote: nil) { query = "" }
             }
         }
+        // The header above this one is pinned too, so rows arrive under it the
+        // same way they do on the Inbox.
+        .geistTopFade()
         .searchable(text: $query, prompt: Copy.Search.prompt)
         // The tab bar is the field, so a navigation bar above it would only be
         // an empty strip — the same reason the Inbox hides its own.

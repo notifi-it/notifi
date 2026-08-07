@@ -85,7 +85,7 @@ enum Theme {
     ///
     /// The pair is built at the platform colour layer rather than read from an
     /// `@Environment(\.colorScheme)` because these are `static let`s consumed by
-    /// `Hairline`, `BottomFade`, `MacMenuBar` and the notification-service
+    /// `Hairline`, `MacMenuBar` and the notification-service
     /// extension — several of which have no view environment to read.
     private static func grey(light: Double, dark: Double) -> Color {
         pair(light: (light, light, light), dark: (dark, dark, dark))
@@ -157,6 +157,16 @@ enum Theme {
     /// strip underneath, it only does the job it exists for, which is stopping a
     /// row from being clipped mid-letter at the screen edge.
     static let bottomFade: CGFloat = 44
+
+    /// Height of the fade that closes a screen at the top, under a header that
+    /// stays put while the feed moves beneath it.
+    ///
+    /// Shorter than its bottom twin, which is sized to clear the floating tab
+    /// bar as well as to dissolve a row. This one only has to take a line of
+    /// type out of the picture before the header's edge cuts it: longer and the
+    /// gap it holds open under the count reads as a hole between the title and
+    /// the feed.
+    static let topFade: CGFloat = 24
 
     // MARK: Motion
     //
@@ -282,39 +292,70 @@ extension View {
     ///
     /// An overlay rather than a mask: masking the container would fade the tab
     /// bar and the safe-area chrome sitting in front of it too. Because the fade
-    /// ends in `Theme.bg` and the screen behind it *is* `Theme.bg`, it is
-    /// invisible wherever there is nothing scrolling under it — a short feed
-    /// needs no special case.
+    /// ends in the ground the screen is already painted on, it is invisible
+    /// wherever there is nothing scrolling under it — a short feed needs no
+    /// special case.
     func geistBottomFade() -> some View {
-        overlay(alignment: .bottom) { BottomFade() }
+        overlay(alignment: .bottom) { GroundFade(edge: .bottom) }
+    }
+
+    /// Fades scrolling content into the ground as it goes under a pinned header.
+    ///
+    /// Only for screens whose header stays put — the Inbox and search. On Keys
+    /// and Settings the header scrolls away with the content, so there is
+    /// nothing passing beneath it to dissolve.
+    ///
+    /// The strip this covers is held open under the header by a matching top
+    /// content margin, so at rest the first row sits clear of it and the fade
+    /// reads as space rather than as a dimmed row.
+    func geistTopFade() -> some View {
+        overlay(alignment: .top) { GroundFade(edge: .top) }
     }
 }
 
-/// See `geistBottomFade()`.
-struct BottomFade: View {
+/// See `geistBottomFade()` and `geistTopFade()`.
+///
+/// Draws the ground itself rather than a ramp of flat `Theme.bg`. The screens
+/// this sits on are painted with `StaticField`, and an opaque flat end to the
+/// gradient is a smooth band laid across a grainy screen — the same reason the
+/// Inbox header carries the static through instead of a plain fill. Masking the
+/// texture keeps the grain running to the edge and only takes the content out.
+struct GroundFade: View {
+    /// Not named `Edge`: SwiftUI has one, and shadowing it inside this type
+    /// makes `ignoresSafeArea(edges:)` below read as taking this enum.
+    enum Side { case top, bottom }
+    let edge: Side
+
     var body: some View {
-        LinearGradient(
-            // Hand-placed stops rather than a two-colour ramp. Linear alpha over
-            // 72pt of pure black bands visibly on an OLED panel; weighting the
-            // stops toward the bottom spreads the steps out where the eye is
-            // looking and reads as smooth.
-            stops: [
-                .init(color: Theme.bg.opacity(0), location: 0),
-                .init(color: Theme.bg.opacity(0.35), location: 0.4),
-                .init(color: Theme.bg.opacity(0.75), location: 0.7),
-                .init(color: Theme.bg, location: 1)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .frame(height: Theme.bottomFade)
-        // The fade belongs to the screen, not the scroll view, so it has to cover
-        // the home-indicator inset as well — otherwise content re-emerges at full
-        // strength in the strip below it.
-        .ignoresSafeArea(edges: .bottom)
-        // Rows run underneath it and still have to answer a tap.
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
+        StaticField()
+            .frame(height: edge == .top ? Theme.topFade : Theme.bottomFade)
+            .mask {
+                LinearGradient(
+                    // Hand-placed stops rather than an even ramp. Linear alpha
+                    // over this distance bands visibly on an OLED panel;
+                    // weighting the stops toward the opaque end spreads the
+                    // steps out where the eye is looking and reads as smooth.
+                    stops: [
+                        .init(color: .white.opacity(0), location: 0),
+                        .init(color: .white.opacity(0.35), location: 0.4),
+                        .init(color: .white.opacity(0.75), location: 0.7),
+                        .init(color: .white, location: 1)
+                    ],
+                    // The stops run from clear to solid, and each edge points
+                    // that run at itself: the solid end is always the one
+                    // against the screen's own edge or its header.
+                    startPoint: edge == .top ? .bottom : .top,
+                    endPoint: edge == .top ? .top : .bottom
+                )
+            }
+            // The bottom fade belongs to the screen, not the scroll view, so it
+            // has to cover the home-indicator inset as well — otherwise content
+            // re-emerges at full strength in the strip below it. The top one has
+            // a header above it and no inset to reach into.
+            .ignoresSafeArea(edges: edge == .bottom ? .bottom : [])
+            // Rows run underneath it and still have to answer a tap.
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }
 

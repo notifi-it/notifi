@@ -126,6 +126,10 @@ struct InboxView: View {
                 onClear: clearFilters
             )
         }
+        // Both platforms: the header is pinned on each of them, so on each of
+        // them a row otherwise met the header's edge at full strength and was
+        // cut through the middle of a letter.
+        .geistTopFade()
         #if os(iOS)
         // The screen's own header carries the title and both controls, so the
         // navigation bar would only add an empty strip above them.
