@@ -137,7 +137,10 @@ struct KeysView: View {
             }
             .geistMeasure()
         }
-        .background(Theme.bg)
+        // The ground is painted here rather than inherited: the TabView and
+        // the List underneath both draw an opaque backdrop of their own, so a
+        // background set once at the root never reaches the screen.
+        .background(StaticField())
         .scrollContentBackground(.hidden)
         .navigationDestination(for: CachedKey.self) { key in
             KeyDetailView(keyID: key.id)

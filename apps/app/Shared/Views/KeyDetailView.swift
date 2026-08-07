@@ -65,7 +65,10 @@ struct KeyDetailView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .background(Theme.bg)
+        // The ground is painted here rather than inherited: the TabView and
+        // the List underneath both draw an opaque backdrop of their own, so a
+        // background set once at the root never reaches the screen.
+        .background(StaticField())
         .scrollContentBackground(.hidden)
         .safeAreaInset(edge: .top) {
             GeistBackBar(label: "Keys", dismiss: { dismiss() }, trailing: nil)
@@ -74,7 +77,8 @@ struct KeyDetailView: View {
                 // iPad the back button stays on the column's leading edge instead
                 // of drifting away from the screen it belongs to.
                 .geistMeasure()
-                .background(Theme.bg)
+                // Same as the inbox header: opaque, but grainy rather than flat.
+                .background(StaticField())
         }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)

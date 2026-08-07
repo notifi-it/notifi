@@ -109,7 +109,7 @@ struct RootContentView: View {
         // their own content, so without this the popover shows the black panel
         // as a band with the vibrancy material above and below it.
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.bg)
+        .background(StaticField())
         // Geist is a dark-only system — there is no light palette by design.
         .preferredColorScheme(.dark)
         .environment(\.colorScheme, .dark)

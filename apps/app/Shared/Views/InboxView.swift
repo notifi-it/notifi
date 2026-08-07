@@ -91,11 +91,15 @@ struct InboxView: View {
             header
                 .geistPageHeader()
                 .geistGutter()
-                .background(Theme.bg)
+                // The static runs under the header too. It stays opaque — rows
+                // still have to disappear behind it rather than showing through
+                // — but a flat ground here left a smooth band across the top of
+                // an otherwise grainy screen.
+                .background(StaticField())
 
             list
         }
-        .background(Theme.bg)
+        .background(StaticField())
     }
 
     @ViewBuilder

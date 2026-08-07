@@ -87,7 +87,9 @@ struct MessageFeed<Empty: View>: View {
         // middle of nothing. The header spaces the feed; the list should not
         // space it a second time.
         .contentMargins(.top, 0, for: .scrollContent)
-        .background(Theme.bg)
+        // Clear: the screen behind paints the static ground, and repainting
+        // it flat here would cover the texture across the whole feed.
+        .background(Color.clear)
         .scrollDismissesKeyboard(.immediately)
         .onReceive(clock) { now = $0 }
         // Timers do not fire while the app is suspended, so coming back to the
@@ -293,7 +295,7 @@ extension View {
     /// applying that modifier twice keeps the innermost value, which silently
     /// made rows full-bleed and pushed the thumbnails off the right edge.
     func plainRow(insets: EdgeInsets = EdgeInsets(),
-                  background: Color = Theme.bg) -> some View {
+                  background: Color = .clear) -> some View {
         listRowBackground(background)
             .listRowSeparator(.hidden)
             .listRowInsets(insets)
