@@ -1,48 +1,21 @@
 name: app
 
+# Only a `v*` tag runs this workflow. Every job here needs a macOS runner, and
+# nothing else in CI does, so branch and PR pushes are deliberately not built:
+# the Xcode schemes are checked by hand before tagging (see docs/VERIFYING.md).
 on:
   push:
-    branches: [main]
     tags: ["v*"]
-    paths:
-      - "apps/app/**"
-      - "packages/contract/**"
-  pull_request:
-    paths:
-      - "apps/app/**"
-      - "packages/contract/**"
 
 permissions:
   contents: read
 
 concurrency:
   group: app-${{ github.ref }}
-  cancel-in-progress: ${{ startsWith(github.ref, 'refs/tags/') == false }}
+  cancel-in-progress: false
 
 jobs:
-  build:
-    if: startsWith(github.ref, 'refs/tags/') == false
-    runs-on: macos-26
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - run: brew install xcodegen
-      - working-directory: apps/app
-        run: xcodegen generate
-      - working-directory: apps/app
-        run: |
-          xcodebuild build \
-            -scheme notifi-iOS \
-            -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGNING_ALLOWED=NO
-      - working-directory: apps/app
-        run: |
-          xcodebuild build \
-            -scheme notifi-macOS \
-            -destination 'platform=macOS' \
-            CODE_SIGNING_ALLOWED=NO
-
   testflight:
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: macos-26
     environment: production
     env:
@@ -110,7 +83,6 @@ jobs:
   # at /releases/latest/download/appcast.xml, so shipping an update to existing
   # macOS users *is* creating this release.
   release-macos:
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: macos-26
     environment: production
     permissions:
