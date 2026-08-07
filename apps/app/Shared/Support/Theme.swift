@@ -5,65 +5,113 @@ import UIKit
 import AppKit
 #endif
 
-// The Geist design system: soft black, monochrome, hairline rules.
+// The Geist design system: monochrome, hairline rules.
 // Brand red appears in exactly two places — the wordmark dot and the unread marker.
-// Dark only; there is no light palette by design.
+//
+// Two grounds, one system. Every token below is a pair, and the light half is
+// derived from the dark half's *contrast ratio* rather than from its lightness:
+// each value was picked to land on the same side of the same WCAG floor against
+// the light ground that its dark twin holds against the dark one. Reading the
+// two columns as "inverted" is what drifts them apart — the ratios are the
+// contract, the numbers are just what satisfies it.
 
 enum Theme {
     // MARK: Colour
 
-    /// The ground. Apple's near-black (#1C1C1E), not pure black — the same
-    /// charcoal the Watch app icon and system dark surfaces sit on. Pure black
-    /// made the app read as a hole punched in the home screen; every other
-    /// value below is lifted to hold its contrast ratio against this one.
-    static let bg = Color(white: 0.11)           // #1C1C1C
-    /// Primary text and the app's only "bright" value.
-    static let fg = Color(white: 0.929)          // #EDEDED
-    /// Titles of messages that have been read.
-    static let read = Color(white: 0.561)        // #8F8F8F
-    /// Body copy and secondary labels.
-    static let muted = Color(white: 0.631)       // #A1A1A1
+    /// The ground. Dark is Apple's near-black (#1C1C1E), not pure black — the
+    /// same charcoal the Watch app icon and system dark surfaces sit on. Pure
+    /// black made the app read as a hole punched in the home screen. Light is
+    /// #FAFAFA rather than #FFF for the same reason in reverse: paper, not a
+    /// blown-out panel, and it leaves `surface` somewhere to go.
+    static let bg = grey(light: 0.98, dark: 0.11)
+    /// Primary text and the app's only full-strength value.
+    static let fg = grey(light: 0.102, dark: 0.929)
+    /// Titles of messages that have been read. ~5:1 on either ground.
+    static let read = grey(light: 0.42, dark: 0.561)
+    /// Body copy and secondary labels. ~7:1 on either ground.
+    static let muted = grey(light: 0.36, dark: 0.631)
     /// Timestamps and anything that should recede completely.
     ///
-    /// 4.75:1 on the ground and 4.6:1 on `surface`. It was #6E6E6E, which measured
-    /// 4.1:1 and 3.9:1 — under the 4.5:1 floor for body text. That was easy to
-    /// miss because this reads as a receding colour, but it carries every
-    /// explanatory paragraph in the app, including the ones stating what happens
-    /// to a key when the device is lost.
-    static let dim = Color(white: 0.54)          // #8A8A8A
+    /// 4.75:1 on the dark ground, 4.65:1 on the light one, and it clears 4.5:1
+    /// on `surface` in both. Dark was #6E6E6E, which measured 4.1:1 — under the
+    /// floor for body text. That was easy to miss because this reads as a
+    /// receding colour, but it carries every explanatory paragraph in the app,
+    /// including the ones stating what happens to a key when the device is lost.
+    /// The light half is #707070 for the identical reason: #787878 measures
+    /// 4.2:1 and is the obvious-looking choice.
+    static let dim = grey(light: 0.44, dark: 0.54)
     /// Row separators and section rules.
-    static let line = Color(white: 0.20)         // #333333
+    static let line = grey(light: 0.878, dark: 0.20)
     /// Borders on chips and thumbnails — decoration, not a control boundary.
-    static let chip = Color(white: 0.235)        // #3C3C3C
+    static let chip = grey(light: 0.82, dark: 0.235)
 
     /// The boundary of anything tappable: outlined buttons and text fields.
     ///
     /// Separate from `chip` because WCAG wants 3:1 on a control's boundary and
     /// nothing on a decorative one. At `chip`'s 1.5:1 an `OutlineButton` was
     /// distinguishable from the prose beside it only by its label — which on the
-    /// key screen means a destructive action reading as a heading.
-    static let controlBorder = Color(white: 0.44) // #707070
-    /// One step up from the ground, for inset fields.
-    static let surface = Color(white: 0.15)      // #262626
+    /// key screen means a destructive action reading as a heading. Light is
+    /// #8C8C8C at 3.2:1; #949494, which looks like the natural mirror, is 2.9:1.
+    static let controlBorder = grey(light: 0.55, dark: 0.44)
+    /// One step off the ground, for inset fields. Light steps *down* from its
+    /// ground where dark steps up — the direction that reads as recessed
+    /// depends on which way the light is coming from.
+    static let surface = grey(light: 0.945, dark: 0.15)
 
     /// Unread marker and the wordmark dot — nothing else.
     ///
-    /// #C82A2A rather than the artwork's #BC2122: the latter measured 3.4:1 on
-    /// pure black and only 2.7:1 once the ground was lifted to `bg`, under the
-    /// 3:1 WCAG wants for a non-text mark. This sits at 3.1:1 on the new ground
-    /// at the same hue. Never use it for text.
-    static let brand = Color(red: 0.784, green: 0.160, blue: 0.165)
+    /// Dark is #C82A2A rather than the artwork's #BC2122: the latter measured
+    /// 3.4:1 on pure black and only 2.7:1 once the ground was lifted to `bg`,
+    /// under the 3:1 WCAG wants for a non-text mark. On the light ground the
+    /// artwork red is the right one — it measures 6:1 there, and using the
+    /// lifted dark value instead would put the app's one accent at 4.4:1 and
+    /// visibly pinker than the icon beside it. Never use either for text.
+    static let brand = rgb(light: (0.737, 0.129, 0.133), dark: (0.784, 0.160, 0.165))
 
-    /// The brand red, lifted for use as *text* on the ground.
+    /// The brand red, adjusted for use as *text* on its ground.
     ///
-    /// `brand` itself is 3.1:1 against the ground — fine for a dot, which only has
-    /// to clear the 3:1 non-text floor, but under the 4.5:1 that body text needs.
-    /// This sits at roughly 5:1 while staying the same hue.
-    static let brandText = Color(red: 0.859, green: 0.290, blue: 0.294)
+    /// `brand` clears the 3:1 a dot has to clear but not the 4.5:1 that text
+    /// does — on dark. On light the artwork red already clears both, so this
+    /// darkens only slightly, to hold the same relationship to `brand` that the
+    /// dark pair has. Both sit at roughly 5:1 at their ground's own hue.
+    static let brandText = rgb(light: (0.659, 0.114, 0.118), dark: (0.859, 0.290, 0.294))
 
-    /// Destructive actions. Deliberately lighter than `brand` so a delete never
-    /// reads as an unread marker.
-    static let danger = Color(red: 0.898, green: 0.282, blue: 0.302)
+    /// Destructive actions. Deliberately further from `brand` than it looks, so
+    /// a delete never reads as an unread marker: lighter on the dark ground,
+    /// warmer and darker on the light one.
+    static let danger = rgb(light: (0.701, 0.133, 0.149), dark: (0.898, 0.282, 0.302))
+
+    /// Resolves per appearance, so a single token serves both grounds.
+    ///
+    /// The pair is built at the platform colour layer rather than read from an
+    /// `@Environment(\.colorScheme)` because these are `static let`s consumed by
+    /// `Hairline`, `BottomFade`, `MacMenuBar` and the notification-service
+    /// extension — several of which have no view environment to read.
+    private static func grey(light: Double, dark: Double) -> Color {
+        pair(light: (light, light, light), dark: (dark, dark, dark))
+    }
+
+    private static func rgb(light: (Double, Double, Double), dark: (Double, Double, Double)) -> Color {
+        pair(light: light, dark: dark)
+    }
+
+    private static func pair(
+        light: (Double, Double, Double),
+        dark: (Double, Double, Double)
+    ) -> Color {
+        #if os(iOS)
+        Color(UIColor { trait in
+            let c = trait.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: c.0, green: c.1, blue: c.2, alpha: 1)
+        })
+        #else
+        Color(NSColor(name: nil) { appearance in
+            let isDark = appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+            let c = isDark ? dark : light
+            return NSColor(srgbRed: c.0, green: c.1, blue: c.2, alpha: 1)
+        })
+        #endif
+    }
 
     // MARK: Metrics
 

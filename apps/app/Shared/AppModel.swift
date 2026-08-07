@@ -19,6 +19,22 @@ enum BootState {
     case ready
 }
 
+/// Which of `Theme`'s two grounds the app paints on.
+///
+/// The app pins a scheme rather than following the system's, and there is no
+/// "match system" case. The two are the same setting for most people most of
+/// the time, and the difference is a phone on automatic switching to light at
+/// sunrise — which for a pager means the app changes ground on its own, at the
+/// hour it is least wanted. The default is dark; light is chosen, and stays.
+enum Appearance: String, CaseIterable {
+    case dark
+    case light
+
+    var colorScheme: ColorScheme { self == .dark ? .dark : .light }
+
+    var title: String { self == .dark ? "Dark" : "Light" }
+}
+
 /// Pages the macOS popover pushes on top of the inbox.
 enum AppRoute: Hashable {
     case settings
@@ -73,6 +89,12 @@ final class AppModel {
     var remoteImagesEnabled: Bool {
         didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
     }
+    /// Which ground the app paints on. Written straight through on change, so
+    /// the choice survives a launch that never reaches `bootstrap` — which is
+    /// most of them, since a notification tap can open the app cold.
+    var appearance: Appearance {
+        didSet { UserDefaults.standard.set(appearance.rawValue, forKey: Self.appearanceKey) }
+    }
     private(set) var keysAllowingAnyLink: Set<Int>
     var presentingCreateKey = false
 
@@ -89,9 +111,15 @@ final class AppModel {
     private let log = Logger(subsystem: "it.notifi.notifi", category: "app")
 
     private static let realTokenKey = "lastRealAPNSToken"
+    private static let appearanceKey = "appearance"
 
     init() {
         remoteImagesEnabled = RemoteImages.isEnabled
+        // Nothing stored is the case that matters: an unset key reads as `nil`
+        // and lands on `.dark`, so a fresh install and a user who has never
+        // opened this row both get the ground the app was designed on.
+        appearance = Appearance(rawValue: UserDefaults.standard.string(forKey: Self.appearanceKey) ?? "")
+            ?? .dark
         keysAllowingAnyLink = LinkPolicy.allowedKeyIDs()
     }
 

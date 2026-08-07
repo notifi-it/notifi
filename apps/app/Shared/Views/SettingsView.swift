@@ -47,6 +47,27 @@ struct SettingsView: View {
                     .geistGutter()
                 }
 
+                // MARK: Appearance
+                SectionLabel(text: "Appearance")
+                    .geistGutter()
+
+                SegmentedRow(
+                    title: "Ground",
+                    options: Appearance.allCases,
+                    label: \.title,
+                    selection: $model.appearance
+                )
+                .geistGutter()
+                Hairline()
+
+                Text("The app starts dark whatever the phone is set to, and stays "
+                     + "on whichever of these you pick.")
+                    .font(Theme.metaSmall)
+                    .foregroundStyle(Theme.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 10)
+                    .geistGutter()
+
                 // MARK: Privacy
                 SectionLabel(text: "Privacy")
                     .geistGutter()

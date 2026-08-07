@@ -110,9 +110,12 @@ struct RootContentView: View {
         // as a band with the vibrancy material above and below it.
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(StaticField())
-        // Geist is a dark-only system — there is no light palette by design.
-        .preferredColorScheme(.dark)
-        .environment(\.colorScheme, .dark)
+        // The app picks its own ground rather than following the system's, and
+        // starts dark whatever the phone is set to — a pager that turns white in
+        // a dark room at 3am is the case this exists for. Light is a choice made
+        // in Settings. Nothing below reads `colorScheme` directly; every colour
+        // resolves inside its token, and this modifier is what those tokens see.
+        .preferredColorScheme(model.appearance.colorScheme)
         #if os(macOS)
         // Covers the popover rather than being presented into it. See the note
         // on `CreateKeyView.onClose` for why this is not a sheet.

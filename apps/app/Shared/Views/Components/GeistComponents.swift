@@ -1,8 +1,10 @@
 import SwiftUI
 
-// Shared primitives for the Geist system. Everything here is dark-only and
-// monochrome; the only colour that appears is `Theme.brand` on an unread marker
-// and `Theme.danger` on a destructive action.
+// Shared primitives for the Geist system. Everything here is monochrome and
+// takes its values from `Theme`, which carries both grounds — so nothing below
+// reads `colorScheme` or names a literal colour. The only colour that appears
+// is `Theme.brand` on an unread marker and `Theme.danger` on a destructive
+// action.
 
 // MARK: - Search
 
@@ -341,6 +343,77 @@ struct ToggleRow: View {
                 .accessibilityHint(detail ?? "")
         }
         .padding(.vertical, Theme.rowPadV)
+    }
+}
+
+/// A labelled choice between two named options, sharing the control column with
+/// the switches and values around it.
+///
+/// Two buttons rather than a `Picker`: every `.segmented` style on iOS 26 draws
+/// the system's own capsule and selection fill, which arrives with a material,
+/// a shadow and a corner radius none of which are the app's — and none of which
+/// can be restyled. The whole control is a rule, a fill and two labels, so it is
+/// cheaper to draw than to fight.
+///
+/// A `Toggle` would have been cheaper still, but only by naming one option and
+/// leaving the other implied — "Light appearance, off" is a worse way to say
+/// "Dark" than saying it.
+struct SegmentedRow<Option: Hashable>: View {
+    let title: String
+    let options: [Option]
+    let label: (Option) -> String
+    @Binding var selection: Option
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Text(title)
+                .font(Theme.body)
+                .foregroundStyle(Theme.fg)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 8)
+            HStack(spacing: 0) {
+                ForEach(Array(options.enumerated()), id: \.element) { index, option in
+                    let isSelected = option == selection
+                    Button {
+                        // Animated here rather than by the caller, because what
+                        // moves is the fill behind the label — the ground itself
+                        // changing is `preferredColorScheme`'s business and is
+                        // not something this can or should drive.
+                        withAnimation(Theme.state) { selection = option }
+                    } label: {
+                        Text(label(option))
+                            .font(.inco(.caption, weight: isSelected ? .semibold : .medium))
+                            .foregroundStyle(isSelected ? Theme.fg : Theme.dim)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .background(isSelected ? Theme.surface : Color.clear)
+                    .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : .isButton)
+
+                    if index < options.count - 1 {
+                        Rectangle()
+                            .fill(Theme.controlBorder)
+                            .frame(width: 1)
+                            .accessibilityHidden(true)
+                    }
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: Theme.radius))
+            .overlay {
+                RoundedRectangle(cornerRadius: Theme.radius)
+                    .stroke(Theme.controlBorder, lineWidth: 1)
+            }
+            .frame(width: Theme.controlWidth + 32, alignment: .trailing)
+            // The drawn control is about 28pt tall against the 44pt floor, and
+            // like the switches it cannot grow without changing the height every
+            // settings row shares.
+            .geistHitArea(expandedBy: 8)
+        }
+        .padding(.vertical, Theme.rowPadV)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(title)
     }
 }
 

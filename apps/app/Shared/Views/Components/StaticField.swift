@@ -15,6 +15,7 @@ import CoreGraphics
 /// legibility regression wearing a texture.
 struct StaticField: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
     /// The tile is drawn at the panel's own scale so one noise pixel is one
     /// device pixel. At a fixed scale of 1 each pixel became three on a 3x
     /// screen, which is coarse enough to read as fabric rather than static.
@@ -23,11 +24,12 @@ struct StaticField: View {
     var body: some View {
         // Still frame under Reduce Motion. The crawl is the whole effect, so
         // there is nothing to degrade gracefully to — it simply stops.
+        let frames = StaticNoise.frames(for: colorScheme)
         if reduceMotion {
-            tile(StaticNoise.frames[0])
+            tile(frames[0])
         } else {
             TimelineView(.periodic(from: .now, by: StaticNoise.frameDuration)) { context in
-                tile(StaticNoise.frames[StaticNoise.index(at: context.date)])
+                tile(frames[StaticNoise.index(at: context.date)])
             }
         }
     }
@@ -58,22 +60,41 @@ private enum StaticNoise {
     /// below this the repeat starts to read as a pattern.
     private static let size = 512
 
-    /// The ground, matching `Theme.bg` (#1C1C1C), and how far the speckle
-    /// travels either side of it. See the note on `StaticField`.
-    private static let ground: Double = 0.11
-    private static let amplitude: Double = 0.055
+    /// The ground, matching `Theme.bg`, and how far the speckle travels either
+    /// side of it. See the note on `StaticField`.
+    ///
+    /// The light amplitude is a third of the dark one and is not a taste
+    /// decision: `dim` sits at 4.65:1 on the light ground against 4.75:1 on the
+    /// dark, so there is less margin to spend, and the eye reads a dark speckle
+    /// on paper as dirt long before it reads a light speckle on charcoal as
+    /// anything at all. At ±0.018 the range is #F5F5F5–#FEFEFE, which holds
+    /// `dim` at 4.5:1 at worst — the same floor the dark tile stops at.
+    private static let darkGround: Double = 0.11
+    private static let darkAmplitude: Double = 0.055
+    private static let lightGround: Double = 0.98
+    private static let lightAmplitude: Double = 0.018
 
-    @MainActor static let frames: [CGImage] = (0..<6).compactMap { _ in makeTile() }
+    private static let darkFrames: [CGImage] =
+        (0..<6).compactMap { _ in makeTile(ground: darkGround, amplitude: darkAmplitude) }
+    private static let lightFrames: [CGImage] =
+        (0..<6).compactMap { _ in makeTile(ground: lightGround, amplitude: lightAmplitude) }
+
+    static func frames(for scheme: ColorScheme) -> [CGImage] {
+        scheme == .dark ? darkFrames : lightFrames
+    }
 
     static func index(at date: Date) -> Int {
         let tick = Int(date.timeIntervalSinceReferenceDate / frameDuration)
         // `%` on a negative tick would trap on the array subscript. Dates before
         // the reference date are not reachable here, but the cost of not
         // relying on that is one call.
-        return abs(tick) % frames.count
+        // Both sets are the same length by construction, so the index does not
+        // depend on which one is being drawn — and the crawl does not restart
+        // when the appearance changes under it.
+        return abs(tick) % darkFrames.count
     }
 
-    private static func makeTile() -> CGImage? {
+    private static func makeTile(ground: Double, amplitude: Double) -> CGImage? {
         // One independent sample per pixel. An earlier version averaged each
         // sample with its neighbours to stop square clumps reading as a grid,
         // which mattered when a sample covered a block of pixels; at this grain
