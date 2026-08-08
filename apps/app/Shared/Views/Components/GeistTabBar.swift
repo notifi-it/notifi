@@ -102,7 +102,7 @@ private struct TabButton: View {
                     .renderingMode(templated ? .template : .original)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 20, height: 20)
+                    .frame(width: 24, height: 24)
                     .bellSwing(trigger: shake)
                 if let clapper {
                     // The unread body draws itself in fg rather than taking the
@@ -111,7 +111,7 @@ private struct TabButton: View {
                         .renderingMode(.template)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 20, height: 20)
+                        .frame(width: 24, height: 24)
                         .foregroundStyle(templated ? tint : Theme.fg)
                         .clapperSwing(trigger: shake)
                 }
