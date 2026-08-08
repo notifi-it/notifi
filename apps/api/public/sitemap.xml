@@ -8,6 +8,10 @@
        one, so this is the URL that should be indexed. -->
   <url>
     <loc>https://notifi.it/privacy</loc>
-    <lastmod>2026-08-03</lastmod>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+  <url>
+    <loc>https://notifi.it/terms</loc>
+    <lastmod>2026-08-08</lastmod>
   </url>
 </urlset>
