@@ -2178,7 +2178,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recent messages arrived only when notifi checked for them, not when they were sent. Notifications are not reaching this device; it is still collecting them, within a minute."
+            "value": "Recent messages arrived without a notification behind them. Notifications are not reaching this device; messages still arrive over its live connection, and whenever the app opens or refreshes."
           }
         }
       }

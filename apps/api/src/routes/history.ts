@@ -2,12 +2,12 @@ import { type HistoryMessage, historyQuery } from '@notifi/contract';
 import { Hono } from 'hono';
 import { errBody, t } from '../lib/respond.js';
 import { now } from '../lib/time.js';
-import { getDevice, signatureAuthReadOnly } from '../middleware.js';
+import { getDevice, signatureAuth } from '../middleware.js';
 import type { AppEnv } from '../types.js';
 
 export const history = new Hono<AppEnv>();
 
-history.use('/history', signatureAuthReadOnly);
+history.use('/history', signatureAuth);
 
 history.get('/history', async (c) => {
   const nowS = now();
@@ -33,16 +33,16 @@ history.get('/history', async (c) => {
   const results = rows.results;
   const latest = results.length > 0 ? results[results.length - 1]!.id : null;
 
-  // The overwhelming majority of polls find nothing and confirm nothing, and
+  // The overwhelming majority of syncs find nothing and confirm nothing, and
   // this used to write on every one of them. Now it writes only when the device
   // has actually collected something — which is what `acked_id` means, and what
   // the nightly delete keys off.
   //
   // `last_seen_at` is deliberately not touched here. It feeds the 30-day
-  // abandoned-device sweep, and a poll is the one signal that says nothing about
+  // abandoned-device sweep, and a routine sync says nothing about
   // whether the device is still wanted; /devices sets it on every launch and
   // /keys refreshes it when stale, which is what "seen" is supposed to mean. An
-  // idle poll is now reads only.
+  // idle sync is now reads only.
   if (since > device.acked_id) {
     await c.env.DB.prepare(
       'UPDATE devices SET acked_id = MAX(acked_id, ?), last_seen_at = ? WHERE id = ?',

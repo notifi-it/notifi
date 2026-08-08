@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { errBody } from '../lib/respond.js';
-import { getDevice, signatureAuthReadOnly } from '../middleware.js';
+import { getDevice, signatureAuth } from '../middleware.js';
 import type { AppEnv } from '../types.js';
 
 export const socket = new Hono<AppEnv>();
@@ -9,10 +9,7 @@ export const socket = new Hono<AppEnv>();
 // — same canonical string, same empty-body hash — and the device reuses the
 // signing it already has.
 //
-// Read-only auth: an upgrade changes nothing, and the replay guard would put a
-// D1 write on every reconnect. A laptop lid reconnects far more often than it
-// sends.
-socket.use('/socket', signatureAuthReadOnly);
+socket.use('/socket', signatureAuth);
 
 socket.get('/socket', async (c) => {
   if (c.req.header('Upgrade') !== 'websocket') {

@@ -107,7 +107,7 @@ final class AppModel {
     var hasUnread: Bool { (sync?.unread ?? 0) > 0 }
 
     /// A push is only a hint that there is something to fetch, so a message that
-    /// arrives by poll with no push behind it is the signature of a broken push
+    /// arrives by sync with no push behind it is the signature of a broken push
     /// path — a token registered against the wrong APNs environment, a revoked
     /// key, a device the server can no longer reach. Nothing else in the app
     /// notices: the message still arrives, just late and silently, and the user
@@ -126,10 +126,8 @@ final class AppModel {
     /// report every cold start as a push failure.
     private var hasCompletedFirstSync = false
     private var arrivalObserver: NSObjectProtocol?
-    private var pollTask: Task<Void, Never>?
     private var socket: SocketClient?
     private var wantsLiveUpdates = false
-    private var pollInterval: Duration?
 
     private var context: ModelContext?
     private var pendingToken: String?
@@ -406,8 +404,8 @@ final class AppModel {
     }
 
     /// Long enough to cover the sync the push itself triggers, plus a slow
-    /// network. Shorter than the poll interval, so a poll that beats the push to
-    /// the same message is not mistaken for a missing one.
+    /// network, so a sync that beats the push to the same message is not
+    /// mistaken for a missing one.
     private static let pushGrace: TimeInterval = 20
 
     private func noteMessagesArrived() {
@@ -428,17 +426,13 @@ final class AppModel {
         UserDefaults.standard.set(pollOnlyArrivals, forKey: Self.pollOnlyKey)
     }
 
-    /// The socket and the timer, running together.
-    ///
-    /// Not a primary and a fallback — there is no failover here, no health
-    /// check, and no code anywhere that decides which transport a message should
-    /// arrive by. All three wake sources call `sync()` and nothing else, so
-    /// adding one costs no logic and losing one costs no correctness. That is
-    /// what lets the app hold three at once and stay simple.
-    ///
-    /// What each is *for*: APNs reaches a device that is asleep or closed, the
-    /// socket makes an awake device instant, and the timer is the floor that
-    /// guarantees the store converges whichever of the others is broken.
+    /// Two transports, no timer. APNs reaches a device that is asleep or
+    /// closed; the socket makes an awake device instant and re-syncs on every
+    /// reconnect. There is deliberately no periodic poll behind them: it bought
+    /// convergence only in the window where the socket is unreachable *and*
+    /// APNs is broken at once, and launch, foreground and manual refresh
+    /// already re-sync. If that window turns out to matter in practice, the
+    /// place to add the timer back is here.
     func startLiveUpdates() {
         // The Mac asks for this from `applicationDidFinishLaunching`, which can
         // beat the identity load that creates the client. Remembering the intent
@@ -447,53 +441,14 @@ final class AppModel {
         if socket == nil, let api {
             socket = SocketClient(api: api) { [weak self] in
                 await self?.sync?.sync()
-            } onLiveChange: { [weak self] live in
-                self?.setPollRate(socketLive: live)
             }
         }
         socket?.start()
-        setPollRate(socketLive: false)
     }
 
     func stopLiveUpdates() {
         wantsLiveUpdates = false
         socket?.stop()
-        stopPolling()
-    }
-
-    /// With a live socket the timer is only there to converge, so it can be slow
-    /// and nearly free. Without one it is the only thing between the user and a
-    /// missed page, so it takes over the sub-minute job the socket was doing.
-    ///
-    /// This is the one place the transports are aware of each other, and it is
-    /// deliberately a rate decision rather than a routing one: if it guesses
-    /// wrong the app polls too often or too rarely, and no message is lost
-    /// either way.
-    private func setPollRate(socketLive: Bool) {
-        guard wantsLiveUpdates else { return }
-        let interval: Duration = socketLive ? .seconds(300) : .seconds(30)
-        guard interval != pollInterval else { return }
-        pollInterval = interval
-        startPolling(every: interval)
-    }
-
-    /// Messages only — `refresh()` also re-fetches the key list, which changes
-    /// when the user changes it and not otherwise.
-    func startPolling(every interval: Duration = .seconds(30)) {
-        pollTask?.cancel()
-        pollTask = Task { [weak self] in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: interval)
-                if Task.isCancelled { return }
-                await self?.sync?.sync()
-            }
-        }
-    }
-
-    func stopPolling() {
-        pollTask?.cancel()
-        pollTask = nil
-        pollInterval = nil
     }
 
     private func apply(_ action: NotificationAction) {

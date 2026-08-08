@@ -85,9 +85,10 @@ listed here so nobody "fixes" them back.
   columns the server must read (`apns_token`, `platform`, `app_version`) are
   AES-GCM-encrypted with a Workers secret. `secret_hash`, the two public keys, ids,
   and timestamps are the only plaintext.
-- The server keeps a message until the device has synced it (ack-based retention),
-  with a 90-day backstop only to reclaim space from devices that vanish. It is a
-  relay, not a mailbox — retention is driven by received-or-not, not by a clock.
+- The server keeps a message until the device has synced it (ack-based retention).
+  It is a relay, not a mailbox — retention is driven by received-or-not, not by a
+  clock. (The 90-day backstop and the 30-day device prune this plan originally
+  specified were later removed: a message now waits for its device indefinitely.)
 - The private key never leaves the device. There is no second credential.
 - Server responses never contain a full send key except the one time `POST /keys`
   returns it.
@@ -210,8 +211,9 @@ database_id = "<filled by wrangler d1 create>"
 The cron handler sweeps in three chunked passes (`LIMIT 1000` loops to stay under D1
 limits): first the acknowledged messages `DELETE FROM messages WHERE id IN (SELECT
 m.id FROM messages m JOIN devices d ON d.id = m.device_id WHERE m.id <= d.acked_id …)`
-— the primary rule; then the 90-day backstop `DELETE FROM messages WHERE expires_at <
-?now` for messages on devices that never came back; then registration flood residue
+— the primary rule. (This plan originally added a 90-day `expires_at` backstop and a
+30-day prune of keyless devices; both were later removed, so the ack rule is the only
+message deletion.) Originally also: registration flood residue
 `DELETE FROM devices WHERE last_seen_at < ?now - 2592000 AND id NOT IN (SELECT DISTINCT
 device_id FROM keys)`.
 
@@ -279,8 +281,8 @@ push token maps to one device row, so a stolen token cannot be registered under 
 second keypair alongside the victim's (§7 `/devices` handles the eviction).
 `devices.acked_id` is the retention watermark (§ Delivery): the highest `device_seq`
 the device has provably synced, advanced by `/history`. `messages.id` uses
-AUTOINCREMENT per §0.1; `expires_at = created_at + 7776000` (a 90-day **backstop**,
-not the delivery guarantee — see Delivery).
+AUTOINCREMENT per §0.1; `expires_at = created_at + 7776000` (now only the APNs retry
+deadline — the deletion backstop that read it was removed).
 
 `messages.device_seq` is the only message id that leaves the server — in `/history`,
 in the push payload, and in `acked_id`. It counts 1, 2, 3 within each device.
@@ -522,9 +524,9 @@ The Worker IP limiter is **not** `/send`-only: the same binding check runs first
 all six routes. Signed routes are otherwise free to flood — a script can mint
 throwaway keypairs and hammer `POST /devices` (an ECDSA verify + a D1 write each)
 with no send key at all. Two more guards on that route specifically: the
-`apns_token_hmac` UNIQUE constraint (§3) bounds rows per real device, and the nightly
-cron also prunes device rows that have zero keys and a `last_seen_at` older than 30
-days — abandoned registrations and flood residue age out on their own.
+`apns_token_hmac` UNIQUE constraint (§3) bounds rows per real device. (The nightly
+30-day prune of keyless device rows this paragraph relied on was later removed;
+flood residue is bounded by the token-HMAC uniqueness alone.)
 
 The Worker binding in `wrangler.toml` (per-colo and approximate by design — that's
 fine, it's a shield, not the product limit; syntax may drift while the binding is in
@@ -568,7 +570,7 @@ Flow (exactly this order):
    ```
 3. Seal the validated `messageContent` — including `key_id` and `created_at` — to
    the device's `encryption_public_key` (§6a); INSERT the message (`content_sealed`,
-   `expires_at = now + 7776000`, the 90-day backstop) `RETURNING id`. Plaintext is not
+   `expires_at = now + 7776000`, now only the APNs retry deadline) `RETURNING id`. Plaintext is not
    referenced after this step.
 4. Push to APNs (§8). APNs failures do **not** fail the request — history is the
    delivery guarantee; the push is a hint. `410` prunes the device (§8).
@@ -1205,7 +1207,7 @@ Every magic value in the system. If a value appears in code but not here, it's w
 | Operational blob layout | standard base64 of `iv(12 bytes) ‖ ciphertext‖tag` (AES-256-GCM) |
 | APNs JWT | header `{alg:"ES256", kid}`, claims `{iss: teamId, iat}`, cache 50 min |
 | Per-device rate window | 3600 s fixed, bucket `floor(now/3600)*3600`, limit 60. Shared by every key on the device |
-| Message retention | ack-based: kept until `messages.device_seq <= devices.acked_id`; 90-day backstop (`expires_at`, 7776000 s) only for devices that never sync back |
+| Message retention | ack-based: kept until `messages.device_seq <= devices.acked_id`; no time limit (the 90-day backstop was removed; `expires_at` is only the APNs retry deadline) |
 | `apns_token_hmac` | Lowercase hex HMAC-SHA-256 of the token hex string, keyed with `ENCRYPTION_KEY` |
 | Push preview truncation | `message` cut to 1000 chars, `link` dropped |
 | Base64 rule of thumb | base64url = send keys and JWT segments only; standard base64 = everything else |

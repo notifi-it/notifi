@@ -143,9 +143,10 @@ struct RootContentView: View {
                     await model.refreshPermission()
                     await model.refresh()
                 }
-                // iOS only: a backgrounded app gets no timer, so the poll is
-                // tied to the foreground rather than the process. The Mac starts
-                // its own from `applicationDidFinishLaunching` and never stops.
+                // iOS only: a backgrounded app cannot hold a socket, so the
+                // connection is tied to the foreground rather than the process.
+                // The Mac starts its own from `applicationDidFinishLaunching`
+                // and never stops.
                 #if os(iOS)
                 model.startLiveUpdates()
                 #endif

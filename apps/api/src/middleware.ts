@@ -1,8 +1,7 @@
 import type { Context, MiddlewareHandler } from 'hono';
 import { errBody, t } from './lib/respond.js';
 import { resolveDevice, verifyDeviceSignature } from './lib/signature.js';
-import { toHex } from './lib/bytes.js';
-import { LAST_SEEN_STALE_S, now, REPLAY_WINDOW_S } from './lib/time.js';
+import { LAST_SEEN_STALE_S, now } from './lib/time.js';
 import type { AppEnv, DeviceRow, Env } from './types.js';
 
 export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
@@ -15,66 +14,25 @@ export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
   return next();
 };
 
-/// Verifies the signature but skips the replay guard, which costs a D1 write on
-/// every call. The guard exists so a captured request cannot be re-sent to cause
-/// an effect a second time; a read has no effect to repeat, and the body it
-/// returns is sealed to the device's own key. `/history` is polled on a timer,
-/// so that write was the single largest line on the bill and it was buying
-/// nothing.
-///
-/// Only ever mount this on a handler that reads. The moment one writes, it needs
-/// `signatureAuth`.
-export const signatureAuthReadOnly: MiddlewareHandler<AppEnv> = async (c, next) => {
+/// Verifies the device signature and the 60-second timestamp window, and makes
+/// the verified body and public key available to the handler. No replay guard:
+/// one existed (a D1 write remembering every accepted signature for its
+/// 60-second life), and it was removed. Exploiting its absence requires a copy
+/// of a request that travels inside TLS, and the only non-idempotent thing a
+/// replay could do was mint a duplicate key — visible in the key list and
+/// revocable. Insurance against an attacker who can already read your TLS
+/// traffic was not worth a write on every mutation.
+export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
+  // At most once per request. `keys.ts` registers this on both `/keys` and
+  // `/keys/*`, and Hono matches a request for `/keys` against both.
   if (c.get('signatureChecked')) return next();
 
   const rawBody = await c.req.arrayBuffer();
   const result = await verifyDeviceSignature(c.req.raw, rawBody, now());
   if (!result.ok) {
     const message =
-      result.code === 'stale_timestamp'
-        ? 'Request timestamp is outside the allowed window.'
-        : 'Invalid request signature.';
-    return c.json(errBody(result.code, message), 401);
-  }
-
-  c.set('signatureChecked', true);
-  c.set('rawBody', rawBody);
-  c.set('publicKey', result.publicKey);
-  return next();
-};
-
-export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
-  // At most once per request. `keys.ts` registers this on both `/keys` and
-  // `/keys/*`, and Hono matches a request for `/keys` against both, so it ran
-  // twice: the first pass consumed the signature and the second rejected the
-  // same signature as a replay. Every signed request to /keys failed with
-  // "Request signature has already been used", which reads like an attack being
-  // blocked rather than the guard eating its own requests.
-  //
-  // Guarded here rather than by de-duplicating the route table, because the
-  // failure mode of a missed registration is an unauthenticated endpoint.
-  if (c.get('signatureChecked')) return next();
-
-  const nowS = now();
-  const rawBody = await c.req.arrayBuffer();
-  const result = await verifyDeviceSignature(c.req.raw, rawBody, nowS);
-  if (!result.ok) {
-    const message =
       result.code === 'stale_timestamp' ? t(c).api.staleTimestamp : t(c).api.badSignature;
     return c.json(errBody(result.code, message), 401);
-  }
-  const sigHeader = c.req.header('X-Notifi-Signature') ?? '';
-  const sigHash = toHex(
-    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(sigHeader)),
-  );
-  const fresh = await c.env.DB.prepare(
-    `INSERT INTO seen_signatures (sig_hash, expires_at) VALUES (?, ?)
-     ON CONFLICT(sig_hash) DO NOTHING RETURNING sig_hash`,
-  )
-    .bind(sigHash, nowS + REPLAY_WINDOW_S)
-    .first<{ sig_hash: string }>();
-  if (!fresh) {
-    return c.json(errBody('bad_signature', t(c).api.replayedSignature), 401);
   }
 
   c.set('signatureChecked', true);

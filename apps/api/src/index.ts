@@ -1,7 +1,7 @@
 import { negotiate } from '@notifi/copy';
 import { Hono } from 'hono';
 import { errBody, t } from './lib/respond.js';
-import { ABANDONED_DEVICE_S, now } from './lib/time.js';
+import { now } from './lib/time.js';
 import { ipLimiter } from './middleware.js';
 import { devices } from './routes/devices.js';
 import { downloads } from './routes/downloads.js';
@@ -75,24 +75,14 @@ async function scheduled(_event: ScheduledController, env: Env): Promise<void> {
     if ((res.meta.changes ?? 0) < 1000) break;
   }
 
-  for (;;) {
-    const res = await env.DB.prepare(
-      'DELETE FROM messages WHERE id IN (SELECT id FROM messages WHERE expires_at < ? LIMIT 1000)',
-    )
-      .bind(nowS)
-      .run();
-    if ((res.meta.changes ?? 0) < 1000) break;
-  }
-
-  await env.DB.prepare(
-    `DELETE FROM devices
-     WHERE last_seen_at < ?
-       AND id NOT IN (SELECT DISTINCT device_id FROM keys WHERE revoked_at IS NULL)`,
-  )
-    .bind(nowS - ABANDONED_DEVICE_S)
-    .run();
-
-  await env.DB.prepare('DELETE FROM seen_signatures WHERE expires_at < ?').bind(nowS).run();
+  // Deliberately nothing else. There used to be a 90-day delete of uncollected
+  // messages, a 30-day delete of silent devices, and a drain of the replay-guard
+  // table; all three removed. A message now waits for its device however long
+  // that takes, and a device stays registered until its owner deletes the app's
+  // data. The seen_signatures table still exists in the schema — migrations are
+  // applied before the Worker deploys, so dropping it in the same change would
+  // 500 the old Worker's writes for the deploy window. Drop it in a later
+  // migration, once no deployed code references it.
 }
 
 export default {

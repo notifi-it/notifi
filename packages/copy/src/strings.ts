@@ -33,7 +33,6 @@ export const copy = {
 
     badSignature: 'Invalid request signature.',
     staleTimestamp: 'Request timestamp is outside the allowed window.',
-    replayedSignature: 'Request signature has already been used.',
 
     unknownDevice: 'Device is not registered.',
     unknownKey: 'Unknown or revoked key.',
@@ -313,9 +312,9 @@ export const copy = {
     delivery: 'Delivery',
     deliveryBroken: 'Not pushing',
     deliveryBrokenDetail:
-      'Recent messages arrived only when notifi checked for them, not when they '
-      + 'were sent. Notifications are not reaching this device; it is still '
-      + 'collecting them, within a minute.',
+      'Recent messages arrived without a notification behind them. Notifications '
+      + 'are not reaching this device; messages still arrive over its live '
+      + 'connection, and whenever the app opens or refreshes.',
     permissionNotSet: 'Not set',
     permissionUnknown: 'Unknown',
 

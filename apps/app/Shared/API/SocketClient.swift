@@ -12,25 +12,15 @@ import OSLog
 final class SocketClient {
     private let api: APIClient
     private let onWake: () async -> Void
-    /// Reports whether the socket currently holds a connection. Nothing about
-    /// correctness depends on this — it sets the *rate* of the other transport,
-    /// not whether a message is delivered. A wrong answer here costs latency or
-    /// a little money, never a message.
-    private let onLiveChange: (Bool) -> Void
     private let log = Logger(subsystem: "it.notifi.notifi", category: "socket")
 
     private var task: URLSessionWebSocketTask?
     private var runLoop: Task<Void, Never>?
     private var attempt = 0
 
-    init(
-        api: APIClient,
-        onWake: @escaping () async -> Void,
-        onLiveChange: @escaping (Bool) -> Void
-    ) {
+    init(api: APIClient, onWake: @escaping () async -> Void) {
         self.api = api
         self.onWake = onWake
-        self.onLiveChange = onLiveChange
     }
 
     func start() {
@@ -50,14 +40,13 @@ final class SocketClient {
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
         attempt = 0
-        onLiveChange(false)
     }
 
     /// A socket that TCP has dropped without telling either end — a NAT table
     /// that expired, a Wi-Fi handoff, a proxy that closed an idle connection —
     /// looks exactly like a quiet one. Nothing arrives and no error is raised,
     /// so without a heartbeat the app would sit on a dead socket believing it
-    /// was live, and only the slow backstop poll would find anything.
+    /// was live, and nothing short of a relaunch would find anything.
     ///
     /// 45s because the idle timeouts that cause this are commonly 60. The frame
     /// is a text "ping" rather than a protocol ping so that it matches the
@@ -80,7 +69,6 @@ final class SocketClient {
             // every lid close.
             await onWake()
             attempt = 0
-            onLiveChange(true)
 
             var lastInbound = Date()
             let heartbeat = Task { [weak self] in
@@ -103,7 +91,8 @@ final class SocketClient {
                 let frame = try await socket.receive()
                 lastInbound = Date()
                 // The pong is liveness and nothing else. Syncing on it would put
-                // a fetch on a 45s timer and rebuild the poll this replaced.
+                // a fetch on a 45s timer and rebuild the polling this design
+                // deliberately does not have.
                 if case .string("pong") = frame { continue }
                 await onWake()
             }
@@ -114,7 +103,6 @@ final class SocketClient {
         }
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
-        onLiveChange(false)
     }
 
     /// Exponential with a ceiling and jitter. Without the jitter an APNs-scale
