@@ -26,8 +26,13 @@ enum Theme {
     static let bg = grey(light: 0.98, dark: 0.11)
     /// Primary text and the app's only full-strength value.
     static let fg = grey(light: 0.102, dark: 0.929)
-    /// Titles of messages that have been read. ~5:1 on either ground.
-    static let read = grey(light: 0.42, dark: 0.561)
+    /// Titles of messages that have been read. ~8.5:1 on either ground.
+    ///
+    /// It was 0.42/0.561, within two hundredths of `dim` — so a read row drew its
+    /// title and its timestamp in what the eye took for one colour, and the row
+    /// lost the step between the thing being said and when it was said. A read
+    /// title still steps back from `fg`; it steps back to somewhere `dim` is not.
+    static let read = grey(light: 0.28, dark: 0.72)
     /// Body copy and secondary labels. ~7:1 on either ground.
     static let muted = grey(light: 0.36, dark: 0.631)
     /// Timestamps and anything that should recede completely.
@@ -116,6 +121,35 @@ enum Theme {
     // MARK: Metrics
 
     static let gutter: CGFloat = 20
+
+    /// The two rules that bound the screen's chrome — under the page header and
+    /// above the tab bar.
+    ///
+    /// Heavier and at full strength on the Mac. The popover is a small panel with
+    /// a window border of its own a few points away, and a rule in `line` read as
+    /// part of that border rather than as the app dividing itself up; a phone
+    /// screen is the whole display and has no competing edge.
+    #if os(macOS)
+    static let chromeRule: CGFloat = 3
+    static let chromeRuleColor = fg
+    #else
+    static let chromeRule: CGFloat = 2
+    static let chromeRuleColor = line
+    #endif
+
+    /// The corner on a message block. Larger than `radius`, which is for controls
+    /// — a chip and a block of content the size of a paragraph do not read as the
+    /// same curve at the same number.
+    static let blockRadius: CGFloat = 10
+
+    /// Air above the first band, so the feed does not open hard against the rule
+    /// under the header. The Mac needs it: with no fade there, the label was
+    /// sitting on the line.
+    #if os(macOS)
+    static let firstBandTop: CGFloat = 16
+    #else
+    static let firstBandTop: CGFloat = 2
+    #endif
 
     /// The logo row above every tab title. Fixed, because its trailing control
     /// differs per tab — the "New key" pill on Keys, the overflow menu on
@@ -295,8 +329,17 @@ extension View {
     /// ends in the ground the screen is already painted on, it is invisible
     /// wherever there is nothing scrolling under it — a short feed needs no
     /// special case.
+    ///
+    /// iOS only. The Mac draws a hard edge instead: the popover has a window
+    /// border of its own to end against, where a phone screen runs to the glass
+    /// and needs something to end into.
+    @ViewBuilder
     func geistBottomFade() -> some View {
+        #if os(macOS)
+        self
+        #else
         overlay(alignment: .bottom) { GroundFade(edge: .bottom) }
+        #endif
     }
 
     /// Fades scrolling content into the ground as it goes under a pinned header.
@@ -308,8 +351,14 @@ extension View {
     /// The strip this covers is held open under the header by a matching top
     /// content margin, so at rest the first row sits clear of it and the fade
     /// reads as space rather than as a dimmed row.
+    /// iOS only, for the same reason as the bottom — see above.
+    @ViewBuilder
     func geistTopFade() -> some View {
+        #if os(macOS)
+        self
+        #else
         overlay(alignment: .top) { GroundFade(edge: .top) }
+        #endif
     }
 }
 
@@ -409,10 +458,14 @@ extension ButtonStyle where Self == GeistRowStyle {
 /// A one-pixel rule. `Divider()` picks up system colours and insets we do not want.
 struct Hairline: View {
     var color: Color = Theme.line
+    /// The rules bounding the screen's chrome are heavier than the ones between
+    /// two rows. A separator inside a list says "next item"; those say "different
+    /// part of the app", and at one pixel they said it in the same voice.
+    var weight: CGFloat = 1
     var body: some View {
         Rectangle()
             .fill(color)
-            .frame(height: 1)
+            .frame(height: weight)
             .accessibilityHidden(true)
     }
 }

@@ -39,7 +39,7 @@ struct GeistTabBar: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Hairline()
+            Hairline(color: Theme.chromeRuleColor, weight: Theme.chromeRule)
             HStack(spacing: 0) {
                 ForEach(items, id: \.tab) { item in
                     TabButton(

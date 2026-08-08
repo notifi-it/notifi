@@ -60,6 +60,9 @@ struct SearchView: View {
                 // this screen is the same feed seen through a query, and it was
                 // the one screen still standing on a flat ground.
                 .background(StaticField())
+                .overlay(alignment: .bottom) {
+                    Hairline(color: Theme.chromeRuleColor, weight: Theme.chromeRule)
+                }
 
             feed
         }

@@ -12,15 +12,6 @@ import SwiftUI
 /// show when there are none; everything below that is fixed here, banding
 /// included, because a feed that groups by day on one screen and not the other
 /// is the same drift in a different place.
-/// How much of a key name a row will draw.
-///
-/// The server accepts 64 characters. A name anywhere near that pushes the link
-/// host off the end of the line it shares, and the line is small — there is no
-/// second line to wrap onto that would not read as body copy.
-///
-/// At file scope because `MessageFeed` is generic over its empty state, and a
-/// generic type cannot hold a stored static.
-private let keyLabelLimit = 18
 
 struct MessageFeed<Empty: View>: View {
     @Environment(AppModel.self) private var model
@@ -48,8 +39,7 @@ struct MessageFeed<Empty: View>: View {
     }
 
     var body: some View {
-        let labels = keyLabels
-        return List {
+        List {
             if messages.isEmpty {
                 empty().plainRow()
             } else {
@@ -69,7 +59,6 @@ struct MessageFeed<Empty: View>: View {
                         // The next band's rule is already the divider under it,
                         // and two lines a few points apart read as a mistake.
                         row(for: message,
-                            keyLabel: message.keyID.flatMap { labels[$0] },
                             showsRule: index < band.messages.count - 1)
                     }
                 }
@@ -131,8 +120,7 @@ struct MessageFeed<Empty: View>: View {
     }
 
     @ViewBuilder
-    private func row(for message: Message, keyLabel: String?,
-                     showsRule: Bool) -> some View {
+    private func row(for message: Message, showsRule: Bool) -> some View {
         Button {
             model.path.append(message.serverID)
         } label: {
@@ -141,7 +129,7 @@ struct MessageFeed<Empty: View>: View {
             // margins were dead, and without the shape the gaps between title,
             // time and thumbnail were too: a stack only hit-tests where it
             // actually drew something.
-            MessageRow(message: message, keyLabel: keyLabel, now: now,
+            MessageRow(message: message, now: now,
                        showsRule: showsRule)
                 .contentShape(Rectangle())
         }
@@ -195,20 +183,6 @@ struct MessageFeed<Empty: View>: View {
         }
         #endif
         .contextMenu { menu(for: message) }
-    }
-
-    /// Key names ready to draw, by key id.
-    ///
-    /// The default key is deliberately absent. Every account has one and messages
-    /// land there unless a key was named, so labelling it says nothing the reader
-    /// did not already assume — and it would put a label on the majority of rows
-    /// for the sake of the minority that need one.
-    private var keyLabels: [Int: String] {
-        var labels: [Int: String] = [:]
-        for key in model.sync?.keys ?? [] where !key.isDefault {
-            labels[key.id] = key.name.middleTruncated(to: keyLabelLimit)
-        }
-        return labels
     }
 
     /// The feed, cut into time bands in the order they are shown.
@@ -504,7 +478,7 @@ private struct BandHeader: View {
                 .foregroundStyle(Theme.dim)
                 .monospacedDigit()
         }
-        .padding(.top, isFirst ? 2 : 26)
+        .padding(.top, isFirst ? Theme.firstBandTop : 26)
         .padding(.bottom, 10)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Copy.Inbox.bandLabel(title, Copy.Inbox.count(count)))
@@ -529,13 +503,12 @@ private struct StampTemplate: View {
 
 private struct MessageRow: View {
     let message: Message
-    /// Already resolved and shortened — see `InboxView.keyLabels`. Nil for the
-    /// default key, which is not worth naming on a row.
-    let keyLabel: String?
     /// Passed in rather than read here — see the clock on `InboxView`.
     let now: Date
     /// False before a day marker and at the foot of the feed — see the caller.
     let showsRule: Bool
+
+    @State private var isHovered = false
 
     /// Drops the stamp column so its capitals start level with the title's.
     ///
@@ -565,18 +538,16 @@ private struct MessageRow: View {
 
     /// `PROD-DEPLOY · ↗ GITHUB.COM`, or nothing.
     ///
-    /// Both halves are optional and most rows carry neither, so the line is
-    /// dropped rather than drawn as a stray separator — a message on the default
-    /// key with no link ends on its own text.
+    /// Both markers are optional and most rows carry neither, so the line is
+    /// dropped rather than drawn as a stray separator — a message with no link
+    /// and no image ends on its own text.
     ///
-    /// The host is a step brighter than the key beside it. They read as one line
-    /// otherwise, and only one of the two is somewhere you can go; the palette
-    /// has no second accent to spend on that, so brightness carries it.
+    /// The key that sent the message is not on it. A row is scanned for what
+    /// happened, and the name of the key was the widest thing on the line while
+    /// answering a question the reader was not asking at that point; the detail
+    /// screen names it, and the Keys tab is where a key is looked up.
     private var meta: Text? {
         var line: Text?
-        if let keyLabel {
-            line = Text(keyLabel.uppercased()).foregroundStyle(Theme.dim)
-        }
         if message.link != nil {
             // An SF Symbol rather than U+2197. The arrow was whatever the text
             // face happened to draw at that codepoint — a different weight and
@@ -659,9 +630,36 @@ private struct MessageRow: View {
         // put the line close enough to the key name to read as an underline on
         // it; the extra 3pt is what tells the two apart.
         .padding(.vertical, 16)
+        #if os(macOS)
+        // Mac only. Each message is its own block, told apart from the screen by
+        // its own grain sitting a step off the ground rather than by a border —
+        // the texture is already on both sides of the edge, so a line around it
+        // said a second time what the change in level already says. On iOS the
+        // feed keeps its rules: a block per row on a full-height screen is a
+        // stack of cards, which this is not.
+        .padding(.horizontal, 14)
+        .background(
+            StaticField(level: isHovered ? .hover : .raised, fillsScreen: false)
+                // Clipped rather than drawn into a shape: the tile is a repeating
+                // image, and the corner has to cut the texture rather than the
+                // texture reflow to fit the corner.
+                .clipShape(RoundedRectangle(cornerRadius: Theme.blockRadius,
+                                            style: .continuous))
+        )
+        // Only the ground moves. Nothing shifts position, because a row that
+        // lifts or grows under the pointer drags the rows below it and the whole
+        // feed twitches on a mouse crossing it.
+        .animation(.easeOut(duration: 0.12), value: isHovered)
+        .onHover { isHovered = $0 }
+        #endif
         // Carried here rather than applied by the feed, so the rule below can run
         // off the trailing edge while the message stays inside the margin.
         .geistGutter()
+        #if os(macOS)
+        // The blocks are their own separation, so the gap between two of them is
+        // the only thing saying where one ends.
+        .padding(.vertical, 4)
+        #endif
     }
 
     /// How long ago the message arrived.
@@ -712,7 +710,6 @@ private struct MessageRow: View {
         if let body = message.body {
             parts.append(String(MarkdownPreview.text(body).characters))
         }
-        if let keyLabel { parts.append(Copy.Inbox.rowKey(keyLabel)) }
         if let link = message.link, let host = link.host() {
             parts.append("Link to \(host)")
         }
@@ -722,18 +719,3 @@ private struct MessageRow: View {
     }
 }
 
-
-private extension String {
-    /// Shortens from the middle, keeping both ends.
-    ///
-    /// Keys are named by what they belong to and where it runs —
-    /// "staging-payments-webhook" — so the two halves distinguish different
-    /// things, and cutting the tail alone would make a set of related keys
-    /// identical on screen.
-    func middleTruncated(to limit: Int) -> String {
-        guard count > limit, limit > 1 else { return self }
-        let kept = limit - 1
-        let head = (kept + 1) / 2
-        return "\(prefix(head))…\(suffix(kept - head))"
-    }
-}

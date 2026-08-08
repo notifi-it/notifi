@@ -94,6 +94,13 @@ struct InboxView: View {
                 // — but a flat ground here left a smooth band across the top of
                 // an otherwise grainy screen.
                 .background(StaticField())
+                // Only the pinned headers carry this. On Keys and Settings the
+                // header scrolls away with the content, so a rule under it is a
+                // line travelling up the screen rather than the edge of the
+                // chrome.
+                .overlay(alignment: .bottom) {
+                    Hairline(color: Theme.chromeRuleColor, weight: Theme.chromeRule)
+                }
 
             list
         }
