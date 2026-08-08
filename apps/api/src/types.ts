@@ -5,8 +5,13 @@ export interface RateLimitBinding {
   limit(options: { key: string }): Promise<{ success: boolean }>;
 }
 
+import type { DeviceSocket } from './socket.js';
+
 export interface Env {
   DB: D1Database;
+  /// One per device. Holds that device's open sockets so a send can wake it
+  /// without waiting for APNs.
+  DEVICE_SOCKET: DurableObjectNamespace<DeviceSocket>;
   /// Signed macOS builds. The repo is private, so a GitHub release asset would
   /// need auth and 404 for the public; this is the download the site links to.
   DOWNLOADS: R2Bucket;

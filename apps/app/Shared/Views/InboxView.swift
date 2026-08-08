@@ -141,13 +141,13 @@ struct InboxView: View {
         // The screen's own header carries the title and both controls, so the
         // navigation bar would only add an empty strip above them.
         .toolbar(.hidden, for: .navigationBar)
+        #endif
         // Last in the chain, so the fade sits over the finished screen rather
         // than having the refresh control layered back on top of it. Applied to
         // the feed only: Keys and Settings are short enough to end on their own,
         // and a fade over content that never reaches the bottom edge is a
         // gradient with nothing to dissolve.
         .geistBottomFade()
-        #endif
     }
 
     #if os(macOS)

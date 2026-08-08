@@ -1098,7 +1098,7 @@ Order matters; the first item is a day now or a week later:
       point where an App Group + moving SwiftData into it becomes necessary; do the
       container migration then, not before.
 - [x] Critical Alerts wiring: per-key opt-in flag (`keys.critical`, `PATCH /keys/:id`),
-      `critical=1` send param, `sound.critical` + `interruption-level` payload path.
+      `is_critical=1` send param, `sound.critical` + `interruption-level` payload path.
       Both halves must agree — the sender asks per message, the key owner allows per
       key — and a send that asks without standing is delivered normally rather than
       refused, because dropping an alert from a pager is worse than under-delivering

@@ -8,6 +8,7 @@ import { downloads } from './routes/downloads.js';
 import { history } from './routes/history.js';
 import { keys } from './routes/keys.js';
 import { send } from './routes/send.js';
+import { socket } from './routes/socket.js';
 import type { AppEnv, Env } from './types.js';
 
 const app = new Hono<AppEnv>();
@@ -22,7 +23,13 @@ const app = new Hono<AppEnv>();
 /// was handed, not off the socket.
 app.use('*', async (c, next) => {
   const url = new URL(c.req.url);
-  if (url.protocol === 'http:') {
+  // `wrangler dev` serves plain http, so this rule caught every local request
+  // and answered it with a redirect to itself — local development was a 301
+  // loop for every endpoint, and the only way to exercise the Worker from a
+  // real client was to reach for TLS certificates the machine does not trust.
+  // Loopback is not a network anyone can sit on the path of.
+  const loopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+  if (url.protocol === 'http:' && !loopback) {
     url.protocol = 'https:';
     // 301, not 307: this is permanent, and every method that reaches /send is
     // safe to re-issue. Browsers and curl -L both follow it.
@@ -46,6 +53,7 @@ app.route('/', devices);
 app.route('/', keys);
 app.route('/', history);
 app.route('/', downloads);
+app.route('/', socket);
 
 app.notFound((c) => c.json(errBody('not_found', t(c).api.notFound), 404));
 
@@ -91,3 +99,5 @@ export default {
   fetch: app.fetch,
   scheduled,
 };
+
+export { DeviceSocket } from './socket.js';

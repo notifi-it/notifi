@@ -76,6 +76,7 @@ enum Copy {
         static var bandEarlierThisMonth: String { NSLocalizedString("inbox.bandEarlierThisMonth", comment: "") }
         static func bandLabel(_ title: String, _ count: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.bandLabel", comment: ""), title, count) }
         static var unread: String { NSLocalizedString("inbox.unread", comment: "") }
+        static var critical: String { NSLocalizedString("inbox.critical", comment: "") }
         static func linkTo(_ host: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.linkTo", comment: ""), host) }
         static func rowKey(_ label: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.rowKey", comment: ""), label) }
         static func deleteTitle(_ title: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.deleteTitle", comment: ""), title) }
@@ -129,6 +130,7 @@ enum Copy {
         static var criticalTimeSensitive: String { NSLocalizedString("keyDetail.criticalTimeSensitive", comment: "") }
         static var copyKey: String { NSLocalizedString("keyDetail.copyKey", comment: "") }
         static var shareKey: String { NSLocalizedString("keyDetail.shareKey", comment: "") }
+        static var copyCurl: String { NSLocalizedString("keyDetail.copyCurl", comment: "") }
         static var defaultKeyDetail: String { NSLocalizedString("keyDetail.defaultKeyDetail", comment: "") }
         static var shownOnceDetail: String { NSLocalizedString("keyDetail.shownOnceDetail", comment: "") }
         static var sectionUsage: String { NSLocalizedString("keyDetail.sectionUsage", comment: "") }
@@ -194,6 +196,9 @@ enum Copy {
         static var permissionOff: String { NSLocalizedString("settings.permissionOff", comment: "") }
         static var permissionProvisional: String { NSLocalizedString("settings.permissionProvisional", comment: "") }
         static var permissionEphemeral: String { NSLocalizedString("settings.permissionEphemeral", comment: "") }
+        static var delivery: String { NSLocalizedString("settings.delivery", comment: "") }
+        static var deliveryBroken: String { NSLocalizedString("settings.deliveryBroken", comment: "") }
+        static var deliveryBrokenDetail: String { NSLocalizedString("settings.deliveryBrokenDetail", comment: "") }
         static var permissionNotSet: String { NSLocalizedString("settings.permissionNotSet", comment: "") }
         static var permissionUnknown: String { NSLocalizedString("settings.permissionUnknown", comment: "") }
         static var sectionAppearance: String { NSLocalizedString("settings.sectionAppearance", comment: "") }

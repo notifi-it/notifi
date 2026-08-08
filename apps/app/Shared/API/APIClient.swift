@@ -50,8 +50,8 @@ final class APIClient {
         }
     }
 
-    func updateKey(id: Int, critical: Bool) async throws {
-        let data = try encode(UpdateKeyBody(critical: critical))
+    func updateKey(id: Int, isCritical: Bool) async throws {
+        let data = try encode(UpdateKeyBody(isCritical: isCritical))
         _ = try await performSignedVoid {
             try self.signedRequest(method: "PATCH", path: "/keys/\(id)", body: data)
         }
@@ -88,6 +88,18 @@ final class APIClient {
         } catch {
             throw APIError.decoding
         }
+    }
+
+    /// The upgrade signs exactly like a `GET /history` — the canonical string
+    /// covers method, host, path, timestamp and body hash, and none of those
+    /// change with the scheme — so the wss URL carries a signature the ordinary
+    /// verifier accepts.
+    func socketRequest() throws -> URLRequest {
+        var request = try signedRequest(method: "GET", path: "/socket")
+        var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)!
+        components.scheme = components.scheme == "http" ? "ws" : "wss"
+        request.url = components.url
+        return request
     }
 
     private func signedRequest(

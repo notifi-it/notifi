@@ -209,9 +209,11 @@ struct MessageDetailView: View {
             // come first, which opened every message with its least interesting
             // fact — and the second line read "sent by client", which is the
             // shape of the API rather than anything a reader can act on.
+            // Same rule as the feed row: an urgent message is set in red rather
+            // than flagged, and it stays red once read.
             Text(message.title)
                 .font(.inco(.title, weight: .bold))
-                .foregroundStyle(Theme.fg)
+                .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
 
@@ -341,6 +343,7 @@ struct MessageDetailView: View {
             if let body = message.body {
                 MarkdownText(source: body, allowAnyScheme: anyScheme,
                              allowsRemoteImages: showsImage)
+                    .foregroundStyle(message.isCritical ? Theme.brandDim : Theme.fg)
                     .padding(.top, 16)
             }
 

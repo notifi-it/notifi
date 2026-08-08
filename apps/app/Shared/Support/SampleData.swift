@@ -197,7 +197,12 @@ enum SampleData {
                     occurredAt: index.isMultiple(of: 2)
                         ? ago(minutes).addingTimeInterval(-Double(index) * 0.437)
                         : nil,
-                    isRead: !unread
+                    isRead: !unread,
+                    // One, not a scattering — the marker's whole job is to be
+                    // rare enough to mean something when it appears. On the row
+                    // that also carries a link and an image, so the widest case
+                    // the feed has to lay out is the one that is always seeded.
+                    isCritical: index == 0
                 )
             )
         }

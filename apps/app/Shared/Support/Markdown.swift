@@ -184,7 +184,7 @@ extension MarkdownUI.Theme {
 /// rather than the block layout: markers dropped, line breaks collapsed, bold and
 /// code still styled. A bulleted body previews as prose instead of as dashes.
 enum MarkdownPreview {
-    static func text(_ source: String) -> AttributedString {
+    static func text(_ source: String) -> String {
         let flattened = source
             .components(separatedBy: .newlines)
             .map { line -> String in
@@ -198,7 +198,15 @@ enum MarkdownPreview {
             .filter { !$0.isEmpty && !isRule($0) }
             .joined(separator: " ")
 
-        var attributed = (try? AttributedString(
+        // Parsed and then thrown away, so the *markers* go but none of the
+        // styling comes back. A preview line that carries bold, a second
+        // typeface for code and a link colour is competing with the title above
+        // it — and the title is the thing the row is scanned for. The detail
+        // screen renders all of it properly; here it is one voice, one weight.
+        //
+        // Still parsed rather than regexed away, because the parser is what
+        // knows that a lone asterisk is not emphasis and a bracket is not a link.
+        let attributed = (try? AttributedString(
             markdown: flattened,
             options: AttributedString.MarkdownParsingOptions(
                 interpretedSyntax: .inlineOnlyPreservingWhitespace,
@@ -206,21 +214,7 @@ enum MarkdownPreview {
             )
         )) ?? AttributedString(flattened)
 
-        // Bold and italic ride the base font; code has to switch typeface, and that
-        // only happens per-run.
-        for run in attributed.runs where run.inlinePresentationIntent?.contains(.code) == true {
-            attributed[run.range].font = .inco(.footnote)
-        }
-
-        // Drop autolinks. The parser turns any bare address into a link run, and a
-        // link run carries the tint colour, which beats the row's muted style — so
-        // "hannah@shorepine.co upgraded to Pro" came out with the address in white
-        // and the rest grey. The row is a single button to the message anyway, so
-        // a tappable span inside it has nothing to do.
-        for run in attributed.runs where run.link != nil {
-            attributed[run.range].link = nil
-        }
-        return attributed
+        return String(attributed.characters)
     }
 
     private static func stripListMarker(_ line: String) -> String {

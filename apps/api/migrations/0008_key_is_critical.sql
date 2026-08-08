@@ -1,0 +1,11 @@
+-- `critical` was the only boolean on the table not named for what it answers,
+-- and the send parameter it pairs with is `is_critical`. One spelling.
+--
+-- A rename rather than an additive column and a backfill: the pair has to move
+-- together or the escalation switch reads one column while the send path writes
+-- the other, and a key that is silently not urgent is the failure this whole
+-- feature exists to avoid. CI applies migrations before deploying the Worker,
+-- so the old code sees the new name for the length of one deploy — during which
+-- an escalated send is delivered as an ordinary notification rather than
+-- refused, which is the same way an unentitled send already degrades.
+ALTER TABLE keys RENAME COLUMN critical TO is_critical;

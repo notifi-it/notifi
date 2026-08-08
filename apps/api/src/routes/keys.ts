@@ -28,7 +28,7 @@ keys.get('/keys', async (c) => {
   if (!device) return c.json(errBody('unknown_device', t(c).api.unknownDevice), 401);
 
   const rows = await c.env.DB.prepare(
-    `SELECT id, meta_sealed, created_at, last_used_at, sent_count, revoked_at, critical
+    `SELECT id, meta_sealed, created_at, last_used_at, sent_count, revoked_at, is_critical
      FROM keys WHERE device_id = ? AND meta_sealed != '' ORDER BY id DESC`,
   )
     .bind(device.id)
@@ -99,10 +99,10 @@ keys.patch('/keys/:id', async (c) => {
   // Scoped to this device and to live keys, so a revoked key cannot be brought
   // back up to critical volume without being recreated.
   const updated = await c.env.DB.prepare(
-    `UPDATE keys SET critical = ?
+    `UPDATE keys SET is_critical = ?
      WHERE id = ? AND device_id = ? AND revoked_at IS NULL RETURNING id`,
   )
-    .bind(parsed.critical ? 1 : 0, id, device.id)
+    .bind(parsed.is_critical ? 1 : 0, id, device.id)
     .first<{ id: number }>();
 
   if (!updated) {

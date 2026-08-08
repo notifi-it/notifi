@@ -47,6 +47,21 @@ struct SettingsView: View {
                     .geistGutter()
                 }
 
+                // Only when it is wrong. A row that says "Delivery: fine" every
+                // day trains the eye to skip the one day it does not.
+                if model.pushDeliveryLooksBroken {
+                    FieldRow(label: Copy.Settings.delivery) {
+                        Text(Copy.Settings.deliveryBroken)
+                            .font(.inco(.subheadline, weight: .medium))
+                            .foregroundStyle(Theme.brandText)
+                    }
+                    .geistGutter()
+                    Text(Copy.Settings.deliveryBrokenDetail)
+                        .geistConsequence()
+                        .geistGutter()
+                    Hairline()
+                }
+
                 // MARK: Appearance
                 SectionLabel(text: Copy.Settings.sectionAppearance)
                     .geistGutter()

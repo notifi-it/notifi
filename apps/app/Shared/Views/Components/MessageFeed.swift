@@ -565,8 +565,8 @@ private struct MessageRow: View {
             // was the longest thing on the line, taking the width that the
             // message's own text wanted. The detail screen names it, which is
             // where the question is actually asked.
-            let link = Text(Image(systemName: "globe")).foregroundStyle(Theme.muted)
-            line = line.map { $0 + Text(" · ").foregroundStyle(Theme.dim) + link } ?? link
+            let link = Text(Image(systemName: "globe")).foregroundStyle(Theme.mark)
+            line = line.map { $0 + Text(" ") + link } ?? link
         }
         // A symbol rather than the picture itself. Drawing the thumbnail here
         // would fetch it from the sender's host for every row on screen, which
@@ -574,8 +574,8 @@ private struct MessageRow: View {
         // reader asks for it — the feed would be leaking the device's IP to
         // every sender at once just by being scrolled past.
         if message.imageURL != nil {
-            let marker = Text(Image(systemName: "photo")).foregroundStyle(Theme.dim)
-            line = line.map { $0 + Text(" · ").foregroundStyle(Theme.dim) + marker } ?? marker
+            let marker = Text(Image(systemName: "photo")).foregroundStyle(Theme.mark)
+            line = line.map { $0 + Text(" ") + marker } ?? marker
         }
         return line
     }
@@ -589,40 +589,68 @@ private struct MessageRow: View {
         .accessibilityLabel(spokenDescription)
     }
 
+    /// An urgent message is set in red rather than flagged with a mark beside it.
+    /// A third glyph did not fit the clock's column without pushing that one row
+    /// across, and colouring the words says the same thing without asking for any
+    /// width at all.
+    ///
+    /// It stays red once read. Whether a page sounded through silent mode is a
+    /// fact about what happened, not a state that clears when you look at it.
+    private var titleColour: Color {
+        if message.isCritical { return Theme.brandText }
+        return message.isRead ? Theme.read : Theme.fg
+    }
+
+    private var titleText: Text {
+        Text(message.title).foregroundColor(titleColour)
+    }
+
     private var content: some View {
         HStack(alignment: .top, spacing: Theme.rowGap) {
-            stamp
+            // The marks sit under the clock rather than under the title, in the
+            // column the row is already scanned down. They say what a message
+            // has rather than what it says, which is the same kind of fact as
+            // its age — and it leaves the message column as nothing but words.
+            VStack(alignment: .trailing, spacing: 6) {
+                stamp
+                marks
+            }
+            .alignmentGuide(.top) { $0[.top] }
             VStack(alignment: .leading, spacing: 3) {
-                Text(message.title)
+                titleText
                     .font(message.isRead ? Theme.title : Theme.titleUnread)
-                    .foregroundStyle(message.isRead ? Theme.read : Theme.fg)
+                    // Capped so one long title cannot take the screen. A pager's
+                    // feed is scanned, and a message whose whole point is in its
+                    // title has said it by the third line; the detail screen sets
+                    // it in full.
+                    .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
+
+                // Under the title rather than on its line. Sharing the line saved
+                // a row of height but put two glyphs on the far side of a gap
+                // from the thing they belong to, so they read as chrome pinned to
+                // the edge instead of as part of the message.
 
                 if let body = message.body {
                     // The row is two lines: markers are stripped and inline styling
                     // kept, so a bulleted body previews as prose rather than dashes.
+                    // A size below the body face the detail screen sets it in.
+                    // `dim` is already the most receded colour the palette has —
+                    // anything further is under the contrast floor — so the
+                    // preview steps back by scale rather than by going dimmer.
+                    // Red too, a step below the title's. The hierarchy inside an
+                    // urgent row is carried by scale, the same way it is in every
+                    // other row — `dim` would have said "ordinary" underneath a
+                    // title saying the opposite.
                     Text(MarkdownPreview.text(body))
-                        .font(Theme.body)
-                        .foregroundStyle(Theme.dim)
+                        .font(.karla(.footnote))
+                        .foregroundStyle(message.isCritical ? Theme.brandDim : Theme.dim)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .multilineTextAlignment(.leading)
                 }
 
-                if let meta {
-                    // The same size as the clock across from it, so the two sit
-                    // on one baseline at the foot of the row. At 11pt against the
-                    // clock's 12 they were bottom-aligned by frame and a point
-                    // apart by eye, which is the kind of miss you feel before you
-                    // can name it.
-                    meta
-                        .font(Theme.meta)
-                        .tracking(0.9)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                        .padding(.top, 3)
-                }
             }
             Spacer(minLength: 0)
         }
@@ -672,6 +700,33 @@ private struct MessageRow: View {
     /// Ranged right, against the message rather than against the margin. "5 min"
     /// and "17 min" are different lengths, so aligning left left the column's
     /// inner edge ragged where it meets the text it belongs to.
+    @ViewBuilder
+    private var marks: some View {
+        if meta != nil {
+            // Held to the clock's own width by the same hidden template the clock
+            // is sized from. Left to size themselves, three marks were wider than
+            // the widest timestamp and pushed that one row's whole column across
+            // — and the straight left edge the stamp exists to hold is worth more
+            // than any of the marks in it.
+            ZStack(alignment: .trailing) {
+                StampTemplate().hidden()
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                // Outside the `Text` the rest of this line is built from, because
+                // an image asset inside one draws at its own size and ignores the
+                // font — the akar star arrived at 24pt on an 11pt line. Sized
+                // here, and put back on the baseline by guide, since an image
+                // carries no baseline of its own.
+                    if let meta {
+                        meta
+                            .font(Theme.meta)
+                            .lineLimit(1)
+                            .fixedSize()
+                    }
+                }
+            }
+        }
+    }
+
     private var stamp: some View {
         ZStack(alignment: .topTrailing) {
             StampTemplate().hidden()
@@ -681,6 +736,7 @@ private struct MessageRow: View {
         }
         .monospacedDigit()
         .alignmentGuide(.top) { $0[.top] - capHeightOffset }
+        .padding(.top, capHeightOffset)
     }
 
     /// Drawn as the last thing in the row rather than as an overlay on its edge.
@@ -706,9 +762,13 @@ private struct MessageRow: View {
     private var spokenDescription: String {
         var parts: [String] = []
         if !message.isRead { parts.append(Copy.Inbox.unread) }
+        // Spoken rather than left to the star's own image name, which VoiceOver
+        // reads as the file — a description of the glyph instead of what it is
+        // being used to say.
+        if message.isCritical { parts.append(Copy.Inbox.critical) }
         parts.append(message.title)
         if let body = message.body {
-            parts.append(String(MarkdownPreview.text(body).characters))
+            parts.append(MarkdownPreview.text(body))
         }
         if let link = message.link, let host = link.host() {
             parts.append("Link to \(host)")

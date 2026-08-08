@@ -33,7 +33,7 @@ struct KeySummary: Codable, Sendable {
     let revokedAt: Int?
     /// 0 or 1. Unlike the name and prefix this is not sealed, because the server
     /// has to read it to decide how the push sounds.
-    let critical: Int
+    let isCritical: Int
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -42,7 +42,7 @@ struct KeySummary: Codable, Sendable {
         case lastUsedAt = "last_used_at"
         case sentCount = "sent_count"
         case revokedAt = "revoked_at"
-        case critical
+        case isCritical = "is_critical"
     }
 }
 
@@ -61,7 +61,11 @@ struct CreateKeyResponse: Codable, Sendable {
 }
 
 struct UpdateKeyBody: Codable, Sendable {
-    let critical: Bool
+    let isCritical: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case isCritical = "is_critical"
+    }
 }
 
 struct HistoryMessage: Codable, Sendable {
@@ -105,6 +109,11 @@ struct MessageContent: Codable, Sendable {
     /// Client-supplied event time in unix milliseconds, sealed alongside the rest
     /// so it can be checked against the row the same way `createdAt` is.
     let occurredAt: Int?
+    /// Whether the send was actually delivered as a critical alert. Written on
+    /// every message now, including the quiet ones — optional here only because
+    /// messages sealed before the field existed cannot be rewritten, and those
+    /// read as false.
+    let isCritical: Bool?
 
     enum CodingKeys: String, CodingKey {
         case title
@@ -114,6 +123,7 @@ struct MessageContent: Codable, Sendable {
         case keyID = "key_id"
         case createdAt = "created_at"
         case occurredAt = "occurred_at"
+        case isCritical = "is_critical"
     }
 }
 

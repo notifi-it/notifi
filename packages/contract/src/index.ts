@@ -65,16 +65,40 @@ export const sendParams = z.object({
   // system permission. A send that asks without that standing is delivered as a
   // normal notification rather than refused, because dropping an alert from a
   // pager is worse than under-delivering it.
+  is_critical: sendFlag.optional(),
+  // The name this parameter shipped under. Still honoured, and deliberately not
+  // removed on a date: the schema is not strict, so dropping it would leave
+  // every script that already says `critical=1` sending quiet pages with no
+  // error to notice. Silently downgrading an urgent alert is the one failure a
+  // pager cannot make.
   critical: sendFlag.optional(),
 });
 export type SendParams = z.infer<typeof sendParams>;
 
-/// `critical` is transport, not content: it decides how the push sounds, and
-/// nothing about it is worth sealing, storing or showing in the feed.
-export const messageContent = sendParams.omit({ key: true, critical: true }).extend({
-  key_id: z.number().int(),
-  created_at: z.number().int(),
-});
+/// What the sender asked for is omitted, under either spelling: a request is not
+/// an outcome. What gets sealed below is the resolved answer — whether the push
+/// actually went out escalated — which is the only version worth keeping.
+export const messageContent = sendParams
+  .omit({ key: true, critical: true, is_critical: true })
+  .extend({
+    key_id: z.number().int(),
+    created_at: z.number().int(),
+    /// Whether this send was actually delivered as a critical alert — the sender
+    /// asking and the key's standing, resolved. It shares a name with the send
+    /// parameter now, but not a meaning: that one is a request, this is what
+    /// happened to it.
+    ///
+    /// Sealed rather than left as a column because it is a fact about the
+    /// message, and the inbox is the only place left to learn that a page
+    /// arrived loudly.
+    ///
+    /// Required, and written on every message including the quiet ones. Omitting
+    /// it when false would make "this was not urgent" and "this was sent before
+    /// the field existed" the same blob, and only one of those is something the
+    /// app knows. Readers still have to tolerate it missing, because the messages
+    /// sealed before this existed cannot be rewritten.
+    is_critical: z.boolean(),
+  });
 export type MessageContent = z.infer<typeof messageContent>;
 
 export const keyMeta = z.object({
@@ -110,7 +134,7 @@ export const keySummary = z.object({
   /// 0 or 1, straight off the row. Unlike name and prefix this cannot live in
   /// the sealed meta, because the server is the one that has to act on it when
   /// building the push.
-  critical: z.number().int(),
+  is_critical: z.number().int(),
 });
 export type KeySummary = z.infer<typeof keySummary>;
 
@@ -135,7 +159,7 @@ export type CreateKeyResponse = z.infer<typeof createKeyResponse>;
 
 export const updateKeyBody = z
   .object({
-    critical: z.boolean(),
+    is_critical: z.boolean(),
   })
   .strict();
 export type UpdateKeyBody = z.infer<typeof updateKeyBody>;

@@ -65,6 +65,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             await macAppModel.refreshPermission()
             await macAppModel.refresh()
         }
+
+        // The Mac process is always running, so the fallback runs for the whole
+        // session rather than only while the popover is open — the menu bar dot
+        // is supposed to be right whether or not anyone is looking at it.
+        macAppModel.startLiveUpdates()
     }
 
     func application(

@@ -1025,6 +1025,17 @@
         }
       }
     },
+    "inbox.critical": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical"
+          }
+        }
+      }
+    },
     "inbox.deleteMessage": {
       "extractionState": "manual",
       "localizations": {
@@ -1179,6 +1190,17 @@
         }
       }
     },
+    "keyDetail.copyCurl": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy curl"
+          }
+        }
+      }
+    },
     "keyDetail.copyKey": {
       "extractionState": "manual",
       "localizations": {
@@ -1229,7 +1251,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends from this key that ask for it will sound through silent mode and Focus. Add critical=1 to the send."
+            "value": "Sends from this key that ask for it will sound through silent mode and Focus. Add is_critical=1 to the send."
           }
         }
       }
@@ -1240,7 +1262,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends from this key that ask for it break through Focus and stay on the lock screen. Add critical=1 to the send. They will not sound through silent mode — that needs an entitlement Apple has yet to grant notifi."
+            "value": "Sends from this key that ask for it break through Focus and stay on the lock screen. Add is_critical=1 to the send. They will not sound through silent mode — that needs an entitlement Apple has yet to grant notifi."
           }
         }
       }
@@ -2124,6 +2146,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Check for updates"
+          }
+        }
+      }
+    },
+    "settings.delivery": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delivery"
+          }
+        }
+      }
+    },
+    "settings.deliveryBroken": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not pushing"
+          }
+        }
+      }
+    },
+    "settings.deliveryBrokenDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent messages arrived only when notifi checked for them, not when they were sent. Notifications are not reaching this device; it is still collecting them, within a minute."
           }
         }
       }

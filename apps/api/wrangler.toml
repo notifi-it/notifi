@@ -21,6 +21,16 @@ bucket_name = "notifi-downloads"
 APNS_HOST = "https://api.sandbox.push.apple.com"
 APNS_TOPIC = "it.notifi.notifi"
 
+[[durable_objects.bindings]]
+name = "DEVICE_SOCKET"
+class_name = "DeviceSocket"
+
+# SQLite-backed, which is the only option for new namespaces and is what the
+# hibernation API expects. The class stores nothing; the tag is still required.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DeviceSocket"]
+
 [triggers]
 crons = ["0 3 * * *"]
 
@@ -40,6 +50,10 @@ directory = "./public"
 [[env.production.r2_buckets]]
 binding = "DOWNLOADS"
 bucket_name = "notifi-downloads"
+
+[[env.production.durable_objects.bindings]]
+name = "DEVICE_SOCKET"
+class_name = "DeviceSocket"
 
 [env.production.vars]
 APNS_HOST = "https://api.push.apple.com"

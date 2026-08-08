@@ -106,6 +106,31 @@ final class AppModel {
 
     var hasUnread: Bool { (sync?.unread ?? 0) > 0 }
 
+    /// A push is only a hint that there is something to fetch, so a message that
+    /// arrives by poll with no push behind it is the signature of a broken push
+    /// path — a token registered against the wrong APNs environment, a revoked
+    /// key, a device the server can no longer reach. Nothing else in the app
+    /// notices: the message still arrives, just late and silently, and the user
+    /// concludes notifi is unreliable rather than that their setup is wrong.
+    ///
+    /// Counted rather than inferred from a timestamp, because one late message
+    /// is a coincidence and twenty is a diagnosis.
+    private(set) var pollOnlyArrivals: Int = UserDefaults.standard.integer(forKey: pollOnlyKey)
+    private static let pollOnlyKey = "notifi.pollOnlyArrivals"
+
+    var pushDeliveryLooksBroken: Bool { pollOnlyArrivals >= 3 }
+
+    private var lastPushAt: Date?
+    /// The catch-up sync at launch pulls whatever accumulated while the app was
+    /// closed, none of which was pushed to a running app. Counting those would
+    /// report every cold start as a push failure.
+    private var hasCompletedFirstSync = false
+    private var arrivalObserver: NSObjectProtocol?
+    private var pollTask: Task<Void, Never>?
+    private var socket: SocketClient?
+    private var wantsLiveUpdates = false
+    private var pollInterval: Duration?
+
     private var context: ModelContext?
     private var pendingToken: String?
     private var registrationChain: Task<Void, Never>?
@@ -158,6 +183,16 @@ final class AppModel {
         let queued = AppModel.pendingActions
         AppModel.pendingActions = []
         for action in queued { apply(action) }
+
+        if arrivalObserver == nil {
+            arrivalObserver = NotificationCenter.default.addObserver(
+                forName: .notifiNewMessages,
+                object: nil,
+                queue: .main
+            ) { _ in
+                Task { @MainActor in AppModel.shared?.noteMessagesArrived() }
+            }
+        }
 
         #if !targetEnvironment(simulator)
         guard SecureEnclave.isAvailable else {
@@ -221,6 +256,8 @@ final class AppModel {
         let token = pendingToken
         pendingToken = nil
 
+        if wantsLiveUpdates { startLiveUpdates() }
+
         Task {
             await enqueueRegistration(token: token).value
             await refreshPermission()
@@ -254,7 +291,7 @@ final class AppModel {
     var defaultKeyValue: String? { DeviceIdentity.loadDefaultKey() }
 
     /// Allows or stops escalated alerts for one key. The server keeps the last word:
-    /// a send still has to ask for `critical=1`, and a key that was never switched
+    /// a send still has to ask for `is_critical=1`, and a key that was never switched
     /// on here can never raise its own volume, however the key value is used.
     ///
     /// The switch is not gated on Critical Alerts, because escalation does not
@@ -265,15 +302,15 @@ final class AppModel {
     /// the caller uses it to say how loud "on" is actually going to be, rather than
     /// to decide whether "on" is allowed at all.
     @discardableResult
-    func setKeyCritical(id: Int, critical: Bool) async throws -> UNNotificationSetting {
+    func setKeyCritical(id: Int, isCritical: Bool) async throws -> UNNotificationSetting {
         guard let api, let sync else { throw NotifiError.identityMissing }
-        if critical, criticalAlertStatus != .enabled {
+        if isCritical, criticalAlertStatus != .enabled {
             // Re-reads the setting itself, so what the caller reports is the OS's
             // answer to this request rather than whatever was cached when the
             // screen appeared.
             await requestCriticalAlertPermission()
         }
-        try await api.updateKey(id: id, critical: critical)
+        try await api.updateKey(id: id, isCritical: isCritical)
         await sync.refreshKeys()
         return criticalAlertStatus
     }
@@ -356,9 +393,107 @@ final class AppModel {
     }
 
     func handleForegroundPush() {
+        notePushArrived()
         Task {
             await sync?.sync()
         }
+    }
+
+    /// Any callback from the notification centre means APNs reached this device,
+    /// whatever the user then did with it.
+    func notePushArrived() {
+        lastPushAt = Date()
+    }
+
+    /// Long enough to cover the sync the push itself triggers, plus a slow
+    /// network. Shorter than the poll interval, so a poll that beats the push to
+    /// the same message is not mistaken for a missing one.
+    private static let pushGrace: TimeInterval = 20
+
+    private func noteMessagesArrived() {
+        guard hasCompletedFirstSync else {
+            hasCompletedFirstSync = true
+            return
+        }
+        if let lastPushAt, Date().timeIntervalSince(lastPushAt) < Self.pushGrace {
+            // Push did its job. One good delivery is enough to retire the
+            // warning: whatever was wrong has been fixed or was transient.
+            if pollOnlyArrivals != 0 {
+                pollOnlyArrivals = 0
+                UserDefaults.standard.set(0, forKey: Self.pollOnlyKey)
+            }
+            return
+        }
+        pollOnlyArrivals += 1
+        UserDefaults.standard.set(pollOnlyArrivals, forKey: Self.pollOnlyKey)
+    }
+
+    /// The socket and the timer, running together.
+    ///
+    /// Not a primary and a fallback — there is no failover here, no health
+    /// check, and no code anywhere that decides which transport a message should
+    /// arrive by. All three wake sources call `sync()` and nothing else, so
+    /// adding one costs no logic and losing one costs no correctness. That is
+    /// what lets the app hold three at once and stay simple.
+    ///
+    /// What each is *for*: APNs reaches a device that is asleep or closed, the
+    /// socket makes an awake device instant, and the timer is the floor that
+    /// guarantees the store converges whichever of the others is broken.
+    func startLiveUpdates() {
+        // The Mac asks for this from `applicationDidFinishLaunching`, which can
+        // beat the identity load that creates the client. Remembering the intent
+        // rather than dropping it means `finishBoot` can honour it late.
+        wantsLiveUpdates = true
+        if socket == nil, let api {
+            socket = SocketClient(api: api) { [weak self] in
+                await self?.sync?.sync()
+            } onLiveChange: { [weak self] live in
+                self?.setPollRate(socketLive: live)
+            }
+        }
+        socket?.start()
+        setPollRate(socketLive: false)
+    }
+
+    func stopLiveUpdates() {
+        wantsLiveUpdates = false
+        socket?.stop()
+        stopPolling()
+    }
+
+    /// With a live socket the timer is only there to converge, so it can be slow
+    /// and nearly free. Without one it is the only thing between the user and a
+    /// missed page, so it takes over the sub-minute job the socket was doing.
+    ///
+    /// This is the one place the transports are aware of each other, and it is
+    /// deliberately a rate decision rather than a routing one: if it guesses
+    /// wrong the app polls too often or too rarely, and no message is lost
+    /// either way.
+    private func setPollRate(socketLive: Bool) {
+        guard wantsLiveUpdates else { return }
+        let interval: Duration = socketLive ? .seconds(300) : .seconds(30)
+        guard interval != pollInterval else { return }
+        pollInterval = interval
+        startPolling(every: interval)
+    }
+
+    /// Messages only — `refresh()` also re-fetches the key list, which changes
+    /// when the user changes it and not otherwise.
+    func startPolling(every interval: Duration = .seconds(30)) {
+        pollTask?.cancel()
+        pollTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: interval)
+                if Task.isCancelled { return }
+                await self?.sync?.sync()
+            }
+        }
+    }
+
+    func stopPolling() {
+        pollTask?.cancel()
+        pollTask = nil
+        pollInterval = nil
     }
 
     private func apply(_ action: NotificationAction) {

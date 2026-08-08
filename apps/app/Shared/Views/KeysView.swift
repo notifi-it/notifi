@@ -43,13 +43,16 @@ struct KeysView: View {
                 // while the content they separate stays inside the margin.
                 Group {
                     GeistHeader(title: Copy.Keys.title, subtitle: subtitle) {
-                        #if os(iOS)
+                        // One control on both platforms. The Mac used to carry a
+                        // text pill here while iOS had the disc, which drifted
+                        // the two headers apart for no reason either screen owns.
                         IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
+                            #if os(iOS)
                             showingCreate = true
+                            #else
+                            model.presentingCreateKey = true
+                            #endif
                         }
-                        #else
-                        PillButton(title: Copy.Keys.newKey) { model.presentingCreateKey = true }
-                        #endif
                     }
                     .geistPageHeader()
 

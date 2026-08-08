@@ -10,11 +10,11 @@ struct CachedKey: Codable, Identifiable, Hashable, Sendable {
     var revokedAt: Int?
     /// Optional only so that a cache written before Critical Alerts existed still
     /// decodes. A missing value means the same thing as the server's default: off.
-    var critical: Bool?
+    var isCriticalFlag: Bool?
 
     var isRevoked: Bool { revokedAt != nil }
 
-    var isCritical: Bool { critical == true }
+    var isCritical: Bool { isCriticalFlag == true }
 
     /// The key notifi creates for you at registration. It is the only one whose
     /// value stays on the device, so it is the only one that can be regenerated

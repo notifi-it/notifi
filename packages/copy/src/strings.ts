@@ -141,6 +141,7 @@ export const copy = {
     bandLabel: '{title}, {count}',
 
     unread: 'Unread',
+    critical: 'Critical',
     linkTo: 'Link to {host}',
     rowKey: 'Key {label}',
 
@@ -202,16 +203,17 @@ export const copy = {
 
     criticalOn:
       'Sends from this key that ask for it will sound through silent mode and Focus. ' +
-      'Add critical=1 to the send.',
+      'Add is_critical=1 to the send.',
     /// What the switch buys without the Critical Alerts entitlement, which is
     /// still the usual case: Time Sensitive, which needs no grant from Apple.
     criticalTimeSensitive:
       'Sends from this key that ask for it break through Focus and stay on the lock ' +
-      'screen. Add critical=1 to the send. They will not sound through silent mode — ' +
+      'screen. Add is_critical=1 to the send. They will not sound through silent mode — ' +
       'that needs an entitlement Apple has yet to grant notifi.',
 
     copyKey: 'Copy key',
     shareKey: 'Share key',
+    copyCurl: 'Copy curl',
     defaultKeyDetail:
       'notifi keeps this one on your device, so you can copy it again whenever you ' +
       'need it, or regenerate it below.',
@@ -308,6 +310,12 @@ export const copy = {
     permissionOff: 'Off',
     permissionProvisional: 'Provisional',
     permissionEphemeral: 'Ephemeral',
+    delivery: 'Delivery',
+    deliveryBroken: 'Not pushing',
+    deliveryBrokenDetail:
+      'Recent messages arrived only when notifi checked for them, not when they '
+      + 'were sent. Notifications are not reaching this device; it is still '
+      + 'collecting them, within a minute.',
     permissionNotSet: 'Not set',
     permissionUnknown: 'Unknown',
 

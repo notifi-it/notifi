@@ -45,6 +45,16 @@ enum Theme {
     /// The light half is #707070 for the identical reason: #787878 measures
     /// 4.2:1 and is the obvious-looking choice.
     static let dim = grey(light: 0.44, dark: 0.54)
+    /// Glyph marks that stand for a property of a row — a link, an image — as
+    /// opposed to text that is read.
+    ///
+    /// Well below `dim`, which is the floor for anything with words in it. These
+    /// carry meaning but are not read, so they answer to the 3:1 WCAG asks of
+    /// non-text content rather than the 4.5:1 it asks of body copy, and can sit
+    /// back further than any label is allowed to. This sits at roughly that 3:1
+    /// on either ground and has nowhere further to go — one more step and the
+    /// mark stops being reliably visible at all. Do not set text in this.
+    static let mark = grey(light: 0.63, dark: 0.355)
     /// Row separators and section rules.
     static let line = grey(light: 0.878, dark: 0.20)
     /// Borders on chips and thumbnails — decoration, not a control boundary.
@@ -80,6 +90,17 @@ enum Theme {
     /// darkens only slightly, to hold the same relationship to `brand` that the
     /// dark pair has. Both sit at roughly 5:1 at their ground's own hue.
     static let brandText = rgb(light: (0.659, 0.114, 0.118), dark: (0.859, 0.290, 0.294))
+
+    /// The red for text that sits *under* something already set in `brandText` —
+    /// the preview under an urgent title, the body under an urgent heading.
+    ///
+    /// Paler and less saturated rather than darker. On a dark ground a receding
+    /// colour is normally a dimmer one, but a dimmer red just reads as a browner
+    /// red, and two reds that differ only in mud look like a mistake. Washing the
+    /// saturation out instead keeps the pair legible as one voice at two volumes.
+    /// The light half is not the same hue moved: on paper, pale reads as absent,
+    /// so it softens toward the ground from the other side.
+    static let brandDim = rgb(light: (0.784, 0.365, 0.361), dark: (0.925, 0.596, 0.588))
 
     /// Destructive actions. Deliberately further from `brand` than it looks, so
     /// a delete never reads as an unread marker: lighter on the dark ground,

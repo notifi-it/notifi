@@ -15,6 +15,34 @@ export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
   return next();
 };
 
+/// Verifies the signature but skips the replay guard, which costs a D1 write on
+/// every call. The guard exists so a captured request cannot be re-sent to cause
+/// an effect a second time; a read has no effect to repeat, and the body it
+/// returns is sealed to the device's own key. `/history` is polled on a timer,
+/// so that write was the single largest line on the bill and it was buying
+/// nothing.
+///
+/// Only ever mount this on a handler that reads. The moment one writes, it needs
+/// `signatureAuth`.
+export const signatureAuthReadOnly: MiddlewareHandler<AppEnv> = async (c, next) => {
+  if (c.get('signatureChecked')) return next();
+
+  const rawBody = await c.req.arrayBuffer();
+  const result = await verifyDeviceSignature(c.req.raw, rawBody, now());
+  if (!result.ok) {
+    const message =
+      result.code === 'stale_timestamp'
+        ? 'Request timestamp is outside the allowed window.'
+        : 'Invalid request signature.';
+    return c.json(errBody(result.code, message), 401);
+  }
+
+  c.set('signatureChecked', true);
+  c.set('rawBody', rawBody);
+  c.set('publicKey', result.publicKey);
+  return next();
+};
+
 export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
   // At most once per request. `keys.ts` registers this on both `/keys` and
   // `/keys/*`, and Hono matches a request for `/keys` against both, so it ran

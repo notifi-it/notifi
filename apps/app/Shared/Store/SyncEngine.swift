@@ -201,7 +201,8 @@ final class SyncEngine {
             createdAt: Date(timeIntervalSince1970: TimeInterval(row.createdAt)),
             occurredAt: content.occurredAt.map {
                 Date(timeIntervalSince1970: TimeInterval($0) / 1000)
-            }
+            },
+            isCritical: content.isCritical ?? false
         )
         context.insert(message)
         return .inserted
@@ -244,7 +245,7 @@ final class SyncEngine {
                     createdAt: summary.createdAt,
                     lastUsedAt: summary.lastUsedAt,
                     revokedAt: summary.revokedAt,
-                    critical: summary.critical == 1
+                    isCriticalFlag: summary.isCritical == 1
                 ))
             }
             keys = built

@@ -15,6 +15,9 @@ final class Message {
     /// Never used for sorting — see the 0003 migration for why.
     var occurredAt: Date?
     var isRead: Bool = false
+    /// Whether this arrived as a critical alert — through silent mode and Focus.
+    /// Defaulted rather than optional so the store migrates without a version.
+    var isCritical: Bool = false
 
     init(
         serverID: Int,
@@ -25,7 +28,8 @@ final class Message {
         keyID: Int? = nil,
         createdAt: Date,
         occurredAt: Date? = nil,
-        isRead: Bool = false
+        isRead: Bool = false,
+        isCritical: Bool = false
     ) {
         self.serverID = serverID
         self.title = title
@@ -36,5 +40,6 @@ final class Message {
         self.createdAt = createdAt
         self.occurredAt = occurredAt
         self.isRead = isRead
+        self.isCritical = isCritical
     }
 }

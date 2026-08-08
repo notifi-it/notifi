@@ -18,6 +18,7 @@ struct KeyDetailView: View {
     @State private var isRegenerating = false
     @State private var errorMessage: String?
     @State private var copied = false
+    @State private var copiedCurl = false
     @State private var isUpdatingCritical = false
 
     private var key: CachedKey? { model.sync?.keys.first { $0.id == keyID } }
@@ -126,7 +127,17 @@ struct KeyDetailView: View {
                         Clipboard.copy(full)
                         flash()
                     }
+                    // The Mac has no share sheet worth the name here — the value
+                    // is going into a terminal or a script, so the useful thing
+                    // to hand over is the whole request rather than the key.
+                    #if os(macOS)
+                    OutlineButton(title: copiedCurl ? Copy.Common.copied : Copy.KeyDetail.copyCurl) {
+                        Clipboard.copy(sendCommand(key: full))
+                        flashCurl()
+                    }
+                    #else
                     OutlineShareButton(title: Copy.KeyDetail.shareKey, item: full)
+                    #endif
                 }
                 .padding(.top, 18)
                 Text(Copy.KeyDetail.defaultKeyDetail)
@@ -219,6 +230,27 @@ struct KeyDetailView: View {
         }
     }
 
+    #if os(macOS)
+    private func flashCurl() {
+        withAnimation(.easeOut(duration: 0.15)) { copiedCurl = true }
+        Task {
+            try? await Task.sleep(for: .seconds(1.6))
+            withAnimation(.easeOut(duration: 0.2)) { copiedCurl = false }
+        }
+    }
+
+    /// POST with a JSON body rather than the `--get` form the empty state
+    /// prints: that snippet exists to be run once by hand, this one is the
+    /// shape a script keeps, and a key in a query string ends up in logs.
+    private func sendCommand(key: String) -> String {
+        """
+        curl -X POST "\(model.baseURL.absoluteString)/send" \\
+          -H "Content-Type: application/json" \\
+          -d '{"key":"\(key)","title":"Deploy finished","message":"web is live"}'
+        """
+    }
+    #endif
+
     private func regenerate() async {
         isRegenerating = true
         errorMessage = nil
@@ -239,16 +271,16 @@ struct KeyDetailView: View {
         isRegenerating = false
     }
 
-    private func setCritical(_ critical: Bool) async {
+    private func setCritical(_ isCritical: Bool) async {
         isUpdatingCritical = true
         errorMessage = nil
         do {
-            let granted = try await model.setKeyCritical(id: keyID, critical: critical)
+            let granted = try await model.setKeyCritical(id: keyID, isCritical: isCritical)
             // Only the case the row's own text cannot cover: the user turned
             // Critical Alerts off themselves, so the ceiling is lower than it
             // would otherwise be and nothing on screen would say why. Every other
             // standing is described by `criticalDetail` and needs no error.
-            if critical, granted == .disabled {
+            if isCritical, granted == .disabled {
                 errorMessage = Copy.KeyDetail.criticalNotPermitted
             }
         } catch {

@@ -25,7 +25,7 @@ const MINIMAL_MESSAGE_MAX = 200;
 interface KeyDeviceRow {
   key_id: number;
   revoked_at: number | null;
-  critical: number;
+  is_critical: number;
   device_id: number;
   apns_token: string;
   encryption_public_key: string;
@@ -127,7 +127,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const secretHash = await hashKey(input.key);
   const row = await c.env.DB.prepare(
-    `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.critical AS critical,
+    `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.is_critical AS is_critical,
             d.id AS device_id, d.apns_token AS apns_token,
             d.encryption_public_key AS encryption_public_key
      FROM keys k JOIN devices d ON d.id = k.device_id
@@ -204,6 +204,16 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     );
   }
 
+  // Resolved before the seal rather than just before the push, because it is
+  // part of what the message *was*. Both halves have to agree: the sender asks
+  // per message, the device owner allows it per key. A send key that leaks
+  // cannot raise its own volume, and a key marked critical stays quiet for the
+  // ordinary sends that share it.
+  // Either spelling. `is_critical` is the name; `critical` is what the scripts
+  // already written say, and both mean the same request.
+  const asked = input.is_critical === true || input.critical === true;
+  const critical = asked && row.is_critical === 1;
+
   const content: MessageContent = {
     title: input.title,
     ...(input.message !== undefined ? { message: input.message } : {}),
@@ -212,11 +222,18 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     key_id: row.key_id,
     created_at: createdAt,
     ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
+    is_critical: critical,
   };
   const fullSealed = await seal(row.encryption_public_key, 'content', JSON.stringify(content));
 
   const expiresAt = nowS + MESSAGE_BACKSTOP_S;
 
+  // NOTE: this is allocate-then-insert again, and the visibility race it causes
+  // is real — see the ordering section of the delivery write-up. The number is
+  // handed out by the rate-limit UPDATE above so that a send costs one row write
+  // instead of two, which means it cannot simply be folded into this INSERT.
+  // Fixing it properly means batching both statements and letting the unique
+  // index reject the rate-limited case, which is too subtle to land untested.
   await c.env.DB.prepare(
     `INSERT INTO messages
        (device_id, device_seq, key_id, content_sealed, created_at, expires_at, occurred_at)
@@ -244,10 +261,11 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       ...(input.image !== undefined ? { image: input.image } : {}),
       key_id: row.key_id,
       created_at: createdAt,
-      // Every fallback has to carry occurred_at too. The app checks the sealed
-      // copy against the row, so a payload that dropped it would be treated as
-      // tampered and skipped.
+      // Every fallback has to carry occurred_at and critical too. The app checks
+      // the sealed copy against the row, so a payload that dropped either would
+      // be treated as tampered and skipped.
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
+      is_critical: critical,
     },
     {
       title: input.title,
@@ -257,19 +275,16 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       key_id: row.key_id,
       created_at: createdAt,
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
+      is_critical: critical,
     },
     {
       title: input.title,
       key_id: row.key_id,
       created_at: createdAt,
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
+      is_critical: critical,
     },
   ];
-
-  // Both halves have to agree: the sender asks per message, the device owner
-  // allows it per key. A send key that leaks cannot raise its own volume, and a
-  // key marked critical stays quiet for the ordinary sends that share it.
-  const escalate = input.critical === true && row.critical === 1;
 
   // Not `t(c)`: this text is read by the recipient, and the request that
   // produced it came from the sender's script, whose Accept-Language says
@@ -278,12 +293,30 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   // service extension replaces it with the decrypted title in almost every case.
   const deviceStrings = copyFor(SOURCE_LANGUAGE);
 
-  let payload = pushPayload(messageId, fullSealed, row.key_id, escalate, deviceStrings);
+  let payload = pushPayload(messageId, fullSealed, row.key_id, critical, deviceStrings);
   for (const candidate of fallbacks) {
     if (payloadBytes(payload) <= PUSH_BUDGET_BYTES) break;
     const sealed = await seal(row.encryption_public_key, 'content', JSON.stringify(candidate));
-    payload = pushPayload(messageId, sealed, row.key_id, escalate, deviceStrings);
+    payload = pushPayload(messageId, sealed, row.key_id, critical, deviceStrings);
   }
+
+  // Both transports, always, and neither waits on the other. APNs is the one
+  // that works when the device is asleep; the socket is the one that works when
+  // APNs does not. A device holding both gets the message twice and de-duplicates
+  // on `device_seq`, which it already does for the push that races the poll.
+  //
+  // The socket wake is best-effort and deliberately after the D1 insert: a
+  // device woken before the row is committed would fetch nothing and go back to
+  // sleep. A failure here must not fail the send — the message is stored, and
+  // APNs and the fallback poll both still reach it.
+  const wake = (async () => {
+    try {
+      const id = c.env.DEVICE_SOCKET.idFromName(String(row.device_id));
+      await c.env.DEVICE_SOCKET.get(id).notify(deviceSeq);
+    } catch {
+      // Nothing to do. See above.
+    }
+  })();
 
   await push(
     c.env,
@@ -293,6 +326,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     expiresAt,
     nowS,
   );
+  c.executionCtx.waitUntil(wake);
 
   // Deliberately no id. It is now per-device rather than global, so returning it
   // would no longer leak the relay's traffic — it would leak the recipient's,
