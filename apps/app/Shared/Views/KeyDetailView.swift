@@ -264,6 +264,7 @@ struct KeyDetailView: View {
             AccessibilityNotification.Announcement(
                 Copy.KeyDetail.regeneratedAnnouncement
             ).post()
+            Haptics.success()
         } catch {
             errorMessage = (error as? APIError)?.userMessage
                 ?? Copy.KeyDetail.regenerateFailed
@@ -300,6 +301,7 @@ struct KeyDetailView: View {
             // See `regenerate()`: the success half of a destructive action has to
             // announce itself too.
             AccessibilityNotification.Announcement(Copy.KeyDetail.revokedAnnouncement).post()
+            Haptics.success()
         } catch {
             errorMessage = (error as? APIError)?.userMessage ?? Copy.KeyDetail.revokeFailed
         }

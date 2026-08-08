@@ -268,6 +268,7 @@ struct CreateKeyView: View {
             let response = try await api.createKey(
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines))
             await model.sync?.refreshKeys()
+            Haptics.success()
             withAnimation(Theme.reveal) { phase = .revealed(response) }
         } catch {
             errorMessage = (error as? APIError)?.userMessage ?? Copy.CreateKey.createFailed

@@ -346,6 +346,11 @@ struct ToggleRow: View {
                 .accessibilityHint(detail ?? "")
         }
         .padding(.vertical, Theme.rowPadV)
+        // The drawn switch is SwiftUI's, not a UISwitch, and it moves silently.
+        // Watched on the binding rather than fired in a tap handler, because the
+        // rows that flip asynchronously (Critical Alerts) snap back when the
+        // server refuses — and the snap back is a movement too.
+        .onChange(of: isOn) { Haptics.selection() }
     }
 }
 
@@ -502,7 +507,12 @@ struct InlineError: View {
         // An error inserted into the tree is silent: VoiceOver announces it only
         // if focus happens to land on it, so someone who just tapped Send heard
         // nothing at all and had no way to tell failure from still-working.
-        .onAppear { AccessibilityNotification.Announcement(message).post() }
+        // The haptic rides the same appearance for the same reason — eyes on
+        // the keyboard or the terminal miss a banner that arrives quietly.
+        .onAppear {
+            AccessibilityNotification.Announcement(message).post()
+            Haptics.error()
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Copy.Components.errorLabel(message))
     }
@@ -523,7 +533,13 @@ struct AnnouncedText: View {
             .font(font)
             .foregroundStyle(color)
             .fixedSize(horizontal: false, vertical: true)
-            .onAppear { AccessibilityNotification.Announcement(message).post() }
+            // The success twin of `InlineError`'s appearance feedback: announced
+            // and felt, or a VoiceOver user and a glanced-away one both only
+            // ever notice the failures.
+            .onAppear {
+                AccessibilityNotification.Announcement(message).post()
+                Haptics.success()
+            }
     }
 }
 

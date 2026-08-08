@@ -119,6 +119,9 @@ struct FeedHeader<Trailing: View>: View {
 
     private func markAllRead() {
         for message in messages where !message.isRead { message.isRead = true }
+        // The action fires from a menu that has already closed over the rows it
+        // changed; the buzz is the only feedback that arrives where the thumb is.
+        Haptics.success()
         do {
             try context.save()
         } catch {

@@ -276,6 +276,9 @@ struct MessageFeed<Empty: View>: View {
         message.isRead.toggle()
         save()
         model.sync?.reconcileNotifications()
+        // The row's visible change is subtle — a weight and a colour — and on a
+        // swipe the thumb is covering it.
+        Haptics.tap()
     }
 
     private func delete(_ message: Message) {
@@ -288,6 +291,9 @@ struct MessageFeed<Empty: View>: View {
             save()
         }
         model.sync?.reconcileNotifications()
+        // Fired on completion, not on the swipe: the alert between the two is
+        // where the gesture stops being an accident.
+        Haptics.success()
     }
 
     private func open(_ url: URL, keyID: Int?) {

@@ -12,11 +12,17 @@ struct InboxRootView: View {
         // field interaction on 26 — but the app deploys to 17, where neither
         // exists. Below 18 the original `.tabItem` bar is kept as-is and there
         // is no search tab; the Inbox is still fully usable without one.
-        if #available(iOS 18.0, *) {
-            modernTabs
-        } else {
-            legacyTabs
+        Group {
+            if #available(iOS 18.0, *) {
+                modernTabs
+            } else {
+                legacyTabs
+            }
         }
+        // The system leaves tab bars silent. On the change rather than in a tap
+        // handler, so a notification landing the app on a tab ticks too — the
+        // movement is the same whichever finger caused it.
+        .onChange(of: model.selectedTab) { Haptics.selection() }
         #else
         // The same three destinations as iOS, in the same order, so the two
         // platforms are one product. SwiftUI's TabView is not used: on macOS it
