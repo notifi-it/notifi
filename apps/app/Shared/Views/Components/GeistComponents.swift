@@ -65,12 +65,15 @@ struct SearchField: View {
         // Minimum, not fixed: the field's text scales with Dynamic Type, and a
         // hard height clipped it at the accessibility sizes.
         .frame(minHeight: 38)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 9))
+        // Square, like the message blocks' chrome rather than the controls' —
+        // the field spans the screen the way the rules do, and rounding it made
+        // it read as one more button.
+        .background(Theme.surface)
         // 2pt when focused, and `muted` rather than a half-opacity wash of it —
         // the old ring composited to 2.7:1 against the field it sat on, under the
         // 3:1 a focus indicator has to clear.
         .overlay(
-            RoundedRectangle(cornerRadius: 9)
+            Rectangle()
                 .stroke(focused.wrappedValue ? Theme.muted : Theme.controlBorder,
                         lineWidth: focused.wrappedValue ? 2 : 1)
         )

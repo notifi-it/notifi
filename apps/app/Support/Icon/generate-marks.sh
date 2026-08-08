@@ -199,6 +199,29 @@ svg("%s/BellLogo.imageset/bell.svg" % assets, 32, 32, logo_box, mark(logo_box, "
 svg("%s/BellTab.imageset/bell.svg" % assets, 24, 24, tab_box, mark(tab_box, "#000", "#000"),
     note="\n\n       Framed looser than BellLogo so the bell carries the same weight in the\n"
          "       tab bar as the akar icons beside it.")
+# The bells that ring are split into two layers, because the clapper swings a
+# beat behind the body when a message arrives. Cropped by the same box, so
+# drawing one over the other aligns by construction — the same trick
+# generate-menu-icon.sh plays with menu_dot.
+def body(colour, badge, indent="  "):
+    return "\n".join(indent + p for p in (
+        '<circle cx="%s" cy="%s" r="%s" fill="%s"/>' % (bcx, bcy, br, badge),
+        outline.replace(BRAND, colour),
+    ))
+
+def clap(colour, indent="  "):
+    return indent + clapper.replace(BRAND, colour)
+
+svg("%s/BellLogoBody.imageset/bell.svg" % assets, 32, 32, logo_box, body("#000", "#000"))
+svg("%s/BellLogoClapper.imageset/bell.svg" % assets, 32, 32, logo_box, clap("#000"))
+svg("%s/BellTabBody.imageset/bell.svg" % assets, 24, 24, tab_box, body("#000", "#000"))
+svg("%s/BellTabClapper.imageset/bell.svg" % assets, 24, 24, tab_box, clap("#000"))
+# The unread body renders as original rather than template, exactly like
+# BellTabUnread and for the same reason: the tab tint must not flatten the red.
+for name, ink in (("bell-light", "#1A1A1A"), ("bell-dark", "#EDEDED")):
+    svg("%s/BellTabUnreadBody.imageset/%s.svg" % (assets, name), 24, 24, tab_box,
+        body(ink, "#BC2122"))
+
 svg("%s/EmptyBell.imageset/bell.svg" % assets, 32, 32, logo_box, ghost("#000", logo_box),
     note="\n\n       The empty inbox: the mark hollowed out, drawn from its own outline.")
 # The site masks this one with currentColor and lays its own disc over the

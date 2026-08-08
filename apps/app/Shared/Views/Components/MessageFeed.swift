@@ -38,32 +38,51 @@ struct MessageFeed<Empty: View>: View {
             .eraseToAnyPublisher()
     }
 
-    var body: some View {
-        List {
-            if messages.isEmpty {
-                empty().plainRow()
-            } else {
-                // Bound once: it is a computed property, and reading it inside the
-                // loop as well would band the whole feed again on every row.
-                let banded = bands
-                ForEach(banded) { band in
-                    BandHeader(title: band.band.title(now: now),
-                               count: band.messages.count,
-                               isFirst: band.id == banded.first?.id)
-                        .geistGutter()
-                        .plainRow()
+    @ViewBuilder
+    private var rows: some View {
+        if messages.isEmpty {
+            empty().plainRow()
+        } else {
+            // Bound once: it is a computed property, and reading it inside the
+            // loop as well would band the whole feed again on every row.
+            let banded = bands
+            ForEach(banded) { band in
+                BandHeader(title: band.band.title(now: now),
+                           count: band.messages.count,
+                           isFirst: band.id == banded.first?.id)
+                    .geistGutter()
+                    .plainRow()
 
-                    ForEach(Array(band.messages.enumerated()),
-                            id: \.element.serverID) { index, message in
-                        // The last message in a band draws no rule of its own.
-                        // The next band's rule is already the divider under it,
-                        // and two lines a few points apart read as a mistake.
-                        row(for: message,
-                            showsRule: index < band.messages.count - 1)
-                    }
+                ForEach(Array(band.messages.enumerated()),
+                        id: \.element.serverID) { index, message in
+                    // The last message in a band draws no rule of its own.
+                    // The next band's rule is already the divider under it,
+                    // and two lines a few points apart read as a mistake.
+                    row(for: message,
+                        showsRule: index < band.messages.count - 1)
                 }
             }
         }
+    }
+
+    /// The same rows in two containers. iOS keeps `List`, which buys it swipe
+    /// actions and pull-to-refresh. The Mac popover uses a plain `ScrollView`:
+    /// the AppKit table under a Mac `List` estimates variable row heights while
+    /// scrolling and corrects them as rows arrive, which read as jitter — and a
+    /// few hundred lazy rows need none of the table's recycling. It also stops
+    /// AppKit ringing the right-clicked row in accent blue, which no modifier
+    /// could reach.
+    @ViewBuilder
+    private var feed: some View {
+        #if os(macOS)
+        ScrollView { LazyVStack(spacing: 0) { rows } }
+        #else
+        List { rows }
+        #endif
+    }
+
+    var body: some View {
+        feed
         .modifier(TrackingRoll())
         .listStyle(.plain)
         // A List cell is at least 44pt tall unless told otherwise, and the band
@@ -509,6 +528,8 @@ private struct MessageRow: View {
     let showsRule: Bool
 
     @State private var isHovered = false
+    /// Pending hover — see the `onHover` debounce below.
+    @State private var hoverTask: Task<Void, Never>?
 
     /// Drops the stamp column so its capitals start level with the title's.
     ///
@@ -678,7 +699,23 @@ private struct MessageRow: View {
         // lifts or grows under the pointer drags the rows below it and the whole
         // feed twitches on a mouse crossing it.
         .animation(.easeOut(duration: 0.12), value: isHovered)
-        .onHover { isHovered = $0 }
+        // Taken only after the cursor has rested on the row. During a scroll the
+        // rows sweep under a stationary pointer, and reacting to each crossing
+        // lit and faded every row on its way past — which read as the whole feed
+        // jittering. A tenth of a second is under what a deliberate hover
+        // notices and over what a scrolling row spends under the cursor.
+        .onHover { hovering in
+            hoverTask?.cancel()
+            guard hovering else {
+                isHovered = false
+                return
+            }
+            hoverTask = Task {
+                try? await Task.sleep(for: .milliseconds(100))
+                guard !Task.isCancelled else { return }
+                isHovered = true
+            }
+        }
         #endif
         // Carried here rather than applied by the feed, so the rule below can run
         // off the trailing edge while the message stays inside the margin.

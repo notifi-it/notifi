@@ -99,7 +99,12 @@ struct InboxView: View {
                 // line travelling up the screen rather than the edge of the
                 // chrome.
                 .overlay(alignment: .bottom) {
+                    // iOS only. The popover's own frame already bounds the top
+                    // of the Mac screen a few points up; a full-strength rule
+                    // here read as a second border, not as the app's chrome.
+                    #if os(iOS)
                     Hairline(color: Theme.chromeRuleColor, weight: Theme.chromeRule)
+                    #endif
                 }
 
             list

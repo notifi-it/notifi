@@ -27,6 +27,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 OUT="../../Shared/Assets.xcassets/menu_icon.imageset/menu.png"
 OUT_DOT="../../Shared/Assets.xcassets/menu_dot.imageset/dot.png"
+OUT_CLAPPER="../../Shared/Assets.xcassets/menu_clapper.imageset/clapper.png"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -35,10 +36,11 @@ CANVAS=102     # pixels, drawn by MacMenuBar into a 20pt square
 SLOT_PT=20
 GLYPH_PT=16
 
-python3 - "$TMP/menu.svg" "$STROKE" "$TMP/dot.svg" <<'PY'
+python3 - "$TMP/menu.svg" "$STROKE" "$TMP/dot.svg" "$TMP/body.svg" "$TMP/clapper.svg" <<'PY'
 import re, sys
 
-out_path, stroke, dot_path = sys.argv[1], float(sys.argv[2]), sys.argv[3]
+out_path, stroke, dot_path, body_path, clapper_path = \
+    sys.argv[1], float(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5]
 src = open("notifi-logo.svg").read()
 BRAND = "rgb(73.699951%, 12.89978%, 13.299561%)"
 
@@ -69,6 +71,15 @@ open(out_path, "w").write("".join(parts))
 badge = re.findall(r"<path[^>]*>", src)[1].replace(BRAND, "rgb(0%,0%,0%)")
 head = src[:src.index("<path")]
 open(dot_path, "w").write(head + badge + "\n</svg>\n")
+
+# The bell split for the ring: the body (everything but paths 0 and 1) and the
+# clapper (path 0) as separate layers in the same viewBox, so MacMenuBar can
+# swing them at different angles and they stay one bell. The full menu.svg is
+# still what the crop box is measured from, so the framing cannot shift.
+tags = re.findall(r"<path[^>]*>", src)
+ink = lambda t: t.replace(BRAND, "rgb(0%,0%,0%)")
+open(body_path, "w").write(head + "\n".join(ink(t) for t in tags[2:]) + "\n</svg>\n")
+open(clapper_path, "w").write(head + ink(tags[0]) + "\n</svg>\n")
 PY
 
 GLYPH_PX=$(python3 -c "print(round($CANVAS * $GLYPH_PT / $SLOT_PT))")
@@ -77,13 +88,17 @@ GLYPH_PX=$(python3 -c "print(round($CANVAS * $GLYPH_PT / $SLOT_PT))")
 # antialiased fringe, then scaled down to the height the bar wants.
 rsvg-convert -w 1024 -h 1024 "$TMP/menu.svg" -o "$TMP/raw.png"
 rsvg-convert -w 1024 -h 1024 "$TMP/dot.svg" -o "$TMP/raw-dot.png"
+rsvg-convert -w 1024 -h 1024 "$TMP/body.svg" -o "$TMP/raw-body.png"
+rsvg-convert -w 1024 -h 1024 "$TMP/clapper.svg" -o "$TMP/raw-clapper.png"
 
 # The crop box comes from the bell and is then applied to the badge unchanged.
 # Trimming the badge to its own ink would centre it on the canvas, which is the
 # one thing it must not be.
 BOX="$(magick "$TMP/raw.png" -format "%@" info:)"
 
-for pair in "raw.png:$OUT" "raw-dot.png:$OUT_DOT"; do
+# menu_icon is the body alone — the clapper rides in its own layer so the bar
+# can swing them apart. The crop still comes from the full bell above.
+for pair in "raw-body.png:$OUT" "raw-dot.png:$OUT_DOT" "raw-clapper.png:$OUT_CLAPPER"; do
   # PNG32 explicitly: the badge layer is one shape on empty space, and left to
   # itself magick writes that as opaque greyscale, which draws as a filled
   # square over the bell.
@@ -92,6 +107,7 @@ for pair in "raw.png:$OUT" "raw-dot.png:$OUT_DOT"; do
     "PNG32:${pair#*:}"
 done
 
-mkdir -p "$(dirname "$OUT_DOT")"
+mkdir -p "$(dirname "$OUT_DOT")" "$(dirname "$OUT_CLAPPER")"
 echo "Wrote $(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 echo "Wrote $(cd "$(dirname "$OUT_DOT")" && pwd)/$(basename "$OUT_DOT")"
+echo "Wrote $(cd "$(dirname "$OUT_CLAPPER")" && pwd)/$(basename "$OUT_CLAPPER")"

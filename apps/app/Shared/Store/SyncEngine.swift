@@ -91,6 +91,10 @@ final class SyncEngine {
         defer { isSyncing = false }
 
         var newMessages = 0
+        // A first sync replays the whole backlog; announcing any of it would
+        // page the user about history they have already been paged about.
+        let firstSync = bookmark == 0
+        var arrivals: [Arrival] = []
         do {
             var pagesFetched = 0
             pages: while pagesFetched < Self.maxPagesPerSync {
@@ -103,8 +107,11 @@ final class SyncEngine {
                 var blocked = false
                 for row in page.messages {
                     switch ingest(row) {
-                    case .inserted:
+                    case .inserted(let content):
                         newMessages += 1
+                        arrivals.append(Arrival(
+                            serverID: row.id, sealed: row.contentSealed, content: content
+                        ))
                     case .duplicate, .discarded:
                         break
                     case .unreadable:
@@ -149,13 +156,84 @@ final class SyncEngine {
         if newMessages > 0 {
             NotificationCenter.default.post(name: .notifiNewMessages, object: nil)
         }
+        if !firstSync { backstopBanners(arrivals) }
+    }
+
+    /// Posts a local banner for any message the sync brought in whose push never
+    /// arrived — APNs down, or an environment that cannot receive it. The socket
+    /// wake already proves delivery is possible; a pager that stores the page but
+    /// stays silent has not paged anyone.
+    ///
+    /// Deduplication runs in both directions. Here, a message whose push already
+    /// sits in Notification Center is skipped. In `NotificationDelegate`, a push
+    /// that arrives after this banner removes it by its `local-` identifier, so a
+    /// slow push costs a replaced banner rather than a second one.
+    ///
+    /// The userInfo mirrors the push's shape exactly — id plus the sealed blob —
+    /// so the delegate's action handlers work identically on either copy, and the
+    /// link stays sealed rather than sitting in the notification store in the
+    /// clear.
+    private func backstopBanners(_ arrivals: [Arrival]) {
+        guard !arrivals.isEmpty else { return }
+        Task {
+            let center = UNUserNotificationCenter.current()
+            let announced = Set(await center.deliveredNotifications().compactMap {
+                Self.serverID(from: $0.request.content.userInfo)
+            })
+            for arrival in arrivals where !announced.contains(arrival.serverID) {
+                let content = UNMutableNotificationContent()
+                content.title = arrival.content.title
+                if let message = arrival.content.message { content.body = message }
+                content.sound = .default
+                // The same ceiling the server's escalated push asks for — see
+                // CRITICAL_ENTITLED in send.ts for why this is time-sensitive
+                // and not critical.
+                if arrival.content.isCritical ?? false {
+                    content.interruptionLevel = .timeSensitive
+                }
+                // The same thread the server's push would have used, so the two
+                // copies of a key's messages stack together whichever transport
+                // announced them.
+                if let keyID = arrival.content.keyID {
+                    content.threadIdentifier = "key-\(keyID)"
+                }
+                content.categoryIdentifier = Self.bannerCategory(for: arrival.content)
+                content.userInfo = [
+                    "notifi": ["id": arrival.serverID, "sealed": arrival.sealed]
+                ]
+                try? await center.add(UNNotificationRequest(
+                    identifier: "local-\(arrival.serverID)",
+                    content: content,
+                    trigger: nil
+                ))
+            }
+        }
+    }
+
+    /// The same rule the service extension applies, for the same reason: a link
+    /// the strictest policy rejects gets no button, and stays openable from the
+    /// message screen where the key's own allowance is known.
+    private static func bannerCategory(for content: MessageContent) -> String {
+        var hasLink = false
+        if let link = content.link, let url = URL(string: link) {
+            hasLink = LinkPolicy.allows(url, anyScheme: false)
+        }
+        return NotificationCategories.categoryID(keyID: content.keyID, hasLink: hasLink)
     }
 
     private enum IngestResult {
-        case inserted
+        case inserted(MessageContent)
         case duplicate
         case discarded
         case unreadable
+    }
+
+    /// A message this sync brought in, held long enough to check that the push
+    /// announcing it actually arrived.
+    private struct Arrival {
+        let serverID: Int
+        let sealed: String
+        let content: MessageContent
     }
 
     private func ingest(_ row: HistoryMessage) -> IngestResult {
@@ -205,7 +283,7 @@ final class SyncEngine {
             isCritical: content.isCritical ?? false
         )
         context.insert(message)
-        return .inserted
+        return .inserted(content)
     }
 
     private func unreadableOrGiveUp(_ serverID: Int, reason: String) -> IngestResult {

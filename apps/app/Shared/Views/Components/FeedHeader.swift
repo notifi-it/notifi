@@ -76,6 +76,10 @@ struct FeedHeader<Trailing: View>: View {
             Divider()
             Button(Copy.Inbox.refresh) { Task { await model.refresh() } }
                 .keyboardShortcut("r", modifiers: .command)
+            // A menu bar app has no Dock icon and no app menu, so without this
+            // the only ways out are Activity Monitor or knowing ⌘Q works blind.
+            Button(Copy.Common.quit) { NSApplication.shared.terminate(nil) }
+                .keyboardShortcut("q", modifiers: .command)
             #endif
 
             #if DEBUG

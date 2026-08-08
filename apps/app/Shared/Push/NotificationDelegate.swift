@@ -7,6 +7,14 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate, @u
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
+        // A push that lost the race to the socket: the sync already posted a
+        // local backstop banner for this message, and keeping both would tell
+        // the user twice. The push's copy wins because it is the one Apple will
+        // stack and summarise with the rest of its thread.
+        if notification.request.trigger is UNPushNotificationTrigger,
+           let serverID = Self.serverID(from: notification.request.content.userInfo) {
+            center.removeDeliveredNotifications(withIdentifiers: ["local-\(serverID)"])
+        }
         // `.list` as well as `.banner`, so a page that arrives while the app is
         // open still lands in Notification Center. Without it the banner is the
         // only copy that ever exists and it is gone in four seconds — which for

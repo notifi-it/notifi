@@ -476,6 +476,63 @@ extension ButtonStyle where Self == GeistRowStyle {
     static var geistRow: GeistRowStyle { GeistRowStyle() }
 }
 
+extension View {
+    /// The bell's ring: the same damped swing `BellAnimator` plays in the menu
+    /// bar, as keyframes — thrown hard to one side, then each return swing a
+    /// little smaller until it settles. Every bell answers an arrival with this
+    /// one motion; two bells swinging differently read as two apps.
+    ///
+    /// Peaks and half-swing timing are read off `BellAnimator`'s angle table
+    /// (15ms a frame, ~15 frames a half-swing) — change one and the other must
+    /// follow. Pivot at the crown, the way a real bell swings.
+    func bellSwing(trigger: Int) -> some View {
+        keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, angle in
+            view.rotationEffect(.degrees(angle), anchor: .top)
+        } keyframes: { _ in
+            KeyframeTrack {
+                CubicKeyframe(-20, duration: 0.11)
+                CubicKeyframe(18, duration: 0.225)
+                CubicKeyframe(-16, duration: 0.225)
+                CubicKeyframe(14, duration: 0.225)
+                CubicKeyframe(-13, duration: 0.225)
+                CubicKeyframe(12, duration: 0.225)
+                CubicKeyframe(-10, duration: 0.225)
+                CubicKeyframe(8, duration: 0.225)
+                CubicKeyframe(-6, duration: 0.225)
+                CubicKeyframe(4, duration: 0.225)
+                CubicKeyframe(-2, duration: 0.225)
+                CubicKeyframe(0, duration: 0.225)
+            }
+        }
+    }
+
+    /// The clapper's half of the ring: the same pivot and rhythm as `bellSwing`,
+    /// held still for a beat and thrown half again as far — the loose part of a
+    /// real bell trails the body and overshoots it. Apply to a `*Clapper` layer
+    /// drawn over its `*Body`; the generator crops both by the same box, so the
+    /// two stay one bell at every angle.
+    func clapperSwing(trigger: Int) -> some View {
+        keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, angle in
+            view.rotationEffect(.degrees(angle), anchor: .top)
+        } keyframes: { _ in
+            KeyframeTrack {
+                CubicKeyframe(0, duration: 0.06)
+                CubicKeyframe(-30, duration: 0.11)
+                CubicKeyframe(27, duration: 0.225)
+                CubicKeyframe(-24, duration: 0.225)
+                CubicKeyframe(20, duration: 0.225)
+                CubicKeyframe(-18, duration: 0.225)
+                CubicKeyframe(15, duration: 0.225)
+                CubicKeyframe(-12, duration: 0.225)
+                CubicKeyframe(9, duration: 0.225)
+                CubicKeyframe(-6, duration: 0.225)
+                CubicKeyframe(3, duration: 0.225)
+                CubicKeyframe(0, duration: 0.225)
+            }
+        }
+    }
+}
+
 /// A one-pixel rule. `Divider()` picks up system colours and insets we do not want.
 struct Hairline: View {
     var color: Color = Theme.line

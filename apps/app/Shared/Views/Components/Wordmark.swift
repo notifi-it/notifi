@@ -80,36 +80,36 @@ struct BellMark: View {
     private static let badgeDiameter: CGFloat = 0.2835
 
     var body: some View {
-        Image("BellLogo")
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
+        // Body and clapper as separate layers so the clapper can trail the
+        // swing. Same generated box, so stacking them is the whole alignment.
+        ZStack {
+            // The unread dot rides the body — it sits on the bell's shoulder,
+            // so it must take the body's swing, not the clapper's.
+            Image("BellLogoBody")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .overlay {
+                    if hasUnread {
+                        Circle()
+                            .fill(Theme.brand)
+                            .frame(width: size * Self.badgeDiameter,
+                                   height: size * Self.badgeDiameter)
+                            .position(x: size * Self.badgeCentre.x,
+                                      y: size * Self.badgeCentre.y)
+                    }
+                }
+                .bellSwing(trigger: shake)
+            Image("BellLogoClapper")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .clapperSwing(trigger: shake)
+        }
             .foregroundStyle(Theme.fg)
             .frame(width: size, height: size)
-            .overlay {
-                if hasUnread {
-                    Circle()
-                        .fill(Theme.brand)
-                        .frame(width: size * Self.badgeDiameter,
-                               height: size * Self.badgeDiameter)
-                        .position(x: size * Self.badgeCentre.x,
-                                  y: size * Self.badgeCentre.y)
-                }
-            }
-            .frame(width: size, height: size)
-            // Pivot at the crown, the way a real bell swings.
-            .keyframeAnimator(initialValue: 0.0, trigger: shake) { view, angle in
-                view.rotationEffect(.degrees(angle), anchor: .top)
-            } keyframes: { _ in
-                KeyframeTrack {
-                    CubicKeyframe(-15, duration: 0.08)
-                    CubicKeyframe(12, duration: 0.10)
-                    CubicKeyframe(-8, duration: 0.10)
-                    CubicKeyframe(5, duration: 0.10)
-                    CubicKeyframe(-2.5, duration: 0.10)
-                    CubicKeyframe(0, duration: 0.10)
-                }
-            }
             .onReceive(NotificationCenter.default.publisher(for: .notifiNewMessages)) { _ in
                 guard !reduceMotion else { return }
                 shake &+= 1

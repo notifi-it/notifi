@@ -61,8 +61,10 @@ final class MenuBarController: NSObject {
 
     private var hasUnread: Bool { model?.hasUnread ?? false }
 
-    private func render(angle: CGFloat) {
-        statusItem?.button?.image = MenuBarIconRenderer.bell(unread: hasUnread, angle: angle)
+    private func render(angle: CGFloat, clapperAngle: CGFloat = 0) {
+        statusItem?.button?.image = MenuBarIconRenderer.bell(
+            unread: hasUnread, angle: angle, clapperAngle: clapperAngle
+        )
     }
 
     @objc private func unreadChanged() {
@@ -71,8 +73,8 @@ final class MenuBarController: NSObject {
 
     @objc private func newMessagesArrived() {
         animator?.stop()
-        animator = BellAnimator { [weak self] angle in
-            self?.render(angle: angle)
+        animator = BellAnimator { [weak self] angle, clapperAngle in
+            self?.render(angle: angle, clapperAngle: clapperAngle)
         } completion: { [weak self] in
             self?.animator = nil
             self?.render(angle: 0)
@@ -113,39 +115,47 @@ final class MenuBarController: NSObject {
 }
 
 enum MenuBarIconRenderer {
-    static func bell(unread: Bool, angle: CGFloat) -> NSImage {
+    static func bell(unread: Bool, angle: CGFloat, clapperAngle: CGFloat = 0) -> NSImage {
         let size = NSSize(width: 20, height: 20)
         let image = NSImage(size: size, flipped: false) { rect in
-            NSGraphicsContext.saveGraphicsState()
-            defer { NSGraphicsContext.restoreGraphicsState() }
 
-            if angle != 0 {
-                let transform = NSAffineTransform()
-                transform.translateX(by: rect.width / 2, yBy: rect.height / 2)
-                transform.rotate(byDegrees: angle)
-                transform.translateX(by: -rect.width / 2, yBy: -rect.height / 2)
-                transform.concat()
+            func rotated(by degrees: CGFloat, _ draw: () -> Void) {
+                NSGraphicsContext.saveGraphicsState()
+                defer { NSGraphicsContext.restoreGraphicsState() }
+                if degrees != 0 {
+                    let transform = NSAffineTransform()
+                    transform.translateX(by: rect.width / 2, yBy: rect.height / 2)
+                    transform.rotate(byDegrees: degrees)
+                    transform.translateX(by: -rect.width / 2, yBy: -rect.height / 2)
+                    transform.concat()
+                }
+                draw()
             }
 
-            if let bell = NSImage(named: "menu_icon") {
-                bell.isTemplate = true
-                bell.draw(in: rect)
-                NSColor.labelColor.set()
-                rect.fill(using: .sourceAtop)
-            }
-
-            // The badge is a second layer cropped from the same artwork by the
-            // same box, so it lands where the drawing puts it. Nothing here
-            // knows the position — see Support/Icon/generate-menu-icon.sh.
-            // Tinted in its own image rather than in place: `sourceAtop` covers
-            // the whole rect, so filling here would repaint the bell red too.
-            if unread, let dot = NSImage(named: "menu_dot") {
-                NSImage(size: size, flipped: false) { dotRect in
-                    dot.draw(in: dotRect)
-                    NSColor(Theme.brand).set()
-                    dotRect.fill(using: .sourceAtop)
+            func layer(_ name: String, tint: NSColor) {
+                guard let art = NSImage(named: name) else { return }
+                // Tinted in its own image rather than in place: `sourceAtop`
+                // covers the whole rect, so filling here would repaint every
+                // layer already drawn.
+                NSImage(size: size, flipped: false) { layerRect in
+                    art.draw(in: layerRect)
+                    tint.set()
+                    layerRect.fill(using: .sourceAtop)
                     return true
                 }.draw(in: rect)
+            }
+
+            // Body and clapper swing at their own angles — the clapper trails
+            // the body the way the loose half of a real bell does. Both layers,
+            // and the badge, are cropped from the same artwork by the same box,
+            // so they land where the drawing puts them at rest. Nothing here
+            // knows a position — see Support/Icon/generate-menu-icon.sh.
+            rotated(by: angle) {
+                layer("menu_icon", tint: .labelColor)
+                if unread { layer("menu_dot", tint: NSColor(Theme.brand)) }
+            }
+            rotated(by: clapperAngle) {
+                layer("menu_clapper", tint: .labelColor)
             }
             return true
         }
@@ -161,12 +171,18 @@ final class BellAnimator {
         return raw.split(separator: ",").compactMap { Double($0).map { CGFloat($0) } }
     }()
 
+    /// The clapper reads the same table four frames behind and half again as
+    /// far — the loose half of a real bell trails the body and overshoots it.
+    /// The same lag and gain the SwiftUI bells use in `clapperSwing`.
+    private static let clapperLag = 4
+    private static let clapperGain: CGFloat = 1.5
+
     private var index = 0
     private var timer: Timer?
-    private let step: (CGFloat) -> Void
+    private let step: (CGFloat, CGFloat) -> Void
     private let completion: () -> Void
 
-    init(step: @escaping (CGFloat) -> Void, completion: @escaping () -> Void) {
+    init(step: @escaping (CGFloat, CGFloat) -> Void, completion: @escaping () -> Void) {
         self.step = step
         self.completion = completion
     }
@@ -183,12 +199,18 @@ final class BellAnimator {
     }
 
     private func tick() {
-        guard index < Self.angles.count else {
+        // The loop runs `clapperLag` frames past the table so the trailing
+        // clapper finishes its swing too rather than snapping home.
+        guard index < Self.angles.count + Self.clapperLag else {
             stop()
             completion()
             return
         }
-        step(Self.angles[index])
+        let body = index < Self.angles.count ? Self.angles[index] : 0
+        let clapper = index >= Self.clapperLag
+            ? Self.angles[index - Self.clapperLag] * Self.clapperGain
+            : 0
+        step(body, clapper)
         index += 1
     }
 }

@@ -14,6 +14,12 @@ import SwiftUI
 struct GeistTabBar: View {
     @Binding var selection: AppTab
     @Environment(AppModel.self) private var model
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Counts arrivals so the bell rings once per batch of new messages — the
+    /// same trigger, keyframes and pivot as the header's `BellMark`, because a
+    /// bell that swings differently in two places reads as two bells.
+    @State private var shake = 0
 
     private struct Item {
         let tab: AppTab
@@ -23,6 +29,10 @@ struct GeistTabBar: View {
         /// artwork rather than a tinted glyph — the tab tint would flatten the
         /// badge back into the bell.
         var templated = true
+        /// A second layer drawn over `icon`, swinging a beat behind it — the
+        /// bell's clapper. Generated in the same box as the body, so stacking
+        /// the two is the whole alignment.
+        var clapper: String?
     }
 
     /// The bell's own badge carries the unread state, the same way it does in
@@ -30,8 +40,9 @@ struct GeistTabBar: View {
     private var items: [Item] {
         [
             Item(tab: .inbox, title: Copy.Tabs.notifications,
-                 icon: model.hasUnread ? "BellTabUnread" : "BellTab",
-                 templated: !model.hasUnread),
+                 icon: model.hasUnread ? "BellTabUnreadBody" : "BellTabBody",
+                 templated: !model.hasUnread,
+                 clapper: "BellTabClapper"),
             Item(tab: .keys, title: Copy.Tabs.keys, icon: "akar-key"),
             Item(tab: .settings, title: Copy.Tabs.settings, icon: "akar-gear")
         ]
@@ -46,7 +57,9 @@ struct GeistTabBar: View {
                         title: item.title,
                         icon: item.icon,
                         templated: item.templated,
-                        isSelected: selection == item.tab
+                        isSelected: selection == item.tab,
+                        shake: item.tab == .inbox ? shake : 0,
+                        clapper: item.clapper
                     ) {
                         selection = item.tab
                     }
@@ -56,6 +69,10 @@ struct GeistTabBar: View {
             .padding(.bottom, 10)
         }
         .background(Theme.bg)
+        .onReceive(NotificationCenter.default.publisher(for: .notifiNewMessages)) { _ in
+            guard !reduceMotion else { return }
+            shake &+= 1
+        }
     }
 }
 
@@ -64,6 +81,8 @@ private struct TabButton: View {
     let icon: String
     let templated: Bool
     let isSelected: Bool
+    var shake = 0
+    var clapper: String?
     let action: () -> Void
 
     @State private var hovering = false
@@ -78,11 +97,25 @@ private struct TabButton: View {
             // Icon only, matching iOS. Three destinations whose glyphs are a
             // bell, a key and a gear do not need naming, and the name is still
             // spoken and shown on hover.
-            Image(icon)
-                .renderingMode(templated ? .template : .original)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 20, height: 20)
+            ZStack {
+                Image(icon)
+                    .renderingMode(templated ? .template : .original)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .bellSwing(trigger: shake)
+                if let clapper {
+                    // The unread body draws itself in fg rather than taking the
+                    // tab tint, so its clapper has to match it, not the tint.
+                    Image(clapper)
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(templated ? tint : Theme.fg)
+                        .clapperSwing(trigger: shake)
+                }
+            }
                 .padding(.vertical, 4)
                 .foregroundStyle(tint)
             .frame(maxWidth: .infinity)
