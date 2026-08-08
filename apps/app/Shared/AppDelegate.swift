@@ -53,6 +53,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // it. The status item itself is created from `NotifiApp.init()`.
         NSApp.setActivationPolicy(.accessory)
 
+        // Touching the singleton is what applies the open-at-login default on
+        // first launch; left to Settings alone it would only ever happen for
+        // people who opened that tab.
+        _ = LoginItem.shared
+
         UNUserNotificationCenter.current().delegate = notificationDelegate
         // From the cache rather than the network: the categories have to exist
         // before the first push of the session lands, and /keys has not answered

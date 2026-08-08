@@ -219,6 +219,8 @@ enum Copy {
         static var testBody: String { NSLocalizedString("settings.testBody", comment: "") }
         static var sectionAbout: String { NSLocalizedString("settings.sectionAbout", comment: "") }
         static var version: String { NSLocalizedString("settings.version", comment: "") }
+        static var openAtLogin: String { NSLocalizedString("settings.openAtLogin", comment: "") }
+        static var openAtLoginDetail: String { NSLocalizedString("settings.openAtLoginDetail", comment: "") }
         static var automaticUpdates: String { NSLocalizedString("settings.automaticUpdates", comment: "") }
         static var automaticUpdatesDetail: String { NSLocalizedString("settings.automaticUpdatesDetail", comment: "") }
         static var checkForUpdates: String { NSLocalizedString("settings.checkForUpdates", comment: "") }

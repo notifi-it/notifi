@@ -343,6 +343,8 @@ export const copy = {
 
     sectionAbout: 'About',
     version: 'Version',
+    openAtLogin: 'Open at login',
+    openAtLoginDetail: 'Starts notifi in the menu bar when you log in to this Mac.',
     automaticUpdates: 'Automatic updates',
     automaticUpdatesDetail: 'Check for new versions in the background.',
     checkForUpdates: 'Check for updates',

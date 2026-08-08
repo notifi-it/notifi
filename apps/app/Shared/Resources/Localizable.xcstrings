@@ -2260,6 +2260,28 @@
         }
       }
     },
+    "settings.openAtLogin": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open at login"
+          }
+        }
+      }
+    },
+    "settings.openAtLoginDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starts notifi in the menu bar when you log in to this Mac."
+          }
+        }
+      }
+    },
     "settings.openSystemSettings": {
       "extractionState": "manual",
       "localizations": {

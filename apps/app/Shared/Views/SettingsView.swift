@@ -154,6 +154,17 @@ struct SettingsView: View {
                 // App Store and does not link it.
                 #if os(macOS)
                 ToggleRow(
+                    title: Copy.Settings.openAtLogin,
+                    detail: Copy.Settings.openAtLoginDetail,
+                    isOn: Binding(
+                        get: { LoginItem.shared.opensAtLogin },
+                        set: { LoginItem.shared.setOpensAtLogin($0) }
+                    )
+                )
+                .geistGutter()
+                Hairline()
+
+                ToggleRow(
                     title: Copy.Settings.automaticUpdates,
                     detail: Copy.Settings.automaticUpdatesDetail,
                     isOn: Binding(
@@ -234,7 +245,12 @@ struct SettingsView: View {
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
-        .task { await model.refreshPermission() }
+        .task {
+            await model.refreshPermission()
+            #if os(macOS)
+            LoginItem.shared.refresh()
+            #endif
+        }
     }
 
     private var permissionText: String {
