@@ -107,6 +107,15 @@ struct InboxView: View {
                     #endif
                 }
 
+            // Same shape as the Keys screen's refresh banner: the feed below it
+            // is real, just possibly stale, so the list stays and the banner
+            // sits above it rather than replacing it.
+            if model.isOffline {
+                InlineError(message: Copy.Inbox.offline)
+                    .padding(.top, 14)
+                    .geistGutter()
+            }
+
             list
         }
         .background(StaticField())

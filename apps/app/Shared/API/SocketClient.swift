@@ -10,6 +10,16 @@ import OSLog
 /// That also makes a dropped frame harmless: the next connect re-syncs anyway.
 @MainActor
 final class SocketClient {
+    /// True while a socket is open to the server. This is the app's only live
+    /// connectivity signal, so the menu bar reads it to decide whether to strike
+    /// the bell through.
+    private(set) var isConnected = false {
+        didSet {
+            guard isConnected != oldValue else { return }
+            NotificationCenter.default.post(name: .notifiConnectivityChanged, object: nil)
+        }
+    }
+
     private let api: APIClient
     private let onWake: () async -> Void
     private let log = Logger(subsystem: "it.notifi.notifi", category: "socket")
@@ -40,6 +50,7 @@ final class SocketClient {
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
         attempt = 0
+        isConnected = false
     }
 
     /// A socket that TCP has dropped without telling either end — a NAT table
@@ -69,6 +80,7 @@ final class SocketClient {
             // every lid close.
             await onWake()
             attempt = 0
+            isConnected = true
 
             var lastInbound = Date()
             let heartbeat = Task { [weak self] in
@@ -103,6 +115,7 @@ final class SocketClient {
         }
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
+        isConnected = false
     }
 
     /// Exponential with a ceiling and jitter. Without the jitter an APNs-scale

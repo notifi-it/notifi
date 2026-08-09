@@ -14,4 +14,7 @@ extension Notification.Name {
 
     /// Asks the macOS menu-bar popover to open.
     static let notifiOpenPanel = Notification.Name("notifi.openPanel")
+
+    /// Posted when the socket connects or disconnects.
+    static let notifiConnectivityChanged = Notification.Name("notifi.connectivityChanged")
 }

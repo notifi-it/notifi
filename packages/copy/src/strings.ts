@@ -118,6 +118,7 @@ export const copy = {
 
   inbox: {
     title: 'Notifications',
+    offline: "Can't reach notifi. The feed may be behind.",
     count: plural('1 notification', '{n} notifications'),
     unreadSummary: ' unread · {total}',
     filteredToKey: 'Filtered to the “{name}” key.',

@@ -1124,6 +1124,17 @@
         }
       }
     },
+    "inbox.offline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can't reach notifi. The feed may be behind."
+          }
+        }
+      }
+    },
     "inbox.refresh": {
       "extractionState": "manual",
       "localizations": {

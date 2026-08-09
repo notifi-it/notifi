@@ -55,19 +55,28 @@ final class MenuBarController: NSObject {
             self, selector: #selector(openPanel),
             name: .notifiOpenPanel, object: nil
         )
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(connectivityChanged),
+            name: .notifiConnectivityChanged, object: nil
+        )
 
         render(angle: 0)
     }
 
     private var hasUnread: Bool { model?.hasUnread ?? false }
+    private var isOffline: Bool { model?.isOffline ?? false }
 
     private func render(angle: CGFloat, clapperAngle: CGFloat = 0) {
         statusItem?.button?.image = MenuBarIconRenderer.bell(
-            unread: hasUnread, angle: angle, clapperAngle: clapperAngle
+            unread: hasUnread, offline: isOffline, angle: angle, clapperAngle: clapperAngle
         )
     }
 
     @objc private func unreadChanged() {
+        if animator == nil { render(angle: 0) }
+    }
+
+    @objc private func connectivityChanged() {
         if animator == nil { render(angle: 0) }
     }
 
@@ -115,7 +124,7 @@ final class MenuBarController: NSObject {
 }
 
 enum MenuBarIconRenderer {
-    static func bell(unread: Bool, angle: CGFloat, clapperAngle: CGFloat = 0) -> NSImage {
+    static func bell(unread: Bool, offline: Bool, angle: CGFloat, clapperAngle: CGFloat = 0) -> NSImage {
         let size = NSSize(width: 20, height: 20)
         let image = NSImage(size: size, flipped: false) { rect in
 
@@ -152,10 +161,39 @@ enum MenuBarIconRenderer {
             // knows a position — see Support/Icon/generate-menu-icon.sh.
             rotated(by: angle) {
                 layer("menu_icon", tint: .labelColor)
-                if unread { layer("menu_dot", tint: NSColor(Theme.brand)) }
+                // The dot is always there — read is the label colour, unread is
+                // the brand red — so the bell keeps the same silhouette either
+                // way and the arrival of a message changes only its colour.
+                layer("menu_dot", tint: unread ? NSColor(Theme.brand) : .labelColor)
             }
             rotated(by: clapperAngle) {
                 layer("menu_clapper", tint: .labelColor)
+            }
+
+            // Offline is a slash through the whole mark, the way the OS strikes
+            // wifi.slash. The gap under the stroke is cut first so the line
+            // reads as lying across the bell rather than dissolving into it.
+            if offline {
+                let start = NSPoint(x: rect.minX + 3, y: rect.maxY - 3)
+                let end = NSPoint(x: rect.maxX - 3, y: rect.minY + 3)
+
+                let gap = NSBezierPath()
+                gap.move(to: start)
+                gap.line(to: end)
+                gap.lineWidth = 3.5
+                gap.lineCapStyle = .round
+                NSGraphicsContext.current?.compositingOperation = .destinationOut
+                NSColor.black.set()
+                gap.stroke()
+
+                NSGraphicsContext.current?.compositingOperation = .sourceOver
+                let slash = NSBezierPath()
+                slash.move(to: start)
+                slash.line(to: end)
+                slash.lineWidth = 1.5
+                slash.lineCapStyle = .round
+                NSColor.labelColor.set()
+                slash.stroke()
             }
             return true
         }

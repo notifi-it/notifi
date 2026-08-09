@@ -106,6 +106,12 @@ final class AppModel {
 
     var hasUnread: Bool { (sync?.unread ?? 0) > 0 }
 
+    /// True only once live updates have been asked for and the socket has had
+    /// a chance to connect and failed — a device that never called
+    /// `startLiveUpdates` (or hasn't tried yet) is not "offline", it is simply
+    /// not asking.
+    var isOffline: Bool { wantsLiveUpdates && socket?.isConnected == false }
+
     /// A push is only a hint that there is something to fetch, so a message that
     /// arrives by sync with no push behind it is the signature of a broken push
     /// path — a token registered against the wrong APNs environment, a revoked
@@ -165,6 +171,14 @@ final class AppModel {
     }
 
     var baseURL: URL {
+        // Environment first, so a test run can point the app at another server
+        // — or an unreachable one, to exercise the offline state — without
+        // re-signing the bundle. Same family as NOTIFI_STICKY and
+        // NOTIFI_SAMPLE_DATA.
+        if let raw = ProcessInfo.processInfo.environment["NOTIFI_BASE_URL"],
+           let url = URL(string: raw), url.host != nil {
+            return url
+        }
         if let raw = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String,
            let url = URL(string: raw), url.host != nil {
             return url
