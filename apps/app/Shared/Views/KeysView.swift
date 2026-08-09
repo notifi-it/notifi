@@ -36,33 +36,29 @@ struct KeysView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                // The gutter is applied per block rather than to the stack, so
-                // the rules between rows can run the full width of the screen
-                // while the content they separate stays inside the margin.
-                Group {
-                    GeistHeader(title: Copy.Keys.title, subtitle: subtitle) {
-                        // One control on both platforms. The Mac used to carry a
-                        // text pill here while iOS had the disc, which drifted
-                        // the two headers apart for no reason either screen owns.
-                        IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
-                            #if os(iOS)
-                            showingCreate = true
-                            #else
-                            model.presentingCreateKey = true
-                            #endif
-                        }
-                    }
-                    .geistPageHeader()
-
-                    if model.sync?.keysRefreshFailed == true {
-                        InlineError(message: Copy.Keys.refreshFailed)
-                            .padding(.top, 14)
-                    }
-
+        GeistPage(scroll: .page) {
+            GeistHeader(title: Copy.Keys.title, subtitle: subtitle) {
+                // One control on both platforms. The Mac used to carry a text
+                // pill here while iOS had the disc, which drifted the two
+                // headers apart for no reason either screen owns.
+                IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
+                    #if os(iOS)
+                    showingCreate = true
+                    #else
+                    model.presentingCreateKey = true
+                    #endif
                 }
-                .geistGutter()
+            }
+        } content: {
+            // The gutter is applied per block rather than to the stack, so the
+            // rules between rows can run the full width of the column while the
+            // content they separate stays inside the margin.
+            VStack(alignment: .leading, spacing: 0) {
+                if model.sync?.keysRefreshFailed == true {
+                    InlineError(message: Copy.Keys.refreshFailed)
+                        .padding(.top, 14)
+                        .geistGutter()
+                }
 
                 if let defaultKey {
                     NavigationLink(value: defaultKey) {
@@ -132,13 +128,7 @@ struct KeysView: View {
                 // matters at the moment a key is created — which is its own
                 // sheet, and says so there.
             }
-            .geistMeasure()
         }
-        // The ground is painted here rather than inherited: the TabView and
-        // the List underneath both draw an opaque backdrop of their own, so a
-        // background set once at the root never reaches the screen.
-        .background(StaticField())
-        .scrollContentBackground(.hidden)
         .navigationDestination(for: CachedKey.self) { key in
             KeyDetailView(keyID: key.id)
         }
@@ -148,7 +138,6 @@ struct KeysView: View {
             hasLoaded = true
         }
         #if os(iOS)
-        .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showingCreate) {
             NavigationStack { CreateKeyView() }.environment(model)
         }

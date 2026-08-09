@@ -11,6 +11,10 @@ import SwiftUI
 ///
 /// iOS only. `InboxRootView` does not use `TabView` on macOS — there is no tab
 /// bar there to morph — so the Mac keeps the search button in the Inbox header.
+///
+/// Compact width only, for the same reason: a regular-width tab bar sits at the
+/// top of the screen and does not morph, so there is nothing for this tab to
+/// buy. The iPad gets a field on the Inbox itself instead, and no search tab.
 struct SearchView: View {
     @Environment(AppModel.self) private var model
     @Query(sort: \Message.createdAt, order: .reverse) private var messages: [Message]

@@ -578,6 +578,16 @@ struct GeistHeader<Trailing: View>: View {
                     Text(subtitle)
                         .font(Theme.meta)
                         .foregroundStyle(Theme.muted)
+                } else {
+                    // The line is reserved rather than dropped, so the rule
+                    // `GeistPage` draws under this block sits at the same height
+                    // on all three tabs. Settings is the only one with no count
+                    // to put here, and a chrome edge that moves when you change
+                    // tab reads as the screens being misaligned.
+                    Text(verbatim: " ")
+                        .font(Theme.meta)
+                        .hidden()
+                        .accessibilityHidden(true)
                 }
             }
             Spacer(minLength: 8)

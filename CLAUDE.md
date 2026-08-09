@@ -148,7 +148,7 @@ build looks exactly like an answer.
 
 It writes `/tmp/notifi-shots/<tab>.png`, one per tab, so a layout change is
 checked on all three at once — which
-[Layout changes apply to every screen](#layout-changes-apply-to-every-screen-not-one)
+[Layout changes go in GeistPage](#layout-changes-go-in-geistpage-not-in-three-screens)
 requires and a manual pass usually skips.
 
 It reuses whatever Simulator is already booted and a fixed DerivedData at
@@ -224,13 +224,29 @@ converts to UDZO. Arranging a compressed image succeeds silently and produces a
 default window: the layout is Finder state in the volume's `.DS_Store`, and a
 UDZO image is read-only.
 
-## Layout changes apply to every screen, not one
+## Layout changes go in GeistPage, not in three screens
 
 The three tabs — Inbox, Keys, Settings — are built on different containers: the
-Inbox is a `List`, the other two are `ScrollView`s. Anything that changes shared
-geometry (gutters, insets, header spacing, row rhythm) has to be checked and
-applied on all three, or the tabs drift apart by a few points and the app starts
-feeling untidy in a way nobody can name.
+Inbox is a `List`, for its swipe actions and pull-to-refresh, and the other two
+are `ScrollView`s. Everything that decides *where* content lands is held in
+`GeistPage` instead: the ground, the reading measure, the header's gutter and
+vertical rhythm, the rule under it, the fades, and whether a navigation bar shows.
+Change shared geometry there and it reaches all three at once.
+
+Each screen passes a header and its content, and chooses only `scroll:` —
+`.content` when it brings its own scroll container, `.page` to be given one. Do
+not reintroduce per-screen copies of the geometry. That is what drifted before:
+Keys and Settings capped their column at `Theme.measure` and centred it while the
+Inbox ran full width, so on an iPad the three titles sat 107pt apart, and the
+Inbox held its header outside its scroll view while the others kept theirs
+inside, putting its title 10pt higher.
+
+Two consequences worth knowing before you change them. A navigation bar carries a
+safe-area inset whether or not it draws anything, so it is shown on all three
+tabs at regular width — the Inbox puts its search field there, and hiding it on
+the other two is what moved their titles. And `GeistHeader` reserves the
+subtitle's line when a screen has no count to put there, so the rule under the
+header does not jump when you change tab; Settings is the only such screen.
 
 The gutter is `Theme.gutter` (20pt), applied through `geistGutter()`. Use it
 rather than a literal number, and never correct one screen with a compensating
@@ -240,7 +256,10 @@ Inbox `List` for exactly that reason; by the time it was removed its own comment
 no longer described what the screen did.
 
 Verify on the Simulator across all three tabs before calling a layout change
-done. Screenshot them and compare the left edge.
+done, on a phone and an iPad — the measure only bites at regular width, so a
+change can look right on a phone and be 100pt out on an iPad. Screenshot the
+three headers and put them side by side; a misaligned left edge or a rule at two
+heights is obvious that way and invisible one screenshot at a time.
 
 ## No automated tests
 

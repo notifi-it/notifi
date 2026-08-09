@@ -17,15 +17,13 @@ struct SettingsView: View {
     var body: some View {
         @Bindable var model = model
 
-        ScrollView {
+        GeistPage(scroll: .page) {
+            GeistHeader(title: Copy.Settings.title)
+        } content: {
+            // The gutter sits on each block rather than on the stack, so the
+            // rules between rows run the full width of the column while the
+            // content they separate stays inside the margin.
             VStack(alignment: .leading, spacing: 0) {
-                // The gutter sits on each block rather than on the stack, so
-                // the rules between rows run the full width of the screen while
-                // the content they separate stays inside the margin.
-                GeistHeader(title: Copy.Settings.title)
-                    .geistPageHeader()
-                    .geistGutter()
-
                 // MARK: Notifications
                 SectionLabel(text: Copy.Settings.sectionNotifications)
                     .geistGutter()
@@ -235,16 +233,7 @@ struct SettingsView: View {
                 .padding(.bottom, 40)
                 .geistGutter()
             }
-            .geistMeasure()
         }
-        // The ground is painted here rather than inherited: the TabView and
-        // the List underneath both draw an opaque backdrop of their own, so a
-        // background set once at the root never reaches the screen.
-        .background(StaticField())
-        .scrollContentBackground(.hidden)
-        #if os(iOS)
-        .toolbar(.hidden, for: .navigationBar)
-        #endif
         .task {
             await model.refreshPermission()
             #if os(macOS)

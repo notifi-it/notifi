@@ -35,6 +35,9 @@ struct InboxView: View {
     @State private var filterKeyID: Int?
     @State private var showingSearch = false
     @FocusState private var searchFocused: Bool
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    #endif
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
 
@@ -75,38 +78,35 @@ struct InboxView: View {
             + Text(Copy.Inbox.unreadSummary(total))
     }
 
+    /// The header sits outside the feed rather than in its first row, so it stays
+    /// put while the messages move under it. In the row it scrolled away, which
+    /// took the title, the count and the overflow menu off screen together — on
+    /// the Mac that left a popover with no chrome at all and nothing to get back
+    /// to. `GeistPage` owns what that costs: the opaque backing and the rule.
+    @ViewBuilder
     var body: some View {
-        // The header sits outside the List rather than in its first row, so it
-        // stays put while the feed moves under it. In the row it scrolled away,
-        // which took the title, the count, the search field and the overflow
-        // menu off screen together — on the Mac that left a popover with no
-        // chrome at all and nothing to get back to.
-        //
-        // No rule under it: the first message opens the list, and a line there
-        // only boxed the search field in. Rows still carry their own bottom
-        // rule, so every message is separated from the next.
-        VStack(spacing: 0) {
-            header
-                .geistPageHeader()
-                .geistGutter()
-                // The static runs under the header too. It stays opaque — rows
-                // still have to disappear behind it rather than showing through
-                // — but a flat ground here left a smooth band across the top of
-                // an otherwise grainy screen.
-                .background(StaticField())
-                // Only the pinned headers carry this. On Keys and Settings the
-                // header scrolls away with the content, so a rule under it is a
-                // line travelling up the screen rather than the edge of the
-                // chrome.
-                .overlay(alignment: .bottom) {
-                    // iOS only. The popover's own frame already bounds the top
-                    // of the Mac screen a few points up; a full-strength rule
-                    // here read as a second border, not as the app's chrome.
-                    #if os(iOS)
-                    Hairline(color: Theme.chromeRuleColor, weight: Theme.chromeRule)
-                    #endif
-                }
+        #if os(iOS)
+        // A regular-width tab bar sits at the top of the screen and never morphs
+        // into a search field, so the search tab that owns the field on iPhone
+        // does not exist there (see `InboxRootView`) and the feed carries its
+        // own. Always on screen rather than behind a button: the system draws it
+        // in the bar beside the tabs rather than above the content, so it takes
+        // no space off the feed. That bar is the one place a navigation bar has
+        // something to hold, which is why this is the only page that shows one.
+        if sizeClass == .regular {
+            page.searchable(text: $searchText, prompt: Copy.Search.prompt)
+        } else {
+            page
+        }
+        #else
+        page
+        #endif
+    }
 
+    private var page: some View {
+        GeistPage(scroll: .content) {
+            header
+        } content: {
             // Same shape as the Keys screen's refresh banner: the feed below it
             // is real, just possibly stale, so the list stays and the banner
             // sits above it rather than replacing it.
@@ -118,7 +118,6 @@ struct InboxView: View {
 
             list
         }
-        .background(StaticField())
     }
 
     @ViewBuilder
@@ -135,11 +134,11 @@ struct InboxView: View {
                 }
             }
         } else {
-            messageList
+            feed
         }
     }
 
-    private var messageList: some View {
+    private var feed: some View {
         MessageFeed(messages: filtered) {
             NoResultsView(
                 query: trimmedQuery,
@@ -151,11 +150,6 @@ struct InboxView: View {
         // them a row otherwise met the header's edge at full strength and was
         // cut through the middle of a letter.
         .geistTopFade()
-        #if os(iOS)
-        // The screen's own header carries the title and both controls, so the
-        // navigation bar would only add an empty strip above them.
-        .toolbar(.hidden, for: .navigationBar)
-        #endif
         // Last in the chain, so the fade sits over the finished screen rather
         // than having the refresh control layered back on top of it. Applied to
         // the feed only: Keys and Settings are short enough to end on their own,

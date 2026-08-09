@@ -3,6 +3,14 @@ import SwiftUI
 
 struct InboxRootView: View {
     @Environment(AppModel.self) private var model
+    #if os(iOS)
+    /// Regular width puts the tab bar at the top of the screen, where it does
+    /// not morph into a search field. So there is no search tab there and the
+    /// Inbox carries a field of its own — see `InboxView`. Keyed to the size
+    /// class rather than the idiom because an iPad in Slide Over gets the
+    /// compact bottom bar, and the morph, back.
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    #endif
 
     var body: some View {
         @Bindable var model = model
@@ -23,6 +31,12 @@ struct InboxRootView: View {
         // handler, so a notification landing the app on a tab ticks too — the
         // movement is the same whichever finger caused it.
         .onChange(of: model.selectedTab) { Haptics.selection() }
+        // Separate from the haptic above, and firing on appearance, because a
+        // restored session can arrive already holding `.search`. Rotating into a
+        // regular width or leaving Slide Over takes the search tab away
+        // underneath whatever is selected, so the size class is watched too.
+        .onChange(of: model.selectedTab, initial: true) { normalizeSelection() }
+        .onChange(of: sizeClass) { normalizeSelection() }
         #else
         // The same three destinations as iOS, in the same order, so the two
         // platforms are one product. SwiftUI's TabView is not used: on macOS it
@@ -56,6 +70,15 @@ struct InboxRootView: View {
     }
 
     #if os(iOS)
+    /// Drops `.search` back to the Inbox where there is no search tab to hold
+    /// it, rather than leaving `TabView` with a selection matching no tab — that
+    /// silently falls back to the first one, so the app would look like it had
+    /// changed tab on its own. The Inbox is what search was filtering anyway.
+    private func normalizeSelection() {
+        guard sizeClass == .regular, model.selectedTab == .search else { return }
+        model.selectedTab = .inbox
+    }
+
     @available(iOS 18.0, *)
     private var modernTabs: some View {
         @Bindable var model = model
@@ -109,7 +132,8 @@ struct InboxRootView: View {
             // worse than no search box on those screens. `.search` is kept in
             // the condition so the tab does not vanish out from under itself
             // while it is the selected one.
-            if model.selectedTab == .inbox || model.selectedTab == .search {
+            if sizeClass == .compact,
+               model.selectedTab == .inbox || model.selectedTab == .search {
                 Tab(value: AppTab.search, role: .search) {
                     NavigationStack { SearchView() }
                 }
