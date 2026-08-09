@@ -760,17 +760,6 @@
         }
       }
     },
-    "empty.sendTest": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Send a test"
-          }
-        }
-      }
-    },
     "empty.sending": {
       "extractionState": "manual",
       "localizations": {
@@ -778,6 +767,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sending…"
+          }
+        }
+      }
+    },
+    "empty.sendTest": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a test"
           }
         }
       }
@@ -1388,6 +1388,17 @@
         }
       }
     },
+    "keyDetail.regeneratedAnnouncement": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key regenerated. The old value no longer works."
+          }
+        }
+      }
+    },
     "keyDetail.regenerateDetail": {
       "extractionState": "manual",
       "localizations": {
@@ -1443,17 +1454,6 @@
         }
       }
     },
-    "keyDetail.regeneratedAnnouncement": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Key regenerated. The old value no longer works."
-          }
-        }
-      }
-    },
     "keyDetail.regenerating": {
       "extractionState": "manual",
       "localizations": {
@@ -1487,6 +1487,17 @@
         }
       }
     },
+    "keyDetail.revokedAnnouncement": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key revoked."
+          }
+        }
+      }
+    },
     "keyDetail.revokeDetail": {
       "extractionState": "manual",
       "localizations": {
@@ -1494,6 +1505,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Revoking is permanent. Anything still sending to this key will be rejected."
+          }
+        }
+      }
+    },
+    "keyDetail.revokedNotice": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This key is revoked and no longer accepts sends."
           }
         }
       }
@@ -1538,28 +1560,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Revoke this key?"
-          }
-        }
-      }
-    },
-    "keyDetail.revokedAnnouncement": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Key revoked."
-          }
-        }
-      }
-    },
-    "keyDetail.revokedNotice": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This key is revoked and no longer accepts sends."
           }
         }
       }
@@ -1714,7 +1714,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Everything sends with the key above. Make one per source so you can revoke them separately."
+            "value": "A key is what a script sends with. Make one per source so you can revoke them separately."
           }
         }
       }
@@ -1725,7 +1725,18 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Only the default key"
+            "value": "No active keys yet"
+          }
+        }
+      }
+    },
+    "keys.footnote": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A key is shown once, when it is created; notifi stores only the prefix. The default key can be copied again or regenerated from its detail page."
           }
         }
       }
