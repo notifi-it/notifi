@@ -23,6 +23,10 @@ enum Theme {
     /// black made the app read as a hole punched in the home screen. Light is
     /// #FAFAFA rather than #FFF for the same reason in reverse: paper, not a
     /// blown-out panel, and it leaves `surface` somewhere to go.
+    ///
+    /// `LaunchBackground` in the asset catalog is a hand-kept copy of this
+    /// pair: the iOS launch screen renders before any Swift runs and cannot
+    /// read a token. Change one, change both.
     static let bg = grey(light: 0.98, dark: 0.11)
     /// Primary text and the app's only full-strength value.
     static let fg = grey(light: 0.102, dark: 0.929)

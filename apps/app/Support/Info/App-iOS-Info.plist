@@ -54,8 +54,17 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<!-- The launch screen follows the system scheme, not the appearance chosen
+	     in Settings — no code runs yet, so it cannot know. Both assets carry
+	     light and dark variants; the one frame where the two schemes disagree
+	     beats the white flash an empty dict produced on the default dark app. -->
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+		<key>UIImageName</key>
+		<string>LaunchBell</string>
+	</dict>
 	<!-- iPhone keeps three: upside-down on a phone puts the earpiece at the
 	     bottom, and iOS ignores it on notched hardware anyway. -->
 	<key>UISupportedInterfaceOrientations</key>

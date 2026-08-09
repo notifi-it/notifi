@@ -49,6 +49,18 @@ glyph() { # $1 = height, $2 = output
 glyph 600 "$TMP/g-ios.png"
 magick "$TMP/bg.png" "$TMP/g-ios.png" -gravity center -composite "$OUT/icon-1024.png"
 
+# --- iOS dark and tinted (iOS 18+ home screens) -------------------------------
+# Dark: the glyph alone on transparency. The system draws its own dark
+# backplate behind it, and shipping the near-black field as well would put a
+# hard-edged plate on a plate.
+magick -size 1024x1024 xc:none "$TMP/g-ios.png" -gravity center -composite \
+  -define png:color-type=6 "$OUT/icon-1024-dark.png"
+# Tinted: the same composition as a luminance map — the system reads brightness
+# and paints the user's tint through it. The red dot goes grey with the rest;
+# colour is exactly what this variant is not allowed to keep.
+magick "$OUT/icon-1024-dark.png" -grayscale Rec709Luminance -colorspace sRGB \
+  -define png:color-type=6 "$OUT/icon-1024-tinted.png"
+
 # --- macOS: inset squircle plate + hairline + drop shadow -------------------
 magick -size 1024x1024 xc:none -fill white \
   -draw "roundrectangle 100,90 924,914 185,185" "$TMP/plate-mask.png"

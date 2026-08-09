@@ -224,6 +224,14 @@ for name, ink in (("bell-light", "#1A1A1A"), ("bell-dark", "#EDEDED")):
 
 svg("%s/EmptyBell.imageset/bell.svg" % assets, 32, 32, logo_box, ghost("#000", logo_box),
     note="\n\n       The empty inbox: the mark hollowed out, drawn from its own outline.")
+# The launch screen renders before any Swift runs, so it cannot tint a template
+# through Theme.mark — both inks are baked in and the system's own scheme picks
+# one. The hexes are Theme.mark's pair (0.63 light, 0.355 dark).
+for name, ink in (("bell-light", "#A1A1A1"), ("bell-dark", "#5B5B5B")):
+    svg("%s/LaunchBell.imageset/%s.svg" % (assets, name), 88, 88, logo_box,
+        mark(logo_box, ink, ink),
+        note="\n\n       The iOS launch screen's mark, quiet on purpose: the ground it sits\n"
+             "       on is the same one the app paints first.")
 # The site masks this one with currentColor and lays its own disc over the
 # badge, so what matters here is the alpha, not the fill.
 svg("%s/bell.svg" % web, 32, 32, logo_box, mark(logo_box, "#000", "#000"))
