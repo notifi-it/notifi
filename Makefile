@@ -1,6 +1,6 @@
 .PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-metadata app-metadata-check
+	app-metadata app-metadata-check shots
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -82,3 +82,8 @@ app-metadata-check:
 
 app-metadata:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios metadata
+
+# Verifying a layout change: one command, one screenshot per tab, from a
+# Simulator that stays booted between runs. SKIP_BUILD=1 when no Swift changed.
+shots:
+	apps/app/Scripts/shots.sh

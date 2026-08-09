@@ -48,6 +48,24 @@ enum AppTab: Hashable {
     /// reaches the Mac's bar — where it would be a tab that opens a field the
     /// Mac draws in the Inbox header instead.
     case search
+
+    /// Which tab a launch opens on, when the launch asks. Only the screenshot
+    /// script sets this: driving the tab bar by tapping needs the bar to be
+    /// on screen and settled, which is the slow and flaky half of capturing
+    /// three tabs in a row.
+    static var launchOverride: AppTab? {
+        #if DEBUG
+        switch ProcessInfo.processInfo.environment["NOTIFI_START_TAB"] {
+        case "inbox": return .inbox
+        case "keys": return .keys
+        case "settings": return .settings
+        case "search": return .search
+        default: return nil
+        }
+        #else
+        return nil
+        #endif
+    }
 }
 
 /// What a notification asked for, in terms the model can act on once it exists.
@@ -80,7 +98,7 @@ final class AppModel {
 
     var bootState: BootState = .loading
     var path = NavigationPath()
-    var selectedTab: AppTab = .inbox
+    var selectedTab: AppTab = AppTab.launchOverride ?? .inbox
     var notificationStatus: UNAuthorizationStatus = .notDetermined
     /// Whether the system will actually let a Critical Alert through. Stays
     /// `.notSupported` until Apple grants the entitlement. The key screen reads

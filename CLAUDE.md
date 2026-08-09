@@ -130,6 +130,42 @@ Run `cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes a
 `notifi-iOS` and `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi:
 installs fail silently there and cannot be screenshotted.
 
+## Verifying a visual change: `make shots`
+
+Do not hand-roll a build-install-boot-tap sequence to look at a screen. Run:
+
+```
+make shots                     # one screenshot per tab
+TABS="inbox settings" make shots
+FORCE_BUILD=1 make shots       # rebuild even if nothing looks changed
+```
+
+There is no skip-the-build flag, on purpose. The script rebuilds whenever
+anything under `apps/app` or `packages/copy/src` is newer than the binary it
+last produced, and skips otherwise. A flag would put that decision on whoever
+types the command, and the failure mode is silent: a screenshot of the previous
+build looks exactly like an answer.
+
+It writes `/tmp/notifi-shots/<tab>.png`, one per tab, so a layout change is
+checked on all three at once — which
+[Layout changes apply to every screen](#layout-changes-apply-to-every-screen-not-one)
+requires and a manual pass usually skips.
+
+It reuses whatever Simulator is already booted and a fixed DerivedData at
+`/tmp/notifi-derived`, and it sets the tab with `NOTIFI_START_TAB` on each
+launch rather than tapping the tab bar. Tapping is the flaky half: a shot taken
+before the bar settles looks like a bug in the change being verified.
+
+`NOTIFI_START_TAB` is read by `AppTab.launchOverride` and is `#if DEBUG` only.
+Nothing else may set it — it exists for this script.
+
+Measured on this machine: 14-24s a run, for all three tabs. Whether it compiled
+barely shows — an incremental build is a few seconds and the rest is installing
+and launching three times. For comparison, 151 build-then-look-at-one-screenshot
+cycles across this project's transcripts ran to a median of 46s and a p90 of
+283s, for one screen. A clean build has not been timed and is much slower; that
+cost is paid once, not per iteration.
+
 ## Confirmations are centred alerts, never confirmationDialog
 
 Use `.alert` with a title, a `message:`, and the action buttons. Never
