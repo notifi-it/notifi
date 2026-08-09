@@ -207,6 +207,23 @@ coordinates. The two exceptions are `BellMark` and the site's CSS, which overlay
 a live view on a static asset and cannot bake anything in; both take their
 fractions from the numbers the script prints, and both are named above.
 
+## The DMG's install window is two files that must agree
+
+`Support/Icon/generate-dmg-background.sh` draws
+`Shared/Resources/dmg-background/background.png`, and
+`Scripts/dmg-layout.applescript` places the icons on top of it. The icon
+coordinates live in both — the script prints them on every run — so a mark drawn
+at a position the layout does not share points at nothing. Change them together.
+
+The background is one file at 2x pixels tagged 144 dpi, because a `.DS_Store`
+holds a single background and Finder sizes it by its stored resolution. A 1x
+file is what the obvious version of this looks like and it ships visibly soft.
+
+The `dmg` lane builds a UDRW image, mounts it, runs the layout, and only then
+converts to UDZO. Arranging a compressed image succeeds silently and produces a
+default window: the layout is Finder state in the volume's `.DS_Store`, and a
+UDZO image is read-only.
+
 ## Layout changes apply to every screen, not one
 
 The three tabs — Inbox, Keys, Settings — are built on different containers: the

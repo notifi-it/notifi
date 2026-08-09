@@ -260,8 +260,29 @@ platform :mac do
     sh("mkdir", "-p", stage)
     sh("cp", "-R", app, "#{stage}/notifi.app")
     sh("ln", "-s", "/Applications", "#{stage}/Applications")
+    sh("mkdir", "-p", "#{stage}/.background")
+    sh("cp", File.expand_path("../Shared/Resources/dmg-background/background.png", __dir__),
+       "#{stage}/.background/background.png")
+
+    # Two passes, because the window layout is Finder state stored in the
+    # volume's .DS_Store and a UDZO image is read-only: an UDRW image is built,
+    # mounted, arranged, then converted. Laying it out after compression looks
+    # like it works and silently produces a default window.
+    rw = File.expand_path("../build/notifi-rw.dmg", __dir__)
+    mnt = "/Volumes/notifi"
+    sh("rm", "-f", rw)
     sh("hdiutil", "create", "-volname", "notifi", "-srcfolder", stage,
-       "-ov", "-format", "UDZO", dmg)
+       "-ov", "-format", "UDRW", rw)
+    sh("hdiutil", "attach", rw, "-nobrowse", "-mountpoint", mnt)
+    begin
+      sh("osascript", File.expand_path("../Scripts/dmg-layout.applescript", __dir__), "notifi")
+      sh("sync")
+    ensure
+      sh("hdiutil", "detach", mnt)
+    end
+    sh("hdiutil", "convert", rw, "-format", "UDZO", "-imagekey", "zlib-level=9",
+       "-ov", "-o", dmg)
+    sh("rm", "-f", rw)
     sh("codesign", "--force", "--sign", identity, "--timestamp", dmg)
 
     # Round 2 covers the DMG the user actually downloads. notarize reads the
