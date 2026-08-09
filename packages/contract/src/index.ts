@@ -191,5 +191,10 @@ export type HistoryResponse = z.infer<typeof historyResponse>;
 
 export const sendResponse = z.object({
   ok: z.literal(true),
+  /// Present when the send asked to be escalated and the key does not allow it.
+  /// The message was still delivered, as an ordinary notification — the sender
+  /// gets told rather than refused, because a script that has been paging
+  /// quietly for weeks has no other way to find out.
+  warning: z.string().optional(),
 });
 export type SendResponse = z.infer<typeof sendResponse>;

@@ -47,6 +47,8 @@ export const copy = {
     invalidHistoryQuery: 'Invalid history query.',
     invalidSendParams: 'Invalid send parameters.',
     occurredAtTooFuture: 'occurred_at is too far in the future.',
+    criticalNotAllowed:
+      'Sent as a normal notification: urgent alerts are switched off for this key.',
 
     noMacBuild: 'No macOS build has been published yet.',
     noSuchBuild: 'No such build.',

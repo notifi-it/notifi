@@ -331,5 +331,12 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   // Deliberately no id. It is now per-device rather than global, so returning it
   // would no longer leak the relay's traffic — it would leak the recipient's,
   // telling any one sender how much everything else sends to that device.
-  return c.json({ ok: true }, 202);
+  // Asked and did not get it. The push already went out unescalated, so this is
+  // the only place the sender can learn that its pages are arriving quiet.
+  return c.json(
+    asked && !critical
+      ? { ok: true as const, warning: t(c).api.criticalNotAllowed }
+      : { ok: true as const },
+    202,
+  );
 });

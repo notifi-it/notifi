@@ -97,6 +97,7 @@ struct HistoryResponse: Codable, Sendable {
 
 struct SendResponse: Codable, Sendable {
     let ok: Bool
+    let warning: String?
 }
 
 struct MessageContent: Codable, Sendable {

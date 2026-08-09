@@ -86,6 +86,11 @@ key had the standing — is resolved before sealing and written into the
 sealed content on every message, false included. Absent means the message
 predates the field. The sender's request is not stored; only the outcome.
 
+A send that asks and does not have the standing still delivers, and its
+`202` carries a `warning` string. That is the only signal the sender gets:
+the request succeeded, so a script watching the status code sees nothing,
+and a key switched off months ago would otherwise page quietly forever.
+
 ## Deletion
 
 The server is a relay, not an archive; the device's store is the only
