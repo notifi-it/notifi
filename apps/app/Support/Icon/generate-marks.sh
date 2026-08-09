@@ -240,15 +240,39 @@ svg("%s/bell.svg" % web, 32, 32, logo_box, mark(logo_box, "#000", "#000"))
 svg("%s/bell-body.svg" % web, 32, 32, logo_box, body("#000", "#000"))
 svg("%s/bell-clapper.svg" % web, 32, 32, logo_box, clap("#000"))
 
-# The favicon carries the plate and the real colours, and is the only one that
-# is not a template.
+# The favicon and the touch icon are the two marks that are not templates: they
+# carry their own colours. They are separate files because a browser tab and an
+# iOS home screen want opposite things — see each one below.
+
+def favicon_ink(colour):
+    return "\n".join("    " + p for p in (
+        clapper.replace(BRAND, colour).replace("<path", '<path class="ink"', 1),
+        '<circle cx="%s" cy="%s" r="%s" fill="#BC2122"/>' % (bcx, bcy, br),
+        outline.replace(BRAND, colour).replace("<path", '<path class="ink"', 1),
+    ))
+
+# The favicon has no plate. A 32px bell inside a rounded rectangle inside a
+# 16px tab is a dark blob; without the plate the bell gets the whole square and
+# the browser's own tab colour behind it. That only works if the ink follows the
+# tab, so the light ink is an inline override the CSS wins against — a favicon
+# has no document to inherit currentColor from, and the media query is the one
+# thing a standalone SVG can still answer with.
+DARK_TAB = '  <style>@media (prefers-color-scheme: dark) {\n' \
+           '    .ink { fill: #EDEDED; stroke: #EDEDED }\n' \
+           '  }</style>'
+svg("%s/favicon.svg" % web, 32, 32, logo_box,
+    "%s\n%s" % (DARK_TAB, favicon_ink("#1A1A1A")))
+
+# The touch icon keeps the plate: iOS composites a home screen icon onto no
+# ground of its own, so a transparent one is a black square. It is never
+# committed — it exists to be rasterised on the next line.
 plate = ('  <rect width="32" height="32" rx="7" fill="#1C1C1E"/>\n'
          '  <g transform="translate(16 16) scale(0.78) translate(-16 -16)">\n'
          '%s\n  </g>' % mark("0 0 32 32", "#EDEDED", "#BC2122", indent="    "))
-svg("%s/favicon.svg" % web, 32, 32, "0 0 32 32", plate)
+svg("%s/touch-icon.svg" % TMP, 32, 32, "0 0 32 32", plate)
 PY
 
-rsvg-convert -w 180 -h 180 "$WEB/favicon.svg" -o "$WEB/apple-touch-icon.png"
+rsvg-convert -w 180 -h 180 "$TMP/touch-icon.svg" -o "$WEB/apple-touch-icon.png"
 echo "  wrote $WEB/apple-touch-icon.png"
 
 echo "rasters:"
