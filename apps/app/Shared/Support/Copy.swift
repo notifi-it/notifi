@@ -113,7 +113,6 @@ enum Copy {
         static var sectionRevoked: String { NSLocalizedString("keys.sectionRevoked", comment: "") }
         static var emptyTitle: String { NSLocalizedString("keys.emptyTitle", comment: "") }
         static var emptyDetail: String { NSLocalizedString("keys.emptyDetail", comment: "") }
-        static var footnote: String { NSLocalizedString("keys.footnote", comment: "") }
         static func sent(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.sent", comment: ""), n) }
         static var chipDefault: String { NSLocalizedString("keys.chipDefault", comment: "") }
         static var chipRevoked: String { NSLocalizedString("keys.chipRevoked", comment: "") }

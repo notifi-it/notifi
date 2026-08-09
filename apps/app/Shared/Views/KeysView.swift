@@ -83,21 +83,21 @@ struct KeysView: View {
                     Color.clear.frame(height: 1)
                 } else if otherActiveKeys.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
+                        // Not "no active keys": the default key is listed
+                        // directly above this, so a screen claiming there are
+                        // none was contradicting the row above it. What is
+                        // actually empty is everything past the default.
                         Text(Copy.Keys.emptyTitle)
                             .font(Theme.body)
                             .foregroundStyle(Theme.fg)
+                        // No button under it. The plus in the header makes a key
+                        // from every state this screen can be in, and a second
+                        // control that appears only while the list is empty is
+                        // one the reader has to learn twice.
                         Text(Copy.Keys.emptyDetail)
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.dim)
                             .fixedSize(horizontal: false, vertical: true)
-                        OutlineButton(title: Copy.Keys.newKey, fill: false) {
-                            #if os(iOS)
-                            showingCreate = true
-                            #else
-                            model.presentingCreateKey = true
-                            #endif
-                        }
-                        .padding(.top, 2)
                     }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.vertical, 14)
@@ -127,13 +127,10 @@ struct KeysView: View {
                     }
                 }
 
-                Text(Copy.Keys.footnote)
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 18)
-                    .padding(.bottom, 40)
-                    .geistGutter()
+                // The footnote about keys being shown once is gone. It was the
+                // last thing on the screen and it explained a rule that only
+                // matters at the moment a key is created — which is its own
+                // sheet, and says so there.
             }
             .geistMeasure()
         }
