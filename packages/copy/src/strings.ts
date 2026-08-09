@@ -189,6 +189,11 @@ export const copy = {
       'A key is shown once, when it is created; notifi stores only the prefix. ' +
       'The default key can be copied again or regenerated from its detail page.',
     sent: plural('1 sent', '{n} sent'),
+    /// {ago} arrives already rendered by the age ladder ("2 hr ago"); this key
+    /// only attributes it to sending, it never builds the age itself.
+    rowLastUsed: 'used {ago}',
+    /// Foot link that leaves the app for the API section of the website.
+    docsLink: 'API docs',
     chipDefault: 'Default',
     chipRevoked: 'Revoked',
     chipCritical: 'Critical',
@@ -279,6 +284,9 @@ export const copy = {
     sectionName: 'Name',
     namePrompt: 'e.g. Grafana alerts',
     nameLabel: 'Key name',
+    /// Shown under the name field only once the name is near the 64-character
+    /// limit. Digits and a slash, but every user-facing literal lives here.
+    charCount: '{n}/{max}',
     nameReserved: '“default” is reserved — your device already has one.',
     create: 'Create key',
     creating: 'Creating…',
@@ -351,6 +359,9 @@ export const copy = {
     automaticUpdates: 'Automatic updates',
     automaticUpdatesDetail: 'Check for new versions in the background.',
     checkForUpdates: 'Check for updates',
+    sectionSupport: 'Support',
+    support: 'Report a problem',
+    feedback: 'Feedback',
     privacyPolicy: 'Privacy policy',
     website: 'notifi.it',
     keysAreDeviceBound:

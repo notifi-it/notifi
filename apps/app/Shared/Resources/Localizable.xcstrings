@@ -452,6 +452,17 @@
         }
       }
     },
+    "createKey.charCount": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@/%2$@"
+          }
+        }
+      }
+    },
     "createKey.create": {
       "extractionState": "manual",
       "localizations": {
@@ -1708,6 +1719,17 @@
         }
       }
     },
+    "keys.docsLink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API docs"
+          }
+        }
+      }
+    },
     "keys.emptyDetail": {
       "extractionState": "manual",
       "localizations": {
@@ -1803,6 +1825,17 @@
           "stringUnit": {
             "state": "translated",
             "value": ", revoked"
+          }
+        }
+      }
+    },
+    "keys.rowLastUsed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "used %1$@"
           }
         }
       }
@@ -2194,6 +2227,17 @@
         }
       }
     },
+    "settings.feedback": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback"
+          }
+        }
+      }
+    },
     "settings.ground": {
       "extractionState": "manual",
       "localizations": {
@@ -2447,6 +2491,17 @@
         }
       }
     },
+    "settings.sectionSupport": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Support"
+          }
+        }
+      }
+    },
     "settings.sendTest": {
       "extractionState": "manual",
       "localizations": {
@@ -2465,6 +2520,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sends through your default key."
+          }
+        }
+      }
+    },
+    "settings.support": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report a problem"
           }
         }
       }

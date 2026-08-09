@@ -140,6 +140,37 @@ struct SettingsView: View {
                     .padding(.top, 10)
                     .geistGutter()
 
+                // MARK: Support
+                SectionLabel(text: Copy.Settings.sectionSupport)
+                    .geistGutter()
+
+                // Two mailboxes, split by intent, so a bug report is not
+                // filed in the same queue as a greeting: report@ carries what
+                // is broken, hello@ everything else.
+                Link(destination: URL(string: "mailto:report@notifi.it")!) {
+                    DisclosureRow {
+                        Text(Copy.Settings.support)
+                            .font(Theme.body)
+                            .foregroundStyle(Theme.fg)
+                    }
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.geistRow)
+                .geistGutter()
+                Hairline()
+
+                Link(destination: URL(string: "mailto:hello@notifi.it")!) {
+                    DisclosureRow {
+                        Text(Copy.Settings.feedback)
+                            .font(Theme.body)
+                            .foregroundStyle(Theme.fg)
+                    }
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.geistRow)
+                .geistGutter()
+                Hairline()
+
                 // MARK: About
                 SectionLabel(text: Copy.Settings.sectionAbout)
                     .geistGutter()
@@ -167,7 +198,7 @@ struct SettingsView: View {
                     detail: Copy.Settings.automaticUpdatesDetail,
                     isOn: Binding(
                         get: { Updater.shared.automaticallyChecks },
-                        set: { Updater.shared.automaticallyChecks = $0 }
+                        set: { Updater.shared.setAutomaticallyChecks($0) }
                     )
                 )
                 .geistGutter()
@@ -238,6 +269,7 @@ struct SettingsView: View {
             await model.refreshPermission()
             #if os(macOS)
             LoginItem.shared.refresh()
+            Updater.shared.refresh()
             #endif
         }
     }

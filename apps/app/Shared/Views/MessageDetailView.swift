@@ -49,15 +49,7 @@ struct MessageDetailView: View {
     /// a message you have opened is a screen you are reading, and an age that
     /// counts up under your eyes is movement with nothing behind it.
     private static func age(of message: Message) -> String {
-        let basis = message.occurredAt ?? message.createdAt
-        let seconds = max(0, Int(Date().timeIntervalSince(basis)))
-        switch seconds {
-        case ..<60: return Copy.Age.now
-        case ..<3_600: return Copy.Age.minutes("\(seconds / 60)")
-        case ..<86_400: return Copy.Age.hours("\(seconds / 3_600)")
-        case ..<604_800: return Copy.Age.days("\(seconds / 86_400)")
-        default: return Copy.Age.weeks("\(seconds / 604_800)")
-        }
+        RelativeAge.string(since: message.occurredAt ?? message.createdAt)
     }
 
     private static let stamp: DateFormatter = {

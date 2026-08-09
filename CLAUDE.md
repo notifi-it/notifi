@@ -166,6 +166,16 @@ cycles across this project's transcripts ran to a median of 46s and a p90 of
 283s, for one screen. A clean build has not been timed and is much slower; that
 cost is paid once, not per iteration.
 
+## A PR that changes the UI attaches screenshots
+
+Any PR that changes what a screen looks like carries screenshots in its
+description — one per touched screen, and before/after when it moves something
+that already existed. `make shots` produces the tab images; sheets and the Mac
+popover are captured by hand. A described layout has to be imagined, and the
+imagined screen always looks right. If the PR is filed from a CLI that cannot
+upload images, say so in the description and attach them on the first pass
+through the web UI.
+
 ## Confirmations are centred alerts, never confirmationDialog
 
 Use `.alert` with a title, a `message:`, and the action buttons. Never

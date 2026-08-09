@@ -116,6 +116,8 @@ enum Copy {
         static var emptyDetail: String { NSLocalizedString("keys.emptyDetail", comment: "") }
         static var footnote: String { NSLocalizedString("keys.footnote", comment: "") }
         static func sent(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.sent", comment: ""), n) }
+        static func rowLastUsed(_ ago: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLastUsed", comment: ""), ago) }
+        static var docsLink: String { NSLocalizedString("keys.docsLink", comment: "") }
         static var chipDefault: String { NSLocalizedString("keys.chipDefault", comment: "") }
         static var chipRevoked: String { NSLocalizedString("keys.chipRevoked", comment: "") }
         static var chipCritical: String { NSLocalizedString("keys.chipCritical", comment: "") }
@@ -172,6 +174,7 @@ enum Copy {
         static var sectionName: String { NSLocalizedString("createKey.sectionName", comment: "") }
         static var namePrompt: String { NSLocalizedString("createKey.namePrompt", comment: "") }
         static var nameLabel: String { NSLocalizedString("createKey.nameLabel", comment: "") }
+        static func charCount(_ n: String, _ max: String) -> String { String.localizedStringWithFormat(NSLocalizedString("createKey.charCount", comment: ""), n, max) }
         static var nameReserved: String { NSLocalizedString("createKey.nameReserved", comment: "") }
         static var create: String { NSLocalizedString("createKey.create", comment: "") }
         static var creating: String { NSLocalizedString("createKey.creating", comment: "") }
@@ -225,6 +228,9 @@ enum Copy {
         static var automaticUpdates: String { NSLocalizedString("settings.automaticUpdates", comment: "") }
         static var automaticUpdatesDetail: String { NSLocalizedString("settings.automaticUpdatesDetail", comment: "") }
         static var checkForUpdates: String { NSLocalizedString("settings.checkForUpdates", comment: "") }
+        static var sectionSupport: String { NSLocalizedString("settings.sectionSupport", comment: "") }
+        static var support: String { NSLocalizedString("settings.support", comment: "") }
+        static var feedback: String { NSLocalizedString("settings.feedback", comment: "") }
         static var privacyPolicy: String { NSLocalizedString("settings.privacyPolicy", comment: "") }
         static var website: String { NSLocalizedString("settings.website", comment: "") }
         static var keysAreDeviceBound: String { NSLocalizedString("settings.keysAreDeviceBound", comment: "") }

@@ -137,6 +137,20 @@ struct CreateKeyView: View {
                 // field itself.
                 .accessibilityLabel(Copy.CreateKey.nameLabel)
 
+            // Warns, never blocks: the field accepts whatever it is given and
+            // submit validates. Silent until 48 characters so a short name is
+            // not carrying a meter it does not need, and it counts the trimmed
+            // name because that is what the validator counts.
+            if trimmedCount >= 48 {
+                HStack {
+                    Spacer(minLength: 8)
+                    Text(Copy.CreateKey.charCount("\(trimmedCount)", "64"))
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(trimmedCount >= 64 ? Theme.danger : Theme.dim)
+                }
+                .padding(.top, 8)
+            }
+
             if isReserved {
                 Text(Copy.CreateKey.nameReserved)
                     .font(Theme.metaSmall)
@@ -239,6 +253,10 @@ struct CreateKeyView: View {
     }
 
     private var isNameValid: Bool { validationProblem == nil }
+
+    private var trimmedCount: Int {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).count
+    }
 
     /// What to say when the name will not do, phrased as the thing to do next
     /// rather than as what went wrong. `nil` means the name is fine.

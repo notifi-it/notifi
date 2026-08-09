@@ -127,6 +127,33 @@ struct KeysView: View {
                 // last thing on the screen and it explained a rule that only
                 // matters at the moment a key is created — which is its own
                 // sheet, and says so there.
+
+                // The docs sit at the foot for the same reason the site does in
+                // Settings: the link leaves the app, which is not what the rows
+                // above it do. It goes to the API section because the keys
+                // listed here are used from scripts, and that is where the
+                // sending side is written up.
+                Link(destination: URL(string: "https://notifi.it/#api")!) {
+                    HStack(spacing: 5) {
+                        Text(Copy.Keys.docsLink)
+                            .font(Theme.metaSmall)
+                        Image("akar-link-chain")
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 11, height: 11)
+                            // The glyph only says the link leaves the app, which
+                            // the link itself already says — same reasoning as
+                            // the Settings foot link.
+                            .accessibilityHidden(true)
+                    }
+                    .foregroundStyle(Theme.muted)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.geist)
+                .geistHitArea(expandedBy: 15)
+                .padding(.top, 14)
+                .padding(.bottom, 40)
+                .geistGutter()
             }
         }
         .navigationDestination(for: CachedKey.self) { key in
@@ -187,6 +214,15 @@ private struct KeyRow: View {
                     Text(sent)
                         .font(Theme.metaSmall)
                         .foregroundStyle(Theme.dim)
+                    // A pager key that has gone quiet is the one worth
+                    // investigating, so staleness sits on the row rather than
+                    // a tap away. A never-used key adds nothing here — its
+                    // zero sent count already reads as silence.
+                    if let used = key.lastUsedDate {
+                        Text(Copy.Keys.rowLastUsed(Copy.Age.ago(RelativeAge.string(since: used))))
+                            .font(Theme.metaSmall)
+                            .foregroundStyle(Theme.dim)
+                    }
                 }
             }
         }
