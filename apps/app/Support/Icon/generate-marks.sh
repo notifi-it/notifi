@@ -235,6 +235,10 @@ for name, ink in (("bell-light", "#A1A1A1"), ("bell-dark", "#5B5B5B")):
 # The site masks this one with currentColor and lays its own disc over the
 # badge, so what matters here is the alpha, not the fill.
 svg("%s/bell.svg" % web, 32, 32, logo_box, mark(logo_box, "#000", "#000"))
+# The header's bell rings, so the site needs the same two layers the app rings:
+# one box, one over the other, the clapper free to trail the body.
+svg("%s/bell-body.svg" % web, 32, 32, logo_box, body("#000", "#000"))
+svg("%s/bell-clapper.svg" % web, 32, 32, logo_box, clap("#000"))
 
 # The favicon carries the plate and the real colours, and is the only one that
 # is not a template.
