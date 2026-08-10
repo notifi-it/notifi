@@ -228,6 +228,7 @@ nav a:hover{color:var(--fg)}
 .term{
   margin-top:40px;
   background:var(--surface);
+  border-radius:12px;overflow:hidden;
 }
 .term-bar{
   display:flex;align-items:center;gap:9px;padding:9px 13px;
@@ -531,6 +532,17 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>
     </symbol>
 
+    <symbol id="i-erase" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 7h14"/><path d="M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/>
+      <path d="M7 7l1 12a1.6 1.6 0 0 0 1.6 1.5h4.8A1.6 1.6 0 0 0 16 19l1-12"/>
+    </symbol>
+
+    <symbol id="i-urgent" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4v9"/><circle cx="12" cy="18.5" r="0.4" fill="currentColor"/>
+    </symbol>
+
     <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="7.5" cy="16.5" r="3.5"/><path d="M10 14L20 4"/><path d="M17 7l2.5 2.5"/>
@@ -595,12 +607,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <!-- "No account" and "no sign-in" were the same claim twice; the third slot
          buys the open-source line, which is the only trust claim on the page a
          reader can go and check for themselves. -->
-    <p class="eyebrow" style="margin-bottom:20px">No SDK. No account. Open source.</p>
-    <h1>A pager for<br>anything you run<span class="caret" aria-hidden="true"></span></h1>
+    <p class="eyebrow" style="margin-bottom:20px">No account. No SDK. End-to-end encrypted.</p>
+    <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede">
-      Install the app, copy the key it makes you, <code>curl</code> a title to
-      <code>notifi.it/send</code>. It arrives on your iPhone or your Mac a moment later,
-      sealed to your device, where neither we nor Apple can read it.
+      Install the app, grab your key, and send an HTTP request to
+      <code>notifi.it/send</code>. The message shows up on your iPhone or Mac
+      seconds later, end-to-end encrypted, so neither we nor Apple can read it.
     </p>
 
     <div class="cta">
@@ -629,7 +641,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <!-- Carries the one instruction the removed three-step section was for:
          nk_yourkeyhere is the slot, and the app is where the key comes from. -->
     <p class="meta" style="margin-top:12px">
-      Swap in the key the app made you. That is the whole integration.
+      Replace <code>nk_yourkeyhere</code> with the key from the app. The request also
+      takes <code>message</code>, <code>link</code>, <code>image</code> and
+      <code>is_critical</code> — the <a href="#api" class="src">reference</a> has all of
+      them.
     </p>
   </div>
 </section>
@@ -640,9 +655,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">The app</p><hr class="rule">
     </div>
-    <h2>A list of everything<br>you have been sent.</h2>
+    <h2>Every notification you've received,<br>in one searchable list.</h2>
     <p class="lede" style="margin-top:14px">
-      Searchable history. Tap for the message, image and link.
+      Tap one to see the full message, image, and link. Messages are deleted
+      from the server once your device has collected them, so your history
+      lives only on your device.
     </p>
 
     <div class="shots">
@@ -676,19 +693,16 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">Uses</p><hr class="rule">
     </div>
-    <h2>Anything that finishes,<br>fails, or changes.</h2>
-    <p class="lede" style="margin-top:14px;margin-bottom:34px">
-      Start something long and walk away. A headless run has no window to watch.
-    </p>
+    <h2 style="margin-bottom:34px">Anything that finishes,<br>fails, or changes.</h2>
 
     <!-- Three examples a column, not five. The list is here to make a reader
          recognise their own case, and that happens on the first line or two;
          everything after it is read as inventory. -->
     <div class="uses">
       <div class="use-col">
-        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>Headless agents</p>
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>Agents</p>
         <ul>
-          <li>A headless Claude Code run finished</li>
+          <li>A Claude Code run finished</li>
           <li>An agent stopped and needs a decision</li>
           <li>An overnight refactor landed on the branch</li>
         </ul>
@@ -723,9 +737,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
     </div>
 
-    <p class="meta" style="margin-top:30px">
-      If something can tell when it happened, it can tell you.
-    </p>
   </div>
 </section>
 
@@ -740,21 +751,32 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="rows">
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>No account</h3>
-        <p>Nothing to sign up for. The app makes a keypair on first launch and that is
-           your identity — nothing to remember, nothing to leak.</p>
+        <p>No signup, no email, no password. The app generates a keypair on first
+           launch and that keypair is your identity.</p>
       </div>
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
         <div>
-          <p>The server only ever holds the public half of that keypair, so what sits in
-             the database is encrypted text. The push is sealed too: the alert Apple
-             relays says only <code>notifi</code>, and your phone unseals the real title
-             on arrival.</p>
+          <p>Messages are
+             <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">encrypted</a>
+             with your public key before they are stored, so the server only ever holds
+             encrypted text. Apple relays an alert that just says <code>notifi</code>,
+             and your phone
+             <a href="https://github.com/notifi-it/notifi/blob/main/apps/app/Shared/Identity/DeviceIdentity.swift" class="src">decrypts</a>
+             the real title when it arrives.</p>
           <p style="margin-top:12px">
-             It is the body that is sealed, not the fact of it —
-             <a href="/privacy" class="src">Privacy</a> lists exactly what the server can
-             still see.</p>
+             <a href="/privacy" class="src">See more</a>.</p>
         </div>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-erase"/></svg>Nothing kept after delivery</h3>
+        <p>The server deletes a message as soon as your device confirms it has collected
+           it. Your history lives on your device, not in our database.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>Urgent alerts</h3>
+        <p>Send with <code>is_critical=1</code> on a key you have marked urgent, and the
+           notification breaks through Focus and lands on the lock screen.</p>
       </div>
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>One key per script, revocable</h3>
@@ -763,15 +785,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>Send from anywhere</h3>
-        <p>Plain HTTP and no SDK, so anything that can make a request can send: a Linux
-           box, a CI runner, a router, a home hub, another phone.</p>
+        <p>Plain HTTP and no SDK, so anything that can make an HTTP request can send: a
+           Linux box, a CI runner, a router, a home hub, another phone.</p>
       </div>
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Open source</h3>
         <p>The app, the API and the crypto are on
-           <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>. The
-           sealing above is one short file,
-           <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">seal.ts</a>.</p>
+           <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>.</p>
       </div>
     </div>
   </div>
@@ -783,7 +803,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">Send</p><hr class="rule">
     </div>
-    <h2>Your language,<br>the same one request.</h2>
+    <h2>The same one request,<br>from wherever you run.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:26px">
       Copy one and put your key in it. Anything that can make an HTTP request can send.
     </p>
@@ -807,7 +827,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
          and Ruby, PHP, Rust and Swift were each the same six-line POST written
          out again, so the row cost more than the samples were worth. Anyone on
          those reads the curl one. -->
-    <div class="tabs" role="tablist" aria-label="Language">
+    <div class="tabs" role="tablist" aria-label="Examples">
       <button class="tab" role="tab" aria-selected="true"  aria-controls="p-curl"   id="t-curl">curl</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-js"     id="t-js">JavaScript</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-py"     id="t-py">Python</button>
@@ -820,6 +840,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-gha"    id="t-gha">GitHub&nbsp;Actions</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-shell"  id="t-shell">Shell&nbsp;hook</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-systemd" id="t-systemd">systemd</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-kube" id="t-kube">Kubernetes</button>
     </div>
 
     <div class="term">
@@ -838,8 +859,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
 
       <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" hidden>
-<pre><span class="c">// No dependencies. Works in Node 18+, Deno, Bun and the browser.</span>
-await fetch(<span class="s">"https://notifi.it/send"</span>, {
+<pre>await fetch(<span class="s">"https://notifi.it/send"</span>, {
   method: <span class="s">"POST"</span>,
   headers: {
     <span class="s">"Authorization"</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
@@ -932,8 +952,7 @@ curl_exec($ch);</pre>
       </div>
 
       <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" hidden>
-<pre><span class="c">// Fires when Claude stops. Kick off a headless run, close the lid,</span>
-<span class="c">// and your phone tells you when it is done.</span>
+<pre><span class="c">// Fires when Claude stops.</span>
 {
   <span class="s">"hooks"</span>: {
     <span class="s">"Stop"</span>: [{
@@ -950,8 +969,7 @@ curl_exec($ch);</pre>
       </div>
 
       <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" hidden>
-<pre><span class="c"># Put NOTIFI_KEY in the repository's secrets, then add one step.</span>
-<span class="c"># if: failure() means it only fires when something actually broke.</span>
+<pre><span class="c"># Put NOTIFI_KEY in the repository's secrets.</span>
 - <span class="s">name</span>: Tell me it broke
   <span class="s">if</span>: failure()
   <span class="s">run</span>: |
@@ -966,7 +984,7 @@ curl_exec($ch);</pre>
 
       <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" hidden>
 <pre><span class="c"># Notify for any command that took longer than a minute, and say</span>
-<span class="c"># whether it worked. Nothing to remember, nothing to append.</span>
+<span class="c"># whether it worked.</span>
 <span class="f">autoload</span> -Uz add-zsh-hook
 
 _notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
@@ -996,6 +1014,34 @@ add-zsh-hook precmd  _notifi_end</pre>
   -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
   -d <span class="s">"title=%i failed on %H"</span> \
   --data-urlencode <span class="s">"message=$(systemctl status %i --lines=10 --no-pager)"</span></pre>
+      </div>
+
+      <div class="panel" id="p-kube" role="tabpanel" tabindex="0" aria-labelledby="t-kube" data-name="backup.yaml" hidden>
+<pre><span class="c"># Put the key in a Secret, then curl at the end of any Job's command.</span>
+<span class="s">apiVersion</span>: batch/v1
+<span class="s">kind</span>: CronJob
+<span class="s">metadata</span>:
+  <span class="s">name</span>: nightly-backup
+<span class="s">spec</span>:
+  <span class="s">schedule</span>: <span class="s">"0 3 * * *"</span>
+  <span class="s">jobTemplate</span>:
+    <span class="s">spec</span>:
+      <span class="s">template</span>:
+        <span class="s">spec</span>:
+          <span class="s">restartPolicy</span>: Never
+          <span class="s">containers</span>:
+          - <span class="s">name</span>: backup
+            <span class="s">image</span>: alpine/curl
+            <span class="s">command</span>: [<span class="s">"/bin/sh"</span>, <span class="s">"-c"</span>]
+            <span class="s">args</span>:
+            - |
+              ./backup.sh &amp;&amp;
+              curl -s https://notifi.it/send \
+                -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+                -d <span class="s">"title=Backup complete"</span>
+            <span class="s">env</span>:
+            - <span class="s">name</span>: NOTIFI_KEY
+              <span class="s">valueFrom</span>: { <span class="s">secretKeyRef</span>: { <span class="s">name</span>: notifi, <span class="s">key</span>: key } }</pre>
       </div>
 
       <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" hidden>
@@ -1102,10 +1148,10 @@ reqwest::Client::new()
     <div class="section-head">
       <p class="eyebrow">Download</p><hr class="rule">
     </div>
-    <h2>Download notifi for iPhone or Mac.</h2>
+    <h2>Get notifi on iPhone and Mac.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:28px">
-      On the Mac it lives in the menu bar. A key belongs to one device, so you choose where
-      a script lands — or give it a key on each.
+      On the Mac it lives in the menu bar. Each key delivers to one device, so a script
+      pages your phone, your Mac, or both if you give it two keys.
     </p>
 
     <!-- The Mac link is /download/mac rather than a versioned filename: the
