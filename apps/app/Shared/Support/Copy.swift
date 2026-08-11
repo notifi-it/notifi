@@ -134,6 +134,7 @@ enum Copy {
         static var copyKey: String { NSLocalizedString("keyDetail.copyKey", comment: "") }
         static var shareKey: String { NSLocalizedString("keyDetail.shareKey", comment: "") }
         static var copyCurl: String { NSLocalizedString("keyDetail.copyCurl", comment: "") }
+        static var examplesLink: String { NSLocalizedString("keyDetail.examplesLink", comment: "") }
         static var defaultKeyDetail: String { NSLocalizedString("keyDetail.defaultKeyDetail", comment: "") }
         static var shownOnceDetail: String { NSLocalizedString("keyDetail.shownOnceDetail", comment: "") }
         static var sectionUsage: String { NSLocalizedString("keyDetail.sectionUsage", comment: "") }

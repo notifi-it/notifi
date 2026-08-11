@@ -3,6 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>
+// First thing in the head, before anything paints: lift the key out of the URL
+// and rewrite the history entry, so the address bar and history only ever hold
+// the clean URL. The prefill script at the foot reads the stash, not the URL.
+// A plain anchor (?key=…#send) survives the rewrite; a key that arrived in the
+// fragment takes the whole fragment with it.
+(function () {
+  var hash = new URLSearchParams(location.hash.slice(1));
+  var key = hash.get('key') || new URLSearchParams(location.search).get('key');
+  if (!key) return;
+  window.__notifiKey = key;
+  history.replaceState(null, '', location.pathname + (hash.get('key') ? '' : location.hash));
+})();
+</script>
 <title>notifi — download the push notification app for iPhone and Mac</title>
 <meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device — no account, no SDK, and the message is sealed so neither we nor Apple can read it.">
 <meta name="theme-color" content="#1C1C1E">
@@ -1302,18 +1317,15 @@ reqwest::Client::new()
   });
 
   // ── pre-filled key ────────────────────────────────────────
-  // The app links here as https://notifi.it/#key=… so a key created on the
-  // phone can be pasted straight into a terminal. Read the fragment first: it is
-  // never sent to the server. ?key= is accepted too, for anyone who types it by
-  // hand, but it lands in edge logs, so both forms are wiped from the address
-  // bar as soon as they are read.
+  // The app links here as https://notifi.it/#key=… (the key page uses
+  // ?key=…#send) so a key created on the phone can be pasted straight
+  // into a terminal. The head script stripped the key from the URL before
+  // first paint and left it in the stash; by the time this runs the URL is
+  // already clean.
   (function () {
-    const hash = new URLSearchParams(location.hash.slice(1));
-    const query = new URLSearchParams(location.search);
-    const key = hash.get('key') || query.get('key');
+    const key = window.__notifiKey;
     if (!key) return;
-
-    history.replaceState(null, '', location.pathname);
+    delete window.__notifiKey;
 
     // Anything that is not a plausible key is ignored rather than shown.
     if (!/^[A-Za-z0-9._-]{8,128}$/.test(key)) return;

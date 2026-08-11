@@ -229,6 +229,9 @@ export const copy = {
     copyKey: 'Copy key',
     shareKey: 'Share key',
     copyCurl: 'Copy curl',
+    /// Foot link that leaves the app for the site's send examples — the other
+    /// languages and tools a key can be used from.
+    examplesLink: 'More ways to send',
     defaultKeyDetail:
       'notifi keeps this one on your device, so you can copy it again whenever you ' +
       'need it, or regenerate it below.',

@@ -127,15 +127,13 @@ struct KeyDetailView: View {
                         Clipboard.copySensitive(full)
                         flash()
                     }
-                    // The Mac has no share sheet worth the name here — the value
-                    // is going into a terminal or a script, so the useful thing
-                    // to hand over is the whole request rather than the key.
-                    #if os(macOS)
                     OutlineButton(title: copiedCurl ? Copy.Common.copied : Copy.KeyDetail.copyCurl) {
                         Clipboard.copySensitive(sendCommand(key: full))
                         flashCurl()
                     }
-                    #else
+                    // The Mac has no share sheet worth the name here — the value
+                    // is going into a terminal or a script either way.
+                    #if os(iOS)
                     OutlineShareButton(title: Copy.KeyDetail.shareKey, item: full)
                     #endif
                 }
@@ -148,6 +146,29 @@ struct KeyDetailView: View {
                     .geistConsequence()
                     .padding(.top, 14)
             }
+
+            // Leaves the app, like the Keys foot link — but this one lands on
+            // the send examples rather than the API reference, because the
+            // question a key page raises is "what do I paste where", and the
+            // site answers it in a dozen languages and tools.
+            Link(destination: examplesURL(for: key)) {
+                HStack(spacing: 5) {
+                    Text(Copy.KeyDetail.examplesLink)
+                        .font(Theme.metaSmall)
+                    Image("akar-link-chain")
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 11, height: 11)
+                        // The glyph only says the link leaves the app, which
+                        // the link itself already says.
+                        .accessibilityHidden(true)
+                }
+                .foregroundStyle(Theme.muted)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.geist)
+            .geistHitArea(expandedBy: 15)
+            .padding(.top, 14)
 
             SectionLabel(text: Copy.KeyDetail.sectionUsage)
             FieldRow(Copy.KeyDetail.fieldSent, "\(key.sentCount)")
@@ -222,6 +243,16 @@ struct KeyDetailView: View {
         .padding(.bottom, 40)
     }
 
+    /// ?key= fills the site's snippets with this key; the page wipes it from
+    /// the address bar as soon as it is read. Only the default key's value
+    /// exists to send.
+    private func examplesURL(for key: CachedKey) -> URL {
+        if key.isDefault, let full = model.defaultKeyValue {
+            return URL(string: "https://notifi.it/?key=\(full)#send")!
+        }
+        return URL(string: "https://notifi.it/#send")!
+    }
+
     private func flash() {
         withAnimation(.easeOut(duration: 0.15)) { copied = true }
         Task {
@@ -230,7 +261,6 @@ struct KeyDetailView: View {
         }
     }
 
-    #if os(macOS)
     private func flashCurl() {
         withAnimation(.easeOut(duration: 0.15)) { copiedCurl = true }
         Task {
@@ -249,7 +279,6 @@ struct KeyDetailView: View {
           -d '{"key":"\(key)","title":"Deploy finished","message":"web is live"}'
         """
     }
-    #endif
 
     private func regenerate() async {
         isRegenerating = true

@@ -1300,6 +1300,17 @@
         }
       }
     },
+    "keyDetail.examplesLink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More ways to send"
+          }
+        }
+      }
+    },
     "keyDetail.fieldCreated": {
       "extractionState": "manual",
       "localizations": {
