@@ -63,8 +63,8 @@ def build_ios_release
     output_name: "notifi.ipa",
     export_method: "app-store",
     export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
-    xcargs: "#{ALLOW_PROVISIONING} CURRENT_PROJECT_VERSION=#{build_number}",
-    export_xcargs: ALLOW_PROVISIONING
+    xcargs: "#{provisioning_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
+    export_xcargs: provisioning_xcargs
   )
 end
 
@@ -96,12 +96,23 @@ def assert_export_compliance_declared
   UI.message("Export compliance: ITSAppUsesNonExemptEncryption = #{declared.values.first}")
 end
 
-# Signing deliberately does not use the App Store Connect key. Creating signing
-# assets over the API ("cloud signing") needs an Admin key; ours is App Manager,
-# and passing it fails with "Cloud signing permission error" before Xcode gets a
-# chance to fetch profiles from the account signed in to Xcode itself. The key is
-# passed only to the steps that actually need it: uploading and notarizing.
-ALLOW_PROVISIONING = "-allowProvisioningUpdates".freeze
+# `-allowProvisioningUpdates` alone leans on the account signed in to Xcode,
+# which exists on a developer's Mac and not on a CI runner — there it fails as
+# "No Accounts". When the App Store Connect key is in the environment it is
+# handed to xcodebuild too, which needs the key to be Admin: cloud signing with
+# a lesser role fails as "Cloud signing permission error". The current key
+# (notifi-ci-release) is Admin for exactly this reason.
+def provisioning_xcargs
+  args = ["-allowProvisioningUpdates"]
+  if ENV["ASC_KEY_PATH"] && ENV["ASC_KEY_ID"] && ENV["ASC_ISSUER_ID"]
+    args += [
+      "-authenticationKeyPath", ENV["ASC_KEY_PATH"].shellescape,
+      "-authenticationKeyID", ENV["ASC_KEY_ID"].shellescape,
+      "-authenticationKeyIssuerID", ENV["ASC_ISSUER_ID"].shellescape,
+    ]
+  end
+  args.join(" ")
+end
 
 # Notarization round-trips to Apple and takes minutes, so a binary that can never
 # pass should fail here instead -- locally, in a second, naming the reason.
@@ -237,8 +248,8 @@ platform :mac do
       output_name: "notifi",
       export_method: "developer-id",
       export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
-      xcargs: "#{ALLOW_PROVISIONING} CURRENT_PROJECT_VERSION=#{build_number}",
-      export_xcargs: ALLOW_PROVISIONING
+      xcargs: "#{provisioning_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
+      export_xcargs: provisioning_xcargs
     )
 
     app = File.expand_path("../build/notifi.app", __dir__)
