@@ -63,8 +63,10 @@ def build_ios_release
     output_name: "notifi.ipa",
     export_method: "app-store",
     export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+    # No export_xcargs: gym appends xcargs AND export_xcargs to the export
+    # command, and -authenticationKeyPath may only be provided once. xcargs
+    # alone reaches both the archive and the export.
     xcargs: "#{provisioning_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
-    export_xcargs: provisioning_xcargs
   )
 end
 
@@ -248,8 +250,8 @@ platform :mac do
       output_name: "notifi",
       export_method: "developer-id",
       export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+      # No export_xcargs -- same reason as build_ios_release.
       xcargs: "#{provisioning_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
-      export_xcargs: provisioning_xcargs
     )
 
     app = File.expand_path("../build/notifi.app", __dir__)
