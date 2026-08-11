@@ -149,7 +149,7 @@ final class SyncEngine {
                 if page.messages.count < Self.pageSize { break }
             }
         } catch {
-            log.error("sync failed: \(String(describing: error), privacy: .public)")
+            log.error("sync failed: \(String(describing: error), privacy: .private)")
         }
 
         reconcileNotifications()
@@ -332,7 +332,7 @@ final class SyncEngine {
             NotificationCategories.register(keys: Self.summaryKeys(built))
         } catch {
             keysRefreshFailed = true
-            log.error("key refresh failed: \(String(describing: error), privacy: .public)")
+            log.error("key refresh failed: \(String(describing: error), privacy: .private)")
         }
     }
 

@@ -41,12 +41,13 @@ struct EmptyStateView: View {
     /// The snippet is built from the device's own default key so the first send
     /// works on paste.
     ///
-    /// `--get -d` rather than a hand-built query string: curl does the escaping,
+    /// `-d` rather than a hand-built query string: curl does the escaping,
     /// which keeps each parameter on its own readable line instead of a wall of
-    /// percent codes.
+    /// percent codes. A POST rather than `--get`, so the key rides in the body
+    /// instead of a URL that lands in edge logs and shell history.
     private func command(key: String) -> String {
         """
-        curl --get "\(model.baseURL.absoluteString)/send" \\
+        curl "\(model.baseURL.absoluteString)/send" \\
           -d key=\(key) \\
           -d title="\(Self.sampleTitle)" \\
           -d message="\(Self.sampleMessage)"
@@ -145,7 +146,7 @@ struct EmptyStateView: View {
 
                         HStack(spacing: 10) {
                             OutlineButton(title: copied ? Copy.Common.copied : Copy.Common.copy, fill: true) {
-                                Clipboard.copy(command)
+                                Clipboard.copySensitive(command)
                                 copied = true
                             }
 

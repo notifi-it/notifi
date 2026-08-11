@@ -347,10 +347,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>No tracking</h2>
     <p>
-      The app contains no analytics, no crash reporting, no advertising
-      identifiers and no third-party SDKs of any kind. It talks to
-      <code>notifi.it</code> and to Apple's push service, and to an image host
-      only when you ask it to load an image. This website sets no cookies, loads
+      The app contains no analytics, no crash reporting and no advertising
+      identifiers. It talks to <code>notifi.it</code> and to Apple's push
+      service, and to an image host only when you ask it to load an image. The
+      Mac app additionally embeds Sparkle, an open-source updater, which
+      periodically checks <code>github.com</code> for a new release; that
+      request exposes your IP address to GitHub and carries nothing else about
+      you. This website sets no cookies, loads
       no analytics, and makes no third-party request of any kind: its fonts are
       served from <code>notifi.it</code>.
     </p>

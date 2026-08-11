@@ -124,7 +124,7 @@ struct KeyDetailView: View {
             if key.isDefault, let full = model.defaultKeyValue {
                 HStack(spacing: 9) {
                     OutlineButton(title: copied ? Copy.Common.copied : Copy.KeyDetail.copyKey) {
-                        Clipboard.copy(full)
+                        Clipboard.copySensitive(full)
                         flash()
                     }
                     // The Mac has no share sheet worth the name here — the value
@@ -132,7 +132,7 @@ struct KeyDetailView: View {
                     // to hand over is the whole request rather than the key.
                     #if os(macOS)
                     OutlineButton(title: copiedCurl ? Copy.Common.copied : Copy.KeyDetail.copyCurl) {
-                        Clipboard.copy(sendCommand(key: full))
+                        Clipboard.copySensitive(sendCommand(key: full))
                         flashCurl()
                     }
                     #else

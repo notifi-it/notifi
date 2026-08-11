@@ -81,13 +81,19 @@ final class APIClient {
     }
 
     func send(key: String, title: String, message: String?) async throws -> SendResponse {
-        var components = baseComponents(path: "/send")
-        var items = [URLQueryItem(name: "title", value: title)]
-        if let message { items.append(URLQueryItem(name: "message", value: message)) }
-        components.queryItems = items
+        // Everything in the body, nothing in the URL: a query string survives in
+        // edge and proxy logs and gets embedded in URLError descriptions, and
+        // this request carries user-written text.
+        struct Body: Encodable {
+            let title: String
+            let message: String?
+        }
+        let body = try encode(Body(title: title, message: message))
 
-        var request = URLRequest(url: components.url!)
+        var request = URLRequest(url: baseComponents(path: "/send").url!)
         request.httpMethod = "POST"
+        request.httpBody = body
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
         let data = try await performVoid(request)
         do {

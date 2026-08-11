@@ -196,11 +196,16 @@ final class AppModel {
         // Environment first, so a test run can point the app at another server
         // — or an unreachable one, to exercise the offline state — without
         // re-signing the bundle. Same family as NOTIFI_STICKY and
-        // NOTIFI_SAMPLE_DATA.
+        // NOTIFI_SAMPLE_DATA — and, like NOTIFI_START_TAB, DEBUG only: in a
+        // release build
+        // an env var is something any local process can set, and this one
+        // redirects every request, default key included.
+        #if DEBUG
         if let raw = ProcessInfo.processInfo.environment["NOTIFI_BASE_URL"],
            let url = URL(string: raw), url.host != nil {
             return url
         }
+        #endif
         if let raw = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String,
            let url = URL(string: raw), url.host != nil {
             return url
@@ -318,7 +323,7 @@ final class AppModel {
             DeviceIdentity.storeDefaultKey(created.key)
             await sync.refreshKeys()
         } catch {
-            log.error("default key creation failed: \(String(describing: error), privacy: .public)")
+            log.error("default key creation failed: \(String(describing: error), privacy: .private)")
         }
     }
 
@@ -428,7 +433,7 @@ final class AppModel {
             if let strict = response.strictSend { strictSend = strict == 1 }
             lastRegisteredToken = apnsToken
         } catch {
-            log.error("device registration failed: \(String(describing: error), privacy: .public)")
+            log.error("device registration failed: \(String(describing: error), privacy: .private)")
         }
     }
 
@@ -557,7 +562,7 @@ final class AppModel {
             do {
                 try context.save()
             } catch {
-                log.error("mark read failed: \(String(describing: error), privacy: .public)")
+                log.error("mark read failed: \(String(describing: error), privacy: .private)")
             }
         }
     }

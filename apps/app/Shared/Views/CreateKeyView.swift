@@ -69,7 +69,7 @@ struct CreateKeyView: View {
         ) {
             if case let .revealed(response) = phase {
                 Button(Copy.CreateKey.leaveCopyAndClose) {
-                    Clipboard.copy(response.key)
+                    Clipboard.copySensitive(response.key)
                     finish()
                 }
                 Button(Copy.CreateKey.leaveCloseAndRevoke, role: .destructive) {
@@ -220,7 +220,7 @@ struct CreateKeyView: View {
 
             HStack(spacing: 9) {
                 OutlineButton(title: hasCopied ? Copy.Common.copied : Copy.Common.copy) {
-                    Clipboard.copy(response.key)
+                    Clipboard.copySensitive(response.key)
                     withAnimation(Theme.press) { hasCopied = true }
                 }
                 OutlineShareButton(title: Copy.Common.share, item: response.key)
