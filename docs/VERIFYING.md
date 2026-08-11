@@ -262,6 +262,30 @@ has something under it.
 - **All three tabs:** the headings sit on the same left edge as the message titles
   and as the section labels on Keys and Settings.
 
+### 8d. Content the server will not deliver as written
+
+Settings → **Sending** holds one switch, and it is server-held: it decides what
+`/send` does with content it cannot pass on intact. Off, the message still
+arrives and the sender is told; on, the send is refused.
+
+- **Image the relay will not fetch** — send `image=https://127.0.0.1/a.png`, then
+  `https://user:pw@example.com/a.png`. Both return 202 with a `warnings` entry,
+  and the message arrives with no picture.
+- **Image that answers with the wrong thing** — an https URL that 404s, serves
+  `text/html`, or sends no `content-length`. Same: 202, warning, no picture. A
+  real PNG under 5 MB arrives with the picture and no warning at all.
+- **Over-long text** — a 250-character title and a 17,000-character message come
+  back with two warnings and arrive cropped in the inbox. A title over 1,000
+  characters is still a 400: past that it is not long, it is a mistake.
+- **Switch on** — repeat any of the above. The send is `422 invalid_content` and
+  nothing lands in the inbox. It still costs an hourly slot, so a script cannot
+  probe the checks for free.
+- **Urgent alerts are the exception** — with the switch on, `critical=1` on a key
+  that does not allow it is still a 202 with a warning. Refusing a page because
+  it could not be made loud is worse than delivering it quietly.
+- **Quit and relaunch** — the switch is where you left it. It is read back from
+  the registration the app does on every launch, not stored on the device.
+
 ---
 
 ## macOS & lifecycle

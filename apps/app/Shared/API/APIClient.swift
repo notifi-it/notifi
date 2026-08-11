@@ -39,6 +39,13 @@ final class APIClient {
         }
     }
 
+    func updateDeviceSettings(strictSend: Bool) async throws {
+        let data = try encode(UpdateDeviceSettingsBody(strictSend: strictSend))
+        _ = try await performSignedVoid {
+            try self.signedRequest(method: "PATCH", path: "/devices/settings", body: data)
+        }
+    }
+
     func listKeys() async throws -> ListKeysResponse {
         try await performSigned { try self.signedRequest(method: "GET", path: "/keys") }
     }

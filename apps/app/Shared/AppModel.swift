@@ -32,7 +32,7 @@ enum Appearance: String, CaseIterable {
 
     var colorScheme: ColorScheme { self == .dark ? .dark : .light }
 
-    var title: String { self == .dark ? Copy.Settings.groundDark : Copy.Settings.groundLight }
+    var title: String { self == .dark ? Copy.Settings.themeDark : Copy.Settings.themeLight }
 }
 
 /// Pages the macOS popover pushes on top of the inbox.
@@ -109,6 +109,10 @@ final class AppModel {
     var remoteImagesEnabled: Bool {
         didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
     }
+    /// Server-held, unlike the settings around it: it decides what the API does
+    /// with a send this device never sees, so the API is where it has to live.
+    /// Read back on registration, which happens every launch.
+    private(set) var strictSend = false
     /// Which ground the app paints on. Written straight through on change, so
     /// the choice survives a launch that never reaches `bootstrap` — which is
     /// most of them, since a notification tap can open the app cold.
@@ -345,6 +349,15 @@ final class AppModel {
         return criticalAlertStatus
     }
 
+    /// Throws rather than reverting quietly, so the screen can put the switch
+    /// back where it was and say why. A switch that slid back on its own would
+    /// look like the app changed its mind.
+    func setStrictSend(_ enabled: Bool) async throws {
+        guard let api else { throw NotifiError.identityMissing }
+        try await api.updateDeviceSettings(strictSend: enabled)
+        strictSend = enabled
+    }
+
     /// Replaces the default key with a fresh one. The old value stops working, so
     /// anything still sending with it starts getting 401 — same as a revoke, but
     /// you are not left without a default.
@@ -411,7 +424,8 @@ final class AppModel {
             appVersion: Self.appVersion
         )
         do {
-            _ = try await api.registerDevice(body)
+            let response = try await api.registerDevice(body)
+            if let strict = response.strictSend { strictSend = strict == 1 }
             lastRegisteredToken = apnsToken
         } catch {
             log.error("device registration failed: \(String(describing: error), privacy: .public)")

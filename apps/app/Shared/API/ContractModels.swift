@@ -18,9 +18,13 @@ struct RegisterDeviceBody: Codable, Sendable {
 
 struct RegisterDeviceResponse: Codable, Sendable {
     let deviceID: Int
+    /// 0 or 1. Optional so a build talking to a server that predates the column
+    /// still decodes; registration is how the app reads this setting back.
+    let strictSend: Int?
 
     enum CodingKeys: String, CodingKey {
         case deviceID = "device_id"
+        case strictSend = "strict_send"
     }
 }
 
@@ -68,6 +72,14 @@ struct UpdateKeyBody: Codable, Sendable {
     }
 }
 
+struct UpdateDeviceSettingsBody: Codable, Sendable {
+    let strictSend: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case strictSend = "strict_send"
+    }
+}
+
 struct HistoryMessage: Codable, Sendable {
     let id: Int
     let contentSealed: String
@@ -97,7 +109,7 @@ struct HistoryResponse: Codable, Sendable {
 
 struct SendResponse: Codable, Sendable {
     let ok: Bool
-    let warning: String?
+    let warnings: [String]?
 }
 
 struct MessageContent: Codable, Sendable {

@@ -7,6 +7,11 @@ export const errorCode = z.enum([
   'unknown_key',
   'rate_limited',
   'invalid_request',
+  /// The request parsed, but content in it could not be delivered as sent and
+  /// the device asked not to have that fixed quietly. Separate from
+  /// `invalid_request` so a sender can tell "I sent nonsense" from "you told me
+  /// to refuse this rather than trim it".
+  'invalid_content',
   'not_found',
   'internal_error',
 ]);
@@ -31,23 +36,27 @@ const sendFlag = z
   .union([z.boolean(), z.enum(['1', '0', 'true', 'false'])])
   .transform((v) => v === true || v === '1' || v === 'true');
 
+/// What a title and a message are allowed to be once delivered. Enforced in the
+/// send route rather than here, because over-long text is cropped and reported
+/// back rather than refused — a schema can only refuse. The schema's own ceilings
+/// below are the point past which the input is not long, it is a mistake.
+export const TITLE_MAX = 200;
+// The full message is sealed and stored, and /history serves it in full — the
+// 4 KB APNs budget only ever truncates the push *preview*, which already
+// degrades through fallbacks in send.ts. So this ceiling is a product choice,
+// not a transport one. 16k comfortably holds a stack trace or a log tail.
+export const MESSAGE_MAX = 16000;
+export const IMAGE_URL_MAX = 2048;
+
 export const sendParams = z.object({
   key: z.string(),
-  title: z.string().min(1).max(200),
-  // The full message is sealed and stored, and /history serves it in full —
-  // the 4 KB APNs budget only ever truncates the push *preview*, which already
-  // degrades through fallbacks in send.ts. So this ceiling is a product choice,
-  // not a transport one. 16k comfortably holds a stack trace or a log tail.
-  message: z.string().max(16000).optional(),
+  title: z.string().min(1).max(TITLE_MAX * 5),
+  message: z.string().max(MESSAGE_MAX * 4).optional(),
   link: z.string().url().max(2048).optional(),
-  image: z
-    .string()
-    .url()
-    .max(2048)
-    .refine((u) => u.toLowerCase().startsWith('https:'), {
-      message: 'image must be an https URL',
-    })
-    .optional(),
+  /// Only length-bounded here. Scheme, host and reachability are checked in the
+  /// send route, where a bad one can be dropped with a warning instead of
+  /// costing the sender the whole message.
+  image: z.string().max(IMAGE_URL_MAX * 2).optional(),
   // When the event actually happened, in unix MILLISECONDS. Optional — most
   // senders will not set it and the server receipt time is used instead.
   //
@@ -121,6 +130,9 @@ export type RegisterDeviceBody = z.infer<typeof registerDeviceBody>;
 
 export const registerDeviceResponse = z.object({
   device_id: z.number().int(),
+  /// 0 or 1. The app re-registers on every launch, so registration is also how
+  /// it reads this setting back — there is no separate GET.
+  strict_send: z.number().int(),
 });
 export type RegisterDeviceResponse = z.infer<typeof registerDeviceResponse>;
 
@@ -164,6 +176,16 @@ export const updateKeyBody = z
   .strict();
 export type UpdateKeyBody = z.infer<typeof updateKeyBody>;
 
+/// Device-level, because a device is the account here: a sender's script should
+/// not be able to opt itself out of the owner's decision about how loudly a bad
+/// send fails.
+export const updateDeviceSettingsBody = z
+  .object({
+    strict_send: z.boolean(),
+  })
+  .strict();
+export type UpdateDeviceSettingsBody = z.infer<typeof updateDeviceSettingsBody>;
+
 export const historyQuery = z.object({
   since: z.coerce.number().int().nonnegative().optional(),
   limit: z.coerce.number().int().min(1).max(200).optional(),
@@ -191,10 +213,15 @@ export type HistoryResponse = z.infer<typeof historyResponse>;
 
 export const sendResponse = z.object({
   ok: z.literal(true),
-  /// Present when the send asked to be escalated and the key does not allow it.
-  /// The message was still delivered, as an ordinary notification — the sender
-  /// gets told rather than refused, because a script that has been paging
-  /// quietly for weeks has no other way to find out.
-  warning: z.string().optional(),
+  /// Everything about this send that did not happen as asked: an escalation the
+  /// key does not allow, text that was cropped, an image URL that was dropped.
+  /// The message was still delivered — the sender gets told rather than refused,
+  /// because a script that has been paging quietly for weeks has no other way to
+  /// find out. Omitted, not empty, when there is nothing to say.
+  ///
+  /// A device with `strict_send` set turns the cropping and dropping cases into
+  /// a 422 instead. The escalation warning stays a warning either way: dropping
+  /// an alert from a pager is worse than under-delivering one.
+  warnings: z.array(z.string()).optional(),
 });
 export type SendResponse = z.infer<typeof sendResponse>;

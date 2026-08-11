@@ -1,4 +1,4 @@
-import { registerDeviceBody } from '@notifi/contract';
+import { registerDeviceBody, updateDeviceSettingsBody } from '@notifi/contract';
 import { Hono } from 'hono';
 import { fromB64 } from '../lib/bytes.js';
 import { encryptField, encryptPadded, tokenHmacHex } from '../lib/fieldcrypto.js';
@@ -10,6 +10,7 @@ import type { AppEnv } from '../types.js';
 export const devices = new Hono<AppEnv>();
 
 devices.use('/devices', signatureAuth);
+devices.use('/devices/settings', signatureAuth);
 
 devices.post('/devices', async (c) => {
   const nowS = now();
@@ -63,7 +64,7 @@ devices.post('/devices', async (c) => {
        platform              = excluded.platform,
        app_version           = excluded.app_version,
        last_seen_at          = excluded.last_seen_at
-     RETURNING id`,
+     RETURNING id, strict_send`,
   ).bind(
     parsed.public_key,
     parsed.encryption_public_key,
@@ -75,16 +76,43 @@ devices.post('/devices', async (c) => {
     nowS,
   );
 
-  let row: { id: number } | null = null;
+  let row: { id: number; strict_send: number } | null = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     await retireOthers.run();
     try {
-      row = await upsert.first<{ id: number }>();
+      row = await upsert.first<{ id: number; strict_send: number }>();
       break;
     } catch (err) {
       if (attempt === 1) throw err;
     }
   }
 
-  return c.json({ device_id: row!.id }, 200);
+  return c.json({ device_id: row!.id, strict_send: row!.strict_send }, 200);
+});
+
+// The app re-registers on every launch and reads the setting out of that
+// response, so this is write-only on purpose — a GET would be a second way to
+// learn the same thing and a second thing to keep in step.
+devices.patch('/devices/settings', async (c) => {
+  const publicKey = c.get('publicKey');
+
+  let parsed;
+  try {
+    const text = new TextDecoder().decode(c.get('rawBody'));
+    parsed = updateDeviceSettingsBody.parse(JSON.parse(text));
+  } catch {
+    return c.json(errBody('invalid_request', t(c).api.invalidDeviceSettingsBody), 400);
+  }
+
+  const updated = await c.env.DB.prepare(
+    'UPDATE devices SET strict_send = ?, last_seen_at = ? WHERE public_key = ? RETURNING id',
+  )
+    .bind(parsed.strict_send ? 1 : 0, now(), publicKey)
+    .first<{ id: number }>();
+
+  if (!updated) {
+    return c.json(errBody('unknown_device', t(c).api.unknownDevice), 401);
+  }
+
+  return c.body(null, 204);
 });

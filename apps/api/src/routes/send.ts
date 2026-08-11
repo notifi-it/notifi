@@ -1,11 +1,14 @@
 import {
+  MESSAGE_MAX,
   type MessageContent,
   OCCURRED_AT_MAX_SKEW_MS,
   sendParams,
+  TITLE_MAX,
 } from '@notifi/contract';
-import { copyFor, SOURCE_LANGUAGE, type Strings } from '@notifi/copy';
+import { copyFor, fmt, SOURCE_LANGUAGE, type Strings } from '@notifi/copy';
 import { Hono } from 'hono';
 import { push } from '../lib/apns.js';
+import { checkImage } from '../lib/imagecheck.js';
 import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
 import { hashKey } from '../lib/sendkey.js';
@@ -29,6 +32,7 @@ interface KeyDeviceRow {
   device_id: number;
   apns_token: string;
   encryption_public_key: string;
+  strict_send: number;
 }
 
 // One switch, two ceilings. `critical` is the one the product wants — audible
@@ -129,7 +133,8 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   const row = await c.env.DB.prepare(
     `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.is_critical AS is_critical,
             d.id AS device_id, d.apns_token AS apns_token,
-            d.encryption_public_key AS encryption_public_key
+            d.encryption_public_key AS encryption_public_key,
+            d.strict_send AS strict_send
      FROM keys k JOIN devices d ON d.id = k.device_id
      WHERE k.secret_hash = ?`,
   )
@@ -214,11 +219,47 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   const asked = input.is_critical === true || input.critical === true;
   const critical = asked && row.is_critical === 1;
 
+  // Everything the message could not be delivered as written. Cropping and
+  // dropping happen here, after the rate-limit charge: a send that trips these
+  // still cost the account a slot, whichever way it ends, so a script cannot
+  // probe the checks for free.
+  const warnings: string[] = [];
+
+  let title = input.title;
+  if (title.length > TITLE_MAX) {
+    title = title.slice(0, TITLE_MAX);
+    warnings.push(fmt(t(c).api.titleCropped, { max: TITLE_MAX }));
+  }
+
+  let message = input.message;
+  if (message !== undefined && message.length > MESSAGE_MAX) {
+    message = message.slice(0, MESSAGE_MAX);
+    warnings.push(fmt(t(c).api.messageCropped, { max: MESSAGE_MAX }));
+  }
+
+  let image = input.image;
+  if (image !== undefined) {
+    const rejection = await checkImage(image);
+    if (rejection !== null) {
+      image = undefined;
+      warnings.push(
+        rejection === 'rejected' ? t(c).api.imageRejected : t(c).api.imageUnreachable,
+      );
+    }
+  }
+
+  // The escalation warning is deliberately not in this set. Refusing a page
+  // because it could not be made loud is worse than delivering it quietly, so
+  // that one stays a warning even here.
+  if (row.strict_send === 1 && warnings.length > 0) {
+    return c.json(errBody('invalid_content', t(c).api.strictContentRejected), 422);
+  }
+
   const content: MessageContent = {
-    title: input.title,
-    ...(input.message !== undefined ? { message: input.message } : {}),
+    title,
+    ...(message !== undefined ? { message } : {}),
     ...(input.link !== undefined ? { link: input.link } : {}),
-    ...(input.image !== undefined ? { image: input.image } : {}),
+    ...(image !== undefined ? { image } : {}),
     key_id: row.key_id,
     created_at: createdAt,
     ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
@@ -254,11 +295,9 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const fallbacks: MessageContent[] = [
     {
-      title: input.title,
-      ...(input.message !== undefined
-        ? { message: input.message.slice(0, PREVIEW_MESSAGE_MAX) }
-        : {}),
-      ...(input.image !== undefined ? { image: input.image } : {}),
+      title,
+      ...(message !== undefined ? { message: message.slice(0, PREVIEW_MESSAGE_MAX) } : {}),
+      ...(image !== undefined ? { image } : {}),
       key_id: row.key_id,
       created_at: createdAt,
       // Every fallback has to carry occurred_at and critical too. The app checks
@@ -268,17 +307,15 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       is_critical: critical,
     },
     {
-      title: input.title,
-      ...(input.message !== undefined
-        ? { message: input.message.slice(0, MINIMAL_MESSAGE_MAX) }
-        : {}),
+      title,
+      ...(message !== undefined ? { message: message.slice(0, MINIMAL_MESSAGE_MAX) } : {}),
       key_id: row.key_id,
       created_at: createdAt,
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
       is_critical: critical,
     },
     {
-      title: input.title,
+      title,
       key_id: row.key_id,
       created_at: createdAt,
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
@@ -333,10 +370,10 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   // telling any one sender how much everything else sends to that device.
   // Asked and did not get it. The push already went out unescalated, so this is
   // the only place the sender can learn that its pages are arriving quiet.
+  if (asked && !critical) warnings.push(t(c).api.criticalNotAllowed);
+
   return c.json(
-    asked && !critical
-      ? { ok: true as const, warning: t(c).api.criticalNotAllowed }
-      : { ok: true as const },
+    warnings.length > 0 ? { ok: true as const, warnings } : { ok: true as const },
     202,
   );
 });

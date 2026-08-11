@@ -2238,50 +2238,6 @@
         }
       }
     },
-    "settings.ground": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ground"
-          }
-        }
-      }
-    },
-    "settings.groundDark": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dark"
-          }
-        }
-      }
-    },
-    "settings.groundDetail": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The app starts dark whatever the phone is set to, and stays on whichever of these you pick."
-          }
-        }
-      }
-    },
-    "settings.groundLight": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Light"
-          }
-        }
-      }
-    },
     "settings.keysAreDeviceBound": {
       "extractionState": "manual",
       "localizations": {
@@ -2310,7 +2266,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetching an image tells the sender your IP address and when it arrived. Off, images load only when tapped."
+            "value": "Fetches each image as the message arrives, which tells its host your IP address. Off, images load only when tapped."
           }
         }
       }
@@ -2458,35 +2414,13 @@
         }
       }
     },
-    "settings.sectionDiagnostics": {
+    "settings.sectionPermissions": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostics"
-          }
-        }
-      }
-    },
-    "settings.sectionNotifications": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notifications"
-          }
-        }
-      }
-    },
-    "settings.sectionPrivacy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Privacy"
+            "value": "Permissions"
           }
         }
       }
@@ -2502,24 +2436,35 @@
         }
       }
     },
-    "settings.sendTest": {
+    "settings.strictSend": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Send test notification"
+            "value": "Reject invalid sends"
           }
         }
       }
     },
-    "settings.sendTestDetail": {
+    "settings.strictSendDetail": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends through your default key."
+            "value": "Returns 422 invalid_content and stores nothing when a title or message is over length or an image URL fails validation. Off, /send crops or drops the field and returns 202 with a warnings array."
+          }
+        }
+      }
+    },
+    "settings.strictSendFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PATCH /devices/settings failed. Check your connection and try again."
           }
         }
       }
@@ -2546,39 +2491,6 @@
         }
       }
     },
-    "settings.testFailed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn't send the test. Check your connection and try again."
-          }
-        }
-      }
-    },
-    "settings.testNoDefaultKey": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No default key on this device yet. Refresh and try again."
-          }
-        }
-      }
-    },
-    "settings.testSent": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sent. It should arrive momentarily."
-          }
-        }
-      }
-    },
     "settings.testTitle": {
       "extractionState": "manual",
       "localizations": {
@@ -2586,6 +2498,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Test notification"
+          }
+        }
+      }
+    },
+    "settings.theme": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme"
+          }
+        }
+      }
+    },
+    "settings.themeDark": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
+          }
+        }
+      }
+    },
+    "settings.themeLight": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
           }
         }
       }

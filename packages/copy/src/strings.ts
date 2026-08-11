@@ -44,11 +44,19 @@ export const copy = {
     invalidEncryptionKey: 'encryption_public_key is not a valid P-256 point.',
     invalidCreateKeyBody: 'Invalid create-key body.',
     invalidUpdateKeyBody: 'Invalid update-key body.',
+    invalidDeviceSettingsBody: 'Invalid device settings body.',
     invalidHistoryQuery: 'Invalid history query.',
     invalidSendParams: 'Invalid send parameters.',
     occurredAtTooFuture: 'occurred_at is too far in the future.',
     criticalNotAllowed:
       'Sent as a normal notification: urgent alerts are switched off for this key.',
+    titleCropped: 'Sent with a shortened title: it was over {max} characters.',
+    messageCropped: 'Sent with a shortened message: it was over {max} characters.',
+    imageRejected: 'Sent without the image: that is not an address we will fetch.',
+    imageUnreachable:
+      'Sent without the image: it did not answer with a PNG, JPEG or GIF under 5 MB.',
+    strictContentRejected:
+      'Not sent. This device is set to refuse a message it cannot deliver as written.',
 
     noMacBuild: 'No macOS build has been published yet.',
     noSuchBuild: 'No such build.',
@@ -312,7 +320,7 @@ export const copy = {
   settings: {
     title: 'Settings',
 
-    sectionNotifications: 'Notifications',
+    sectionPermissions: 'Permissions',
     permission: 'Permission',
     openSystemSettings: 'Open system settings',
 
@@ -330,28 +338,26 @@ export const copy = {
     permissionUnknown: 'Unknown',
 
     sectionAppearance: 'Appearance',
-    ground: 'Ground',
-    groundDark: 'Dark',
-    groundLight: 'Light',
-    groundDetail:
-      'The app starts dark whatever the phone is set to, and stays on whichever of these ' +
-      'you pick.',
+    theme: 'Theme',
+    themeDark: 'Dark',
+    themeLight: 'Light',
 
-    sectionPrivacy: 'Privacy',
     loadImages: 'Load images automatically',
     loadImagesDetail:
-      'Fetching an image tells the sender your IP address and when it arrived. Off, images ' +
-      'load only when tapped.',
+      'Fetches each image as the message arrives, which tells its host your IP address. ' +
+      'Off, images load only when tapped.',
 
-    sectionDiagnostics: 'Diagnostics',
-    sendTest: 'Send test notification',
-    sendTestDetail: 'Sends through your default key.',
-    testSent: 'Sent. It should arrive momentarily.',
-    testNoDefaultKey: 'No default key on this device yet. Refresh and try again.',
-    testFailed: "Couldn't send the test. Check your connection and try again.",
+    strictSend: 'Reject invalid sends',
+    strictSendDetail:
+      'Returns 422 invalid_content and stores nothing when a title or message is over ' +
+      'length or an image URL fails validation. Off, /send crops or drops the field and ' +
+      'returns 202 with a warnings array.',
+    strictSendFailed: 'PATCH /devices/settings failed. Check your connection and try again.',
+
     testTitle: 'Test notification',
     testBody: 'If you can read this, notifi is working.',
 
+    sectionSupport: 'Support',
     sectionAbout: 'About',
     version: 'Version',
     openAtLogin: 'Open at login',
@@ -359,7 +365,6 @@ export const copy = {
     automaticUpdates: 'Automatic updates',
     automaticUpdatesDetail: 'Check for new versions in the background.',
     checkForUpdates: 'Check for updates',
-    sectionSupport: 'Support',
     support: 'Report a problem',
     feedback: 'Feedback',
     privacyPolicy: 'Privacy policy',

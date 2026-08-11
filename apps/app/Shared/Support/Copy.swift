@@ -193,7 +193,7 @@ enum Copy {
     }
     enum Settings {
         static var title: String { NSLocalizedString("settings.title", comment: "") }
-        static var sectionNotifications: String { NSLocalizedString("settings.sectionNotifications", comment: "") }
+        static var sectionPermissions: String { NSLocalizedString("settings.sectionPermissions", comment: "") }
         static var permission: String { NSLocalizedString("settings.permission", comment: "") }
         static var openSystemSettings: String { NSLocalizedString("settings.openSystemSettings", comment: "") }
         static var permissionEnabled: String { NSLocalizedString("settings.permissionEnabled", comment: "") }
@@ -206,21 +206,17 @@ enum Copy {
         static var permissionNotSet: String { NSLocalizedString("settings.permissionNotSet", comment: "") }
         static var permissionUnknown: String { NSLocalizedString("settings.permissionUnknown", comment: "") }
         static var sectionAppearance: String { NSLocalizedString("settings.sectionAppearance", comment: "") }
-        static var ground: String { NSLocalizedString("settings.ground", comment: "") }
-        static var groundDark: String { NSLocalizedString("settings.groundDark", comment: "") }
-        static var groundLight: String { NSLocalizedString("settings.groundLight", comment: "") }
-        static var groundDetail: String { NSLocalizedString("settings.groundDetail", comment: "") }
-        static var sectionPrivacy: String { NSLocalizedString("settings.sectionPrivacy", comment: "") }
+        static var theme: String { NSLocalizedString("settings.theme", comment: "") }
+        static var themeDark: String { NSLocalizedString("settings.themeDark", comment: "") }
+        static var themeLight: String { NSLocalizedString("settings.themeLight", comment: "") }
         static var loadImages: String { NSLocalizedString("settings.loadImages", comment: "") }
         static var loadImagesDetail: String { NSLocalizedString("settings.loadImagesDetail", comment: "") }
-        static var sectionDiagnostics: String { NSLocalizedString("settings.sectionDiagnostics", comment: "") }
-        static var sendTest: String { NSLocalizedString("settings.sendTest", comment: "") }
-        static var sendTestDetail: String { NSLocalizedString("settings.sendTestDetail", comment: "") }
-        static var testSent: String { NSLocalizedString("settings.testSent", comment: "") }
-        static var testNoDefaultKey: String { NSLocalizedString("settings.testNoDefaultKey", comment: "") }
-        static var testFailed: String { NSLocalizedString("settings.testFailed", comment: "") }
+        static var strictSend: String { NSLocalizedString("settings.strictSend", comment: "") }
+        static var strictSendDetail: String { NSLocalizedString("settings.strictSendDetail", comment: "") }
+        static var strictSendFailed: String { NSLocalizedString("settings.strictSendFailed", comment: "") }
         static var testTitle: String { NSLocalizedString("settings.testTitle", comment: "") }
         static var testBody: String { NSLocalizedString("settings.testBody", comment: "") }
+        static var sectionSupport: String { NSLocalizedString("settings.sectionSupport", comment: "") }
         static var sectionAbout: String { NSLocalizedString("settings.sectionAbout", comment: "") }
         static var version: String { NSLocalizedString("settings.version", comment: "") }
         static var openAtLogin: String { NSLocalizedString("settings.openAtLogin", comment: "") }
@@ -228,7 +224,6 @@ enum Copy {
         static var automaticUpdates: String { NSLocalizedString("settings.automaticUpdates", comment: "") }
         static var automaticUpdatesDetail: String { NSLocalizedString("settings.automaticUpdatesDetail", comment: "") }
         static var checkForUpdates: String { NSLocalizedString("settings.checkForUpdates", comment: "") }
-        static var sectionSupport: String { NSLocalizedString("settings.sectionSupport", comment: "") }
         static var support: String { NSLocalizedString("settings.support", comment: "") }
         static var feedback: String { NSLocalizedString("settings.feedback", comment: "") }
         static var privacyPolicy: String { NSLocalizedString("settings.privacyPolicy", comment: "") }

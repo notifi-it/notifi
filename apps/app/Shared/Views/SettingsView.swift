@@ -8,11 +8,8 @@ import UserNotifications
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
 
-    @State private var testState: TestState = .idle
-    @State private var testMessage: String?
-    @State private var testFailed = false
+    @State private var strictSendFailed = false
 
-    private enum TestState { case idle, sending }
 
     var body: some View {
         @Bindable var model = model
@@ -24,20 +21,27 @@ struct SettingsView: View {
             // rules between rows run the full width of the column while the
             // content they separate stays inside the margin.
             VStack(alignment: .leading, spacing: 0) {
-                // MARK: Notifications
-                SectionLabel(text: Copy.Settings.sectionNotifications)
+                // MARK: Permissions
+                //
+                // One section for everything that grants or withholds: what the
+                // OS lets notifi show (only when that needs fixing), what a
+                // message may fetch, and what a sender may get away with.
+                SectionLabel(text: Copy.Settings.sectionPermissions)
                     .geistGutter()
 
-                FieldRow(label: Copy.Settings.permission) {
-                    Text(permissionText)
-                        .font(.inco(.subheadline, weight: .medium))
-                        .foregroundStyle(model.notificationStatus == .authorized
-                                         ? Theme.fg : Theme.muted)
-                }
-                .geistGutter()
-                Hairline()
-
+                // Only when something needs fixing. Granted permission is the
+                // steady state, and a row confirming it daily is noise; the
+                // system-settings door for the healthy case lives at the bottom
+                // of the page instead.
                 if model.notificationStatus != .authorized {
+                    FieldRow(label: Copy.Settings.permission) {
+                        Text(permissionText)
+                            .font(.inco(.subheadline, weight: .medium))
+                            .foregroundStyle(Theme.muted)
+                    }
+                    .geistGutter()
+                    Hairline()
+
                     OutlineButton(title: Copy.Settings.openSystemSettings) {
                         model.openSystemNotificationSettings()
                     }
@@ -60,30 +64,6 @@ struct SettingsView: View {
                     Hairline()
                 }
 
-                // MARK: Appearance
-                SectionLabel(text: Copy.Settings.sectionAppearance)
-                    .geistGutter()
-
-                SegmentedRow(
-                    title: Copy.Settings.ground,
-                    options: Appearance.allCases,
-                    label: \.title,
-                    selection: $model.appearance
-                )
-                .geistGutter()
-                Hairline()
-
-                Text(Copy.Settings.groundDetail)
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 10)
-                    .geistGutter()
-
-                // MARK: Privacy
-                SectionLabel(text: Copy.Settings.sectionPrivacy)
-                    .geistGutter()
-
                 ToggleRow(
                     title: Copy.Settings.loadImages,
                     detail: Copy.Settings.loadImagesDetail,
@@ -92,53 +72,47 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                // MARK: Diagnostics
-                SectionLabel(text: Copy.Settings.sectionDiagnostics)
-                    .geistGutter()
-
-                Button {
-                    Task { await sendTest() }
-                } label: {
-                    HStack(spacing: 10) {
-                        Text(Copy.Settings.sendTest)
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
-                        Spacer(minLength: 8)
-                        if testState == .sending {
-                            ProgressView()
-                                .controlSize(.small)
-                                .tint(Theme.muted)
-                        } else {
-                            Image(systemName: "paperplane")
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(Theme.dim)
+                // The switch reads the model and writes through the API, so it
+                // shows what the server will actually do rather than what was
+                // last tapped. A failed write leaves it where it was and says so.
+                ToggleRow(
+                    title: Copy.Settings.strictSend,
+                    detail: Copy.Settings.strictSendDetail,
+                    isOn: Binding(
+                        get: { model.strictSend },
+                        set: { wanted in
+                            Task {
+                                strictSendFailed = false
+                                do {
+                                    try await model.setStrictSend(wanted)
+                                } catch {
+                                    strictSendFailed = true
+                                }
+                            }
                         }
-                    }
-                    .padding(.vertical, Theme.rowPadV)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.geistRow)
-                .disabled(testState == .sending)
+                    )
+                )
                 .geistGutter()
 
-                if let testMessage {
-                    Group {
-                        if testFailed {
-                            InlineError(message: testMessage).padding(.bottom, 12)
-                        } else {
-                            AnnouncedText(message: testMessage)
-                                .padding(.bottom, 12)
-                        }
-                    }
-                    .geistGutter()
+                if strictSendFailed {
+                    InlineError(message: Copy.Settings.strictSendFailed)
+                        .padding(.bottom, 12)
+                        .geistGutter()
                 }
                 Hairline()
 
-                Text(Copy.Settings.sendTestDetail)
-                    .font(Theme.metaSmall)
-                    .foregroundStyle(Theme.dim)
-                    .padding(.top, 10)
+                // MARK: Appearance
+                SectionLabel(text: Copy.Settings.sectionAppearance)
                     .geistGutter()
+
+                SegmentedRow(
+                    title: Copy.Settings.theme,
+                    options: Appearance.allCases,
+                    label: \.title,
+                    selection: $model.appearance
+                )
+                .geistGutter()
+                Hairline()
 
                 // MARK: Support
                 SectionLabel(text: Copy.Settings.sectionSupport)
@@ -220,6 +194,24 @@ struct SettingsView: View {
                 Hairline()
                 #endif
 
+                // The door to the OS's own notification switches. Duplicated
+                // from the Permissions section on purpose: up there it only
+                // appears when permission is missing, and hiding the healthy
+                // row took the only path to the system page with it.
+                Button {
+                    model.openSystemNotificationSettings()
+                } label: {
+                    DisclosureRow {
+                        Text(Copy.Settings.openSystemSettings)
+                            .font(Theme.body)
+                            .foregroundStyle(Theme.fg)
+                    }
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.geistRow)
+                .geistGutter()
+                Hairline()
+
                 Link(destination: URL(string: "https://notifi.it/privacy")!) {
                     DisclosureRow {
                         Text(Copy.Settings.privacyPolicy)
@@ -285,20 +277,4 @@ struct SettingsView: View {
         }
     }
 
-    private func sendTest() async {
-        testState = .sending
-        testMessage = nil
-        testFailed = false
-        do {
-            try await model.sendTestNotification()
-            testMessage = Copy.Settings.testSent
-        } catch NotifiError.identityMissing {
-            testFailed = true
-            testMessage = Copy.Settings.testNoDefaultKey
-        } catch {
-            testFailed = true
-            testMessage = (error as? APIError)?.userMessage ?? Copy.Settings.testFailed
-        }
-        testState = .idle
-    }
 }

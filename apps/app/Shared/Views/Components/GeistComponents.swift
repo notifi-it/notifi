@@ -310,18 +310,46 @@ struct ToggleRow: View {
     var detail: String?
     @Binding var isOn: Bool
 
+    @State private var showingDetail = false
+
     var body: some View {
         HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 3) {
+            // The explanation hides behind an (i) rather than sitting under the
+            // title. Inline, every caveat was read on every visit; behind the
+            // button it is read exactly when someone wonders what the switch
+            // does. VoiceOver keeps the text without the trip: it stays the
+            // switch's hint below.
+            HStack(spacing: 6) {
                 Text(title)
                     .font(Theme.body)
                     .foregroundStyle(Theme.fg)
                     .fixedSize(horizontal: false, vertical: true)
                 if let detail {
-                    Text(detail)
-                        .font(Theme.metaSmall)
-                        .foregroundStyle(Theme.dim)
-                        .fixedSize(horizontal: false, vertical: true)
+                    Button {
+                        showingDetail = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(Theme.dim)
+                    }
+                    .buttonStyle(.geist)
+                    .geistHitArea(expandedBy: 12)
+                    // The hint already reads this text on the switch itself, so
+                    // the button would only offer VoiceOver the same sentence
+                    // again with an extra stop on the way to the switch.
+                    .accessibilityHidden(true)
+                    .popover(isPresented: $showingDetail, arrowEdge: .bottom) {
+                        Text(detail)
+                            // The mono caption is for metadata glanced in a row;
+                            // a popover is opened to be read, so it speaks in
+                            // the body face.
+                            .font(Theme.body)
+                            .foregroundStyle(Theme.fg)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(14)
+                            .frame(idealWidth: 280, maxWidth: 280)
+                            .presentationCompactAdaptation(.popover)
+                    }
                 }
             }
             Spacer(minLength: 8)
