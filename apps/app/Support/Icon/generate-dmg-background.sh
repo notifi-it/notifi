@@ -89,13 +89,9 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="$W" height="$H" viewBox
        arrow it replaced. -->
   {trail}
 
-  <!-- Set in the system sans, not a mono. The wordmark above is mono, and the
-       caption in the same voice read as a second line of the logotype rather
-       than as the instruction; the two Finder labels between them are sans, so
-       this sides with the window it is captioning. -->
-  <text x="{$W/2}" y="350" text-anchor="middle"
-        font-family="SF Pro Text, Helvetica Neue, sans-serif" font-size="14"
-        font-weight="500" letter-spacing="0.1" fill="#B4B4B8">Drag notifi into Applications</text>
+  <!-- No caption. The two icons and the arrow-marked Applications folder are
+       the instruction; a sentence under them was a third voice in a window
+       that already speaks twice (mono wordmark, sans Finder labels). -->
 
 </svg>'''
 open(f"{tmp}/bg.svg", "w").write(svg)
