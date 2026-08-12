@@ -224,11 +224,6 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                Text(Copy.Settings.keysAreDeviceBound)
-                    .geistConsequence()
-                    .padding(.top, 16)
-                    .geistGutter()
-
                 // The site sits at the foot rather than in a row of its own: it
                 // leaves the app, which is not what the rows above it do.
                 Link(destination: URL(string: "https://notifi.it")!) {

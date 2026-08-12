@@ -233,7 +233,6 @@ enum Copy {
         static var feedback: String { NSLocalizedString("settings.feedback", comment: "") }
         static var privacyPolicy: String { NSLocalizedString("settings.privacyPolicy", comment: "") }
         static var website: String { NSLocalizedString("settings.website", comment: "") }
-        static var keysAreDeviceBound: String { NSLocalizedString("settings.keysAreDeviceBound", comment: "") }
     }
     enum Empty {
         static var sampleTitle: String { NSLocalizedString("empty.sampleTitle", comment: "") }

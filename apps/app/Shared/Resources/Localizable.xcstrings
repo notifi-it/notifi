@@ -2293,17 +2293,6 @@
         }
       }
     },
-    "settings.keysAreDeviceBound": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keys live and die with this device. If you lose it, the keys stop working and cannot be recovered."
-          }
-        }
-      }
-    },
     "settings.loadImages": {
       "extractionState": "manual",
       "localizations": {

@@ -376,9 +376,6 @@ export const copy = {
     feedback: 'Feedback',
     privacyPolicy: 'Privacy policy',
     website: 'notifi.it',
-    keysAreDeviceBound:
-      'Keys live and die with this device. If you lose it, the keys stop working and cannot ' +
-      'be recovered.',
   },
 
   empty: {
