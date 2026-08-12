@@ -13,9 +13,20 @@ protocol SealedBoxOpener {
 }
 
 enum IdentityConstants {
-    static let service = "it.notifi.identity"
-    static let encryptionService = "it.notifi.encryption"
-    static let defaultKeyService = "it.notifi.defaultkey"
+    // Debug talks to the dev worker, so it keeps its identity and default key
+    // under different service names. On a Mac a Debug build runs beside the
+    // installed Release app in the same keychain groups; sharing these items
+    // meant the Debug run's ensureDefaultKey() replaced the Release app's
+    // stored default key with one minted on the dev server.
+    #if DEBUG
+    private static let suffix = ".debug"
+    #else
+    private static let suffix = ""
+    #endif
+
+    static let service = "it.notifi.identity" + suffix
+    static let encryptionService = "it.notifi.encryption" + suffix
+    static let defaultKeyService = "it.notifi.defaultkey" + suffix
 
     static let teamIdPrefix: String = {
         (Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String) ?? ""

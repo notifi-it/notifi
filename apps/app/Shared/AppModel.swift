@@ -149,7 +149,13 @@ final class AppModel {
     /// Counted rather than inferred from a timestamp, because one late message
     /// is a coincidence and twenty is a diagnosis.
     private(set) var pollOnlyArrivals: Int = UserDefaults.standard.integer(forKey: pollOnlyKey)
+    // Suffixed for the same reason as realTokenKey: a Debug run's arrivals
+    // must not count toward — or retire — the Release app's push diagnosis.
+    #if DEBUG
+    private static let pollOnlyKey = "notifi.pollOnlyArrivals.debug"
+    #else
     private static let pollOnlyKey = "notifi.pollOnlyArrivals"
+    #endif
 
     var pushDeliveryLooksBroken: Bool { pollOnlyArrivals >= 3 }
 
@@ -168,7 +174,16 @@ final class AppModel {
     private var lastRegisteredToken: String?
     private let log = Logger(subsystem: "it.notifi.notifi", category: "app")
 
+    // Suffixed like the keychain services in IdentityConstants, and for the
+    // same reason: on a Mac a Debug build shares this defaults domain with the
+    // installed Release app, and a sandbox token cached here without the
+    // suffix would be re-registered by the Release app against production
+    // APNs, where it is a BadDeviceToken.
+    #if DEBUG
+    private static let realTokenKey = "lastRealAPNSToken.debug"
+    #else
     private static let realTokenKey = "lastRealAPNSToken"
+    #endif
     private static let appearanceKey = "appearance"
 
     init() {

@@ -24,7 +24,13 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: "YES"
   configs:
     Debug:
-      API_BASE_URL: "https://notifi.it"
+      # The dev worker, never production. Debug signs with
+      # aps-environment=development, so its token only works against sandbox
+      # APNs — which is what notifi-api-dev talks to. Registering that token
+      # with production overwrote the installed Release app's devices row (same
+      # keychain identity, same bundle id), and every production push then died
+      # with BadDeviceToken until the real app re-registered.
+      API_BASE_URL: "https://notifi-api-dev.maxisme.workers.dev"
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
     Release:
       API_BASE_URL: "https://notifi.it"
