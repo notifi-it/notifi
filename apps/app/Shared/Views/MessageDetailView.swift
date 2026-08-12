@@ -1,4 +1,5 @@
 import OSLog
+import StoreKit
 import SwiftData
 import SwiftUI
 
@@ -17,6 +18,7 @@ struct MessageDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.requestReview) private var requestReview
     @Query private var messages: [Message]
     private let log = Logger(subsystem: "it.notifi.app", category: "store")
 
@@ -94,7 +96,10 @@ struct MessageDetailView: View {
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
-        .onAppear { markRead() }
+        .onAppear {
+            markRead()
+            if ReviewNudge.shouldAskAfterMessageOpen() { requestReview() }
+        }
         #if os(iOS)
         .fullScreenCover(item: $viewingImage) { ImageViewer(url: $0.url) }
         #else

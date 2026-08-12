@@ -118,9 +118,9 @@ struct SettingsView: View {
                 SectionLabel(text: Copy.Settings.sectionSupport)
                     .geistGutter()
 
-                // Two mailboxes, split by intent, so a bug report is not
-                // filed in the same queue as a greeting: report@ carries what
-                // is broken, hello@ everything else.
+                // Split by intent: report@ carries what is broken, and
+                // feedback goes to the App Store review page, where it is
+                // public and counts toward the rating.
                 Link(destination: URL(string: "mailto:report@notifi.it")!) {
                     DisclosureRow {
                         Text(Copy.Settings.support)
@@ -133,7 +133,7 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                Link(destination: URL(string: "mailto:hello@notifi.it")!) {
+                Link(destination: URL(string: "https://apps.apple.com/app/id1563961135?action=write-review")!) {
                     DisclosureRow {
                         Text(Copy.Settings.feedback)
                             .font(Theme.body)
