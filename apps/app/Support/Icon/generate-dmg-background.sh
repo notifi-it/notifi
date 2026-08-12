@@ -89,9 +89,6 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="$W" height="$H" viewBox
        arrow it replaced. -->
   {trail}
 
-  <!-- No caption. The two icons and the arrow-marked Applications folder are
-       the instruction; a sentence under them was a third voice in a window
-       that already speaks twice (mono wordmark, sans Finder labels). -->
 
 </svg>'''
 open(f"{tmp}/bg.svg", "w").write(svg)
