@@ -116,6 +116,35 @@ def provisioning_xcargs
   args.join(" ")
 end
 
+# The one signing operation the API key cannot cloud-manage: Apple grants
+# cloud-managed Developer ID signing only to the Account Holder signed in to
+# Xcode, so on CI the developer-id export must be manual. The certificate is
+# already in the runner's keychain; what the export still needs is a Developer
+# ID provisioning profile per bundle id — the time-sensitive entitlement is
+# restricted, and a restricted entitlement without a profile fails signing —
+# which sigh fetches (or creates) through the API, where Admin *is* enough.
+def developer_id_export_options
+  key = asc_key
+  profiles = {}
+  ["it.notifi.notifi", "it.notifi.notifi.nse"].each do |id|
+    get_provisioning_profile(
+      api_key: key,
+      developer_id: true,
+      platform: "macos",
+      app_identifier: id,
+      output_path: File.expand_path("../build/profiles", __dir__)
+    )
+    # Read immediately: sigh overwrites this on its next run.
+    profiles[id] = lane_context[SharedValues::SIGH_NAME]
+  end
+  {
+    signingStyle: "manual",
+    teamID: "Z28DW76Y3W",
+    signingCertificate: "Developer ID Application",
+    provisioningProfiles: profiles,
+  }
+end
+
 # Notarization round-trips to Apple and takes minutes, so a binary that can never
 # pass should fail here instead -- locally, in a second, naming the reason.
 #
@@ -249,7 +278,11 @@ platform :mac do
       # gym appends the extension: "notifi" yields build/notifi.app.
       output_name: "notifi",
       export_method: "developer-id",
-      export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+      # Locally, automatic: the signed-in Xcode account may cloud-manage
+      # Developer ID. On CI there is no account and Apple does not extend that
+      # to API keys, so the export goes manual — see developer_id_export_options.
+      export_options: ENV["CI"] ? developer_id_export_options
+                                : { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
       # No export_xcargs -- same reason as build_ios_release.
       xcargs: "#{provisioning_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
     )
@@ -291,7 +324,17 @@ platform :mac do
       sh("osascript", File.expand_path("../Scripts/dmg-layout.applescript", __dir__), "notifi")
       sh("sync")
     ensure
-      sh("hdiutil", "detach", mnt)
+      # Finder is still writing the .DS_Store the layout just arranged, and a
+      # detach that races it fails with "Resource busy". Ordinary detach with
+      # patience first; -force only as the last resort, because a forced eject
+      # mid-write is how the layout silently ships half-saved.
+      detached = false
+      5.times do
+        detached = system("hdiutil", "detach", mnt)
+        break if detached
+        sleep(3)
+      end
+      sh("hdiutil", "detach", mnt, "-force") unless detached
     end
     sh("hdiutil", "convert", rw, "-format", "UDZO", "-imagekey", "zlib-level=9",
        "-ov", "-o", dmg)
