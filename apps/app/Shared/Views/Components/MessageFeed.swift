@@ -504,7 +504,8 @@ private struct MessageRow: View {
             Text(Self.clock.string(from: basis))
                 .font(.inco(size: 12, weight: isEscalated ? .semibold : .regular))
                 .monospacedDigit()
-                .foregroundStyle(isEscalated ? Theme.brandText : Theme.dim)
+                .foregroundStyle(isEscalated ? Theme.brandText
+                                 : isHovered ? Theme.muted : Theme.dim)
                 .lineLimit(1)
                 .fixedSize()
 
@@ -512,7 +513,7 @@ private struct MessageRow: View {
                 .font(.inco(size: 13.5, weight: isEscalated ? .bold : .regular,
                             relativeTo: .footnote))
                 .foregroundStyle(message.isCritical ? Theme.brandText
-                                 : message.isRead ? Theme.read : Theme.fg)
+                                 : message.isRead && !isHovered ? Theme.read : Theme.fg)
                 .lineLimit(1)
                 .truncationMode(.tail)
 
@@ -527,13 +528,9 @@ private struct MessageRow: View {
         .padding(.horizontal, 18)
         .frame(minHeight: 44)
         #if os(macOS)
-        // Mac only. Each message is its own block, told apart from the screen by
-        // its own grain sitting a step off the ground rather than by a border.
-        .background(
-            StaticField(level: isHovered ? .hover : .raised, fillsScreen: false)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.blockRadius,
-                                            style: .continuous))
-        )
+        // Mac only. Hover draws nothing — the row answers the cursor in type
+        // alone, the same one-step lift the tab bar uses, so the screen stays
+        // identical to iOS at rest.
         .animation(.easeOut(duration: 0.12), value: isHovered)
         // Taken only after the cursor has rested on the row — see the note on
         // the previous multi-line row for why the debounce exists.
@@ -549,7 +546,6 @@ private struct MessageRow: View {
                 isHovered = true
             }
         }
-        .padding(.vertical, 2)
         #endif
     }
 
