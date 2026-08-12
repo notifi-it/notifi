@@ -18,6 +18,9 @@ struct MarkdownText: View {
     /// Whether the key that sent this message is allowed to open non-https links.
     let allowAnyScheme: Bool
     var allowsRemoteImages: Bool = false
+    /// Whether the message arrived as a critical alert. Only `strong` changes:
+    /// the emphasis inside an urgent body carries the red the title already set.
+    var critical: Bool = false
 
     var body: some View {
         Group {
@@ -40,7 +43,7 @@ struct MarkdownText: View {
     }
 
     private var markdown: some View {
-        Markdown(source).markdownTheme(.geist)
+        Markdown(source).markdownTheme(.geist(critical: critical))
     }
 }
 
@@ -80,7 +83,7 @@ extension MarkdownUI.Theme {
     /// Computed rather than `static let`: the theme builders are main-actor bound,
     /// so a stored global would need `nonisolated(unsafe)` to satisfy Swift 6.
     @MainActor
-    static var geist: MarkdownUI.Theme {
+    static func geist(critical: Bool = false) -> MarkdownUI.Theme {
         MarkdownUI.Theme()
         .text {
             FontFamily(.custom("Karla"))
@@ -89,7 +92,9 @@ extension MarkdownUI.Theme {
         }
         .strong {
             FontWeight(.semibold)
-            ForegroundColor(Theme.fg)
+            // In a critical message the bold inside the body answers the red
+            // title above it; anywhere else it steps up to full strength.
+            ForegroundColor(critical ? Theme.brandDim : Theme.fg)
         }
         .code {
             FontFamily(.custom("Inconsolata"))
@@ -103,36 +108,12 @@ extension MarkdownUI.Theme {
             ForegroundColor(Theme.fg)
             UnderlineStyle(.single)
         }
-        .heading1 { configuration in
-            configuration.label
-                .markdownMargin(top: .em(1), bottom: .em(0.3))
-                .markdownTextStyle {
-                    FontFamily(.custom("Inconsolata"))
-                    FontSize(20)
-                    FontWeight(.bold)
-                    ForegroundColor(Theme.fg)
-                }
-        }
-        .heading2 { configuration in
-            configuration.label
-                .markdownMargin(top: .em(1), bottom: .em(0.3))
-                .markdownTextStyle {
-                    FontFamily(.custom("Inconsolata"))
-                    FontSize(17)
-                    FontWeight(.bold)
-                    ForegroundColor(Theme.fg)
-                }
-        }
-        .heading3 { configuration in
-            configuration.label
-                .markdownMargin(top: .em(0.8), bottom: .em(0.2))
-                .markdownTextStyle {
-                    FontFamily(.custom("Inconsolata"))
-                    FontSize(15)
-                    FontWeight(.semibold)
-                    ForegroundColor(Theme.fg)
-                }
-        }
+        // One heading style for h1–h3: the feed's band vocabulary — a caps
+        // label with a rule running to the edge — so the message title stays
+        // the only headline on the screen.
+        .heading1 { bandHeading($0) }
+        .heading2 { bandHeading($0) }
+        .heading3 { bandHeading($0) }
         .paragraph { configuration in
             configuration.label
                 .fixedSize(horizontal: false, vertical: true)
@@ -141,7 +122,9 @@ extension MarkdownUI.Theme {
         }
         .blockquote { configuration in
             HStack(alignment: .top, spacing: 10) {
-                Rectangle().fill(Theme.chip).frame(width: 2)
+                // `controlBorder`, not `chip`: at chip's strength the bar
+                // vanished against the ground's grain.
+                Rectangle().fill(Theme.controlBorder).frame(width: 2)
                 configuration.label
                     .markdownTextStyle { ForegroundColor(Theme.dim) }
             }
@@ -163,6 +146,14 @@ extension MarkdownUI.Theme {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.surface)
+            // A fade at the trailing edge, so a line running past the frame is
+            // visibly cut rather than silently clipped mid-token.
+            .overlay(alignment: .trailing) {
+                LinearGradient(colors: [Theme.surface.opacity(0), Theme.surface],
+                               startPoint: .leading, endPoint: .trailing)
+                    .frame(width: 32)
+                    .allowsHitTesting(false)
+            }
             .clipShape(RoundedRectangle(cornerRadius: Theme.radius))
             .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.chip, lineWidth: 1))
             .markdownMargin(top: .em(0.8), bottom: .em(0.8))
@@ -175,6 +166,23 @@ extension MarkdownUI.Theme {
             Hairline()
                 .markdownMargin(top: .em(1), bottom: .em(1))
         }
+    }
+    /// The feed's band header, borrowed as the body's only heading form.
+    @MainActor
+    private static func bandHeading(_ configuration: BlockConfiguration) -> some View {
+        HStack(spacing: 10) {
+            configuration.label
+                .textCase(.uppercase)
+                .tracking(1.4)
+                .markdownTextStyle {
+                    FontFamily(.custom("Inconsolata"))
+                    FontSize(11)
+                    FontWeight(.semibold)
+                    ForegroundColor(Theme.fg)
+                }
+            Hairline()
+        }
+        .markdownMargin(top: 20, bottom: 6)
     }
 }
 

@@ -47,10 +47,12 @@ struct MessageFeed<Empty: View>: View {
             // loop as well would band the whole feed again on every row.
             let banded = bands
             ForEach(banded) { band in
-                BandHeader(title: band.band.title(now: now),
+                BandHeader(title: DayBand.title(for: band.day, now: now),
                            count: band.messages.count,
                            isFirst: band.id == banded.first?.id)
-                    .geistGutter()
+                    // The rows below inset at 18, not the 20pt gutter — the
+                    // band's rule and the clock column share a left edge.
+                    .padding(.horizontal, 18)
                     .plainRow()
 
                 ForEach(Array(band.messages.enumerated()),
@@ -204,45 +206,24 @@ struct MessageFeed<Empty: View>: View {
         .contextMenu { menu(for: message) }
     }
 
-    /// The feed, cut into time bands in the order they are shown.
+    /// The feed, cut into day bands in the order they are shown.
     ///
-    /// Banded on `occurredAt ?? createdAt` — what the row's own age is measured
-    /// from — rather than on the sort key. A sender that backdates an event would
-    /// otherwise land a row reading "3 d" under a heading saying Today. The two
-    /// differ rarely enough that a band's members stay in the query's order, so
-    /// nothing is re-sorted inside a band.
+    /// Banded on `occurredAt ?? createdAt` — what the row's own clock shows —
+    /// rather than on the sort key. The rows carry a wall-clock time and nothing
+    /// else, so the band above them is what says which day that time belongs to;
+    /// coarser bands would leave "14:02" ambiguous.
     private var bands: [BandedMessages] {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: now)
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: today) ?? today
-        let week = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? today
-        let month = calendar.dateInterval(of: .month, for: now)?.start ?? today
-
-        var order: [TimeBand] = []
-        var bucketed: [TimeBand: [Message]] = [:]
+        var order: [Date] = []
+        var bucketed: [Date: [Message]] = [:]
         for message in messages {
-            let basis = message.occurredAt ?? message.createdAt
-            let band: TimeBand
-            // `>= today` rather than `isDateInToday`, so an event stamped a little
-            // ahead of the clock — the send API allows some skew — files under
-            // Today instead of dropping into whichever band happens to catch it.
-            if basis >= today {
-                band = .today
-            } else if basis >= yesterday {
-                band = .yesterday
-            } else if basis >= week {
-                band = .thisWeek
-            } else if basis >= month {
-                band = .thisMonth
-            } else {
-                band = .month(calendar.dateInterval(of: .month, for: basis)?.start ?? basis)
-            }
-            if bucketed[band] == nil { order.append(band) }
-            bucketed[band, default: []].append(message)
+            let day = calendar.startOfDay(for: message.occurredAt ?? message.createdAt)
+            if bucketed[day] == nil { order.append(day) }
+            bucketed[day, default: []].append(message)
         }
         return order
-            .sorted(by: TimeBand.precedes)
-            .map { BandedMessages(band: $0, messages: bucketed[$0] ?? []) }
+            .sorted(by: >)
+            .map { BandedMessages(day: $0, messages: bucketed[$0] ?? []) }
     }
 
     // MARK: Row menu
@@ -404,61 +385,30 @@ extension View {
 /// A struct rather than a tuple because `ForEach` needs an identity, and a key
 /// path cannot reach into a tuple.
 private struct BandedMessages: Identifiable {
-    let band: TimeBand
+    /// The start of the calendar day the band covers.
+    let day: Date
     let messages: [Message]
-    var id: TimeBand { band }
+    var id: Date { day }
 }
 
-/// Where a message sits in the feed's time structure.
-///
-/// Ranked rather than ordered by date. A week that began in the previous month
-/// starts before that month does, so sorting the bands by their own start would
-/// file "Earlier This Week" underneath "Earlier This Month" on the first days of
-/// a month — which is where a reader is most likely to be looking.
-private enum TimeBand: Hashable {
-    case today
-    case yesterday
-    case thisWeek
-    case thisMonth
-    /// Anything older, one band per calendar month, carrying that month's start.
-    case month(Date)
-
-    private var rank: Int {
-        switch self {
-        case .today: 0
-        case .yesterday: 1
-        case .thisWeek: 2
-        case .thisMonth: 3
-        case .month: 4
+/// Names a day band: Today and Yesterday by name, anything older by date.
+private enum DayBand {
+    static func title(for day: Date, now: Date) -> String {
+        let calendar = Calendar.current
+        if calendar.isDate(day, inSameDayAs: now) { return Copy.Inbox.bandToday }
+        if let yesterday = calendar.date(byAdding: .day, value: -1, to: now),
+           calendar.isDate(day, inSameDayAs: yesterday) {
+            return Copy.Inbox.bandYesterday
         }
-    }
-
-    static func precedes(_ a: TimeBand, _ b: TimeBand) -> Bool {
-        guard a.rank == b.rank else { return a.rank < b.rank }
-        if case .month(let x) = a, case .month(let y) = b { return x > y }
-        return false
-    }
-
-    /// "Earlier This Week" rather than "This Week": Today and Yesterday are their
-    /// own bands above it, so a heading claiming the whole week would be lying
-    /// about what is under it.
-    func title(now: Date) -> String {
-        switch self {
-        case .today: Copy.Inbox.bandToday
-        case .yesterday: Copy.Inbox.bandYesterday
-        case .thisWeek: Copy.Inbox.bandEarlierThisWeek
-        case .thisMonth: Copy.Inbox.bandEarlierThisMonth
-        case .month(let start):
-            Calendar.current.isDate(start, equalTo: now, toGranularity: .year)
-                ? Self.monthName.string(from: start)
-                : Self.monthAndYear.string(from: start)
-        }
+        return calendar.isDate(day, equalTo: now, toGranularity: .year)
+            ? dayAndMonth.string(from: day)
+            : dayMonthYear.string(from: day)
     }
 
     /// Built from templates rather than literal patterns, so a locale that writes
-    /// the year first, or names its months differently, is respected.
-    private static let monthName = formatter(template: "MMMM")
-    private static let monthAndYear = formatter(template: "MMMM y")
+    /// the month first is respected.
+    private static let dayAndMonth = formatter(template: "d MMM")
+    private static let dayMonthYear = formatter(template: "d MMM y")
 
     private static func formatter(template: String) -> DateFormatter {
         let formatter = DateFormatter()
@@ -512,20 +462,6 @@ private struct BandHeader: View {
 
 // MARK: - Row
 
-/// The widest the stamp column can get, drawn hidden to reserve that width.
-///
-/// Reserving the width rather than measuring the string that happens to be
-/// there is what keeps the column still while an age ticks from "now" to
-/// "22 min".
-private struct StampTemplate: View {
-    var body: some View {
-        Text("00 min")
-            .font(Theme.metaUnread)
-            .monospacedDigit()
-            .accessibilityHidden(true)
-    }
-}
-
 private struct MessageRow: View {
     let message: Message
     /// Passed in rather than read here — see the clock on `InboxView`.
@@ -537,68 +473,22 @@ private struct MessageRow: View {
     /// Pending hover — see the `onHover` debounce below.
     @State private var hoverTask: Task<Void, Never>?
 
-    /// Drops the stamp column so its capitals start level with the title's.
-    ///
-    /// `.top` lines the two frames up, not the two rows of type. A frame carries
-    /// the gap between the font's ascent and its capitals, and that gap grows
-    /// with point size: measured off Inconsolata it is 4.01pt at the title's 17
-    /// and 2.83pt at the stamp's 12, so the smaller text starts 1.18pt high.
-    /// Scaled rather than fixed, because both sizes move under Dynamic Type and
-    /// the difference between them moves with them.
-    @ScaledMetric(relativeTo: .headline) private var capHeightOffset: CGFloat = 1.18
-
     /// Trial switch while the feed is being tuned — see the rule below.
     static let drawsRules = false
 
+    /// Wall clock only. The band header above the row carries the date, and the
+    /// relative age this used to show restated it in a form the bands already
+    /// answer.
+    private static let clock: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        return f
+    }()
+
     private var basis: Date { message.occurredAt ?? message.createdAt }
 
-    private var relative: String {
-        RelativeAge.string(since: basis, at: now)
-    }
-
-    /// `PROD-DEPLOY · ↗ GITHUB.COM`, or nothing.
-    ///
-    /// Both markers are optional and most rows carry neither, so the line is
-    /// dropped rather than drawn as a stray separator — a message with no link
-    /// and no image ends on its own text.
-    ///
-    /// The key that sent the message is not on it. A row is scanned for what
-    /// happened, and the name of the key was the widest thing on the line while
-    /// answering a question the reader was not asking at that point; the detail
-    /// screen names it, and the Keys tab is where a key is looked up.
-    private var meta: Text? {
-        var line: Text?
-        if message.link != nil {
-            // An SF Symbol rather than U+2197. The arrow was whatever the text
-            // face happened to draw at that codepoint — a different weight and
-            // baseline in each of the two faces this line can be set in, and a
-            // missing-glyph box in any face that has no arrow there at all. A
-            // symbol is drawn from the label's own metrics, so it sits on the
-            // line and takes the same colour by construction.
-            //
-            // The same globe the detail screen's toolbar opens a link with, so
-            // the mark that says a message has somewhere to go and the button
-            // that goes there are the same object seen twice.
-            //
-            // The host itself is not written out here. A row is scanned for
-            // whether there is anywhere to go, not for where — and the domain
-            // was the longest thing on the line, taking the width that the
-            // message's own text wanted. The detail screen names it, which is
-            // where the question is actually asked.
-            let link = Text(Image(systemName: "globe")).foregroundStyle(Theme.mark)
-            line = line.map { $0 + Text(" ") + link } ?? link
-        }
-        // A symbol rather than the picture itself. Drawing the thumbnail here
-        // would fetch it from the sender's host for every row on screen, which
-        // is the request the detail screen deliberately holds back until the
-        // reader asks for it — the feed would be leaking the device's IP to
-        // every sender at once just by being scrolled past.
-        if message.imageURL != nil {
-            let marker = Text(Image(systemName: "photo")).foregroundStyle(Theme.mark)
-            line = line.map { $0 + Text(" ") + marker } ?? marker
-        }
-        return line
-    }
+    /// Unread and paged rows carry the weight and the red; everything else recedes.
+    private var isEscalated: Bool { !message.isRead || message.isCritical }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -609,100 +499,44 @@ private struct MessageRow: View {
         .accessibilityLabel(spokenDescription)
     }
 
-    /// An urgent message is set in red rather than flagged with a mark beside it.
-    /// A third glyph did not fit the clock's column without pushing that one row
-    /// across, and colouring the words says the same thing without asking for any
-    /// width at all.
-    ///
-    /// It stays red once read. Whether a page sounded through silent mode is a
-    /// fact about what happened, not a state that clears when you look at it.
-    private var titleColour: Color {
-        if message.isCritical { return Theme.brandText }
-        return message.isRead ? Theme.read : Theme.fg
-    }
-
-    private var titleText: Text {
-        Text(message.title).foregroundColor(titleColour)
-    }
-
     private var content: some View {
-        HStack(alignment: .top, spacing: Theme.rowGap) {
-            // The marks sit under the clock rather than under the title, in the
-            // column the row is already scanned down. They say what a message
-            // has rather than what it says, which is the same kind of fact as
-            // its age — and it leaves the message column as nothing but words.
-            VStack(alignment: .trailing, spacing: 6) {
-                stamp
-                marks
-            }
-            .alignmentGuide(.top) { $0[.top] }
-            VStack(alignment: .leading, spacing: 3) {
-                titleText
-                    .font(message.isRead ? Theme.title : Theme.titleUnread)
-                    // Capped so one long title cannot take the screen. A pager's
-                    // feed is scanned, and a message whose whole point is in its
-                    // title has said it by the third line; the detail screen sets
-                    // it in full.
-                    .lineLimit(3)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .multilineTextAlignment(.leading)
+        HStack(spacing: 12) {
+            Text(Self.clock.string(from: basis))
+                .font(.inco(size: 12, weight: isEscalated ? .semibold : .regular))
+                .monospacedDigit()
+                .foregroundStyle(isEscalated ? Theme.brandText : Theme.dim)
+                .lineLimit(1)
+                .fixedSize()
 
-                // Under the title rather than on its line. Sharing the line saved
-                // a row of height but put two glyphs on the far side of a gap
-                // from the thing they belong to, so they read as chrome pinned to
-                // the edge instead of as part of the message.
+            Text(message.title)
+                .font(.inco(size: 13.5, weight: isEscalated ? .bold : .regular,
+                            relativeTo: .footnote))
+                .foregroundStyle(message.isCritical ? Theme.brandText
+                                 : message.isRead ? Theme.read : Theme.fg)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-                if let body = message.body {
-                    // The row is two lines: markers are stripped and inline styling
-                    // kept, so a bulleted body previews as prose rather than dashes.
-                    // A size below the body face the detail screen sets it in.
-                    // `dim` is already the most receded colour the palette has —
-                    // anything further is under the contrast floor — so the
-                    // preview steps back by scale rather than by going dimmer.
-                    // Red too, a step below the title's. The hierarchy inside an
-                    // urgent row is carried by scale, the same way it is in every
-                    // other row — `dim` would have said "ordinary" underneath a
-                    // title saying the opposite.
-                    Text(MarkdownPreview.text(body))
-                        .font(.karla(.footnote))
-                        .foregroundStyle(message.isCritical ? Theme.brandDim : Theme.dim)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .multilineTextAlignment(.leading)
-                }
-
-            }
             Spacer(minLength: 0)
+
+            // Two fixed slots, always reserved, so the glyph column aligns down
+            // the whole feed. Position is the label: the globe never sits in the
+            // frame's slot, and an empty slot keeps its width.
+            slot(present: message.link != nil, systemName: "globe")
+            slot(present: message.imageURL != nil, systemName: "photo")
         }
-        // 16 rather than 13. With a rule between rows as well, the tighter value
-        // put the line close enough to the key name to read as an underline on
-        // it; the extra 3pt is what tells the two apart.
-        .padding(.vertical, 16)
+        .padding(.horizontal, 18)
+        .frame(minHeight: 44)
         #if os(macOS)
         // Mac only. Each message is its own block, told apart from the screen by
-        // its own grain sitting a step off the ground rather than by a border —
-        // the texture is already on both sides of the edge, so a line around it
-        // said a second time what the change in level already says. On iOS the
-        // feed keeps its rules: a block per row on a full-height screen is a
-        // stack of cards, which this is not.
-        .padding(.horizontal, 14)
+        // its own grain sitting a step off the ground rather than by a border.
         .background(
             StaticField(level: isHovered ? .hover : .raised, fillsScreen: false)
-                // Clipped rather than drawn into a shape: the tile is a repeating
-                // image, and the corner has to cut the texture rather than the
-                // texture reflow to fit the corner.
                 .clipShape(RoundedRectangle(cornerRadius: Theme.blockRadius,
                                             style: .continuous))
         )
-        // Only the ground moves. Nothing shifts position, because a row that
-        // lifts or grows under the pointer drags the rows below it and the whole
-        // feed twitches on a mouse crossing it.
         .animation(.easeOut(duration: 0.12), value: isHovered)
-        // Taken only after the cursor has rested on the row. During a scroll the
-        // rows sweep under a stationary pointer, and reacting to each crossing
-        // lit and faded every row on its way past — which read as the whole feed
-        // jittering. A tenth of a second is under what a deliberate hover
-        // notices and over what a scrolling row spends under the cursor.
+        // Taken only after the cursor has rested on the row — see the note on
+        // the previous multi-line row for why the debounce exists.
         .onHover { hovering in
             hoverTask?.cancel()
             guard hovering else {
@@ -715,103 +549,37 @@ private struct MessageRow: View {
                 isHovered = true
             }
         }
-        #endif
-        // Carried here rather than applied by the feed, so the rule below can run
-        // off the trailing edge while the message stays inside the margin.
-        .geistGutter()
-        #if os(macOS)
-        // The blocks are their own separation, so the gap between two of them is
-        // the only thing saying where one ends.
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
         #endif
     }
 
-    /// How long ago the message arrived.
-    ///
-    /// The wall clock underneath this was dropped: a pager is scanned for how
-    /// long something has gone unanswered, and the band headers already say
-    /// which day a row belongs to, so the second stamp was restating the first
-    /// in a form nobody was reading it in.
-    ///
-    /// Ranged right, against the message rather than against the margin. "5 min"
-    /// and "17 min" are different lengths, so aligning left left the column's
-    /// inner edge ragged where it meets the text it belongs to.
-    @ViewBuilder
-    private var marks: some View {
-        if meta != nil {
-            // Held to the clock's own width by the same hidden template the clock
-            // is sized from. Left to size themselves, three marks were wider than
-            // the widest timestamp and pushed that one row's whole column across
-            // — and the straight left edge the stamp exists to hold is worth more
-            // than any of the marks in it.
-            ZStack(alignment: .trailing) {
-                StampTemplate().hidden()
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                // Outside the `Text` the rest of this line is built from, because
-                // an image asset inside one draws at its own size and ignores the
-                // font — the akar star arrived at 24pt on an 11pt line. Sized
-                // here, and put back on the baseline by guide, since an image
-                // carries no baseline of its own.
-                    if let meta {
-                        meta
-                            .font(Theme.meta)
-                            .lineLimit(1)
-                            .fixedSize()
-                    }
-                }
-            }
-        }
+    /// One 12pt column, filled or held empty.
+    private func slot(present: Bool, systemName: String) -> some View {
+        Image(systemName: systemName)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundStyle(Theme.dim)
+            .opacity(present ? 1 : 0)
+            .frame(width: 12)
+            .accessibilityHidden(true)
     }
 
-    private var stamp: some View {
-        ZStack(alignment: .topTrailing) {
-            StampTemplate().hidden()
-            Text(relative)
-                .font(message.isRead ? Theme.meta : Theme.metaUnread)
-                .foregroundStyle(message.isRead ? Theme.dim : Theme.brandText)
-        }
-        .monospacedDigit()
-        .alignmentGuide(.top) { $0[.top] - capHeightOffset }
-        .padding(.top, capHeightOffset)
-    }
-
-    /// Drawn as the last thing in the row rather than as an overlay on its edge.
-    ///
-    /// On the edge it landed exactly on the boundary between two cells, and the
-    /// list rounded it onto one side or the other depending on where the row
-    /// happened to fall — so the separators appeared under some messages and not
-    /// others, with nothing about those messages in common.
+    /// Drawn as the last thing in the row rather than as an overlay on its edge
+    /// — see the note on the band header for why.
     private var rule: some View {
-        // Full width, under the stamp column as well as the message. Inset to
-        // where the text starts it drew a second vertical edge down the feed,
-        // one the column had already established and drawn better.
         Hairline()
     }
 
     /// Everything the row shows, in the order it is read on screen.
-    ///
-    /// Overriding the label at all discards what `children: .combine` gathered,
-    /// so the previous one-line version silently dropped the body preview and the
-    /// age — on a pager, the two things you scan the feed for. Rebuilt here
-    /// rather than removing the override, because the combined default reads the
-    /// title and the preview as one run-on sentence and never says "unread".
     private var spokenDescription: String {
         var parts: [String] = []
         if !message.isRead { parts.append(Copy.Inbox.unread) }
-        // Spoken rather than left to the star's own image name, which VoiceOver
-        // reads as the file — a description of the glyph instead of what it is
-        // being used to say.
         if message.isCritical { parts.append(Copy.Inbox.critical) }
         parts.append(message.title)
-        if let body = message.body {
-            parts.append(MarkdownPreview.text(body))
-        }
         if let link = message.link, let host = link.host() {
-            parts.append("Link to \(host)")
+            parts.append(Copy.Inbox.linkTo(host))
         }
         if message.imageURL != nil { parts.append("Has an image") }
-        parts.append(relative == "now" ? "just now" : "\(relative) ago")
+        parts.append(Self.clock.string(from: basis))
         return parts.joined(separator: ", ")
     }
 }
-

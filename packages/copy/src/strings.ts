@@ -180,6 +180,10 @@ export const copy = {
     imageHost: 'another host',
     imageLoadWarning: 'Loading it contacts {host}.',
     loadImage: 'Load image',
+    load: 'Load',
+    imageBlocked: 'blocked',
+    sourceHeader: 'Source',
+    copyTimestamp: 'Copy timestamp',
   },
 
   keys: {

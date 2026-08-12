@@ -1918,6 +1918,17 @@
         }
       }
     },
+    "message.copyTimestamp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy timestamp"
+          }
+        }
+      }
+    },
     "message.downloadImage": {
       "extractionState": "manual",
       "localizations": {
@@ -1925,6 +1936,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Download image"
+          }
+        }
+      }
+    },
+    "message.imageBlocked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "blocked"
           }
         }
       }
@@ -1995,6 +2017,17 @@
         }
       }
     },
+    "message.load": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load"
+          }
+        }
+      }
+    },
     "message.loadImage": {
       "extractionState": "manual",
       "localizations": {
@@ -2046,6 +2079,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Share link"
+          }
+        }
+      }
+    },
+    "message.sourceHeader": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source"
           }
         }
       }

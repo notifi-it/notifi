@@ -52,9 +52,17 @@ struct MessageDetailView: View {
         RelativeAge.string(since: message.occurredAt ?? message.createdAt)
     }
 
-    private static let stamp: DateFormatter = {
+    /// The precise clock, to the second — the point of this line is telling two
+    /// near-simultaneous alerts apart — and the date beside it.
+    private static let clock: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = Copy.Age.absoluteFormat
+        f.dateFormat = "HH:mm:ss"
+        return f
+    }()
+
+    private static let date: DateFormatter = {
+        let f = DateFormatter()
+        f.setLocalizedDateFormatFromTemplate("d MMM y")
         return f
     }()
 
@@ -124,14 +132,9 @@ struct MessageDetailView: View {
                 // 10, not 8. The buttons draw at 34 and are tapped at 44, so the
                 // gap has to be at least 10 or two neighbouring targets overlap
                 // and the row starts answering taps with the wrong action.
+                // No download button here: it lives on the image frame itself,
+                // next to the thing it downloads.
                 HStack(spacing: 10) {
-                    if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
-                        IconButton(systemName: "arrow.down.to.line",
-                                   label: Copy.Message.downloadImage) {
-                            downloadImage(url, keyID: message.keyID)
-                        }
-                    }
-
                     if let link = message.link, LinkPolicy.allows(link, anyScheme: anyScheme) {
                         IconButton(systemName: "globe", label: Copy.Common.openLink) {
                             open(link, keyID: message.keyID)
@@ -209,70 +212,18 @@ struct MessageDetailView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
 
-            if let keyName = keyName(for: message) {
-                HStack(spacing: 6) {
-                    Image(systemName: "key")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(Theme.dim)
-                        .accessibilityHidden(true)
-                    Text(keyName)
-                        .font(Theme.meta)
-                        .foregroundStyle(Theme.muted)
-                        .lineLimit(1)
-                }
-                .padding(.top, 10)
-                // One element, and it says what the glyph means. Left as two, the
-                // key icon was its own stop in the rotor and the name that followed
-                // it arrived with nothing to say it was a key.
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel(Copy.Message.sentWithKey(keyName))
-            }
-
-            // Where the message points, named. The feed only marks that a link
-            // exists — this is the screen where a reader decides whether to
-            // follow it, and that decision is made on the host.
-            if let host = message.link?.host() {
-                HStack(spacing: 6) {
-                    Image(systemName: "globe")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(Theme.dim)
-                        .accessibilityHidden(true)
-                    Text(host.uppercased())
-                        .font(Theme.meta)
-                        .foregroundStyle(Theme.muted)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
-                .padding(.top, 8)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel(Copy.Message.linksTo(host))
-            }
-
-            // One clock, read twice. The age is what the feed showed and what a
-            // reader arriving from it is still holding — dropping it here made
-            // the screen restate the moment in a format nobody scans. The exact
-            // stamp follows it rather than replacing it, because detail is also
-            // where you come to find out precisely when.
-            //
-            // The sender's own event time when it gave one, and the time it
-            // arrived otherwise — the difference between the two is a detail of
-            // how it was sent, not something worth a second line.
-            HStack(spacing: 7) {
-                Text(Self.age(of: message))
-                    .foregroundStyle(Theme.muted)
-                Text("·")
-                    .foregroundStyle(Theme.chip)
-                Text(Self.stamp.string(from: message.occurredAt ?? message.createdAt))
-                    .foregroundStyle(Theme.dim)
-            }
-            .font(Theme.meta)
-            .monospacedDigit()
-            .padding(.top, 6)
+            // One metadata line: the key, the moment (three renderings of the
+            // same instant — clock, date, age), and the raw epoch for whoever
+            // is correlating this against a log. The host moved down to the
+            // links themselves and the SOURCE footer, which is where the
+            // follow-or-not decision is actually made.
+            metaLine(for: message)
+                .padding(.top, 11)
 
             // The rule divides what notifi says about the message from what the
             // sender put in it.
             Hairline()
-                .padding(.top, 16)
+                .padding(.top, 14)
 
             // Above the body rather than under it. A sender that attaches an
             // image attaches the thing itself and writes the caption second, so
@@ -285,59 +236,27 @@ struct MessageDetailView: View {
             if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                 Group {
                     if showsImage {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                // Tap to open it properly. The column-width
-                                // version is the right size for reading past
-                                // and the wrong size for reading.
-                                Button { viewingImage = ViewedImage(url: url) } label: {
-                                    // Filled and cropped to the fixed frame
-                                    // below rather than fitted inside it: a
-                                    // fitted image leaves bars down the sides of
-                                    // anything tall, and the frame is already
-                                    // drawn with a border that would then be
-                                    // bounding empty space.
-                                    image.resizable().scaledToFill()
-                                }
-                                .buttonStyle(.geist)
-                                .accessibilityLabel(Copy.Message.viewImageFullScreen)
-                            case .failure:
-                                VStack(spacing: 6) {
-                                    Image(systemName: "xmark")
-                                        .font(.system(size: 15, weight: .medium))
-                                    Text(Copy.Message.imageFailedToLoad)
-                                        .font(Theme.metaSmall)
-                                }
-                                .foregroundStyle(Theme.dim)
-                                .frame(maxWidth: .infinity)
-                            default:
-                                Theme.surface.frame(maxWidth: .infinity)
-                            }
-                        }
+                        ImageBlock(url: url,
+                                   onExpand: { viewingImage = ViewedImage(url: url) },
+                                   onDownload: { downloadImage(url, keyID: message.keyID) })
                     } else {
-                        hiddenImage(host: url.host() ?? Copy.Message.imageHost)
+                        blockedImageChip(url: url)
                     }
                 }
-                // One frame, whatever the image turns out to be. Sized by the
-                // picture, the page jumped as each one arrived and every message
-                // laid its text out at a different height — and the placeholder,
-                // the failure state and the loaded image were three sizes for
-                // the same block. 16:9 because that is what a screenshot of a
-                // window or a chart tends to be.
-                .frame(maxWidth: .infinity)
-                .aspectRatio(16.0 / 9.0, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
                 .padding(.top, 16)
             }
 
-            if let body = message.body {
-                MarkdownText(source: body, allowAnyScheme: anyScheme,
-                             allowsRemoteImages: showsImage)
-                    .foregroundStyle(message.isCritical ? Theme.brandDim : Theme.fg)
+            let annotated = message.body.map { BodyLinks.annotate($0) }
+
+            if let annotated {
+                MarkdownText(source: annotated.body, allowAnyScheme: anyScheme,
+                             allowsRemoteImages: showsImage,
+                             critical: message.isCritical)
                     .padding(.top, 16)
             }
+
+            sourceFooter(for: message, bodyLinks: annotated?.links ?? [],
+                         anyScheme: anyScheme)
 
             // The link block and the copy button are gone on purpose. Every
             // action they carried is in the top bar — the globe opens the link,
@@ -354,35 +273,158 @@ struct MessageDetailView: View {
 
     private var showsImage: Bool { model.remoteImagesEnabled || revealedImage }
 
-    /// Stands in for an image that has not been fetched yet.
-    ///
-    /// It names the host, because that is the party who learns the device's IP
-    /// address and the time of day the moment the image loads.
-    private func hiddenImage(host: String) -> some View {
-        VStack(spacing: 10) {
-            Text(Copy.Message.imageHidden)
-                .font(.inco(.subheadline, weight: .semibold))
-                .foregroundStyle(Theme.fg)
-            Text(Copy.Message.imageLoadWarning(host))
-                .font(Theme.metaSmall)
-                .foregroundStyle(Theme.dim)
-                .multilineTextAlignment(.center)
-            Button {
-                revealedImage = true
-            } label: {
-                Text(Copy.Message.loadImage)
-                    .font(.inco(.footnote, weight: .semibold))
+    // MARK: Metadata line
+
+    /// Key chip · clock, date and age · epoch. One line, under the title.
+    @ViewBuilder
+    private func metaLine(for message: Message) -> some View {
+        let basis = message.occurredAt ?? message.createdAt
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            if let keyName = keyName(for: message) {
+                Text(keyName)
+                    .font(.inco(size: 11, weight: .semibold, relativeTo: .caption2))
                     .foregroundStyle(Theme.fg)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 9)
-                    .overlay(RoundedRectangle(cornerRadius: 8)
-                        .stroke(Theme.controlBorder, lineWidth: 1))
+                    .lineLimit(1)
+                    .padding(.vertical, 2)
+                    .padding(.horizontal, 6)
+                    .overlay(RoundedRectangle(cornerRadius: 4)
+                        .stroke(Theme.chip, lineWidth: 1))
+                    .accessibilityLabel(Copy.Message.sentWithKey(keyName))
+            }
+
+            (Text(Self.clock.string(from: basis))
+                .font(.inco(size: 12, weight: .semibold))
+                .foregroundStyle(Theme.fg)
+             + Text(" · \(Self.date.string(from: basis).uppercased())")
+                .font(.inco(size: 12))
+                .foregroundStyle(Theme.dim)
+             + Text(" — \(Copy.Age.ago(Self.age(of: message)))")
+                .font(.inco(size: 12))
+                .foregroundStyle(Theme.dim))
+                .monospacedDigit()
+                .lineLimit(1)
+                .truncationMode(.tail)
+
+            Spacer(minLength: 8)
+
+            // The raw instant, for whoever is lining this up against a log.
+            // Tapping copies it — an epoch is transcribed, never read.
+            let epoch = Int((basis.timeIntervalSince1970 * 1000).rounded())
+            Button { Clipboard.copy("\(epoch)") } label: {
+                Text("\(epoch)")
+                    .font(.inco(size: 11, relativeTo: .caption2))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.controlBorder)
             }
             .buttonStyle(.geist)
+            .accessibilityLabel(Copy.Message.copyTimestamp)
         }
-        .padding(.vertical, 26)
-        .frame(maxWidth: .infinity)
-        .background(Theme.surface)
+    }
+
+    // MARK: Blocked image
+
+    /// Stands in for an image that has not been fetched yet: one chip-height
+    /// line naming the file, with the load decision at its trailing edge. The
+    /// IP-disclosure explanation lives on the long-press menu rather than in
+    /// the layout — it is the reason for the gate, not part of the message.
+    private func blockedImageChip(url: URL) -> some View {
+        Button { revealedImage = true } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "photo")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Theme.dim)
+                    .accessibilityHidden(true)
+                Text("\(ImageBlock.filename(of: url)) · \(Copy.Message.imageBlocked)")
+                    .font(.inco(size: 12, relativeTo: .caption))
+                    .foregroundStyle(Theme.muted)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Spacer(minLength: 8)
+                Text(Copy.Message.load)
+                    .font(.inco(size: 12, weight: .semibold, relativeTo: .caption))
+                    .foregroundStyle(Theme.fg)
+            }
+            .padding(.vertical, 11)
+            .padding(.horizontal, 13)
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.geist)
+        .accessibilityLabel(Copy.Message.loadImage)
+        .contextMenu {
+            Button(Copy.Message.imageLoadWarning(url.host() ?? Copy.Message.imageHost)) {}
+                .disabled(true)
+        }
+    }
+
+    // MARK: Source footer
+
+    /// Every URL the message carries, written out in full. The body shows a
+    /// link's label; this is where the actual destination is checked before
+    /// anything is followed.
+    @ViewBuilder
+    private func sourceFooter(for message: Message, bodyLinks: [URL],
+                              anyScheme: Bool) -> some View {
+        var rows: [(mark: String, url: URL, isImage: Bool)] {
+            var out: [(String, URL, Bool)] = []
+            for (index, url) in bodyLinks.enumerated() {
+                out.append((BodyLinks.mark(index), url, false))
+            }
+            if let link = message.link, !bodyLinks.contains(link) {
+                out.append((BodyLinks.mark(out.count), link, false))
+            }
+            if let image = message.imageURL {
+                out.append(("img↓", image, true))
+            }
+            return out
+        }
+        let listed = rows
+        if !listed.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Text(Copy.Message.sourceHeader.uppercased())
+                        .font(.inco(size: 10, weight: .semibold, relativeTo: .caption2))
+                        .tracking(1.4)
+                        .foregroundStyle(Theme.dim)
+                        .fixedSize()
+                    Hairline()
+                }
+                ForEach(listed, id: \.url.absoluteString) { row in
+                    Button {
+                        if row.isImage {
+                            revealedImage = true
+                            viewingImage = ViewedImage(url: row.url)
+                        } else {
+                            open(row.url, keyID: message.keyID)
+                        }
+                    } label: {
+                        HStack(alignment: .top, spacing: 8) {
+                            Text(row.mark)
+                                .font(.inco(size: 11.5, relativeTo: .caption2))
+                                .foregroundStyle(Theme.dim)
+                                .fixedSize()
+                            Text(row.url.absoluteString)
+                                .font(.inco(size: 11.5, relativeTo: .caption2))
+                                .foregroundStyle(Theme.muted)
+                                .lineSpacing(5.5)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text("↗")
+                                .font(.inco(size: 11.5, weight: .semibold,
+                                            relativeTo: .caption2))
+                                .foregroundStyle(Theme.fg)
+                                .fixedSize()
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.geist)
+                    .disabled(!row.isImage
+                              && !LinkPolicy.allows(row.url, anyScheme: anyScheme))
+                }
+            }
+            .padding(.top, 24)
+        }
     }
 
     /// The top bar's round icon button — the one the headers use, under this
@@ -426,7 +468,7 @@ struct MessageDetailView: View {
         #endif
     }
 
-    private func downloadImage(_ url: URL, keyID: Int?) {
+    fileprivate func downloadImage(_ url: URL, keyID: Int?) {
         guard LinkPolicy.allows(url, keyID: keyID) else { return }
         Task {
             guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
@@ -443,5 +485,182 @@ struct MessageDetailView: View {
             }
             #endif
         }
+    }
+}
+
+// MARK: - Image block
+
+/// The message's image at its own aspect ratio, capped, with a footer bar that
+/// states what the file is instead of leaving the picture to imply it.
+///
+/// Fetched by hand rather than through `AsyncImage`, because the footer names
+/// the byte size and pixel dimensions and `AsyncImage` surrenders the data the
+/// moment it has decoded it. One request either way.
+private struct ImageBlock: View {
+    let url: URL
+    let onExpand: () -> Void
+    let onDownload: () -> Void
+
+    private struct Loaded {
+        let image: Image
+        let width: Int
+        let height: Int
+        let bytes: Int
+    }
+
+    private enum Phase {
+        case loading
+        case failed
+        case loaded(Loaded)
+    }
+
+    @State private var phase: Phase = .loading
+
+    static func filename(of url: URL) -> String {
+        let name = url.lastPathComponent
+        return name.isEmpty || name == "/" ? (url.host() ?? url.absoluteString) : name
+    }
+
+    private static let bytes: ByteCountFormatter = {
+        let f = ByteCountFormatter()
+        f.countStyle = .binary
+        return f
+    }()
+
+    var body: some View {
+        VStack(spacing: 0) {
+            switch phase {
+            case .loading:
+                Theme.surface
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 160)
+            case .failed:
+                VStack(spacing: 6) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 15, weight: .medium))
+                    Text(Copy.Message.imageFailedToLoad)
+                        .font(Theme.metaSmall)
+                }
+                .foregroundStyle(Theme.dim)
+                .frame(maxWidth: .infinity)
+                .frame(height: 120)
+            case .loaded(let loaded):
+                // Its own shape, letterboxed under the cap rather than cropped:
+                // a chart whose top third is missing is worse than bars.
+                Button(action: onExpand) {
+                    loaded.image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 260)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.geist)
+                .accessibilityLabel(Copy.Message.viewImageFullScreen)
+
+                footer(for: loaded)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+        .task(id: url) { await load() }
+    }
+
+    private func footer(for loaded: Loaded) -> some View {
+        VStack(spacing: 0) {
+            Hairline()
+            HStack(spacing: 14) {
+                Text("\(Self.filename(of: url)) · \(loaded.width)×\(loaded.height) · \(Self.bytes.string(fromByteCount: Int64(loaded.bytes)))")
+                    .foregroundStyle(Theme.dim)
+                    .font(.inco(size: 10, relativeTo: .caption2))
+                    .tracking(0.6)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Button(action: onDownload) {
+                    Image(systemName: "arrow.down.to.line")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Theme.fg)
+                }
+                .buttonStyle(.geist)
+                .accessibilityLabel(Copy.Message.downloadImage)
+                .geistHitArea(expandedBy: 10)
+
+                Button(action: onExpand) {
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.dim)
+                }
+                .buttonStyle(.geist)
+                .accessibilityLabel(Copy.Message.viewImageFullScreen)
+                .geistHitArea(expandedBy: 10)
+            }
+            .padding(.vertical, 7)
+            .padding(.horizontal, 12)
+        }
+    }
+
+    private func load() async {
+        guard let (data, _) = try? await URLSession.shared.data(from: url) else {
+            phase = .failed
+            return
+        }
+        #if os(iOS)
+        guard let native = UIImage(data: data) else {
+            phase = .failed
+            return
+        }
+        let loaded = Loaded(image: Image(uiImage: native),
+                            width: Int(native.size.width * native.scale),
+                            height: Int(native.size.height * native.scale),
+                            bytes: data.count)
+        #else
+        guard let native = NSImage(data: data),
+              let rep = native.representations.first else {
+            phase = .failed
+            return
+        }
+        let loaded = Loaded(image: Image(nsImage: native),
+                            width: rep.pixelsWide,
+                            height: rep.pixelsHigh,
+                            bytes: data.count)
+        #endif
+        phase = .loaded(loaded)
+    }
+}
+
+// MARK: - Body links
+
+/// Finds the markdown links in a body and writes each one's host and footnote
+/// mark after its label, so the prose names where it points without the reader
+/// leaving the line. The marks index into the SOURCE footer below the body.
+enum BodyLinks {
+    private static let superscripts = ["¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"]
+
+    static func mark(_ index: Int) -> String {
+        index < superscripts.count ? superscripts[index] : "⁺"
+    }
+
+    static func annotate(_ source: String) -> (body: String, links: [URL]) {
+        guard let regex = try? NSRegularExpression(
+            pattern: #"\[([^\]]+)\]\(([^)\s]+)\)"#) else { return (source, []) }
+
+        var links: [URL] = []
+        var out = ""
+        var cursor = source.startIndex
+        let ns = source as NSString
+        for match in regex.matches(in: source,
+                                   range: NSRange(location: 0, length: ns.length)) {
+            guard let whole = Range(match.range, in: source),
+                  let urlRange = Range(match.range(at: 2), in: source),
+                  let url = URL(string: String(source[urlRange])) else { continue }
+            out += source[cursor..<whole.upperBound]
+            let host = url.host() ?? url.absoluteString
+            out += " \(host) \(mark(links.count))"
+            links.append(url)
+            cursor = whole.upperBound
+        }
+        out += source[cursor...]
+        return (out, links)
     }
 }

@@ -103,6 +103,10 @@ enum Copy {
         static var imageHost: String { NSLocalizedString("message.imageHost", comment: "") }
         static func imageLoadWarning(_ host: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.imageLoadWarning", comment: ""), host) }
         static var loadImage: String { NSLocalizedString("message.loadImage", comment: "") }
+        static var load: String { NSLocalizedString("message.load", comment: "") }
+        static var imageBlocked: String { NSLocalizedString("message.imageBlocked", comment: "") }
+        static var sourceHeader: String { NSLocalizedString("message.sourceHeader", comment: "") }
+        static var copyTimestamp: String { NSLocalizedString("message.copyTimestamp", comment: "") }
     }
     enum Keys {
         static var title: String { NSLocalizedString("keys.title", comment: "") }
