@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import OSLog
 
 /// Holds the wake socket open and calls back whenever the server says there is
@@ -8,17 +9,40 @@ import OSLog
 /// and the fetch is the ordinary signed `/history` call, so there is one code
 /// path that turns server state into stored messages regardless of what woke it.
 /// That also makes a dropped frame harmless: the next connect re-syncs anyway.
+///
+/// Observable so that a view reading `state` through `AppModel.isOffline` is
+/// redrawn when it changes. The Mac learns the same thing from
+/// `notifiConnectivityChanged`, because its status item is AppKit and observes
+/// nothing; iOS had no equivalent, so the offline banner appeared and vanished
+/// on whatever unrelated redraw happened next rather than when connectivity
+/// actually moved.
 @MainActor
+@Observable
 final class SocketClient {
-    /// True while a socket is open to the server. This is the app's only live
-    /// connectivity signal, so the menu bar reads it to decide whether to strike
-    /// the bell through.
-    private(set) var isConnected = false {
-        didSet {
-            guard isConnected != oldValue else { return }
-            NotificationCenter.default.post(name: .notifiConnectivityChanged, object: nil)
-        }
+    /// Where the connection stands. This is the app's only live connectivity
+    /// signal: the menu bar reads it to decide whether to strike the bell
+    /// through, and the Inbox to decide whether to say it cannot reach notifi.
+    ///
+    /// Four states rather than a Bool because "not connected" covers two
+    /// situations a reader would describe differently. A socket that has been
+    /// asked for and has not answered yet is not an outage — and on iOS that
+    /// gap is every single foreground, since the connection is torn down on
+    /// background and the first attempt runs a full `/history` sync before it
+    /// counts as open. Reporting that as offline showed the banner, and with it
+    /// an error haptic, on essentially every launch.
+    enum State {
+        /// Nobody has asked for a connection, or it has been stopped.
+        case idle
+        /// The first attempt is in flight and has not failed yet.
+        case connecting
+        case connected
+        /// An attempt has been made and did not hold. Retries stay in this
+        /// state: once connectivity is known to be broken, the reader should
+        /// not watch the banner blink off for each attempt.
+        case failed
     }
+
+    private(set) var state: State = .idle
 
     private let api: APIClient
     private let onWake: () async -> Void
@@ -33,8 +57,17 @@ final class SocketClient {
         self.onWake = onWake
     }
 
+    /// The only writer of `state`: the notification has to fire on every real
+    /// move and on no repeat, and `didSet` cannot carry that under `@Observable`.
+    private func enter(_ next: State) {
+        guard state != next else { return }
+        state = next
+        NotificationCenter.default.post(name: .notifiConnectivityChanged, object: nil)
+    }
+
     func start() {
         guard runLoop == nil else { return }
+        enter(.connecting)
         runLoop = Task { [weak self] in
             while !Task.isCancelled {
                 await self?.connectAndListen()
@@ -50,7 +83,7 @@ final class SocketClient {
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
         attempt = 0
-        isConnected = false
+        enter(.idle)
     }
 
     /// A socket that TCP has dropped without telling either end — a NAT table
@@ -80,7 +113,7 @@ final class SocketClient {
             // every lid close.
             await onWake()
             attempt = 0
-            isConnected = true
+            enter(.connected)
 
             var lastInbound = Date()
             let heartbeat = Task { [weak self] in
@@ -115,7 +148,10 @@ final class SocketClient {
         }
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
-        isConnected = false
+        // A cancelled run loop is `stop()` unwinding — the app backgrounding, or
+        // the Mac quitting — which `stop()` has already recorded as `.idle`. Only
+        // a socket that ended on its own is a failure.
+        if !Task.isCancelled { enter(.failed) }
     }
 
     /// Exponential with a ceiling and jitter. Without the jitter an APNs-scale

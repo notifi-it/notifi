@@ -111,7 +111,8 @@ struct InboxView: View {
             // is real, just possibly stale, so the list stays and the banner
             // sits above it rather than replacing it.
             if model.isOffline {
-                InlineError(message: Copy.Inbox.offline)
+                // Nobody asked for this one: the socket dropped on its own.
+                InlineError(message: Copy.Inbox.offline, followsAction: false)
                     .padding(.top, 14)
                     .geistGutter()
             }

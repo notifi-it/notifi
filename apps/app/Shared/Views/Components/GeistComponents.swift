@@ -512,6 +512,18 @@ struct NoResultsView: View {
 /// Inline error copy. Used wherever an API call can fail.
 struct InlineError: View {
     var message: String
+    /// Whether this error follows something the reader just did.
+    ///
+    /// A failed send or a rejected key is a reply to a tap, and a buzz is how
+    /// someone looking at their keyboard learns it came back badly. A banner
+    /// that appears on its own — the socket dropping, a refresh nobody asked
+    /// for — is a change in the world, and buzzing for it makes the app twitch
+    /// at the reader while they are doing something else. Those pass `false`.
+    ///
+    /// The VoiceOver announcement is not conditional: it is the only way the
+    /// banner reaches a reader who cannot see it appear, and it is the same
+    /// interruption either way.
+    var followsAction: Bool = true
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -536,10 +548,11 @@ struct InlineError: View {
         // if focus happens to land on it, so someone who just tapped Send heard
         // nothing at all and had no way to tell failure from still-working.
         // The haptic rides the same appearance for the same reason — eyes on
-        // the keyboard or the terminal miss a banner that arrives quietly.
+        // the keyboard or the terminal miss a banner that arrives quietly —
+        // but only where the reader is waiting on a reply. See `followsAction`.
         .onAppear {
             AccessibilityNotification.Announcement(message).post()
-            Haptics.error()
+            if followsAction { Haptics.error() }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Copy.Components.errorLabel(message))

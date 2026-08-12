@@ -128,11 +128,16 @@ final class AppModel {
 
     var hasUnread: Bool { (sync?.unread ?? 0) > 0 }
 
-    /// True only once live updates have been asked for and the socket has had
-    /// a chance to connect and failed — a device that never called
-    /// `startLiveUpdates` (or hasn't tried yet) is not "offline", it is simply
-    /// not asking.
-    var isOffline: Bool { wantsLiveUpdates && socket?.isConnected == false }
+    /// True only once live updates have been asked for and the socket has had a
+    /// chance to connect and failed — a device that never called
+    /// `startLiveUpdates`, or has asked and is still waiting on the first
+    /// answer, is not "offline".
+    ///
+    /// `SocketClient.State` is what draws that line; asking whether the socket
+    /// was connected could not. On iOS the connection is torn down on
+    /// background, so every foreground began with a not-yet-connected socket and
+    /// reported an outage until the first sync returned.
+    var isOffline: Bool { socket?.state == .failed }
 
     /// A push is only a hint that there is something to fetch, so a message that
     /// arrives by sync with no push behind it is the signature of a broken push
