@@ -321,7 +321,6 @@ function Piece() {
   const p3 = [
     [{ t: '# a CI step fires only when the build fails', c: DIM }],
     [{ t: '- name: ', c: BLUE }, { t: 'notify', c: FG }],
-    [{ t: '  if: ', c: BLUE }, { t: 'failure()', c: FG }],
     [{ t: '  run: ', c: BLUE }, { t: '|', c: DIM }],
     [{ t: '    curl notifi.it/send -d key=', c: FG }, { t: '$NOTIFI_KEY', c: RED }, { t: ' \\', c: DIM }],
     [{ t: '      -d title=', c: FG }, { t: '"Build failed"', c: BLUE }, { t: ' -d link=', c: FG }, { t: '$RUN_URL', c: BLUE }],
