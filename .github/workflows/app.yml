@@ -22,6 +22,11 @@ jobs:
       DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # The version that ships is the tag that triggered this workflow, not a
+      # number someone hand-edited into project.yml before tagging -- a `v1.2.3`
+      # push needs no companion "bump the app to 1.2.3" commit. `#v` strips
+      # exactly the leading `v` the tag pattern requires.
+      - run: echo "MARKETING_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
       - run: brew install xcodegen
       - working-directory: apps/app
         # DEVELOPMENT_TEAM is interpolated into project.yml by XcodeGen. Without it
@@ -66,7 +71,8 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM"
+            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
+            MARKETING_VERSION="$MARKETING_VERSION"
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-appstore.plist" \
@@ -91,6 +97,9 @@ jobs:
       DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # See the testflight job above: the tag is the version, and the Fastfile
+      # reads this from the environment rather than from project.yml.
+      - run: echo "MARKETING_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
       - run: brew install xcodegen
       # The dmg lane publishes to R2 through `pnpm wrangler`, so this Xcode job
       # also needs the JS toolchain and the workspace installed.

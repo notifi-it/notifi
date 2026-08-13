@@ -16,6 +16,12 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
+    # Not the source of truth for a release: the app.yml release workflow
+    # overrides this per build with the `v*` tag it was triggered by (see the
+    # Fastfile's marketing_version_xcargs / release_version), so a signed build
+    # never carries whatever is checked in here. This value only reaches a
+    # local Debug/Simulator build, which never ships and does not need a real
+    # version -- so there is nothing to keep bumped.
     MARKETING_VERSION: "1.1"
     CURRENT_PROJECT_VERSION: "1"
     GENERATE_INFOPLIST_FILE: "NO"
