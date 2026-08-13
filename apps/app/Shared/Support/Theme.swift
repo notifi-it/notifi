@@ -167,13 +167,21 @@ enum Theme {
     /// same curve at the same number.
     static let blockRadius: CGFloat = 10
 
-    /// Air above the first band, so the feed does not open hard against the rule
-    /// under the header. The Mac needs it: with no fade there, the label was
-    /// sitting on the line.
+    /// Air above a screen's content, so it does not open hard against the rule
+    /// under the header. The Mac needs more of it: with no fade there, the first
+    /// label was sitting on the line.
+    ///
+    /// Added by the scroll container, on top of `topFade`, and never by what it
+    /// holds — that is the whole point of it. The gap a section label or a band
+    /// header carries is the one separating it from the section above it, so a
+    /// first block that opens that gap against the header is measuring off
+    /// something that is not there. Doing exactly that put the three tabs at
+    /// three different heights: the feed started 26pt under the rule, Settings
+    /// at 58. Blocks that can come first take an `isFirst` and add nothing.
     #if os(macOS)
-    static let firstBandTop: CGFloat = 16
+    static let firstBlockTop: CGFloat = 16
     #else
-    static let firstBandTop: CGFloat = 2
+    static let firstBlockTop: CGFloat = 2
     #endif
 
     /// The logo row above every tab title. Fixed, because its trailing control

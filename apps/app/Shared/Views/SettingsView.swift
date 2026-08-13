@@ -26,7 +26,7 @@ struct SettingsView: View {
                 // One section for everything that grants or withholds: what the
                 // OS lets notifi show (only when that needs fixing), what a
                 // message may fetch, and what a sender may get away with.
-                SectionLabel(text: Copy.Settings.sectionPermissions)
+                SectionLabel(text: Copy.Settings.sectionPermissions, isFirst: true)
                     .geistGutter()
 
                 // Only when something needs fixing. Granted permission is the

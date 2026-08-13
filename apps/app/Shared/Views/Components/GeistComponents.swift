@@ -112,6 +112,11 @@ struct Chip: View {
 struct SectionLabel: View {
     var text: String
     var trailing: String?
+    /// Whether this label opens the screen. The page already opens with air
+    /// above its content, so the first label adds none of its own: the padding
+    /// below separates one section from the section above it, and there is no
+    /// section above this one. Same flag, and the same reason, as `BandHeader`'s.
+    var isFirst = false
 
     var body: some View {
         HStack(spacing: 10) {
@@ -130,7 +135,7 @@ struct SectionLabel: View {
         // (12 above and below each), so at 22 the gap that separated two sections
         // was narrower than the gap between two rows of the same one — the label
         // and its rule were carrying the structure unaided.
-        .padding(.top, 34)
+        .padding(.top, isFirst ? 0 : 34)
         .padding(.bottom, 9)
     }
 }

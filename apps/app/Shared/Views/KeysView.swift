@@ -26,6 +26,10 @@ struct KeysView: View {
 
     private var criticalKeys: [CachedKey] { activeKeys.filter(\.isCritical) }
 
+    /// Read twice: the banner is a block, so whether it is up decides whether
+    /// the section label below it is the one opening the screen.
+    private var refreshFailed: Bool { model.sync?.keysRefreshFailed == true }
+
     /// The count of keys that can sound through silent mode is the one fact a
     /// pager's key list should not make you go two screens to find, so it joins
     /// the active count rather than living only on the detail page.
@@ -54,9 +58,8 @@ struct KeysView: View {
             // rules between rows can run the full width of the column while the
             // content they separate stays inside the margin.
             VStack(alignment: .leading, spacing: 0) {
-                if model.sync?.keysRefreshFailed == true {
+                if refreshFailed {
                     InlineError(message: Copy.Keys.refreshFailed)
-                        .padding(.top, 14)
                         .geistGutter()
                 }
 
@@ -69,7 +72,9 @@ struct KeysView: View {
                     Hairline()
                 }
 
-                SectionLabel(text: Copy.Keys.sectionActive, trailing: "\(otherActiveKeys.count)")
+                SectionLabel(text: Copy.Keys.sectionActive,
+                             trailing: "\(otherActiveKeys.count)",
+                             isFirst: !refreshFailed && defaultKey == nil)
                     .geistGutter()
 
                 if otherActiveKeys.isEmpty && !hasLoaded && keys.isEmpty {

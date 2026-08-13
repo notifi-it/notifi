@@ -113,7 +113,12 @@ struct InboxView: View {
             if model.isOffline {
                 // Nobody asked for this one: the socket dropped on its own.
                 InlineError(message: Copy.Inbox.offline, followsAction: false)
-                    .padding(.top, 14)
+                    // Both halves of the gap, because this banner sits above
+                    // the list rather than inside it: the top content margin
+                    // that opens the feed under the header reaches the rows and
+                    // not this. Keys' banner is inside its scroll view and so
+                    // adds only the second half.
+                    .padding(.top, Theme.topFade + Theme.firstBlockTop)
                     .geistGutter()
             }
 

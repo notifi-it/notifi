@@ -108,11 +108,11 @@ struct GeistPage<Header: View, Content: View>: View {
             }
             .scrollContentBackground(.hidden)
             // Room under the pinned header for the fade that dissolves rows as
-            // they pass beneath it, and under the last row for the tab bar to
-            // float over. The same two margins `MessageFeed` sets on its list,
-            // for the same reasons, because these screens now scroll under the
-            // same header it does.
-            .contentMargins(.top, Theme.topFade, for: .scrollContent)
+            // they pass beneath it, plus the air every screen opens with, and
+            // under the last row for the tab bar to float over. The same three
+            // margins `MessageFeed` sets on its list, for the same reasons,
+            // because these screens now scroll under the same header it does.
+            .contentMargins(.top, Theme.topFade + Theme.firstBlockTop, for: .scrollContent)
             .contentMargins(.bottom, Theme.bottomFade, for: .scrollContent)
             .geistTopFade()
             .geistBottomFade()

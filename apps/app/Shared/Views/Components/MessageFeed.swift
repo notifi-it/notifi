@@ -101,10 +101,11 @@ struct MessageFeed<Empty: View>: View {
         .contentMargins(.bottom, Theme.bottomFade, for: .scrollContent)
         // Room under the header for the fade that dissolves rows as they pass
         // beneath it, the same way the bottom margin clears the fade at the
-        // other end. Measured rather than left to the list: a plain List opens
-        // with an inset of its own, which sat on top of the header's bottom
-        // padding and left the first band floating in the middle of nothing.
-        .contentMargins(.top, Theme.topFade, for: .scrollContent)
+        // other end, plus the air every screen opens with. Measured rather than
+        // left to the list: a plain List opens with an inset of its own, which
+        // sat on top of the header's bottom padding and left the first band
+        // floating in the middle of nothing.
+        .contentMargins(.top, Theme.topFade + Theme.firstBlockTop, for: .scrollContent)
         // Clear: the screen behind paints the static ground, and repainting
         // it flat here would cover the texture across the whole feed.
         .background(Color.clear)
@@ -425,8 +426,9 @@ private enum DayBand {
 private struct BandHeader: View {
     let title: String
     let count: Int
-    /// The page header already leaves a gap beneath itself, so the first band
-    /// only needs to clear it rather than open its own.
+    /// The feed already opens with air above it, so the first band adds none of
+    /// its own — the gap below is the one that separates two bands, and there is
+    /// no band above this one to separate it from.
     let isFirst: Bool
 
     var body: some View {
@@ -453,7 +455,7 @@ private struct BandHeader: View {
                 .foregroundStyle(Theme.dim)
                 .monospacedDigit()
         }
-        .padding(.top, isFirst ? Theme.firstBandTop : 26)
+        .padding(.top, isFirst ? 0 : 26)
         .padding(.bottom, 10)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Copy.Inbox.bandLabel(title, Copy.Inbox.count(count)))
