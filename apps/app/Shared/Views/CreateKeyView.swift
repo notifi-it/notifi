@@ -151,8 +151,16 @@ struct CreateKeyView: View {
                 .padding(.top, 8)
             }
 
+            // Warns as the name is typed, like the counter above: the button
+            // still validates on the tap, but a name that will be refused is
+            // worth saying before the reader has finished committing to it.
             if isReserved {
                 Text(Copy.CreateKey.nameReserved)
+                    .font(Theme.metaSmall)
+                    .foregroundStyle(Theme.dim)
+                    .padding(.top, 8)
+            } else if isNameTaken {
+                Text(Copy.CreateKey.nameTaken)
                     .font(Theme.metaSmall)
                     .foregroundStyle(Theme.dim)
                     .padding(.top, 8)
@@ -264,12 +272,35 @@ struct CreateKeyView: View {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty { return Copy.CreateKey.validationEmpty }
         if trimmed.count > 64 { return Copy.CreateKey.validationTooLong }
+        // Before the taken check, though "default" is also a live key: the
+        // reserved wording says why that one name can never be had, which the
+        // general message would leave the reader guessing at.
         if isReserved { return Copy.CreateKey.validationReserved }
+        if isNameTaken { return Copy.CreateKey.validationTaken }
         return nil
     }
 
     private var isReserved: Bool {
         name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "default"
+    }
+
+    /// The name is what the app identifies a key by once the value is gone: the
+    /// Keys tab merges rows by it and the Inbox filter treats one name as one
+    /// entry. Two live keys sharing a name would be two rows nothing on screen
+    /// could separate, so the second is refused here.
+    ///
+    /// Only live keys are consulted. A revoked name is free again — one key
+    /// answers to a name at a time, and the alternative is a device that slowly
+    /// runs out of names it is allowed to reuse.
+    ///
+    /// This is the only place the rule is applied. The server keeps names inside
+    /// `meta_sealed` and cannot read them, so it cannot compare them; a caller
+    /// hitting `POST /keys` directly can still make a duplicate.
+    private var isNameTaken: Bool {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !trimmed.isEmpty else { return false }
+        return (model.sync?.keys ?? [])
+            .contains { !$0.isRevoked && $0.name.lowercased() == trimmed }
     }
 
     private var isRevealed: Bool {

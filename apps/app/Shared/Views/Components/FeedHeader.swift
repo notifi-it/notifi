@@ -58,11 +58,11 @@ struct FeedHeader<Trailing: View>: View {
             Button(Copy.Inbox.markAllAsRead, action: markAllRead)
                 .disabled(unreadCount == 0)
 
-            if keys.count > 1 {
+            if filterableKeys.count > 1 {
                 Divider()
                 Picker(Copy.Inbox.filterByKey, selection: $filterKeyID) {
                     Text(Copy.Inbox.allKeys).tag(Int?.none)
-                    ForEach(keys) { key in
+                    ForEach(filterableKeys) { key in
                         Text(key.name).tag(Int?.some(key.id))
                     }
                 }
@@ -114,6 +114,12 @@ struct FeedHeader<Trailing: View>: View {
     }
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
+
+    /// Merged rather than filtered to live keys: a key that has since been
+    /// revoked still delivered the messages sitting in the feed, so it stays
+    /// filterable under its name. `InboxView` widens the selection back to
+    /// every id sharing that name.
+    private var filterableKeys: [CachedKey] { keys.mergedByName }
 
     private var unreadCount: Int { messages.reduce(0) { $0 + ($1.isRead ? 0 : 1) } }
 

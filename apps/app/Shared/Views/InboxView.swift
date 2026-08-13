@@ -53,8 +53,14 @@ struct InboxView: View {
     /// ANDed with the query.
     private var filtered: [Message] {
         let needle = trimmedQuery.lowercased()
+        // The menu offers one entry per name, so the filter means that name and
+        // not the one id it was set from — otherwise picking "default" after a
+        // regenerate would show only what the replacement has sent since.
+        let keyIDs = filterKeyID.map { keys.idsSharingName(with: $0) }
         return messages.filter { message in
-            let matchesKey = filterKeyID.map { message.keyID == $0 } ?? true
+            let matchesKey = keyIDs.map { ids in
+                message.keyID.map(ids.contains) ?? false
+            } ?? true
             guard matchesKey else { return false }
             guard !needle.isEmpty else { return true }
             if message.title.lowercased().contains(needle) { return true }

@@ -181,11 +181,13 @@ enum Copy {
         static var nameLabel: String { NSLocalizedString("createKey.nameLabel", comment: "") }
         static func charCount(_ n: String, _ max: String) -> String { String.localizedStringWithFormat(NSLocalizedString("createKey.charCount", comment: ""), n, max) }
         static var nameReserved: String { NSLocalizedString("createKey.nameReserved", comment: "") }
+        static var nameTaken: String { NSLocalizedString("createKey.nameTaken", comment: "") }
         static var create: String { NSLocalizedString("createKey.create", comment: "") }
         static var creating: String { NSLocalizedString("createKey.creating", comment: "") }
         static var validationEmpty: String { NSLocalizedString("createKey.validationEmpty", comment: "") }
         static var validationTooLong: String { NSLocalizedString("createKey.validationTooLong", comment: "") }
         static var validationReserved: String { NSLocalizedString("createKey.validationReserved", comment: "") }
+        static var validationTaken: String { NSLocalizedString("createKey.validationTaken", comment: "") }
         static var createFailed: String { NSLocalizedString("createKey.createFailed", comment: "") }
         static var revealTitle: String { NSLocalizedString("createKey.revealTitle", comment: "") }
         static var revealDetail: String { NSLocalizedString("createKey.revealDetail", comment: "") }

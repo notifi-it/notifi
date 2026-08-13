@@ -584,6 +584,17 @@
         }
       }
     },
+    "createKey.nameTaken": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A key with this name is already active."
+          }
+        }
+      }
+    },
     "createKey.revealDetail": {
       "extractionState": "manual",
       "localizations": {
@@ -668,6 +679,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choose another name — “default” is your device's own key."
+          }
+        }
+      }
+    },
+    "createKey.validationTaken": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose another name — one of your active keys already has this one."
           }
         }
       }

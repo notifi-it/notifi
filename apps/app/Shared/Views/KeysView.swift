@@ -18,7 +18,12 @@ struct KeysView: View {
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
     private var activeKeys: [CachedKey] { keys.filter { !$0.isRevoked } }
-    private var revokedKeys: [CachedKey] { keys.filter { $0.isRevoked } }
+    // A revoked key whose name a live key now carries is not listed: regenerating
+    // the default retires one and mints another under the same name, and showing
+    // both put "default" in Active and in Revoked at once. Live keys are never
+    // merged this way — two of them can share a name, and each is revoked from its
+    // own row, so hiding one would leave a working key with no way to turn it off.
+    private var revokedKeys: [CachedKey] { keys.revokedUnderUnusedNames }
     private var defaultKey: CachedKey? { activeKeys.first { $0.isDefault } }
     // The default key sits above the count, so Active counts what is listed
     // under it rather than one more than the reader can see.

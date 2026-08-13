@@ -303,12 +303,14 @@ export const copy = {
     /// limit. Digits and a slash, but every user-facing literal lives here.
     charCount: '{n}/{max}',
     nameReserved: '“default” is reserved — your device already has one.',
+    nameTaken: 'A key with this name is already active.',
     create: 'Create key',
     creating: 'Creating…',
 
     validationEmpty: 'Enter a name for this key.',
     validationTooLong: 'Use 64 characters or fewer.',
     validationReserved: "Choose another name — “default” is your device's own key.",
+    validationTaken: 'Choose another name — one of your active keys already has this one.',
     createFailed: "Couldn't create the key. Check your connection and try again.",
 
     revealTitle: 'Copy your key now',
