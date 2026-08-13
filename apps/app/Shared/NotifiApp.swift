@@ -89,10 +89,14 @@ struct RootContentView: View {
         Group {
             switch model.bootState {
             case .loading:
+                // No ground of its own: the static below is the app's ground,
+                // and a flat fill here painted over it on the one screen every
+                // launch passes through. The app opened on a smooth panel and
+                // grew grain a frame later, which reads as the texture being a
+                // thing the inbox does rather than what the app is made of.
                 ProgressView()
                     .tint(Theme.muted)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Theme.bg)
             case .unsupported:
                 UnsupportedDeviceView()
             case .unavailable:
