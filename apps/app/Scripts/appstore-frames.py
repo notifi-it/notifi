@@ -2,20 +2,14 @@
 
 Same system as the site: pure black, Recursive Mono for the title, Karla for the
 description, one red accent, and the device shot bleeding off the bottom edge.
-Output is 1290x2796, the 6.9" iPhone size, which is the only set Apple now
-requires — it downscales the rest itself.
+Output is 1290x2796 (the 6.9" iPhone set), or 2048x2732 with IPAD=1 — both
+are required, because the app runs on iPad.
 
-The captures come from a Simulator run with sample data seeded:
+Normally not run by hand: `make appstore-shots` builds, captures both device
+sets from the Simulator, and runs this twice (plain, then IPAD=1). To re-render
+from existing captures:
 
-    xcodebuild -project apps/app/notifi.xcodeproj -scheme notifi-iOS \\
-      -configuration Debug -destination 'id=<udid>' DEVELOPMENT_TEAM=Z28DW76Y3W build
-    SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 xcrun simctl launch <udid> it.notifi.notifi
-    # ••• > Seed sample data, Settings > Load images automatically on
-    xcrun simctl io <udid> screenshot shots/inbox.png     # and detail, search, settings
-
-Then:
-
-    SHOTS=shots python3 apps/app/Scripts/appstore-frames.py
+    SHOTS=<dir> python3 apps/app/Scripts/appstore-frames.py
 
 Run it from the repo root. The seeded feed points its one image at
 notifi.it/demo/latency.png, so that has to be deployed for the graph to appear.

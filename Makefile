@@ -1,6 +1,6 @@
 .PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-metadata app-metadata-check shots
+	app-metadata app-metadata-check shots appstore-shots
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -87,3 +87,9 @@ app-metadata:
 # Simulator that stays booted between runs. SKIP_BUILD=1 when no Swift changed.
 shots:
 	apps/app/Scripts/shots.sh
+
+# The App Store screenshot sets, end to end: build, capture on an iPhone and
+# an iPad simulator, render both frame sets into fastlane/screenshots/en-GB.
+# The iPad set is required — ASC refuses a submission without ipadPro129.
+appstore-shots:
+	apps/app/Scripts/appstore-shots.sh

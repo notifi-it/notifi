@@ -3,6 +3,9 @@ import SwiftUI
 
 struct InboxRootView: View {
     @Environment(AppModel.self) private var model
+    #if DEBUG
+    @Environment(\.modelContext) private var context
+    #endif
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var sizeClass
     #endif
@@ -17,6 +20,7 @@ struct InboxRootView: View {
                 legacyTabs
             }
         }
+        .task { await shotSetup() }
         .onChange(of: model.selectedTab) { Haptics.selection() }
         .onChange(of: model.selectedTab, initial: true) { normalizeSelection() }
         .onChange(of: sizeClass) { normalizeSelection() }
@@ -40,6 +44,26 @@ struct InboxRootView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             GeistTabBar(selection: $model.selectedTab)
+        }
+        #endif
+    }
+
+    /// The App Store screenshot script's hook. Seeding through the ••• menu
+    /// needs a tap the script would have to aim by pixel; these run the same
+    /// seed from launch environment instead, so a capture is
+    /// launch → settle → screenshot with nothing to miss. `#if DEBUG` for the
+    /// same reason as `NOTIFI_START_TAB`: it exists for the script, nothing
+    /// else may set it.
+    private func shotSetup() async {
+        #if DEBUG
+        let env = ProcessInfo.processInfo.environment
+        guard env["NOTIFI_SEED_SAMPLE"] == "1" else { return }
+        SampleData.seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
+        if env["NOTIFI_OPEN_SAMPLE_MESSAGE"] == "1" {
+            // The push happens after the feed has the seeded rows, or the
+            // detail resolves an id nothing holds yet and shows "not found".
+            try? await Task.sleep(for: .milliseconds(400))
+            model.path.append(SampleData.idFloor)
         }
         #endif
     }
