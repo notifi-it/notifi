@@ -63,13 +63,11 @@
 	     in Settings — no code runs yet, so it cannot know. Both assets carry
 	     light and dark variants; the one frame where the two schemes disagree
 	     beats the white flash an empty dict produced on the default dark app. -->
-	<key>UILaunchScreen</key>
-	<dict>
-		<key>UIColorName</key>
-		<string>LaunchBackground</string>
-		<key>UIImageName</key>
-		<string>LaunchBell</string>
-	</dict>
+	<!-- A storyboard, not the UILaunchScreen dict: the dict's background is a
+	     colour only, and the launch screen carries grain behind the bell so the
+	     first paint of the app is not a visible change of surface. -->
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
 	<!-- iPhone keeps three: upside-down on a phone puts the earpiece at the
 	     bottom, and iOS ignores it on notched hardware anyway. -->
 	<key>UISupportedInterfaceOrientations</key>

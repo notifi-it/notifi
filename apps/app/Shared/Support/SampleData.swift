@@ -10,6 +10,33 @@ enum SampleData {
 
     static let idFloor = -10_000
 
+    // Read by shots.sh so a screenshot of the detail page needs no tap. Tapping
+    // is the flaky half — a shot taken mid-push catches the sliding view.
+    static var launchMessageIndex: Int? {
+        ProcessInfo.processInfo.environment["NOTIFI_START_MESSAGE"].flatMap(Int.init)
+    }
+
+    static func serverID(at index: Int) -> Int { idFloor - index }
+
+    // Seeding is otherwise a menu button, which a screenshot run cannot press.
+    @MainActor
+    static func applyLaunchOverrides(context: ModelContext, model: AppModel) {
+        guard isEnabled else { return }
+        seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
+    }
+
+    @MainActor private static var didPushLaunchMessage = false
+
+    // Called from the inbox rather than the app root, so the navigation stack
+    // exists by the time the path is written. Once only: the inbox reappears
+    // when the detail page is dismissed, and pushing again would trap it.
+    @MainActor
+    static func pushLaunchMessage(into model: AppModel) {
+        guard isEnabled, !didPushLaunchMessage, let index = launchMessageIndex else { return }
+        didPushLaunchMessage = true
+        model.path.append(serverID(at: index))
+    }
+
     @MainActor
     static func seed(into context: ModelContext, keyIDs: [Int] = []) {
         clear(from: context)

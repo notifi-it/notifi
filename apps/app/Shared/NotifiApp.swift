@@ -110,6 +110,14 @@ struct RootContentView: View {
         .task {
             model.bootstrap(context: modelContext)
         }
+        #if DEBUG
+        // Waits for .ready: the navigation stack does not exist before then, and
+        // a path pushed onto a stack that has not appeared is dropped.
+        .onChange(of: model.bootState, initial: true) { _, state in
+            guard state == .ready else { return }
+            SampleData.applyLaunchOverrides(context: modelContext, model: model)
+        }
+        #endif
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 Task {

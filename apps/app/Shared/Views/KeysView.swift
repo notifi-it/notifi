@@ -37,19 +37,21 @@ struct KeysView: View {
     /// the section label below it is the one opening the screen.
     private var refreshFailed: Bool { model.sync?.keysRefreshFailed == true }
 
-    /// The count of keys that can sound through silent mode is the one fact a
-    /// pager's key list should not make you go two screens to find, so it joins
-    /// the active count rather than living only on the detail page.
-    private var subtitle: String {
-        let active = Copy.Keys.active(activeKeys.count)
-        guard !criticalKeys.isEmpty else { return active }
-        return Copy.Keys.criticalSummary(active, "\(criticalKeys.count)")
+    /// The same substitution the detail page's examples link makes: the docs
+    /// fill the key placeholder in every example, so a reader arrives at a
+    /// request they can run rather than one they must edit first. Only the
+    /// default key's value is on the device; the others were shown once.
+    private var docsURL: URL {
+        guard let full = model.defaultKeyValue else {
+            return URL(string: "https://notifi.it/#api")!
+        }
+        return URL(string: "https://notifi.it/?key=\(full)#api")!
     }
 
     var body: some View {
         GeistPage(scroll: .page) {
             VStack(alignment: .leading, spacing: 0) {
-                GeistHeader(title: Copy.Keys.title, subtitle: subtitle) {
+                GeistHeader(title: Copy.Keys.title) {
                     // One control on both platforms. The Mac used to carry a text
                     // pill here while iOS had the disc, which drifted the two
                     // headers apart for no reason either screen owns.
@@ -135,7 +137,7 @@ struct KeysView: View {
                 // above it do. It goes to the API section because the keys
                 // listed here are used from scripts, and that is where the
                 // sending side is written up.
-                Link(destination: URL(string: "https://notifi.it/#api")!) {
+                Link(destination: docsURL) {
                     HStack(spacing: 5) {
                         Text(Copy.Keys.docsLink)
                             .font(Theme.metaSmall)

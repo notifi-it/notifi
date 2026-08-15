@@ -5,7 +5,11 @@ cd "$(dirname "$0")/../../.."
 
 BUNDLE_ID=${BUNDLE_ID:-it.notifi.notifi}
 DEVICE=${DEVICE:-iPhone 17 Pro}
-TABS=${TABS:-inbox keys settings}
+TABS=${TABS:-inbox keys settings message}
+# Which seeded message the "message" shot opens. 0 is the richest one — long
+# body, image, link, key chip — so the detail page is shot with something in
+# every part of it rather than a bare title.
+MESSAGE_INDEX=${MESSAGE_INDEX:-0}
 OUT=${OUT:-/tmp/notifi-shots}
 DERIVED=${DERIVED:-/tmp/notifi-derived}
 
@@ -29,7 +33,11 @@ for runtime in json.load(sys.stdin)['devices'].values():
 fi
 open -ga Simulator
 
-APP=$(find "$DERIVED/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.app' 2>/dev/null | head -1)
+# `|| true`: with pipefail a missing DerivedData makes find fail, and set -e
+# then kills the script before the build that would recreate the directory —
+# silently, with no output and exit 1. An absent build is the normal state on a
+# clean machine, and after `make screens`, which uses its own derived path.
+APP=$(find "$DERIVED/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.app' 2>/dev/null | head -1 || true)
 BINARY="$APP/notifi"
 
 if [ "${FORCE_BUILD:-0}" = "1" ] || [ ! -x "$BINARY" ] ||
@@ -49,10 +57,21 @@ xcrun simctl install "$UDID" "$APP"
 
 mkdir -p "$OUT"
 for tab in $TABS; do
-  SIMCTL_CHILD_NOTIFI_START_TAB=$tab SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 \
+  if [ "$tab" = "message" ]; then
+    START_TAB=inbox
+    START_MESSAGE=$MESSAGE_INDEX
+  else
+    START_TAB=$tab
+    START_MESSAGE=
+  fi
+  SIMCTL_CHILD_NOTIFI_START_TAB=$START_TAB \
+  SIMCTL_CHILD_NOTIFI_START_MESSAGE=$START_MESSAGE \
+  SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 \
     xcrun simctl launch --terminate-running-process \
     "$UDID" "$BUNDLE_ID" >/dev/null
-  sleep 2
+  # 2s caught the boot spinner often enough to matter, and a spinner is the one
+  # wrong answer that looks like a real screen rather than a failure.
+  sleep 4
   xcrun simctl io "$UDID" screenshot --type=png "$OUT/$tab.png" >/dev/null 2>&1
   echo "$OUT/$tab.png"
 done

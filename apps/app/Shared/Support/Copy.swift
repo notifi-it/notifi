@@ -95,6 +95,7 @@ enum Copy {
         static var backToNotifications: String { NSLocalizedString("message.backToNotifications", comment: "") }
         static func keyFallbackName(_ id: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.keyFallbackName", comment: ""), id) }
         static func sentWithKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.sentWithKey", comment: ""), name) }
+        static func openKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.openKey", comment: ""), name) }
         static var viewImageFullScreen: String { NSLocalizedString("message.viewImageFullScreen", comment: "") }
         static func linksTo(_ host: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.linksTo", comment: ""), host) }
         static var shareLink: String { NSLocalizedString("message.shareLink", comment: "") }

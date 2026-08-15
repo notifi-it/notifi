@@ -2072,6 +2072,17 @@
         }
       }
     },
+    "message.openKey": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent with key %1$@. Open it."
+          }
+        }
+      }
+    },
     "message.sentWithKey": {
       "extractionState": "manual",
       "localizations": {

@@ -73,6 +73,14 @@ struct InboxView: View {
         GeistPage(scroll: .content) {
             header
         } content: {
+            #if DEBUG
+            // The push lives here, not at the app root: a path set before the
+            // navigation stack has appeared is dropped, and doing it from the
+            // root raced that and silently left the shot on the inbox.
+            Color.clear.frame(height: 0)
+                .onAppear { SampleData.pushLaunchMessage(into: model) }
+            #endif
+
             if model.isOffline {
                 InlineError(message: Copy.Inbox.offline, followsAction: false)
                     .padding(.top, Theme.contentTop)

@@ -27,6 +27,11 @@ extension Font {
         .custom("Karla", size: incoSize(style), relativeTo: style).weight(weight)
     }
 
+    static func karla(size: CGFloat, weight: Font.Weight = .regular,
+                      relativeTo style: Font.TextStyle = .caption) -> Font {
+        .custom("Karla", size: size, relativeTo: style).weight(weight)
+    }
+
     private static func incoSize(_ style: Font.TextStyle) -> CGFloat {
         switch style {
         case .largeTitle: 34

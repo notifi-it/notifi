@@ -141,7 +141,9 @@ struct MessageDetailView: View {
         .geistGutter()
         .geistMeasure()
         .padding(.top, 22)
-        .padding(.bottom, 14)
+        // The head block below sets its own space above the title; the bar only
+        // needs to clear its own buttons.
+        .padding(.bottom, 6)
         .background(StaticField())
     }
 
@@ -162,21 +164,37 @@ struct MessageDetailView: View {
         return key.isDefault ? nil : key.name
     }
 
+    // Nil when the key is not in the cache — the chip is then showing a
+    // fallback name for a key this device cannot open, so it stays inert
+    // rather than pushing a screen that would have nothing to render.
+    private func key(for message: Message) -> CachedKey? {
+        guard let id = message.keyID else { return nil }
+        guard let key = model.sync?.keys.first(where: { $0.id == id }) else { return nil }
+        return key.isDefault ? nil : key
+    }
+
     @ViewBuilder
     private func content(for message: Message) -> some View {
         let anyScheme = model.allowsAnyLink(keyID: message.keyID)
         VStack(alignment: .leading, spacing: 0) {
+            // The title and its metadata centre; everything below stays ranged
+            // left. They are the head of the page rather than part of the
+            // reading column, and the body is prose, which centring makes
+            // harder to read down.
             Text(message.title)
                 .font(.inco(.title, weight: .bold))
                 .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
 
             metaLine(for: message)
-                .padding(.top, 11)
+                .padding(.top, 14)
+                .frame(maxWidth: .infinity)
 
             Hairline()
-                .padding(.top, 14)
+                .padding(.top, 22)
 
             if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                 Group {
@@ -209,55 +227,65 @@ struct MessageDetailView: View {
 
     private var showsImage: Bool { model.remoteImagesEnabled || revealedImage }
 
+    private func keyGlyph(_ size: CGFloat, _ tint: Color) -> some View {
+        Image("akar-key")
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: size, height: size)
+            .foregroundStyle(tint)
+            .accessibilityHidden(true)
+    }
+
+    // No border at all: the key and the time are one dim line, so the title is
+    // the only loud thing at the head of the page.
+    private func quietLine(_ name: String?, age: String, stamp: String) -> some View {
+        HStack(spacing: 6) {
+            if let name {
+                keyGlyph(11, Theme.dim)
+                Text(name)
+                    .font(.karla(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.muted)
+                Text("·").foregroundStyle(Theme.chip)
+            }
+            Text(age)
+                .font(.karla(size: 13, weight: .semibold))
+                .foregroundStyle(Theme.muted)
+            Text("·").foregroundStyle(Theme.chip)
+            Text(stamp)
+                .font(.karla(size: 13))
+                .foregroundStyle(Theme.dim)
+        }
+        .lineLimit(1)
+        .monospacedDigit()
+        .frame(maxWidth: .infinity)
+    }
+
     @ViewBuilder
     private func metaLine(for message: Message) -> some View {
         let basis = message.occurredAt ?? message.createdAt
-        // Two lines, not one. The chip, the wall-clock reading and the age is
-        // already a full measure on a phone; the epoch sharing their line was
-        // what wrapped it to a ragged second row and squeezed the key name to
-        // "Door…". The machine timestamp reads worse interleaved with prose
-        // anyway — it gets the line under, where 13 digits are just 13 digits.
-        VStack(alignment: .leading, spacing: 4) {
-        HStack(alignment: .firstTextBaseline, spacing: 10) {
-            if let keyName = keyName(for: message) {
-                Text(keyName)
-                    .font(.inco(size: 11, weight: .semibold, relativeTo: .caption2))
-                    .foregroundStyle(Theme.fg)
-                    .lineLimit(1)
-                    .padding(.vertical, 2)
-                    .padding(.horizontal, 6)
-                    .overlay(RoundedRectangle(cornerRadius: 4)
-                        .stroke(Theme.chip, lineWidth: 1))
-                    .accessibilityLabel(Copy.Message.sentWithKey(keyName))
-            }
-
-            (Text(Self.clock.string(from: basis))
-                .font(.inco(size: 12, weight: .semibold))
-                .foregroundStyle(Theme.fg)
-             + Text(" · \(Self.date.string(from: basis).uppercased())")
-                .font(.inco(size: 12))
-                .foregroundStyle(Theme.dim)
-             + Text(" — \(Self.age(of: message))")
-                .font(.inco(size: 12))
-                .foregroundStyle(Theme.dim))
-                .monospacedDigit()
-                .lineLimit(1)
-                .truncationMode(.tail)
+        let stamp = "\(Self.clock.string(from: basis)) "
+            + Self.date.string(from: basis).uppercased()
+        tappableKey(message) {
+            quietLine(keyName(for: message),
+                      age: Self.age(of: message),
+                      stamp: stamp)
         }
+    }
 
-        let epoch = Int((basis.timeIntervalSince1970 * 1000).rounded())
-        Button { Clipboard.copy("\(epoch)") } label: {
-            // verbatim: Text(Int) runs the value through the locale and
-            // ships 1,786,564,721,411 — grouping separators on a machine
-            // timestamp, which no tool that consumes one accepts.
-            Text(verbatim: "\(epoch)")
-                .font(.inco(size: 11, relativeTo: .caption2))
-                .monospacedDigit()
-                .lineLimit(1)
-                .foregroundStyle(Theme.controlBorder)
-        }
-        .buttonStyle(.geist)
-        .accessibilityLabel(Copy.Message.copyTimestamp)
+    // The chip pushes its key when the key is on this device; when it is not,
+    // the same label is shown inert rather than pushing a screen that would
+    // have nothing to render.
+    @ViewBuilder
+    private func tappableKey<Label: View>(_ message: Message,
+                                          @ViewBuilder label: () -> Label) -> some View {
+        if let key = key(for: message), let name = keyName(for: message) {
+            Button { model.path.append(key) } label: { label() }
+                .buttonStyle(.geist)
+                .accessibilityLabel(Copy.Message.openKey(name))
+        } else {
+            label()
+                .accessibilityLabel(keyName(for: message)
+                    .map { Copy.Message.sentWithKey($0) } ?? "")
         }
     }
 

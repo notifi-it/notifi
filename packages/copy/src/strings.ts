@@ -139,6 +139,7 @@ export const copy = {
     backToNotifications: 'Back to Notifications',
     keyFallbackName: 'Key {id}',
     sentWithKey: 'Sent with key {name}',
+    openKey: 'Sent with key {name}. Open it.',
     viewImageFullScreen: 'View image full screen',
     linksTo: 'Links to {host}',
     shareLink: 'Share link',

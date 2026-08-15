@@ -151,8 +151,9 @@ installs fail silently there and cannot be screenshotted.
 Do not hand-roll a build-install-boot-tap sequence to look at a screen. Run:
 
 ```
-make shots                     # one screenshot per tab
+make shots                     # one screenshot per screen
 TABS="inbox settings" make shots
+MESSAGE_INDEX=4 make shots     # open a different seeded message
 FORCE_BUILD=1 make shots       # rebuild even if nothing looks changed
 ```
 
@@ -162,8 +163,16 @@ last produced, and skips otherwise. A flag would put that decision on whoever
 types the command, and the failure mode is silent: a screenshot of the previous
 build looks exactly like an answer.
 
-It writes `/tmp/notifi-shots/<tab>.png`, one per tab, so a layout change is
-checked on all three at once — which
+It writes `/tmp/notifi-shots/<name>.png`: the three tabs, plus `message.png`,
+the detail page. The detail page is not a tab and so was the one screen a shots
+run never covered — a timestamp change there was checked by eye or not at all.
+It is reached by seeding sample data and pushing the message onto the navigation
+path at launch, not by tapping a row, for the reason tapping is avoided
+everywhere else here. `MESSAGE_INDEX` picks which seeded message; the default
+is the one carrying a body, an image, a link and a key, so the shot exercises
+every part of the screen.
+
+Shooting the three tabs together is what
 [Layout changes go in GeistPage](#layout-changes-go-in-geistpage-not-in-three-screens)
 requires and a manual pass usually skips.
 
@@ -172,8 +181,13 @@ It reuses whatever Simulator is already booted and a fixed DerivedData at
 launch rather than tapping the tab bar. Tapping is the flaky half: a shot taken
 before the bar settles looks like a bug in the change being verified.
 
-`NOTIFI_START_TAB` is read by `AppTab.launchOverride` and is `#if DEBUG` only.
-Nothing else may set it — it exists for this script.
+`NOTIFI_START_TAB` is read by `AppTab.launchOverride`, and `NOTIFI_SAMPLE_DATA`
+and `NOTIFI_START_MESSAGE` by `SampleData`. All three are `#if DEBUG` only.
+Nothing else may set them — they exist for this script.
+
+The message override waits for `bootState == .ready` before pushing: the
+navigation stack does not exist before then, and a path pushed onto a stack that
+has not appeared is dropped, which looks like the inbox rather than a failure.
 
 Measured on this machine: 14-24s a run, for all three tabs. Whether it compiled
 barely shows — an incremental build is a few seconds and the rest is installing

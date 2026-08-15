@@ -34,6 +34,9 @@ struct InboxRootView: View {
                             .navigationDestination(for: Int.self) { serverID in
                                 MessageDetailView(serverID: serverID)
                             }
+                            .navigationDestination(for: CachedKey.self) { key in
+                                KeyDetailView(keyID: key.id)
+                            }
                     }
                 case .keys:
                     NavigationStack { KeysView() }
@@ -85,6 +88,9 @@ struct InboxRootView: View {
                         .navigationDestination(for: Int.self) { serverID in
                             MessageDetailView(serverID: serverID)
                         }
+                        .navigationDestination(for: CachedKey.self) { key in
+                            KeyDetailView(keyID: key.id)
+                        }
                 }
             } label: {
                 Label(Copy.Tabs.notifications,
@@ -104,7 +110,10 @@ struct InboxRootView: View {
                 Label(Copy.Tabs.settings, image: "akar-gear").labelStyle(.iconOnly)
             }
 
-            if sizeClass == .compact,
+            // Only over the list. Search is a way into the inbox, and offering
+            // it from a message already opened from that inbox reads as a
+            // second, unrelated control on a page that is not a list.
+            if sizeClass == .compact, model.path.isEmpty,
                model.selectedTab == .inbox || model.selectedTab == .search {
                 Tab(value: AppTab.search, role: .search) {
                     NavigationStack { SearchView() }
@@ -121,6 +130,9 @@ struct InboxRootView: View {
                     InboxView()
                         .navigationDestination(for: Int.self) { serverID in
                             MessageDetailView(serverID: serverID)
+                        }
+                        .navigationDestination(for: CachedKey.self) { key in
+                            KeyDetailView(keyID: key.id)
                         }
                 }
                 .tabItem {

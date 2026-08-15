@@ -91,11 +91,21 @@ struct KeyDetailView: View {
             }
             .padding(.top, 6)
 
+            // The sentence explaining the key sits under the title; the masked
+            // value follows it. For the default key the order is the other way
+            // round further down, because there the sentence explains the copy
+            // buttons directly above it rather than the title.
+            if !key.isDefault {
+                Text(Copy.KeyDetail.shownOnceDetail)
+                    .geistConsequence()
+                    .padding(.top, 10)
+            }
+
             Text(key.maskedValue)
                 .font(.inco(.subheadline, weight: .regular))
                 .foregroundStyle(Theme.muted)
                 .textSelection(.enabled)
-                .padding(.top, 8)
+                .padding(.top, key.isDefault ? 8 : 14)
 
             if key.isDefault, let full = model.defaultKeyValue {
                 HStack(spacing: 9) {
@@ -115,10 +125,6 @@ struct KeyDetailView: View {
                 Text(Copy.KeyDetail.defaultKeyDetail)
                     .geistConsequence()
                     .padding(.top, 10)
-            } else {
-                Text(Copy.KeyDetail.shownOnceDetail)
-                    .geistConsequence()
-                    .padding(.top, 14)
             }
 
             Link(destination: examplesURL(for: key)) {
