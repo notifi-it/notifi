@@ -498,7 +498,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "@id": "https://notifi.it/#website",
       "url": "https://notifi.it/",
       "name": "notifi",
-      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No account, no SDK, end-to-end encrypted and open source.",
+      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No account, no SDK, encrypted with your public key, and open source.",
       "publisher": { "@id": "https://notifi.it/#org" },
       "inLanguage": "en"
     },
@@ -622,7 +622,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <!-- "No account" and "no sign-in" were the same claim twice; the third slot
          buys the open-source line, which is the only trust claim on the page a
          reader can go and check for themselves. -->
-    <p class="eyebrow" style="margin-bottom:20px">Encrypted with your public key. No account. No SDK.</p>
+    <p class="eyebrow" style="margin-bottom:20px">No account. Nothing we can read. Sends from anything.</p>
     <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede">
       Install the app, grab your key, and send an HTTP request to
@@ -658,7 +658,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p class="meta" style="margin-top:12px">
       Replace <code>nk_yourkeyhere</code> with the key from the app. The request also
       takes <code>message</code>, <code>link</code>, <code>image</code> and
-      <code>is_critical</code> — the <a href="#api" class="src">reference</a> has all of
+      <code>is_critical</code> — the <a href="#api" class="src">API docs</a> have all of
       them.
     </p>
   </div>
@@ -789,8 +789,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
            it. Your history lives on your device, not in our database.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>Urgent alerts</h3>
-        <p>Send with <code>is_critical=1</code> on a key you have marked urgent, and the
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>Critical alerts</h3>
+        <p>Send with <code>is_critical=1</code> on a key you have marked critical, and the
            notification breaks through Focus and lands on the lock screen.</p>
       </div>
       <div class="row">
@@ -1081,7 +1081,7 @@ reqwest::Client::new()
 <section class="section-alt" id="api">
   <div class="wrap">
     <div class="section-head">
-      <p class="eyebrow">Reference</p><hr class="rule">
+      <p class="eyebrow">API</p><hr class="rule">
     </div>
     <h2>One endpoint.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:8px">
@@ -1105,40 +1105,47 @@ reqwest::Client::new()
           <tr>
             <td>key <span class="req">required</span></td>
             <td>string</td>
-            <td>Your send key.</td>
+            <td>The key from the app — it picks which device gets the push. Send it as a
+                header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of
+                logs; or pass it as this parameter.</td>
           </tr>
           <tr>
             <td>title <span class="req">required</span></td>
             <td>string</td>
-            <td>1–200 characters. The only field that always shows.</td>
+            <td>1–200 characters. The only field that always shows in the notification.</td>
           </tr>
           <tr>
             <td>message</td>
             <td>string</td>
-            <td>Up to 16,000 characters, so a stack trace or a log tail fits. The push preview
-                is shortened; the app pulls the rest.</td>
+            <td>The body under the title. Room for a stack trace or a log tail — up to
+                16,000 characters. The push shows a short preview; the app opens the full
+                text.</td>
           </tr>
           <tr>
             <td>link</td>
             <td>URL</td>
-            <td>Up to 2,048 characters. Opens when you tap the notification.</td>
+            <td>Where tapping the notification takes you — the failing build, the dashboard,
+                the PR. Up to 2,048 characters.</td>
           </tr>
           <tr>
             <td>image</td>
             <td>URL</td>
-            <td>Must be <code>https</code>. Up to 2,048 characters. PNG, JPEG or GIF, 5&nbsp;MB max.</td>
+            <td>A picture shown with the notification — a chart, a camera still. Must be
+                <code>https</code>. PNG, JPEG or GIF, 5&nbsp;MB max, URL up to 2,048
+                characters.</td>
           </tr>
           <tr>
             <td>occurred_at</td>
             <td>integer</td>
-            <td>When the event happened, in unix <em>milliseconds</em>. Display only. Defaults
-                to the time we receive it.</td>
+            <td>When the event actually happened, as unix <em>milliseconds</em> — useful when
+                a send is queued or retried. Only changes the timestamp shown in the app;
+                defaults to when we receive the request.</td>
           </tr>
           <tr>
             <td>is_critical</td>
             <td>boolean</td>
-            <td>Ask for an urgent alert: it breaks through Focus and stays on the lock screen,
-                but does not sound through silent mode. The key must also have <em>Urgent
+            <td>Ask for a critical alert: it breaks through Focus and stays on the lock screen,
+                but does not sound through silent mode. The key must also have <em>Critical
                 alerts</em> switched on in the app; a send that asks without that arrives as an
                 ordinary notification rather than failing, and the reply carries a
                 <code>warning</code> saying so.</td>
