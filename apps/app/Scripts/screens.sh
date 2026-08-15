@@ -99,7 +99,9 @@ for shot, name in [("inbox", "notifications"), ("detail", "detail"),
     im = im.resize((round(im.width * scale), round(im.height * scale)),
                    Image.LANCZOS)
     x, y = (im.width - W) // 2, (im.height - H) // 2
+    # quality=82 smoothed the ground's grain into flat black on the darkest
+    # screens; 92 is the lowest setting that keeps it (measured, not guessed).
     im.crop((x, y, x + W, y + H)).save(f"{site}/{name}.webp",
-                                       "WEBP", quality=82, method=6)
+                                       "WEBP", quality=92, method=6)
     print(f"{site}/{name}.webp")
 EOF
