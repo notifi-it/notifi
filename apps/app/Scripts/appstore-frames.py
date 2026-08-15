@@ -28,7 +28,10 @@ SHOTS = os.environ.get("SHOTS", "shots")
 OUT = os.environ.get("OUT", f"{REPO}/apps/app/fastlane/screenshots/en-GB")
 os.makedirs(OUT, exist_ok=True)
 
-W, H = 1290, 2796
+# 1290x2796 is the 6.9" iPhone set. The iPad Pro 12.9"/13" set (2048x2732)
+# is not optional: the app runs on iPad, and App Store Connect refuses the
+# submission without it — "A screenshot with type ipadPro129 is required".
+W, H = (2048, 2732) if os.environ.get("IPAD") else (1290, 2796)
 # Inverted against the app on purpose: the screenshots are black, so a white
 # page is what separates them from the frame. Nothing else has to.
 BG, FG, MUTED, BRAND = "#FFFFFF", "#0A0A0A", "#5A5A5A", "#BC2122"
@@ -65,6 +68,10 @@ TOP = 268
 # and a device that starts at a different height on each reads as a mistake.
 DEVICE_TOP = 780
 TITLE_SIZE, DESC_SIZE = 82, 42
+if os.environ.get("IPAD"):
+    # Wider canvas, same lockup scale; the device shot is near-square so it
+    # starts a little higher to keep a comparable bleed.
+    DEVICE_TOP = 820
 
 # The wordmark is an SVG of outlined glyphs; rasterise it once at the size used.
 # Its letterforms are #EDEDED for a black page; on this white one they have to
@@ -117,7 +124,13 @@ def rounded(img, radius):
     return out
 
 
+PREFIX = "ipad_" if os.environ.get("IPAD") else ""
+SHOT_PREFIX = "ipad-" if os.environ.get("IPAD") else ""
+
+
 def frame(shot_name, title, desc, out_name):
+    shot_name = SHOT_PREFIX + shot_name
+    out_name = PREFIX + out_name
     if not os.path.exists(f"{SHOTS}/{shot_name}"):
         print(f"skipped {out_name}: no {SHOTS}/{shot_name}")
         return
