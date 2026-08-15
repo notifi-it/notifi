@@ -9,10 +9,10 @@ enum Theme {
 
     /// `LaunchBackground` in the asset catalog is a hand-kept copy of this pair,
     /// as are `StaticNoise`'s grounds. Change one, change all three.
-    static let bg = grey(light: 0.949, dark: 0.035)
+    static let bg = grey(light: 0.949, dark: 0.11)
     /// A section of settings rows, one step up off `bg`. This is the app's
     /// grouping device, which is why no rule draws that boundary as well.
-    static let groupFill = grey(light: 1.0, dark: 0.11)
+    static let groupFill = grey(light: 1.0, dark: 0.185)
     static let fg = grey(light: 0.102, dark: 0.929)
     static let read = grey(light: 0.28, dark: 0.72)
     static let muted = grey(light: 0.36, dark: 0.631)

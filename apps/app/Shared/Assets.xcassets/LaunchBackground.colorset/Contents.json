@@ -11,7 +11,7 @@
       "appearances" : [ { "appearance" : "luminosity", "value" : "dark" } ],
       "color" : {
         "color-space" : "srgb",
-        "components" : { "alpha" : "1.000", "blue" : "0.035", "green" : "0.035", "red" : "0.035" }
+        "components" : { "alpha" : "1.000", "blue" : "0.110", "green" : "0.110", "red" : "0.110" }
       },
       "idiom" : "universal"
     }

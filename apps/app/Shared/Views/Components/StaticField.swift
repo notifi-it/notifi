@@ -39,7 +39,7 @@ private enum StaticNoise {
 
     /// Hand-kept copies of `Theme.bg`. The tile is generated into a bitmap
     /// before any view exists, so it cannot read the token.
-    private static let darkGround: Double = 0.035
+    private static let darkGround: Double = 0.11
     private static let darkAmplitude: Double = 0.055
     private static let lightGround: Double = 0.949
     private static let lightAmplitude: Double = 0.035
