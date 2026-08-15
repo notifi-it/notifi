@@ -50,7 +50,7 @@ struct GeistPage<Header: View, Content: View>: View {
                 VStack(alignment: .leading, spacing: 0) { content() }
             }
             .scrollContentBackground(.hidden)
-            .contentMargins(.top, Theme.topFade + Theme.firstBlockTop, for: .scrollContent)
+            .contentMargins(.top, Theme.contentTop, for: .scrollContent)
             .contentMargins(.bottom, Theme.bottomFade, for: .scrollContent)
             .geistTopFade()
             .geistBottomFade()

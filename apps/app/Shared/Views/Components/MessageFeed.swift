@@ -58,7 +58,8 @@ struct MessageFeed<Empty: View>: View {
         .environment(\.defaultMinListRowHeight, 0)
         .scrollContentBackground(.hidden)
         .contentMargins(.bottom, Theme.bottomFade, for: .scrollContent)
-        .contentMargins(.top, Theme.topFade + Theme.firstBlockTop, for: .scrollContent)
+        .contentMargins(.top, Theme.contentTop, for: .scrollContent)
+        .geistTopFade()
         .background(Color.clear)
         .scrollDismissesKeyboard(.immediately)
         .onReceive(clock) { now = $0 }
@@ -352,6 +353,15 @@ private struct MessageRow: View {
         .padding(.horizontal, 18)
         .frame(minHeight: 44)
         #if os(macOS)
+        // An escalated row already carries brand colour, so the text-colour
+        // shift below says nothing on it. The ground is the one cue every row
+        // can show. It steps in grain rather than to a flat fill, so the row
+        // stays part of the same surface as the page under it.
+        .background {
+            if isHovered {
+                StaticField(level: .hover, fillsScreen: false)
+            }
+        }
         .animation(.easeOut(duration: 0.12), value: isHovered)
         .onHover { hovering in
             hoverTask?.cancel()

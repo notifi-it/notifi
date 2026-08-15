@@ -1262,7 +1262,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Urgent alerts"
+            "value": "Critical alerts"
           }
         }
       }
@@ -1273,7 +1273,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't change urgent alerts for this key. Check your connection and try again."
+            "value": "Couldn't change critical alerts for this key. Check your connection and try again."
           }
         }
       }
@@ -2465,6 +2465,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Appearance"
+          }
+        }
+      }
+    },
+    "settings.sectionApplication": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Application"
           }
         }
       }

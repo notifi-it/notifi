@@ -13,6 +13,23 @@ final class MenuBarController: NSObject {
 
     private let panelSize = NSSize(width: 460, height: 700)
 
+    private var heldBehavior: NSPopover.Behavior?
+
+    /// A transient popover closes the moment anything else takes focus, which
+    /// includes our own save panel — the reader would be returned to a closed
+    /// menu bar. Callers that put up a window of their own hold it through.
+    func holdOpen() {
+        guard heldBehavior == nil else { return }
+        heldBehavior = popover.behavior
+        popover.behavior = .applicationDefined
+    }
+
+    func releaseHold() {
+        guard let heldBehavior else { return }
+        popover.behavior = heldBehavior
+        self.heldBehavior = nil
+    }
+
     func configure(model: AppModel, container: ModelContainer) {
         self.model = model
         self.container = container

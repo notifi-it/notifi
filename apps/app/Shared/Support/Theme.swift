@@ -107,6 +107,16 @@ enum Theme {
 
     static let topFade: CGFloat = 24
 
+    /// Where a screen's first block starts. iOS keeps its top fade drawn at all
+    /// times and so must hold content clear of it; the macOS fade only appears
+    /// once the content has moved under the header, and reserving a resting gap
+    /// for something that is not there yet reads as 24pt of empty ground.
+    #if os(macOS)
+    static let contentTop: CGFloat = firstBlockTop
+    #else
+    static let contentTop: CGFloat = topFade + firstBlockTop
+    #endif
+
     static let press = Animation.easeOut(duration: 0.12)
 
     static let state = Animation.easeOut(duration: 0.2)
@@ -180,12 +190,40 @@ extension View {
     @ViewBuilder
     func geistTopFade() -> some View {
         #if os(macOS)
-        self
+        modifier(ScrolledTopFade())
         #else
         overlay(alignment: .top) { GroundFade(edge: .top) }
         #endif
     }
 }
+
+#if os(macOS)
+/// The fade marks content passing under the header, so at rest — nothing
+/// scrolled — there is nothing to mark and it stays out of the way. Reading the
+/// offset needs macOS 15; before that the fade is simply never drawn, which is
+/// what this screen did already.
+struct ScrolledTopFade: ViewModifier {
+    @State private var scrolled = false
+
+    func body(content: Content) -> some View {
+        if #available(macOS 15.0, *) {
+            content
+                .onScrollGeometryChange(for: Bool.self) { geometry in
+                    geometry.contentOffset.y + geometry.contentInsets.top > 0.5
+                } action: { _, isScrolled in
+                    scrolled = isScrolled
+                }
+                .overlay(alignment: .top) {
+                    GroundFade(edge: .top)
+                        .opacity(scrolled ? 1 : 0)
+                        .animation(.easeOut(duration: 0.15), value: scrolled)
+                }
+        } else {
+            content
+        }
+    }
+}
+#endif
 
 struct GroundFade: View {
     enum Side { case top, bottom }

@@ -397,10 +397,27 @@ struct MessageDetailView: View {
             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
             #else
             await MainActor.run {
+                // An accessory app is never the active one, so without this the
+                // panel opens behind whatever the reader was looking at and
+                // reads as the download having done nothing.
+                NSApp.activate(ignoringOtherApps: true)
+
                 let panel = NSSavePanel()
                 panel.nameFieldStringValue = url.lastPathComponent
-                if panel.runModal() == .OK, let target = panel.url {
-                    try? data.write(to: target)
+                panel.directoryURL = try? FileManager.default.url(
+                    for: .downloadsDirectory, in: .userDomainMask,
+                    appropriateFor: nil, create: false)
+                panel.level = .modalPanel
+
+                // `begin`, not `runModal`: this runs inside the popover's own
+                // event-tracking loop, and a nested modal loop there never gets
+                // its events — the panel is created and then simply sits there.
+                macMenuBar.holdOpen()
+                panel.begin { response in
+                    if response == .OK, let target = panel.url {
+                        try? data.write(to: target)
+                    }
+                    macMenuBar.releaseHold()
                 }
             }
             #endif

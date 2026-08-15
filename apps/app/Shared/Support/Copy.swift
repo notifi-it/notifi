@@ -223,6 +223,7 @@ enum Copy {
         static var testTitle: String { NSLocalizedString("settings.testTitle", comment: "") }
         static var testBody: String { NSLocalizedString("settings.testBody", comment: "") }
         static var sectionSupport: String { NSLocalizedString("settings.sectionSupport", comment: "") }
+        static var sectionApplication: String { NSLocalizedString("settings.sectionApplication", comment: "") }
         static var sectionAbout: String { NSLocalizedString("settings.sectionAbout", comment: "") }
         static var version: String { NSLocalizedString("settings.version", comment: "") }
         static var openAtLogin: String { NSLocalizedString("settings.openAtLogin", comment: "") }

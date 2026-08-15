@@ -121,15 +121,11 @@ struct SettingsView: View {
                     .geistGutter()
                 }
 
-                SectionLabel(text: Copy.Settings.sectionAbout)
+                #if os(macOS)
+                SectionLabel(text: Copy.Settings.sectionApplication)
                     .geistGroupGutter()
 
                 GeistGroup {
-                    FieldRow(Copy.Settings.version, AppModel.appVersion)
-                        .geistGutter()
-                    RowRule()
-
-                    #if os(macOS)
                     ToggleRow(
                         title: Copy.Settings.openAtLogin,
                         detail: Copy.Settings.openAtLoginDetail,
@@ -165,8 +161,16 @@ struct SettingsView: View {
                     .buttonStyle(.geistRow)
                     .disabled(!Updater.shared.canCheck)
                     .geistGutter()
+                }
+                #endif
+
+                SectionLabel(text: Copy.Settings.sectionAbout)
+                    .geistGroupGutter()
+
+                GeistGroup {
+                    FieldRow(Copy.Settings.version, AppModel.appVersion)
+                        .geistGutter()
                     RowRule()
-                    #endif
 
                     // Duplicated from the Permissions section on purpose: up
                     // there it only appears when permission is missing, and
@@ -196,26 +200,20 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.geistRow)
                     .geistGutter()
-                }
+                    RowRule()
 
-                Link(destination: URL(string: "https://notifi.it")!) {
-                    HStack(spacing: 5) {
-                        Text(Copy.Settings.website)
-                            .font(Theme.metaSmall)
-                        Image("akar-link-chain")
-                            .renderingMode(.template)
-                            .resizable()
-                            .frame(width: 11, height: 11)
-                            .accessibilityHidden(true)
+                    Link(destination: URL(string: "https://notifi.it")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.website)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
                     }
-                    .foregroundStyle(Theme.muted)
-                    .contentShape(Rectangle())
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
                 }
-                .buttonStyle(.geist)
-                .geistHitArea(expandedBy: 15)
-                .padding(.top, 14)
                 .padding(.bottom, 40)
-                .geistGroupGutter()
             }
         }
         .task {

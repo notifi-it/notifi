@@ -30,7 +30,7 @@ export const copy = {
     invalidSendParams: 'Invalid send parameters.',
     occurredAtTooFuture: 'occurred_at is too far in the future.',
     criticalNotAllowed:
-      'Sent as a normal notification: urgent alerts are switched off for this key.',
+      'Sent as a normal notification: critical alerts are switched off for this key.',
     titleCropped: 'Sent with a shortened title: it was over {max} characters.',
     messageCropped: 'Sent with a shortened message: it was over {max} characters.',
     imageRejected: 'Sent without the image: that is not an address we will fetch.',
@@ -213,7 +213,7 @@ export const copy = {
       'launch other apps on this device.',
 
     sectionAlerts: 'Alerts',
-    criticalAlerts: 'Urgent alerts',
+    criticalAlerts: 'Critical alerts',
 
     revokedNotice: 'This key is revoked and no longer accepts sends.',
 
@@ -249,7 +249,7 @@ export const copy = {
       'Critical Alerts are turned off for notifi in system settings. These will still ' +
       'break through Focus, but they will not sound through silent mode.',
     criticalChangeFailed:
-      "Couldn't change urgent alerts for this key. Check your connection and try again.",
+      "Couldn't change critical alerts for this key. Check your connection and try again.",
   },
 
   createKey: {
@@ -324,6 +324,7 @@ export const copy = {
     testBody: 'If you can read this, notifi is working.',
 
     sectionSupport: 'Support',
+    sectionApplication: 'Application',
     sectionAbout: 'About',
     version: 'Version',
     openAtLogin: 'Open at login',

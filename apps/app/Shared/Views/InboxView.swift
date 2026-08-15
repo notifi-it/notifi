@@ -75,7 +75,7 @@ struct InboxView: View {
         } content: {
             if model.isOffline {
                 InlineError(message: Copy.Inbox.offline, followsAction: false)
-                    .padding(.top, Theme.topFade + Theme.firstBlockTop)
+                    .padding(.top, Theme.contentTop)
                     .geistGutter()
             }
 
