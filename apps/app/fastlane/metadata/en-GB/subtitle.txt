@@ -1,1 +1,1 @@
-Push notifications over HTTP
+One HTTP request, one push

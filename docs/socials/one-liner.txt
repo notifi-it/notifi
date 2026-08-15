@@ -1,0 +1,1 @@
+Push notifications in one HTTP request. Encrypted with your public key — neither we nor Apple can read your messages.

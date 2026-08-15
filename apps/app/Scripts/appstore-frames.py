@@ -181,7 +181,7 @@ def frame(shot_name, title, desc, out_name):
 
 frame("inbox.png",
       "One request.\nStraight to your pocket.",
-      "curl a title to notifi.it/send and it arrives a moment later, carrying a "
+      "One HTTP request to notifi.it and it arrives a moment later, carrying a "
       "message, an image and a link. No SDK and no dependency.",
       "01_inbox.png")
 

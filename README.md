@@ -2,10 +2,10 @@
   <img src="apps/api/public/wordmark.svg" alt="notifi" width="260">
 </p>
 
-<p align="center"><b>Push notifications for people who live in a terminal.</b></p>
+<p align="center"><b>Push notifications for your scripts, servers and side projects.</b></p>
 
-Create a send key, `curl` a title and message to `notifi.it/send`, and the alert
-lands on your iPhone and Mac.
+Create a send key, send a title and message to `notifi.it` in one HTTP
+request, and the notification lands on your iPhone or Mac.
 
 ```bash
 curl "https://notifi.it/send?key=nk_…&title=hello+world"

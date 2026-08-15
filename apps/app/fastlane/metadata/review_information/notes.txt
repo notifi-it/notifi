@@ -11,5 +11,5 @@ To see a notification arrive:
 3. "Copy" puts the same command on the clipboard, so it can also be run from any
    terminal to send from outside the app.
 
-Message content is end-to-end encrypted to the device. We cannot read it, and
+Message content is encrypted with your public key. We cannot read it, and
 neither can Apple.

@@ -33,7 +33,7 @@
 <link rel="canonical" href="https://notifi.it/">
 
 <meta property="og:title" content="notifi — download the push notification app for iPhone and Mac">
-<meta property="og:description" content="Download for iPhone and Mac. curl a title to notifi.it/send and it lands on your device. No account, no SDK, end-to-end encrypted.">
+<meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key — neither we nor Apple can read your messages. No account, no SDK.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://notifi.it/">
 <meta property="og:site_name" content="notifi">
@@ -41,13 +41,13 @@
 <meta property="og:image" content="https://notifi.it/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="One curl request to notifi.it/send, and a push notification lands on your iPhone.">
+<meta property="og:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="notifi — download the push notification app for iPhone and Mac">
-<meta name="twitter:description" content="Download for iPhone and Mac. curl a title to notifi.it/send and it lands on your device. No account, no SDK, end-to-end encrypted.">
+<meta name="twitter:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key — neither we nor Apple can read your messages. No account, no SDK.">
 <meta name="twitter:image" content="https://notifi.it/og.png">
-<meta name="twitter:image:alt" content="One curl request to notifi.it/send, and a push notification lands on your iPhone.">
+<meta name="twitter:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
 
 <!-- Self-hosted, so the page has no third-party request at all. A stylesheet
      link to fonts.googleapis.com is render-blocking and costs two serialised
@@ -511,11 +511,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "operatingSystem": "iOS 17.0 or later, macOS 14.0 or later",
       "installUrl": "https://apps.apple.com/app/id1563961135",
       "downloadUrl": "https://notifi.it/download/mac",
-      "description": "The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it/send from any script, and a native push notification arrives on your iPhone or Mac. No SDK, no account, no sign-in. Message content is end-to-end encrypted to the device.",
+      "description": "The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it from any script, and a native push notification arrives on your iPhone or Mac. Message content is encrypted with your public key. No SDK, no account, no sign-in.",
       "featureList": [
         "One plain HTTP request, GET or POST, JSON or form-encoded",
         "No SDK, no account and no sign-in",
-        "End-to-end encrypted message content",
+        "Message content encrypted with your public key",
         "Open source",
         "Per-script revocable send keys",
         "Title, message, link and image parameters",
@@ -622,12 +622,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <!-- "No account" and "no sign-in" were the same claim twice; the third slot
          buys the open-source line, which is the only trust claim on the page a
          reader can go and check for themselves. -->
-    <p class="eyebrow" style="margin-bottom:20px">No account. No SDK. End-to-end encrypted.</p>
+    <p class="eyebrow" style="margin-bottom:20px">Encrypted with your public key. No account. No SDK.</p>
     <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede">
       Install the app, grab your key, and send an HTTP request to
       <code>notifi.it/send</code>. The message shows up on your iPhone or Mac,
-      end-to-end encrypted, so neither we nor Apple can read it.
+      encrypted with your public key, so neither we nor Apple can read it.
     </p>
 
     <div class="cta">

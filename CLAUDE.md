@@ -108,6 +108,24 @@ The website is not in this at all. Its prose still lives in
 `apps/api/public/index.html` and `privacy.html`, and several sentences there are
 hand-kept duplicates of in-app copy.
 
+## Marketing copy never says "curl"
+
+In anything pitching the product — the App Store listing under
+`apps/app/fastlane/metadata`, the README's opening, the website's meta
+descriptions and screenshot captions — say "HTTP request", not "curl", and
+"notifi.it", not "notifi.it/send". curl is one client and /send is an endpoint
+path; naming either narrows the pitch to people who already think in those
+terms. Code examples
+are exempt: a command that literally invokes curl says so, and UI labels for
+copying one ("Copy curl") describe what is copied. The App Store keywords field
+is also exempt — it is search terms nobody reads, and "curl" belongs there
+because people who think in curl will type it.
+
+The encryption claim is "encrypted with your public key" — never "end-to-end
+encrypted". Everywhere except the fastlane metadata, follow it with "neither we
+nor Apple can read your messages"; in the fastlane metadata say only that we
+cannot read them, without naming Apple.
+
 ## Migrations
 
 `apps/api/migrations/NNNN_snake_case.sql`, four-digit sequence. CI applies them

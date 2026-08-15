@@ -1,1 +1,14 @@
-A multi platform app to receive push notifications over simple HTTP(s) requests you can embed wherever.
+Push notifications for your scripts and servers.
+
+Create a send key and send a title and a message to notifi.it in one HTTP request. The notification lands on your iPhone or Mac. Anything that can make an HTTP request can send one, e.g. a shell script, a cron job, a CI pipeline.
+
+https://notifi.it/send?title=hello+world
+
+ENCRYPTED
+Your device holds the only private key. Message content is encrypted with your public key at ingest, so we cannot read your messages. Each message is deleted from the server once your device acknowledges it.
+
+NO ACCOUNTS
+No sign-up, no sign-in, no device linking. The app mints a send key on first launch. Keys can be renamed, paused and revoked per source.
+
+URGENT ALERTS
+Mark a key as urgent and its notifications break through Focus and land on the lock screen.
