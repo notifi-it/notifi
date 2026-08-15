@@ -777,7 +777,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It lives"
+            "value": "Hello World"
           }
         }
       }
@@ -1163,7 +1163,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Can't reach notifi. The feed may be behind."
+            "value": "Can't reach notifi servers. Check your connection and try again."
           }
         }
       }

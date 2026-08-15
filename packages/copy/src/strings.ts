@@ -92,7 +92,7 @@ export const copy = {
 
   inbox: {
     title: 'Notifications',
-    offline: "Can't reach notifi. The feed may be behind.",
+    offline: "Can't reach notifi servers. Check your connection and try again.",
     count: plural('1 notification', '{n} notifications'),
     unreadSummary: ' unread · {total}',
     filteredToKey: 'Filtered to the “{name}” key.',
@@ -335,7 +335,7 @@ export const copy = {
   },
 
   empty: {
-    sampleTitle: 'It lives',
+    sampleTitle: 'Hello World',
     sampleMessage: 'notifi is working.',
 
     title: 'Nothing yet',

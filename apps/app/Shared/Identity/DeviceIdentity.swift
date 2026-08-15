@@ -99,14 +99,14 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
         try EncryptionKeyOpener(encryption: encryption).open(sealedB64: sealedB64, info: info)
     }
 
+    @MainActor
     static func loadOrCreate() throws -> DeviceIdentity {
         if let existing = try load(returnNilIfMissing: true) {
             return existing
         }
 
+        let encryption = try adoptOrCreateEncryptionKey()
         let signing = try createSigningKey()
-        let encryption = P256.KeyAgreement.PrivateKey()
-        try storeEncryptionKey(encryption)
         return DeviceIdentity(signing: signing, encryption: encryption)
     }
 
@@ -189,8 +189,19 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
         return try SecureEnclave.P256.Signing.PrivateKey(accessControl: access)
     }
 
-    private static func storeEncryptionKey(_ key: P256.KeyAgreement.PrivateKey) throws {
-        try keychainSet(service: encryptionService, accessGroup: sharedGroup, data: key.rawRepresentation)
+    private static func adoptOrCreateEncryptionKey() throws -> P256.KeyAgreement.PrivateKey {
+        let minted = P256.KeyAgreement.PrivateKey()
+        do {
+            try keychainAdd(
+                service: encryptionService, accessGroup: sharedGroup, data: minted.rawRepresentation
+            )
+            return minted
+        } catch NotifiError.keychain(errSecDuplicateItem) {
+            guard let data = try keychainGet(service: encryptionService, accessGroup: sharedGroup) else {
+                throw NotifiError.keychain(errSecDuplicateItem)
+            }
+            return try P256.KeyAgreement.PrivateKey(rawRepresentation: data)
+        }
     }
 }
 
@@ -220,17 +231,27 @@ extension DeviceIdentity {
     }
 
     static func loadMigrating(service: String) throws -> Data? {
-        if let data = (try? keychainGet(service: service, accessGroup: appGroup)) ?? nil {
+        let appGroupRead: Result<Data?, Error>
+        do {
+            appGroupRead = .success(try keychainGet(service: service, accessGroup: appGroup))
+        } catch NotifiError.keychain(errSecMissingEntitlement) {
+            appGroupRead = .success(nil)
+        } catch {
+            appGroupRead = .failure(error)
+        }
+        if case let .success(data?) = appGroupRead {
             return data
         }
-        guard appGroup != sharedGroup,
-              let legacy = try keychainGet(service: service, accessGroup: sharedGroup) else {
-            return nil
+        guard appGroup != sharedGroup else {
+            return try appGroupRead.get()
         }
-        if (try? keychainSet(service: service, accessGroup: appGroup, data: legacy)) != nil {
-            keychainDelete(service: service, accessGroup: sharedGroup)
+        if let legacy = try keychainGet(service: service, accessGroup: sharedGroup) {
+            if (try? keychainSet(service: service, accessGroup: appGroup, data: legacy)) != nil {
+                keychainDelete(service: service, accessGroup: sharedGroup)
+            }
+            return legacy
         }
-        return legacy
+        return try appGroupRead.get()
     }
 
     static func keychainDelete(service: String, accessGroup: String?) {
@@ -243,7 +264,7 @@ extension DeviceIdentity {
         _ = SecItemDelete(query as CFDictionary)
     }
 
-    static func keychainSet(service: String, accessGroup: String?, data: Data) throws {
+    private static func keychainAdd(service: String, accessGroup: String?, data: Data) throws {
         var addQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -254,8 +275,15 @@ extension DeviceIdentity {
         if let accessGroup { addQuery[kSecAttrAccessGroup as String] = accessGroup }
 
         let status = SecItemAdd(addQuery as CFDictionary, nil)
-        if status == errSecSuccess { return }
-        guard status == errSecDuplicateItem else { throw NotifiError.keychain(status) }
+        guard status == errSecSuccess else { throw NotifiError.keychain(status) }
+    }
+
+    static func keychainSet(service: String, accessGroup: String?, data: Data) throws {
+        do {
+            try keychainAdd(service: service, accessGroup: accessGroup, data: data)
+            return
+        } catch NotifiError.keychain(errSecDuplicateItem) {
+        }
 
         var updateQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
