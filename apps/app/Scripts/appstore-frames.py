@@ -141,10 +141,15 @@ def frame(shot_name, title, desc, out_name):
     canvas.paste(mark, (GUTTER + bell.width + 28, top + (BELL_BOX - mh) // 2), mark)
 
     # ── title
-    # Both files are variable fonts. Left at their default instance PIL renders
-    # a broken outline, so the instance has to be named explicitly.
+    # A variable font left at its default instance renders a broken outline in
+    # PIL, so an instance is named when the file carries one. RecursiveMono
+    # ships as a static SemiBold and raises here — the file already is the
+    # weight the frame wants.
     tf = ImageFont.truetype(MONO, TITLE_SIZE)
-    tf.set_variation_by_name("Bold")
+    try:
+        tf.set_variation_by_name("Bold")
+    except OSError:
+        pass
     y = TOP
     for para in title.split("\n"):
         for line in wrap(d, para, tf, W - GUTTER * 2):

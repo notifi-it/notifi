@@ -129,7 +129,7 @@ enum Theme {
     static var metaUnread: Font { .inco(.caption, weight: .semibold) }
     static var metaSmall: Font { .inco(.caption2, weight: .regular) }
     static var label: Font { .inco(.caption2, weight: .medium) }
-    static var screenTitle: Font { .inco(.title, weight: .bold) }
+    static var screenTitle: Font { .inco(.title, weight: .semibold) }
     /// Tracking is a view modifier rather than part of a Font, so every screen
     /// title applies this alongside `screenTitle`.
     static let screenTitleTracking: CGFloat = 1

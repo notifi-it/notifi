@@ -200,7 +200,7 @@ private struct KeyRow: View {
                 VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 8) {
                         Text(key.name)
-                            .font(.inco(.headline, weight: .semibold))
+                            .font(.inco(.headline, weight: isFixture ? .bold : .medium))
                             .textCase(isFixture ? .uppercase : nil)
                             .tracking(isFixture ? 0.5 : 0)
                             .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
