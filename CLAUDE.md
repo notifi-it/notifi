@@ -293,6 +293,49 @@ By decision. `make typecheck` plus both `xcodebuild` schemes is the full
 automated gate; everything else is checked by hand. Do not add a test framework to make a
 change feel verified. Say plainly what was and was not exercised instead.
 
+## Releasing to the App Store: the order that works
+
+Learned shipping v2.0, mostly by being refused.
+
+**Tag first, submit second, metadata last.** A `v*` tag runs CI (TestFlight
+build + the macOS DMG release); the review submission is local,
+`MARKETING_VERSION=X.Y make app-submit`, and it *creates* the App Store
+version. `make app-metadata` alone cannot: before the version exists, deliver
+retries "Cannot find edit app store version" on a 20/40/80/160/300s backoff —
+twenty minutes of what looks like a hang — and then fails. It is not hung, it
+is waiting for a version that nothing is going to create.
+
+**`make app-metadata-check` is currently broken upstream.** With
+`skip_binary_upload` there is no ipa, and deliver's `verify_only` path still
+tries to hash one — `Digest` on nil. Skip the dry run; the real upload does not
+take that path.
+
+**A submission refused as "not in valid state" names no field.** The two causes
+met so far: a missing screenshot set, and an empty
+`fastlane/metadata/en-GB/release_notes.txt`. Check both before reading
+spaceship stack traces.
+
+**The iPad screenshot set is mandatory.** The app runs on iPad, so App Store
+Connect requires `ipadPro129` (2048x2732) screenshots and refuses the
+submission without them — "only the 6.9-inch set is required" is true only for
+iPhone-only apps. `make appstore-shots` produces both sets end to end: it
+builds, captures an iPhone and an iPad Pro 13" simulator, and renders the
+frames. The app seeds sample data and opens the sample message from launch
+environment (`NOTIFI_SEED_SAMPLE`, `NOTIFI_OPEN_SAMPLE_MESSAGE`, DEBUG only),
+so the script never taps the UI — tapping was the flaky half of capturing by
+hand.
+
+**Screenshot uploads are slow and cry wolf.** A full set takes ten-plus
+minutes, and deliver logs "X is missing on App Store Connect ... Tries
+remaining: N" once per run before succeeding on the retry. One round of that
+is normal; only repeated rounds are a failure.
+
+**Two local traps.** `git checkout -b x origin/main` uses the *last fetched*
+origin/main — in a long session with PRs merging behind you, fetch first or
+the branch quietly predates work that is already on main. And when a command's
+log matters, do not pipe it through `tail`: the failure that needed diagnosing
+survives only if the full output was written somewhere.
+
 ## Comments explain why, never what
 
 The Swift and TypeScript here carry long comments justifying non-obvious
