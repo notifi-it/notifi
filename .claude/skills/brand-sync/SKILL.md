@@ -62,16 +62,52 @@ around that, so **ask the user before running it**, and do not treat a general
 own logo is a reasonable thing to want; it is gated because the restriction it
 sidesteps is not there by accident.
 
-1. Serve the image locally: `python3 -m http.server 8642 --directory <dir>`
-   with an HTML wrapper so it fills the viewport
-   (`<img style="width:100vw;height:100vh;object-fit:cover">` for a banner;
-   `height:100vh` centred for `profile.png` — GitHub's avatar crop then lands
-   exactly on the square).
-2. Open it in a browser tab, `screenshot` it, then `upload_image` with that
-   screenshot's ID into the settings page's file input (`find` the input,
-   pass its ref — never click it, that opens a native picker).
-3. Confirm the crop / save, verify the new image renders, kill the server,
-   close the tab.
+The screenshot is the viewport, so **the uploaded image is always the capture's
+aspect ratio** — 1536x784 here. Serving the real asset and screenshotting it
+does not work: a 1024x1024 avatar arrives letterboxed, and the flat bars against
+the grain plate leave a visible seam down both sides.
+
+So compose a throwaway image at the capture's aspect instead, with the plate
+full-bleed and the mark sized so that the platform's *default* crop lands on the
+intended framing. Then no dragging is needed in any of the crop editors:
+
+- **Avatar.** Platforms crop a centred square, so 784x784 out of 1536x784. Size
+  the bell to `560/1024` of the capture height to reproduce `profile.png`.
+- **Banner.** X crops 3:1 centred. Scale the lockup by `1536/1500` off
+  `x-banner.png`'s geometry; for Facebook scale by `1536/1640` off the cover's.
+
+Both compose the same way `generate-social.sh` does — same plate, same
+`WORD_RATIO`, same `-colorspace sRGB -type TrueColorAlpha` between the two reads
+or the wordmark's red tittle goes grey.
+
+1. Serve the composed images: `python3 -m http.server 8642 --directory <dir>`
+   with a wrapper that fills the viewport
+   (`<img style="width:100vw;height:100vh;object-fit:contain">` — `contain`
+   because the image already matches the viewport aspect and `cover` would
+   crop it again).
+2. Open each in a browser tab, `screenshot` it, then `upload_image` with that
+   screenshot's ID into the file input (`find` the input, pass its ref — never
+   click it, that opens a native picker).
+3. Confirm the crop, save, verify on the public page, kill the server, close
+   the tabs.
+
+**Upload every image a page takes before saving once.** X's Edit profile holds
+the avatar and banner in one unsaved dialog; reloading the settings page between
+the two silently discards the first, and the save then applies only the second.
+This looked like a successful run until the public profile showed the old
+avatar over the new banner.
+
+Per-site input quirks:
+
+- **X.** `find` returns three file inputs. They are only labelled ("Add banner
+  photo", "Add avatar photo", "Add photos or video") once the page has settled —
+  wait for the labels rather than picking by index, which changes between loads.
+- **Facebook.** Two unlabelled inputs on the Page. Do not guess: use *Finish
+  setting up your Page → Add profile picture*, which opens a dialog with exactly
+  one input, and the **Add cover photo → Upload photo** menu for the cover. Both
+  need an explicit Save afterwards.
+- **Instagram.** Saves the avatar the moment the file lands — there is no Save
+  to press, and the toast is the only confirmation. The bio does need Submit.
 
 This uploads a JPEG re-capture, not the original PNG bytes. Acceptable for
 avatars; note it in the summary so a human can re-upload the originals if
@@ -82,8 +118,12 @@ pixel-perfect matters.
 No usable APIs for profile edits — drive each site in the browser with the
 user's logged-in Chrome session. For each: set the avatar (same screenshot-relay
 if file upload is blocked), the bio from the matching `docs/socials/` file, and
-the link `https://notifi.it`. X, Facebook and LinkedIn each take a banner: use the matching file from
-`docs/socials/images/` — they are different aspect ratios, not one image resized.
+the link `https://notifi.it`. X, Facebook and LinkedIn each take a banner: use
+the matching file from `docs/socials/images/` — they are different aspect
+ratios, not one image resized.
+
+Field limits worth knowing before trimming copy to fit: X bio 160, Instagram
+bio 150, Facebook Page bio 255. All three current bios fit with room.
 
 Never create accounts or enter credentials — if a login prompt appears, stop
 and hand the browser to the user.
