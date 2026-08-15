@@ -188,8 +188,8 @@ export const copy = {
       'Add is_critical=1 to the send.',
     criticalTimeSensitive:
       'Sends from this key that ask for it break through Focus and stay on the lock ' +
-      'screen. Add is_critical=1 to the send. They will not sound through silent mode — ' +
-      'that needs an entitlement Apple has yet to grant notifi.',
+      'screen. Add is_critical=1 to the send. They will not sound through silent mode. ' +
+      'That needs an entitlement Apple has yet to grant notifi.',
 
     copyKey: 'Copy key',
     shareKey: 'Share key',
@@ -259,15 +259,15 @@ export const copy = {
     namePrompt: 'e.g. Grafana alerts',
     nameLabel: 'Key name',
     charCount: '{n}/{max}',
-    nameReserved: '“default” is reserved — your device already has one.',
+    nameReserved: '“default” is reserved. Your device already has one.',
     nameTaken: 'A key with this name is already active.',
     create: 'Create key',
     creating: 'Creating…',
 
     validationEmpty: 'Enter a name for this key.',
     validationTooLong: 'Use 64 characters or fewer.',
-    validationReserved: "Choose another name — “default” is your device's own key.",
-    validationTaken: 'Choose another name — one of your active keys already has this one.',
+    validationReserved: "Choose another name. “default” is your device's own key.",
+    validationTaken: 'Choose another name. One of your active keys already has this one.',
     createFailed: "Couldn't create the key. Check your connection and try again.",
 
     revealTitle: 'Copy your key now',
@@ -394,7 +394,7 @@ export const copy = {
     detail:
       'Your old messages restored from a backup, but your keys did not. Keys are tied to the ' +
       'device they were created on and cannot be moved. Anything still sending to your old keys ' +
-      'will now be rejected — create fresh keys to keep receiving notifications.',
+      'will now be rejected. Create fresh keys to keep receiving notifications.',
   },
 
   clientErrors: {

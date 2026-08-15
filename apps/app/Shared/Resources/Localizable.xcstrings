@@ -579,7 +579,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "“default” is reserved — your device already has one."
+            "value": "“default” is reserved. Your device already has one."
           }
         }
       }
@@ -678,7 +678,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose another name — “default” is your device's own key."
+            "value": "Choose another name. “default” is your device's own key."
           }
         }
       }
@@ -689,7 +689,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose another name — one of your active keys already has this one."
+            "value": "Choose another name. One of your active keys already has this one."
           }
         }
       }
@@ -1306,7 +1306,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends from this key that ask for it break through Focus and stay on the lock screen. Add is_critical=1 to the send. They will not sound through silent mode — that needs an entitlement Apple has yet to grant notifi."
+            "value": "Sends from this key that ask for it break through Focus and stay on the lock screen. Add is_critical=1 to the send. They will not sound through silent mode. That needs an entitlement Apple has yet to grant notifi."
           }
         }
       }
@@ -2177,7 +2177,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your old messages restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now be rejected — create fresh keys to keep receiving notifications."
+            "value": "Your old messages restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now be rejected. Create fresh keys to keep receiving notifications."
           }
         }
       }

@@ -18,8 +18,8 @@
   history.replaceState(null, '', location.pathname + (hash.get('key') ? '' : location.hash));
 })();
 </script>
-<title>notifi — send push notifications to iPhone and Mac with one HTTP request</title>
-<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device — no account, no SDK, open source, and the message is sealed so neither we nor Apple can read it.">
+<title>notifi: send push notifications to iPhone and Mac with one HTTP request</title>
+<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, no SDK, open source, and the message is sealed so neither we nor Apple can read it.">
 <meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -32,8 +32,8 @@
      shared one of those would otherwise be a separate crawlable URL. -->
 <link rel="canonical" href="https://notifi.it/">
 
-<meta property="og:title" content="notifi — send push notifications to iPhone and Mac with one HTTP request">
-<meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key — neither we nor Apple can read your messages. No account, no SDK, open source.">
+<meta property="og:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
+<meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your messages. No account, no SDK, open source.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://notifi.it/">
 <meta property="og:site_name" content="notifi">
@@ -44,8 +44,8 @@
 <meta property="og:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="notifi — send push notifications to iPhone and Mac with one HTTP request">
-<meta name="twitter:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key — neither we nor Apple can read your messages. No account, no SDK, open source.">
+<meta name="twitter:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
+<meta name="twitter:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your messages. No account, no SDK, open source.">
 <meta name="twitter:image" content="https://notifi.it/og.png">
 <meta name="twitter:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
 
@@ -658,7 +658,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p class="meta" style="margin-top:12px">
       Replace <code>nk_yourkeyhere</code> with the key from the app. The request also
       takes <code>message</code>, <code>link</code>, <code>image</code> and
-      <code>is_critical</code> — the <a href="#api" class="src">API docs</a> have all of
+      <code>is_critical</code>. The <a href="#api" class="src">API docs</a> have all of
       them.
     </p>
   </div>
@@ -690,7 +690,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </figure></div>
       <div class="shot"><figure>
         <img src="/screens/keys.webp" width="620" height="1348" loading="lazy"
-             alt="The keys screen: the built-in default key leading the list, then one key per source — Doorbell, Deploy bot — each with its send count.">
+             alt="The keys screen: the built-in default key leading the list, then one key per source (Doorbell, Deploy bot), each with its send count.">
         <figcaption>Keys</figcaption>
       </figure></div>
       <div class="shot"><figure>
@@ -825,7 +825,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </p>
     <p class="meta" style="margin-bottom:26px">
       JSON or form-encoded. Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>,
-      or pass <code>key</code> as a parameter — the header keeps it out of logs.
+      or pass <code>key</code> as a parameter. The header keeps it out of logs.
       Query parameters win over the body.
     </p>
 
@@ -841,7 +841,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>key <span class="req">required</span></td>
             <td>string</td>
-            <td>The key from the app — it picks which device gets the push. Send it as a
+            <td>The key from the app. It picks which device gets the push. Send it as a
                 header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of
                 logs; or pass it as this parameter.</td>
           </tr>
@@ -870,7 +870,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>occurred_at</td>
             <td>integer</td>
-            <td>When the event actually happened, as unix <em>milliseconds</em> — useful when
+            <td>When the event actually happened, as unix <em>milliseconds</em>, useful when
                 a send is queued or retried. Only changes the timestamp shown in the app;
                 defaults to when we receive the request.</td>
           </tr>
