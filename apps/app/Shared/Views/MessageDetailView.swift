@@ -1,5 +1,7 @@
 import OSLog
+#if os(iOS)
 import StoreKit
+#endif
 import SwiftData
 import SwiftUI
 
@@ -13,7 +15,11 @@ struct MessageDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    // iOS only: the Mac build ships as a direct-download DMG with no App Store
+    // listing, so a rating prompt there collects stars it can deliver nowhere.
+    #if os(iOS)
     @Environment(\.requestReview) private var requestReview
+    #endif
     @Query private var messages: [Message]
     private let log = Logger(subsystem: "it.notifi.app", category: "store")
 
@@ -75,7 +81,9 @@ struct MessageDetailView: View {
         #endif
         .onAppear {
             markRead()
+            #if os(iOS)
             if ReviewNudge.shouldAskAfterMessageOpen() { requestReview() }
+            #endif
         }
         #if os(iOS)
         .fullScreenCover(item: $viewingImage) { ImageViewer(url: $0.url) }
