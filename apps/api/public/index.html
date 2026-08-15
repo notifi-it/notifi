@@ -848,27 +848,24 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>title <span class="req">required</span></td>
             <td>string</td>
-            <td>1–200 characters. The only field that always shows in the notification.</td>
+            <td>The notification title. Up to 200 characters.</td>
           </tr>
           <tr>
             <td>message</td>
             <td>string</td>
-            <td>The body under the title. Room for a stack trace or a log tail — up to
-                16,000 characters. The push shows a short preview; the app opens the full
-                text.</td>
+            <td>The notification body. Markdown, up to 16,000 characters. The push shows
+                a short preview; the app renders the full text.</td>
           </tr>
           <tr>
             <td>link</td>
             <td>URL</td>
-            <td>Where tapping the notification takes you — the failing build, the dashboard,
-                the PR. Up to 2,048 characters.</td>
+            <td>URL opened when the notification is tapped. Up to 2,048 characters.</td>
           </tr>
           <tr>
             <td>image</td>
             <td>URL</td>
-            <td>A picture shown with the notification — a chart, a camera still. Must be
-                <code>https</code>. PNG, JPEG or GIF, 5&nbsp;MB max, URL up to 2,048
-                characters.</td>
+            <td>Image displayed with the notification. Must be <code>https</code>.
+                PNG, JPEG or GIF, 5&nbsp;MB max, URL up to 2,048 characters.</td>
           </tr>
           <tr>
             <td>occurred_at</td>
@@ -1472,6 +1469,18 @@ reqwest::Client::new()
   var items = [];
   for (var t = 0; t < targets.length; t++) items.push(prepare(targets[t]));
 
+  // A heading and its lede sit close enough that their bands overlap, which
+  // animated both at once. Split the band instead: the heading takes the first
+  // stretch, the lede that follows it in the same section takes the rest.
+  for (var s = 1; s < items.length; s++){
+    var a = items[s - 1], b = items[s];
+    if (a.el.tagName === "H2" && b.el.classList.contains("lede") &&
+        a.el.closest("section") === b.el.closest("section")){
+      a.phase = [0, 0.55];
+      b.phase = [0.55, 1];
+    }
+  }
+
   function prepare(el){
     // Walk the children rather than rewriting innerHTML: the headings contain
     // <br> and the ledes contain <code> and links, and all of that has to
@@ -1517,6 +1526,10 @@ reqwest::Client::new()
       var top = it.el.getBoundingClientRect().top / vh;
       var p = (START - top) / (START - END);
       p = p < 0 ? 0 : p > 1 ? 1 : p;
+      if (it.phase){
+        p = (p - it.phase[0]) / (it.phase[1] - it.phase[0]);
+        p = p < 0 ? 0 : p > 1 ? 1 : p;
+      }
       var want = Math.round(p * it.words.length);
       if (want === it.lit) continue;
       // Only the words between the old and new marks are touched, so a fast
