@@ -204,6 +204,12 @@ struct MessageDetailView: View {
     @ViewBuilder
     private func metaLine(for message: Message) -> some View {
         let basis = message.occurredAt ?? message.createdAt
+        // Two lines, not one. The chip, the wall-clock reading and the age is
+        // already a full measure on a phone; the epoch sharing their line was
+        // what wrapped it to a ragged second row and squeezed the key name to
+        // "Door…". The machine timestamp reads worse interleaved with prose
+        // anyway — it gets the line under, where 13 digits are just 13 digits.
+        VStack(alignment: .leading, spacing: 4) {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             if let keyName = keyName(for: message) {
                 Text(keyName)
@@ -229,18 +235,21 @@ struct MessageDetailView: View {
                 .monospacedDigit()
                 .lineLimit(1)
                 .truncationMode(.tail)
+        }
 
-            Spacer(minLength: 8)
-
-            let epoch = Int((basis.timeIntervalSince1970 * 1000).rounded())
-            Button { Clipboard.copy("\(epoch)") } label: {
-                Text("\(epoch)")
-                    .font(.inco(size: 11, relativeTo: .caption2))
-                    .monospacedDigit()
-                    .foregroundStyle(Theme.controlBorder)
-            }
-            .buttonStyle(.geist)
-            .accessibilityLabel(Copy.Message.copyTimestamp)
+        let epoch = Int((basis.timeIntervalSince1970 * 1000).rounded())
+        Button { Clipboard.copy("\(epoch)") } label: {
+            // verbatim: Text(Int) runs the value through the locale and
+            // ships 1,786,564,721,411 — grouping separators on a machine
+            // timestamp, which no tool that consumes one accepts.
+            Text(verbatim: "\(epoch)")
+                .font(.inco(size: 11, relativeTo: .caption2))
+                .monospacedDigit()
+                .lineLimit(1)
+                .foregroundStyle(Theme.controlBorder)
+        }
+        .buttonStyle(.geist)
+        .accessibilityLabel(Copy.Message.copyTimestamp)
         }
     }
 
