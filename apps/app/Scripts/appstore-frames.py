@@ -192,7 +192,7 @@ frame("detail.png",
       "02_message.png")
 
 frame("keys.png",
-      "A key for each thing\nthat pages you.",
+      "One key per source.",
       "Give the deploy bot one key and the doorbell another. Revoke one and the "
       "rest keep working. No account to make first.",
       "03_keys.png")
