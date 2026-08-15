@@ -607,8 +607,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <nav>
       <a href="#uses" class="hide-sm">Uses</a>
       <a href="#how" class="hide-sm">How it works</a>
-      <a href="#send">Send</a>
       <a href="#api" class="hide-sm">API</a>
+      <a href="#send">Send</a>
       <a href="#download">Download</a>
     </nav>
   </div>
@@ -809,6 +809,95 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
            <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>.</p>
       </div>
     </div>
+  </div>
+</section>
+
+
+<!-- ══ api reference ═════════════════════════════════════════ -->
+<section class="section-alt" id="api">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">API</p><hr class="rule">
+    </div>
+    <h2>One endpoint.</h2>
+    <p class="lede" style="margin-top:14px;margin-bottom:8px">
+      <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
+    </p>
+    <p class="meta" style="margin-bottom:26px">
+      JSON or form-encoded. Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>,
+      or pass <code>key</code> as a parameter — the header keeps it out of logs.
+      Query parameters win over the body.
+    </p>
+
+    <!-- The table has a min-width and this scrolls, so on a narrow viewport part
+         of it is off-screen. Focusable and named, or a keyboard user cannot
+         reach the scroll container to move it. -->
+    <div class="tablewrap" tabindex="0" role="group" aria-label="Send parameters, scrollable">
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Type</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>key <span class="req">required</span></td>
+            <td>string</td>
+            <td>The key from the app — it picks which device gets the push. Send it as a
+                header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of
+                logs; or pass it as this parameter.</td>
+          </tr>
+          <tr>
+            <td>title <span class="req">required</span></td>
+            <td>string</td>
+            <td>1–200 characters. The only field that always shows in the notification.</td>
+          </tr>
+          <tr>
+            <td>message</td>
+            <td>string</td>
+            <td>The body under the title. Room for a stack trace or a log tail — up to
+                16,000 characters. The push shows a short preview; the app opens the full
+                text.</td>
+          </tr>
+          <tr>
+            <td>link</td>
+            <td>URL</td>
+            <td>Where tapping the notification takes you — the failing build, the dashboard,
+                the PR. Up to 2,048 characters.</td>
+          </tr>
+          <tr>
+            <td>image</td>
+            <td>URL</td>
+            <td>A picture shown with the notification — a chart, a camera still. Must be
+                <code>https</code>. PNG, JPEG or GIF, 5&nbsp;MB max, URL up to 2,048
+                characters.</td>
+          </tr>
+          <tr>
+            <td>occurred_at</td>
+            <td>integer</td>
+            <td>When the event actually happened, as unix <em>milliseconds</em> — useful when
+                a send is queued or retried. Only changes the timestamp shown in the app;
+                defaults to when we receive the request.</td>
+          </tr>
+          <tr>
+            <td>is_critical</td>
+            <td>boolean</td>
+            <td>Ask for a critical alert: it breaks through Focus and stays on the lock screen,
+                but does not sound through silent mode. The key must also have <em>Critical
+                alerts</em> switched on in the app; a send that asks without that arrives as an
+                ordinary notification rather than failing, and the reply carries a
+                <code>warning</code> saying so.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Two hairline rows for four facts read as a section; the facts are the
+         same size as the sentence they now sit in. -->
+    <p class="meta" style="margin-top:22px">
+      60 sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
+      <code>message</code>: <code>400</code> invalid parameters · <code>401</code> unknown or
+      revoked key · <code>429</code> rate limited. <code>GET</code> works for a quick
+      test; <code>POST</code> is recommended.
+    </p>
   </div>
 </section>
 
@@ -1074,94 +1163,6 @@ reqwest::Client::new()
     .<span class="f">await</span>?;</pre>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ══ api reference ═════════════════════════════════════════ -->
-<section class="section-alt" id="api">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">API</p><hr class="rule">
-    </div>
-    <h2>One endpoint.</h2>
-    <p class="lede" style="margin-top:14px;margin-bottom:8px">
-      <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
-    </p>
-    <p class="meta" style="margin-bottom:26px">
-      JSON or form-encoded. Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>,
-      or pass <code>key</code> as a parameter — the header keeps it out of logs.
-      Query parameters win over the body.
-    </p>
-
-    <!-- The table has a min-width and this scrolls, so on a narrow viewport part
-         of it is off-screen. Focusable and named, or a keyboard user cannot
-         reach the scroll container to move it. -->
-    <div class="tablewrap" tabindex="0" role="group" aria-label="Send parameters, scrollable">
-      <table>
-        <thead>
-          <tr><th>Parameter</th><th>Type</th><th>Notes</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>key <span class="req">required</span></td>
-            <td>string</td>
-            <td>The key from the app — it picks which device gets the push. Send it as a
-                header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of
-                logs; or pass it as this parameter.</td>
-          </tr>
-          <tr>
-            <td>title <span class="req">required</span></td>
-            <td>string</td>
-            <td>1–200 characters. The only field that always shows in the notification.</td>
-          </tr>
-          <tr>
-            <td>message</td>
-            <td>string</td>
-            <td>The body under the title. Room for a stack trace or a log tail — up to
-                16,000 characters. The push shows a short preview; the app opens the full
-                text.</td>
-          </tr>
-          <tr>
-            <td>link</td>
-            <td>URL</td>
-            <td>Where tapping the notification takes you — the failing build, the dashboard,
-                the PR. Up to 2,048 characters.</td>
-          </tr>
-          <tr>
-            <td>image</td>
-            <td>URL</td>
-            <td>A picture shown with the notification — a chart, a camera still. Must be
-                <code>https</code>. PNG, JPEG or GIF, 5&nbsp;MB max, URL up to 2,048
-                characters.</td>
-          </tr>
-          <tr>
-            <td>occurred_at</td>
-            <td>integer</td>
-            <td>When the event actually happened, as unix <em>milliseconds</em> — useful when
-                a send is queued or retried. Only changes the timestamp shown in the app;
-                defaults to when we receive the request.</td>
-          </tr>
-          <tr>
-            <td>is_critical</td>
-            <td>boolean</td>
-            <td>Ask for a critical alert: it breaks through Focus and stays on the lock screen,
-                but does not sound through silent mode. The key must also have <em>Critical
-                alerts</em> switched on in the app; a send that asks without that arrives as an
-                ordinary notification rather than failing, and the reply carries a
-                <code>warning</code> saying so.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Two hairline rows for four facts read as a section; the facts are the
-         same size as the sentence they now sit in. -->
-    <p class="meta" style="margin-top:22px">
-      60 sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
-      <code>message</code>: <code>400</code> invalid parameters · <code>401</code> unknown or
-      revoked key · <code>429</code> rate limited. <code>GET</code> works for a quick
-      test; <code>POST</code> is recommended.
-    </p>
   </div>
 </section>
 
