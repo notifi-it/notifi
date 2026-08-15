@@ -18,7 +18,9 @@
   history.replaceState(null, '', location.pathname + (hash.get('key') ? '' : location.hash));
 })();
 </script>
-<title>notifi: send push notifications to iPhone and Mac with one HTTP request</title>
+<!-- Kept under ~60 characters: a result page truncates past that, and the
+     differentiator sits at the end where it would be the part cut. -->
+<title>notifi: push notifications to iPhone and Mac from one request</title>
 <meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, no SDK, open source, and the message is sealed so neither we nor Apple can read it.">
 <meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -491,7 +493,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "@id": "https://notifi.it/#org",
       "name": "notifi",
       "url": "https://notifi.it/",
-      "logo": "https://notifi.it/apple-touch-icon.png"
+      "logo": "https://notifi.it/apple-touch-icon.png",
+      "sameAs": [
+        "https://github.com/notifi-it/notifi",
+        "https://x.com/notifiit",
+        "https://instagram.com/notifidotit",
+        "https://facebook.com/notifidotit"
+      ]
     },
     {
       "@type": "WebSite",
