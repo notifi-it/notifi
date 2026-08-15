@@ -116,8 +116,7 @@ enum Copy {
         static var refreshFailed: String { NSLocalizedString("keys.refreshFailed", comment: "") }
         static var sectionActive: String { NSLocalizedString("keys.sectionActive", comment: "") }
         static var sectionRevoked: String { NSLocalizedString("keys.sectionRevoked", comment: "") }
-        static var emptyTitle: String { NSLocalizedString("keys.emptyTitle", comment: "") }
-        static var emptyDetail: String { NSLocalizedString("keys.emptyDetail", comment: "") }
+        static var intro: String { NSLocalizedString("keys.intro", comment: "") }
         static var footnote: String { NSLocalizedString("keys.footnote", comment: "") }
         static func sent(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.sent", comment: ""), n) }
         static func rowLastUsed(_ ago: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLastUsed", comment: ""), ago) }

@@ -158,9 +158,9 @@ export const copy = {
     refreshFailed: "Couldn't refresh keys. Showing the last known list.",
     sectionActive: 'Active',
     sectionRevoked: 'Revoked',
-    emptyTitle: 'No active keys yet',
-    emptyDetail:
-      'A key is what a script sends with. Make one per source so you can revoke them separately.',
+    intro:
+      'Keys identify who sent a message. Use a different key for each script. ' +
+      'The default key was made when this device was set up.',
     footnote:
       'A key is shown once, when it is created; notifi stores only the prefix. ' +
       'The default key can be copied again or regenerated from its detail page.',
