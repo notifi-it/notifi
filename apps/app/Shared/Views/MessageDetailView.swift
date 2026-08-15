@@ -9,11 +9,6 @@ import UIKit
 import AppKit
 #endif
 
-/// A single message.
-///
-/// Title is the only guaranteed field, so it carries the page: 27pt Inconsolata
-/// bold. Everything else appears only if it exists, in a fixed order — time,
-/// title, message, image, link, actions.
 struct MessageDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
@@ -23,15 +18,9 @@ struct MessageDetailView: View {
     private let log = Logger(subsystem: "it.notifi.app", category: "store")
 
     @State private var confirmingDelete = false
-    // Reset on every open: revealing an image is a decision about this message on
-    // this visit, not a preference that should outlive it.
     @State private var revealedImage = false
-    /// The image being looked at full screen, if any. Carries the URL rather
-    /// than being a flag, so the presented view never reaches back for it.
     @State private var viewingImage: ViewedImage?
 
-    /// `URL` is not `Identifiable`, and making it so app-wide to satisfy one
-    /// presentation is a conformance the whole target would then inherit.
     private struct ViewedImage: Identifiable {
         let url: URL
         var id: URL { url }
@@ -43,19 +32,10 @@ struct MessageDetailView: View {
 
     private var message: Message? { messages.first }
 
-    /// The same wording the feed row uses, so arriving here does not restate the
-    /// age in a different vocabulary.
-    ///
-    /// Read once, when the screen is built. The feed keeps a ticking clock
-    /// because a row can sit on screen for minutes while others arrive around it;
-    /// a message you have opened is a screen you are reading, and an age that
-    /// counts up under your eyes is movement with nothing behind it.
     private static func age(of message: Message) -> String {
         RelativeAge.string(since: message.occurredAt ?? message.createdAt)
     }
 
-    /// The precise clock, to the second — the point of this line is telling two
-    /// near-simultaneous alerts apart — and the date beside it.
     private static let clock: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "HH:mm:ss"
@@ -87,9 +67,6 @@ struct MessageDetailView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        // The ground is painted here rather than inherited: the TabView and
-        // the List underneath both draw an opaque backdrop of their own, so a
-        // background set once at the root never reaches the screen.
         .background(StaticField())
         .scrollContentBackground(.hidden)
         .safeAreaInset(edge: .top) { backBar }
@@ -105,10 +82,6 @@ struct MessageDetailView: View {
         #else
         .sheet(item: $viewingImage) { ImageViewer(url: $0.url) }
         #endif
-        // Delete cannot be undone — the message is gone from this device and the
-        // server has already dropped it — so it always asks first.
-        // Named, the same way the feed's own delete alert is: an alert that could
-        // have been raised by any row should say which one raised it.
         .alert(message.map { Copy.Inbox.deleteTitle($0.title) } ?? Copy.Inbox.deleteTitleFallback,
                isPresented: $confirmingDelete) {
             Button(Copy.Common.delete, role: .destructive) { deleteMessage() }
@@ -134,11 +107,6 @@ struct MessageDetailView: View {
 
             if let message {
                 let anyScheme = model.allowsAnyLink(keyID: message.keyID)
-                // 10, not 8. The buttons draw at 34 and are tapped at 44, so the
-                // gap has to be at least 10 or two neighbouring targets overlap
-                // and the row starts answering taps with the wrong action.
-                // No download button here: it lives on the image frame itself,
-                // next to the thing it downloads.
                 HStack(spacing: 10) {
                     if let link = message.link, LinkPolicy.allows(link, anyScheme: anyScheme) {
                         IconButton(systemName: "globe", label: Copy.Common.openLink) {
@@ -146,9 +114,6 @@ struct MessageDetailView: View {
                         }
                     }
 
-                    // Shows the state, not the action: a filled red dot while the
-                    // message is unread, matching the feed, and a hollow ring once
-                    // it has been read. The label still names what tapping does.
                     IconButton(
                         systemName: message.isRead ? "circle" : "circle.fill",
                         label: message.isRead ? Copy.Common.markAsUnread : Copy.Common.markAsRead,
@@ -168,11 +133,7 @@ struct MessageDetailView: View {
         .geistGutter()
         .geistMeasure()
         .padding(.top, 22)
-        // Matches the gap the tabs put under their own header row. At 30, plus
-        // the title's own inset, the back bar looked detached from the message
-        // it belongs to.
         .padding(.bottom, 14)
-        // Same as the inbox header: opaque, but grainy rather than flat.
         .background(StaticField())
     }
 
@@ -180,19 +141,11 @@ struct MessageDetailView: View {
         if !model.path.isEmpty { model.path.removeLast() } else { dismiss() }
     }
 
-    /// Glyph only — the destination is the one screen this can pop back to, so
-    /// naming it earned nothing. Same round button as the trailing actions.
     private var backButton: some View {
         IconButton(systemName: "chevron.backward",
                    label: Copy.Message.backToNotifications) { goBack() }
     }
 
-    /// The key the notification was sent with, or nil when saying so adds nothing.
-    ///
-    /// The default key is the overwhelming case and naming it on every single
-    /// notification would be noise, so it is left unsaid — a named key here means
-    /// the send came from somewhere you set up deliberately. An id that resolves
-    /// to no key still shows, as the key may since have been revoked.
     private func keyName(for message: Message) -> String? {
         guard let id = message.keyID else { return nil }
         guard let key = model.sync?.keys.first(where: { $0.id == id }) else {
@@ -205,39 +158,18 @@ struct MessageDetailView: View {
     private func content(for message: Message) -> some View {
         let anyScheme = model.allowsAnyLink(keyID: message.keyID)
         VStack(alignment: .leading, spacing: 0) {
-            // The title leads, then who sent it, then when. The stamps used to
-            // come first, which opened every message with its least interesting
-            // fact — and the second line read "sent by client", which is the
-            // shape of the API rather than anything a reader can act on.
-            // Same rule as the feed row: an urgent message is set in red rather
-            // than flagged, and it stays red once read.
             Text(message.title)
                 .font(.inco(.title, weight: .bold))
                 .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
 
-            // One metadata line: the key, the moment (three renderings of the
-            // same instant — clock, date, age), and the raw epoch for whoever
-            // is correlating this against a log. The host moved down to the
-            // links themselves and the SOURCE footer, which is where the
-            // follow-or-not decision is actually made.
             metaLine(for: message)
                 .padding(.top, 11)
 
-            // The rule divides what notifi says about the message from what the
-            // sender put in it.
             Hairline()
                 .padding(.top, 14)
 
-            // Above the body rather than under it. A sender that attaches an
-            // image attaches the thing itself and writes the caption second, so
-            // a page that made you read past the words to reach it was showing
-            // them in the opposite order to the one they were written in.
-            //
-            // Two gates, and both must pass. The scheme check is about what this
-            // key is trusted to point at; showsImage is about whether the host
-            // gets to learn this device's IP at all.
             if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                 Group {
                     if showsImage {
@@ -263,24 +195,12 @@ struct MessageDetailView: View {
             sourceFooter(for: message, bodyLinks: annotated?.links ?? [],
                          anyScheme: anyScheme)
 
-            // The link block and the copy button are gone on purpose. Every
-            // action they carried is in the top bar — the globe opens the link,
-            // and the body is selectable — and the URL itself is already in the
-            // message, either as the rendered link or as the row's own chip.
-            // Repeating it in a boxed panel with two buttons under it made the
-            // page end in furniture rather than in the message.
-            //
-            // What went with them: sharing the link, and copying the whole
-            // message in one gesture. Neither has a replacement here.
         }
         .padding(.bottom, 40)
     }
 
     private var showsImage: Bool { model.remoteImagesEnabled || revealedImage }
 
-    // MARK: Metadata line
-
-    /// Key chip · clock, date and age · epoch. One line, under the title.
     @ViewBuilder
     private func metaLine(for message: Message) -> some View {
         let basis = message.occurredAt ?? message.createdAt
@@ -312,8 +232,6 @@ struct MessageDetailView: View {
 
             Spacer(minLength: 8)
 
-            // The raw instant, for whoever is lining this up against a log.
-            // Tapping copies it — an epoch is transcribed, never read.
             let epoch = Int((basis.timeIntervalSince1970 * 1000).rounded())
             Button { Clipboard.copy("\(epoch)") } label: {
                 Text("\(epoch)")
@@ -326,12 +244,6 @@ struct MessageDetailView: View {
         }
     }
 
-    // MARK: Blocked image
-
-    /// Stands in for an image that has not been fetched yet: one chip-height
-    /// line naming the file, with the load decision at its trailing edge. The
-    /// IP-disclosure explanation lives on the long-press menu rather than in
-    /// the layout — it is the reason for the gate, not part of the message.
     private func blockedImageChip(url: URL) -> some View {
         Button { revealedImage = true } label: {
             HStack(spacing: 8) {
@@ -362,11 +274,6 @@ struct MessageDetailView: View {
         }
     }
 
-    // MARK: Source footer
-
-    /// Every URL the message carries, written out in full. The body shows a
-    /// link's label; this is where the actual destination is checked before
-    /// anything is followed.
     @ViewBuilder
     private func sourceFooter(for message: Message, bodyLinks: [URL],
                               anyScheme: Bool) -> some View {
@@ -432,13 +339,6 @@ struct MessageDetailView: View {
         }
     }
 
-    /// The top bar's round icon button — the one the headers use, under this
-    /// screen's own argument label.
-    ///
-    /// It used to be a second implementation with `.buttonStyle(.glass)`. That
-    /// style fills from the app's accent, which is the brand red, so on macOS
-    /// the back bar came out as a row of red tiles while the identical control
-    /// one screen away was a dark glass disc.
     private struct IconButton: View {
         let systemName: String
         let label: String
@@ -462,8 +362,6 @@ struct MessageDetailView: View {
         model.sync?.reconcileNotifications()
     }
 
-    // The call sites already hide the controls that reach these, so the guards are
-    // a backstop: neither should ever hand the OS a URL the policy rejects.
     private func open(_ url: URL, keyID: Int?) {
         guard LinkPolicy.allows(url, keyID: keyID) else { return }
         #if os(iOS)
@@ -493,14 +391,6 @@ struct MessageDetailView: View {
     }
 }
 
-// MARK: - Image block
-
-/// The message's image at its own aspect ratio, capped, with a footer bar that
-/// states what the file is instead of leaving the picture to imply it.
-///
-/// Fetched by hand rather than through `AsyncImage`, because the footer names
-/// the byte size and pixel dimensions and `AsyncImage` surrenders the data the
-/// moment it has decoded it. One request either way.
 private struct ImageBlock: View {
     let url: URL
     let onExpand: () -> Void
@@ -550,8 +440,6 @@ private struct ImageBlock: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 120)
             case .loaded(let loaded):
-                // Its own shape, letterboxed under the cap rather than cropped:
-                // a chart whose top third is missing is worse than bars.
                 Button(action: onExpand) {
                     loaded.image
                         .resizable()
@@ -634,11 +522,6 @@ private struct ImageBlock: View {
     }
 }
 
-// MARK: - Body links
-
-/// Finds the markdown links in a body and writes each one's host and footnote
-/// mark after its label, so the prose names where it points without the reader
-/// leaving the line. The marks index into the SOURCE footer below the body.
 enum BodyLinks {
     private static let superscripts = ["¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"]
 

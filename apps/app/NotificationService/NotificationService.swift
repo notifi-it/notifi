@@ -60,9 +60,6 @@ final class NotificationService: UNNotificationServiceExtension {
         if let message = content.message { best.body = message }
         best.categoryIdentifier = Self.category(for: content)
 
-        // Downloading here would happen on arrival, before the user has seen
-        // anything, so the sender would learn the device's IP address and the
-        // exact delivery time from a message that was never opened.
         guard RemoteImages.isEnabled,
               let image = content.image,
               let url = URL(string: image),
@@ -108,8 +105,6 @@ final class NotificationService: UNNotificationServiceExtension {
         task.resume()
     }
 
-    /// A message whose blob would not open gets no category at all: the buttons
-    /// would act on a link this side never read.
     private static func category(for content: MessageContent) -> String {
         var hasLink = false
         if let link = content.link, let url = URL(string: link) {

@@ -1,9 +1,7 @@
 # Working in this repo
 
-Notes for anyone (human or agent) picking this up. The design lives in
-[docs/PLAN.md](docs/PLAN.md) and the manual test script in
-[docs/VERIFYING.md](docs/VERIFYING.md); this file is only for things that are
-easy to get wrong and expensive to discover.
+Notes for anyone (human or agent) picking this up. This file is only for things
+that are easy to get wrong and expensive to discover.
 
 ## Urgent alerts: one switch, two ceilings
 
@@ -274,8 +272,7 @@ heights is obvious that way and invisible one screenshot at a time.
 ## No automated tests
 
 By decision. `make typecheck` plus both `xcodebuild` schemes is the full
-automated gate; everything else is checked by hand against
-[docs/VERIFYING.md](docs/VERIFYING.md). Do not add a test framework to make a
+automated gate; everything else is checked by hand. Do not add a test framework to make a
 change feel verified. Say plainly what was and was not exercised instead.
 
 ## Comments explain why, never what

@@ -1,25 +1,10 @@
 import MarkdownUI
 import SwiftUI
 
-// Message bodies are written by whoever sends the notification, so they arrive as
-// plain text that may or may not be Markdown. Rendering is best-effort either way:
-// a body that was never meant to be Markdown still reads as itself.
-//
-// Note on naming: `Theme` in this file is always the app's design system. The
-// library's own theme type is written out as `MarkdownUI.Theme`.
-
-/// A message body rendered as Markdown, styled to the Geist system.
-///
-/// A body can carry `![](https://…)`, which the library would fetch as the view
-/// appears. That is the same disclosure as the message's own image field — the
-/// host learns the device's IP address — so it is gated on the same decision.
 struct MarkdownText: View {
     let source: String
-    /// Whether the key that sent this message is allowed to open non-https links.
     let allowAnyScheme: Bool
     var allowsRemoteImages: Bool = false
-    /// Whether the message arrived as a critical alert. Only `strong` changes:
-    /// the emphasis inside an urgent body carries the red the title already set.
     var critical: Bool = false
 
     var body: some View {
@@ -34,9 +19,6 @@ struct MarkdownText: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .textSelection(.enabled)
-        // A body link shows only its label, so the scheme behind it is never on
-        // screen. It goes through the same policy as the message's own `link`
-        // field rather than straight to the OS.
         .environment(\.openURL, OpenURLAction { url in
             LinkPolicy.allows(url, anyScheme: allowAnyScheme) ? .systemAction : .discarded
         })
@@ -73,15 +55,6 @@ private struct BlockedInlineImageProvider: InlineImageProvider {
 }
 
 extension MarkdownUI.Theme {
-    /// Karla for prose, Inconsolata for code and headings — the same split the rest
-    /// of the app uses.
-    ///
-    /// Every size below is a step on the app's type scale (see `Font.incoSize`):
-    /// 20 is title3, 17 headline, 15 subheadline, 13 footnote. `Font.custom(_:size:)`
-    /// still scales with Dynamic Type, so these are not frozen points.
-    ///
-    /// Computed rather than `static let`: the theme builders are main-actor bound,
-    /// so a stored global would need `nonisolated(unsafe)` to satisfy Swift 6.
     @MainActor
     static func geist(critical: Bool = false) -> MarkdownUI.Theme {
         MarkdownUI.Theme()
@@ -92,8 +65,6 @@ extension MarkdownUI.Theme {
         }
         .strong {
             FontWeight(.semibold)
-            // In a critical message the bold inside the body answers the red
-            // title above it; anywhere else it steps up to full strength.
             ForegroundColor(critical ? Theme.brandDim : Theme.fg)
         }
         .code {
@@ -102,15 +73,9 @@ extension MarkdownUI.Theme {
             ForegroundColor(Theme.fg)
         }
         .link {
-            // Not brand red. Red is the unread marker and the wordmark dot and
-            // nothing else, so a red link would give it a third meaning. Links
-            // earn their emphasis from the underline instead.
             ForegroundColor(Theme.fg)
             UnderlineStyle(.single)
         }
-        // One heading style for h1–h3: the feed's band vocabulary — a caps
-        // label with a rule running to the edge — so the message title stays
-        // the only headline on the screen.
         .heading1 { bandHeading($0) }
         .heading2 { bandHeading($0) }
         .heading3 { bandHeading($0) }
@@ -122,8 +87,6 @@ extension MarkdownUI.Theme {
         }
         .blockquote { configuration in
             HStack(alignment: .top, spacing: 10) {
-                // `controlBorder`, not `chip`: at chip's strength the bar
-                // vanished against the ground's grain.
                 Rectangle().fill(Theme.controlBorder).frame(width: 2)
                 configuration.label
                     .markdownTextStyle { ForegroundColor(Theme.dim) }
@@ -132,8 +95,6 @@ extension MarkdownUI.Theme {
             .markdownMargin(top: .em(0.8))
         }
         .codeBlock { configuration in
-            // Code is the one place that must not reflow, so it scrolls sideways
-            // rather than wrapping mid-token.
             ScrollView(.horizontal, showsIndicators: false) {
                 configuration.label
                     .relativeLineSpacing(.em(0.2))
@@ -146,8 +107,6 @@ extension MarkdownUI.Theme {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.surface)
-            // A fade at the trailing edge, so a line running past the frame is
-            // visibly cut rather than silently clipped mid-token.
             .overlay(alignment: .trailing) {
                 LinearGradient(colors: [Theme.surface.opacity(0), Theme.surface],
                                startPoint: .leading, endPoint: .trailing)
@@ -167,7 +126,6 @@ extension MarkdownUI.Theme {
                 .markdownMargin(top: .em(1), bottom: .em(1))
         }
     }
-    /// The feed's band header, borrowed as the body's only heading form.
     @MainActor
     private static func bandHeading(_ configuration: BlockConfiguration) -> some View {
         HStack(spacing: 10) {
@@ -186,11 +144,6 @@ extension MarkdownUI.Theme {
     }
 }
 
-// MARK: - Row preview
-
-/// The inbox row shows two lines, so it gets a flattened, inline-only rendering
-/// rather than the block layout: markers dropped, line breaks collapsed, bold and
-/// code still styled. A bulleted body previews as prose instead of as dashes.
 enum MarkdownPreview {
     static func text(_ source: String) -> String {
         let flattened = source
@@ -206,14 +159,6 @@ enum MarkdownPreview {
             .filter { !$0.isEmpty && !isRule($0) }
             .joined(separator: " ")
 
-        // Parsed and then thrown away, so the *markers* go but none of the
-        // styling comes back. A preview line that carries bold, a second
-        // typeface for code and a link colour is competing with the title above
-        // it — and the title is the thing the row is scanned for. The detail
-        // screen renders all of it properly; here it is one voice, one weight.
-        //
-        // Still parsed rather than regexed away, because the parser is what
-        // knows that a lone asterisk is not emphasis and a bracket is not a link.
         let attributed = (try? AttributedString(
             markdown: flattened,
             options: AttributedString.MarkdownParsingOptions(

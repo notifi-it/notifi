@@ -14,17 +14,7 @@ export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
   return next();
 };
 
-/// Verifies the device signature and the 60-second timestamp window, and makes
-/// the verified body and public key available to the handler. No replay guard:
-/// one existed (a D1 write remembering every accepted signature for its
-/// 60-second life), and it was removed. Exploiting its absence requires a copy
-/// of a request that travels inside TLS, and the only non-idempotent thing a
-/// replay could do was mint a duplicate key — visible in the key list and
-/// revocable. Insurance against an attacker who can already read your TLS
-/// traffic was not worth a write on every mutation.
 export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
-  // At most once per request. `keys.ts` registers this on both `/keys` and
-  // `/keys/*`, and Hono matches a request for `/keys` against both.
   if (c.get('signatureChecked')) return next();
 
   const rawBody = await c.req.arrayBuffer();

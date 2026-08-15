@@ -90,9 +90,6 @@ devices.post('/devices', async (c) => {
   return c.json({ device_id: row!.id, strict_send: row!.strict_send }, 200);
 });
 
-// The app re-registers on every launch and reads the setting out of that
-// response, so this is write-only on purpose — a GET would be a second way to
-// learn the same thing and a second thing to keep in step.
 devices.patch('/devices/settings', async (c) => {
   const publicKey = c.get('publicKey');
 

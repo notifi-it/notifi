@@ -13,34 +13,17 @@ import type { AppEnv, Env } from './types.js';
 
 const app = new Hono<AppEnv>();
 
-/// Cleartext is a key leak: a send key travels in the query string or an
-/// Authorization header, and over http both are readable by anything on the
-/// path. Redirect rather than serve, and set HSTS so a browser never tries
-/// http again. This replaces the zone-level `always_use_https` that
-/// infra/main.tf declared but never applied.
-///
-/// Cloudflare terminates TLS, so the scheme has to come off the URL the Worker
-/// was handed, not off the socket.
 app.use('*', async (c, next) => {
   const url = new URL(c.req.url);
-  // `wrangler dev` serves plain http, so this rule caught every local request
-  // and answered it with a redirect to itself — local development was a 301
-  // loop for every endpoint, and the only way to exercise the Worker from a
-  // real client was to reach for TLS certificates the machine does not trust.
-  // Loopback is not a network anyone can sit on the path of.
   const loopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
   if (url.protocol === 'http:' && !loopback) {
     url.protocol = 'https:';
-    // 301, not 307: this is permanent, and every method that reaches /send is
-    // safe to re-issue. Browsers and curl -L both follow it.
     return c.redirect(url.toString(), 301);
   }
   await next();
   c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 });
 
-// Negotiated once, before anything can answer. Every user-facing message is read
-// through `t(c)`, so a handler cannot accidentally answer in a language of its own.
 app.use('*', async (c, next) => {
   c.set('language', negotiate(c.req.header('Accept-Language')));
   await next();
@@ -75,14 +58,6 @@ async function scheduled(_event: ScheduledController, env: Env): Promise<void> {
     if ((res.meta.changes ?? 0) < 1000) break;
   }
 
-  // Deliberately nothing else. There used to be a 90-day delete of uncollected
-  // messages, a 30-day delete of silent devices, and a drain of the replay-guard
-  // table; all three removed. A message now waits for its device however long
-  // that takes, and a device stays registered until its owner deletes the app's
-  // data. The seen_signatures table still exists in the schema — migrations are
-  // applied before the Worker deploys, so dropping it in the same change would
-  // 500 the old Worker's writes for the deploy window. Drop it in a later
-  // migration, once no deployed code references it.
 }
 
 export default {

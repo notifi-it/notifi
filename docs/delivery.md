@@ -352,7 +352,7 @@ model, not a bill.
 ## Verifying
 
 `make typecheck` plus both `xcodebuild` schemes, then
-[VERIFYING.md](VERIFYING.md) by hand. The transactional send and the
+by hand. The transactional send and the
 socket path can be exercised locally against `wrangler dev` (loopback is
 exempt from the HTTPS redirect for exactly this): register a device, open
 `/socket`, send, and the frame arrives before any fetch is due.

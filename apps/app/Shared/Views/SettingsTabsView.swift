@@ -1,7 +1,6 @@
 #if os(macOS)
 import SwiftUI
 
-/// Keys and Settings, pushed inside the menu bar popover instead of a separate window.
 struct SettingsTabsView: View {
     @Environment(AppModel.self) private var model
 

@@ -12,9 +12,6 @@ import { now } from '../lib/time.js';
 import { bumpLastSeenIfStale, getDevice, signatureAuth } from '../middleware.js';
 import type { AppEnv } from '../types.js';
 
-// Device registration is unauthenticated by design, so this ceiling and the
-// per-IP limit are the only things bounding how many rows one party can create.
-// One of the five is the app's own `default` key.
 const MAX_ACTIVE_KEYS = 5;
 
 export const keys = new Hono<AppEnv>();
@@ -96,8 +93,6 @@ keys.patch('/keys/:id', async (c) => {
     return c.json(errBody('invalid_request', t(c).api.invalidUpdateKeyBody), 400);
   }
 
-  // Scoped to this device and to live keys, so a revoked key cannot be brought
-  // back up to critical volume without being recreated.
   const updated = await c.env.DB.prepare(
     `UPDATE keys SET is_critical = ?
      WHERE id = ? AND device_id = ? AND revoked_at IS NULL RETURNING id`,

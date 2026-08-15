@@ -2,50 +2,24 @@
 import Foundation
 import SwiftData
 
-/// Debug-only fixtures.
-///
-/// Wrapped in `#if DEBUG` so none of this reaches a release build. The set is
-/// chosen to exercise the layout rather than to look tidy: bodies present and
-/// absent, links present and absent, a title long enough to wrap and a URL long
-/// enough to truncate. Exactly one row carries an image, because a feed where
-/// every row has a thumbnail is not what one looks like in use.
 enum SampleData {
 
-    /// Off unless the run asks for it by name. `#if DEBUG` alone still exposed the
-    /// seed and clear commands on any debug build — including one handed to
-    /// someone to look at — where a menu that rewrites the feed is a trap. Set
-    /// `NOTIFI_SAMPLE_DATA=1` in the scheme's environment to get them back.
     static var isEnabled: Bool {
         ProcessInfo.processInfo.environment["NOTIFI_SAMPLE_DATA"] == "1"
     }
 
-    /// Negative server IDs so seeded rows can never collide with real ones, and
-    /// so `clear` can find them again.
     static let idFloor = -10_000
 
     @MainActor
-    /// `keyIDs` should be the ids this device has actually synced. Seeding ids
-    /// that do not exist makes the detail screen fall back to "Key <id>", which
-    /// reads as a bug rather than as sample data.
     static func seed(into context: ModelContext, keyIDs: [Int] = []) {
         clear(from: context)
 
         let now = Date()
         func ago(_ minutes: Int) -> Date { now.addingTimeInterval(-Double(minutes) * 60) }
 
-        // One image, served from the marketing site rather than a random image
-        // host, so the seeded feed looks the same on every machine and the
-        // screenshots on the site can be regenerated from it.
         let demo = "https://notifi.it/demo"
 
-        // title, body, image, link, minutes ago, unread, client-supplied ms offset
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
-            // The rich case, and the one the marketing screenshots are taken from:
-            // a body that uses most of what the renderer styles — heading, emphasis,
-            // list, code span, quote, fenced block and link — next to an attached
-            // image, and still short enough that the image stays above the fold.
-            // The first line has to read on its own, because the inbox row flattens
-            // all of this to two lines.
             ("p99 latency crossed 800 ms",
              """
              api.eu-west-2 — **782 ms**, up from 214 ms over 12 minutes.
@@ -96,9 +70,6 @@ enum SampleData {
              nil,
              "https://notifi.sh/digest/2026-w31", 1_200, false),
 
-            // Markdown: headings, emphasis, a list, a quote, a rule and a code
-            // block, so the detail renderer and the flattened row preview can both
-            // be eyeballed in one row.
             ("Deploy 4f2c1e9 finished",
              """
              ## Summary
@@ -120,13 +91,10 @@ enum SampleData {
              """,
              nil, "https://ci.notifi.sh/builds/1284", 1_400, true),
 
-            // Long title — must wrap, never truncate.
             ("Certificate for vault.internal.eu-west-2.compute.amazonaws.com expires in 7 days",
              "Renew before Friday or the workers start failing TLS handshakes.",
              nil, nil, 1_500, true),
 
-            // Worst case: a long title AND a long message, with nothing else.
-            // The title wraps as far as it needs; the message clamps to two lines.
             ("Scheduled maintenance on the eu-west-2 primary database cluster has been "
              + "extended by a further four hours following a failed failover",
              "The standby did not promote cleanly after the primary was fenced at 02:14 UTC. "
@@ -136,7 +104,6 @@ enum SampleData {
              + "The next update lands at 07:00 UTC or sooner if the replay finishes early.",
              nil, nil, 1_620, true),
 
-            // Same, but with every optional field present — the tallest a row gets.
             ("Incident INC-2049 postmortem published for the multi-region outage that "
              + "affected notification delivery for approximately six hours on 29 July",
              "Root cause was a malformed retention policy applied to the delivery queue, "
@@ -147,7 +114,6 @@ enum SampleData {
              "https://notifi.sh/incidents/INC-2049/postmortem",
              1_680, false),
 
-            // Very long URL — the row shows the host, the detail shows all of it.
             ("Build artefact published",
              "Signed and notarised. Retention on this bucket is 30 days.",
              nil,
@@ -159,13 +125,6 @@ enum SampleData {
             ("OK",
              nil, nil, nil, 4_320, false),
 
-            // The feed's older time bands. Nothing here was seeded past three days
-            // before, so "Earlier This Month" and the per-month headings below it
-            // had nothing to draw and could not be checked by hand.
-            //
-            // Relative to a seed at any point in a month, 12 days back can land in
-            // the same month or the one before it, and either is a band worth
-            // seeing; 70 and 400 days are far enough to always be their own.
             ("Certificate rotated",
              "The star.notifi.it wildcard was reissued and deployed to every edge.",
              nil, nil, 12 * 24 * 60, false),
@@ -188,20 +147,12 @@ enum SampleData {
                     body: body,
                     link: link.flatMap(URL.init(string:)),
                     imageURL: image.flatMap(URL.init(string:)),
-                    // Cycle through the real keys so the detail screen shows real
-                    // names. With no keys synced yet, leave it unattributed.
                     keyID: keyIDs.isEmpty ? nil : keyIDs[index % keyIDs.count],
                     createdAt: ago(minutes),
-                    // Give every other row a client timestamp so the millisecond
-                    // path is visible next to the whole-second server one.
                     occurredAt: index.isMultiple(of: 2)
                         ? ago(minutes).addingTimeInterval(-Double(index) * 0.437)
                         : nil,
                     isRead: !unread,
-                    // One, not a scattering — the marker's whole job is to be
-                    // rare enough to mean something when it appears. On the row
-                    // that also carries a link and an image, so the widest case
-                    // the feed has to lay out is the one that is always seeded.
                     isCritical: index == 0
                 )
             )
@@ -209,7 +160,6 @@ enum SampleData {
         try? context.save()
     }
 
-    /// Removes only seeded rows; real messages are untouched.
     @MainActor
     static func clear(from context: ModelContext) {
         let floor = idFloor

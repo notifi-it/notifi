@@ -10,11 +10,6 @@ final class Updater {
     private let controller: SPUStandardUpdaterController
     private(set) var canCheck = false
 
-    /// Mirrors Sparkle's `automaticallyChecksForUpdates` as observed state.
-    /// Read straight off the controller in `body`, the toggle held whatever
-    /// value the screen was built with — and Sparkle flips the preference
-    /// itself (its first-run permission prompt does), so the row could sit
-    /// showing the answer the user did not give. Same shape as `LoginItem`.
     private(set) var automaticallyChecks = false
 
     private init() {

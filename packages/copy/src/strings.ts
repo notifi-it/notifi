@@ -1,17 +1,3 @@
-// Every sentence the product says to a person, written in the source language.
-// Translations live beside this file in `translations/<code>.ts` as flat maps of
-// dotted key to string, so a translator never has to read this structure.
-//
-// Placeholders are `{name}`, and become a positional argument in the order they
-// first appear. A value carrying one is a function on both sides.
-//
-// Counted things use `plural(one, other)` rather than two keys. English needs
-// only the pair, but the leaf tells the string catalog that the value varies by
-// number, which is what lets a language with six plural forms have six. The
-// `other` case must carry `{n}` and the leaf may carry no other placeholder --
-// anything that mixes a count with other text composes the two, the way
-// `inbox.bandLabel` takes an already-rendered count.
-
 import type { Plural } from './types.js';
 
 function plural(one: string, other: string): Plural {
@@ -19,11 +5,6 @@ function plural(one: string, other: string): Plural {
 }
 
 export const copy = {
-  // ---------------------------------------------------------------------------
-  // Server responses. The app prefers these over its own fallbacks whenever the
-  // response carries a message, so these are the sentences a person actually
-  // reads for anything the server refused.
-  // ---------------------------------------------------------------------------
   api: {
     notFound: 'Not found.',
     unexpected: 'Unexpected error.',
@@ -62,25 +43,14 @@ export const copy = {
     noSuchBuild: 'No such build.',
   },
 
-  // ---------------------------------------------------------------------------
-  // Push payloads. Written by the server, rendered by the OS, and repeated by
-  // the notification service extension when it cannot decrypt the real content.
-  // ---------------------------------------------------------------------------
   push: {
-    /// The alert title on the wire. The extension replaces it with the decrypted
-    /// title; this is what shows if it never gets to run.
     fallbackTitle: 'notifi',
     fallbackBody: 'Open notifi to view',
     actionOpenLink: 'Open link',
     actionMarkAsRead: 'Mark as read',
-    /// `%u` is claimed by the OS, which fills in the collapsed count.
     summaryFormat: '%u more from {name}',
   },
 
-  // ---------------------------------------------------------------------------
-  // Words the app reuses everywhere. A change here moves every screen, which is
-  // the point: these drifted apart when each screen owned its own copy.
-  // ---------------------------------------------------------------------------
   common: {
     cancel: 'Cancel',
     close: 'Close',
@@ -109,10 +79,6 @@ export const copy = {
     inbox: 'Inbox',
   },
 
-  // ---------------------------------------------------------------------------
-  // Relative ages. One ladder, used by the inbox rows and the message header,
-  // which held two identical copies of it.
-  // ---------------------------------------------------------------------------
   age: {
     now: 'now',
     justNow: 'just now',
@@ -121,8 +87,6 @@ export const copy = {
     days: '{n} d',
     weeks: '{n} w',
     ago: '{relative} ago',
-    /// Shown under the title on the message screen, to the millisecond, because
-    /// the point of that line is telling two near-simultaneous alerts apart.
     absoluteFormat: 'EEE d MMM yyyy, HH:mm:ss.SSS',
   },
 
@@ -201,10 +165,7 @@ export const copy = {
       'A key is shown once, when it is created; notifi stores only the prefix. ' +
       'The default key can be copied again or regenerated from its detail page.',
     sent: plural('1 sent', '{n} sent'),
-    /// {ago} arrives already rendered by the age ladder ("2 hr ago"); this key
-    /// only attributes it to sending, it never builds the age itself.
     rowLastUsed: 'used {ago}',
-    /// Foot link that leaves the app for the API section of the website.
     docsLink: 'API docs',
     chipDefault: 'Default',
     chipRevoked: 'Revoked',
@@ -212,7 +173,6 @@ export const copy = {
     rowLabel: 'Key, {name}, ends {suffix}',
     rowLabelRevoked: ', revoked',
     rowLabelCritical: ', Critical Alerts on',
-    /// The value is shown truncated everywhere but the one screen that created it.
     maskedValue: '{prefix}…',
   },
 
@@ -223,8 +183,6 @@ export const copy = {
     criticalOn:
       'Sends from this key that ask for it will sound through silent mode and Focus. ' +
       'Add is_critical=1 to the send.',
-    /// What the switch buys without the Critical Alerts entitlement, which is
-    /// still the usual case: Time Sensitive, which needs no grant from Apple.
     criticalTimeSensitive:
       'Sends from this key that ask for it break through Focus and stay on the lock ' +
       'screen. Add is_critical=1 to the send. They will not sound through silent mode — ' +
@@ -233,8 +191,6 @@ export const copy = {
     copyKey: 'Copy key',
     shareKey: 'Share key',
     copyCurl: 'Copy curl',
-    /// Foot link that leaves the app for the site's send examples — the other
-    /// languages and tools a key can be used from.
     examplesLink: 'More ways to send',
     defaultKeyDetail:
       'notifi keeps this one on your device, so you can copy it again whenever you ' +
@@ -299,8 +255,6 @@ export const copy = {
     sectionName: 'Name',
     namePrompt: 'e.g. Grafana alerts',
     nameLabel: 'Key name',
-    /// Shown under the name field only once the name is near the 64-character
-    /// limit. Digits and a slash, but every user-facing literal lives here.
     charCount: '{n}/{max}',
     nameReserved: '“default” is reserved — your device already has one.',
     nameTaken: 'A key with this name is already active.',
@@ -439,11 +393,6 @@ export const copy = {
       'will now be rejected — create fresh keys to keep receiving notifications.',
   },
 
-  // ---------------------------------------------------------------------------
-  // What the app says when the server said nothing usable: a transport failure,
-  // or a status with no message body. Anything the server does send is shown
-  // as-is, so these are fallbacks and not the primary wording.
-  // ---------------------------------------------------------------------------
   clientErrors: {
     unauthorized: 'This key is no longer accepted. Create a new one under Keys.',
     notFound: 'That is no longer on the server. Refresh and try again.',

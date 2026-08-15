@@ -1,23 +1,8 @@
 import SwiftUI
 
-// Shared primitives for the Geist system. Everything here is monochrome and
-// takes its values from `Theme`, which carries both grounds — so nothing below
-// reads `colorScheme` or names a literal colour. The only colour that appears
-// is `Theme.brand` on an unread marker and `Theme.danger` on a destructive
-// action.
-
-// MARK: - Search
-
-/// The inbox search input.
-///
-/// This is deliberately not `.searchable` — the system field brings its own
-/// material, tint and placement, none of which match. Behaviour we do keep:
-/// a clear button, submit-to-dismiss-keyboard, and a focus ring.
 struct SearchField: View {
     @Binding var text: String
     var placeholder: String = Copy.Common.search
-    /// Owned by the parent so the field can be dismissed from anywhere —
-    /// scrolling, tapping a row, or tapping empty space.
     var focused: FocusState<Bool>.Binding
 
     var body: some View {
@@ -48,11 +33,6 @@ struct SearchField: View {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 15))
                         .foregroundStyle(Theme.dim)
-                        // Sized rather than outset: this one sits against the
-                        // field's own tap area, so an expanded shape would start
-                        // clearing the text when you meant to put the caret at
-                        // the end of it. Full field height, 32 wide, which clears
-                        // the 24pt floor without reaching the words.
                         .frame(width: 32, height: 38)
                         .contentShape(Rectangle())
                 }
@@ -62,16 +42,8 @@ struct SearchField: View {
             }
         }
         .padding(.horizontal, 11)
-        // Minimum, not fixed: the field's text scales with Dynamic Type, and a
-        // hard height clipped it at the accessibility sizes.
         .frame(minHeight: 38)
-        // Square, like the message blocks' chrome rather than the controls' —
-        // the field spans the screen the way the rules do, and rounding it made
-        // it read as one more button.
         .background(Theme.surface)
-        // 2pt when focused, and `muted` rather than a half-opacity wash of it —
-        // the old ring composited to 2.7:1 against the field it sat on, under the
-        // 3:1 a focus indicator has to clear.
         .overlay(
             Rectangle()
                 .stroke(focused.wrappedValue ? Theme.muted : Theme.controlBorder,
@@ -82,9 +54,6 @@ struct SearchField: View {
     }
 }
 
-// MARK: - Small parts
-
-/// A bordered mono chip. Used for links, key names and counts.
 struct Chip: View {
     var text: String
     var color: Color = Theme.muted
@@ -108,14 +77,9 @@ struct Chip: View {
     }
 }
 
-/// An uppercase section rule — the only structural device in the system.
 struct SectionLabel: View {
     var text: String
     var trailing: String?
-    /// Whether this label opens the screen. The page already opens with air
-    /// above its content, so the first label adds none of its own: the padding
-    /// below separates one section from the section above it, and there is no
-    /// section above this one. Same flag, and the same reason, as `BandHeader`'s.
     var isFirst = false
 
     var body: some View {
@@ -131,16 +95,11 @@ struct SectionLabel: View {
                     .foregroundStyle(Theme.dim)
             }
         }
-        // 34, not 22. Adjacent rows inside a section already sit 24pt apart
-        // (12 above and below each), so at 22 the gap that separated two sections
-        // was narrower than the gap between two rows of the same one — the label
-        // and its rule were carrying the structure unaided.
         .padding(.top, isFirst ? 0 : 34)
         .padding(.bottom, 9)
     }
 }
 
-/// The solid light pill — the system's only filled control.
 struct PillButton: View {
     var title: String
     var role: ButtonRole?
@@ -160,14 +119,10 @@ struct PillButton: View {
     }
 }
 
-/// A glyph-only control, sized to sit in a header's trailing slot beside the
-/// wordmark. The label is carried by `accessibilityLabel` rather than on screen.
 struct IconButton: View {
     var systemImage: String
     var label: String
     var color: Color = Theme.fg
-    /// Draws the glyph on a Liquid Glass circle. Only iOS/macOS 26 have the real
-    /// material; older releases fall back to a filled circle rather than fake it.
     var glass: Bool = false
     var action: () -> Void
 
@@ -178,10 +133,6 @@ struct IconButton: View {
                 .foregroundStyle(color)
                 .frame(width: 34, height: 34)
                 .glassBackground(enabled: glass)
-                // Drawn at 34 and tapped at 44. The disc cannot simply grow:
-                // it sits in `GeistBrandRow`, whose height is fixed so the
-                // trailing control cannot push one tab's title lower than
-                // another's — the exact drift the header row exists to prevent.
                 .geistHitArea(expandedBy: 5)
         }
         .buttonStyle(.geist)
@@ -190,8 +141,6 @@ struct IconButton: View {
 }
 
 extension View {
-    /// Backs the view with Liquid Glass where the OS has it, and a plain fill
-    /// where it does not.
     @ViewBuilder
     func glassBackground(enabled: Bool = true, in shape: some Shape = Circle()) -> some View {
         if enabled {
@@ -206,23 +155,14 @@ extension View {
     }
 }
 
-/// An outlined control. The default for anything that is not the primary action.
 struct OutlineButton: View {
     var title: String
     var color: Color = Theme.fg
-    /// Destructive controls take the destructive colour on their border as well as
-    /// their label. The border was always `controlBorder`, so "Revoke key" drew the
-    /// same grey box as "Copy key" with red words inside it — the one difference
-    /// between an irreversible action and a clipboard one being a hue applied to
-    /// the smallest part of the control.
     var role: ButtonRole?
     var fill: Bool = true
     var action: () -> Void
 
     private var tint: Color { role == .destructive ? Theme.danger : color }
-    /// `danger` measures 5.36:1 on the ground, well past the 3:1 a control boundary
-    /// has to clear, so the destructive border is the full colour rather than a
-    /// wash of it.
     private var border: Color { role == .destructive ? Theme.danger : Theme.controlBorder }
 
     var body: some View {
@@ -233,9 +173,6 @@ struct OutlineButton: View {
                 .frame(maxWidth: fill ? .infinity : nil)
                 .padding(.horizontal, fill ? 0 : 14)
                 .padding(.vertical, 11)
-                // The drawn box is about 37pt. Everything in the app that is not a
-                // row or a glyph is one of these, so the shortfall was the app's
-                // primary control missing the target floor everywhere at once.
                 .frame(minHeight: Theme.minTarget)
                 .contentShape(Rectangle())
                 .overlay(RoundedRectangle(cornerRadius: 8)
@@ -245,7 +182,6 @@ struct OutlineButton: View {
     }
 }
 
-/// A share control drawn like `OutlineButton`.
 struct OutlineShareButton<Item: Transferable>: View {
     var title: String
     var item: Item
@@ -257,8 +193,6 @@ struct OutlineShareButton<Item: Transferable>: View {
                 .foregroundStyle(Theme.fg)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 11)
-                // Sits beside an `OutlineButton` wherever it appears, so it takes
-                // the same target floor as well as the same box.
                 .frame(minHeight: Theme.minTarget)
                 .contentShape(Rectangle())
                 .overlay(RoundedRectangle(cornerRadius: 8)
@@ -268,7 +202,6 @@ struct OutlineShareButton<Item: Transferable>: View {
     }
 }
 
-/// A key/value line. Replaces `LabeledContent`, which brings system styling.
 struct FieldRow<Trailing: View>: View {
     var label: String
     @ViewBuilder var trailing: Trailing
@@ -285,9 +218,6 @@ struct FieldRow<Trailing: View>: View {
     }
 }
 
-/// The right-hand value of a `FieldRow`. A named type rather than a modified
-/// `Text`, so the convenience initialiser below has a concrete `Trailing` to
-/// constrain against.
 struct FieldValue: View {
     let text: String
     init(_ text: String) { self.text = text }
@@ -306,10 +236,6 @@ extension FieldRow where Trailing == FieldValue {
     }
 }
 
-/// A labelled switch. A switch sits hard against its own label, which puts it at
-/// a different distance from the edge on every row. Detached and given the shared
-/// control column, the switches line up with each other and with the values in the
-/// `FieldRow`s around them.
 struct ToggleRow: View {
     let title: String
     var detail: String?
@@ -319,11 +245,6 @@ struct ToggleRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            // The explanation hides behind an (i) rather than sitting under the
-            // title. Inline, every caveat was read on every visit; behind the
-            // button it is read exactly when someone wonders what the switch
-            // does. VoiceOver keeps the text without the trip: it stays the
-            // switch's hint below.
             HStack(spacing: 6) {
                 Text(title)
                     .font(Theme.body)
@@ -339,15 +260,9 @@ struct ToggleRow: View {
                     }
                     .buttonStyle(.geist)
                     .geistHitArea(expandedBy: 12)
-                    // The hint already reads this text on the switch itself, so
-                    // the button would only offer VoiceOver the same sentence
-                    // again with an extra stop on the way to the switch.
                     .accessibilityHidden(true)
                     .popover(isPresented: $showingDetail, arrowEdge: .bottom) {
                         Text(detail)
-                            // The mono caption is for metadata glanced in a row;
-                            // a popover is opened to be read, so it speaks in
-                            // the body face.
                             .font(Theme.body)
                             .foregroundStyle(Theme.fg)
                             .fixedSize(horizontal: false, vertical: true)
@@ -358,47 +273,20 @@ struct ToggleRow: View {
                 }
             }
             Spacer(minLength: 8)
-            // The title goes into the `Toggle`, not just the label beside it.
-            // `Toggle("")` with `labelsHidden()` draws the same switch but names
-            // it the empty string, so VoiceOver announced "switch, off" with no
-            // way to tell which of the three this was — two of them being link
-            // policy and Critical Alerts. `labelsHidden()` still keeps the label
-            // off screen, so the row looks exactly as it did.
             Toggle(title, isOn: $isOn)
                 .labelsHidden()
                 .toggleStyle(.switch)
                 .controlSize(.small)
                 .tint(Theme.brand)
                 .frame(width: Theme.controlWidth, alignment: .trailing)
-                // A small switch draws about 26pt tall, and the row's own tap area
-                // does not reach it — the switch is the only thing here that
-                // answers a touch, so what the row is padded to is beside the
-                // point. Expanded rather than grown, because the row's height is
-                // shared with every other settings row.
                 .geistHitArea(expandedBy: 9)
                 .accessibilityHint(detail ?? "")
         }
         .padding(.vertical, Theme.rowPadV)
-        // The drawn switch is SwiftUI's, not a UISwitch, and it moves silently.
-        // Watched on the binding rather than fired in a tap handler, because the
-        // rows that flip asynchronously (Critical Alerts) snap back when the
-        // server refuses — and the snap back is a movement too.
         .onChange(of: isOn) { Haptics.selection() }
     }
 }
 
-/// A labelled choice between two named options, sharing the control column with
-/// the switches and values around it.
-///
-/// Two buttons rather than a `Picker`: every `.segmented` style on iOS 26 draws
-/// the system's own capsule and selection fill, which arrives with a material,
-/// a shadow and a corner radius none of which are the app's — and none of which
-/// can be restyled. The whole control is a rule, a fill and two labels, so it is
-/// cheaper to draw than to fight.
-///
-/// A `Toggle` would have been cheaper still, but only by naming one option and
-/// leaving the other implied — "Light appearance, off" is a worse way to say
-/// "Dark" than saying it.
 struct SegmentedRow<Option: Hashable>: View {
     let title: String
     let options: [Option]
@@ -416,10 +304,6 @@ struct SegmentedRow<Option: Hashable>: View {
                 ForEach(Array(options.enumerated()), id: \.element) { index, option in
                     let isSelected = option == selection
                     Button {
-                        // Animated here rather than by the caller, because what
-                        // moves is the fill behind the label — the ground itself
-                        // changing is `preferredColorScheme`'s business and is
-                        // not something this can or should drive.
                         withAnimation(Theme.state) { selection = option }
                     } label: {
                         Text(label(option))
@@ -447,9 +331,6 @@ struct SegmentedRow<Option: Hashable>: View {
                     .stroke(Theme.controlBorder, lineWidth: 1)
             }
             .frame(width: Theme.controlWidth + 32, alignment: .trailing)
-            // The drawn control is about 28pt tall against the 44pt floor, and
-            // like the switches it cannot grow without changing the height every
-            // settings row shares.
             .geistHitArea(expandedBy: 8)
         }
         .padding(.vertical, Theme.rowPadV)
@@ -458,7 +339,6 @@ struct SegmentedRow<Option: Hashable>: View {
     }
 }
 
-/// A tappable row that pushes somewhere, with a chevron.
 struct DisclosureRow<Content: View>: View {
     @ViewBuilder var content: Content
 
@@ -475,10 +355,6 @@ struct DisclosureRow<Content: View>: View {
     }
 }
 
-// MARK: - Empty states
-
-/// The "nothing matched" state. The existing app has no equivalent — a search
-/// that matches nothing currently renders a blank list with no explanation.
 struct NoResultsView: View {
     var query: String
     var scopeNote: String?
@@ -514,20 +390,8 @@ struct NoResultsView: View {
     }
 }
 
-/// Inline error copy. Used wherever an API call can fail.
 struct InlineError: View {
     var message: String
-    /// Whether this error follows something the reader just did.
-    ///
-    /// A failed send or a rejected key is a reply to a tap, and a buzz is how
-    /// someone looking at their keyboard learns it came back badly. A banner
-    /// that appears on its own — the socket dropping, a refresh nobody asked
-    /// for — is a change in the world, and buzzing for it makes the app twitch
-    /// at the reader while they are doing something else. Those pass `false`.
-    ///
-    /// The VoiceOver announcement is not conditional: it is the only way the
-    /// banner reaches a reader who cannot see it appear, and it is the same
-    /// interruption either way.
     var followsAction: Bool = true
 
     var body: some View {
@@ -549,12 +413,6 @@ struct InlineError: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Theme.danger.opacity(0.3), lineWidth: 1)
         )
-        // An error inserted into the tree is silent: VoiceOver announces it only
-        // if focus happens to land on it, so someone who just tapped Send heard
-        // nothing at all and had no way to tell failure from still-working.
-        // The haptic rides the same appearance for the same reason — eyes on
-        // the keyboard or the terminal miss a banner that arrives quietly —
-        // but only where the reader is waiting on a reply. See `followsAction`.
         .onAppear {
             AccessibilityNotification.Announcement(message).post()
             if followsAction { Haptics.error() }
@@ -564,11 +422,6 @@ struct InlineError: View {
     }
 }
 
-/// Non-error status copy that appears in response to an action.
-///
-/// Same problem as `InlineError` and the same fix — the success half of a result
-/// has to announce itself too, or the only outcome a VoiceOver user ever hears
-/// is the failure.
 struct AnnouncedText: View {
     var message: String
     var font: Font = Theme.metaSmall
@@ -579,9 +432,6 @@ struct AnnouncedText: View {
             .font(font)
             .foregroundStyle(color)
             .fixedSize(horizontal: false, vertical: true)
-            // The success twin of `InlineError`'s appearance feedback: announced
-            // and felt, or a VoiceOver user and a glanced-away one both only
-            // ever notice the failures.
             .onAppear {
                 AccessibilityNotification.Announcement(message).post()
                 Haptics.success()
@@ -589,16 +439,6 @@ struct AnnouncedText: View {
     }
 }
 
-// MARK: - Screen chrome
-
-/// The header every screen shares: a large title with a count under it, and any
-/// screen control on the same line.
-///
-/// The title and the control share a row rather than stacking, so the screen
-/// starts with the thing it is rather than with a bar above it. `.firstTextBaseline`
-/// would sit the control on the title's baseline, which drops it well below the
-/// cap height of a title this large; centring on the title line keeps the two
-/// optically level whether or not there is a subtitle under it.
 struct GeistHeader<Trailing: View>: View {
     var title: String
     var subtitle: String?
@@ -610,13 +450,6 @@ struct GeistHeader<Trailing: View>: View {
                 Text(title.uppercased())
                     .font(Theme.screenTitle)
                     .foregroundStyle(Theme.fg)
-                    // A 28pt face that scales with Dynamic Type inside a 30pt
-                    // frame: without these two the title simply overflowed it at
-                    // the accessibility sizes, and "KEYS" lost its own descenderless
-                    // top. The Inbox builds its own header and has always set both,
-                    // which is why "NOTIFICATIONS" survived where the shared header
-                    // did not. The frame stays fixed so the three tabs' titles sit
-                    // on the same line as each other.
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .frame(height: Theme.headerBarHeight, alignment: .leading)
@@ -625,11 +458,6 @@ struct GeistHeader<Trailing: View>: View {
                         .font(Theme.meta)
                         .foregroundStyle(Theme.muted)
                 } else {
-                    // The line is reserved rather than dropped, so the rule
-                    // `GeistPage` draws under this block sits at the same height
-                    // on all three tabs. Settings is the only one with no count
-                    // to put here, and a chrome edge that moves when you change
-                    // tab reads as the screens being misaligned.
                     Text(verbatim: " ")
                         .font(Theme.meta)
                         .hidden()
@@ -638,11 +466,6 @@ struct GeistHeader<Trailing: View>: View {
             }
             Spacer(minLength: 8)
             trailing
-                // Minimum, not fixed. `IconButton` draws a 34pt glyph frame, so a
-                // hard 30 clipped 2pt off the top and bottom of the disc at the
-                // default text size, before Dynamic Type came into it. The title
-                // beside it keeps its own fixed frame and is top-aligned, so
-                // letting this one grow does not move the title.
                 .frame(minHeight: Theme.headerBarHeight)
         }
     }
@@ -654,7 +477,6 @@ extension GeistHeader where Trailing == EmptyView {
     }
 }
 
-/// A back bar for pushed screens.
 struct GeistBackBar: View {
     var label: String = Copy.Tabs.notifications
     var dismiss: () -> Void
@@ -662,9 +484,6 @@ struct GeistBackBar: View {
 
     var body: some View {
         HStack(spacing: 7) {
-            // Glyph only. `label` still names the destination for VoiceOver, and
-            // `chevron.backward` rather than `.left` so it mirrors in right-to-left
-            // languages, as the system's own back button does.
             IconButton(systemImage: "chevron.backward",
                        label: Copy.Components.backTo(label),
                        glass: true,

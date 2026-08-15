@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// Shown when the inbox has never received anything.
 struct EmptyStateView: View {
     @Environment(AppModel.self) private var model
     @State private var copied = false
@@ -9,8 +8,6 @@ struct EmptyStateView: View {
     @State private var sendError: String?
     @State private var key: String?
     @State private var keyFailed = false
-    /// Which step is open. One at a time: the two steps are ordered, and showing
-    /// both at once is what pushed the send command below the fold on a phone.
     @State private var openStep = 1
 
     private static let sampleTitle = Copy.Empty.sampleTitle
@@ -28,9 +25,6 @@ struct EmptyStateView: View {
                 )
                 sent = true
             } catch {
-                // Every other call site maps through `userMessage`; this one was
-                // handing the reader whatever `localizedDescription` happened to
-                // produce, which for a decoding failure is Swift's own diagnostic.
                 sendError = (error as? APIError)?.userMessage
                     ?? Copy.Empty.sendFailed
             }
@@ -38,13 +32,6 @@ struct EmptyStateView: View {
         }
     }
 
-    /// The snippet is built from the device's own default key so the first send
-    /// works on paste.
-    ///
-    /// `-d` rather than a hand-built query string: curl does the escaping,
-    /// which keeps each parameter on its own readable line instead of a wall of
-    /// percent codes. A POST rather than `--get`, so the key rides in the body
-    /// instead of a URL that lands in edge logs and shell history.
     private func command(key: String) -> String {
         """
         curl "\(model.baseURL.absoluteString)/send" \\
@@ -56,10 +43,6 @@ struct EmptyStateView: View {
 
     private var notificationsAllowed: Bool { model.notificationStatus == .authorized }
 
-    /// The key is minted by a boot task that this screen regularly beats onto the
-    /// display. Rather than print a `nk_your_key` placeholder — a command that
-    /// looks copyable and answers 401 — step 2 waits, and asks for the key itself
-    /// in case the boot attempt failed while offline.
     private func loadKey() async {
         if let existing = model.defaultKeyValue {
             key = existing
@@ -68,16 +51,11 @@ struct EmptyStateView: View {
         keyFailed = false
         await model.ensureDefaultKey()
         key = model.defaultKeyValue
-        // `ensureDefaultKey` swallows its own failures into the log, so a key
-        // that is still missing afterwards is the only signal the screen gets.
         keyFailed = key == nil
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            // The mark as a dashed outline, as if it were pencilled in and not
-            // yet filled: nothing has arrived to draw it properly. The bell that
-            // used to sit here was a face drawn on older, thinner artwork.
             Image("EmptyBell")
                 .renderingMode(.template)
                 .resizable()
@@ -194,17 +172,12 @@ struct EmptyStateView: View {
         .onAppear {
             openStep = notificationsAllowed ? 2 : 1
         }
-        // Granting permission finishes step 1, so step 2 is what the user came for
-        // next. Moving there beats leaving a finished step open above a closed one.
         .onChange(of: notificationsAllowed) { _, allowed in
             if allowed, openStep == 1 { openStep = 2 }
         }
     }
 }
 
-/// One numbered step of the first-run walkthrough, collapsible. A finished step
-/// keeps its place in the list rather than disappearing, so the numbering the
-/// user was just reading does not shift under them.
 private struct OnboardingStep<Content: View>: View {
     var number: Int
     var title: String
@@ -222,10 +195,6 @@ private struct OnboardingStep<Content: View>: View {
                         Image(systemName: "checkmark")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundStyle(Theme.bg)
-                            // The one deliberately expressive moment in the app.
-                            // It is affordable here and nowhere else: this screen
-                            // is only ever seen before the first notification
-                            // lands, so nobody sees this twice.
                             .symbolEffect(.bounce, value: done)
                             .transition(.opacity)
                     } else {
@@ -256,10 +225,6 @@ private struct OnboardingStep<Content: View>: View {
             .accessibilityLabel(Copy.Empty.stepLabel("\(number)", title) + (done ? Copy.Empty.stepDone : ""))
             .accessibilityHint(open ? Copy.Common.collapse : Copy.Common.expand)
 
-            // Opening and closing is not animated. The height change here is a
-            // large one — a code block and two buttons — and no curve made it
-            // read as anything but the rest of the screen being shoved. The
-            // chevron carries the state change instead.
             VStack(alignment: .leading, spacing: 10) {
                 if open {
                     content
@@ -269,11 +234,6 @@ private struct OnboardingStep<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        // Granting notifications changed the number to a tick, filled the disc,
-        // greyed the title and removed the Enable button beneath it, all on one
-        // frame — the step went from "do this" to "done" with nothing marking
-        // that it had been the user who did it. Scoped to `done` so typing or
-        // sending elsewhere in the step does not animate.
         .animation(Theme.state, value: done)
     }
 }

@@ -1,36 +1,16 @@
 import SwiftUI
 
-/// An attached image, on its own, with nothing else on the screen.
-///
-/// The detail page shows the image at the width of the reading column, which is
-/// the right size for reading past it and the wrong size for looking at it —
-/// most of what gets attached to a notification is a chart or a screenshot, and
-/// those carry the point in text small enough that the column-width version is
-/// unreadable. This is where you go to read it.
-///
-/// Pure black ground, unlike the detail page it opens from: the haze there is a
-/// property of the message, and a coloured ground under someone else's image
-/// changes what the image looks like.
 struct ImageViewer: View {
     let url: URL
     @Environment(\.dismiss) private var dismiss
 
-    /// Committed zoom, and the live pinch on top of it. Held apart so a pinch
-    /// that starts on an already-zoomed image continues from where it was
-    /// instead of snapping back to 1.
     @State private var zoom: CGFloat = 1
     @State private var pinch: CGFloat = 1
     @State private var offset: CGSize = .zero
     @State private var dragged: CGSize = .zero
 
-    /// Below 8 a dense screenshot still cannot be read on a phone, and there is
-    /// no cost to allowing it — the image simply gets soft, which is a fact
-    /// about the image the reader is entitled to see.
     private static let maxZoom: CGFloat = 8
 
-    /// What a double tap goes to. Not the maximum: a double tap is a request to
-    /// see more, and landing at the far end leaves nowhere to go and everything
-    /// off screen.
     private static let tapZoom: CGFloat = 3
 
     private var scale: CGFloat { min(max(zoom * pinch, 1), Self.maxZoom) }
@@ -63,8 +43,6 @@ struct ImageViewer: View {
         }
         .ignoresSafeArea()
         .overlay(alignment: .topLeading) { closeButton }
-        // The zoom is a way of looking, not a setting. Reopening the same image
-        // starts fitted, which is also what the reader is expecting to see.
         .onDisappear { reset() }
         #if os(macOS)
         .frame(minWidth: 520, minHeight: 400)
@@ -83,9 +61,6 @@ struct ImageViewer: View {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Theme.fg)
                 .frame(width: 34, height: 34)
-                // Black on black would vanish against a dark photograph, and
-                // white on white against a light one. A surface fill with the
-                // control border holds against both.
                 .background(Theme.surface.opacity(0.85), in: Circle())
                 .overlay(Circle().stroke(Theme.controlBorder, lineWidth: 1))
                 .geistHitArea(expandedBy: 5)
@@ -96,9 +71,6 @@ struct ImageViewer: View {
         .padding(.top, 12)
     }
 
-    /// Panning is only offered once there is something off screen to pan to.
-    /// A drag at fit size would otherwise slide the image around inside a frame
-    /// it already fits in, which reads as the view coming loose.
     private func pan(in size: CGSize) -> some Gesture {
         DragGesture()
             .onChanged { value in
@@ -119,9 +91,6 @@ struct ImageViewer: View {
             .onEnded { _ in
                 zoom = scale
                 pinch = 1
-                // Zooming back out can leave the image parked off centre with
-                // nothing under the finger to bring it back, so the clamp runs
-                // on zoom as well as on pan.
                 withAnimation(Theme.state) {
                     if zoom <= 1 { reset() } else { offset = clamp(offset, in: size) }
                 }
@@ -138,13 +107,6 @@ struct ImageViewer: View {
         }
     }
 
-    /// Keeps the image's own edges from travelling inside the frame.
-    ///
-    /// Approximate on purpose: it bounds by the frame rather than by the
-    /// image's laid-out size, which `scaledToFit` does not report. The error is
-    /// in the generous direction — a little more travel than strictly needed —
-    /// which is invisible in use, where the alternative is arithmetic that
-    /// pretends to a precision it does not have.
     private func clamp(_ proposed: CGSize, in size: CGSize) -> CGSize {
         let limitX = max(0, (size.width * scale - size.width) / 2)
         let limitY = max(0, (size.height * scale - size.height) / 2)

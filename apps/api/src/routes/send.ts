@@ -35,13 +35,6 @@ interface KeyDeviceRow {
   strict_send: number;
 }
 
-// One switch, two ceilings. `critical` is the one the product wants — audible
-// through the ringer switch — but it needs an entitlement Apple has not granted
-// (request W8U762V6VJ), and a push claiming an interruption level the app is not
-// entitled to is dropped rather than downgraded. `time-sensitive` needs no
-// approval and already gets the page past Focus and onto the lock screen, so it
-// is what an escalated send means until the grant lands. Flip this the same day
-// the entitlement goes into the .entitlements files, not before.
 const CRITICAL_ENTITLED = false;
 
 function pushPayload(
@@ -54,10 +47,6 @@ function pushPayload(
   const escalation = escalate
     ? CRITICAL_ENTITLED
       ? {
-          // A critical sound is an object rather than a name, and it is what
-          // makes the alert audible through the ringer switch. The interruption
-          // level alone would get it past Focus but leave it silent on a muted
-          // phone, which for a pager is the same as not arriving.
           sound: { critical: 1, name: 'default', volume: 1 },
           'interruption-level': 'critical',
         }
@@ -66,8 +55,6 @@ function pushPayload(
 
   return {
     aps: {
-      // What the lock screen shows if the service extension never runs. The
-      // real title is inside `sealed`, which only the device can open.
       alert: { title: strings.push.fallbackTitle },
       ...escalation,
       'mutable-content': 1,
@@ -145,18 +132,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
   }
 
-  // The window belongs to the account, and a device is the account. Counting
-  // per key meant the ceiling was really "60 an hour times however many keys
-  // you thought to create", which is not a limit — and it charged the careful
-  // sender, who splits one script's alerts across several named keys, more than
-  // the careless one.
-  //
-  // The device's next sequence number is allocated in the same UPDATE, so a
-  // send still costs three row writes. It has to come from the RETURNING rather
-  // than a read-back: two sends racing on one device would otherwise see the
-  // same value and collide on the unique index. A number burned by a request
-  // that fails after this point leaves a gap, which is harmless — the device
-  // asks for everything above its bookmark, not for a dense run.
   const w = windowStart(nowS);
   const allowed = await c.env.DB.prepare(
     `UPDATE devices SET
@@ -182,9 +157,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   }
   const deviceSeq = allowed.seq_counter;
 
-  // Usage accounting; the limit no longer rides along with it. The revocation
-  // re-check does, because the key was live when it was looked up and a revoke
-  // landing since then must not deliver.
   const keyLive = await c.env.DB.prepare(
     `UPDATE keys SET sent_count = sent_count + 1, last_used_at = ?
      WHERE id = ? AND revoked_at IS NULL
@@ -199,8 +171,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const createdAt = nowS;
 
-  // The upper bound needs the server clock, so it is checked here rather than in
-  // the schema. A little skew is normal; a week in the future is not.
   const occurredAt = input.occurred_at;
   if (occurredAt !== undefined && occurredAt > nowS * 1000 + OCCURRED_AT_MAX_SKEW_MS) {
     return c.json(
@@ -209,20 +179,9 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     );
   }
 
-  // Resolved before the seal rather than just before the push, because it is
-  // part of what the message *was*. Both halves have to agree: the sender asks
-  // per message, the device owner allows it per key. A send key that leaks
-  // cannot raise its own volume, and a key marked critical stays quiet for the
-  // ordinary sends that share it.
-  // Either spelling. `is_critical` is the name; `critical` is what the scripts
-  // already written say, and both mean the same request.
   const asked = input.is_critical === true || input.critical === true;
   const critical = asked && row.is_critical === 1;
 
-  // Everything the message could not be delivered as written. Cropping and
-  // dropping happen here, after the rate-limit charge: a send that trips these
-  // still cost the account a slot, whichever way it ends, so a script cannot
-  // probe the checks for free.
   const warnings: string[] = [];
 
   let title = input.title;
@@ -248,9 +207,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     }
   }
 
-  // The escalation warning is deliberately not in this set. Refusing a page
-  // because it could not be made loud is worse than delivering it quietly, so
-  // that one stays a warning even here.
   if (row.strict_send === 1 && warnings.length > 0) {
     return c.json(errBody('invalid_content', t(c).api.strictContentRejected), 422);
   }
@@ -269,12 +225,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const expiresAt = nowS + MESSAGE_BACKSTOP_S;
 
-  // NOTE: this is allocate-then-insert again, and the visibility race it causes
-  // is real — see the ordering section of the delivery write-up. The number is
-  // handed out by the rate-limit UPDATE above so that a send costs one row write
-  // instead of two, which means it cannot simply be folded into this INSERT.
-  // Fixing it properly means batching both statements and letting the unique
-  // index reject the rate-limited case, which is too subtle to land untested.
   await c.env.DB.prepare(
     `INSERT INTO messages
        (device_id, device_seq, key_id, content_sealed, created_at, expires_at, occurred_at)
@@ -300,9 +250,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       ...(image !== undefined ? { image } : {}),
       key_id: row.key_id,
       created_at: createdAt,
-      // Every fallback has to carry occurred_at and critical too. The app checks
-      // the sealed copy against the row, so a payload that dropped either would
-      // be treated as tampered and skipped.
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
       is_critical: critical,
     },
@@ -323,11 +270,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     },
   ];
 
-  // Not `t(c)`: this text is read by the recipient, and the request that
-  // produced it came from the sender's script, whose Accept-Language says
-  // nothing about them. Localising it properly needs the device's language
-  // recorded at registration; until then it is the source language, and the
-  // service extension replaces it with the decrypted title in almost every case.
   const deviceStrings = copyFor(SOURCE_LANGUAGE);
 
   let payload = pushPayload(messageId, fullSealed, row.key_id, critical, deviceStrings);
@@ -337,21 +279,11 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     payload = pushPayload(messageId, sealed, row.key_id, critical, deviceStrings);
   }
 
-  // Both transports, always, and neither waits on the other. APNs is the one
-  // that works when the device is asleep; the socket is the one that works when
-  // APNs does not. A device holding both gets the message twice and de-duplicates
-  // on `device_seq`, which it already does for the push that races the poll.
-  //
-  // The socket wake is best-effort and deliberately after the D1 insert: a
-  // device woken before the row is committed would fetch nothing and go back to
-  // sleep. A failure here must not fail the send — the message is stored, and
-  // APNs and the fallback poll both still reach it.
   const wake = (async () => {
     try {
       const id = c.env.DEVICE_SOCKET.idFromName(String(row.device_id));
       await c.env.DEVICE_SOCKET.get(id).notify(deviceSeq);
     } catch {
-      // Nothing to do. See above.
     }
   })();
 
@@ -365,11 +297,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   );
   c.executionCtx.waitUntil(wake);
 
-  // Deliberately no id. It is now per-device rather than global, so returning it
-  // would no longer leak the relay's traffic — it would leak the recipient's,
-  // telling any one sender how much everything else sends to that device.
-  // Asked and did not get it. The push already went out unescalated, so this is
-  // the only place the sender can learn that its pages are arriving quiet.
   if (asked && !critical) warnings.push(t(c).api.criticalNotAllowed);
 
   return c.json(

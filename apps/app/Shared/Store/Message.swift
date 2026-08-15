@@ -10,13 +10,8 @@ final class Message {
     var imageURL: URL?
     var keyID: Int?
     var createdAt: Date
-    /// When the event actually happened, if the sender said so. Millisecond
-    /// precision, unlike `createdAt`, which the server records in whole seconds.
-    /// Never used for sorting — see the 0003 migration for why.
     var occurredAt: Date?
     var isRead: Bool = false
-    /// Whether this arrived as a critical alert — through silent mode and Focus.
-    /// Defaulted rather than optional so the store migrates without a version.
     var isCritical: Bool = false
 
     init(

@@ -7,15 +7,8 @@ final class APIClient {
     private let identity: DeviceIdentity
     private let session: URLSession
 
-    // Signed requests are rejected outside a 60s window. A device with a skewed clock
-    // would fail every call forever, so track the server's own clock and sign with it.
     private var serverOffset: TimeInterval = 0
 
-    // The offset is bounded because it ends up inside a signature. Left unbounded,
-    // anything that can set the Date header could make this client mint validly
-    // signed requests bearing a chosen future timestamp and harvest them. TLS
-    // already fails on a clock this far out, so a larger reading is a tampered
-    // header rather than a skewed device.
     private static let maxClockOffset: TimeInterval = 24 * 60 * 60
 
     private static let httpDateFormatter: DateFormatter = {
@@ -81,9 +74,6 @@ final class APIClient {
     }
 
     func send(key: String, title: String, message: String?) async throws -> SendResponse {
-        // Everything in the body, nothing in the URL: a query string survives in
-        // edge and proxy logs and gets embedded in URLError descriptions, and
-        // this request carries user-written text.
         struct Body: Encodable {
             let title: String
             let message: String?
@@ -103,10 +93,6 @@ final class APIClient {
         }
     }
 
-    /// The upgrade signs exactly like a `GET /history` — the canonical string
-    /// covers method, host, path, timestamp and body hash, and none of those
-    /// change with the scheme — so the wss URL carries a signature the ordinary
-    /// verifier accepts.
     func socketRequest() throws -> URLRequest {
         var request = try signedRequest(method: "GET", path: "/socket")
         var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)!
@@ -149,18 +135,10 @@ final class APIClient {
         if body != nil {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
-        // The server has no locale of its own and answers in whatever this asks
-        // for. Its `message` is shown to the reader as-is, so without this a
-        // refused request is the one sentence in the app that is not in their
-        // language. Deliberately outside the signed canonical string: it changes
-        // the wording of a reply, never what the request does.
         request.setValue(Self.acceptLanguage, forHTTPHeaderField: "Accept-Language")
         return request
     }
 
-    /// The reader's languages, best first, in the header's own q-value form.
-    /// `Locale.preferredLanguages` is the OS-level order, which is what the app
-    /// itself resolves its catalog against.
     private static let acceptLanguage: String = {
         let languages = Locale.preferredLanguages.prefix(5)
         guard !languages.isEmpty else { return "en" }
@@ -190,8 +168,6 @@ final class APIClient {
         }
     }
 
-    // On a rejected timestamp the response's Date header has already corrected
-    // serverOffset, so re-signing and retrying once recovers a skewed clock.
     @discardableResult
     private func performSignedVoid(_ build: () throws -> URLRequest) async throws -> Data {
         do {
@@ -218,9 +194,6 @@ final class APIClient {
         }
         guard (200 ..< 300).contains(http.statusCode) else {
             let envelope = try? JSONDecoder().decode(APIErrorEnvelope.self, from: data)
-            // A rejected timestamp is the one failure that has to trust the server's
-            // clock, because the retry re-signs against it. Every other error leaves
-            // the offset alone.
             if envelope?.error.code == "stale_timestamp" { adoptServerClock(http) }
             throw APIError.http(
                 status: http.statusCode,

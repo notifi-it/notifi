@@ -13,11 +13,6 @@ protocol SealedBoxOpener {
 }
 
 enum IdentityConstants {
-    // Debug talks to the dev worker, so it keeps its identity and default key
-    // under different service names. On a Mac a Debug build runs beside the
-    // installed Release app in the same keychain groups; sharing these items
-    // meant the Debug run's ensureDefaultKey() replaced the Release app's
-    // stored default key with one minted on the dev server.
     #if DEBUG
     private static let suffix = ".debug"
     #else
@@ -32,21 +27,10 @@ enum IdentityConstants {
         (Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String) ?? ""
     }()
 
-    // AppIdentifierPrefix only expands when the target has a signing team. If it is
-    // empty, an explicit group would not match the entitlement and every keychain
-    // write would fail with errSecMissingEntitlement; nil resolves to the app's
-    // default group, which is the shared group listed first in the entitlements.
-
-    // Shared with the Notification Service Extension. It holds the encryption key
-    // and nothing else.
     static var sharedAccessGroup: String? {
         teamIdPrefix.isEmpty ? nil : "\(teamIdPrefix)it.notifi.shared"
     }
 
-    // App only — the NSE does not list this group. The signing key and the default
-    // send key live here because the NSE needs neither: it parses an attacker-chosen
-    // payload and downloads an attacker-chosen image, so a foothold there should
-    // reach the one key required to unseal a push and no further.
     static var appAccessGroup: String? {
         teamIdPrefix.isEmpty ? nil : "\(teamIdPrefix)it.notifi.private"
     }
@@ -223,12 +207,7 @@ extension DeviceIdentity {
     }
 }
 
-// Not private: RemoteImages stores its flag through keychainSet/keychainGet too.
 extension DeviceIdentity {
-    // Writes to the app-only group. A build whose provisioning profile does not
-    // carry that group answers errSecMissingEntitlement; losing the isolation is
-    // bad, but failing to store an identity at all is worse, so that one status
-    // falls back to the shared group. Every other failure still throws.
     static func storePrivately(service: String, data: Data) throws {
         do {
             try keychainSet(service: service, accessGroup: appGroup, data: data)
@@ -240,14 +219,6 @@ extension DeviceIdentity {
         }
     }
 
-    // Items written before the group split sit in the shared group. Move them on
-    // first read, and keep using the copy that is already there if the move fails.
-    //
-    // The app-group read is deliberately non-throwing: a missing entitlement reads
-    // as an error rather than as "not found", and that must fall through to the
-    // shared group instead of failing the whole identity load. The shared-group read
-    // still throws, so AppModel can keep telling a transient keychain failure apart
-    // from a genuinely absent identity.
     static func loadMigrating(service: String) throws -> Data? {
         if let data = (try? keychainGet(service: service, accessGroup: appGroup)) ?? nil {
             return data
@@ -272,8 +243,6 @@ extension DeviceIdentity {
         _ = SecItemDelete(query as CFDictionary)
     }
 
-    // Add first, and only update on an explicit duplicate. Deleting up front would
-    // destroy a live identity whenever a read had failed for a transient reason.
     static func keychainSet(service: String, accessGroup: String?, data: Data) throws {
         var addQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

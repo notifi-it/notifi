@@ -22,9 +22,6 @@ final class SyncEngine {
     private static let unreadableGraceSeconds: TimeInterval = 14 * 24 * 60 * 60
     private static let seqMigrationKey = "didMigrateToDeviceSeq"
     private static let pageSize = 200
-    // 200 rows a page, so this is 10k messages in one pass — far more than a real
-    // backlog. The cap exists because the loop is otherwise driven entirely by what
-    // the server returns.
     private static let maxPagesPerSync = 50
 
     init(api: APIClient, identity: DeviceIdentity, context: ModelContext) {
@@ -35,24 +32,11 @@ final class SyncEngine {
         migrateToDeviceSeqIfNeeded()
     }
 
-    /// A revoked key cannot send, so it needs no summary and no category.
     static func summaryKeys(_ keys: [CachedKey]) -> [NotificationCategories.SummaryKey] {
         keys.filter { !$0.isRevoked }
             .map { NotificationCategories.SummaryKey(id: $0.id, name: $0.name) }
     }
 
-    /// Moves the store off the server's old global message ids.
-    ///
-    /// Message ids used to be global and are now per-device, so they start again
-    /// from 1 and would otherwise collide with ids already held here — a new
-    /// message would look like one the store had seen and be dropped. Existing
-    /// rows move below zero, which cannot collide with anything the server will
-    /// ever send, and keeps the history intact. Nothing sorts or displays these,
-    /// so negating them is invisible.
-    ///
-    /// The bookmark goes with them. The old one counts in the old numbering and
-    /// is far past anything the device will be offered now, so left alone it
-    /// would hide every future message.
     private func migrateToDeviceSeqIfNeeded() {
         let defaults = UserDefaults.standard
         guard !defaults.bool(forKey: Self.seqMigrationKey) else { return }
@@ -64,15 +48,11 @@ final class SyncEngine {
             do {
                 try context.save()
             } catch {
-                // Leaving the flag unset means this runs again next launch
-                // rather than the store being left half-renumbered.
                 log.error("device_seq migration failed: \(String(describing: error), privacy: .public)")
                 return
             }
         }
 
-        // Failure markers are keyed by the old ids, and a new message could
-        // reach the same number and inherit one.
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(failureKeyPrefix) {
             defaults.removeObject(forKey: key)
         }
@@ -91,8 +71,6 @@ final class SyncEngine {
         defer { isSyncing = false }
 
         var newMessages = 0
-        // A first sync replays the whole backlog; announcing any of it would
-        // page the user about history they have already been paged about.
         let firstSync = bookmark == 0
         var arrivals: [Arrival] = []
         do {
@@ -115,34 +93,16 @@ final class SyncEngine {
                     case .duplicate, .discarded:
                         break
                     case .unreadable:
-                        // Hold the ack at the last good row so the server keeps this
-                        // one for a retry — but keep ingesting the rest of the page.
-                        // Stopping here would hide every later message behind one bad
-                        // blob until the grace period expired.
                         blocked = true
                     }
                     if !blocked { ackable = row.id }
                 }
 
-                // The save is what the feed's `@Query` sees, so it is the only
-                // place the arrival of a message can be animated from — the
-                // inserts above are invisible until it lands. Without this, a
-                // sync that runs while the feed is on screen shoves rows in
-                // under the reader's eyes with nothing bridging the jump.
-                //
-                // Only a page that actually inserted something animates; a
-                // routine sync that finds nothing new must not make the list
-                // twitch. Reduce Motion is read from the platform rather than
-                // the environment because there is no view here to read.
                 let arrived = newMessages > insertedBefore
                 try withAnimation(arrived && !Theme.reduceMotion ? Theme.reveal : nil) {
                     try context.save()
                 }
 
-                // /history acks whatever `since` it is given, so the bookmark cannot
-                // move past a held row and there is no point re-requesting the same
-                // page. A bookmark that fails to advance also means the server
-                // returned rows at or below it, which would otherwise spin forever.
                 guard ackable > bookmark else { break pages }
                 bookmark = ackable
                 if blocked { break pages }
@@ -159,20 +119,6 @@ final class SyncEngine {
         if !firstSync { backstopBanners(arrivals) }
     }
 
-    /// Posts a local banner for any message the sync brought in whose push never
-    /// arrived — APNs down, or an environment that cannot receive it. The socket
-    /// wake already proves delivery is possible; a pager that stores the page but
-    /// stays silent has not paged anyone.
-    ///
-    /// Deduplication runs in both directions. Here, a message whose push already
-    /// sits in Notification Center is skipped. In `NotificationDelegate`, a push
-    /// that arrives after this banner removes it by its `local-` identifier, so a
-    /// slow push costs a replaced banner rather than a second one.
-    ///
-    /// The userInfo mirrors the push's shape exactly — id plus the sealed blob —
-    /// so the delegate's action handlers work identically on either copy, and the
-    /// link stays sealed rather than sitting in the notification store in the
-    /// clear.
     private func backstopBanners(_ arrivals: [Arrival]) {
         guard !arrivals.isEmpty else { return }
         Task {
@@ -185,15 +131,9 @@ final class SyncEngine {
                 content.title = arrival.content.title
                 if let message = arrival.content.message { content.body = message }
                 content.sound = .default
-                // The same ceiling the server's escalated push asks for — see
-                // CRITICAL_ENTITLED in send.ts for why this is time-sensitive
-                // and not critical.
                 if arrival.content.isCritical ?? false {
                     content.interruptionLevel = .timeSensitive
                 }
-                // The same thread the server's push would have used, so the two
-                // copies of a key's messages stack together whichever transport
-                // announced them.
                 if let keyID = arrival.content.keyID {
                     content.threadIdentifier = "key-\(keyID)"
                 }
@@ -210,9 +150,6 @@ final class SyncEngine {
         }
     }
 
-    /// The same rule the service extension applies, for the same reason: a link
-    /// the strictest policy rejects gets no button, and stays openable from the
-    /// message screen where the key's own allowance is known.
     private static func bannerCategory(for content: MessageContent) -> String {
         var hasLink = false
         if let link = content.link, let url = URL(string: link) {
@@ -228,8 +165,6 @@ final class SyncEngine {
         case unreadable
     }
 
-    /// A message this sync brought in, held long enough to check that the push
-    /// announcing it actually arrived.
     private struct Arrival {
         let serverID: Int
         let sealed: String
@@ -250,9 +185,6 @@ final class SyncEngine {
             return unreadableOrGiveUp(row.id, reason: "decode failed")
         }
 
-        // occurred_at is checked here for the same reason created_at is: it is
-        // stored on the row as well as inside the sealed blob, so a server that
-        // altered one copy would be caught.
         guard content.keyID == row.keyID,
               content.createdAt == row.createdAt,
               content.occurredAt == row.occurredAt else {
@@ -341,21 +273,6 @@ final class SyncEngine {
         return (try? context.fetchCount(descriptor)) ?? 0
     }
 
-    /// Brings everything the OS shows about unread messages back in line with the
-    /// store: the badge, the menu bar dot, and the notifications still sitting in
-    /// Notification Center.
-    ///
-    /// One entry point rather than three, because they are the same fact told in
-    /// three places and every call site that changes read state has to tell all of
-    /// them. Clearing the delivered notification is the half that used to be
-    /// missing: a message read in the app, or marked read from the notification's
-    /// own button, left its banner sitting in Notification Center still looking
-    /// unread, so the pager and the list it fed disagreed for as long as the user
-    /// left them alone.
-    ///
-    /// Marking something unread again does not bring its notification back. Nothing
-    /// can — a delivered notification cannot be re-delivered — and re-posting a copy
-    /// would sound an alert for a page the user has already seen.
     func reconcileNotifications() {
         let raw = unreadCount()
         unread = raw
@@ -385,8 +302,6 @@ final class SyncEngine {
         return Set(messages.map(\.serverID))
     }
 
-    /// The same shape `NotificationDelegate` reads, and for the same reason: the
-    /// id is the only part of the push that is not sealed.
     private static func serverID(from userInfo: [AnyHashable: Any]) -> Int? {
         guard let notifi = userInfo["notifi"] as? [String: Any] else { return nil }
         if let id = notifi["id"] as? Int { return id }

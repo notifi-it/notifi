@@ -2,7 +2,7 @@ name: app
 
 # Only a `v*` tag runs this workflow. Every job here needs a macOS runner, and
 # nothing else in CI does, so branch and PR pushes are deliberately not built:
-# the Xcode schemes are checked by hand before tagging (see docs/VERIFYING.md).
+# the Xcode schemes are checked by hand before tagging.
 on:
   push:
     tags: ["v*"]

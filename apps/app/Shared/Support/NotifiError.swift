@@ -17,10 +17,6 @@ enum APIError: Error {
 extension APIError {
     var userMessage: String {
         switch self {
-        // The server's own `message` is written for a reader and is used as-is.
-        // `code` is not — it is a machine token like `key_revoked`, and printing
-        // it told the reader what had gone wrong only if they already knew.
-        // Everything below it says what to do next instead.
         case let .http(status, _, message):
             if let message, !message.isEmpty { return message }
             switch status {

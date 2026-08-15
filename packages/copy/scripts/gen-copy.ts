@@ -1,25 +1,3 @@
-// Writes the app's two generated copy files from packages/copy:
-//
-//   apps/app/Shared/Resources/Localizable.xcstrings  the string catalog
-//   apps/app/Shared/Support/Copy.swift               typed accessors into it
-//
-// Swift cannot import the TypeScript, and hand-mirroring is what this package
-// exists to stop: ContractModels.swift already proves that two files typecheck
-// happily while saying different things. So both are generated, and `--check`
-// regenerates them in memory and fails if what is on disk differs, which is what
-// CI calls.
-//
-// The catalog is keyed by dotted path -- `inbox.deleteMessage`, not the English
-// sentence. Keying by source text is Apple's default and means every wording fix
-// invalidates every translation of it; keying by path means a wording fix is a
-// wording fix. Entries are marked `extractionState: manual` because nothing in
-// the Swift source is a literal for Xcode to find.
-//
-// Placeholders become positional format specifiers in first-appearance order, so
-// a translator can reorder them. Plurals become a catalog variation, which is the
-// only reason to have a catalog at all: the OS then applies the reader's own
-// plural categories rather than English's two.
-
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,21 +13,12 @@ const swiftPath = join(appRoot, 'Shared', 'Support', 'Copy.swift');
 
 const PLURAL_CATEGORIES = ['zero', 'one', 'two', 'few', 'many', 'other'] as const;
 
-/// Namespaces the app has no use for, left out of its catalog and its Swift.
-/// `api` is the server's own responses: the app shows the `message` the server
-/// sent rather than a local copy of it, and the server picks that message's
-/// language from the request's `Accept-Language`. Shipping a second translation
-/// of those sentences inside the app would give the reader two, differing by
-/// which one happened to answer.
 const SERVER_ONLY = new Set(['api']);
 
 interface Entry {
   path: string;
-  /// Dotted path split for nesting: ['inbox', 'deleteMessage'].
   segments: string[];
   source: Leaf;
-  /// Placeholder names in first-appearance order. A plural's own `{n}` is not
-  /// among them -- it is the count argument, and always comes first.
   params: string[];
   isPlural: boolean;
 }
@@ -77,9 +46,6 @@ function collect(tree: Tree, prefix: string[], out: Entry[]): void {
     }
     const path = segments.join('.');
     if (isPlural(value)) {
-      // A plural leaf holds nothing but its own count. Anything mixing a count
-      // with other text composes an already-rendered count instead, so the
-      // catalog never has to pluralise on one argument while formatting another.
       for (const category of PLURAL_CATEGORIES) {
         const text = value[category];
         if (text === undefined) continue;
@@ -98,9 +64,6 @@ function collect(tree: Tree, prefix: string[], out: Entry[]): void {
   }
 }
 
-/// Every declared language must translate every key, with the same placeholders.
-/// A gap here is a sentence that would silently render in English, or a format
-/// string that would drop an argument at runtime.
 function checkTranslations(entries: Entry[]): void {
   for (const code of LANGUAGE_CODES) {
     if (code === SOURCE_LANGUAGE) continue;
@@ -138,10 +101,6 @@ function checkTranslations(entries: Entry[]): void {
   }
 }
 
-// --- string catalog -------------------------------------------------------
-
-/// `{name}` becomes `%1$@`, in the order the source declares. A plural's count is
-/// always `%lld` and always first, because a plural leaf has no other argument.
 function toFormat(text: string, params: string[], isPluralLeaf: boolean): string {
   let out = text;
   if (isPluralLeaf) return out.split('{n}').join('%lld');
@@ -176,8 +135,6 @@ function localization(entry: Entry, value: Leaf): unknown {
 function renderCatalog(entries: Entry[]): string {
   const strings: Record<string, unknown> = {};
   entries = entries.filter((e) => !SERVER_ONLY.has(e.segments[0]!));
-  // Sorted, so the file's order is a property of the key names and not of the
-  // order somebody happened to add things to strings.ts.
   for (const entry of [...entries].sort((a, b) => a.path.localeCompare(b.path))) {
     const localizations: Record<string, unknown> = {
       [SOURCE_LANGUAGE]: localization(entry, entry.source),
@@ -192,8 +149,6 @@ function renderCatalog(entries: Entry[]): string {
   return `${JSON.stringify({ sourceLanguage: SOURCE_LANGUAGE, strings, version: '1.0' }, null, 2)}\n`;
 }
 
-// --- Swift ----------------------------------------------------------------
-
 function upperFirst(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -202,10 +157,6 @@ function swiftKey(path: string): string {
   return `"${path}"`;
 }
 
-/// Every accessor resolves through the catalog at the point of use rather than at
-/// load, so a language change while the app is running is picked up. Extensions
-/// get `Bundle.main` too -- their own bundle -- which is why the catalog is listed
-/// in their target sources.
 function accessor(entry: Entry): string {
   const key = swiftKey(entry.path);
   const lookup = `NSLocalizedString(${key}, comment: "")`;
@@ -271,8 +222,6 @@ function renderSwift(): string {
   }
   return [...header, 'enum Copy {', ...body, '}', ''].join('\n');
 }
-
-// --- run ------------------------------------------------------------------
 
 const entries: Entry[] = [];
 collect(copy as unknown as Tree, [], entries);

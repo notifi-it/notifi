@@ -1,8 +1,6 @@
 #if os(macOS)
 import SwiftUI
 
-/// The popover has no window chrome, so `.toolbar` never renders inside it.
-/// Pushed pages draw this bar instead.
 struct MacNavBar<Trailing: View>: View {
     private let backTitle: String
     private let trailing: Trailing

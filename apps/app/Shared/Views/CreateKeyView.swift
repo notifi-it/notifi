@@ -1,14 +1,6 @@
 import SwiftUI
 
-/// Create a key.
-///
-/// Two phases. Naming is deliberately plain; the reveal is the important one,
-/// because the value is shown exactly once and never again.
 struct CreateKeyView: View {
-    /// Set when the screen is shown in place rather than presented. The Mac
-    /// shows it inside the popover — a sheet there is drawn by AppKit as a
-    /// panel sliding over part of the window, which in a 486pt popover reads as
-    /// a second window that got stuck halfway.
     var onClose: (() -> Void)?
 
     @Environment(AppModel.self) private var model
@@ -60,9 +52,6 @@ struct CreateKeyView: View {
         .toolbar(.hidden, for: .navigationBar)
         #endif
         .interactiveDismissDisabled(isRevealed)
-        // A centred alert, not confirmationDialog — the dialog anchors to its
-        // source as a popover and reads as a stray tooltip. House rule — see
-        // CLAUDE.md.
         .alert(
             Copy.CreateKey.leaveTitle,
             isPresented: $showingCloseConfirm
@@ -81,8 +70,6 @@ struct CreateKeyView: View {
             Text(Copy.CreateKey.leaveMessage)
         }
     }
-
-    // MARK: Phase 1 — name it
 
     private var entryForm: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -123,7 +110,6 @@ struct CreateKeyView: View {
                 .autocorrectionDisabled()
                 #endif
                 .padding(.horizontal, 13)
-                // Minimum, not fixed — the field's text scales with Dynamic Type.
                 .frame(minHeight: 44)
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: 9))
                 .overlay(
@@ -131,16 +117,8 @@ struct CreateKeyView: View {
                         .stroke(nameFocused ? Theme.muted : Theme.controlBorder,
                                 lineWidth: nameFocused ? 2 : 1)
                 )
-                // The field is titled by the section rule above it, which is not
-                // something VoiceOver can associate. Without this it announced the
-                // prompt — an example of a key name, offered as the name of the
-                // field itself.
                 .accessibilityLabel(Copy.CreateKey.nameLabel)
 
-            // Warns, never blocks: the field accepts whatever it is given and
-            // submit validates. Silent until 48 characters so a short name is
-            // not carrying a meter it does not need, and it counts the trimmed
-            // name because that is what the validator counts.
             if trimmedCount >= 48 {
                 HStack {
                     Spacer(minLength: 8)
@@ -151,9 +129,6 @@ struct CreateKeyView: View {
                 .padding(.top, 8)
             }
 
-            // Warns as the name is typed, like the counter above: the button
-            // still validates on the tap, but a name that will be refused is
-            // worth saying before the reader has finished committing to it.
             if isReserved {
                 Text(Copy.CreateKey.nameReserved)
                     .font(Theme.metaSmall)
@@ -170,11 +145,6 @@ struct CreateKeyView: View {
                 InlineError(message: errorMessage).padding(.top, 12)
             }
 
-            // Enabled whenever a request is not already in flight, rather than
-            // whenever the name happens to be valid. A disabled button announces
-            // "dimmed" and says nothing about what is missing, so an empty field
-            // left the flow with no way to ask what was wrong — validation now
-            // happens on the tap and says it.
             PillButtonWide(title: phase == .creating ? Copy.CreateKey.creating : Copy.CreateKey.create,
                            enabled: phase != .creating) {
                 guard let problem = validationProblem else {
@@ -189,12 +159,8 @@ struct CreateKeyView: View {
         .onAppear { nameFocused = true }
     }
 
-    // MARK: Phase 2 — the one and only reveal
-
     private func revealScreen(_ response: CreateKeyResponse) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Holds the space the naming phase gives its Cancel button, so the
-            // title does not jump up the screen between the two phases.
             Color.clear
                 .frame(height: 22)
                 .padding(.top, 14)
@@ -219,10 +185,6 @@ struct CreateKeyView: View {
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: 9))
                 .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.chip, lineWidth: 1))
                 .padding(.top, 22)
-                // The value is on screen in plain text and selectable, so
-                // withholding it from VoiceOver hid it from one set of users
-                // only — and the copy claiming it was hidden for security was
-                // not true of the screen it was describing.
                 .accessibilityLabel(Copy.CreateKey.revealLabel)
                 .accessibilityValue(response.key)
 
@@ -246,16 +208,6 @@ struct CreateKeyView: View {
         }
     }
 
-    // MARK: Logic
-
-    /// How the naming form gives way to the reveal.
-    ///
-    /// The two phases are different screens in the same sheet, and swapping them
-    /// on the same frame read as a glitch rather than as arriving somewhere. The
-    /// scale is small on purpose — this is a step forward in one flow, not a new
-    /// context — and never `scale(0)`, which collapses the layout on the way in.
-    /// Under Reduce Motion the crossfade stays and the scale goes; a hard cut
-    /// would be its own jarring change.
     private var phaseTransition: AnyTransition {
         reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.98))
     }
@@ -266,15 +218,10 @@ struct CreateKeyView: View {
         name.trimmingCharacters(in: .whitespacesAndNewlines).count
     }
 
-    /// What to say when the name will not do, phrased as the thing to do next
-    /// rather than as what went wrong. `nil` means the name is fine.
     private var validationProblem: String? {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty { return Copy.CreateKey.validationEmpty }
         if trimmed.count > 64 { return Copy.CreateKey.validationTooLong }
-        // Before the taken check, though "default" is also a live key: the
-        // reserved wording says why that one name can never be had, which the
-        // general message would leave the reader guessing at.
         if isReserved { return Copy.CreateKey.validationReserved }
         if isNameTaken { return Copy.CreateKey.validationTaken }
         return nil
@@ -284,18 +231,6 @@ struct CreateKeyView: View {
         name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "default"
     }
 
-    /// The name is what the app identifies a key by once the value is gone: the
-    /// Keys tab merges rows by it and the Inbox filter treats one name as one
-    /// entry. Two live keys sharing a name would be two rows nothing on screen
-    /// could separate, so the second is refused here.
-    ///
-    /// Only live keys are consulted. A revoked name is free again — one key
-    /// answers to a name at a time, and the alternative is a device that slowly
-    /// runs out of names it is allowed to reuse.
-    ///
-    /// This is the only place the rule is applied. The server keeps names inside
-    /// `meta_sealed` and cannot read them, so it cannot compare them; a caller
-    /// hitting `POST /keys` directly can still make a duplicate.
     private var isNameTaken: Bool {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !trimmed.isEmpty else { return false }
@@ -344,7 +279,6 @@ struct CreateKeyView: View {
     }
 }
 
-/// A full-width version of the filled pill, with a disabled state.
 private struct PillButtonWide: View {
     var title: String
     var enabled: Bool

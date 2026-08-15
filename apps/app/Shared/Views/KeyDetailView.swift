@@ -1,12 +1,5 @@
 import SwiftUI
 
-/// One key. Keys are never deleted, so a revoked key stays visible with its
-/// history intact.
-///
-/// The destructive action differs by key. The default key regenerates: its value
-/// lives on the device, so it can be replaced and you are never left without one.
-/// Every other key was shown once and is gone, so the only thing left to do with
-/// it is revoke it.
 struct KeyDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
@@ -23,10 +16,6 @@ struct KeyDetailView: View {
 
     private var key: CachedKey? { model.sync?.keys.first { $0.id == keyID } }
 
-    /// What "on" actually buys, which depends on how far the OS lets notifi go.
-    /// Time Sensitive is the floor and is always available; Critical Alerts are
-    /// the ceiling and are not, so the switch stays usable either way and the
-    /// text says which one the user is getting.
     private var criticalDetail: String {
         switch model.criticalAlertStatus {
         case .enabled:
@@ -53,27 +42,17 @@ struct KeyDetailView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        // The ground is painted here rather than inherited: the TabView and
-        // the List underneath both draw an opaque backdrop of their own, so a
-        // background set once at the root never reaches the screen.
         .background(StaticField())
         .scrollContentBackground(.hidden)
         .safeAreaInset(edge: .top) {
             GeistBackBar(label: Copy.Tabs.keys, dismiss: { dismiss() }, trailing: nil)
                 .geistGutter()
-                // Capped with the content rather than spanning the window, so on
-                // iPad the back button stays on the column's leading edge instead
-                // of drifting away from the screen it belongs to.
                 .geistMeasure()
-                // Same as the inbox header: opaque, but grainy rather than flat.
                 .background(StaticField())
         }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
-        // Centred alerts, not confirmationDialog: the dialog anchors to its
-        // source as a popover and reads as a stray tooltip. House rule — see
-        // CLAUDE.md.
         .alert(
             key.map { Copy.KeyDetail.revokeTitle($0.name) } ?? Copy.KeyDetail.revokeTitleFallback,
             isPresented: $showingRevokeConfirm
@@ -118,9 +97,6 @@ struct KeyDetailView: View {
                 .textSelection(.enabled)
                 .padding(.top, 8)
 
-            // Only the default key's value is retrievable — it is the one kept in
-            // the Keychain. Every other key was shown once at creation and is gone,
-            // so there is nothing here worth copying.
             if key.isDefault, let full = model.defaultKeyValue {
                 HStack(spacing: 9) {
                     OutlineButton(title: copied ? Copy.Common.copied : Copy.KeyDetail.copyKey) {
@@ -131,8 +107,6 @@ struct KeyDetailView: View {
                         Clipboard.copySensitive(sendCommand(key: full))
                         flashCurl()
                     }
-                    // The Mac has no share sheet worth the name here — the value
-                    // is going into a terminal or a script either way.
                     #if os(iOS)
                     OutlineShareButton(title: Copy.KeyDetail.shareKey, item: full)
                     #endif
@@ -147,10 +121,6 @@ struct KeyDetailView: View {
                     .padding(.top, 14)
             }
 
-            // Leaves the app, like the Keys foot link — but this one lands on
-            // the send examples rather than the API reference, because the
-            // question a key page raises is "what do I paste where", and the
-            // site answers it in a dozen languages and tools.
             Link(destination: examplesURL(for: key)) {
                 HStack(spacing: 5) {
                     Text(Copy.KeyDetail.examplesLink)
@@ -159,8 +129,6 @@ struct KeyDetailView: View {
                         .renderingMode(.template)
                         .resizable()
                         .frame(width: 11, height: 11)
-                        // The glyph only says the link leaves the app, which
-                        // the link itself already says.
                         .accessibilityHidden(true)
                 }
                 .foregroundStyle(Theme.muted)
@@ -215,8 +183,6 @@ struct KeyDetailView: View {
                     .geistConsequence()
                     .padding(.top, 20)
             } else if key.isDefault {
-                // No revoke here. Losing the default would leave the device with
-                // no key it can hand out, so the only action is to replace it.
                 SectionLabel(text: Copy.KeyDetail.sectionDanger)
                 OutlineButton(title: isRegenerating ? Copy.KeyDetail.regenerating : Copy.KeyDetail.regenerate,
                               role: .destructive) {
@@ -243,9 +209,6 @@ struct KeyDetailView: View {
         .padding(.bottom, 40)
     }
 
-    /// ?key= fills the site's snippets with this key; the page wipes it from
-    /// the address bar as soon as it is read. Only the default key's value
-    /// exists to send.
     private func examplesURL(for key: CachedKey) -> URL {
         if key.isDefault, let full = model.defaultKeyValue {
             return URL(string: "https://notifi.it/?key=\(full)#send")!
@@ -269,9 +232,6 @@ struct KeyDetailView: View {
         }
     }
 
-    /// POST with a JSON body rather than the `--get` form the empty state
-    /// prints: that snippet exists to be run once by hand, this one is the
-    /// shape a script keeps, and a key in a query string ends up in logs.
     private func sendCommand(key: String) -> String {
         """
         curl -X POST "\(model.baseURL.absoluteString)/send" \\
@@ -286,10 +246,6 @@ struct KeyDetailView: View {
         do {
             try await model.regenerateDefaultKey()
             copied = false
-            // Failure announces itself through `InlineError`; success changed the
-            // masked value in place and said nothing, so the only outcome a
-            // VoiceOver user ever heard from a destructive action was the one that
-            // did not happen. Posted the same way `AnnouncedText` does it.
             AccessibilityNotification.Announcement(
                 Copy.KeyDetail.regeneratedAnnouncement
             ).post()
@@ -306,10 +262,6 @@ struct KeyDetailView: View {
         errorMessage = nil
         do {
             let granted = try await model.setKeyCritical(id: keyID, isCritical: isCritical)
-            // Only the case the row's own text cannot cover: the user turned
-            // Critical Alerts off themselves, so the ceiling is lower than it
-            // would otherwise be and nothing on screen would say why. Every other
-            // standing is described by `criticalDetail` and needs no error.
             if isCritical, granted == .disabled {
                 errorMessage = Copy.KeyDetail.criticalNotPermitted
             }
@@ -327,8 +279,6 @@ struct KeyDetailView: View {
         do {
             try await api.revokeKey(id: keyID)
             await model.sync?.refreshKeys()
-            // See `regenerate()`: the success half of a destructive action has to
-            // announce itself too.
             AccessibilityNotification.Announcement(Copy.KeyDetail.revokedAnnouncement).post()
             Haptics.success()
         } catch {

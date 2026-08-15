@@ -18,8 +18,6 @@ struct RegisterDeviceBody: Codable, Sendable {
 
 struct RegisterDeviceResponse: Codable, Sendable {
     let deviceID: Int
-    /// 0 or 1. Optional so a build talking to a server that predates the column
-    /// still decodes; registration is how the app reads this setting back.
     let strictSend: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -35,8 +33,6 @@ struct KeySummary: Codable, Sendable {
     let lastUsedAt: Int?
     let sentCount: Int
     let revokedAt: Int?
-    /// 0 or 1. Unlike the name and prefix this is not sealed, because the server
-    /// has to read it to decide how the push sounds.
     let isCritical: Int
 
     enum CodingKeys: String, CodingKey {
@@ -85,7 +81,6 @@ struct HistoryMessage: Codable, Sendable {
     let contentSealed: String
     let keyID: Int?
     let createdAt: Int
-    /// Client-supplied event time in unix milliseconds. Display only.
     let occurredAt: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -119,13 +114,7 @@ struct MessageContent: Codable, Sendable {
     let image: String?
     let keyID: Int?
     let createdAt: Int
-    /// Client-supplied event time in unix milliseconds, sealed alongside the rest
-    /// so it can be checked against the row the same way `createdAt` is.
     let occurredAt: Int?
-    /// Whether the send was actually delivered as a critical alert. Written on
-    /// every message now, including the quiet ones — optional here only because
-    /// messages sealed before the field existed cannot be rewritten, and those
-    /// read as false.
     let isCritical: Bool?
 
     enum CodingKeys: String, CodingKey {

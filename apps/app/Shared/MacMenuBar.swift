@@ -17,9 +17,6 @@ final class MenuBarController: NSObject {
         self.model = model
         self.container = container
 
-        // Transient dismisses the moment focus moves, which makes the panel
-        // impossible to photograph or read with the accessibility API. Only ever
-        // relaxed for screenshots, the way transferme.it does it.
         popover.behavior = ProcessInfo.processInfo.environment["NOTIFI_STICKY"] == nil
             ? .transient
             : .applicationDefined
@@ -32,8 +29,6 @@ final class MenuBarController: NSObject {
             .frame(width: panelSize.width, height: panelSize.height)
 
         let hosting = NSHostingController(rootView: AnyView(content))
-        // Clear the hosting view's opaque backing so the popover's own vibrancy
-        // (the glass) shows through instead of being flattened by a solid layer.
         hosting.view.wantsLayer = true
         hosting.view.layer?.backgroundColor = .clear
         popover.contentViewController = hosting
@@ -110,11 +105,6 @@ final class MenuBarController: NSObject {
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeFirstResponder(nil)
 
-        // The popover draws its own frame — the rounded corners and the arrow
-        // above them — in the system material, which reads as a pane of frosted
-        // glass sitting on top of a panel that is otherwise pure black. Filling
-        // the frame view matches it; the arrow is part of that view's shape, so
-        // it takes the colour too.
         guard let frame = popover.contentViewController?.view.window?.contentView?.superview else {
             return
         }
@@ -143,9 +133,6 @@ enum MenuBarIconRenderer {
 
             func layer(_ name: String, tint: NSColor) {
                 guard let art = NSImage(named: name) else { return }
-                // Tinted in its own image rather than in place: `sourceAtop`
-                // covers the whole rect, so filling here would repaint every
-                // layer already drawn.
                 NSImage(size: size, flipped: false) { layerRect in
                     art.draw(in: layerRect)
                     tint.set()
@@ -154,25 +141,14 @@ enum MenuBarIconRenderer {
                 }.draw(in: rect)
             }
 
-            // Body and clapper swing at their own angles — the clapper trails
-            // the body the way the loose half of a real bell does. Both layers,
-            // and the badge, are cropped from the same artwork by the same box,
-            // so they land where the drawing puts them at rest. Nothing here
-            // knows a position — see Support/Icon/generate-menu-icon.sh.
             rotated(by: angle) {
                 layer("menu_icon", tint: .labelColor)
-                // The dot is always there — read is the label colour, unread is
-                // the brand red — so the bell keeps the same silhouette either
-                // way and the arrival of a message changes only its colour.
                 layer("menu_dot", tint: unread ? NSColor(Theme.brand) : .labelColor)
             }
             rotated(by: clapperAngle) {
                 layer("menu_clapper", tint: .labelColor)
             }
 
-            // Offline is a slash through the whole mark, the way the OS strikes
-            // wifi.slash. The gap under the stroke is cut first so the line
-            // reads as lying across the bell rather than dissolving into it.
             if offline {
                 let start = NSPoint(x: rect.minX + 3, y: rect.maxY - 3)
                 let end = NSPoint(x: rect.maxX - 3, y: rect.minY + 3)
@@ -209,9 +185,6 @@ final class BellAnimator {
         return raw.split(separator: ",").compactMap { Double($0).map { CGFloat($0) } }
     }()
 
-    /// The clapper reads the same table four frames behind and half again as
-    /// far — the loose half of a real bell trails the body and overshoots it.
-    /// The same lag and gain the SwiftUI bells use in `clapperSwing`.
     private static let clapperLag = 4
     private static let clapperGain: CGFloat = 1.5
 
@@ -237,8 +210,6 @@ final class BellAnimator {
     }
 
     private func tick() {
-        // The loop runs `clapperLag` frames past the table so the trailing
-        // clapper finishes its swing too rather than snapping home.
         guard index < Self.angles.count + Self.clapperLag else {
             stop()
             completion()

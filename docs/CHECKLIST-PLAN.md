@@ -178,7 +178,7 @@ Add only a counter for the 64-char limit:
   iPad Simulator for anything broken. Ship as-is.
 - **B (project)**: `NavigationSplitView` — sidebar (Inbox/Keys/Settings) +
   detail pane, Inbox selection opens message detail in the pane. Touches
-  navigation on every screen; its own PR series and VERIFYING.md section.
+  navigation on every screen; its own PR series.
 
 Recommend A now, B only if iPad usage ever matters. Not bundled with any other
 phase.
@@ -221,7 +221,7 @@ New keys: `inbox.copied`, `inbox.refreshFailed`, `inbox.offline`,
 `make typecheck`; both schemes
 (`xcodebuild … -scheme notifi-iOS` with `DEVELOPMENT_TEAM=Z28DW76Y3W`, and
 `notifi-macOS`); Simulator screenshots of all three tabs (shared-geometry
-rule) plus each touched screen, against `docs/VERIFYING.md`. Haptics can't be
+rule) plus each touched screen. Haptics can't be
 screenshotted — state plainly in the PR which triggers were exercised by hand
 on the Simulator (impact/selection fire in the Simulator's haptics log) or
 that device verification is pending.

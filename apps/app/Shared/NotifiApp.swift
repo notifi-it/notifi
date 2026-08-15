@@ -20,13 +20,6 @@ struct NotifiApp: App {
     #endif
 
     #if os(macOS)
-    // The status item is built here, not in the app delegate.
-    //
-    // With `Settings` as the only scene the delegate was never instantiated, so
-    // nothing ever created a status item; the app then owned no UI at all and
-    // macOS terminated it about twelve seconds after launch, before it could
-    // register the device. `App.init()` runs at launch regardless of scenes, so
-    // the item — and with it the NSPopover — is guaranteed to exist.
     init() {
         MainActor.assumeIsolated {
             macMenuBar.configure(model: macAppModel, container: macContainer)
@@ -37,9 +30,6 @@ struct NotifiApp: App {
     static func makeContainer() -> ModelContainer {
         do {
             let container = try ModelContainer(for: Message.self)
-            // The store stays in backups on purpose: an archive that outlives its
-            // keychain identity is exactly how a restored phone is detected. What it
-            // does not need is to sit unprotected on disk between unlocks.
             if let url = container.configurations.first?.url {
                 OnDiskProtection.protect(url)
             }
@@ -57,8 +47,6 @@ struct NotifiApp: App {
         }
         .modelContainer(container)
         #else
-        // The popover is the whole UI, so there is no scene to show — but `App`
-        // demands one, and an empty Settings scene never opens a window.
         Settings {}
         #endif
     }
@@ -89,11 +77,6 @@ struct RootContentView: View {
         Group {
             switch model.bootState {
             case .loading:
-                // No ground of its own: the static below is the app's ground,
-                // and a flat fill here painted over it on the one screen every
-                // launch passes through. The app opened on a smooth panel and
-                // grew grain a frame later, which reads as the texture being a
-                // thing the inbox does rather than what the app is made of.
                 ProgressView()
                     .tint(Theme.muted)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -109,30 +92,16 @@ struct RootContentView: View {
         }
         .tint(Theme.brand)
         .font(.custom("Inconsolata", size: 17, relativeTo: .body))
-        // Fill before painting the ground. States like the boot error size to
-        // their own content, so without this the popover shows the black panel
-        // as a band with the vibrancy material above and below it.
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(StaticField())
-        // The app picks its own ground rather than following the system's, and
-        // starts dark whatever the phone is set to — a pager that turns white in
-        // a dark room at 3am is the case this exists for. Light is a choice made
-        // in Settings. Nothing below reads `colorScheme` directly; every colour
-        // resolves inside its token, and this modifier is what those tokens see.
         .preferredColorScheme(model.appearance.colorScheme)
         #if os(macOS)
-        // Covers the popover rather than being presented into it. See the note
-        // on `CreateKeyView.onClose` for why this is not a sheet.
         .overlay {
             if model.presentingCreateKey {
                 CreateKeyView { model.presentingCreateKey = false }
                     .environment(model)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Theme.bg)
-                    // A full-window pane sliding up is the largest movement the
-                    // app makes, and it was the one piece of motion still
-                    // ungated. Under Reduce Motion it crossfades instead of
-                    // travelling; it still arrives, it just does not fly.
                     .transition(reduceMotion ? .opacity : .move(edge: .bottom))
             }
         }
@@ -147,10 +116,6 @@ struct RootContentView: View {
                     await model.refreshPermission()
                     await model.refresh()
                 }
-                // iOS only: a backgrounded app cannot hold a socket, so the
-                // connection is tied to the foreground rather than the process.
-                // The Mac starts its own from `applicationDidFinishLaunching`
-                // and never stops.
                 #if os(iOS)
                 model.startLiveUpdates()
                 #endif

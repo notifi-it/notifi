@@ -5,9 +5,6 @@ extension Font {
         .custom("Inconsolata", size: incoSize(style), relativeTo: style).weight(weight)
     }
 
-    /// A raw point size off the ladder, for the feed's single-line rows and the
-    /// detail metadata, whose spec sizes (13.5, 11.5) fall between the steps.
-    /// Still relative to a text style so Dynamic Type keeps scaling it.
     static func inco(size: CGFloat, weight: Font.Weight = .regular,
                      relativeTo style: Font.TextStyle = .caption) -> Font {
         .custom("Inconsolata", size: size, relativeTo: style).weight(weight)

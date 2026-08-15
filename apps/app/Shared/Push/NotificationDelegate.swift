@@ -7,18 +7,10 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate, @u
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        // A push that lost the race to the socket: the sync already posted a
-        // local backstop banner for this message, and keeping both would tell
-        // the user twice. The push's copy wins because it is the one Apple will
-        // stack and summarise with the rest of its thread.
         if notification.request.trigger is UNPushNotificationTrigger,
            let serverID = Self.serverID(from: notification.request.content.userInfo) {
             center.removeDeliveredNotifications(withIdentifiers: ["local-\(serverID)"])
         }
-        // `.list` as well as `.banner`, so a page that arrives while the app is
-        // open still lands in Notification Center. Without it the banner is the
-        // only copy that ever exists and it is gone in four seconds — which for
-        // anything the user did not happen to be looking at is a lost alert.
         completionHandler([.banner, .list, .sound, .badge])
         Task { @MainActor in
             AppModel.shared?.handleForegroundPush()
@@ -42,10 +34,6 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate, @u
         case NotificationCategories.Action.markRead:
             Task { @MainActor in AppModel.perform(.markRead(serverID: serverID)) }
         case NotificationCategories.Action.openLink:
-            // The link is read back out of the sealed blob rather than the row,
-            // because the button has to work before the message has synced, and
-            // because putting the URL in the push's userInfo would leave it sitting
-            // in the notification store in the clear.
             let content = Self.content(from: userInfo)
             var link: URL?
             if let raw = content?.link { link = URL(string: raw) }

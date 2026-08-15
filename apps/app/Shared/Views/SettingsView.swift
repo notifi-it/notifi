@@ -1,15 +1,10 @@
 import SwiftUI
 import UserNotifications
 
-/// Settings.
-///
-/// Geist replaces `Form` with hairline-ruled sections — `Form` brings grouped
-/// backgrounds and system insets that fight a pure-black ground.
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
 
     @State private var strictSendFailed = false
-
 
     var body: some View {
         @Bindable var model = model
@@ -17,22 +12,10 @@ struct SettingsView: View {
         GeistPage(scroll: .page) {
             GeistHeader(title: Copy.Settings.title)
         } content: {
-            // The gutter sits on each block rather than on the stack, so the
-            // rules between rows run the full width of the column while the
-            // content they separate stays inside the margin.
             VStack(alignment: .leading, spacing: 0) {
-                // MARK: Permissions
-                //
-                // One section for everything that grants or withholds: what the
-                // OS lets notifi show (only when that needs fixing), what a
-                // message may fetch, and what a sender may get away with.
                 SectionLabel(text: Copy.Settings.sectionPermissions, isFirst: true)
                     .geistGutter()
 
-                // Only when something needs fixing. Granted permission is the
-                // steady state, and a row confirming it daily is noise; the
-                // system-settings door for the healthy case lives at the bottom
-                // of the page instead.
                 if model.notificationStatus != .authorized {
                     FieldRow(label: Copy.Settings.permission) {
                         Text(permissionText)
@@ -49,8 +32,6 @@ struct SettingsView: View {
                     .geistGutter()
                 }
 
-                // Only when it is wrong. A row that says "Delivery: fine" every
-                // day trains the eye to skip the one day it does not.
                 if model.pushDeliveryLooksBroken {
                     FieldRow(label: Copy.Settings.delivery) {
                         Text(Copy.Settings.deliveryBroken)
@@ -72,9 +53,6 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                // The switch reads the model and writes through the API, so it
-                // shows what the server will actually do rather than what was
-                // last tapped. A failed write leaves it where it was and says so.
                 ToggleRow(
                     title: Copy.Settings.strictSend,
                     detail: Copy.Settings.strictSendDetail,
@@ -101,7 +79,6 @@ struct SettingsView: View {
                 }
                 Hairline()
 
-                // MARK: Appearance
                 SectionLabel(text: Copy.Settings.sectionAppearance)
                     .geistGutter()
 
@@ -114,13 +91,9 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                // MARK: Support
                 SectionLabel(text: Copy.Settings.sectionSupport)
                     .geistGutter()
 
-                // Split by intent: report@ carries what is broken, and
-                // feedback goes to the App Store review page, where it is
-                // public and counts toward the rating.
                 Link(destination: URL(string: "mailto:report@notifi.it")!) {
                     DisclosureRow {
                         Text(Copy.Settings.support)
@@ -145,7 +118,6 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                // MARK: About
                 SectionLabel(text: Copy.Settings.sectionAbout)
                     .geistGutter()
 
@@ -153,8 +125,6 @@ struct SettingsView: View {
                     .geistGutter()
                 Hairline()
 
-                // Sparkle only exists in the macOS build; iOS updates through the
-                // App Store and does not link it.
                 #if os(macOS)
                 ToggleRow(
                     title: Copy.Settings.openAtLogin,
@@ -194,10 +164,6 @@ struct SettingsView: View {
                 Hairline()
                 #endif
 
-                // The door to the OS's own notification switches. Duplicated
-                // from the Permissions section on purpose: up there it only
-                // appears when permission is missing, and hiding the healthy
-                // row took the only path to the system page with it.
                 Button {
                     model.openSystemNotificationSettings()
                 } label: {
@@ -224,8 +190,6 @@ struct SettingsView: View {
                 .geistGutter()
                 Hairline()
 
-                // The site sits at the foot rather than in a row of its own: it
-                // leaves the app, which is not what the rows above it do.
                 Link(destination: URL(string: "https://notifi.it")!) {
                     HStack(spacing: 5) {
                         Text(Copy.Settings.website)
@@ -234,18 +198,12 @@ struct SettingsView: View {
                             .renderingMode(.template)
                             .resizable()
                             .frame(width: 11, height: 11)
-                            // A bundle image with no label falls back to its own
-                            // filename, so this read out as "notifi.it, akar link
-                            // chain". The glyph only says the link leaves the app,
-                            // which the link itself already says.
                             .accessibilityHidden(true)
                     }
                     .foregroundStyle(Theme.muted)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.geist)
-                // 11pt text and an 11pt glyph, so the drawn target is about a
-                // third of the minimum.
                 .geistHitArea(expandedBy: 15)
                 .padding(.top, 14)
                 .padding(.bottom, 40)

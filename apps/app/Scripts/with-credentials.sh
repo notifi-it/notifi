@@ -1,30 +1,15 @@
 #!/usr/bin/env bash
-# Resolves signing/release credentials, then execs the command given to it from
-# apps/app. Used by the Makefile to wrap fastlane:
-#
-#   Scripts/with-credentials.sh bundle exec fastlane ios beta
-#   Scripts/with-credentials.sh preflight
-#
-# Credentials come from the login Keychain first (service notifi-release, the
-# same shape converse-ios uses), then from a gitignored apps/app/.deploy.env:
-#
-#   security add-generic-password -A -U -s notifi-release -a asc-key-id    -w '<key id>'
-#   security add-generic-password -A -U -s notifi-release -a asc-issuer-id -w '<issuer uuid>'
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 ROOT="$PWD"
 
-# fastlane requires a UTF-8 locale. Without it xcpretty dies parsing build output
-# as US-ASCII, and gym reports that crash as a build failure -- the real error is
-# nowhere in the output. Non-interactive shells often have no LANG at all.
 export LANG="${LANG:-en_US.UTF-8}"
 export LANGUAGE="${LANGUAGE:-en_US.UTF-8}"
 export LC_ALL="${LC_ALL:-en_US.UTF-8}"
 
 if [[ -f "$ROOT/.deploy.env" ]]; then
   set -a
-  # shellcheck disable=SC1090
   source "$ROOT/.deploy.env"
   set +a
 fi
@@ -57,14 +42,9 @@ fi
   || die "App Store Connect key not found. Set ASC_KEY_PATH to your AuthKey_${ASC_KEY_ID}.p8."
 ASC_KEY_PATH="$(cd "$(dirname "$ASC_KEY_PATH")" && pwd)/$(basename "$ASC_KEY_PATH")"
 
-# project.yml interpolates ${DEVELOPMENT_TEAM} at xcodegen time (CI supplies it
-# from the APPLE_TEAM_ID secret). Unset locally it generates an empty team and
-# every signed build fails with "requires a development team".
 export DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM:-$TEAM_ID}"
 export TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_PATH
 
-# Fail fast with an actionable message rather than a cryptic error part-way
-# through a signed build.
 if [[ "${1:-}" == "preflight" ]]; then
   command -v xcodegen >/dev/null || die "xcodegen not installed. Run: brew install xcodegen"
   bundle exec fastlane --version >/dev/null 2>&1 \
