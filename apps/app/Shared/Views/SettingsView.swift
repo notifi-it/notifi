@@ -14,181 +14,189 @@ struct SettingsView: View {
         } content: {
             VStack(alignment: .leading, spacing: 0) {
                 SectionLabel(text: Copy.Settings.sectionPermissions, isFirst: true)
-                    .geistGutter()
+                    .geistGroupGutter()
 
-                if model.notificationStatus != .authorized {
-                    FieldRow(label: Copy.Settings.permission) {
-                        Text(permissionText)
-                            .font(.inco(.subheadline, weight: .medium))
-                            .foregroundStyle(Theme.muted)
-                    }
-                    .geistGutter()
-                    Hairline()
-
-                    OutlineButton(title: Copy.Settings.openSystemSettings) {
-                        model.openSystemNotificationSettings()
-                    }
-                    .padding(.top, 14)
-                    .geistGutter()
-                }
-
-                if model.pushDeliveryLooksBroken {
-                    FieldRow(label: Copy.Settings.delivery) {
-                        Text(Copy.Settings.deliveryBroken)
-                            .font(.inco(.subheadline, weight: .medium))
-                            .foregroundStyle(Theme.brandText)
-                    }
-                    .geistGutter()
-                    Text(Copy.Settings.deliveryBrokenDetail)
-                        .geistConsequence()
+                GeistGroup {
+                    if model.notificationStatus != .authorized {
+                        FieldRow(label: Copy.Settings.permission) {
+                            Text(permissionText)
+                                .font(.inco(.subheadline, weight: .medium))
+                                .foregroundStyle(Theme.muted)
+                        }
                         .geistGutter()
-                    Hairline()
-                }
 
-                ToggleRow(
-                    title: Copy.Settings.loadImages,
-                    detail: Copy.Settings.loadImagesDetail,
-                    isOn: $model.remoteImagesEnabled
-                )
-                .geistGutter()
-                Hairline()
+                        OutlineButton(title: Copy.Settings.openSystemSettings) {
+                            model.openSystemNotificationSettings()
+                        }
+                        .padding(.bottom, 14)
+                        .geistGutter()
+                        RowRule()
+                    }
 
-                ToggleRow(
-                    title: Copy.Settings.strictSend,
-                    detail: Copy.Settings.strictSendDetail,
-                    isOn: Binding(
-                        get: { model.strictSend },
-                        set: { wanted in
-                            Task {
-                                strictSendFailed = false
-                                do {
-                                    try await model.setStrictSend(wanted)
-                                } catch {
-                                    strictSendFailed = true
+                    if model.pushDeliveryLooksBroken {
+                        FieldRow(label: Copy.Settings.delivery) {
+                            Text(Copy.Settings.deliveryBroken)
+                                .font(.inco(.subheadline, weight: .medium))
+                                .foregroundStyle(Theme.brandText)
+                        }
+                        .geistGutter()
+                        Text(Copy.Settings.deliveryBrokenDetail)
+                            .geistConsequence()
+                            .geistGutter()
+                        RowRule()
+                    }
+
+                    ToggleRow(
+                        title: Copy.Settings.loadImages,
+                        detail: Copy.Settings.loadImagesDetail,
+                        isOn: $model.remoteImagesEnabled
+                    )
+                    .geistGutter()
+                    RowRule()
+
+                    ToggleRow(
+                        title: Copy.Settings.strictSend,
+                        detail: Copy.Settings.strictSendDetail,
+                        isOn: Binding(
+                            get: { model.strictSend },
+                            set: { wanted in
+                                Task {
+                                    strictSendFailed = false
+                                    do {
+                                        try await model.setStrictSend(wanted)
+                                    } catch {
+                                        strictSendFailed = true
+                                    }
                                 }
                             }
-                        }
+                        )
                     )
-                )
-                .geistGutter()
+                    .geistGutter()
 
-                if strictSendFailed {
-                    InlineError(message: Copy.Settings.strictSendFailed)
-                        .padding(.bottom, 12)
-                        .geistGutter()
+                    if strictSendFailed {
+                        InlineError(message: Copy.Settings.strictSendFailed)
+                            .padding(.bottom, 12)
+                            .geistGutter()
+                    }
                 }
-                Hairline()
 
                 SectionLabel(text: Copy.Settings.sectionAppearance)
-                    .geistGutter()
+                    .geistGroupGutter()
 
-                SegmentedRow(
-                    title: Copy.Settings.theme,
-                    options: Appearance.allCases,
-                    label: \.title,
-                    selection: $model.appearance
-                )
-                .geistGutter()
-                Hairline()
+                GeistGroup {
+                    SegmentedRow(
+                        title: Copy.Settings.theme,
+                        options: Appearance.allCases,
+                        label: \.title,
+                        selection: $model.appearance
+                    )
+                    .geistGutter()
+                }
 
                 SectionLabel(text: Copy.Settings.sectionSupport)
+                    .geistGroupGutter()
+
+                GeistGroup {
+                    Link(destination: URL(string: "mailto:report@notifi.it")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.support)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
                     .geistGutter()
+                    RowRule()
 
-                Link(destination: URL(string: "mailto:report@notifi.it")!) {
-                    DisclosureRow {
-                        Text(Copy.Settings.support)
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
+                    Link(destination: URL(string: "https://apps.apple.com/app/id1563961135?action=write-review")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.feedback)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
                     }
-                    .padding(.vertical, 12)
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
                 }
-                .buttonStyle(.geistRow)
-                .geistGutter()
-                Hairline()
-
-                Link(destination: URL(string: "https://apps.apple.com/app/id1563961135?action=write-review")!) {
-                    DisclosureRow {
-                        Text(Copy.Settings.feedback)
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
-                    }
-                    .padding(.vertical, 12)
-                }
-                .buttonStyle(.geistRow)
-                .geistGutter()
-                Hairline()
 
                 SectionLabel(text: Copy.Settings.sectionAbout)
-                    .geistGutter()
+                    .geistGroupGutter()
 
-                FieldRow(Copy.Settings.version, AppModel.appVersion)
-                    .geistGutter()
-                Hairline()
+                GeistGroup {
+                    FieldRow(Copy.Settings.version, AppModel.appVersion)
+                        .geistGutter()
+                    RowRule()
 
-                #if os(macOS)
-                ToggleRow(
-                    title: Copy.Settings.openAtLogin,
-                    detail: Copy.Settings.openAtLoginDetail,
-                    isOn: Binding(
-                        get: { LoginItem.shared.opensAtLogin },
-                        set: { LoginItem.shared.setOpensAtLogin($0) }
+                    #if os(macOS)
+                    ToggleRow(
+                        title: Copy.Settings.openAtLogin,
+                        detail: Copy.Settings.openAtLoginDetail,
+                        isOn: Binding(
+                            get: { LoginItem.shared.opensAtLogin },
+                            set: { LoginItem.shared.setOpensAtLogin($0) }
+                        )
                     )
-                )
-                .geistGutter()
-                Hairline()
+                    .geistGutter()
+                    RowRule()
 
-                ToggleRow(
-                    title: Copy.Settings.automaticUpdates,
-                    detail: Copy.Settings.automaticUpdatesDetail,
-                    isOn: Binding(
-                        get: { Updater.shared.automaticallyChecks },
-                        set: { Updater.shared.setAutomaticallyChecks($0) }
+                    ToggleRow(
+                        title: Copy.Settings.automaticUpdates,
+                        detail: Copy.Settings.automaticUpdatesDetail,
+                        isOn: Binding(
+                            get: { Updater.shared.automaticallyChecks },
+                            set: { Updater.shared.setAutomaticallyChecks($0) }
+                        )
                     )
-                )
-                .geistGutter()
-                Hairline()
+                    .geistGutter()
+                    RowRule()
 
-                Button {
-                    Updater.shared.checkForUpdates()
-                } label: {
-                    DisclosureRow {
-                        Text(Copy.Settings.checkForUpdates)
-                            .font(Theme.body)
-                            .foregroundStyle(Updater.shared.canCheck ? Theme.fg : Theme.dim)
+                    Button {
+                        Updater.shared.checkForUpdates()
+                    } label: {
+                        DisclosureRow {
+                            Text(Copy.Settings.checkForUpdates)
+                                .font(Theme.body)
+                                .foregroundStyle(Updater.shared.canCheck ? Theme.fg : Theme.dim)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
                     }
-                    .padding(.vertical, Theme.rowPadV)
-                }
-                .buttonStyle(.geistRow)
-                .disabled(!Updater.shared.canCheck)
-                .geistGutter()
-                Hairline()
-                #endif
+                    .buttonStyle(.geistRow)
+                    .disabled(!Updater.shared.canCheck)
+                    .geistGutter()
+                    RowRule()
+                    #endif
 
-                Button {
-                    model.openSystemNotificationSettings()
-                } label: {
-                    DisclosureRow {
-                        Text(Copy.Settings.openSystemSettings)
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
+                    // Duplicated from the Permissions section on purpose: up
+                    // there it only appears when permission is missing, and
+                    // hiding the healthy row took the only path to the system
+                    // page with it.
+                    Button {
+                        model.openSystemNotificationSettings()
+                    } label: {
+                        DisclosureRow {
+                            Text(Copy.Settings.openSystemSettings)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
                     }
-                    .padding(.vertical, 12)
-                }
-                .buttonStyle(.geistRow)
-                .geistGutter()
-                Hairline()
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                    RowRule()
 
-                Link(destination: URL(string: "https://notifi.it/privacy")!) {
-                    DisclosureRow {
-                        Text(Copy.Settings.privacyPolicy)
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
+                    Link(destination: URL(string: "https://notifi.it/privacy")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.privacyPolicy)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
                     }
-                    .padding(.vertical, 12)
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
                 }
-                .buttonStyle(.geistRow)
-                .geistGutter()
-                Hairline()
 
                 Link(destination: URL(string: "https://notifi.it")!) {
                     HStack(spacing: 5) {
@@ -207,7 +215,7 @@ struct SettingsView: View {
                 .geistHitArea(expandedBy: 15)
                 .padding(.top, 14)
                 .padding(.bottom, 40)
-                .geistGutter()
+                .geistGroupGutter()
             }
         }
         .task {

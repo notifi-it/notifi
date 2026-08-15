@@ -91,7 +91,7 @@ struct RootContentView: View {
             }
         }
         .tint(Theme.brand)
-        .font(.custom("Inconsolata", size: 17, relativeTo: .body))
+        .font(.inco(.body))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(StaticField())
         .preferredColorScheme(model.appearance.colorScheme)

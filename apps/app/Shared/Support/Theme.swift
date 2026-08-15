@@ -7,7 +7,12 @@ import AppKit
 
 enum Theme {
 
-    static let bg = grey(light: 0.98, dark: 0.11)
+    /// `LaunchBackground` in the asset catalog is a hand-kept copy of this pair,
+    /// as are `StaticNoise`'s grounds. Change one, change all three.
+    static let bg = grey(light: 0.949, dark: 0.035)
+    /// A section of settings rows, one step up off `bg`. This is the app's
+    /// grouping device, which is why no rule draws that boundary as well.
+    static let groupFill = grey(light: 1.0, dark: 0.11)
     static let fg = grey(light: 0.102, dark: 0.929)
     static let read = grey(light: 0.28, dark: 0.72)
     static let muted = grey(light: 0.36, dark: 0.631)
@@ -65,6 +70,18 @@ enum Theme {
 
     static let blockRadius: CGFloat = 10
 
+    /// How far a `GeistGroup`'s fill sits in from the screen edge. Adds to
+    /// `gutter`, which insets the rows inside it, for 32pt of text inset.
+    static let groupInset: CGFloat = 12
+
+    /// One device pixel. Was 1pt, which is three on a 3x screen — a bar rather
+    /// than a separator.
+    #if os(iOS)
+    static var hairline: CGFloat { 1 / UIScreen.main.scale }
+    #else
+    static var hairline: CGFloat { 1 / (NSScreen.main?.backingScaleFactor ?? 2) }
+    #endif
+
     #if os(macOS)
     static let firstBlockTop: CGFloat = 16
     #else
@@ -113,11 +130,20 @@ enum Theme {
     static var metaSmall: Font { .inco(.caption2, weight: .regular) }
     static var label: Font { .inco(.caption2, weight: .medium) }
     static var screenTitle: Font { .inco(.title, weight: .bold) }
+    /// Tracking is a view modifier rather than part of a Font, so every screen
+    /// title applies this alongside `screenTitle`.
+    static let screenTitleTracking: CGFloat = 1
     static var sectionLabel: Font { .inco(.caption2, weight: .semibold) }
 }
 
 extension View {
     func geistGutter() -> some View { padding(.horizontal, Theme.gutter) }
+
+    /// For anything sitting beside a `GeistGroup` rather than in one — the
+    /// section label. Lands on the same left edge as the rows inside it.
+    func geistGroupGutter() -> some View {
+        padding(.horizontal, Theme.groupInset + Theme.gutter)
+    }
 
     func geistMeasure() -> some View {
         frame(maxWidth: Theme.measure, alignment: .leading)
@@ -266,7 +292,7 @@ extension View {
 
 struct Hairline: View {
     var color: Color = Theme.line
-    var weight: CGFloat = 1
+    var weight: CGFloat = Theme.hairline
     var body: some View {
         Rectangle()
             .fill(color)

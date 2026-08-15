@@ -86,6 +86,7 @@ struct CreateKeyView: View {
 
             Text(Copy.CreateKey.title.uppercased())
                 .font(Theme.screenTitle)
+                .tracking(Theme.screenTitleTracking)
                 .foregroundStyle(Theme.fg)
 
             Text(Copy.CreateKey.intro)
@@ -168,6 +169,7 @@ struct CreateKeyView: View {
 
             Text(Copy.CreateKey.revealTitle.uppercased())
                 .font(Theme.screenTitle)
+                .tracking(Theme.screenTitleTracking)
                 .foregroundStyle(Theme.fg)
 
             Text(Copy.CreateKey.revealDetail)

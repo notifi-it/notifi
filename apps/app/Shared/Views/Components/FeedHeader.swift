@@ -16,6 +16,7 @@ struct FeedHeader<Trailing: View>: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(Copy.Inbox.title.uppercased())
                     .font(Theme.screenTitle)
+                    .tracking(Theme.screenTitleTracking)
                     .foregroundStyle(Theme.fg)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)

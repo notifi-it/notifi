@@ -68,7 +68,7 @@ extension MarkdownUI.Theme {
             ForegroundColor(critical ? Theme.brandDim : Theme.fg)
         }
         .code {
-            FontFamily(.custom("Inconsolata"))
+            FontFamily(.custom("Recursive Mono"))
             FontSize(15)
             ForegroundColor(Theme.fg)
         }
@@ -99,7 +99,7 @@ extension MarkdownUI.Theme {
                 configuration.label
                     .relativeLineSpacing(.em(0.2))
                     .markdownTextStyle {
-                        FontFamily(.custom("Inconsolata"))
+                        FontFamily(.custom("Recursive Mono"))
                         FontSize(13)
                         ForegroundColor(Theme.fg)
                     }
@@ -133,7 +133,7 @@ extension MarkdownUI.Theme {
                 .textCase(.uppercase)
                 .tracking(1.4)
                 .markdownTextStyle {
-                    FontFamily(.custom("Inconsolata"))
+                    FontFamily(.custom("Recursive Mono"))
                     FontSize(11)
                     FontWeight(.semibold)
                     ForegroundColor(Theme.fg)

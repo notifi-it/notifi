@@ -87,8 +87,10 @@ struct SectionLabel: View {
             Text(text.uppercased())
                 .font(Theme.sectionLabel)
                 .tracking(1.4)
-                .foregroundStyle(Theme.dim)
-            Hairline()
+                // The label is the only thing naming the group now that no rule
+                // marks it, so it cannot sit at the most-receded value.
+                .foregroundStyle(Theme.read)
+            Spacer(minLength: 0)
             if let trailing {
                 Text(trailing)
                     .font(Theme.metaSmall)
@@ -97,6 +99,39 @@ struct SectionLabel: View {
         }
         .padding(.top, isFirst ? 0 : 34)
         .padding(.bottom, 9)
+    }
+}
+
+/// A group of settings rows, lifted off the ground on its own fill. This is the
+/// grouping device; a rule around it would draw the same boundary twice.
+///
+/// Rows arrive already separated — only the caller knows which are conditional,
+/// and a separator outliving the row above it is the bug that would introduce.
+struct GeistGroup<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            content
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        // The static one step up, not a fill over it: a translucent panel
+        // dilutes the speckle it covers, so the raised block would read as less
+        // textured than the page around it.
+        .background(
+            StaticField(level: .raised, fillsScreen: false)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.blockRadius))
+        )
+        .padding(.horizontal, Theme.groupInset)
+    }
+}
+
+/// The separator between two rows of a `GeistGroup`, inset to the row's text so
+/// it never reaches the fill's rounded corner.
+struct RowRule: View {
+    var body: some View {
+        Hairline()
+            .padding(.leading, Theme.gutter)
     }
 }
 
@@ -449,6 +484,7 @@ struct GeistHeader<Trailing: View>: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title.uppercased())
                     .font(Theme.screenTitle)
+                    .tracking(Theme.screenTitleTracking)
                     .foregroundStyle(Theme.fg)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)

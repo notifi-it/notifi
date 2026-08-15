@@ -1,6 +1,6 @@
 """Compose the App Store screenshots from raw simulator captures.
 
-Same system as the site: pure black, Inconsolata for the title, Karla for the
+Same system as the site: pure black, Recursive Mono for the title, Karla for the
 description, one red accent, and the device shot bleeding off the bottom edge.
 Output is 1290x2796, the 6.9" iPhone size, which is the only set Apple now
 requires — it downscales the rest itself.
@@ -56,7 +56,7 @@ def dehinted(name):
     return out
 
 
-MONO = dehinted("Inconsolata")
+MONO = dehinted("RecursiveMono-SemiBold")
 SANS = dehinted("Karla")
 
 GUTTER = 96
