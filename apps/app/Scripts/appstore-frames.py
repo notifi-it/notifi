@@ -181,8 +181,8 @@ def frame(shot_name, title, desc, out_name):
 
 frame("inbox.png",
       "One request.\nStraight to your pocket.",
-      "One HTTP request to notifi.it and it arrives a moment later, carrying a "
-      "message, an image and a link. No SDK and no dependency.",
+      "One HTTP request to notifi.it and it arrives a moment later. "
+      "No SDK and no dependency.",
       "01_inbox.png")
 
 frame("detail.png",
