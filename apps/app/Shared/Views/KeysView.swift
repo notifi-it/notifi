@@ -48,36 +48,36 @@ struct KeysView: View {
 
     var body: some View {
         GeistPage(scroll: .page) {
-            GeistHeader(title: Copy.Keys.title, subtitle: subtitle) {
-                // One control on both platforms. The Mac used to carry a text
-                // pill here while iOS had the disc, which drifted the two
-                // headers apart for no reason either screen owns.
-                IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
-                    #if os(iOS)
-                    showingCreate = true
-                    #else
-                    model.presentingCreateKey = true
-                    #endif
+            VStack(alignment: .leading, spacing: 0) {
+                GeistHeader(title: Copy.Keys.title, subtitle: subtitle) {
+                    // One control on both platforms. The Mac used to carry a text
+                    // pill here while iOS had the disc, which drifted the two
+                    // headers apart for no reason either screen owns.
+                    IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
+                        #if os(iOS)
+                        showingCreate = true
+                        #else
+                        model.presentingCreateKey = true
+                        #endif
+                    }
                 }
+                // What a key is, said once under the title rather than only
+                // while the list is empty — the reader who needs it most is
+                // the one who has not made a key yet, but it stays true
+                // afterwards. Prose, not metadata: Karla in muted, the same
+                // treatment consequence copy gets, because a sentence set in
+                // the mono metadata font reads as terminal output.
+                Text(Copy.Keys.intro)
+                    .font(Theme.body)
+                    .foregroundStyle(Theme.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 8)
             }
         } content: {
             // The gutter is applied per block rather than to the stack, so the
             // rules between rows can run the full width of the column while the
             // content they separate stays inside the margin.
             VStack(alignment: .leading, spacing: 0) {
-                // What a key is, said once at the top rather than only while
-                // the list is empty — the reader who needs it most is the one
-                // who has not made a key yet, but it stays true afterwards.
-                // Prose, not metadata: Karla in muted, the same treatment
-                // consequence copy gets, because a sentence set in the mono
-                // metadata font reads as terminal output.
-                Text(Copy.Keys.intro)
-                    .font(Theme.body)
-                    .foregroundStyle(Theme.muted)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, 18)
-                    .geistGutter()
-
                 if refreshFailed {
                     InlineError(message: Copy.Keys.refreshFailed)
                         .geistGutter()

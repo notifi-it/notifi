@@ -45,6 +45,7 @@ struct InboxRootView: View {
 
             GeistTabBar(selection: $model.selectedTab)
         }
+        .task { await shotSetup() }
         #endif
     }
 

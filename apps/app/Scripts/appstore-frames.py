@@ -5,7 +5,7 @@ description, one red accent, and the device shot bleeding off the bottom edge.
 Output is 1290x2796 (the 6.9" iPhone set), or 2048x2732 with IPAD=1 — both
 are required, because the app runs on iPad.
 
-Normally not run by hand: `make appstore-shots` builds, captures both device
+Normally not run by hand: `make screens` builds, captures both device
 sets from the Simulator, and runs this twice (plain, then IPAD=1). To re-render
 from existing captures:
 

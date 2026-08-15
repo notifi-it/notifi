@@ -1,6 +1,6 @@
 .PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-metadata app-metadata-check shots appstore-shots
+	app-metadata app-metadata-check shots screens screens-mac
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -88,8 +88,14 @@ app-metadata:
 shots:
 	apps/app/Scripts/shots.sh
 
-# The App Store screenshot sets, end to end: build, capture on an iPhone and
-# an iPad simulator, render both frame sets into fastlane/screenshots/en-GB.
-# The iPad set is required — ASC refuses a submission without ipadPro129.
-appstore-shots:
-	apps/app/Scripts/appstore-shots.sh
+# Every published iOS screenshot from one command: both App Store sets (the
+# iPad one is required — ASC refuses a submission without ipadPro129) and the
+# four device shots in apps/api/public/screens the website shows.
+screens:
+	apps/app/Scripts/screens.sh
+
+# The website's Mac popover shot. Separate because it builds and drives the
+# real macOS app on this machine, and quits it — relaunch the installed app
+# afterwards so Mac push re-registers.
+screens-mac:
+	apps/app/Scripts/screens-mac.sh
