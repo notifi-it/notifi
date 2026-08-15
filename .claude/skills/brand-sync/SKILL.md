@@ -22,6 +22,19 @@ skill is the procedure for pushing the current truth back out.
 | LinkedIn banner | `docs/socials/images/linkedin-banner.png` |
 | Site URL | https://notifi.it |
 
+## The accounts
+
+The handles are not the same on every site — `notifi` was taken, and each
+fallback was picked separately. Read them here rather than guessing from the
+product name, and keep the website footer in step with this table.
+
+| Site | Handle | URL |
+|---|---|---|
+| X | `notifiit` | https://x.com/notifiit |
+| Instagram | `notifidotit` | https://instagram.com/notifidotit |
+| Facebook | `notifidotit` | https://facebook.com/notifidotit |
+| GitHub org | `notifi-it` | https://github.com/notifi-it |
+
 The website itself deploys from `apps/api/public/` on merge to main — it never
 needs manual syncing. If the sources above changed, run the sync below.
 
