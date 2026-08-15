@@ -2166,7 +2166,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%u more from %1$@"
+            "value": "%%u more from %1$@"
           }
         }
       }

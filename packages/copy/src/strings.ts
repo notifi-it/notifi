@@ -48,7 +48,10 @@ export const copy = {
     fallbackBody: 'Open notifi to view',
     actionOpenLink: 'Open link',
     actionMarkAsRead: 'Mark as read',
-    summaryFormat: '%u more from {name}',
+    // The %u is filled by the OS with the collapsed-notification count, not by
+    // us. The app formats this string once to substitute {name}, so the count
+    // slot is escaped as %% to survive that pass as a literal %u.
+    summaryFormat: '%%u more from {name}',
   },
 
   common: {
