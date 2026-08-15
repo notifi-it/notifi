@@ -15,14 +15,17 @@ final class SocketClient {
     private(set) var state: State = .idle
 
     private let api: APIClient
-    private let onWake: () async -> Void
+    // The argument is the server id of a message the server could not push
+    // (APNs refused or the device has no token), or nil for a plain wake.
+    // It is the app's cue to post its own banner for that message.
+    private let onWake: (Int?) async -> Void
     private let log = Logger(subsystem: "it.notifi.notifi", category: "socket")
 
     private var task: URLSessionWebSocketTask?
     private var runLoop: Task<Void, Never>?
     private var attempt = 0
 
-    init(api: APIClient, onWake: @escaping () async -> Void) {
+    init(api: APIClient, onWake: @escaping (Int?) async -> Void) {
         self.api = api
         self.onWake = onWake
     }
@@ -64,7 +67,7 @@ final class SocketClient {
             task = socket
             socket.resume()
 
-            await onWake()
+            await onWake(nil)
             attempt = 0
             enter(.connected)
 
@@ -87,7 +90,13 @@ final class SocketClient {
                 let frame = try await socket.receive()
                 lastInbound = Date()
                 if case .string("pong") = frame { continue }
-                await onWake()
+                var unpushed: Int?
+                if case .string(let text) = frame,
+                   let parsed = try? JSONDecoder().decode(SocketFrame.self, from: Data(text.utf8)),
+                   !parsed.pushed {
+                    unpushed = parsed.latestID
+                }
+                await onWake(unpushed)
             }
         } catch {
             log.debug("socket closed: \(String(describing: error), privacy: .public)")

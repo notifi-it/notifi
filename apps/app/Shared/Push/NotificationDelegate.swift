@@ -7,10 +7,6 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate, @u
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        if notification.request.trigger is UNPushNotificationTrigger,
-           let serverID = Self.serverID(from: notification.request.content.userInfo) {
-            center.removeDeliveredNotifications(withIdentifiers: ["local-\(serverID)"])
-        }
         completionHandler([.banner, .list, .sound, .badge])
         Task { @MainActor in
             AppModel.shared?.handleForegroundPush()

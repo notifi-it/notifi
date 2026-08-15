@@ -32,6 +32,14 @@ struct EmptyStateView: View {
         }
     }
 
+    // The full key makes the snippet wrap mid-token, so the on-screen text
+    // shortens it; Copy and text selection still carry the real command, which
+    // is why this is a second derivation rather than a change to command(key:).
+    private static func displayKey(_ key: String) -> String {
+        guard key.count > 16 else { return key }
+        return "\(key.prefix(9))…\(key.suffix(4))"
+    }
+
     private func command(key: String) -> String {
         """
         curl "\(model.baseURL.absoluteString)/send" \\
@@ -109,10 +117,11 @@ struct EmptyStateView: View {
                     if let key {
                         let command = command(key: key)
 
-                        Text(command)
+                        // Not selectable: selecting this would copy the
+                        // shortened key. The Copy button has the real command.
+                        Text(self.command(key: Self.displayKey(key)))
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.fg)
-                            .textSelection(.enabled)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(12)

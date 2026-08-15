@@ -39,7 +39,7 @@ struct MessageDetailView: View {
     private var message: Message? { messages.first }
 
     private static func age(of message: Message) -> String {
-        RelativeAge.string(since: message.occurredAt ?? message.createdAt)
+        RelativeAge.agoString(since: message.occurredAt ?? message.createdAt)
     }
 
     private static let clock: DateFormatter = {
@@ -237,7 +237,7 @@ struct MessageDetailView: View {
              + Text(" · \(Self.date.string(from: basis).uppercased())")
                 .font(.inco(size: 12))
                 .foregroundStyle(Theme.dim)
-             + Text(" — \(Copy.Age.ago(Self.age(of: message)))")
+             + Text(" — \(Self.age(of: message))")
                 .font(.inco(size: 12))
                 .foregroundStyle(Theme.dim))
                 .monospacedDigit()

@@ -32,15 +32,16 @@ export async function push(
   payload: object,
   expiresAt: number,
   nowS: number,
-): Promise<void> {
-  if (device.apns_token === '') return;
+  collapseId: string,
+): Promise<boolean> {
+  if (device.apns_token === '') return false;
 
   let tokenHex: string;
   try {
     tokenHex = await decryptField(env, device.apns_token);
   } catch (err) {
     console.error('apns token decrypt failed', String(err));
-    return;
+    return false;
   }
 
   const doSend = async () =>
@@ -52,6 +53,11 @@ export async function push(
         'apns-push-type': 'alert',
         'apns-priority': '10',
         'apns-expiration': String(expiresAt),
+        // The collapse id becomes the delivered notification's request
+        // identifier, so the app's own backstop banner — posted under the
+        // same message id — and this push occupy one Notification Center
+        // slot instead of two. Capped at 64 bytes by APNs.
+        'apns-collapse-id': collapseId,
       },
       body: JSON.stringify(payload),
     });
@@ -61,10 +67,10 @@ export async function push(
     res = await doSend();
   } catch (err) {
     console.error('apns fetch failed', String(err));
-    return;
+    return false;
   }
 
-  if (res.status === 200) return;
+  if (res.status === 200) return true;
 
   let reason: string | null = null;
 
@@ -77,7 +83,7 @@ export async function push(
         res = await doSend();
       } catch (err) {
         console.error('apns retry failed', String(err));
-        return;
+        return false;
       }
     }
   }
@@ -90,7 +96,7 @@ export async function push(
         .bind(device.id, Math.floor(body.timestamp / 1000))
         .run();
     }
-    return;
+    return false;
   }
 
   if (res.status !== 200) {
@@ -99,5 +105,7 @@ export async function push(
       reason = body?.reason ?? null;
     }
     console.error('apns non-200', res.status, reason ?? 'no-reason');
+    return false;
   }
+  return true;
 }

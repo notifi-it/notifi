@@ -279,22 +279,25 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     payload = pushPayload(messageId, sealed, row.key_id, critical, deviceStrings);
   }
 
-  const wake = (async () => {
-    try {
-      const id = c.env.DEVICE_SOCKET.idFromName(String(row.device_id));
-      await c.env.DEVICE_SOCKET.get(id).notify(deviceSeq);
-    } catch {
-    }
-  })();
-
-  await push(
+  // The wake waits for the push on purpose: it carries whether APNs accepted
+  // this message, and that is what lets the app decide deterministically
+  // whether to post its own banner instead of racing the push on a timer.
+  const pushed = await push(
     c.env,
     c.env.DB,
     { id: row.device_id, apns_token: row.apns_token },
     payload,
     expiresAt,
     nowS,
+    String(messageId),
   );
+  const wake = (async () => {
+    try {
+      const id = c.env.DEVICE_SOCKET.idFromName(String(row.device_id));
+      await c.env.DEVICE_SOCKET.get(id).notify(deviceSeq, pushed);
+    } catch {
+    }
+  })();
   c.executionCtx.waitUntil(wake);
 
   if (asked && !critical) warnings.push(t(c).api.criticalNotAllowed);

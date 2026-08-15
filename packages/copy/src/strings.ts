@@ -271,11 +271,10 @@ export const copy = {
     createFailed: "Couldn't create the key. Check your connection and try again.",
 
     revealTitle: 'Copy your key now',
-    revealDetail: 'This is the only time it is shown.',
+    revealDetail: "It won't be shown again.",
     revealLabel: 'Your new key',
     revealWarning:
-      'This key lives and dies with this device. If you lose the device, the key stops ' +
-      'working and cannot be recovered.',
+      'Treat it like a password. If you lose it, revoke the key and make a new one.',
 
     leaveTitle: "Haven't copied it?",
     leaveCopyAndClose: 'Copy and close',
@@ -340,7 +339,7 @@ export const copy = {
 
   empty: {
     sampleTitle: 'Hello World',
-    sampleMessage: 'notifi is working.',
+    sampleMessage: 'This came from the command you just ran.',
 
     title: 'Nothing yet',
     detail: 'Send your first notification and it lands here.',

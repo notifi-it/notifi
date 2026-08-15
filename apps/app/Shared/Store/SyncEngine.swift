@@ -119,14 +119,25 @@ final class SyncEngine {
         if !firstSync { backstopBanners(arrivals) }
     }
 
+    // Server ids the socket flagged as having no APNs push behind them. Only
+    // these get a local banner: for every other arrival a push is on its way
+    // (or already shown), and posting our own would duplicate it.
+    private var unpushedIDs: Set<Int> = []
+
+    func noteUnpushed(_ serverID: Int) {
+        unpushedIDs.insert(serverID)
+    }
+
     private func backstopBanners(_ arrivals: [Arrival]) {
-        guard !arrivals.isEmpty else { return }
+        let wanted = arrivals.filter { unpushedIDs.contains($0.serverID) }
+        unpushedIDs.subtract(arrivals.map(\.serverID))
+        guard !wanted.isEmpty else { return }
         Task {
             let center = UNUserNotificationCenter.current()
             let announced = Set(await center.deliveredNotifications().compactMap {
                 Self.serverID(from: $0.request.content.userInfo)
             })
-            for arrival in arrivals where !announced.contains(arrival.serverID) {
+            for arrival in wanted where !announced.contains(arrival.serverID) {
                 let content = UNMutableNotificationContent()
                 content.title = arrival.content.title
                 if let message = arrival.content.message { content.body = message }
@@ -141,8 +152,10 @@ final class SyncEngine {
                 content.userInfo = [
                     "notifi": ["id": arrival.serverID, "sealed": arrival.sealed]
                 ]
+                // Same identifier the APNs push gets via apns-collapse-id, so
+                // if both land, Notification Center shows one entry.
                 try? await center.add(UNNotificationRequest(
-                    identifier: "local-\(arrival.serverID)",
+                    identifier: "\(arrival.serverID)",
                     content: content,
                     trigger: nil
                 ))

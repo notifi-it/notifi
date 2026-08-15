@@ -22,8 +22,8 @@ export class DeviceSocket extends DurableObject<Env> {
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  async notify(seq: number): Promise<void> {
-    const frame = JSON.stringify({ type: 'message', latest_id: seq });
+  async notify(seq: number, pushed: boolean): Promise<void> {
+    const frame = JSON.stringify({ type: 'message', latest_id: seq, pushed });
     for (const socket of this.ctx.getWebSockets()) {
       try {
         socket.send(frame);

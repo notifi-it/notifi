@@ -383,7 +383,8 @@ final class AppModel {
     func startLiveUpdates() {
         wantsLiveUpdates = true
         if socket == nil, let api {
-            socket = SocketClient(api: api) { [weak self] in
+            socket = SocketClient(api: api) { [weak self] unpushedID in
+                if let unpushedID { self?.sync?.noteUnpushed(unpushedID) }
                 await self?.sync?.sync()
             }
         }

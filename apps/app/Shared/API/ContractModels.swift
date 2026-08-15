@@ -102,6 +102,18 @@ struct HistoryResponse: Codable, Sendable {
     }
 }
 
+struct SocketFrame: Codable, Sendable {
+    let type: String
+    let latestID: Int
+    let pushed: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case latestID = "latest_id"
+        case pushed
+    }
+}
+
 struct SendResponse: Codable, Sendable {
     let ok: Bool
     let warnings: [String]?

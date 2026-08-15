@@ -226,7 +226,7 @@ private struct KeyRow: View {
                         // a tap away. A never-used key adds nothing here — its
                         // zero sent count already reads as silence.
                         if let used = key.lastUsedDate {
-                            Text(Copy.Keys.rowLastUsed(Copy.Age.ago(RelativeAge.string(since: used))))
+                            Text(Copy.Keys.rowLastUsed(RelativeAge.agoString(since: used)))
                                 .font(Theme.metaSmall)
                                 .foregroundStyle(Theme.dim)
                         }
