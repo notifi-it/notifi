@@ -83,15 +83,17 @@ capture_set "$IPAD" "ipad-"
 SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
 IPAD=1 SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
 
-# The website's four shots: the same phone captures, scaled to the size the
-# HTML declares (620x1348) and cover-cropped the few pixels of aspect
-# difference, as lossy webp. The filenames are what index.html references.
+# The website's four shots: the same phone captures at 2x the size the HTML
+# declares (620x1348), cover-cropped the few pixels of aspect difference, as
+# lossy webp. 2x because the ground's grain lives at device-pixel scale:
+# downscaling to 1x averaged it into flat black, and no webp quality brings
+# back what the resize removed. The filenames are what index.html references.
 python3 - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 
 out, site = sys.argv[1], sys.argv[2]
-W, H = 620, 1348
+W, H = 1240, 2696
 for shot, name in [("inbox", "notifications"), ("detail", "detail"),
                    ("keys", "keys"), ("settings", "settings")]:
     im = Image.open(f"{out}/{shot}.png").convert("RGB")
@@ -99,9 +101,9 @@ for shot, name in [("inbox", "notifications"), ("detail", "detail"),
     im = im.resize((round(im.width * scale), round(im.height * scale)),
                    Image.LANCZOS)
     x, y = (im.width - W) // 2, (im.height - H) // 2
-    # quality=82 smoothed the ground's grain into flat black on the darkest
-    # screens; 92 is the lowest setting that keeps it (measured, not guessed).
+    # At 2x the grain sits at pixel scale and survives compression; 80 keeps
+    # it fully (measured), and lower only shaves file size by blurring it.
     im.crop((x, y, x + W, y + H)).save(f"{site}/{name}.webp",
-                                       "WEBP", quality=92, method=6)
+                                       "WEBP", quality=80, method=6)
     print(f"{site}/{name}.webp")
 EOF
