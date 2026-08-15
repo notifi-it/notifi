@@ -1,0 +1,5 @@
+The Keys screen now says what a key is, and the built-in default key leads the list on its own raised ground.
+
+The copyable timestamp on a message is plain digits on its own line.
+
+Lighter screen titles throughout.
