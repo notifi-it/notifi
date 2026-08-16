@@ -442,6 +442,14 @@ platform :mac do
     appcast = "#{updates}/appcast.xml"
     UI.user_error!("generate_appcast produced no appcast.xml") unless File.exist?(appcast)
 
+    # A signing key that does not match SUPublicEDKey is a warning to
+    # generate_appcast, not an error: it writes the entry unsigned and exits 0,
+    # and Sparkle then refuses every update. Three releases shipped that way.
+    unless File.read(appcast).include?("sparkle:edSignature")
+      UI.user_error!("appcast has no sparkle:edSignature -- the signing key does not " \
+                     "match SUPublicEDKey, and Sparkle will reject this update")
+    end
+
     # The lane stops at the artifacts. Publishing is one `gh release create` in
     # the release-macos job, which is also the thing that has a token.
     UI.success("==> #{updates}/notifi.dmg")
