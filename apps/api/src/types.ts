@@ -18,6 +18,15 @@ export interface Env {
   APNS_KEY_ID: string;
   APNS_PRIVATE_KEY: string;
   ENCRYPTION_KEY: string;
+  /// A secret rather than a var, and optional: a DSN is a write credential for
+  /// the Sentry project, and an absent one leaves the SDK inert, which is what
+  /// `wrangler dev` wants. Set it with `wrangler secret put SENTRY_DSN`, once
+  /// per environment.
+  SENTRY_DSN?: string;
+  SENTRY_ENVIRONMENT: string;
+  /// The deploying commit, passed by CI. Absent locally, where there is nothing
+  /// to correlate a stack trace against.
+  SENTRY_RELEASE?: string;
 }
 
 export interface DeviceRow {

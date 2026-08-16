@@ -327,6 +327,19 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         message in a <code>POST</code> body instead. Neither is logged.
       </p>
     </div>
+    <p>
+      When the server hits an error it cannot handle, a report of that error is
+      sent to Sentry, an error-tracking service, so that it can be fixed. A
+      report carries the failure itself — what broke, and where in the code —
+      along with the request's method and route. It does not carry message
+      contents, request bodies, headers, or the source IP address. A send key
+      involved in a failed request is replaced, before the report leaves the
+      server, by a short one-way fingerprint of itself: enough to tell that
+      several reports concern the same key, and not enough to recover the key
+      from. Nothing about your
+      device or your messages is sent to Sentry in the ordinary course of a
+      request; a report exists only where something has gone wrong.
+    </p>
   </section>
 
   <section>
@@ -361,7 +374,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h2>No tracking</h2>
     <p>
       The app contains no analytics, no crash reporting and no advertising
-      identifiers. It talks to <code>notifi.it</code> and to Apple's push
+      identifiers — the error reporting described under <strong>Server logs</strong>
+      above is the server's own, and the app takes no part in it. It talks to
+      <code>notifi.it</code> and to Apple's push
       service, and to an image host only when you ask it to load an image. The
       Mac app additionally embeds Sparkle, an open-source updater, which
       periodically checks <code>github.com</code> for a new release; that

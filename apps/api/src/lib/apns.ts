@@ -40,7 +40,7 @@ export async function push(
   try {
     tokenHex = await decryptField(env, device.apns_token);
   } catch (err) {
-    console.error('apns token decrypt failed', String(err));
+    console.error('apns.decrypt_failed', err, { device_id: device.id });
     return false;
   }
 
@@ -66,7 +66,7 @@ export async function push(
   try {
     res = await doSend();
   } catch (err) {
-    console.error('apns fetch failed', String(err));
+    console.error('apns.fetch_failed', err, { host: env.APNS_HOST, device_id: device.id });
     return false;
   }
 
@@ -82,7 +82,7 @@ export async function push(
       try {
         res = await doSend();
       } catch (err) {
-        console.error('apns retry failed', String(err));
+        console.error('apns.retry_failed', err, { host: env.APNS_HOST, device_id: device.id });
         return false;
       }
     }
@@ -104,7 +104,12 @@ export async function push(
       const body = (await res.json().catch(() => null)) as { reason?: string } | null;
       reason = body?.reason ?? null;
     }
-    console.error('apns non-200', res.status, reason ?? 'no-reason');
+    console.error('apns.non_200', {
+      status: res.status,
+      reason: reason ?? 'none',
+      host: env.APNS_HOST,
+      device_id: device.id,
+    });
     return false;
   }
   return true;

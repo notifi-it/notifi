@@ -14,6 +14,7 @@
     "@hpke/core": "^1.7.4",
     "@notifi/contract": "workspace:*",
     "@notifi/copy": "workspace:*",
+    "@sentry/cloudflare": "^10.70.0",
     "hono": "^4.6.3"
   },
   "devDependencies": {

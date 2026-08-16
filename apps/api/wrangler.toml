@@ -1,6 +1,11 @@
 name = "notifi-api-dev"
 main = "src/index.ts"
 compatibility_date = "2026-07-01"
+# Sentry's Cloudflare SDK tracks the current scope through `AsyncLocalStorage`,
+# which is `node:async_hooks` and so needs this flag. Without it the Worker
+# fails at deploy rather than at runtime. Inherited by [env.production], unlike
+# a binding.
+compatibility_flags = ["nodejs_compat"]
 
 # The marketing site. Static files are served straight from ./public for any
 # path that matches a file; every other request falls through to the Worker, so
@@ -20,6 +25,9 @@ bucket_name = "notifi-downloads"
 [vars]
 APNS_HOST = "https://api.sandbox.push.apple.com"
 APNS_TOPIC = "it.notifi.notifi"
+# Names the Sentry environment, so the dev Worker's noise does not sit in the
+# same list as production's. The DSN is a secret and is not here.
+SENTRY_ENVIRONMENT = "dev"
 
 [[durable_objects.bindings]]
 name = "DEVICE_SOCKET"
@@ -58,6 +66,7 @@ class_name = "DeviceSocket"
 [env.production.vars]
 APNS_HOST = "https://api.push.apple.com"
 APNS_TOPIC = "it.notifi.notifi"
+SENTRY_ENVIRONMENT = "production"
 
 [[env.production.d1_databases]]
 binding = "DB"
