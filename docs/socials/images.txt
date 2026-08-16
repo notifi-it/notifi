@@ -54,11 +54,11 @@ BANNER / COVER
 
 INSTAGRAM MOSAIC
 
-  docs/socials/images/instagram-grid/post-1.png … post-9.png   1080x1350 each
+  docs/socials/images/instagram-grid/post-1.png … post-6.png   1080x1350 each
   docs/socials/images/instagram-grid/preview.png               not for posting
 
-  One bell cut into nine. Two rectangles are in play and the gap between them is
-  the whole trick.
+  One bell, whole and uncropped, cut into six across three columns and two rows.
+  Two rectangles are in play and the gap between them is the whole trick.
 
   A feed post is 4:5, 1080x1350. A profile grid thumbnail is 3:4 — measured off
   a live profile at 279x372, since Instagram changed the grid from square in
@@ -75,17 +75,25 @@ INSTAGRAM MOSAIC
   visible in the feed, where white bars down both sides of a dark tile read as a
   mistake.
 
-  The bell bleeds off all four edges. Fitted whole it grids badly — the mark is
-  round, so the corner cells come out as bare plate, and the emptiest of them
-  lands top-left and stays there.
+  Two rows, not three. The bell is very nearly square and three rows of 4:5
+  cells are not: fitted whole into 3x3 the mark spans about two thirds of the
+  height and the rest is bare plate in two bands, so the top and bottom rows
+  carry almost nothing. Two rows come to 3039x2700, close enough to the mark's
+  own proportions that fitting it whole fills the frame.
 
-  Post them in filename order, 1 through 9. Instagram fills the grid newest
+  The plate carries extra grain here and nowhere else. It cannot be had by
+  raising the 22% blend — that mixes toward mid-grey, so more of it is a lighter
+  background rather than a grainier one. A grey noise layer is laid over in
+  Overlay instead, which leaves the tone alone and only widens the spread. The
+  avatar keeps 22% because it is matched to the App Store icon on purpose.
+
+  Post them in filename order, 1 through 6. Instagram fills the grid newest
   first from the top left, so the numbering is already the reverse of the
-  reading order: post-1 ends up bottom-right, post-9 top-left. Posting them in
+  reading order: post-1 ends up bottom-right, post-6 top-left. Posting them in
   the wrong order mirrors the image, and the only fix is deleting posts.
 
-  The grid only resolves once all nine are up, and it breaks the moment a tenth
-  post lands unless that one starts a fresh row of three.
+  The grid only resolves once all six are up, and it breaks the moment a seventh
+  post lands unless it starts a fresh row of three.
 
 
 OPEN GRAPH — already wired

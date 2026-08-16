@@ -146,7 +146,32 @@ magick "$TMP/profile-plate.png" \( "$TMP/bell-red.png" -resize x560 \) \
   -strip -define png:color-type=6 "$OUT/profile.png"
 echo "  profile.png  1024x1024"
 
-# Instagram mosaic: one bell cut into nine posts.
+# Grain for the mosaic only, on top of a plate that is otherwise the standard one.
+#
+# It cannot be had by raising plate()'s 22%: that blend mixes toward mid-grey, so
+# more of it is not more grain, it is a lighter background. The plate already
+# reads 50 rather than the 29 of #1C1C1E for that reason, and 60% would take it
+# to 88.
+#
+# Nor can the noise simply be added to the plate: +noise Gaussian works per
+# channel and speckles a near-neutral surface with colour. So the noise is built
+# as one grey layer centred on mid-grey and laid over in Overlay, which leaves
+# both the mean and the plate's slight blue where they were and only widens the
+# spread — 8.1 to 10.2 here.
+#
+# 22% stays everywhere else. The avatar's grain is matched to the App Store
+# icon's on purpose (generate-icons.sh, same seed and blend), and the two are
+# seen side by side.
+mosaic_plate() {
+  local w=$1 h=$2 out=$3
+  plate "$w" "$h" "$TMP/mosaic-base.png"
+  magick -size "${w}x${h}" -seed 7 xc:gray50 -attenuate 0.80 +noise Gaussian \
+    -colorspace Gray "$TMP/mosaic-noise.png"
+  magick "$TMP/mosaic-base.png" "$TMP/mosaic-noise.png" -compose Overlay -composite \
+    -colorspace sRGB -type TrueColorAlpha -define png:color-type=6 "$out"
+}
+
+# Instagram mosaic: one bell cut into six posts.
 #
 # Two different rectangles are in play, and the gap between them is the whole
 # reason this works. A feed post is 4:5 (1080x1350). A profile grid thumbnail is
@@ -166,18 +191,20 @@ echo "  profile.png  1024x1024"
 MOSAIC_CELL_W=1013
 MOSAIC_CELL_H=1350
 MOSAIC_TILE_W=1080
-MOSAIC_SPAN=3
-canvas_w=$((MOSAIC_CELL_W * MOSAIC_SPAN))
-canvas_h=$((MOSAIC_CELL_H * MOSAIC_SPAN))
+MOSAIC_COLS=3
+MOSAIC_ROWS=2
+canvas_w=$((MOSAIC_CELL_W * MOSAIC_COLS))
+canvas_h=$((MOSAIC_CELL_H * MOSAIC_ROWS))
 
-# The bell is oversized so it bleeds off all four edges. Fitted whole it grids
-# badly: the mark is round, so the corner cells come out as bare plate, and the
-# emptiest lands top-left — the last tile posted and the one that sits highest on
-# the profile for good. The crop this costs is the top of the bell and the bottom
-# of the clapper, and it buys nine tiles that each carry something.
-plate "$canvas_w" "$canvas_h" "$TMP/mosaic-plate.png"
+# Two rows, not three, because the bell is very nearly square and three rows of
+# 4:5 cells are not. Fitted whole into 3x3 the mark spans about two thirds of the
+# height and the remaining third is bare plate in two bands, which is the top and
+# bottom rows carrying almost nothing. Two rows come to 3039x2700, close enough
+# to the mark's own proportions that fitting it whole fills the frame.
+plate_h=$(python3 -c "print(round($canvas_h * 0.90))")
+mosaic_plate "$canvas_w" "$canvas_h" "$TMP/mosaic-plate.png"
 magick "$TMP/mosaic-plate.png" \
-  \( "$TMP/bell-red.png" -resize "x$(python3 -c "print(round($canvas_h * 1.02))")" \) \
+  \( "$TMP/bell-red.png" -resize "x$plate_h" \) \
   -gravity center -composite \
   -strip -define png:color-type=6 "$TMP/mosaic.png"
 
@@ -189,9 +216,9 @@ magick "$TMP/mosaic.png" -crop "${MOSAIC_CELL_W}x${MOSAIC_CELL_H}" +repage +adjo
 # is the reading order reversed: the tile that ends up bottom-right has to go up
 # first. The files are numbered by the order they are posted, not by where they
 # land, because the only thing the person posting them has to get right is the
-# order — post-1 through post-9, oldest to newest.
-plate "$MOSAIC_TILE_W" "$MOSAIC_CELL_H" "$TMP/tile-plate.png"
-last=$((MOSAIC_SPAN * MOSAIC_SPAN - 1))
+# order — post-1 through post-6, oldest to newest.
+mosaic_plate "$MOSAIC_TILE_W" "$MOSAIC_CELL_H" "$TMP/tile-plate.png"
+last=$((MOSAIC_COLS * MOSAIC_ROWS - 1))
 for n in $(seq 1 $((last + 1))); do
   magick "$TMP/tile-plate.png" "$TMP/cell-$((last + 1 - n)).png" \
     -gravity center -composite \
@@ -203,5 +230,5 @@ done
 magick "$TMP/mosaic.png" -resize 1080x \
   -strip -define png:color-type=6 "$OUT/instagram-grid/preview.png"
 
-echo "  instagram-grid/post-1.png … post-9.png  ${MOSAIC_TILE_W}x${MOSAIC_CELL_H} each"
+echo "  instagram-grid/post-1.png … post-6.png  ${MOSAIC_TILE_W}x${MOSAIC_CELL_H} each"
 echo "  instagram-grid/preview.png  (not for posting)"
