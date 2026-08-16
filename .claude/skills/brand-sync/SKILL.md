@@ -143,6 +143,13 @@ The Instagram bio's last line, `↓ notifi.it`, is plain text pointing at the
 separate website field below it; Instagram makes no bio text clickable. Setting
 the bio without also setting that field leaves an arrow aimed at nothing.
 
+**That field cannot be set from this skill.** instagram.com/accounts/edit shows
+it greyed out with "Editing your links is only available on mobile" — only the
+iPhone app can write it, so it is the user's to set, and the bio ships with a
+dangling arrow until they do. Say so in the summary rather than reporting
+Instagram as fully synced. Facebook's equivalent lives under About → Links and
+does work in the browser.
+
 Never create accounts or enter credentials — if a login prompt appears, stop
 and hand the browser to the user.
 
