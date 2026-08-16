@@ -29,6 +29,12 @@ struct NotifiApp: App {
 
     static func makeContainer() -> ModelContainer {
         do {
+            #if DEBUG
+            if SampleData.isEnabled {
+                let config = ModelConfiguration(isStoredInMemoryOnly: true)
+                return try ModelContainer(for: Message.self, configurations: config)
+            }
+            #endif
             let container = try ModelContainer(for: Message.self)
             if let url = container.configurations.first?.url {
                 OnDiskProtection.protect(url)

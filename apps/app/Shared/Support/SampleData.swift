@@ -73,6 +73,62 @@ enum SampleData {
 
         let demo = "https://notifi.it/demo"
 
+        #if os(macOS)
+        let rows: [(String, String?, String?, String?, Int, Bool)] = [
+            ("Front door motion",
+             "Someone at the door — clip saved to the hub.",
+             nil, nil, 14, true),
+
+            ("Deploy 9c41f2 finished",
+             "Rolled out to eu-west-2 in 38s. All checks green.",
+             nil, "https://ci.notifi.sh/builds/1291", 76, true),
+
+            ("Backup to r2 finished",
+             "pg → r2, 4.6 GB in 2m 58s.",
+             nil, nil, 210, false),
+
+            ("SSL renewed for internal.shorepine.co",
+             nil, nil, nil, 340, false),
+
+            ("p95 back under 300 ms",
+             "Recovered after the 02:10 spike. No action needed.",
+             nil, "https://grafana.internal/d/api-latency", 1_510, true),
+
+            ("New signup",
+             "hannah@shorepine.co upgraded to Pro — seat 12 of 25.",
+             nil, nil, 1_640, false),
+
+            ("Washing machine finished",
+             nil, nil, nil, 1_820, false),
+
+            ("Release v2.4.1 published",
+             nil, nil,
+             "https://github.com/notifi/notifi/releases/tag/v2.4.1", 2_130, false),
+
+            ("Disk cleanup reclaimed 18 GB",
+             "vault-01 is back to 26% used.",
+             nil, nil, 3_050, false),
+
+            ("Certificate expires in 30 days",
+             "The star.shorepine.co wildcard renews on the 14th.",
+             nil, nil, 3_390, false),
+
+            ("Incident INC-2051 resolved",
+             "Delivery delays cleared after the queue redrive completed.",
+             nil, nil, 4_490, false),
+
+            ("Weekly digest ready",
+             "402 messages, 31 alerts, 0 incidents. Median delivery 235 ms.",
+             nil, "https://notifi.sh/digest/2026-w32", 4_720, false),
+
+            ("Nightly backup complete",
+             nil, nil, nil, 5_960, false),
+
+            ("Welcome to notifi",
+             "This is what a notification looks like. Send one with your first key.",
+             nil, nil, 400 * 24 * 60, false),
+        ]
+        #else
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
             ("p99 latency crossed 800 ms",
              """
@@ -191,6 +247,7 @@ enum SampleData {
              "This is what a notification looks like. Send one with your first key.",
              nil, nil, 400 * 24 * 60, false),
         ]
+        #endif
 
         for (index, row) in rows.enumerated() {
             let (title, body, image, link, minutes, unread) = row
