@@ -434,6 +434,14 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
    dark page disappears into its own frame, and the light metal is what
    separates the phone from the ground. No shadow under the phone — the site
    has no other elevation, and hairlines are how every panel here ends. */
+/* The launch animation runs as its own page under /gif; it is framed here in
+   an iframe at the stage's own 2160x960 so nothing inside it has to reflow. */
+.app-film{
+  margin:30px 0 0;border:1px solid var(--line);border-radius:12px;
+  overflow:hidden;background:#1C1C1E;
+}
+.app-film iframe{display:block;width:100%;aspect-ratio:2160/960;border:0}
+
 .app-split{
   display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
   gap:clamp(24px,4.5vw,56px);align-items:center;margin-top:30px;
@@ -756,6 +764,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <p class="eyebrow">The app</p><hr class="rule">
     </div>
     <h2>Every notification you've received,<br>in one searchable list.</h2>
+
+    <figure class="app-film">
+      <iframe src="/gif/" loading="lazy" scrolling="no"
+              title="A curl command, a Grafana webhook and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac."></iframe>
+    </figure>
 
     <div class="app-split">
       <figure class="app-phone">
@@ -1795,6 +1808,22 @@ reqwest::Client::new()
       section.hidden = false;
     })
     .catch(function () {});
+})();
+
+// ── the launch scene, without its transport bar ─────────────
+// /gif is the authoring page for the scene and keeps its scrubber; the frame
+// here is a film, so the bar is styled away from this side once it loads.
+(function () {
+  var frame = document.querySelector('.app-film iframe');
+  if (!frame) return;
+
+  frame.addEventListener('load', function () {
+    var doc = frame.contentDocument;
+    if (!doc) return;
+    var style = doc.createElement('style');
+    style.textContent = '[data-omelette-chrome]{display:none!important}';
+    doc.head.appendChild(style);
+  });
 })();
 </script>
 </body>
