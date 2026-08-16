@@ -632,10 +632,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <img src="/wordmark.svg" alt="notifi">
     </a>
     <nav>
-      <a href="#uses" class="hide-sm">Uses</a>
-      <a href="#how" class="hide-sm">How it works</a>
       <a href="#api" class="hide-sm">API</a>
       <a href="#send">Send</a>
+      <a href="#uses" class="hide-sm">Uses</a>
+      <a href="#how" class="hide-sm">How it works</a>
       <a href="#download">Download</a>
       <a href="/faq" class="hide-sm">FAQ</a>
     </nav>
@@ -650,7 +650,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <!-- "No account" and "no sign-in" were the same claim twice; the third slot
          buys the open-source line, which is the only trust claim on the page a
          reader can go and check for themselves. -->
-    <p class="eyebrow" style="margin-bottom:20px">No account. Nothing we can read. Sends from anything.</p>
+    <p class="eyebrow" style="margin-bottom:20px">No account. Encrypted. Sends from anything.</p>
     <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede">
       Install the app, grab your key, and send an HTTP request to
@@ -684,10 +684,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <!-- Carries the one instruction the removed three-step section was for:
          nk_yourkeyhere is the slot, and the app is where the key comes from. -->
     <p class="meta" style="margin-top:12px">
-      Replace <code>nk_yourkeyhere</code> with the key from the app. The request also
-      takes <code>message</code>, <code>link</code>, <code>image</code> and
-      <code>is_critical</code>. The <a href="#api" class="src">API docs</a> have all of
-      them.
+      Replace <code>nk_yourkeyhere</code> with the key from
+      <a class="src app-get" href="https://apps.apple.com/app/id1563961135">the app</a>. More fields in the
+      <a href="#api" class="src">API docs</a>.
     </p>
   </div>
 </section>
@@ -730,117 +729,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
   </div>
 </section>
-
-<!-- ══ uses ══════════════════════════════════════════════════ -->
-<section class="section-alt" id="uses">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Uses</p><hr class="rule">
-    </div>
-    <h2 style="margin-bottom:34px">Anything that finishes,<br>fails, or changes.</h2>
-
-    <!-- Three examples a column, not five. The list is here to make a reader
-         recognise their own case, and that happens on the first line or two;
-         everything after it is read as inventory. -->
-    <div class="uses">
-      <div class="use-col">
-        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>Agents</p>
-        <ul>
-          <li>A Claude Code run finished</li>
-          <li>An agent stopped and needs a decision</li>
-          <li>An overnight refactor landed on the branch</li>
-        </ul>
-      </div>
-
-      <div class="use-col">
-        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Builds and deploys</p>
-        <ul>
-          <li>A deploy failed, with the failing step</li>
-          <li>A release went out, with the tag</li>
-          <li>A flaky test failed again on main</li>
-        </ul>
-      </div>
-
-      <div class="use-col">
-        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-server"/></svg>Servers and jobs</p>
-        <ul>
-          <li>A disk crossed 90%</li>
-          <li>A health check has been down five minutes</li>
-          <li>A training run finished, with the final loss</li>
-        </ul>
-      </div>
-
-      <div class="use-col">
-        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-home"/></svg>Home and hardware</p>
-        <ul>
-          <li>A leak sensor under the sink went wet</li>
-          <li>The UPS switched to battery</li>
-          <li>The car finished charging overnight</li>
-        </ul>
-      </div>
-
-    </div>
-
-  </div>
-</section>
-
-<!-- ══ how it works ══════════════════════════════════════════ -->
-<section class="section-alt" id="how">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">How it works</p><hr class="rule">
-    </div>
-    <h2 style="margin-bottom:26px">Your phone holds the only key.</h2>
-
-    <div class="rows">
-      <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>No account</h3>
-        <p>No signup, no email, no password. The app generates a keypair on first
-           launch and that keypair is your identity.</p>
-      </div>
-      <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
-        <div>
-          <p>Messages are
-             <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">encrypted</a>
-             with your public key before they are stored, so the server only ever holds
-             encrypted text. Apple relays an alert that just says <code>notifi</code>,
-             and your phone
-             <a href="https://github.com/notifi-it/notifi/blob/main/apps/app/Shared/Identity/DeviceIdentity.swift" class="src">decrypts</a>
-             the real title when it arrives.</p>
-          <p style="margin-top:12px">
-             <a href="/privacy" class="src">See more</a>.</p>
-        </div>
-      </div>
-      <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-erase"/></svg>Nothing kept after delivery</h3>
-        <p>The server deletes a message as soon as your device confirms it has collected
-           it. Your history lives on your device, not in our database.</p>
-      </div>
-      <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>Critical alerts</h3>
-        <p>Send with <code>is_critical=1</code> on a key you have marked critical, and the
-           notification breaks through Focus and lands on the lock screen.</p>
-      </div>
-      <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>One key per script, revocable</h3>
-        <p>CI gets a key, the backup job gets a key, the scraper gets a key. If one
-           leaks, revoke it and the rest keep working.</p>
-      </div>
-      <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>Send from anywhere</h3>
-        <p>Plain HTTP and no SDK, so anything that can make an HTTP request can send: a
-           Linux box, a CI runner, a router, a home hub, another phone.</p>
-      </div>
-      <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Open source</h3>
-        <p>The app, the API and the crypto are on
-           <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 
 <!-- ══ api reference ═════════════════════════════════════════ -->
 <section class="section-alt" id="api">
@@ -1191,6 +1079,117 @@ reqwest::Client::new()
     </div>
   </div>
 </section>
+
+<!-- ══ uses ══════════════════════════════════════════════════ -->
+<section class="section-alt" id="uses">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Uses</p><hr class="rule">
+    </div>
+    <h2 style="margin-bottom:34px">Anything that finishes,<br>fails, or changes.</h2>
+
+    <!-- Three examples a column, not five. The list is here to make a reader
+         recognise their own case, and that happens on the first line or two;
+         everything after it is read as inventory. -->
+    <div class="uses">
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>Agents</p>
+        <ul>
+          <li>A Claude Code run finished</li>
+          <li>An agent stopped and needs a decision</li>
+          <li>An overnight refactor landed on the branch</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Builds and deploys</p>
+        <ul>
+          <li>A deploy failed, with the failing step</li>
+          <li>A release went out, with the tag</li>
+          <li>A flaky test failed again on main</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-server"/></svg>Servers and jobs</p>
+        <ul>
+          <li>A disk crossed 90%</li>
+          <li>A health check has been down five minutes</li>
+          <li>A training run finished, with the final loss</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-home"/></svg>Home and hardware</p>
+        <ul>
+          <li>A leak sensor under the sink went wet</li>
+          <li>The UPS switched to battery</li>
+          <li>The car finished charging overnight</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ how it works ══════════════════════════════════════════ -->
+<section class="section-alt" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">How it works</p><hr class="rule">
+    </div>
+    <h2 style="margin-bottom:26px">Your phone holds the only key.</h2>
+
+    <div class="rows">
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>No account</h3>
+        <p>No signup, no email, no password. The app generates a keypair on first
+           launch and that keypair is your identity.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
+        <div>
+          <p>Messages are
+             <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">encrypted</a>
+             with your public key before they are stored, so the server only ever holds
+             encrypted text. Apple relays an alert that just says <code>notifi</code>,
+             and your phone
+             <a href="https://github.com/notifi-it/notifi/blob/main/apps/app/Shared/Identity/DeviceIdentity.swift" class="src">decrypts</a>
+             the real title when it arrives.</p>
+          <p style="margin-top:12px">
+             <a href="/privacy" class="src">See more</a>.</p>
+        </div>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-erase"/></svg>Nothing kept after delivery</h3>
+        <p>The server deletes a message as soon as your device confirms it has collected
+           it. Your history lives on your device, not in our database.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>Critical alerts</h3>
+        <p>Send with <code>is_critical=1</code> on a key you have marked critical, and the
+           notification breaks through Focus and lands on the lock screen.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>One key per script, revocable</h3>
+        <p>CI gets a key, the backup job gets a key, the scraper gets a key. If one
+           leaks, revoke it and the rest keep working.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>Send from anywhere</h3>
+        <p>Plain HTTP and no SDK, so anything that can make an HTTP request can send: a
+           Linux box, a CI runner, a router, a home hub, another phone.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Open source</h3>
+        <p>The app, the API and the crypto are on
+           <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <!-- ══ download ══════════════════════════════════════════════ -->
 <section class="section-alt" id="download">
@@ -1608,6 +1607,9 @@ reqwest::Client::new()
   var mac = /Macintosh|Mac OS X/.test(navigator.userAgent) &&
             !(navigator.maxTouchPoints > 1);
   if (!mac) return;
+
+  var links = document.querySelectorAll('a.app-get');
+  for (var k = 0; k < links.length; k++) links[k].href = '/download/mac';
 
   var groups = document.querySelectorAll('.cta');
   for (var i = 0; i < groups.length; i++) {
