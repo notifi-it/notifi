@@ -5,6 +5,7 @@ struct KeysView: View {
     #if os(iOS)
     @State private var showingCreate = false
     #endif
+    @State private var showingInfo = false
     @State private var hasLoaded = false
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
@@ -27,21 +28,25 @@ struct KeysView: View {
 
     var body: some View {
         GeistPage(scroll: .page) {
-            VStack(alignment: .leading, spacing: 0) {
-                GeistHeader(title: Copy.Keys.title) {
-                    IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
-                        #if os(iOS)
-                        showingCreate = true
-                        #else
-                        model.presentingCreateKey = true
-                        #endif
-                    }
+            GeistHeader(title: Copy.Keys.title) {
+                // What a key is, behind a disc rather than printed under the
+                // title: the sentence is orientation for the reader who has
+                // not made a key yet, and everyone else was rereading it on
+                // every visit. A centred alert, not confirmationDialog —
+                // see CLAUDE.md.
+                IconButton(systemImage: "info.circle", label: Copy.Keys.aboutKeys, glass: true) {
+                    showingInfo = true
                 }
-                Text(Copy.Keys.intro)
-                    .font(Theme.body)
-                    .foregroundStyle(Theme.muted)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 8)
+                // One control on both platforms. The Mac used to carry a text
+                // pill here while iOS had the disc, which drifted the two
+                // headers apart for no reason either screen owns.
+                IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
+                    #if os(iOS)
+                    showingCreate = true
+                    #else
+                    model.presentingCreateKey = true
+                    #endif
+                }
             }
         } content: {
             VStack(alignment: .leading, spacing: 0) {
@@ -108,6 +113,10 @@ struct KeysView: View {
         }
         .navigationDestination(for: CachedKey.self) { key in
             KeyDetailView(keyID: key.id)
+        }
+        .alert(Copy.Keys.aboutKeys, isPresented: $showingInfo) {
+        } message: {
+            Text(Copy.Keys.intro)
         }
         .refreshable { await model.sync?.refreshKeys() }
         .task {

@@ -241,7 +241,7 @@ struct MessageDetailView: View {
             Text("·").foregroundStyle(Theme.chip)
             Text(stamp)
                 .font(.karla(size: 13))
-                .foregroundStyle(Theme.dim)
+                .foregroundStyle(Theme.muted)
         }
         .lineLimit(1)
         .monospacedDigit()

@@ -1685,6 +1685,17 @@
         }
       }
     },
+    "keys.aboutKeys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About keys"
+          }
+        }
+      }
+    },
     "keys.active": {
       "extractionState": "manual",
       "localizations": {

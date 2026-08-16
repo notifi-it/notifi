@@ -390,21 +390,40 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 @media(max-width:560px){.uses{grid-template-columns:1fr}}
 
 /* ── screenshots ────────────────────────────────────────────── */
-.shots{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,2.2vw,24px);
-  margin-top:30px;
+/* One framed hero shot with the other screens as thumbnails beside it,
+   rather than four equal tiles. The bezel is silver because the screenshot
+   and the page are both near-black: a dark screen inside a dark bezel on a
+   dark page disappears into its own frame, and the light metal is what
+   separates the phone from the ground. No shadow under the phone — the site
+   has no other elevation, and hairlines are how every panel here ends. */
+.app-split{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  gap:clamp(24px,4.5vw,56px);align-items:center;margin-top:30px;
 }
-.shot figure{margin:0}
-.shot img{
-  width:100%;height:auto;display:block;border-radius:12px;
+.app-phone{margin:0}
+.app-phone .phone{
+  max-width:340px;margin:0 auto;
+  border:1px solid #9A9A98;
+  background:linear-gradient(160deg,#E8E8E6,#C9C9C7);
+  border-radius:clamp(28px,4.5vw,44px);
+  padding:clamp(8px,1.3vw,12px);
+}
+.app-phone img{width:100%;height:auto;display:block;border-radius:clamp(20px,3.4vw,34px)}
+.app-phone figcaption{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  margin-top:10px;text-align:center;
+}
+.app-thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,1.6vw,18px)}
+.app-thumbs figure{margin:0}
+.app-thumbs img{
+  width:100%;height:auto;display:block;border-radius:10px;
   border:1px solid var(--line);background:var(--surface);
 }
-.shot figcaption{
-  font-family:var(--mono);font-size:12px;color:var(--dim);
-  margin-top:10px;
+.app-thumbs figcaption{
+  font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px;
 }
-@media(max-width:860px){
-  .shots{grid-template-columns:repeat(2,1fr)}
+@media(max-width:760px){
+  .app-split{grid-template-columns:minmax(0,1fr)}
 }
 
 /* ── the Mac, hanging from its menu bar ─────────────────────── */
@@ -680,33 +699,34 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <p class="eyebrow">The app</p><hr class="rule">
     </div>
     <h2>Every notification you've received,<br>in one searchable list.</h2>
-    <p class="lede" style="margin-top:14px">
-      Tap one to see the full message, image, and link. Messages are deleted
-      from the server once your device has collected them, so your history
-      lives only on your device.
-    </p>
 
-    <div class="shots">
-      <div class="shot"><figure>
-        <img src="/screens/notifications.webp" width="620" height="1348" loading="lazy"
-             alt="The notifi inbox: a black list of alerts grouped under Today and Yesterday, unread ones showing their age in red.">
+    <div class="app-split">
+      <figure class="app-phone">
+        <div class="phone">
+          <img src="/screens/notifications.webp" width="620" height="1348" loading="lazy"
+               alt="The notifi inbox: a black list of alerts grouped under Today and Yesterday, unread ones showing their age in red.">
+        </div>
         <figcaption>Inbox</figcaption>
-      </figure></div>
-      <div class="shot"><figure>
-        <img src="/screens/detail.webp" width="620" height="1348" loading="lazy"
-             alt="A latency alert opened in full, showing the graph that came with it and the link back to the dashboard.">
-        <figcaption>Message</figcaption>
-      </figure></div>
-      <div class="shot"><figure>
-        <img src="/screens/keys.webp" width="620" height="1348" loading="lazy"
-             alt="The keys screen: the built-in default key leading the list, then one key per source (Doorbell, Deploy bot), each with its send count.">
-        <figcaption>Keys</figcaption>
-      </figure></div>
-      <div class="shot"><figure>
-        <img src="/screens/settings.webp" width="620" height="1348" loading="lazy"
-             alt="Settings: notification permission, a dark or light ground, automatic image loading, and a test send.">
-        <figcaption>Settings</figcaption>
-      </figure></div>
+      </figure>
+      <div class="app-side">
+        <div class="app-thumbs">
+          <figure>
+            <img src="/screens/detail.webp" width="620" height="1348" loading="lazy"
+                 alt="A latency alert opened in full, showing the graph that came with it and the link back to the dashboard.">
+            <figcaption>Message</figcaption>
+          </figure>
+          <figure>
+            <img src="/screens/keys.webp" width="620" height="1348" loading="lazy"
+                 alt="The keys screen: the built-in default key leading the list, then one key per source (Doorbell, Deploy bot), each with its send count.">
+            <figcaption>Keys</figcaption>
+          </figure>
+          <figure>
+            <img src="/screens/settings.webp" width="620" height="1348" loading="lazy"
+                 alt="Settings: notification permission, a dark or light ground, automatic image loading, and a test send.">
+            <figcaption>Settings</figcaption>
+          </figure>
+        </div>
+      </div>
     </div>
   </div>
 </section>

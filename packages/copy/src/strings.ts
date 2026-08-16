@@ -162,6 +162,7 @@ export const copy = {
     intro:
       'Keys identify who sent a message. Use a different key for each script. ' +
       'The default key was made when this device was set up.',
+    aboutKeys: 'About keys',
     footnote:
       'A key is shown once, when it is created; notifi stores only the prefix. ' +
       'The default key can be copied again or regenerated from its detail page.',

@@ -108,6 +108,7 @@ enum Copy {
         static var sectionActive: String { NSLocalizedString("keys.sectionActive", comment: "") }
         static var sectionRevoked: String { NSLocalizedString("keys.sectionRevoked", comment: "") }
         static var intro: String { NSLocalizedString("keys.intro", comment: "") }
+        static var aboutKeys: String { NSLocalizedString("keys.aboutKeys", comment: "") }
         static var footnote: String { NSLocalizedString("keys.footnote", comment: "") }
         static func sent(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.sent", comment: ""), n) }
         static func rowLastUsed(_ ago: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLastUsed", comment: ""), ago) }
