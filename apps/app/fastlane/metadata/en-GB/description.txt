@@ -4,6 +4,9 @@ Create a send key and send a title and a message to notifi.it in one HTTP reques
 
 https://notifi.it/send?title=hello+world
 
+WHAT A MESSAGE CARRIES
+A title, a body, an image and a link. The body is Markdown: headings, lists, quotes, links and code blocks are rendered on the device.
+
 ENCRYPTED
 Your device holds the only private key. Message content is encrypted with your public key at ingest, so we cannot read your messages. Each message is deleted from the server once your device acknowledges it.
 
