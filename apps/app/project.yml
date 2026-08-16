@@ -7,6 +7,11 @@ options:
     macOS: "14.0"
   createIntermediateGroups: true
   groupSortPosition: top
+  # Localizable.xcstrings carrying a language is not enough on its own: Xcode
+  # ships only the regions the project knows, so a language missing here is
+  # translated and then dropped from the bundle. Keep in step with
+  # LANGUAGE_CODES in packages/copy/src/languages.ts.
+  knownRegions: [Base, en, es, de, fr, it]
 
 configs:
   Debug: debug

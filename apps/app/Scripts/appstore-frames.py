@@ -9,18 +9,27 @@ Normally not run by hand: `make screens` builds, captures both device
 sets from the Simulator, and runs this twice (plain, then IPAD=1). To re-render
 from existing captures:
 
-    SHOTS=<dir> python3 apps/app/Scripts/appstore-frames.py
+    SHOTS=<dir> LOCALE=<locale> python3 apps/app/Scripts/appstore-frames.py
+
+LOCALE names both the caption set in fastlane/screenshot-copy.json and the
+output directory under fastlane/screenshots, and defaults to en-GB.
 
 Run it from the repo root. The seeded feed points its one image at
 notifi.it/demo/latency.png, so that has to be deployed for the graph to appear.
 """
-import os, subprocess
+import json, os, subprocess
 from PIL import Image, ImageDraw, ImageFont
 
 REPO = os.environ.get("REPO", os.getcwd())
 SHOTS = os.environ.get("SHOTS", "shots")
-OUT = os.environ.get("OUT", f"{REPO}/apps/app/fastlane/screenshots/en-GB")
+LOCALE = os.environ.get("LOCALE", "en-GB")
+OUT = os.environ.get("OUT", f"{REPO}/apps/app/fastlane/screenshots/{LOCALE}")
 os.makedirs(OUT, exist_ok=True)
+
+# The frame copy is not written here. Like every other user-facing string it
+# lives in packages/copy/src/strings.ts, and `make gen-copy` renders this file.
+with open(f"{REPO}/apps/app/fastlane/screenshot-copy.json") as fh:
+    CAPTIONS = json.load(fh)[LOCALE]
 
 # 1290x2796 is the 6.9" iPhone set. The iPad Pro 12.9"/13" set (2048x2732)
 # is not optional: the app runs on iPad, and App Store Connect refuses the
@@ -193,25 +202,9 @@ def frame(shot_name, title, desc, out_name):
     print(out_name, canvas.size)
 
 
-frame("inbox.png",
-      "One request.\nStraight to your pocket.",
-      "Push notifications for your scripts and servers. One HTTP request to "
-      "notifi.it and it arrives a moment later. No account, no SDK.",
-      "01_inbox.png")
-
-frame("detail.png",
-      "Images, links,\nMarkdown.",
-      "A title, a body, an image and a link. Headings, lists, quotes and code "
-      "blocks are rendered on the device. Encrypted with your public key, so "
-      "we cannot read your messages.",
-      "02_message.png")
-
-frame("keys.png",
-      "One key\nper source.",
-      "Give the deploy bot one key and the doorbell another. Revoke one and "
-      "the rest keep working. Each key carries its own send count, and there "
-      "is no account to make first.",
-      "03_keys.png")
+frame("inbox.png", CAPTIONS["inboxTitle"], CAPTIONS["inboxBody"], "01_inbox.png")
+frame("detail.png", CAPTIONS["messageTitle"], CAPTIONS["messageBody"], "02_message.png")
+frame("keys.png", CAPTIONS["keysTitle"], CAPTIONS["keysBody"], "03_keys.png")
 
 for tmp in (WORDMARK, WORDMARK_SVG, BELL, MONO, SANS):
     os.remove(tmp)

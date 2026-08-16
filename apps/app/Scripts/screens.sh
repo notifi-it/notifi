@@ -75,8 +75,12 @@ mkdir -p "$OUT"
 # launch a clean slate.
 shoot() { # udid outfile extra-env...
   local udid=$1 outfile=$2; shift 2
+  # -AppleLanguages is read at launch, so the app comes up in LANG's language
+  # without touching the simulator's own settings. Capturing every locale off
+  # one English boot would ship a Spanish listing showing an English app.
   env "$@" SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 SIMCTL_CHILD_NOTIFI_SEED_SAMPLE=1 \
-    xcrun simctl launch --terminate-running-process "$udid" "$BUNDLE_ID" >/dev/null
+    xcrun simctl launch --terminate-running-process "$udid" "$BUNDLE_ID" \
+    -AppleLanguages "($LANG_CODE)" -AppleLocale "$LANG_CODE" >/dev/null
   # The detail screen settles slowest: the seeded image arrives over the
   # network, and a shot before it does ships a placeholder.
   case "$outfile" in *detail*) sleep 8 ;; *) sleep 4 ;; esac
@@ -90,13 +94,25 @@ capture_set() { # udid prefix
   shoot "$1" "$2keys.png"    SIMCTL_CHILD_NOTIFI_START_TAB=keys
 }
 
-capture_set "$PHONE" ""
-# Settings is on the website but not in the App Store set.
-shoot "$PHONE" "settings.png" SIMCTL_CHILD_NOTIFI_START_TAB=settings
-capture_set "$IPAD" "ipad-"
+# One pass per App Store locale. The pairing of language code to store locale
+# is the same table `make gen-copy` uses to write fastlane/metadata.
+for pair in "en:en-GB" "es:es-ES" "de:de-DE" "fr:fr-FR" "it:it"; do
+  LANG_CODE=${pair%%:*}
+  LOCALE=${pair##*:}
 
-SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
-IPAD=1 SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
+  capture_set "$PHONE" ""
+  capture_set "$IPAD" "ipad-"
+
+  LOCALE="$LOCALE" SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
+  IPAD=1 LOCALE="$LOCALE" SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
+done
+
+# The website is English only, so its four shots are captured after the loop
+# rather than reusing the loop's last pass — which is Italian. Settings is on
+# the website but not in the App Store set, so it only exists here.
+LANG_CODE=en
+capture_set "$PHONE" ""
+shoot "$PHONE" "settings.png" SIMCTL_CHILD_NOTIFI_START_TAB=settings
 
 # The website's four shots: the same phone captures at 2x the size the HTML
 # declares (620x1348), cover-cropped the few pixels of aspect difference, as

@@ -43,6 +43,51 @@ export const copy = {
     noSuchBuild: 'No such build.',
   },
 
+  store: {
+    subtitle: 'One HTTP request, one push',
+    promotionalText:
+      "One HTTP request, and the notification is on your iPhone or Mac. Encrypted with " +
+      "your public key — we can't read your messages. No accounts, no SDK.",
+    keywords:
+      'curl,webhook,api,alert,cli,server,monitor,cron,script,developer,terminal,devops,' +
+      'homelab,uptime,pager',
+    description:
+      'Push notifications for your scripts and servers.\n\n' +
+      'Create a send key and send a title and a message to notifi.it in one HTTP request. ' +
+      'The notification lands on your iPhone or Mac. Anything that can make an HTTP request ' +
+      'can send one, e.g. a shell script, a cron job, a CI pipeline.\n\n' +
+      'https://notifi.it/send?title=hello+world\n\n' +
+      'ENCRYPTED\n' +
+      'Your device holds the only private key. Message content is encrypted with your public ' +
+      'key at ingest, so we cannot read your messages. Each message is deleted from the server ' +
+      'once your device acknowledges it.\n\n' +
+      'NO ACCOUNTS\n' +
+      'No sign-up, no sign-in, no device linking. The app mints a send key on first launch. ' +
+      'Keys can be renamed, paused and revoked per source.\n\n' +
+      'URGENT ALERTS\n' +
+      'Mark a key as urgent and its notifications break through Focus and land on the lock ' +
+      'screen.\n',
+    releaseNotes:
+      'notifi 2.0 is a ground-up rewrite. The old Flutter app is gone; this one is native ' +
+      'Swift, redesigned top to bottom.\n\n' +
+      'Faster launch, native text rendering, and one shared layout across the three tabs. ' +
+      'The Keys screen now says what a key is, and the built-in default key leads the list. ' +
+      'Message timestamps are plain digits you can copy.\n',
+
+    shotInboxTitle: 'One request.\nStraight to your pocket.',
+    shotInboxBody:
+      'Push notifications for your scripts and servers. One HTTP request to notifi.it and ' +
+      'it arrives a moment later. No account, no SDK.',
+    shotMessageTitle: 'Images, links,\nMarkdown.',
+    shotMessageBody:
+      'A title, a body, an image and a link. Headings, lists, quotes and code blocks are ' +
+      'rendered on the device. Encrypted with your public key, so we cannot read your messages.',
+    shotKeysTitle: 'One key\nper source.',
+    shotKeysBody:
+      'Give the deploy bot one key and the doorbell another. Revoke one and the rest keep ' +
+      'working. Each key carries its own send count, and there is no account to make first.',
+  },
+
   push: {
     fallbackTitle: 'notifi',
     fallbackBody: 'Open notifi to view',

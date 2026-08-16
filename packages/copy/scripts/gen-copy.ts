@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LANGUAGE_CODES, SOURCE_LANGUAGE, type LanguageCode } from '../src/languages.js';
+import { copyFor } from '../src/index.js';
 import { copy } from '../src/strings.js';
 import { translations } from '../src/translations/index.js';
 import { isPlural, type Leaf, type Plural, type Tree } from '../src/types.js';
@@ -10,10 +11,11 @@ const here = dirname(fileURLToPath(import.meta.url));
 const appRoot = join(here, '..', '..', '..', 'apps', 'app');
 const catalogPath = join(appRoot, 'Shared', 'Resources', 'Localizable.xcstrings');
 const swiftPath = join(appRoot, 'Shared', 'Support', 'Copy.swift');
+const captionsPath = join(appRoot, 'fastlane', 'screenshot-copy.json');
 
 const PLURAL_CATEGORIES = ['zero', 'one', 'two', 'few', 'many', 'other'] as const;
 
-const SERVER_ONLY = new Set(['api']);
+const NOT_IN_APP = new Set(['api', 'store']);
 
 interface Entry {
   path: string;
@@ -134,7 +136,7 @@ function localization(entry: Entry, value: Leaf): unknown {
 
 function renderCatalog(entries: Entry[]): string {
   const strings: Record<string, unknown> = {};
-  entries = entries.filter((e) => !SERVER_ONLY.has(e.segments[0]!));
+  entries = entries.filter((e) => !NOT_IN_APP.has(e.segments[0]!));
   for (const entry of [...entries].sort((a, b) => a.path.localeCompare(b.path))) {
     const localizations: Record<string, unknown> = {
       [SOURCE_LANGUAGE]: localization(entry, entry.source),
@@ -202,12 +204,83 @@ function renderSwift(): string {
   const header = ['import Foundation', ''];
   const body: string[] = [];
   for (const [key, value] of Object.entries(copy as unknown as Tree)) {
-    if (SERVER_ONLY.has(key)) continue;
+    if (NOT_IN_APP.has(key)) continue;
     if (typeof value === 'object' && !isPlural(value)) {
       body.push(...emit(key, value as Tree, [key], '    '));
     }
   }
   return [...header, 'enum Copy {', ...body, '}', ''].join('\n');
+}
+
+const STORE_LOCALES: Record<LanguageCode, string> = {
+  en: 'en-GB',
+  es: 'es-ES',
+  de: 'de-DE',
+  fr: 'fr-FR',
+  it: 'it',
+};
+
+const STORE_SHARED: Record<string, string> = {
+  'name.txt': 'notifi',
+  'marketing_url.txt': 'https://notifi.it',
+  'privacy_url.txt': 'https://notifi.it/privacy',
+  'support_url.txt': 'https://notifi.it',
+};
+
+const STORE_LIMITS: Record<string, number> = {
+  'subtitle.txt': 30,
+  'promotional_text.txt': 170,
+  'keywords.txt': 100,
+  'description.txt': 4000,
+  'release_notes.txt': 4000,
+};
+
+function storeOutputs(): Array<{ path: string; contents: string; label: string }> {
+  const out: Array<{ path: string; contents: string; label: string }> = [];
+  const captions: Record<string, Record<string, string>> = {};
+
+  for (const code of LANGUAGE_CODES) {
+    const locale = STORE_LOCALES[code];
+    const s = copyFor(code).store;
+    const dir = join(appRoot, 'fastlane', 'metadata', locale);
+
+    const files: Record<string, string> = {
+      ...STORE_SHARED,
+      'subtitle.txt': s.subtitle,
+      'promotional_text.txt': s.promotionalText,
+      'keywords.txt': s.keywords,
+      'description.txt': s.description,
+      'release_notes.txt': s.releaseNotes,
+    };
+
+    for (const [file, value] of Object.entries(files)) {
+      const limit = STORE_LIMITS[file];
+      if (limit !== undefined && value.trimEnd().length > limit) {
+        fail(`${code}: store ${file} is ${value.trimEnd().length} characters, over the App Store limit of ${limit}.`);
+      }
+      out.push({
+        path: join(dir, file),
+        contents: value.endsWith('\n') ? value : `${value}\n`,
+        label: `fastlane/metadata/${locale}/${file}`,
+      });
+    }
+
+    captions[locale] = {
+      inboxTitle: s.shotInboxTitle,
+      inboxBody: s.shotInboxBody,
+      messageTitle: s.shotMessageTitle,
+      messageBody: s.shotMessageBody,
+      keysTitle: s.shotKeysTitle,
+      keysBody: s.shotKeysBody,
+    };
+  }
+
+  out.push({
+    path: captionsPath,
+    contents: `${JSON.stringify(captions, null, 2)}\n`,
+    label: 'fastlane/screenshot-copy.json',
+  });
+  return out;
 }
 
 const entries: Entry[] = [];
@@ -217,6 +290,7 @@ checkTranslations(entries);
 const outputs: Array<{ path: string; contents: string; label: string }> = [
   { path: catalogPath, contents: renderCatalog(entries), label: 'Localizable.xcstrings' },
   { path: swiftPath, contents: renderSwift(), label: 'Copy.swift' },
+  ...storeOutputs(),
 ];
 
 if (process.argv.includes('--check')) {
@@ -229,7 +303,8 @@ if (process.argv.includes('--check')) {
     }
     if (onDisk !== contents) fail(`${label} is out of date with packages/copy. Run \`make gen-copy\`.`);
   }
-  console.log(`Generated copy is up to date (${entries.length} keys, ${LANGUAGE_CODES.length} language${LANGUAGE_CODES.length === 1 ? '' : 's'}).`);
+  const languageCount: number = LANGUAGE_CODES.length;
+  console.log(`Generated copy is up to date (${entries.length} keys, ${languageCount} language${languageCount === 1 ? '' : 's'}).`);
 } else {
   for (const { path, contents, label } of outputs) {
     mkdirSync(dirname(path), { recursive: true });

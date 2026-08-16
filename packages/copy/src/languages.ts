@@ -1,4 +1,4 @@
-export const LANGUAGE_CODES = ['en'] as const;
+export const LANGUAGE_CODES = ['en', 'es', 'de', 'fr', 'it'] as const;
 export type LanguageCode = (typeof LANGUAGE_CODES)[number];
 
 export const SOURCE_LANGUAGE: LanguageCode = 'en';
