@@ -1,154 +1,71 @@
 # Working in this repo
 
-Notes for anyone (human or agent) picking this up. This file is only for things
-that are easy to get wrong and expensive to discover.
+Only things that are easy to get wrong and expensive to discover.
 
-## Urgent alerts: one switch, two ceilings
+## Contract
 
-There is a single per-key toggle — "Urgent alerts", backed by the `keys.critical`
-column — and it means "escalate this key". What escalation buys depends on what
-the App ID carries.
+`packages/contract/src/index.ts` (Zod) and the hand-written Swift mirror
+`apps/app/Shared/API/ContractModels.swift` must change together — a lone change
+typechecks on both sides and fails at runtime.
 
-**Time Sensitive is the floor and is live.**
-`com.apple.developer.usernotifications.time-sensitive` is in all four app
-entitlements files. It needs no Apple approval, and it gets a page past Focus and
-onto the lock screen. It does **not** sound through silent mode.
+## Copy
 
-**Critical Alerts are the ceiling and are still pending.** Submitted 2026-08-03,
-request ID **W8U762V6VJ**, against bundle ID `it.notifi.notifi`. Apple replies by
-email; nothing has come back.
+All user-facing strings live in `packages/copy/src/strings.ts`. Nothing else may
+hold a user-facing literal. `make gen-copy` generates
+`apps/app/Shared/Resources/Localizable.xcstrings` (keyed by dotted path, not
+source text) and `apps/app/Shared/Support/Copy.swift`. Never edit the generated
+files; `make check-copy` (CI) fails on drift.
 
-**Do not add `com.apple.developer.usernotifications.critical-alerts` to the
-entitlements files until Apple grants it.** An entitlement the App ID does not
-carry fails code signing, so adding it early breaks every signed build for a
-capability that still would not work. When the grant lands, add that key to all
-four files and flip `CRITICAL_ENTITLED` in `apps/api/src/routes/send.ts` in the
-same change — the same toggle then reaches the higher ceiling with no other work.
+The server reads the TypeScript directly via `t(c)`, negotiated once per request
+from `Accept-Language`. The app sends `Locale.preferredLanguages` on every
+signed request, outside the signed canonical string.
 
-That constant is why the two levels are not both wired up at once: a push that
-claims an interruption level the app is not entitled to is dropped by the OS
-rather than downgraded, so `critical` and `time-sensitive` are mutually exclusive
-in the payload, not layered.
+Adding a language: add the code to `LANGUAGE_CODES` in `src/languages.ts`, add
+`src/translations/<code>.ts`, run `make gen-copy`. Missing keys or lost
+`{placeholder}`s fail the build. No machine translation, by decision.
 
-A push is only escalated when the key is switched on **and** the individual send
-asks for it with `critical=1`. A send that asks without that standing is
-delivered as an ordinary notification rather than refused, because dropping an
-alert from a pager is worse than under-delivering one.
+Generator rules: placeholders are `{name}` (positional, first-appearance order);
+plurals are `plural(one, other)` and a plural leaf may contain **nothing but
+`{n}`** — anything mixing a count with text composes an already-rendered count
+(`inbox.bandLabel` takes `inbox.count`'s output).
 
-### Adding an entitlement needs a portal change first
+Deliberately not in the app catalog: the `api` namespace (server responses are
+shown as-is), the push fallback title (sent in the source language — the
+sender's `Accept-Language` says nothing about the recipient), and the website
+(`apps/api/public/index.html` / `privacy.html`, hand-kept duplicates).
 
-Enabling Time Sensitive Notifications on the App ID in the Apple Developer portal
-is a manual step, and until it is done every signed build fails with
-"Provisioning profile ... doesn't include the Time Sensitive Notifications
-capability". `xcodebuild` from the command line will not add the capability for
-you; Xcode.app with automatic signing will, or you can tick it under Identifiers
-→ `it.notifi.notifi`. The iOS Simulator build does not sign and so passes either
-way — it is not evidence the entitlement works.
+## Marketing copy
 
-## The contract is the source of truth, and Swift does not follow automatically
+In anything pitching the product (App Store listing, README opening, site meta
+descriptions and captions): say "HTTP request" not "curl", and "notifi.it" not
+"notifi.it/send". Exempt: code examples, UI labels like "Copy curl", and the App
+Store keywords field.
 
-`packages/contract/src/index.ts` holds the Zod schemas. The Swift mirrors in
-`apps/app/Shared/API/ContractModels.swift` are hand-written. Changing one without
-the other typechecks on both sides and fails at runtime. Edit them together.
-
-## Copy is written once, in packages/copy
-
-Every sentence the product says to a person lives in
-`packages/copy/src/strings.ts`. Nothing else may hold a user-facing literal.
-
-The app does not read that file. `make gen-copy` writes two things from it:
-
-- `apps/app/Shared/Resources/Localizable.xcstrings`, the string catalog, keyed by
-  dotted path (`inbox.deleteMessage`) rather than by English source text. Keying
-  by source text is Apple's default and makes every wording fix invalidate every
-  translation of it.
-- `apps/app/Shared/Support/Copy.swift`, typed accessors that look up those keys.
-
-Edit neither: they are generated, and `make check-copy` regenerates them in
-memory and fails if the committed ones have drifted. CI runs it.
-
-The server reads the TypeScript directly, but never as `copy`. It negotiates a
-language from `Accept-Language` once per request and every handler reads `t(c)`,
-so a response cannot answer in a language of its own choosing. The app sends its
-reader's `Locale.preferredLanguages` on every signed request — outside the signed
-canonical string, because it changes the wording of a reply and never what the
-request does.
-
-### Adding a language
-
-Add the code to `LANGUAGE_CODES` in `src/languages.ts`, add
-`src/translations/<code>.ts`, run `make gen-copy`. The generator refuses to write
-anything if a declared language is missing a key or has lost a `{placeholder}`,
-so a half-translated language fails the build rather than shipping half in
-English. There is no machine-translation step, by decision.
-
-### Two rules the generator enforces
-
-Placeholders are `{name}` and become positional format specifiers in
-first-appearance order, so a translator can reorder them.
-
-Counted things are `plural(one, other)`, and a plural leaf may contain **nothing
-but `{n}`**. That restriction is what keeps the catalog able to pluralise on the
-count while a language with six plural forms gets six. Anything mixing a count
-with other text composes an already-rendered count — `inbox.bandLabel` takes the
-output of `inbox.count`, it does not pluralise itself.
-
-### What is deliberately not in the app's catalog
-
-The `api` namespace. Those are the server's responses, shown to the reader as-is
-in the language the request asked for; a second translation of them inside the
-app would give the reader two wordings, differing by which one answered.
-
-The push fallback title is the one string the server sends in the source language
-regardless: it is read by the recipient, and the request that produced it came
-from the sender's script, whose `Accept-Language` says nothing about them.
-Localising it needs the device's language recorded at registration.
-
-The website is not in this at all. Its prose still lives in
-`apps/api/public/index.html` and `privacy.html`, and several sentences there are
-hand-kept duplicates of in-app copy.
-
-## Marketing copy never says "curl"
-
-In anything pitching the product — the App Store listing under
-`apps/app/fastlane/metadata`, the README's opening, the website's meta
-descriptions and screenshot captions — say "HTTP request", not "curl", and
-"notifi.it", not "notifi.it/send". curl is one client and /send is an endpoint
-path; naming either narrows the pitch to people who already think in those
-terms. Code examples
-are exempt: a command that literally invokes curl says so, and UI labels for
-copying one ("Copy curl") describe what is copied. The App Store keywords field
-is also exempt — it is search terms nobody reads, and "curl" belongs there
-because people who think in curl will type it.
-
-The encryption claim is "encrypted with your public key" — never "end-to-end
-encrypted". Everywhere except the fastlane metadata, follow it with "neither we
-nor Apple can read your messages"; in the fastlane metadata say only that we
-cannot read them, without naming Apple.
+Encryption claim: "encrypted with your public key", never "end-to-end
+encrypted". Follow it with "neither we nor Apple can read your messages" —
+except in fastlane metadata, where we say we cannot read them without naming
+Apple.
 
 ## Migrations
 
 `apps/api/migrations/NNNN_snake_case.sql`, four-digit sequence. CI applies them
-on merge to main **before** deploying the Worker, to dev and then production, so
-a migration and the code that needs it can land in the same PR. Additive columns
-with defaults only; there is no down-migration story.
+on merge before deploying the Worker (dev then prod), so migration + code land
+in one PR. Additive columns with defaults only; no down migrations.
 
 ## Building the app
-
-`xcodebuild` needs the signing team passed by hand, because `project.yml` fills
-`DEVELOPMENT_TEAM` from an env var that only CI sets:
 
 ```bash
 xcodebuild -project apps/app/notifi.xcodeproj -scheme notifi-iOS -configuration Debug -destination 'generic/platform=iOS Simulator' DEVELOPMENT_TEAM=Z28DW76Y3W build
 ```
 
-Run `cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes are
-`notifi-iOS` and `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi:
-installs fail silently there and cannot be screenshotted.
+`DEVELOPMENT_TEAM` must be passed by hand (only CI sets the env var). Run
+`cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes:
+`notifi-iOS`, `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi
+(installs fail silently and can't be screenshotted).
 
 ## Verifying a visual change: `make shots`
 
-Do not hand-roll a build-install-boot-tap sequence to look at a screen. Run:
+Never hand-roll build-install-boot-tap. A run is 14-24s for all three tabs.
 
 ```
 make shots                     # one screenshot per screen
@@ -157,202 +74,103 @@ MESSAGE_INDEX=4 make shots     # open a different seeded message
 FORCE_BUILD=1 make shots       # rebuild even if nothing looks changed
 ```
 
-There is no skip-the-build flag, on purpose. The script rebuilds whenever
-anything under `apps/app` or `packages/copy/src` is newer than the binary it
-last produced, and skips otherwise. A flag would put that decision on whoever
-types the command, and the failure mode is silent: a screenshot of the previous
-build looks exactly like an answer.
+Writes `/tmp/notifi-shots/<name>.png`: the three tabs plus `message.png` (the
+detail page, reached by seeding data and pushing at launch, not tapping). The
+default `MESSAGE_INDEX` carries a body, image, link and key. There is
+deliberately no skip-the-build flag: a screenshot of a stale build looks exactly
+like an answer.
 
-It writes `/tmp/notifi-shots/<name>.png`: the three tabs, plus `message.png`,
-the detail page. The detail page is not a tab and so was the one screen a shots
-run never covered — a timestamp change there was checked by eye or not at all.
-It is reached by seeding sample data and pushing the message onto the navigation
-path at launch, not by tapping a row, for the reason tapping is avoided
-everywhere else here. `MESSAGE_INDEX` picks which seeded message; the default
-is the one carrying a body, an image, a link and a key, so the shot exercises
-every part of the screen.
-
-Shooting the three tabs together is what
-[Layout changes go in GeistPage](#layout-changes-go-in-geistpage-not-in-three-screens)
-requires and a manual pass usually skips.
-
-It reuses whatever Simulator is already booted and a fixed DerivedData at
-`/tmp/notifi-derived`, and it sets the tab with `NOTIFI_START_TAB` on each
-launch rather than tapping the tab bar. Tapping is the flaky half: a shot taken
-before the bar settles looks like a bug in the change being verified.
-
-`NOTIFI_START_TAB` is read by `AppTab.launchOverride`, and `NOTIFI_SAMPLE_DATA`
-and `NOTIFI_START_MESSAGE` by `SampleData`. All three are `#if DEBUG` only.
-Nothing else may set them — they exist for this script.
-
-The message override waits for `bootState == .ready` before pushing: the
-navigation stack does not exist before then, and a path pushed onto a stack that
-has not appeared is dropped, which looks like the inbox rather than a failure.
-
-Measured on this machine: 14-24s a run, for all three tabs. Whether it compiled
-barely shows — an incremental build is a few seconds and the rest is installing
-and launching three times. For comparison, 151 build-then-look-at-one-screenshot
-cycles across this project's transcripts ran to a median of 46s and a p90 of
-283s, for one screen. A clean build has not been timed and is much slower; that
-cost is paid once, not per iteration.
+It sets the tab with `NOTIFI_START_TAB` instead of tapping (tapping is flaky).
+`NOTIFI_START_TAB`, `NOTIFI_SAMPLE_DATA`, `NOTIFI_START_MESSAGE` are DEBUG-only
+and exist only for this script — nothing else may set them. The message override
+waits for `bootState == .ready`; a path pushed before the stack exists is
+silently dropped.
 
 ## A PR that changes the UI attaches screenshots
 
-Any PR that changes what a screen looks like carries screenshots in its
-description — one per touched screen, and before/after when it moves something
-that already existed. `make shots` produces the tab images; sheets and the Mac
-popover are captured by hand. A described layout has to be imagined, and the
-imagined screen always looks right. If the PR is filed from a CLI that cannot
-upload images, say so in the description and attach them on the first pass
-through the web UI.
+One per touched screen; before/after when moving something existing. `make
+shots` covers the tabs; sheets and the Mac popover are captured by hand. If
+filing from a CLI that can't upload images, say so and attach via the web UI.
 
-## Confirmations are centred alerts, never confirmationDialog
+## Confirmations are centred alerts
 
-Use `.alert` with a title, a `message:`, and the action buttons. Never
-`confirmationDialog`: on iOS 26 it anchors to the control that opened it as a
-popover, which reads as a stray tooltip rather than a decision the app is
-asking the user to make. Put the question in the title and the consequence in
-the message.
+Use `.alert` with a title, `message:`, and action buttons — question in the
+title, consequence in the message. Never `confirmationDialog`: on iOS 26 it
+anchors to its control as a popover and reads as a stray tooltip.
 
-## The bell is drawn once, and every other copy is generated
+## The bell is drawn once
 
-`apps/app/Support/Icon/notifi-logo.svg` is the mark. The tab icon, the wordmark
-bell, the empty state, the menu bar glyph, the app icons, the favicon, the touch
-icon and the bell the website masks are all produced from it by
-`Support/Icon/generate-marks.sh` — edit the master, run that, commit what it
-writes. Do not edit the generated SVGs; the header in each says so, and a change
-made there survives until the next person runs the script.
+`apps/app/Support/Icon/notifi-logo.svg` is the master. Every other mark (tab
+icon, wordmark bell, empty state, menu bar glyph, app icons, favicon, touch
+icon, website bell) is generated by `Support/Icon/generate-marks.sh` — edit the
+master, run it, commit its output. Never edit the generated SVGs.
 
-Two viewBoxes are declared in that script rather than measured, because things
-outside it are positioned as fractions of them: `BellMark`'s unread dot in
-`Wordmark.swift`, and the badge disc in the site's CSS, which lives in both
-`index.html` and `privacy.html`. The script prints those fractions on every run
-and refuses to write a box the artwork no longer fits inside. If you reframe
-one, re-measure all of them — a release shipped with the site's disc sitting off
-the bell's shoulder because only the asset moved.
+The script declares two viewBoxes; `BellMark`'s unread dot (`Wordmark.swift`)
+and the site CSS badge disc (in both `index.html` and `privacy.html`) are
+positioned as fractions of them. The script prints those fractions each run and
+refuses a box the artwork no longer fits. Reframe one → re-measure all.
 
-### The badge has one position, and it is in the artwork
-
-`notifi-logo.svg` is where the unread badge sits. Never place it a second time
-by hand. A hard-coded fraction is a copy of that measurement, and every copy has
-drifted: the menu bar's dot was placed at fractions of its own frame, which is
-trimmed and re-centred and so does not share `BellLogo`'s framing at all —
-"matching" the two by giving them the same numbers moved it off the bell.
-
-Where a badge is needed, generate it: `generate-marks.sh` bakes it into
-`BellTabUnread`, and `generate-menu-icon.sh` writes `menu_dot` as a separate
-layer cropped by the same box as the bell, so drawing one over the other aligns
-by construction. `MacMenuBar` composites those two images and knows no
-coordinates. The two exceptions are `BellMark` and the site's CSS, which overlay
-a live view on a static asset and cannot bake anything in; both take their
-fractions from the numbers the script prints, and both are named above.
+The unread badge has one position: in the artwork. Never place it by hand with
+hard-coded fractions — every copy has drifted. `generate-marks.sh` bakes it into
+`BellTabUnread`; `generate-menu-icon.sh` writes `menu_dot` cropped by the same
+box as the bell, so `MacMenuBar` composites them with no coordinates. Only
+`BellMark` and the site CSS overlay live views and must take the printed
+fractions.
 
 ## The DMG's install window is two files that must agree
 
-`Support/Icon/generate-dmg-background.sh` draws
-`Shared/Resources/dmg-background/background.png`, and
-`Scripts/dmg-layout.applescript` places the icons on top of it. The icon
-coordinates live in both — the script prints them on every run — so a mark drawn
-at a position the layout does not share points at nothing. Change them together.
-
-The background is one file at 2x pixels tagged 144 dpi, because a `.DS_Store`
-holds a single background and Finder sizes it by its stored resolution. A 1x
-file is what the obvious version of this looks like and it ships visibly soft.
-
-The `dmg` lane builds a UDRW image, mounts it, runs the layout, and only then
-converts to UDZO. Arranging a compressed image succeeds silently and produces a
-default window: the layout is Finder state in the volume's `.DS_Store`, and a
-UDZO image is read-only.
+`Support/Icon/generate-dmg-background.sh` draws the background;
+`Scripts/dmg-layout.applescript` places the icons. The coordinates live in both
+(the script prints them) — change them together. The background is 2x pixels
+tagged 144 dpi (1x ships visibly soft). The `dmg` lane arranges a mounted UDRW
+image before converting to UDZO — arranging a compressed image silently produces
+a default window.
 
 ## Layout changes go in GeistPage, not in three screens
 
-The three tabs — Inbox, Keys, Settings — are built on different containers: the
-Inbox is a `List`, for its swipe actions and pull-to-refresh, and the other two
-are `ScrollView`s. Everything that decides *where* content lands is held in
-`GeistPage` instead: the ground, the reading measure, the header's gutter and
-vertical rhythm, the rule under it, the fades, and whether a navigation bar shows.
-Change shared geometry there and it reaches all three at once.
+The tabs use different containers (Inbox is a `List`, Keys/Settings are
+`ScrollView`s), so all geometry — ground, reading measure, gutter, rhythm,
+header rule, fades, nav bar visibility — lives in `GeistPage`. Screens pass a
+header and content and choose only `scroll:` (`.content` = own container,
+`.page` = given one). Never reintroduce per-screen geometry; that's what drifted
+before (titles 107pt apart on iPad).
 
-Each screen passes a header and its content, and chooses only `scroll:` —
-`.content` when it brings its own scroll container, `.page` to be given one. Do
-not reintroduce per-screen copies of the geometry. That is what drifted before:
-Keys and Settings capped their column at `Theme.measure` and centred it while the
-Inbox ran full width, so on an iPad the three titles sat 107pt apart, and the
-Inbox held its header outside its scroll view while the others kept theirs
-inside, putting its title 10pt higher.
+Know before changing: the nav bar is shown on all three tabs at regular width
+(it carries a safe-area inset regardless; hiding it moves titles), and
+`GeistHeader` reserves the subtitle line on screens without a count (Settings)
+so the rule doesn't jump between tabs.
 
-Two consequences worth knowing before you change them. A navigation bar carries a
-safe-area inset whether or not it draws anything, so it is shown on all three
-tabs at regular width — the Inbox puts its search field there, and hiding it on
-the other two is what moved their titles. And `GeistHeader` reserves the
-subtitle's line when a screen has no count to put there, so the rule under the
-header does not jump when you change tab; Settings is the only such screen.
+The gutter is `Theme.gutter` (20pt) via `geistGutter()` — never a literal, and
+never a compensating offset to cancel a container quirk.
 
-The gutter is `Theme.gutter` (20pt), applied through `geistGutter()`. Use it
-rather than a literal number, and never correct one screen with a compensating
-offset — an inset that only exists to cancel a container quirk is a bug the next
-OS version will change under you. There was a `.padding(.horizontal, -8)` on the
-Inbox `List` for exactly that reason; by the time it was removed its own comment
-no longer described what the screen did.
-
-Verify on the Simulator across all three tabs before calling a layout change
-done, on a phone and an iPad — the measure only bites at regular width, so a
-change can look right on a phone and be 100pt out on an iPad. Screenshot the
-three headers and put them side by side; a misaligned left edge or a rule at two
-heights is obvious that way and invisible one screenshot at a time.
+Verify on the Simulator across all three tabs, phone **and** iPad — the measure
+only bites at regular width. Screenshot the three headers side by side.
 
 ## No automated tests
 
-By decision. `make typecheck`, `make lint`, plus both `xcodebuild` schemes is the full
-automated gate; everything else is checked by hand. Do not add a test framework to make a
-change feel verified. Say plainly what was and was not exercised instead.
+By decision. `make typecheck`, `make lint`, plus both `xcodebuild` schemes is
+the full gate. Don't add a test framework; say plainly what was and wasn't
+exercised.
 
-## Releasing to the App Store: the order that works
+## Releasing to the App Store
 
-Learned shipping v2.0, mostly by being refused.
-
-**Tag first, submit second, metadata last.** A `v*` tag runs CI (TestFlight
-build + the macOS DMG release); the review submission is local,
-`MARKETING_VERSION=X.Y make app-submit`, and it *creates* the App Store
-version. `make app-metadata` alone cannot: before the version exists, deliver
-retries "Cannot find edit app store version" on a 20/40/80/160/300s backoff —
-twenty minutes of what looks like a hang — and then fails. It is not hung, it
-is waiting for a version that nothing is going to create.
-
-**`make app-metadata-check` is currently broken upstream.** With
-`skip_binary_upload` there is no ipa, and deliver's `verify_only` path still
-tries to hash one — `Digest` on nil. Skip the dry run; the real upload does not
-take that path.
-
-**A submission refused as "not in valid state" names no field.** The two causes
-met so far: a missing screenshot set, and an empty
-`fastlane/metadata/en-GB/release_notes.txt`. Check both before reading
-spaceship stack traces.
-
-**The iPad screenshot set is mandatory.** The app runs on iPad, so App Store
-Connect requires `ipadPro129` (2048x2732) screenshots and refuses the
-submission without them — "only the 6.9-inch set is required" is true only for
-iPhone-only apps. `make appstore-shots` produces both sets end to end: it
-builds, captures an iPhone and an iPad Pro 13" simulator, and renders the
-frames. The app seeds sample data and opens the sample message from launch
-environment (`NOTIFI_SEED_SAMPLE`, `NOTIFI_OPEN_SAMPLE_MESSAGE`, DEBUG only),
-so the script never taps the UI — tapping was the flaky half of capturing by
-hand.
-
-**Screenshot uploads are slow and cry wolf.** A full set takes ten-plus
-minutes, and deliver logs "X is missing on App Store Connect ... Tries
-remaining: N" once per run before succeeding on the retry. One round of that
-is normal; only repeated rounds are a failure.
-
-**Two local traps.** `git checkout -b x origin/main` uses the *last fetched*
-origin/main — in a long session with PRs merging behind you, fetch first or
-the branch quietly predates work that is already on main. And when a command's
-log matters, do not pipe it through `tail`: the failure that needed diagnosing
-survives only if the full output was written somewhere.
+- **Tag first, submit second, metadata last.** A `v*` tag runs CI (TestFlight +
+  DMG). `MARKETING_VERSION=X.Y make app-submit` (local) *creates* the App Store
+  version; `make app-metadata` before that retries "Cannot find edit app store
+  version" for ~20 minutes and fails — it's not hung, the version doesn't exist.
+- **`make app-metadata-check` is broken upstream** (`verify_only` hashes a
+  missing ipa). Skip the dry run.
+- **"Not in valid state" names no field.** Causes met so far: a missing
+  screenshot set, an empty `fastlane/metadata/en-GB/release_notes.txt`.
+- **iPad screenshots are mandatory** (`ipadPro129`, 2048x2732) because the app
+  runs on iPad. `make appstore-shots` builds and captures both sets, seeding via
+  `NOTIFI_SEED_SAMPLE` / `NOTIFI_OPEN_SAMPLE_MESSAGE` (DEBUG only), no tapping.
+- **Screenshot uploads cry wolf**: "X is missing ... Tries remaining: N" once
+  per run is normal; only repeated rounds are a failure.
+- **Two local traps**: `git checkout -b x origin/main` uses the last *fetched*
+  origin/main — fetch first. And don't pipe important logs through `tail`.
 
 ## Never add comments
 
-The Swift and TypeScript here carry no comments at all, and `make lint`
-(`scripts/lint-comments.mjs`, run by CI on every PR) fails on any comment in
-either language. Do not add one. Reasoning that would have been a comment goes
-in the commit message or the PR description.
+No comments in Swift or TypeScript; `make lint` (`scripts/lint-comments.mjs`,
+CI) fails on any. Reasoning goes in the commit message or PR description.
