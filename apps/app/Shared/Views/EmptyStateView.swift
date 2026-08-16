@@ -61,12 +61,8 @@ struct EmptyStateView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Image("EmptyBell")
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(Theme.muted)
-                .frame(width: 96)
+            GrainyBell()
+                .frame(width: 96, height: 96)
                 .accessibilityHidden(true)
                 .padding(.bottom, 14)
 
@@ -179,6 +175,59 @@ struct EmptyStateView: View {
         .onChange(of: notificationsAllowed) { _, allowed in
             if allowed, openStep == 1 { openStep = 2 }
         }
+    }
+}
+
+private struct GrainyBell: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let bell = Image("EmptyBell")
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+
+        bell
+            .foregroundStyle(Theme.muted)
+            .overlay {
+                if reduceMotion {
+                    Color.clear
+                } else {
+                    TimelineView(.animation) { context in
+                        Canvas { canvasContext, size in
+                            var generator = SeededGenerator(seed: context.date.timeIntervalSinceReferenceDate)
+                            let cell: CGFloat = 3
+                            let columns = Int(size.width / cell) + 1
+                            let rows = Int(size.height / cell) + 1
+                            for row in 0..<rows {
+                                for column in 0..<columns {
+                                    guard Double.random(in: 0...1, using: &generator) < 0.5 else { continue }
+                                    let rect = CGRect(x: CGFloat(column) * cell, y: CGFloat(row) * cell, width: cell, height: cell)
+                                    let brightness = Double.random(in: 0...1, using: &generator)
+                                    canvasContext.fill(Path(rect), with: .color(.white.opacity(brightness * 0.35)))
+                                }
+                            }
+                        }
+                    }
+                    .blendMode(.overlay)
+                }
+            }
+            .mask(bell)
+    }
+}
+
+private struct SeededGenerator: RandomNumberGenerator {
+    private var state: UInt64
+
+    init(seed: TimeInterval) {
+        state = UInt64(bitPattern: Int64(seed * 1000)) &* 2862933555777941757 &+ 1
+    }
+
+    mutating func next() -> UInt64 {
+        state ^= state << 13
+        state ^= state >> 7
+        state ^= state << 17
+        return state
     }
 }
 
