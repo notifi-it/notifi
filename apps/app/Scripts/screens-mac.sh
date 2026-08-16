@@ -58,7 +58,11 @@ EOF
 
 screencapture -x -o -l"$WINDOW_ID" "$OUT/mac.png"
 
-# Scale-and-cover-crop to the size index.html declares, as webp.
+# Scale to the size index.html declares, as webp — after squaring the figure
+# with the site: the bar draws its bell at 50%, but a real capture clamps the
+# popover against the screen edge, so its arrow sits off the panel's centre.
+# The arrow is slid along the panel's top edge to the panel's centre (the
+# edge is uniform, so the move is seamless), then the panel is centred.
 python3 - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
@@ -66,10 +70,33 @@ from PIL import Image
 out, site = sys.argv[1], sys.argv[2]
 W, H = 840, 1296
 im = Image.open(f"{out}/mac.png").convert("RGB")
+px = im.load()
+
+def row_span(y):
+    xs = [x for x in range(im.width) if sum(px[x, y]) > 18]
+    return (min(xs), max(xs)) if xs else None
+
+apex_y = next(y for y in range(im.height) if row_span(y))
+panel_top = next(
+    y for y in range(apex_y, im.height)
+    if (s := row_span(y)) and s[1] - s[0] > im.width * 0.5
+)
+ax0, ax1 = row_span(apex_y + (panel_top - apex_y) // 2)
+p = row_span(min(panel_top + 40, im.height - 1))
+panel_cx = (p[0] + p[1]) / 2
+
+pad = 6
+box = (ax0 - pad, apex_y, ax1 + pad + 1, panel_top)
+arrow = im.crop(box)
+im.paste((0, 0, 0), box)
+dx = round(panel_cx - (ax0 + ax1 + 1) / 2)
+im.paste(arrow, (box[0] + dx, box[1]))
+
 scale = max(W / im.width, H / im.height)
 im = im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS)
-x, y = (im.width - W) // 2, (im.height - H) // 2
-im.crop((x, y, x + W, y + H)).save(f"{site}/mac.webp", "WEBP", quality=82, method=6)
+canvas = Image.new("RGB", (W, H), (0, 0, 0))
+canvas.paste(im, (W // 2 - round(panel_cx * scale), (H - im.height) // 2))
+canvas.save(f"{site}/mac.webp", "WEBP", quality=82, method=6)
 print(f"{site}/mac.webp")
 EOF
 

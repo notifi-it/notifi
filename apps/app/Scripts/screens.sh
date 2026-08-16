@@ -75,11 +75,17 @@ mkdir -p "$OUT"
 # launch a clean slate.
 shoot() { # udid outfile extra-env...
   local udid=$1 outfile=$2; shift 2
+  # Terminate, settle, then launch. --terminate-running-process alone can
+  # resurrect the app with the PREVIOUS launch's environment (observed: a
+  # settings capture that came up as the prior pass's inbox), so the kill
+  # must be its own step with a beat in between.
+  xcrun simctl terminate "$udid" "$BUNDLE_ID" 2>/dev/null || true
+  sleep 1
   # -AppleLanguages is read at launch, so the app comes up in LANG's language
   # without touching the simulator's own settings. Capturing every locale off
   # one English boot would ship a Spanish listing showing an English app.
   env "$@" SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 SIMCTL_CHILD_NOTIFI_SEED_SAMPLE=1 \
-    xcrun simctl launch --terminate-running-process "$udid" "$BUNDLE_ID" \
+    xcrun simctl launch "$udid" "$BUNDLE_ID" \
     -AppleLanguages "($LANG_CODE)" -AppleLocale "$LANG_CODE" >/dev/null
   # The detail screen settles slowest: the seeded image arrives over the
   # network, and a shot before it does ships a placeholder.
@@ -112,7 +118,8 @@ done
 # the website but not in the App Store set, so it only exists here.
 LANG_CODE=en
 capture_set "$PHONE" ""
-shoot "$PHONE" "settings.png" SIMCTL_CHILD_NOTIFI_START_TAB=settings
+shoot "$PHONE" "settings.png" SIMCTL_CHILD_NOTIFI_START_TAB=settings \
+  SIMCTL_CHILD_NOTIFI_APPEARANCE=light
 
 # The website's four shots: the same phone captures at 2x the size the HTML
 # declares (620x1348), cover-cropped the few pixels of aspect difference, as

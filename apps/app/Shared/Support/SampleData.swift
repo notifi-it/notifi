@@ -47,11 +47,16 @@ enum SampleData {
         ProcessInfo.processInfo.environment["NOTIFI_START_MESSAGE"].flatMap(Int.init)
     }
 
+    static var launchAppearance: Appearance? {
+        ProcessInfo.processInfo.environment["NOTIFI_APPEARANCE"].flatMap(Appearance.init(rawValue:))
+    }
+
     static func serverID(at index: Int) -> Int { idFloor - index }
 
     @MainActor
     static func applyLaunchOverrides(context: ModelContext, model: AppModel) {
         guard isEnabled else { return }
+        if let appearance = launchAppearance { model.appearance = appearance }
         seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
     }
 
@@ -79,8 +84,8 @@ enum SampleData {
              "Someone at the door — clip saved to the hub.",
              nil, nil, 14, true),
 
-            ("Leak sensor under the sink went wet",
-             "Water detected at 16:32 — the shut-off valve closed itself.",
+            ("Water leak detected under the sink",
+             "Moisture sensor tripped at 16:32 — the shut-off valve closed.",
              nil, nil, 47, true),
 
             ("Deploy 9c41f2 finished",

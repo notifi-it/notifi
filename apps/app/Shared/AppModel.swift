@@ -460,6 +460,13 @@ final class AppModel {
     }
 
     func refreshPermission() async {
+        #if DEBUG
+        if SampleData.isEnabled {
+            notificationStatus = .authorized
+            criticalAlertStatus = .enabled
+            return
+        }
+        #endif
         let settings: (UNAuthorizationStatus, UNNotificationSetting) =
             await withCheckedContinuation { continuation in
                 UNUserNotificationCenter.current().getNotificationSettings { settings in
