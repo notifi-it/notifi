@@ -126,6 +126,53 @@ This uploads a JPEG re-capture, not the original PNG bytes. Acceptable for
 avatars; note it in the summary so a human can re-upload the originals if
 pixel-perfect matters.
 
+### Posting the Instagram mosaic
+
+`docs/socials/images/instagram-grid/` needs the real PNG bytes, unresized. A
+tile is a 1013px cell centred in a 1080px post, and it is that 33px of padding —
+about 3% of the width — that makes the seams line up. Anything that rescales or
+re-crops on the way in destroys it, so none of the avatar/banner tricks apply.
+
+Three routes were tried. Only the third works:
+
+- **`file_upload` in the extension's Chrome** would send real bytes, but its
+  `paths` argument never arrives — four calls, same
+  `expected array, received undefined`, whatever the path.
+- **Injecting the bytes with `javascript_tool`** gets further than it looks:
+  Instagram reads a `File` built from a `DataTransfer` and validates it, so the
+  mechanism is sound. Feeding it is not. `fetch` and `XMLHttpRequest` to
+  localhost are both refused by Instagram's CSP, and embedding the image as
+  base64 in the call is 4.8M characters for six tiles even as q95 JPEGs.
+- **`chrome-devtools-mcp`** is the way in. Its `upload_file` takes a local path
+  directly.
+
+That browser is a separate Chrome with a fresh profile, so it is logged out, and
+the password manager cannot reach it — `autofill_credential` always fills the
+extension's tab and takes no target. **The user signs in there themselves.**
+It is a real, visible, non-headless window, so they can. Expect a new-device
+prompt and possibly a 2FA code, which is also theirs to enter.
+
+Then per tile, oldest first:
+
+1. Click `New post`, `upload_file` the tile.
+2. Crop → `Select Crop` → **`4:5`**. It does not default to 4:5; leaving it
+   square crops the sides off and breaks every seam.
+3. `Next` (filters) → `Next` (caption) → `Share` → `Done`.
+
+Captions are left empty. Six fragments do not each want a pitch.
+
+Check progress without reloading:
+
+```js
+await (await fetch('/api/v1/users/web_profile_info/?username=notifidotit',
+  { headers: { 'x-ig-app-id': '936619743392459' } })).json()
+```
+
+**Verify the finished grid at a window under about 1200px.** Instagram lays the
+profile grid out in four columns on a wide window, which shows the mosaic
+scrambled even when every tile is correct. Three columns is what the app and a
+normal window show.
+
 ## Facebook, Instagram, X
 
 No usable APIs for profile edits — drive each site in the browser with the
