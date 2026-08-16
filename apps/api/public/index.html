@@ -434,12 +434,22 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
    dark page disappears into its own frame, and the light metal is what
    separates the phone from the ground. No shadow under the phone — the site
    has no other elevation, and hairlines are how every panel here ends. */
-/* The launch animation runs as its own page under /gif; it is framed here in
-   an iframe at the stage's own 2160x960 so nothing inside it has to reflow. */
-/* No border and the page's own ground: the frame is opaque over the static, so
-   anything darker or outlined reads as a rectangle cut out of the page. */
-.app-film{margin:30px 0 0;background:var(--bg)}
-.app-film iframe{display:block;width:100%;aspect-ratio:2160/960;border:0}
+/* The launch animation, mounted into the page by film.js at the stage's own
+   2160x960 and scaled down to fit. It ran in an iframe first, and an iframe
+   cannot inherit the static behind it — its ground stopped the grain dead in a
+   rectangle. In the page there is no ground to stop it: the scene's own
+   backdrop and grain layers are dropped and the page's static shows through.
+   The transport bar belongs to /gif, which is still the authoring page. */
+.app-film{position:relative;margin:30px 0 0;aspect-ratio:2160/960}
+/* Nothing is mounted under reduced motion, and an empty box would hold open a
+   screen's worth of nothing. */
+.app-film:empty{display:none}
+.app-film [data-om-starter],
+.app-film foreignObject > div,
+.app-film foreignObject > div > div{background:transparent!important}
+.app-film foreignObject > div > div > div[style*="pixelated"]{display:none!important}
+.app-film [data-omelette-chrome]{display:none!important}
+.app-film svg{box-shadow:none!important}
 
 .app-split{
   display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
@@ -764,10 +774,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
     <h2>The whole app:<br>an inbox, your keys, and settings.</h2>
 
-    <figure class="app-film">
-      <iframe src="/gif/" loading="lazy" scrolling="no"
-              title="A curl command, a Grafana webhook and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac."></iframe>
-    </figure>
+    <figure class="app-film" id="film"
+            aria-label="A curl command, a Grafana webhook and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac."></figure>
+    <script src="/film.js" defer></script>
 
     <div class="app-split">
       <figure class="app-phone">
@@ -1809,25 +1818,6 @@ reqwest::Client::new()
     .catch(function () {});
 })();
 
-// ── the launch scene, without its transport bar or letterbox ─
-// /gif is the authoring page for the scene: it keeps its scrubber, and the
-// near-black surround and drop shadow that read as a preview canvas. Here the
-// surround is flattened to the page's ground so the frame has no visible edge.
-(function () {
-  var frame = document.querySelector('.app-film iframe');
-  if (!frame) return;
-
-  frame.addEventListener('load', function () {
-    var doc = frame.contentDocument;
-    if (!doc) return;
-    var style = doc.createElement('style');
-    style.textContent =
-      '[data-omelette-chrome]{display:none!important}' +
-      'html,body,[data-om-starter]{background:#1C1C1E!important}' +
-      'svg[data-om-exportable-video-with-duration-secs]{box-shadow:none!important}';
-    doc.head.appendChild(style);
-  });
-})();
 </script>
 </body>
 </html>

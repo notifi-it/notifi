@@ -44,6 +44,12 @@ gen-copy:
 check-copy:
 	pnpm --filter @notifi/copy check-copy
 
+# The landing page's launch animation. Sources are the scene and engine under
+# public/gif (the authoring page runs them through a CDN Babel); this bundles
+# them with preact for the page itself. Output is committed.
+gen-film:
+	cd apps/api && node film/build.mjs
+
 app-project:
 	cd apps/app && xcodegen generate
 
