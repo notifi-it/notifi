@@ -34,11 +34,27 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          REVIEWS_JSON: /tmp/reviews.json
         run: |
           ASC_PRIVATE_KEY="$(echo "$ASC_API_KEY_P8" | base64 --decode)" \
             node scripts/fetch-reviews.mjs > /tmp/reviews.sql
-      - name: Write them to production D1
+      - name: Remember which reviews D1 already has
+        working-directory: apps/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: >
+          pnpm wrangler d1 execute notifi-prod --remote --env production
+          --command "SELECT id FROM app_reviews" --json > /tmp/existing.json
+      - name: Write the fetched reviews to production D1
         working-directory: apps/api
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: pnpm wrangler d1 execute notifi-prod --remote --env production --file /tmp/reviews.sql
+      # After the write, so a failed run never announces a review the site
+      # does not show. notifi pushing its own App Store reviews through /send
+      # is the point: the product is its own monitor.
+      - name: Push any new review through notifi
+        working-directory: apps/api
+        env:
+          NOTIFI_SEND_KEY: ${{ secrets.NOTIFI_SEND_KEY }}
+        run: node scripts/notify-new-reviews.mjs /tmp/existing.json /tmp/reviews.json

@@ -1,4 +1,5 @@
 import { createPrivateKey, sign } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
 
 const APP_ID = '1563961135';
 const API = 'https://api.appstoreconnect.apple.com';
@@ -73,4 +74,7 @@ for (const r of reviews) {
 }
 
 process.stdout.write(`${lines.join('\n')}\n`);
+if (process.env.REVIEWS_JSON) {
+  writeFileSync(process.env.REVIEWS_JSON, JSON.stringify(reviews));
+}
 console.error(`${reviews.length} reviews fetched.`);
