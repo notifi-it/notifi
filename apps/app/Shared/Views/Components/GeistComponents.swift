@@ -14,7 +14,11 @@ struct SearchField: View {
 
             TextField(placeholder, text: $text)
                 .textFieldStyle(.plain)
+                #if os(macOS)
+                .font(.inco(.body, weight: .medium))
+                #else
                 .font(Theme.body)
+                #endif
                 .foregroundStyle(Theme.fg)
                 .tint(Theme.brand)
                 .focused(focused)
@@ -44,11 +48,18 @@ struct SearchField: View {
         .padding(.horizontal, 11)
         .frame(minHeight: 38)
         .background(Theme.surface)
+        #if os(macOS)
+        .overlay(
+            Rectangle()
+                .stroke(Theme.fg, lineWidth: focused.wrappedValue ? 3 : 2)
+        )
+        #else
         .overlay(
             Rectangle()
                 .stroke(focused.wrappedValue ? Theme.muted : Theme.controlBorder,
                         lineWidth: focused.wrappedValue ? 2 : 1)
         )
+        #endif
         .animation(Theme.press, value: text.isEmpty)
         .animation(Theme.press, value: focused.wrappedValue)
     }

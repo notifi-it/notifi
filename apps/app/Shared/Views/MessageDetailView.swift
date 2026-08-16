@@ -177,6 +177,7 @@ struct MessageDetailView: View {
                 .textSelection(.enabled)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
+                .grainReveal(trigger: message.id, duration: 0.45)
 
             metaLine(for: message)
                 .padding(.top, 14)

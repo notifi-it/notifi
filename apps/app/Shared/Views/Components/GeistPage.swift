@@ -25,11 +25,6 @@ struct GeistPage<Header: View, Content: View>: View {
                 .geistGutter()
                 .geistMeasure()
                 .background(StaticField())
-                .overlay(alignment: .bottom) {
-                    #if os(iOS)
-                    Hairline(color: Theme.chromeRuleColor, weight: Theme.chromeRule)
-                    #endif
-                }
 
             scrollingContent
                 .geistMeasure()

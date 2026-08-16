@@ -323,6 +323,9 @@ private struct MessageRow: View {
             content
             if showsRule && Self.drawsRules { rule }
         }
+        #if os(macOS)
+        .grainReveal(trigger: message.id, duration: 0.5, once: true, strength: 1.2)
+        #endif
         .accessibilityElement(children: .combine)
         .accessibilityLabel(spokenDescription)
     }
