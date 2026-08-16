@@ -1,4 +1,4 @@
-.PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck lint gen-vectors gen-copy check-copy \
+.PHONY: dev deploy deploy-dev migration migrate check-migrations migrate-dev-remote migrate-prod typecheck lint gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-metadata app-metadata-check shots screens screens-mac
 
@@ -11,6 +11,9 @@ deploy-dev:
 deploy:
 	cd apps/api && pnpm wrangler deploy --env production
 
+migration:
+	cd apps/api && node scripts/new-migration.mjs $(name)
+
 migrate:
 	cd apps/api && pnpm wrangler d1 migrations apply notifi-dev --local
 
@@ -22,6 +25,9 @@ migrate-prod:
 
 typecheck:
 	pnpm -r typecheck
+
+check-migrations:
+	node scripts/check-migrations.mjs
 
 lint:
 	node scripts/lint-comments.mjs

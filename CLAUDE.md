@@ -67,9 +67,38 @@ them churns every Swift call site for no reader's benefit.
 
 ## Migrations
 
-`apps/api/migrations/NNNN_snake_case.sql`, four-digit sequence. CI applies them
-on merge before deploying the Worker (dev then prod), so migration + code land
-in one PR. Additive columns with defaults only; no down migrations.
+**Never type a migration by hand.** `apps/api/prisma/schema.prisma` is the
+source of truth: describe the change there, then
+
+```bash
+make migration name=snake_case_name    # writes apps/api/migrations/NNNN_*.sql
+make migrate                           # applies it locally
+```
+
+`make check-migrations` (CI, in the lint workflow) fails a PR that touches
+`migrations/` without touching the schema, so a hand-written file is caught
+before review.
+
+The generator diffs the **committed** schema against the working copy — it
+never inspects a live database. The tables predate the schema file, so Prisma's
+canonical DDL differs from them cosmetically (`AUTOINCREMENT` on `keys.id`,
+`NOT NULL` on a TEXT primary key); diffing against real D1 asks to rebuild every
+table to close a gap that changes nothing. The cost is that the schema is only
+as accurate as the last person to edit it — describe first, generate second.
+
+Four-digit sequence, no gaps. CI applies migrations on merge before deploying
+the Worker (dev then prod), so migration + code land in one PR. Additive columns
+only; no down migrations.
+
+Two things the generator will not do for you:
+
+- **A `NOT NULL DEFAULT` column comes out as a table rebuild**, because Prisma's
+  SQLite provider will not trust an in-place add. `make migration` refuses to
+  write it, and `check-migrations` refuses to merge it. Add the column as
+  nullable, or write that one `ALTER TABLE ... ADD COLUMN x INTEGER NOT NULL
+  DEFAULT 0` by hand — and say why in the commit, because CI will ask.
+- **Backfills and renames.** `0005` and `0008` are correlated updates and a
+  column rename; a diff cannot infer intent. Hand-written, deliberately.
 
 ## Building the app
 

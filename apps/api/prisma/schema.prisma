@@ -1,0 +1,94 @@
+// The source of truth for the D1 schema. Nothing here is generated and no
+// client is generated from it: the Worker talks to D1 with prepared statements,
+// and this file exists so `make migration` can diff a change into SQL instead
+// of someone typing the DDL by hand.
+//
+// `make migration` diffs the committed copy of this file against the edited one
+// and writes the difference to migrations/. It never inspects the live database.
+// That is deliberate: the tables were built by hand before this file existed, so
+// Prisma's canonical DDL differs from them cosmetically (AUTOINCREMENT on
+// keys.id, NOT NULL on a TEXT primary key). Diffing against a real D1 asks to
+// rebuild every table to close a gap that changes nothing.
+//
+// The cost is that this file is only as accurate as the last person to edit it.
+// Describe the change here first, then generate — never the other way round.
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model devices {
+  id                    Int     @id @default(autoincrement())
+  public_key            String  @unique
+  encryption_public_key String
+  apns_token            String
+  apns_token_hmac       String  @unique
+  platform              String
+  app_version           String
+  created_at            Int
+  last_seen_at          Int
+  acked_id              Int     @default(0)
+  seq_counter           Int     @default(0)
+  rl_window_start       Int     @default(0)
+  rl_window_count       Int     @default(0)
+  strict_send           Int     @default(0)
+
+  keys     keys[]
+  messages messages[]
+}
+
+model keys {
+  id              Int     @id @default(autoincrement())
+  device_id       Int
+  meta_sealed     String
+  secret_hash     String  @unique
+  sent_count      Int     @default(0)
+  rl_window_start Int     @default(0)
+  rl_window_count Int     @default(0)
+  created_at      Int
+  last_used_at    Int?
+  revoked_at      Int?
+  is_critical     Int     @default(0)
+
+  device   devices    @relation(fields: [device_id], references: [id], onDelete: Cascade)
+  messages messages[]
+}
+
+model messages {
+  id             Int    @id @default(autoincrement())
+  device_id      Int
+  key_id         Int?
+  content_sealed String
+  created_at     Int
+  expires_at     Int
+  occurred_at    Int?
+  device_seq     Int    @default(0)
+
+  device devices @relation(fields: [device_id], references: [id], onDelete: Cascade)
+  key    keys?   @relation(fields: [key_id], references: [id], onDelete: SetNull)
+
+  @@unique([device_id, device_seq], map: "idx_messages_device_seq")
+  @@index([expires_at], map: "idx_messages_expiry")
+}
+
+model seen_signatures {
+  sig_hash   String @id
+  expires_at Int
+
+  @@index([expires_at], map: "idx_seen_signatures_expiry")
+}
+
+model app_reviews {
+  id         String @id
+  rating     Int
+  title      String
+  body       String
+  author     String
+  country    String
+  version    String
+  updated_at String
+  fetched_at Int
+
+  @@index([updated_at(sort: Desc)], map: "idx_app_reviews_updated_at")
+}
