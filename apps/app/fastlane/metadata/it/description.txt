@@ -4,6 +4,9 @@ Crea una chiave di invio e manda un titolo e un messaggio a notifi.it in un'unic
 
 https://notifi.it/send?title=hello+world
 
+COSA CONTIENE UN MESSAGGIO
+Un titolo, un corpo, un'immagine e un link. Il corpo è Markdown: titoli, elenchi, citazioni, link e blocchi di codice vengono visualizzati sul dispositivo.
+
 CIFRATO
 Il tuo dispositivo detiene l'unica chiave privata. Il contenuto dei messaggi è cifrato con la tua chiave pubblica all'ingresso, così non possiamo leggere i tuoi messaggi. Ogni messaggio viene eliminato dal server una volta che il tuo dispositivo lo conferma.
 

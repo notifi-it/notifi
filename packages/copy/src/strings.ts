@@ -57,6 +57,9 @@ export const copy = {
       'The notification lands on your iPhone or Mac. Anything that can make an HTTP request ' +
       'can send one, e.g. a shell script, a cron job, a CI pipeline.\n\n' +
       'https://notifi.it/send?title=hello+world\n\n' +
+      'WHAT A MESSAGE CARRIES\n' +
+      'A title, a body, an image and a link. The body is Markdown: headings, lists, ' +
+      'quotes, links and code blocks are rendered on the device.\n\n' +
       'ENCRYPTED\n' +
       'Your device holds the only private key. Message content is encrypted with your public ' +
       'key at ingest, so we cannot read your messages. Each message is deleted from the server ' +

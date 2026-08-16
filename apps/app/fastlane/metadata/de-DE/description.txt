@@ -4,6 +4,9 @@ Erstelle einen Sendeschlüssel und schicke einen Titel und eine Nachricht in ein
 
 https://notifi.it/send?title=hello+world
 
+WAS EINE NACHRICHT ENTHÄLT
+Einen Titel, einen Text, ein Bild und einen Link. Der Text ist Markdown: Überschriften, Listen, Zitate, Links und Codeblöcke werden auf dem Gerät dargestellt.
+
 VERSCHLÜSSELT
 Nur dein Gerät besitzt den privaten Schlüssel. Der Nachrichteninhalt wird beim Empfang mit deinem öffentlichen Schlüssel verschlüsselt, sodass wir deine Nachrichten nicht lesen können. Jede Nachricht wird vom Server gelöscht, sobald dein Gerät sie bestätigt hat.
 

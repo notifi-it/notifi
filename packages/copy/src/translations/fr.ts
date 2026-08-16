@@ -111,6 +111,7 @@ export const fr: Translation = {
 
   'search.prompt': 'Rechercher des notifications',
   'search.matches': { one: '1 résultat', other: '{n} résultats' },
+  'search.recent': 'Récents',
 
   'message.notFound': 'Message introuvable',
   'message.notFoundDetail': 'Il a peut-être été supprimé sur cet appareil.',
@@ -370,6 +371,9 @@ export const fr: Translation = {
     'une requête HTTP peut en envoyer une, par exemple un script shell, une tâche cron, un ' +
     'pipeline CI.\n\n' +
     'https://notifi.it/send?title=hello+world\n\n' +
+    "CE QUE CONTIENT UN MESSAGE\n" +
+    'Un titre, un corps, une image et un lien. Le corps est en Markdown : titres, listes, ' +
+    "citations, liens et blocs de code sont rendus sur l'appareil.\n\n" +
     'CHIFFRÉ\n' +
     'Votre appareil détient la seule clé privée. Le contenu des messages est chiffré avec ' +
     "votre clé publique à l'ingestion, si bien que nous ne pouvons pas lire vos messages. " +

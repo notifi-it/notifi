@@ -110,6 +110,7 @@ export const es: Translation = {
 
   'search.prompt': 'Buscar notificaciones',
   'search.matches': { one: '1 coincidencia', other: '{n} coincidencias' },
+  'search.recent': 'Recientes',
 
   'message.notFound': 'Mensaje no encontrado',
   'message.notFoundDetail': 'Puede que se haya eliminado en este dispositivo.',
@@ -378,6 +379,9 @@ export const es: Translation = {
     'La notificación llega a tu iPhone o Mac. Cualquier cosa que pueda hacer una solicitud HTTP ' +
     'puede enviar una, por ejemplo un script de shell, una tarea cron o un pipeline de CI.\n\n' +
     'https://notifi.it/send?title=hello+world\n\n' +
+    'QUÉ LLEVA UN MENSAJE\n' +
+    'Un título, un cuerpo, una imagen y un enlace. El cuerpo es Markdown: encabezados, listas, ' +
+    'citas, enlaces y bloques de código se muestran en el dispositivo.\n\n' +
     'CIFRADO\n' +
     'Tu dispositivo guarda la única clave privada. El contenido del mensaje se cifra con tu clave ' +
     'pública al ingresar, así que no podemos leer tus mensajes. Cada mensaje se elimina del ' +

@@ -52,6 +52,9 @@ export const de: Translation = {
     'Alles, was eine HTTP-Anfrage stellen kann, kann eine senden, z. B. ein Shell-Skript, ' +
     'ein Cron-Job, eine CI-Pipeline.\n\n' +
     'https://notifi.it/send?title=hello+world\n\n' +
+    'WAS EINE NACHRICHT ENTHÄLT\n' +
+    'Einen Titel, einen Text, ein Bild und einen Link. Der Text ist Markdown: Überschriften, ' +
+    'Listen, Zitate, Links und Codeblöcke werden auf dem Gerät dargestellt.\n\n' +
     'VERSCHLÜSSELT\n' +
     'Nur dein Gerät besitzt den privaten Schlüssel. Der Nachrichteninhalt wird beim ' +
     'Empfang mit deinem öffentlichen Schlüssel verschlüsselt, sodass wir deine ' +
@@ -160,6 +163,7 @@ export const de: Translation = {
 
   'search.prompt': 'Benachrichtigungen durchsuchen',
   'search.matches': { one: '1 Treffer', other: '{n} Treffer' },
+  'search.recent': 'Zuletzt',
 
   'message.notFound': 'Nachricht nicht gefunden',
   'message.notFoundDetail': 'Sie wurde möglicherweise auf diesem Gerät gelöscht.',

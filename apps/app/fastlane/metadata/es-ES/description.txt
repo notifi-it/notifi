@@ -4,6 +4,9 @@ Crea una clave de envío y manda un título y un mensaje a notifi.it en una soli
 
 https://notifi.it/send?title=hello+world
 
+QUÉ LLEVA UN MENSAJE
+Un título, un cuerpo, una imagen y un enlace. El cuerpo es Markdown: encabezados, listas, citas, enlaces y bloques de código se muestran en el dispositivo.
+
 CIFRADO
 Tu dispositivo guarda la única clave privada. El contenido del mensaje se cifra con tu clave pública al ingresar, así que no podemos leer tus mensajes. Cada mensaje se elimina del servidor en cuanto tu dispositivo lo confirma.
 

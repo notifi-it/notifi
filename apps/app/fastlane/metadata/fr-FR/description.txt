@@ -4,6 +4,9 @@ Créez une clé d'envoi et envoyez un titre et un message à notifi.it en une se
 
 https://notifi.it/send?title=hello+world
 
+CE QUE CONTIENT UN MESSAGE
+Un titre, un corps, une image et un lien. Le corps est en Markdown : titres, listes, citations, liens et blocs de code sont rendus sur l'appareil.
+
 CHIFFRÉ
 Votre appareil détient la seule clé privée. Le contenu des messages est chiffré avec votre clé publique à l'ingestion, si bien que nous ne pouvons pas lire vos messages. Chaque message est supprimé du serveur une fois que votre appareil l'a confirmé.
 
