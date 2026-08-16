@@ -1,7 +1,8 @@
 const host = document.getElementById('film');
-const skip = window.matchMedia
-  && (window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    || window.matchMedia('(max-width: 760px)').matches);
+const width = window.innerWidth || document.documentElement.clientWidth;
+const skip = (window.matchMedia
+  && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  || (width > 0 && width <= 760);
 
 if (host && window.NotifiLaunchGif && !skip) {
   let mounted = false;

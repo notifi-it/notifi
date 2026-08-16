@@ -443,8 +443,13 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 /* The engine fits the stage to the box less a fixed 44pt for the transport bar
    it is not drawing here, so the box carries that 44 as padding and the scene
    comes out the full width instead of a tenth short. */
+/* The scene insets its own content by 90 of its 2160, so a box the width of
+   the column leaves the terminal short of the heading above it. The box is
+   pulled out by exactly that fraction (90/2160 of the widened box, which is
+   4.5455% of this one) and the scene's margins spill past the column instead
+   of eating into it. */
 .app-film{
-  position:relative;margin:30px 0 -22px;
+  position:relative;margin:30px -4.5455% -22px;
   box-sizing:content-box;aspect-ratio:2160/960;padding-bottom:44px;
 }
 /* Nothing is mounted on a phone or under reduced motion, and an empty box would
