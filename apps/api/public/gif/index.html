@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Inconsolata';font-style:normal;font-weight:300 800;font-display:swap;src:url(/fonts/inconsolata.woff2) format('woff2')}
+@font-face{font-family:'Karla';font-style:normal;font-weight:400 700;font-display:swap;src:url(/fonts/karla.woff2) format('woff2')}
+body{background:#1C1C1E;margin:0}
+a{color:#EDEDED}a:hover{color:#DB4A4B}
+</style>
+<script>window.OM_SCENES = '[{"name":"Deploy","dur":3.5,"desc":"curl types out in deploy.sh and a Deploy finished banner drops onto the iPhone"},{"name":"Grafana","dur":3.5,"desc":"A Grafana webhook fires and a latency alert with its graph thumbnail lands on the iPad"},{"name":"CI","dur":3.5,"desc":"A GitHub Action fails and a Build failed alert slides in on the Mac"},{"name":"Hold","dur":0.5,"desc":"Quiet idle prompt before the loop restarts"}]';
+window.OM_PLAYBACK = '{"mode":"loop"}';</script>
+</helmet>
+<x-import component-from-global-scope="NotifiLaunchGif" from="./animations-v3.jsx ./launch-gif-scene.jsx" hint-size="100%,100%"></x-import>
+</x-dc>
+</body>
+</html>
