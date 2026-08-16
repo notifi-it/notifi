@@ -44,9 +44,6 @@ new_sqlite_classes = ["DeviceSocket"]
 tag = "v2"
 new_sqlite_classes = ["ApnsToken"]
 
-[triggers]
-crons = ["0 3 * * *"]
-
 [observability]
 enabled = true
 head_sampling_rate = 1
@@ -81,9 +78,6 @@ SENTRY_ENVIRONMENT = "production"
 binding = "DB"
 database_name = "notifi-prod"
 database_id = "e6e8c82f-779f-4e27-9621-97426939ea9b"
-
-[env.production.triggers]
-crons = ["0 3 * * *"]
 
 [env.production.observability]
 enabled = true

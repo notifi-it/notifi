@@ -7,13 +7,13 @@ import { devices } from './routes/devices.js';
 import { downloads } from './routes/downloads.js';
 import { history } from './routes/history.js';
 import { keys } from './routes/keys.js';
-import { refreshReviews, reviews } from './routes/reviews.js';
+import { reviews } from './routes/reviews.js';
 import { send } from './routes/send.js';
 import { socket } from './routes/socket.js';
 import { ApnsToken as ApnsTokenBase } from './apnstoken.js';
 import { sentryOptions } from './sentry.js';
 import { DeviceSocket as DeviceSocketBase } from './socket.js';
-import type { AppEnv, Env } from './types.js';
+import type { AppEnv } from './types.js';
 
 const app = new Hono<AppEnv>();
 
@@ -50,13 +50,8 @@ app.onError((err, c) => {
   return c.json(errBody('internal_error', t(c).api.unexpected), 500);
 });
 
-async function scheduled(_event: ScheduledController, env: Env): Promise<void> {
-  await refreshReviews(env);
-}
-
 export default withSentry(sentryOptions, {
   fetch: app.fetch,
-  scheduled,
 });
 
 export const DeviceSocket = instrumentDurableObjectWithSentry(sentryOptions, DeviceSocketBase);
