@@ -85,9 +85,14 @@ async function fetchStorefront(country: string): Promise<Review[]> {
   const res = await fetch(url, {
     cf: { cacheTtl: CACHE_SECONDS, cacheEverything: true },
   });
-  if (!res.ok) return [];
+  if (!res.ok) {
+    console.error('reviews.fetch', { country, status: res.status });
+    return [];
+  }
   const feed = (await res.json()) as Feed;
-  return entries(feed)
+  const list = entries(feed);
+  console.error('reviews.feed', { country, entries: list.length });
+  return list
     .map((entry) => toReview(entry, country))
     .filter((review): review is Review => review !== null);
 }
