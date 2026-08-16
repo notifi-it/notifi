@@ -1,1 +1,1 @@
-Push notifications for your scripts and servers, in one HTTP request. Neither we nor Apple can read your messages. No account, no SDK.
+Push notifications for your scripts and servers, in one HTTP request. Neither we nor Apple can read your messages. Free, no signup, no SDK.

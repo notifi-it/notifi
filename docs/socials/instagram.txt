@@ -1,4 +1,5 @@
-Push notifications for your scripts and servers
-One HTTP request → your iPhone or Mac
+Push notifications for scripts and servers
+One HTTP request → iPhone or Mac
+Free, no signup
 Neither we nor Apple can read your messages
 ↓ notifi.it

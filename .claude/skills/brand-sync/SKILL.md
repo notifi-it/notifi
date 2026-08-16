@@ -136,7 +136,12 @@ the matching file from `docs/socials/images/` — they are different aspect
 ratios, not one image resized.
 
 Field limits worth knowing before trimming copy to fit: X bio 160, Instagram
-bio 150, Facebook Page bio 255. All three current bios fit with room.
+bio 150, Facebook Page bio 255. Instagram counts the whole bio including its
+newlines, and it silently truncates — count before pasting.
+
+The Instagram bio's last line, `↓ notifi.it`, is plain text pointing at the
+separate website field below it; Instagram makes no bio text clickable. Setting
+the bio without also setting that field leaves an arrow aimed at nothing.
 
 Never create accounts or enter credentials — if a login prompt appears, stop
 and hand the browser to the user.
