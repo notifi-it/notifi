@@ -1,4 +1,4 @@
-.PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck gen-vectors gen-copy check-copy \
+.PHONY: dev deploy deploy-dev migrate migrate-dev-remote migrate-prod typecheck lint gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-metadata app-metadata-check shots screens screens-mac
 
@@ -22,6 +22,9 @@ migrate-prod:
 
 typecheck:
 	pnpm -r typecheck
+
+lint:
+	node scripts/lint-comments.mjs
 
 gen-vectors:
 	pnpm --filter @notifi/contract gen-vectors

@@ -52,9 +52,8 @@ struct KeysView: View {
         GeistPage(scroll: .page) {
             VStack(alignment: .leading, spacing: 0) {
                 GeistHeader(title: Copy.Keys.title) {
-                    // One control on both platforms. The Mac used to carry a text
-                    // pill here while iOS had the disc, which drifted the two
-                    // headers apart for no reason either screen owns.
+                    // One control on both platforms, so the two headers cannot
+                    // drift apart for a difference neither screen owns.
                     IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
                         #if os(iOS)
                         showingCreate = true

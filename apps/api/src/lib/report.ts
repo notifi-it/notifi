@@ -16,9 +16,9 @@ import * as Sentry from '@sentry/cloudflare';
 ///     console.error('http.unhandled', err, { route, method });
 ///
 /// An `Error` anywhere in the arguments becomes the exception, so the stack
-/// survives -- `String(err)` throws it away, which is what these sites used to
-/// do. Plain objects are merged into the event's detail. Anything else is left
-/// to `console.error` alone.
+/// survives -- pass the error itself, never `String(err)`, which throws the
+/// stack away. Plain objects are merged into the event's detail. Anything else
+/// is left to `console.error` alone.
 
 /// `domain.event`, lowercase. The domain is tagged separately, which is what
 /// makes "everything APNs has said today" a search rather than a memory of what
