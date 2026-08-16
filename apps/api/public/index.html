@@ -436,10 +436,9 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
    has no other elevation, and hairlines are how every panel here ends. */
 /* The launch animation runs as its own page under /gif; it is framed here in
    an iframe at the stage's own 2160x960 so nothing inside it has to reflow. */
-.app-film{
-  margin:30px 0 0;border:1px solid var(--line);border-radius:12px;
-  overflow:hidden;background:#1C1C1E;
-}
+/* No border and the page's own ground: the frame is opaque over the static, so
+   anything darker or outlined reads as a rectangle cut out of the page. */
+.app-film{margin:30px 0 0;background:var(--bg)}
 .app-film iframe{display:block;width:100%;aspect-ratio:2160/960;border:0}
 
 .app-split{
@@ -1810,9 +1809,10 @@ reqwest::Client::new()
     .catch(function () {});
 })();
 
-// ── the launch scene, without its transport bar ─────────────
-// /gif is the authoring page for the scene and keeps its scrubber; the frame
-// here is a film, so the bar is styled away from this side once it loads.
+// ── the launch scene, without its transport bar or letterbox ─
+// /gif is the authoring page for the scene: it keeps its scrubber, and the
+// near-black surround and drop shadow that read as a preview canvas. Here the
+// surround is flattened to the page's ground so the frame has no visible edge.
 (function () {
   var frame = document.querySelector('.app-film iframe');
   if (!frame) return;
@@ -1821,7 +1821,10 @@ reqwest::Client::new()
     var doc = frame.contentDocument;
     if (!doc) return;
     var style = doc.createElement('style');
-    style.textContent = '[data-omelette-chrome]{display:none!important}';
+    style.textContent =
+      '[data-omelette-chrome]{display:none!important}' +
+      'html,body,[data-om-starter]{background:#1C1C1E!important}' +
+      'svg[data-om-exportable-video-with-duration-secs]{box-shadow:none!important}';
     doc.head.appendChild(style);
   });
 })();
