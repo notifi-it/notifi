@@ -21,7 +21,7 @@
 <!-- Kept under ~60 characters: a result page truncates past that, and the
      differentiator sits at the end where it would be the part cut. -->
 <title>notifi: push notifications to iPhone and Mac from one request</title>
-<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, no SDK, open source, and the message is sealed so neither we nor Apple can read it.">
+<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, no SDK, open source, and the notification is sealed so neither we nor Apple can read it.">
 <meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -35,7 +35,7 @@
 <link rel="canonical" href="https://notifi.it/">
 
 <meta property="og:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
-<meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your messages. No account, no SDK, open source.">
+<meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your notifications. No account, no SDK, open source.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://notifi.it/">
 <meta property="og:site_name" content="notifi">
@@ -47,7 +47,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
-<meta name="twitter:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your messages. No account, no SDK, open source.">
+<meta name="twitter:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your notifications. No account, no SDK, open source.">
 <meta name="twitter:image" content="https://notifi.it/og.png">
 <meta name="twitter:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
 
@@ -557,14 +557,14 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "operatingSystem": "iOS 17.0 or later, macOS 14.0 or later",
       "installUrl": "https://apps.apple.com/app/id1563961135",
       "downloadUrl": "https://notifi.it/download/mac",
-      "description": "The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it from any script, and a native push notification arrives on your iPhone or Mac. Message content is encrypted with your public key. No SDK, no account, no sign-in.",
+      "description": "The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it from any script, and a native push notification arrives on your iPhone or Mac. Notification content is encrypted with your public key. No SDK, no account, no sign-in.",
       "featureList": [
         "One plain HTTP request, GET or POST, JSON or form-encoded",
         "No SDK, no account and no sign-in",
-        "Message content encrypted with your public key",
+        "Notification content encrypted with your public key",
         "Open source",
         "Per-script revocable send keys",
-        "Title, message, link and image parameters",
+        "Title, body, link and image parameters",
         "Searchable notification history"
       ],
       "publisher": { "@id": "https://notifi.it/#org" },
@@ -673,7 +673,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede">
       Install the app, grab your key, and send an HTTP request to
-      <code>notifi.it/send</code>. The message shows up on your iPhone or Mac,
+      <code>notifi.it/send</code>. The notification shows up on your iPhone or Mac,
       encrypted with your public key, so neither we nor Apple can read it.
     </p>
 
@@ -731,7 +731,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <figure>
             <img src="/screens/detail.webp" width="620" height="1348" loading="lazy"
                  alt="A latency alert opened in full, showing the graph that came with it and the link back to the dashboard.">
-            <figcaption>Message</figcaption>
+            <figcaption>Notification</figcaption>
           </figure>
           <figure>
             <img src="/screens/keys.webp" width="620" height="1348" loading="lazy"
@@ -1194,9 +1194,9 @@ reqwest::Client::new()
            launch and that keypair is your identity.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your messages</h3>
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your notifications</h3>
         <div>
-          <p>Messages are
+          <p>Notifications are
              <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">encrypted</a>
              with your public key before they are stored, so the server only ever holds
              encrypted text. Apple relays an alert that just says <code>notifi</code>,
@@ -1209,7 +1209,7 @@ reqwest::Client::new()
       </div>
       <div class="row">
         <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-erase"/></svg>Nothing kept after delivery</h3>
-        <p>The server deletes a message as soon as your device confirms it has collected
+        <p>The server deletes a notification as soon as your device confirms it has collected
            it. Your history lives on your device, not in our database.</p>
       </div>
       <div class="row">

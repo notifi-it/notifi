@@ -2842,7 +2842,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "notifi could not read its identity key from the keychain. This usually clears once the device has been unlocked. Your messages and send keys are unaffected."
+            "value": "notifi could not read its identity key from the keychain. This usually clears once the device has been unlocked. Your notifications and send keys are unaffected."
           }
         },
         "es": {
@@ -3227,7 +3227,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copy message"
+            "value": "Copy notification"
           }
         },
         "es": {
@@ -5727,7 +5727,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keys identify who sent a message. Use a different key for each script. The default key was made when this device was set up."
+            "value": "Keys identify who sent a notification. Use a different key for each script. The default key was made when this device was set up."
           }
         },
         "es": {
@@ -6627,7 +6627,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Message not found"
+            "value": "Notification not found"
           }
         },
         "es": {
@@ -7047,7 +7047,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your old messages restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now be rejected. Create fresh keys to keep receiving notifications."
+            "value": "Your old notifications restored from a backup, but your keys did not. Keys are tied to the device they were created on and cannot be moved. Anything still sending to your old keys will now be rejected. Create fresh keys to keep receiving notifications."
           }
         },
         "es": {
@@ -7562,7 +7562,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetches each image as the message arrives, which tells its host your IP address. Off, images load only when tapped."
+            "value": "Fetches each image as the notification arrives, which tells its host your IP address. Off, images load only when tapped."
           }
         },
         "es": {
@@ -8192,7 +8192,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Returns 422 invalid_content and stores nothing when a title or message is over length or an image URL fails validation. Off, /send crops or drops the field and returns 202 with a warnings array."
+            "value": "Returns 422 invalid_content and stores nothing when a title or body is over length or an image URL fails validation. Off, /send crops or drops the field and returns 202 with a warnings array."
           }
         },
         "es": {

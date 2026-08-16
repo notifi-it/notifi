@@ -208,7 +208,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h3>What is notifi?</h3>
     <p>
       A push-notification relay. You create a send key in the app, send an HTTP
-      request to <code>notifi.it/send</code> with a title and a message, and the
+      request to <code>notifi.it/send</code> with a title and a body, and the
       alert lands on your iPhone and Mac. There is no SDK to install and nothing
       to sign up for.
     </p>
@@ -252,14 +252,14 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <li>There is also a per-IP ceiling of 100 requests a minute on every endpoint.</li>
     </ul>
 
-    <h3>How long can a message be?</h3>
+    <h3>How long can a notification be?</h3>
     <ul>
       <li><code>title</code> — 1 to 200 characters, required.</li>
       <li><code>message</code> — up to 16,000 characters.</li>
       <li><code>link</code> and <code>image</code> — up to 2,048 characters. An <code>image</code> must be <code>https</code>, and PNG, JPEG or GIF up to 5 MB.</li>
     </ul>
     <p>
-      A push payload has a 4,000-byte ceiling set by Apple, so a long message is
+      A push payload has a 4,000-byte ceiling set by Apple, so a long notification is
       truncated in the banner and delivered in full to the app.
     </p>
 
@@ -274,13 +274,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>Privacy and encryption</h2>
 
-    <h3>Can you read my messages?</h3>
+    <h3>Can you read my notifications?</h3>
     <p>
-      No. The title, message, link and image URL are encrypted with your
+      No. The title, body, link and image URL are encrypted with your
       device's public key at the moment they arrive, before anything is written
       to the database, and only your device holds the key that opens them. A
       full copy of the database together with every server secret does not
-      reveal the contents of a single message. The
+      reveal the contents of a single notification. The
       <a href="https://github.com/notifi-it/notifi">source</a> is public if you
       want to check that claim rather than take it.
     </p>
@@ -288,7 +288,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h3>What can the server see?</h3>
     <p>
       The IP addresses of the sender and the device, the time of every send and
-      every collection, the approximate size of a message, which key sent it and
+      every collection, the approximate size of a notification, which key sent it and
       how often, and your device's push token. Because the sender and the
       recipient both talk to the same server, that server is in a position to
       correlate the two. The <a href="/privacy">privacy policy</a> covers this
@@ -300,13 +300,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       It is convenient and it is the weaker option. A query string lands in
       Cloudflare's edge logs, your shell history and any proxy in between, in
       the clear, before the encryption happens. Send the key as a
-      <code>Authorization: Bearer</code> header and the message in a
+      <code>Authorization: Bearer</code> header and the body in a
       <code>POST</code> body where you can.
     </p>
 
-    <h3>How long are messages kept?</h3>
+    <h3>How long are notifications kept?</h3>
     <p>
-      A message is deleted as soon as your device confirms it has it. One your
+      A notification is deleted as soon as your device confirms it has it. One your
       device never collects stays, encrypted, until it does — there is no time
       limit. Revoked send keys are kept forever, as hashes, so that a revoked
       key can never be reused.
@@ -314,7 +314,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
     <h3>What happens if I delete the app?</h3>
     <p>
-      Your messages, your keys and your identity go with it. None of it is
+      Your notifications, your keys and your identity go with it. None of it is
       recoverable, because nothing is held that could recover it, and every send
       key you created stops working.
     </p>
@@ -384,7 +384,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h3>Is delivery guaranteed?</h3>
     <p>
       No. Every send goes out over Apple's push service and a websocket at the
-      same time, and the message is stored before either, so the app can fetch
+      same time, and the notification is stored before either, so the app can fetch
       anything a push missed. But delivery still depends on Apple, your network
       and your device's settings, and the service is provided as is, without an
       uptime guarantee. The <a href="/terms">terms</a> say so plainly.
@@ -392,7 +392,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="card">
       <p>
         <strong>Do not make notifi the only path for anything where a missed
-        message causes harm.</strong> It is a pager for your own systems, not a
+        notification causes harm.</strong> It is a pager for your own systems, not a
         life-safety, medical or emergency alerting system.
       </p>
     </div>

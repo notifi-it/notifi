@@ -42,9 +42,28 @@ descriptions and captions): say "HTTP request" not "curl", and "notifi.it" not
 Store keywords field.
 
 Encryption claim: "encrypted with your public key", never "end-to-end
-encrypted". Follow it with "neither we nor Apple can read your messages" —
+encrypted". Follow it with "neither we nor Apple can read your notifications" —
 except in fastlane metadata, where we say we cannot read them without naming
 Apple.
+
+The thing the product sends is a **notification**, never a "message", in every
+string a person reads: app copy, the website, the App Store listing, the README,
+social bios.
+
+Two exceptions, both load-bearing:
+
+- `message` is a wire field of `/send`, and appears as itself in code examples,
+  parameter tables and error listings. Renaming it there would be a lie about
+  the API. Where prose needs a word for that field's contents, "body" is the one
+  the API already uses alongside `title`.
+- `settings.deliveryBrokenDetail` uses both words on purpose. A notification is
+  the banner APNs delivers; the payload can arrive over the live connection
+  without one, and that string exists to explain exactly that case. Collapsing
+  the two words makes it say nothing.
+
+Copy keys keep their existing names (`inbox.copyMessage`, the `message.*`
+namespace). They are internal, they key the xcstrings catalogue, and renaming
+them churns every Swift call site for no reader's benefit.
 
 ## Migrations
 

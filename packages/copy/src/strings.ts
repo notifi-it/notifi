@@ -32,12 +32,12 @@ export const copy = {
     criticalNotAllowed:
       'Sent as a normal notification: critical alerts are switched off for this key.',
     titleCropped: 'Sent with a shortened title: it was over {max} characters.',
-    messageCropped: 'Sent with a shortened message: it was over {max} characters.',
+    messageCropped: 'Sent with a shortened notification: it was over {max} characters.',
     imageRejected: 'Sent without the image: that is not an address we will fetch.',
     imageUnreachable:
       'Sent without the image: it did not answer with a PNG, JPEG or GIF under 5 MB.',
     strictContentRejected:
-      'Not sent. This device is set to refuse a message it cannot deliver as written.',
+      'Not sent. This device is set to refuse a notification it cannot deliver as written.',
 
     noMacBuild: 'No macOS build has been published yet.',
     noSuchBuild: 'No such build.',
@@ -47,22 +47,22 @@ export const copy = {
     subtitle: 'One HTTP request, one push',
     promotionalText:
       "One HTTP request, and the notification is on your iPhone or Mac. Encrypted with " +
-      "your public key — we can't read your messages. No accounts, no SDK.",
+      "your public key — we can't read your notifications. No accounts, no SDK.",
     keywords:
       'curl,webhook,api,alert,cli,server,monitor,cron,script,developer,terminal,devops,' +
       'homelab,uptime,pager',
     description:
       'Push notifications for your scripts and servers.\n\n' +
-      'Create a send key and send a title and a message to notifi.it in one HTTP request. ' +
+      'Create a send key and send a title and a body to notifi.it in one HTTP request. ' +
       'The notification lands on your iPhone or Mac. Anything that can make an HTTP request ' +
       'can send one, e.g. a shell script, a cron job, a CI pipeline.\n\n' +
       'https://notifi.it/send?title=hello+world\n\n' +
-      'WHAT A MESSAGE CARRIES\n' +
+      'WHAT A NOTIFICATION CARRIES\n' +
       'A title, a body, an image and a link. The body is Markdown: headings, lists, ' +
       'quotes, links and code blocks are rendered on the device.\n\n' +
       'ENCRYPTED\n' +
-      'Your device holds the only private key. Message content is encrypted with your public ' +
-      'key at ingest, so we cannot read your messages. Each message is deleted from the server ' +
+      'Your device holds the only private key. Notification content is encrypted with your public ' +
+      'key at ingest, so we cannot read your notifications. Each one is deleted from the server ' +
       'once your device acknowledges it.\n\n' +
       'NO ACCOUNTS\n' +
       'No sign-up, no sign-in, no device linking. The app mints a send key on first launch. ' +
@@ -75,7 +75,7 @@ export const copy = {
       'Swift, redesigned top to bottom.\n\n' +
       'Faster launch, native text rendering, and one shared layout across the three tabs. ' +
       'The Keys screen now says what a key is, and the built-in default key leads the list. ' +
-      'Message timestamps are plain digits you can copy.\n',
+      'Notification timestamps are plain digits you can copy.\n',
 
     shotInboxTitle: 'One request.\nStraight to your pocket.',
     shotInboxBody:
@@ -84,7 +84,7 @@ export const copy = {
     shotMessageTitle: 'Images, links,\nMarkdown.',
     shotMessageBody:
       'A title, a body, an image and a link. Headings, lists, quotes and code blocks are ' +
-      'rendered on the device. Encrypted with your public key, so we cannot read your messages.',
+      'rendered on the device. Encrypted with your public key, so we cannot read your notifications.',
     shotKeysTitle: 'One key\nper source.',
     shotKeysBody:
       'Give the deploy bot one key and the doorbell another. Revoke one and the rest keep ' +
@@ -151,7 +151,7 @@ export const copy = {
     refresh: 'Refresh',
     more: 'More',
     copyTitle: 'Copy title',
-    copyMessage: 'Copy message',
+    copyMessage: 'Copy notification',
     copyLink: 'Copy link',
     seedSampleData: 'Seed sample data',
     clearSampleData: 'Clear sample data',
@@ -179,7 +179,7 @@ export const copy = {
   },
 
   message: {
-    notFound: 'Message not found',
+    notFound: 'Notification not found',
     notFoundDetail: 'It may have been deleted on this device.',
     downloadImage: 'Download image',
     backToNotifications: 'Back to Notifications',
@@ -209,7 +209,7 @@ export const copy = {
     sectionActive: 'Active',
     sectionRevoked: 'Revoked',
     intro:
-      'Keys identify who sent a message. Use a different key for each script. ' +
+      'Keys identify who sent a notification. Use a different key for each script. ' +
       'The default key was made when this device was set up.',
     aboutKeys: 'About keys',
     footnote:
@@ -357,12 +357,12 @@ export const copy = {
 
     loadImages: 'Load images automatically',
     loadImagesDetail:
-      'Fetches each image as the message arrives, which tells its host your IP address. ' +
+      'Fetches each image as the notification arrives, which tells its host your IP address. ' +
       'Off, images load only when tapped.',
 
     strictSend: 'Reject invalid sends',
     strictSendDetail:
-      'Returns 422 invalid_content and stores nothing when a title or message is over ' +
+      'Returns 422 invalid_content and stores nothing when a title or body is over ' +
       'length or an image URL fails validation. Off, /send crops or drops the field and ' +
       'returns 202 with a warnings array.',
     strictSendFailed: 'PATCH /devices/settings failed. Check your connection and try again.',
@@ -426,7 +426,7 @@ export const copy = {
     title: "Can't unlock notifi",
     detail:
       'notifi could not read its identity key from the keychain. This usually clears once the ' +
-      'device has been unlocked. Your messages and send keys are unaffected.',
+      'device has been unlocked. Your notifications and send keys are unaffected.',
   },
 
   unsupported: {
@@ -439,7 +439,7 @@ export const copy = {
   restore: {
     title: 'This looks like a new device',
     detail:
-      'Your old messages restored from a backup, but your keys did not. Keys are tied to the ' +
+      'Your old notifications restored from a backup, but your keys did not. Keys are tied to the ' +
       'device they were created on and cannot be moved. Anything still sending to your old keys ' +
       'will now be rejected. Create fresh keys to keep receiving notifications.',
   },

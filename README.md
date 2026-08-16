@@ -4,7 +4,7 @@
 
 <p align="center"><b>Push notifications for your scripts, servers and side projects.</b></p>
 
-Create a send key, send a title and message to `notifi.it` in one HTTP
+Create a send key, send a title and body to `notifi.it` in one HTTP
 request, and the notification lands on your iPhone or Mac.
 
 ```bash
@@ -12,8 +12,8 @@ curl "https://notifi.it/send?key=nk_…&title=hello+world"
 ```
 
 No accounts. No sign-in. No device linking. The device holds the only private key,
-message content is sealed to that key at ingest so the server cannot read it, and
-each message is deleted once the device acknowledges it. It is a relay, not a
+notification content is sealed to that key at ingest so the server cannot read it, and
+each notification is deleted once the device acknowledges it. It is a relay, not a
 mailbox.
 
 The backend is a single Cloudflare Worker over a D1 database; the app is a

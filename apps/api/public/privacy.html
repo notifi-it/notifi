@@ -236,7 +236,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
     <h3>Your device</h3>
     <ul>
-      <li>Two public keys: one for verifying requests, one for encrypting messages to you.</li>
+      <li>Two public keys: one for verifying requests, one for encrypting notifications to you.</li>
       <li>Your Apple push token, encrypted with a key held by the server, so notifications can be delivered.</li>
       <li>The platform (<code>ios</code> or <code>macos</code>) and app version, encrypted with the same key.</li>
       <li>When the device first registered and when it was last seen.</li>
@@ -246,12 +246,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <ul>
       <li>A SHA-256 hash of the key. The key itself is never stored, so it cannot be recovered or shown again.</li>
       <li>The name and visible prefix you gave it, encrypted so only your device can read them.</li>
-      <li>How many messages it has sent, when it was created, when it was last used, and whether it is revoked.</li>
+      <li>How many notifications it has sent, when it was created, when it was last used, and whether it is revoked.</li>
     </ul>
 
-    <h3>Your messages</h3>
+    <h3>Your notifications</h3>
     <ul>
-      <li>The message, encrypted to your device's public key at the moment it arrives.</li>
+      <li>The notification, encrypted to your device's public key at the moment it arrives.</li>
       <li>Which key sent it, when the server received it, and the event time the sender supplied, if any.</li>
     </ul>
   </section>
@@ -259,15 +259,15 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>What the server cannot read</h2>
     <p>
-      Message content (the title, body, link and image URL) is encrypted to your
+      Notification content (the title, body, link and image URL) is encrypted to your
       device's public key before it is written to the database, using HPKE
       (P-256 / HKDF-SHA256 / AES-256-GCM). The server holds no private key that
       can undo this. A full copy of the database, together with every server
-      secret, does not reveal the contents of a single message. Your send key
+      secret, does not reveal the contents of a single notification. Your send key
       names are encrypted the same way.
     </p>
     <p>
-      This is what "neither we nor Apple can read your messages" means on the landing
+      This is what "neither we nor Apple can read your notifications" means on the landing
       page, and it is the limit of that claim. The sections below cover what
       remains visible.
     </p>
@@ -276,13 +276,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>What the server can see</h2>
     <p>
-      Encrypting the contents does not hide the fact that a message happened. The
+      Encrypting the contents does not hide the fact that a notification happened. The
       server necessarily observes:
     </p>
     <ul>
-      <li>The IP address of whoever sends a message, and the IP address of your device when it collects one.</li>
-      <li>The time of every send and every collection, and the approximate size of each message.</li>
-      <li>Which of your keys sent which message, and how often each key is used.</li>
+      <li>The IP address of whoever sends a notification, and the IP address of your device when it collects one.</li>
+      <li>The time of every send and every collection, and the approximate size of each notification.</li>
+      <li>Which of your keys sent which notification, and how often each key is used.</li>
       <li>Your Apple push token, which is required to deliver a notification at all.</li>
     </ul>
     <p>
@@ -295,13 +295,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>How long it is kept</h2>
     <ul>
-      <li><strong>Messages</strong> are deleted from the server as soon as your device confirms it has collected them. A daily job removes them.</li>
-      <li><strong>Uncollected messages</strong> are kept, encrypted, until your device collects them. There is no time limit.</li>
+      <li><strong>Notifications</strong> are deleted from the server as soon as your device confirms it has collected them. A daily job removes them.</li>
+      <li><strong>Uncollected notifications</strong> are kept, encrypted, until your device collects them. There is no time limit.</li>
       <li><strong>Devices</strong> are kept as long as they are registered. Deleting the app's data on your device is what ends a registration.</li>
       <li><strong>Send keys</strong> are kept while the device exists, including revoked ones, so that a revoked key cannot be reused.</li>
     </ul>
     <p>
-      notifi is a relay, not a mailbox. Once your device has a message, the server
+      notifi is a relay, not a mailbox. Once your device has a notification, the server
       copy is gone and the only copy is the one on your device.
     </p>
   </section>
@@ -312,43 +312,43 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       The service runs on Cloudflare Workers. Cloudflare records the metadata of
       requests reaching the network, including source IP address, timestamp and
       the full request URL. notifi does not control the contents of those logs and
-      does not write message contents to logs of its own.
+      does not write notification contents to logs of its own.
     </p>
     <div class="card">
       <p>
         <strong>This matters for how you send.</strong> The <code>/send</code>
-        endpoint accepts a key and a message as URL query parameters, which is
+        endpoint accepts a key and a body as URL query parameters, which is
         convenient for a one-off <code>curl</code>. Anything placed in a URL
         appears in those logs in the clear, before it is ever encrypted, and also
         in your shell history and in any proxy between you and Cloudflare.
       </p>
       <p>
         Send the key as an <code>Authorization: Bearer</code> header and the
-        message in a <code>POST</code> body instead. Neither is logged.
+        body in a <code>POST</code> body instead. Neither is logged.
       </p>
     </div>
     <p>
       When the server hits an error it cannot handle, a report of that error is
       sent to Sentry, an error-tracking service, so that it can be fixed. A
       report carries the failure itself — what broke, and where in the code —
-      along with the request's method and route. It does not carry message
+      along with the request's method and route. It does not carry notification
       contents, request bodies, headers, or the source IP address. A send key
       involved in a failed request is replaced, before the report leaves the
       server, by a short one-way fingerprint of itself: enough to tell that
       several reports concern the same key, and not enough to recover the key
       from. Nothing about your
-      device or your messages is sent to Sentry in the ordinary course of a
+      device or your notifications is sent to Sentry in the ordinary course of a
       request; a report exists only where something has gone wrong.
     </p>
   </section>
 
   <section>
-    <h2>Images in messages</h2>
+    <h2>Images in notifications</h2>
     <p>
-      A message can carry a link to an image, and the host serving it is chosen by
-      whoever sent the message, not by notifi. Loading such an image means your
+      A notification can carry a link to an image, and the host serving it is chosen by
+      whoever sent the notification, not by notifi. Loading such an image means your
       device makes a request to that host, which reveals your IP address, your
-      rough location, and the exact moment the message reached you. A sender can
+      rough location, and the exact moment the notification reached you. A sender can
       use this to tell whether and when you received something.
     </p>
     <p>
@@ -363,10 +363,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>On your device</h2>
     <ul>
-      <li>Collected messages are stored locally and protected by the device's own encryption. They are readable only after the device has been unlocked at least once since it started.</li>
+      <li>Collected notifications are stored locally and protected by the device's own encryption. They are readable only after the device has been unlocked at least once since it started.</li>
       <li>Private keys are in the Secure Enclave and the keychain, marked as not backed up and not synced.</li>
-      <li>Deleting a message in the app deletes it from the device. The server copy is already gone.</li>
-      <li>Deleting the app deletes the messages, the keys and the identity. None of it can be recovered afterwards, and any send keys you had created stop working.</li>
+      <li>Deleting a notification in the app deletes it from the device. The server copy is already gone.</li>
+      <li>Deleting the app deletes the notifications, the keys and the identity. None of it can be recovered afterwards, and any send keys you had created stop working.</li>
     </ul>
   </section>
 
