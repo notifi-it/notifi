@@ -46,9 +46,9 @@ struct GeistPage<Header: View, Content: View>: View {
             }
             .scrollContentBackground(.hidden)
             .contentMargins(.top, Theme.contentTop, for: .scrollContent)
-            .contentMargins(.bottom, Theme.bottomFade, for: .scrollContent)
+            .contentMargins(.bottom, Theme.bottomPlate, for: .scrollContent)
             .geistTopFade()
-            .geistBottomFade()
+            .geistBottomPlate()
         }
     }
 }

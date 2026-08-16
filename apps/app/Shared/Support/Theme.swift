@@ -95,7 +95,7 @@ enum Theme {
 
     static let measure: CGFloat = 620
 
-    static let bottomFade: CGFloat = 44
+    static let bottomPlate: CGFloat = 44
 
     static let topFade: CGFloat = 14
 
@@ -169,11 +169,15 @@ extension View {
     }
 
     @ViewBuilder
-    func geistBottomFade() -> some View {
+    func geistBottomPlate() -> some View {
         #if os(macOS)
         self
         #else
-        overlay(alignment: .bottom) { GroundFade(edge: .bottom) }
+        overlay(alignment: .bottom) {
+            StaticField()
+                .frame(height: Theme.bottomPlate)
+                .allowsHitTesting(false)
+        }
         #endif
     }
 
@@ -182,7 +186,7 @@ extension View {
         #if os(macOS)
         modifier(ScrolledTopFade())
         #else
-        overlay(alignment: .top) { GroundFade(edge: .top) }
+        overlay(alignment: .top) { GroundFade() }
         #endif
     }
 }
@@ -200,7 +204,7 @@ struct ScrolledTopFade: ViewModifier {
                     scrolled = isScrolled
                 }
                 .overlay(alignment: .top) {
-                    GroundFade(edge: .top)
+                    GroundFade()
                         .opacity(scrolled ? 1 : 0)
                         .animation(.easeOut(duration: 0.15), value: scrolled)
                 }
@@ -212,12 +216,9 @@ struct ScrolledTopFade: ViewModifier {
 #endif
 
 struct GroundFade: View {
-    enum Side { case top, bottom }
-    let edge: Side
-
     var body: some View {
         StaticField()
-            .frame(height: edge == .top ? Theme.topFade : Theme.bottomFade)
+            .frame(height: Theme.topFade)
             .mask {
                 LinearGradient(
                     stops: [
@@ -226,11 +227,10 @@ struct GroundFade: View {
                         .init(color: .white.opacity(0.75), location: 0.7),
                         .init(color: .white, location: 1)
                     ],
-                    startPoint: edge == .top ? .bottom : .top,
-                    endPoint: edge == .top ? .top : .bottom
+                    startPoint: .bottom,
+                    endPoint: .top
                 )
             }
-            .ignoresSafeArea(edges: edge == .bottom ? .bottom : [])
             .allowsHitTesting(false)
             .accessibilityHidden(true)
     }
