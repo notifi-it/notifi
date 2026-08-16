@@ -214,11 +214,11 @@ platform :ios do
   end
 
   # The production release. Same binary as `beta`, but attached to the App Store
-  # version and submitted for review rather than handed to testers. Approval does
-  # not release: `automatic_release` is off, so the version sits in "Pending
-  # Developer Release" until someone presses Release in App Store Connect. That
-  # is the one manual gate worth keeping -- the store build and the Worker it
-  # talks to have to go live in an order a human chooses.
+  # version and submitted for review rather than handed to testers. Approval
+  # releases: `automatic_release` is on, so an approved version goes live without
+  # anyone pressing Release. A store build that depends on a Worker change must
+  # therefore have that change deployed before the submission, not after -- there
+  # is no longer a pause between approval and release to do it in.
   desc "Build, attach the binary to the App Store version, and submit for review"
   lane :submit do
     assert_export_compliance_declared
@@ -239,8 +239,13 @@ platform :ios do
       # screenshots that match the binary it is submitting.
       skip_screenshots: false,
       overwrite_screenshots: true,
-      submit_for_review: true,
-      automatic_release: false,
+      # deliver's own `submit_for_review` posts to appStoreVersionSubmissions,
+      # which App Store Connect now answers with "does not allow CREATE. Allowed
+      # operation is: DELETE". It uploads everything and then fails on the last
+      # call, reporting "appStoreVersions ... is not in valid state" -- which
+      # reads as a metadata problem and is not one. Upload here, submit below.
+      submit_for_review: false,
+      automatic_release: true,
       force: true, # no HTML preview to confirm; this runs unattended
       run_precheck_before_submit: true,
       precheck_include_in_app_purchases: false, # API-key auth cannot read IAP, and there are none
@@ -251,6 +256,45 @@ platform :ios do
         add_id_info_uses_idfa: false
       }
     )
+
+    submit_for_review_via_review_submissions
+  end
+
+  # The replacement for deliver's `submit_for_review`. Apple's current path is a
+  # reviewSubmission holding one item per version: reuse the open one if there is
+  # one (a second is rejected while one is open), attach this version, then flip
+  # it to submitted.
+  #
+  # When a version will not attach, the raised message carries Apple's
+  # associatedErrors -- one line per actual blocker. That is the only place they
+  # appear; the age-rating questionnaire gains required fields over time, and an
+  # unanswered one surfaces here and nowhere else.
+  def submit_for_review_via_review_submissions
+    app = Spaceship::ConnectAPI::App.find(CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier))
+    version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    UI.user_error!("No editable App Store version to submit.") if version.nil?
+
+    states = Spaceship::ConnectAPI::ReviewSubmission::ReviewSubmissionState
+    existing = app.get_review_submissions(
+      filter: { platform: Spaceship::ConnectAPI::Platform::IOS }
+    ).reject { |s| [states::COMPLETE, states::CANCELING].include?(s.state) }.first
+
+    # Re-running after the upload half succeeded is normal; re-submitting an
+    # already-submitted version is not, and Apple's own error for it names
+    # neither the version nor the submission.
+    if existing && [states::WAITING_FOR_REVIEW, states::IN_REVIEW].include?(existing.state)
+      UI.user_error!("#{version.version_string} is already submitted (#{existing.state}). Cancel it in App Store Connect to submit again.")
+    end
+
+    submission = existing || app.create_review_submission(platform: Spaceship::ConnectAPI::Platform::IOS)
+
+    Spaceship::ConnectAPI.post_review_submission_item(
+      review_submission_id: submission.id,
+      app_store_version_id: version.id
+    )
+
+    submission.submit_for_review
+    UI.success("Submitted #{version.version_string} for review.")
   end
 
   desc "Push fastlane/metadata and fastlane/screenshots to App Store Connect"
