@@ -2,13 +2,12 @@ import { negotiate } from '@notifi/copy';
 import { instrumentDurableObjectWithSentry, withSentry } from '@sentry/cloudflare';
 import { Hono } from 'hono';
 import { errBody, t } from './lib/respond.js';
-import { now } from './lib/time.js';
 import { ipLimiter } from './middleware.js';
 import { devices } from './routes/devices.js';
 import { downloads } from './routes/downloads.js';
 import { history } from './routes/history.js';
 import { keys } from './routes/keys.js';
-import { reviews } from './routes/reviews.js';
+import { refreshReviews, reviews } from './routes/reviews.js';
 import { send } from './routes/send.js';
 import { socket } from './routes/socket.js';
 import { ApnsToken as ApnsTokenBase } from './apnstoken.js';
@@ -52,18 +51,7 @@ app.onError((err, c) => {
 });
 
 async function scheduled(_event: ScheduledController, env: Env): Promise<void> {
-  const nowS = now();
-
-  for (;;) {
-    const res = await env.DB.prepare(
-      `DELETE FROM messages WHERE id IN (
-         SELECT m.id FROM messages m JOIN devices d ON d.id = m.device_id
-         WHERE m.device_seq <= d.acked_id LIMIT 1000
-       )`,
-    ).run();
-    if ((res.meta.changes ?? 0) < 1000) break;
-  }
-
+  await refreshReviews(env);
 }
 
 export default withSentry(sentryOptions, {

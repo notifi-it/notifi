@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import type { AppEnv } from '../types.js';
+import { now } from '../lib/time.js';
+import type { AppEnv, Env } from '../types.js';
 
 export const reviews = new Hono<AppEnv>();
 
@@ -82,45 +83,76 @@ function toReview(entry: FeedEntry, country: string): Review | null {
 
 async function fetchStorefront(country: string): Promise<Review[]> {
   const url = `https://itunes.apple.com/${country}/rss/customerreviews/id=${APP_ID}/sortby=mostrecent/json`;
-  const res = await fetch(url, {
-    cf: { cacheTtl: CACHE_SECONDS, cacheEverything: true },
-  });
+  const res = await fetch(url);
   if (!res.ok) {
     console.error('reviews.fetch', { country, status: res.status });
     return [];
   }
   const feed = (await res.json()) as Feed;
-  const list = entries(feed);
-  console.error('reviews.feed', { country, entries: list.length });
-  return list
+  return entries(feed)
     .map((entry) => toReview(entry, country))
     .filter((review): review is Review => review !== null);
 }
 
-reviews.get('/reviews.json', async (c) => {
-  const settled = await Promise.allSettled(STOREFRONTS.map(fetchStorefront));
+export async function refreshReviews(env: Env): Promise<number> {
+  const nowS = now();
+  let stored = 0;
 
-  const seen = new Set<string>();
-  const all: Review[] = [];
-  for (const result of settled) {
-    if (result.status !== 'fulfilled') continue;
-    for (const review of result.value) {
-      if (seen.has(review.id)) continue;
-      seen.add(review.id);
-      all.push(review);
+  for (const country of STOREFRONTS) {
+    let list: Review[];
+    try {
+      list = await fetchStorefront(country);
+    } catch (err) {
+      console.error('reviews.refresh', country, err);
+      continue;
     }
+    if (list.length === 0) continue;
+
+    await env.DB.batch(
+      list.map((r) =>
+        env.DB.prepare(
+          `INSERT INTO app_reviews
+             (id, rating, title, body, author, country, version, updated_at, fetched_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             rating = excluded.rating, title = excluded.title, body = excluded.body,
+             version = excluded.version, updated_at = excluded.updated_at,
+             fetched_at = excluded.fetched_at`,
+        ).bind(r.id, r.rating, r.title, r.body, r.author, r.country, r.version, r.date, nowS),
+      ),
+    );
+    stored += list.length;
   }
 
-  all.sort((a, b) => b.date.localeCompare(a.date));
-  const list = all.slice(0, MAX_REVIEWS);
-  const average =
-    all.length > 0
-      ? Math.round((all.reduce((sum, r) => sum + r.rating, 0) / all.length) * 10) / 10
-      : 0;
+  return stored;
+}
 
-  return c.json(
-    { count: all.length, average, reviews: list },
-    200,
-    { 'cache-control': `public, max-age=300, s-maxage=${CACHE_SECONDS}` },
-  );
+reviews.get('/reviews.json', async (c) => {
+  const totals = await c.env.DB.prepare(
+    'SELECT COUNT(*) AS count, AVG(rating) AS average FROM app_reviews',
+  ).first<{ count: number; average: number | null }>();
+
+  if (!totals || totals.count === 0) {
+    await refreshReviews(c.env);
+  }
+
+  const [counted, rows] = await Promise.all([
+    c.env.DB.prepare('SELECT COUNT(*) AS count, AVG(rating) AS average FROM app_reviews').first<{
+      count: number;
+      average: number | null;
+    }>(),
+    c.env.DB.prepare(
+      `SELECT id, rating, title, body, author, country, version, updated_at AS date
+       FROM app_reviews ORDER BY updated_at DESC LIMIT ?`,
+    )
+      .bind(MAX_REVIEWS)
+      .all<Review>(),
+  ]);
+
+  const count = counted?.count ?? 0;
+  const average = counted?.average ? Math.round(counted.average * 10) / 10 : 0;
+
+  return c.json({ count, average, reviews: rows.results }, 200, {
+    'cache-control': `public, max-age=300, s-maxage=${CACHE_SECONDS}`,
+  });
 });

@@ -32,11 +32,15 @@ history.get('/history', async (c) => {
   const latest = results.length > 0 ? results[results.length - 1]!.id : null;
 
   if (since > device.acked_id) {
-    await c.env.DB.prepare(
-      'UPDATE devices SET acked_id = MAX(acked_id, ?), last_seen_at = ? WHERE id = ?',
-    )
-      .bind(since, nowS, device.id)
-      .run();
+    await c.env.DB.batch([
+      c.env.DB.prepare(
+        'UPDATE devices SET acked_id = MAX(acked_id, ?), last_seen_at = ? WHERE id = ?',
+      ).bind(since, nowS, device.id),
+      c.env.DB.prepare('DELETE FROM messages WHERE device_id = ? AND device_seq <= ?').bind(
+        device.id,
+        since,
+      ),
+    ]);
   }
 
   return c.json({ messages: results, latest_id: latest });
