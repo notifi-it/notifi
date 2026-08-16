@@ -10,8 +10,8 @@ flowchart TB
     dev["dev<br/>migrate notifi-dev<br/>then wrangler deploy"]
     prod["production<br/>migrate notifi-prod<br/>then wrangler deploy"]
     tf["testflight job<br/>uploads to TestFlight<br/>dead end, not the store"]
-    mac["release-macos job<br/>fastlane mac dmg<br/>writes two copies"]
-    ghr["GitHub release<br/>private archive<br/>nothing reads it"]
+    mac["release-macos job<br/>fastlane mac dmg<br/>notarizes and signs the feed"]
+    ghr["GitHub release<br/>notifi.dmg, appcast.xml<br/>Sparkle and the site read it"]
     dev --> prod
     mac --> ghr
   end
@@ -19,9 +19,7 @@ flowchart TB
   subgraph CF["Cloudflare, everything at notifi.it"]
     d1["D1<br/>keys and notifications<br/>db migrated on merge<br/>additive columns only"]
     worker["Worker<br/>API and website"]
-    r2["R2 notifi-downloads<br/>dmg, appcast, latest<br/>private bucket, Sparkle reads it"]
     worker --> d1
-    worker --> r2
   end
 
   subgraph MAC["Your Mac, the only manual step"]
@@ -31,7 +29,7 @@ flowchart TB
   end
 
   prod --> worker
-  mac --> r2
+  worker -.redirects.-> ghr
   ipa --> review["App Store review<br/>you press release"]
 ```
 
@@ -57,11 +55,11 @@ an older build keeps working.
 The tag runs [app.yml](../.github/workflows/app.yml):
 
 - iOS is archived and uploaded to TestFlight.
-- macOS is built, notarized, and written to R2 by the fastlane `dmg` lane. The
-  app's `SUFeedURL` is `https://notifi.it/download/appcast.xml`, so Sparkle
-  reads R2 through the Worker.
-- The same job also attaches the DMG and appcast to a GitHub release. The repo
-  is private, so nothing can fetch those; they are an archive of what shipped.
+- macOS is built and notarized by the fastlane `dmg` lane, then attached to a
+  GitHub release as `notifi.dmg` and `appcast.xml`. The app's `SUFeedURL` is
+  `https://notifi.it/download/appcast.xml` and the website links
+  `/download/mac`; both are Worker redirects to the latest release's assets, so
+  neither URL has to change on a release.
 
 ## The App Store submission is not the TestFlight build
 

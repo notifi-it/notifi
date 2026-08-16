@@ -418,13 +418,15 @@ platform :mac do
     # generate_appcast signs each entry with the EdDSA key held in the login
     # Keychain under the "notifi" account -- deliberately not the default
     # account, which holds a different app's key.
+    # The asset is named notifi.dmg, not notifi-<version>.dmg, so that
+    # /releases/latest/download/notifi.dmg is a stable link the website can use.
+    # Per-version URLs stay unique because the tag is in the path, and Sparkle
+    # reads the version out of the app bundle, not the filename.
     updates = File.expand_path("../build/updates", __dir__)
     sh("mkdir", "-p", updates)
-    sh("cp", dmg, updates)
+    sh("cp", dmg, "#{updates}/notifi.dmg")
 
-    # R2, not the GitHub release: the repo is private, so a release asset would
-    # need a token that neither the website nor Sparkle can carry.
-    prefix = "https://notifi.it/download/"
+    prefix = "https://github.com/notifi-it/notifi/releases/download/v#{version}/"
     if ENV["SPARKLE_ED_PRIVATE_KEY"]
       # CI has no login Keychain to read the key from. `--ed-key-file -` takes it
       # on stdin, so the secret is never written to the runner's disk.
@@ -440,33 +442,10 @@ platform :mac do
     appcast = "#{updates}/appcast.xml"
     UI.user_error!("generate_appcast produced no appcast.xml") unless File.exist?(appcast)
 
-    if ENV["SKIP_UPLOAD"]
-      UI.important("SKIP_UPLOAD set - nothing was published")
-      UI.success("==> #{dmg}")
-      UI.success("==> #{appcast}")
-      next
-    end
-
-    # Order matters. The DMG goes up first, then the appcast that points at it,
-    # and the `latest` pointer last -- so there is no moment where the website
-    # or the updater is offered a build that is not there yet.
-    api = File.expand_path("../../../apps/api", __dir__)
-    put = lambda do |file, key, type|
-      sh("bash", "-c",
-         "cd #{Shellwords.escape(api)} && pnpm wrangler r2 object put " \
-         "#{Shellwords.escape("notifi-downloads/#{key}")} " \
-         "--file #{Shellwords.escape(file)} --content-type #{Shellwords.escape(type)} --remote")
-    end
-
-    put.call(dmg, "mac/notifi-#{version}.dmg", "application/x-apple-diskimage")
-    put.call(appcast, "mac/appcast.xml", "application/xml")
-
-    pointer = File.expand_path("../build/latest", __dir__)
-    File.write(pointer, "mac/notifi-#{version}.dmg")
-    put.call(pointer, "mac/latest", "text/plain")
-
-    UI.success("==> https://notifi.it/download/mac now serves notifi-#{version}.dmg")
-    UI.success("==> https://notifi.it/download/appcast.xml updated")
+    # The lane stops at the artifacts. Publishing is one `gh release create` in
+    # the release-macos job, which is also the thing that has a token.
+    UI.success("==> #{updates}/notifi.dmg")
+    UI.success("==> #{appcast}")
   end
 
   # A DMG that passes spctl can still be undistributable, because spctl consults

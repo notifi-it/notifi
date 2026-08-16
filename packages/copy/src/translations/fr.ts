@@ -34,8 +34,6 @@ export const fr: Translation = {
   'api.strictContentRejected':
     "Non envoyé. Cet appareil est configuré pour refuser un message qu'il ne peut pas livrer tel quel.",
 
-  'api.noMacBuild': "Aucune build macOS n'a encore été publiée.",
-  'api.noSuchBuild': 'Aucune build de ce type.',
 
   'push.fallbackTitle': 'notifi',
   'push.fallbackBody': 'Ouvrez notifi pour voir',

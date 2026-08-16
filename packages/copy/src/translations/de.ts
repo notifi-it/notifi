@@ -34,8 +34,6 @@ export const de: Translation = {
   'api.strictContentRejected':
     'Nicht gesendet. Dieses Gerät ist so eingestellt, dass es eine nicht wie geschrieben zustellbare Nachricht ablehnt.',
 
-  'api.noMacBuild': 'Es wurde noch kein macOS-Build veröffentlicht.',
-  'api.noSuchBuild': 'Diesen Build gibt es nicht.',
 
   'store.subtitle': 'Eine Anfrage, ein Push',
   'store.promotionalText':

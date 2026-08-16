@@ -12,7 +12,6 @@ export interface Env {
   DB: D1Database;
   DEVICE_SOCKET: DurableObjectNamespace<DeviceSocket>;
   APNS_TOKEN: DurableObjectNamespace<ApnsToken>;
-  DOWNLOADS: R2Bucket;
   SEND_IP_LIMIT: RateLimitBinding;
   APNS_HOST: string;
   APNS_TOPIC: string;

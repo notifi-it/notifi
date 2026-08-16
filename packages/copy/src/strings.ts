@@ -39,8 +39,6 @@ export const copy = {
     strictContentRejected:
       'Not sent. This device is set to refuse a notification it cannot deliver as written.',
 
-    noMacBuild: 'No macOS build has been published yet.',
-    noSuchBuild: 'No such build.',
   },
 
   store: {
