@@ -10,6 +10,7 @@ import { history } from './routes/history.js';
 import { keys } from './routes/keys.js';
 import { send } from './routes/send.js';
 import { socket } from './routes/socket.js';
+import { ApnsToken as ApnsTokenBase } from './apnstoken.js';
 import { sentryOptions } from './sentry.js';
 import { DeviceSocket as DeviceSocketBase } from './socket.js';
 import type { AppEnv, Env } from './types.js';
@@ -69,3 +70,5 @@ export default withSentry(sentryOptions, {
 });
 
 export const DeviceSocket = instrumentDurableObjectWithSentry(sentryOptions, DeviceSocketBase);
+
+export const ApnsToken = instrumentDurableObjectWithSentry(sentryOptions, ApnsTokenBase);

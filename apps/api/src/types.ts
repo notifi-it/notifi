@@ -5,11 +5,13 @@ export interface RateLimitBinding {
   limit(options: { key: string }): Promise<{ success: boolean }>;
 }
 
+import type { ApnsToken } from './apnstoken.js';
 import type { DeviceSocket } from './socket.js';
 
 export interface Env {
   DB: D1Database;
   DEVICE_SOCKET: DurableObjectNamespace<DeviceSocket>;
+  APNS_TOKEN: DurableObjectNamespace<ApnsToken>;
   DOWNLOADS: R2Bucket;
   SEND_IP_LIMIT: RateLimitBinding;
   APNS_HOST: string;
@@ -18,6 +20,7 @@ export interface Env {
   APNS_KEY_ID: string;
   APNS_PRIVATE_KEY: string;
   ENCRYPTION_KEY: string;
+  PER_DEVICE_LIMIT?: string;
   SENTRY_DSN?: string;
   SENTRY_ENVIRONMENT: string;
   SENTRY_RELEASE?: string;

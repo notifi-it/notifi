@@ -1,28 +1,24 @@
+import { PROVIDER_TOKEN_TTL_S, type ProviderToken } from '../apnstoken.js';
 import type { DeviceRow, Env } from '../types.js';
-import { b64url, b64urlBytes, pemToDer } from './bytes.js';
 import { decryptField } from './fieldcrypto.js';
 
-let cachedJwt: { jwt: string; mintedAt: number } | null = null;
+const RETRY_DELAY_MS = 500;
+
+let cachedJwt: ProviderToken | null = null;
+
+function tokenStub(env: Env) {
+  return env.APNS_TOKEN.get(env.APNS_TOKEN.idFromName('provider'));
+}
 
 async function providerJwt(env: Env, nowS: number): Promise<string> {
-  if (cachedJwt && nowS - cachedJwt.mintedAt < 50 * 60) return cachedJwt.jwt;
-  const header = b64url(JSON.stringify({ alg: 'ES256', kid: env.APNS_KEY_ID }));
-  const claims = b64url(JSON.stringify({ iss: env.APNS_TEAM_ID, iat: nowS }));
-  const input = `${header}.${claims}`;
-  const key = await crypto.subtle.importKey(
-    'pkcs8',
-    pemToDer(env.APNS_PRIVATE_KEY),
-    { name: 'ECDSA', namedCurve: 'P-256' },
-    false,
-    ['sign'],
-  );
-  const sig = await crypto.subtle.sign(
-    { name: 'ECDSA', hash: 'SHA-256' },
-    key,
-    new TextEncoder().encode(input),
-  );
-  cachedJwt = { jwt: `${input}.${b64urlBytes(new Uint8Array(sig))}`, mintedAt: nowS };
+  if (cachedJwt && nowS - cachedJwt.mintedAt < PROVIDER_TOKEN_TTL_S) return cachedJwt.jwt;
+  cachedJwt = await tokenStub(env).current(nowS);
   return cachedJwt.jwt;
+}
+
+async function rotateProviderJwt(env: Env, nowS: number): Promise<void> {
+  const staleMintedAt = cachedJwt?.mintedAt ?? 0;
+  cachedJwt = await tokenStub(env).replace(staleMintedAt, nowS);
 }
 
 export async function push(
@@ -74,7 +70,7 @@ export async function push(
     const body = (await res.json().catch(() => null)) as { reason?: string } | null;
     reason = body?.reason ?? null;
     if (body?.reason === 'ExpiredProviderToken') {
-      cachedJwt = null;
+      await rotateProviderJwt(env, nowS);
       try {
         res = await doSend();
       } catch (err) {
@@ -82,6 +78,19 @@ export async function push(
         return false;
       }
     }
+  }
+
+  if (res.status === 429) {
+    const body = (await res.json().catch(() => null)) as { reason?: string } | null;
+    reason = body?.reason ?? null;
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    try {
+      res = await doSend();
+    } catch (err) {
+      console.error('apns.retry_failed', err, { host: env.APNS_HOST, device_id: device.id });
+      return false;
+    }
+    if (res.status === 200) return true;
   }
 
   if (res.status === 410) {

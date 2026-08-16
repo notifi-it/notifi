@@ -15,8 +15,8 @@ import { hashKey } from '../lib/sendkey.js';
 import {
   MESSAGE_BACKSTOP_S,
   now,
-  PER_DEVICE_LIMIT,
   PER_DEVICE_WINDOW_S,
+  perDeviceLimit,
   windowStart,
 } from '../lib/time.js';
 import type { AppEnv } from '../types.js';
@@ -142,7 +142,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
        AND (rl_window_start != ? OR rl_window_count < ?)
      RETURNING seq_counter`,
   )
-    .bind(w, w, row.device_id, w, PER_DEVICE_LIMIT)
+    .bind(w, w, row.device_id, w, perDeviceLimit(c.env))
     .first<{ seq_counter: number }>();
 
   if (!allowed) {
