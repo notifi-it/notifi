@@ -73,7 +73,7 @@ function Terminal({ tabs, active, children, opacity }) {
         key: t,
         style: {
           flex: 1, textAlign: 'center',
-          fontFamily: MONO, fontSize: 20, padding: '8px 0', borderRadius: 10,
+          fontFamily: MONO, fontSize: 20, padding: '8px 14px', borderRadius: 10,
           color: i === active ? FG : DIM,
           background: i === active ? CHIP : 'transparent',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
@@ -330,7 +330,7 @@ function Piece() {
   const passes = [
     { lines: p1, mode: 'lines', title: '~/deploy.sh' },
     { lines: p2, mode: 'lines', title: '~/train.py' },
-    { lines: p3, mode: 'lines', title: '.github/workflows/ci.yml' },
+    { lines: p3, mode: 'lines', title: 'workflows/ci.yml' },
   ];
 
   /* content windows: fade in first 0.25s of pass, out over the last 0.18s — the
