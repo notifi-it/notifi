@@ -29,17 +29,9 @@ struct KeysView: View {
     var body: some View {
         GeistPage(scroll: .page) {
             GeistHeader(title: Copy.Keys.title) {
-                // What a key is, behind a disc rather than printed under the
-                // title: the sentence is orientation for the reader who has
-                // not made a key yet, and everyone else was rereading it on
-                // every visit. A centred alert, not confirmationDialog —
-                // see CLAUDE.md.
                 IconButton(systemImage: "info.circle", label: Copy.Keys.aboutKeys, glass: true) {
                     showingInfo = true
                 }
-                // One control on both platforms. The Mac used to carry a text
-                // pill here while iOS had the disc, which drifted the two
-                // headers apart for no reason either screen owns.
                 IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
                     #if os(iOS)
                     showingCreate = true

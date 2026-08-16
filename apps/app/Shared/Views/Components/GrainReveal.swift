@@ -1,12 +1,5 @@
 import SwiftUI
 
-/// Tunes a view in like a channel locking on: its pixels start as static and
-/// sharpen into place, the same grain `StaticField` draws but confined to the
-/// view's own alpha. Drives `GrainReveal.metal`.
-///
-/// The modifier is `Animatable` so the shader sees every intermediate
-/// progress value; a plain `@State` flip would jump it from grain to solid
-/// in one frame.
 private struct GrainRevealEffect: ViewModifier, Animatable {
     var progress: Double
     var strength: Double
@@ -24,9 +17,6 @@ private struct GrainRevealEffect: ViewModifier, Animatable {
     }
 }
 
-/// Triggers a view has already revealed this session. List rows lose their
-/// `@State` when scrolled far enough off screen, so per-view state cannot
-/// remember that a row has played; without this, every scroll back replays it.
 @MainActor
 private enum GrainRevealLedger {
     static var seen: Set<AnyHashable> = []
@@ -64,11 +54,6 @@ private struct GrainReveal: ViewModifier {
 }
 
 extension View {
-    /// Runs on appear and again whenever `trigger` changes. With `once`, a
-    /// given trigger plays a single time per app session, so scrolling a row
-    /// back into view shows it already settled.
-    /// `strength` scales how far the view starts from legible: 1 is the
-    /// default tune-in, higher starts blurrier and dimmer.
     func grainReveal(trigger: AnyHashable = 0, duration: Double = 0.35,
                      once: Bool = false, strength: Double = 1) -> some View {
         modifier(GrainReveal(trigger: trigger, duration: duration, once: once,
