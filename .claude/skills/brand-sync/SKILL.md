@@ -144,9 +144,10 @@ separate website field — and **that field cannot be set from this skill**.
 instagram.com/accounts/edit shows it greyed out, above the line "Editing your
 links is only available on mobile. Visit the Instagram app and edit your profile
 to change the websites in your bio." Only the iPhone app can write it, so it is
-the user's to set and is currently unset. Say so in the summary rather than
-reporting Instagram as fully synced. Facebook's equivalent lives under
-About → Links and does work in the browser.
+the user's to set. It currently holds `notifi.it`. If a run needs it changed,
+say so in the summary and hand that step over rather than reporting Instagram as
+fully synced. Facebook's equivalent lives under About → Links and does work in
+the browser.
 
 Never create accounts or enter credentials — if a login prompt appears, stop
 and hand the browser to the user.
