@@ -16,5 +16,12 @@ socket.get('/socket', async (c) => {
   if (!device) return c.json(errBody('unknown_device', 'Device is not registered.'), 401);
 
   const id = c.env.DEVICE_SOCKET.idFromName(String(device.id));
-  return c.env.DEVICE_SOCKET.get(id).fetch(c.req.raw);
+  try {
+    return await c.env.DEVICE_SOCKET.get(id).fetch(c.req.raw);
+  } catch (err) {
+    if ((err as { retryable?: boolean }).retryable === true) {
+      return c.body(null, 503, { 'Retry-After': '1' });
+    }
+    throw err;
+  }
 });
