@@ -37,7 +37,8 @@ const MOTION = {
     if (x <= 0) return 0; if (x >= 1) return 1;
     return 1 - Math.exp(-6.2 * x) * Math.cos(7.5 * x);
   },
-  fade: (a, b) => T => interpolate([a, b], [1, 0], Easing.easeOutQuad)(clamp(T, a, b)),
+  /* exits accelerate: linger at full, then leave quickly */
+  fade: (a, b) => T => interpolate([a, b], [1, 0], Easing.easeInQuad)(clamp(T, a, b)),
 };
 /* opacity window: ramps in over [i0,i1], out over [o0,o1] */
 const win = (T, i0, i1, o0, o1) => MOTION.enter(i0, i1)(T) * MOTION.fade(o0, o1)(T);
@@ -96,8 +97,9 @@ const CARD = {
 /* Real iOS metrics, ~1pt≈1px at this device scale: 42pt icon, 18pt text, 26pt radius,
    banner spans the screen minus ~8pt margins; compact two-line stack, "now" top-right. */
 function IosBanner({ w, title, body, thumb, on }) {
-  /* lock-screen arrival: fade + scale-up in place (iOS does not drop banners from the top) */
-  const p = Easing.easeOutCubic(clamp(on.progress * 1.8, 0, 1));
+  /* lock-screen arrival: fade + scale-up in place (iOS does not drop banners from the top);
+     the underdamped spring overshoots past 1 and settles, so the landing has weight */
+  const p = MOTION.drop(0, 1)(clamp(on.progress * 1.8, 0, 1));
   const scale = 0.85 + 0.15 * p;
   return React.createElement('div', {
     style: {
@@ -331,12 +333,13 @@ function Piece() {
     { lines: p3, mode: 'lines', title: '.github/workflows/ci.yml' },
   ];
 
-  /* content windows: fade in first 0.25s of pass, out over last 0.3s */
-  const termOp = i => win(T, cues[i], cues[i] + 0.25, cues[i] + PASS - 0.3, cues[i] + PASS);
+  /* content windows: fade in first 0.25s of pass, out over the last 0.18s — the
+     entrance stays longer than the exit, so appearing reads as the event */
+  const termOp = i => win(T, cues[i], cues[i] + 0.25, cues[i] + PASS - 0.18, cues[i] + PASS);
   /* banner: the packet arrives at +2.2 and the banner springs in */
   const bannerOn = i => {
     const t0 = cues[i] + 2.2;
-    return { progress: clamp((T - t0) / 0.7, 0, 1), opacity: (T >= t0 ? 1 : 0) * MOTION.fade(cues[i] + PASS - 0.3, cues[i] + PASS)(T), top: 0 };
+    return { progress: clamp((T - t0) / 0.7, 0, 1), opacity: (T >= t0 ? 1 : 0) * MOTION.fade(cues[i] + PASS - 0.18, cues[i] + PASS)(T), top: 0 };
   };
 
   /* device opacities; iPhone also owns the Hold beat so the loop seam lands on it */
