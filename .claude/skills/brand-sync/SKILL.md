@@ -137,20 +137,16 @@ ratios, not one image resized.
 
 Field limits worth knowing before trimming copy to fit: X bio 160, Instagram
 bio 150, Facebook Page bio 255. Instagram counts the newlines too: its live
-counter read 141 for a four-line bio that measures 141 by hand. The current bio
-sits at 147/150, so a line added without one removed will not fit.
+counter read 141 for a four-line bio that measures 141 by hand.
 
-The Instagram bio's last line, `↓ notifi.it`, is plain text pointing at the
-separate website field below it; Instagram makes no bio text clickable. Setting
-the bio without also setting that field leaves an arrow aimed at nothing.
-
-**That field cannot be set from this skill.** instagram.com/accounts/edit shows
-it greyed out, above the line "Editing your links is only available on mobile.
-Visit the Instagram app and edit your profile to change the websites in your
-bio." Only the iPhone app can write it, so it is the user's to set, and the bio
-ships with a dangling arrow until they do. Say so in the summary rather than reporting
-Instagram as fully synced. Facebook's equivalent lives under About → Links and
-does work in the browser.
+Instagram makes no bio text clickable, so the only link a profile gets is the
+separate website field — and **that field cannot be set from this skill**.
+instagram.com/accounts/edit shows it greyed out, above the line "Editing your
+links is only available on mobile. Visit the Instagram app and edit your profile
+to change the websites in your bio." Only the iPhone app can write it, so it is
+the user's to set and is currently unset. Say so in the summary rather than
+reporting Instagram as fully synced. Facebook's equivalent lives under
+About → Links and does work in the browser.
 
 Never create accounts or enter credentials — if a login prompt appears, stop
 and hand the browser to the user.
