@@ -8,6 +8,7 @@ import { devices } from './routes/devices.js';
 import { downloads } from './routes/downloads.js';
 import { history } from './routes/history.js';
 import { keys } from './routes/keys.js';
+import { reviews } from './routes/reviews.js';
 import { send } from './routes/send.js';
 import { socket } from './routes/socket.js';
 import { ApnsToken as ApnsTokenBase } from './apnstoken.js';
@@ -40,6 +41,7 @@ app.route('/', devices);
 app.route('/', keys);
 app.route('/', history);
 app.route('/', downloads);
+app.route('/', reviews);
 app.route('/', socket);
 
 app.notFound((c) => c.json(errBody('not_found', t(c).api.notFound), 404));

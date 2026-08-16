@@ -389,6 +389,44 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 @media(max-width:920px){.uses{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.uses{grid-template-columns:1fr}}
 
+/* ── reviews: the live App Store feed, newest first ─────────── */
+/* The section is hidden until the fetch returns. Apple's feed is per
+   storefront and can be empty or unreachable, and a heading over an empty
+   grid reads as a broken page rather than a quiet one. */
+#reviews[hidden]{display:none}
+.reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,22px);margin-top:8px}
+.review{
+  border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  padding:18px 20px 16px;display:flex;flex-direction:column;gap:8px;
+}
+.review h3{font-size:16px;margin:0}
+.review p{color:var(--muted);font-size:15px;line-height:1.5;margin:0}
+.review .stars{
+  font-family:var(--mono);font-size:13px;letter-spacing:.22em;
+  color:var(--brand-text);
+}
+.review .stars .off{color:var(--chip)}
+.review .by{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  margin-top:auto;padding-top:6px;
+}
+/* The average is drawn, not spelled out: five stars, the last one part-filled
+   to the decimal. The number itself survives only in the aria-label, because a
+   partly-lit star is a picture of 4.1 and not a reading of it. */
+.rating{display:flex;align-items:center;gap:14px;margin:2px 0 14px}
+.rating .glyphs{display:flex;gap:4px}
+.rating .star{position:relative;color:var(--chip);font-size:22px;line-height:1}
+.rating .star .lit{
+  position:absolute;left:0;top:0;overflow:hidden;
+  color:var(--brand-text);white-space:nowrap;
+}
+.rating .count{font-family:var(--mono);font-size:13px;color:var(--dim)}
+.reviews-meta{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:18px}
+.reviews-meta a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
+.reviews-meta a:hover{text-decoration-color:var(--fg)}
+@media(max-width:920px){.reviews{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.reviews{grid-template-columns:1fr}}
+
 /* ── screenshots ────────────────────────────────────────────── */
 /* One framed hero shot with the other screens as thumbnails beside it,
    rather than four equal tiles. The bezel is silver because the screenshot
@@ -517,10 +555,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 }
 </style>
 
-<!-- No aggregateRating: there are no reviews to report yet, and inventing them
-     is both a lie and a manual action. Google's SoftwareApplication rich result
-     needs one, so expect no stars in the SERP until the App Store listing has
-     real reviews. The markup still earns its place as entity data.
+<!-- No aggregateRating: the rating shown on the page comes from /reviews.json at
+     load, and a number hard-coded here would be a hand-maintained copy that
+     drifts the day someone leaves a review. Google's SoftwareApplication rich
+     result needs one in the static markup, so expect no stars in the SERP. The markup still earns its place as entity data.
      No FAQPage either: Google stopped rendering FAQ rich results in May 2026. -->
 <script type="application/ld+json">
 {
@@ -1264,33 +1302,28 @@ reqwest::Client::new()
       <p class="meta">The Mac build updates itself. Homebrew works too: <code>brew install --cask notifi-it/tap/notifi</code></p>
     </div>
 
-    <figure class="mac">
-      <div class="mac-desk">
-        <div class="mac-bar" aria-hidden="true">
-          <span class="mac-menus">
-            <svg class="mac-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
-          </span>
-          <span class="bell" style="--bell:15px"></span>
-          <span class="mac-status">
-            <svg class="mac-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 9.5a11.5 11.5 0 0 1 16 0"/><path d="M6.8 12.8a7.5 7.5 0 0 1 10.4 0"/>
-              <path d="M9.6 16a3.6 3.6 0 0 1 4.8 0"/><path d="M12 18.8h.01"/>
-            </svg>
-            <svg class="mac-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2.5" y="8" width="16" height="8" rx="2.4"/>
-              <rect x="4.4" y="9.9" width="9" height="4.2" rx="1" fill="currentColor" stroke="none"/>
-              <path d="M20.5 10.8v2.4"/>
-            </svg>
-            <span class="mac-clock">18:41</span>
-          </span>
-        </div>
-        <img class="mac-shot" src="/screens/mac.webp" width="840" height="1296" loading="lazy"
-             alt="The same inbox hanging from the Mac menu bar: the bell sits in the bar and the popover beneath it lists the day's alerts, the urgent one in red.">
-      </div>
-      <figcaption>The Mac app. No window, no Dock icon.</figcaption>
-    </figure>
+  </div>
+</section>
+
+<!-- ══ reviews ═══════════════════════════════════════════════ -->
+<!-- Everything below is filled from /reviews.json, which merges Apple's
+     customer-review RSS across storefronts. Newest first, unfiltered: a wall
+     that only ever shows five stars is one nobody believes. -->
+<section class="section-alt" id="reviews" hidden>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Reviews</p><hr class="rule">
+    </div>
+    <h2 style="margin-bottom:10px">What people write on the App Store.</h2>
+    <div class="rating" id="reviews-rating"></div>
+    <p class="lede" style="margin-bottom:28px;font-style:italic">
+      Unfortunately, we didn't realize we had any users when we took down the servers.
+    </p>
+    <div class="reviews" id="reviews-list"></div>
+    <p class="reviews-meta">
+      Pulled from Apple's public review feed, newest first, nothing filtered out.
+      <a href="https://apps.apple.com/app/id1563961135">Write one</a>.
+    </p>
   </div>
 </section>
 
@@ -1671,6 +1704,95 @@ reqwest::Client::new()
     desktop.classList.add('btn-primary');
     store.classList.remove('btn-primary');
   }
+})();
+
+// ── App Store reviews ───────────────────────────────────────
+// Built with textContent, never innerHTML: every string here is written by a
+// stranger on the App Store. The section stays hidden unless the fetch comes
+// back with at least one review.
+(function () {
+  var section = document.getElementById('reviews');
+  if (!section) return;
+
+  function stars(rating) {
+    var el = document.createElement('p');
+    el.className = 'stars';
+    var on = document.createElement('span');
+    on.textContent = '★★★★★'.slice(0, rating);
+    var off = document.createElement('span');
+    off.className = 'off';
+    off.textContent = '★★★★★'.slice(0, 5 - rating);
+    el.appendChild(on);
+    el.appendChild(off);
+    el.setAttribute('aria-label', rating + ' out of 5');
+    return el;
+  }
+
+  function when(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function card(r) {
+    var el = document.createElement('article');
+    el.className = 'review';
+
+    var title = document.createElement('h3');
+    title.textContent = r.title;
+
+    var body = document.createElement('p');
+    body.textContent = r.body;
+
+    var by = document.createElement('p');
+    by.className = 'by';
+    by.textContent = [r.author, r.country.toUpperCase(), when(r.date)]
+      .filter(Boolean)
+      .join(' · ');
+
+    el.appendChild(stars(r.rating));
+    el.appendChild(title);
+    el.appendChild(body);
+    el.appendChild(by);
+    return el;
+  }
+
+  fetch('/reviews.json')
+    .then(function (res) { return res.ok ? res.json() : null; })
+    .then(function (data) {
+      if (!data || !data.reviews || !data.reviews.length) return;
+
+      var list = document.getElementById('reviews-list');
+      for (var i = 0; i < data.reviews.length; i++) list.appendChild(card(data.reviews[i]));
+
+      var rating = document.getElementById('reviews-rating');
+      var glyphs = document.createElement('div');
+      glyphs.className = 'glyphs';
+      for (var s = 1; s <= 5; s++) {
+        var star = document.createElement('span');
+        star.className = 'star';
+        star.textContent = '★';
+        var lit = document.createElement('span');
+        lit.className = 'lit';
+        lit.textContent = '★';
+        lit.setAttribute('aria-hidden', 'true');
+        lit.style.width = Math.max(0, Math.min(1, data.average - (s - 1))) * 100 + '%';
+        star.appendChild(lit);
+        glyphs.appendChild(star);
+      }
+      glyphs.setAttribute('role', 'img');
+      glyphs.setAttribute('aria-label', data.average + ' out of 5');
+
+      var count = document.createElement('p');
+      count.className = 'count';
+      count.textContent = data.count + (data.count === 1 ? ' review' : ' reviews');
+
+      rating.appendChild(glyphs);
+      rating.appendChild(count);
+
+      section.hidden = false;
+    })
+    .catch(function () {});
 })();
 </script>
 </body>
