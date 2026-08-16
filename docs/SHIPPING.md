@@ -72,3 +72,21 @@ Approval does not publish. `automatic_release` is off, so the version waits in
 the store build and the Worker it talks to go live in an order a human chooses.
 
 macOS is never submitted to the App Store.
+
+## iOS signs manually, from secrets
+
+The iOS archive uses manual signing with an imported identity, not automatic
+signing. Automatic signing mints a fresh Development certificate on every clean
+runner and never removes one, and the account's certificate cap is what stops
+the build once enough have piled up.
+
+Four secrets carry it: `IOS_DISTRIBUTION_CERT_P12` and
+`IOS_DISTRIBUTION_CERT_PASSWORD` for the Apple Distribution identity,
+`IOS_APP_PROFILE_B64` and `IOS_NSE_PROFILE_B64` for the App Store profiles of
+`it.notifi.notifi` and `it.notifi.notifi.nse` (both base64 of the
+`.mobileprovision`). The profile *names* are read back out of the files, so
+renaming one in the portal does not desync CI.
+
+A local build needs none of this: `CODE_SIGN_STYLE`, `IOS_CODE_SIGN_IDENTITY`
+and the two profile variables are unset, which is how Xcode spells automatic
+signing. When a profile expires, replace the secret — CI will not renew it.

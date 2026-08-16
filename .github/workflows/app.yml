@@ -28,9 +28,45 @@ jobs:
       # exactly the leading `v` the tag pattern requires.
       - run: echo "MARKETING_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
       - run: brew install xcodegen
+      - name: Import the Apple Distribution identity
+        env:
+          IOS_DISTRIBUTION_CERT_P12: ${{ secrets.IOS_DISTRIBUTION_CERT_P12 }}
+          IOS_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/ios.keychain-db"
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          echo "$IOS_DISTRIBUTION_CERT_P12" | base64 --decode > "$RUNNER_TEMP/ios-dist.p12"
+          security import "$RUNNER_TEMP/ios-dist.p12" -k "$KEYCHAIN" -P "$IOS_DISTRIBUTION_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN"
+      # The profile's own name is read back out of it rather than carried as a
+      # third secret, so renaming a profile in the portal cannot desync CI.
+      - name: Install the App Store provisioning profiles
+        env:
+          IOS_APP_PROFILE_B64: ${{ secrets.IOS_APP_PROFILE_B64 }}
+          IOS_NSE_PROFILE_B64: ${{ secrets.IOS_NSE_PROFILE_B64 }}
+        run: |
+          DEST="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$DEST"
+          install_profile() {
+            echo "$2" | base64 --decode > "$RUNNER_TEMP/$1.mobileprovision"
+            UUID="$(security cms -D -i "$RUNNER_TEMP/$1.mobileprovision" | plutil -extract UUID raw -)"
+            NAME="$(security cms -D -i "$RUNNER_TEMP/$1.mobileprovision" | plutil -extract Name raw -)"
+            cp "$RUNNER_TEMP/$1.mobileprovision" "$DEST/$UUID.mobileprovision"
+            echo "$1=$NAME" >> "$GITHUB_ENV"
+          }
+          install_profile IOS_APP_PROFILE "$IOS_APP_PROFILE_B64"
+          install_profile IOS_NSE_PROFILE "$IOS_NSE_PROFILE_B64"
       - working-directory: apps/app
-        # DEVELOPMENT_TEAM is interpolated into project.yml by XcodeGen. Without it
-        # automatic signing cannot resolve a profile and the archive step fails.
+        # XcodeGen interpolates all four into project.yml. Manual signing with an
+        # imported identity is the point: automatic signing mints a new
+        # Development certificate on every clean runner and never removes one,
+        # which is what filled the account's certificate cap.
+        env:
+          CODE_SIGN_STYLE: Manual
+          IOS_CODE_SIGN_IDENTITY: Apple Distribution
         run: xcodegen generate
       - name: Write App Store Connect API key
         env:
@@ -67,17 +103,12 @@ jobs:
             -scheme notifi-iOS \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
             MARKETING_VERSION="$MARKETING_VERSION"
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-appstore.plist" \
             -exportPath "$RUNNER_TEMP/export-iOS" \
-            -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
