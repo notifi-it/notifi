@@ -45,6 +45,8 @@ final class MenuBarController: NSObject {
         let hosting = NSHostingController(rootView: AnyView(content))
         hosting.view.wantsLayer = true
         hosting.view.layer?.backgroundColor = .clear
+        hosting.view.frame = NSRect(origin: .zero, size: panelSize)
+        hosting.view.layoutSubtreeIfNeeded()
         popover.contentViewController = hosting
 
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
