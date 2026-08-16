@@ -145,3 +145,47 @@ magick "$TMP/profile-plate.png" \( "$TMP/bell-red.png" -resize x560 \) \
   -gravity center -composite \
   -strip -define png:color-type=6 "$OUT/profile.png"
 echo "  profile.png  1024x1024"
+
+# Instagram mosaic: one 3240-square bell cut into nine 1080 posts.
+#
+# The plate is drawn once at full size and sliced, so the grain runs continuously
+# across the seams. Nine separately-plated tiles would each carry their own
+# noise field and the joins would show as a grid of edges.
+#
+# The bell is oversized so it bleeds off all four edges. Fitted whole it is about
+# 0.76 of the canvas, which looks right as one picture but grids badly: the mark
+# is round, so the four corner tiles come out as bare plate, and the worst of
+# them lands top-left, the last tile posted and the one that sits highest on the
+# profile for good. Past 1.0 the crop costs the top of the bell and the bottom of
+# the clapper, and buys nine tiles that each carry something.
+MOSAIC_TILE=1080
+MOSAIC_SPAN=3
+mosaic_px=$((MOSAIC_TILE * MOSAIC_SPAN))
+
+plate "$mosaic_px" "$mosaic_px" "$TMP/mosaic-plate.png"
+magick "$TMP/mosaic-plate.png" \
+  \( "$TMP/bell-red.png" -resize "x$(python3 -c "print(round($mosaic_px * 1.18))")" \) \
+  -gravity center -composite \
+  -strip -define png:color-type=6 "$TMP/mosaic.png"
+
+mkdir -p "$OUT/instagram-grid"
+magick "$TMP/mosaic.png" -crop "${MOSAIC_TILE}x${MOSAIC_TILE}" +repage +adjoin \
+  -strip -define png:color-type=6 "$TMP/tile-%d.png"
+
+# Instagram fills the grid newest-first from the top left, so the posting order
+# is the reading order reversed: the tile that ends up bottom-right has to go up
+# first. The files are numbered by the order they are posted, not by where they
+# land, because the only thing the person posting them has to get right is the
+# order — post-1 through post-9, oldest to newest.
+last=$((MOSAIC_SPAN * MOSAIC_SPAN - 1))
+for n in $(seq 1 $((last + 1))); do
+  mv "$TMP/tile-$((last + 1 - n)).png" "$OUT/instagram-grid/post-$n.png"
+done
+
+# A flattened preview of the assembled result, for checking the framing without
+# reassembling nine files by hand. Not for posting.
+magick "$TMP/mosaic.png" -resize 1080x1080 \
+  -strip -define png:color-type=6 "$OUT/instagram-grid/preview.png"
+
+echo "  instagram-grid/post-1.png … post-9.png  ${MOSAIC_TILE}x${MOSAIC_TILE} each"
+echo "  instagram-grid/preview.png  1080x1080 (not for posting)"

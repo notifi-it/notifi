@@ -52,6 +52,29 @@ BANNER / COVER
   Instagram has no banner.
 
 
+INSTAGRAM MOSAIC
+
+  docs/socials/images/instagram-grid/post-1.png … post-9.png   1080x1080 each
+  docs/socials/images/instagram-grid/preview.png               not for posting
+
+  One bell drawn at 3240 square and cut into nine. The plate is drawn once at
+  full size and sliced, so the grain runs unbroken across the seams; nine
+  separately-plated tiles would each carry their own noise and the joins would
+  show as a grid of edges.
+
+  The bell bleeds off all four edges. Fitted whole it grids badly — the mark is
+  round, so the corner tiles come out as bare plate, and the emptiest of them
+  lands top-left and stays there.
+
+  Post them in filename order, 1 through 9. Instagram fills the grid newest
+  first from the top left, so the numbering is already the reverse of the
+  reading order: post-1 ends up bottom-right, post-9 top-left. Posting them in
+  the wrong order mirrors the image, and the only fix is deleting posts.
+
+  The grid only resolves once all nine are up, and it breaks the moment a tenth
+  post lands unless that one starts a fresh row of three.
+
+
 OPEN GRAPH — already wired
 
   apps/api/public/og.png, 1200x630, referenced by og:image and twitter:image
