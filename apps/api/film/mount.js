@@ -1,8 +1,9 @@
 const host = document.getElementById('film');
-const still = window.matchMedia
-  && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const skip = window.matchMedia
+  && (window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    || window.matchMedia('(max-width: 760px)').matches);
 
-if (host && window.NotifiLaunchGif && !still) {
+if (host && window.NotifiLaunchGif && !skip) {
   let mounted = false;
 
   const render = () => {

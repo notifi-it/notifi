@@ -440,10 +440,20 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
    rectangle. In the page there is no ground to stop it: the scene's own
    backdrop and grain layers are dropped and the page's static shows through.
    The transport bar belongs to /gif, which is still the authoring page. */
-.app-film{position:relative;margin:30px 0 0;aspect-ratio:2160/960}
-/* Nothing is mounted under reduced motion, and an empty box would hold open a
-   screen's worth of nothing. */
+/* The engine fits the stage to the box less a fixed 44pt for the transport bar
+   it is not drawing here, so the box carries that 44 as padding and the scene
+   comes out the full width instead of a tenth short. */
+.app-film{
+  position:relative;margin:30px 0 -22px;
+  box-sizing:content-box;aspect-ratio:2160/960;padding-bottom:44px;
+}
+/* Nothing is mounted on a phone or under reduced motion, and an empty box would
+   hold open a screen's worth of nothing. */
 .app-film:empty{display:none}
+/* Three devices across a phone's width leaves each one a thumbnail, and the
+   scene is a running animation to pay for. The screenshots below carry the
+   section on their own. */
+@media(max-width:760px){.app-film{display:none}}
 .app-film [data-om-starter],
 .app-film foreignObject > div,
 .app-film foreignObject > div > div{background:transparent!important}
