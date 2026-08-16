@@ -90,6 +90,17 @@ jobs:
             <string>upload</string>
             <key>teamID</key>
             <string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>signingCertificate</key>
+            <string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>it.notifi.notifi</key>
+              <string>${IOS_APP_PROFILE}</string>
+              <key>it.notifi.notifi.nse</key>
+              <string>${IOS_NSE_PROFILE}</string>
+            </dict>
           </dict>
           </plist>
           PLIST
