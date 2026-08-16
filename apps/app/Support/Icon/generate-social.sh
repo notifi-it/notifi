@@ -146,46 +146,62 @@ magick "$TMP/profile-plate.png" \( "$TMP/bell-red.png" -resize x560 \) \
   -strip -define png:color-type=6 "$OUT/profile.png"
 echo "  profile.png  1024x1024"
 
-# Instagram mosaic: one 3240-square bell cut into nine 1080 posts.
+# Instagram mosaic: one bell cut into nine posts.
 #
-# The plate is drawn once at full size and sliced, so the grain runs continuously
-# across the seams. Nine separately-plated tiles would each carry their own
-# noise field and the joins would show as a grid of edges.
+# Two different rectangles are in play, and the gap between them is the whole
+# reason this works. A feed post is 4:5 (1080x1350). A profile grid thumbnail is
+# 3:4 — measured off a live profile at 279x372, not taken from a blog. The grid
+# fills that frame from the post and so shaves 0.75/0.8 = 6.25% off the width,
+# about 33px a side.
 #
-# The bell is oversized so it bleeds off all four edges. Fitted whole it is about
-# 0.76 of the canvas, which looks right as one picture but grids badly: the mark
-# is round, so the four corner tiles come out as bare plate, and the worst of
-# them lands top-left, the last tile posted and the one that sits highest on the
-# profile for good. Past 1.0 the crop costs the top of the bell and the bottom of
-# the clapper, and buys nine tiles that each carry something.
-MOSAIC_TILE=1080
+# So the picture is drawn on a canvas the width of what SURVIVES that crop —
+# three 1013px cells, 3039 total — and each cell is then centred in a 1080-wide
+# post. The 33px of plate either side of it is exactly what the grid throws away,
+# which is what keeps the bell continuous across the seams. Draw the picture at
+# the post width instead and the grid eats a strip out of every join.
+#
+# The padding has to be plate, not white: it is cropped away in the grid but it
+# is fully visible in the feed, where a white bar down both sides of a dark tile
+# reads as a mistake.
+MOSAIC_CELL_W=1013
+MOSAIC_CELL_H=1350
+MOSAIC_TILE_W=1080
 MOSAIC_SPAN=3
-mosaic_px=$((MOSAIC_TILE * MOSAIC_SPAN))
+canvas_w=$((MOSAIC_CELL_W * MOSAIC_SPAN))
+canvas_h=$((MOSAIC_CELL_H * MOSAIC_SPAN))
 
-plate "$mosaic_px" "$mosaic_px" "$TMP/mosaic-plate.png"
+# The bell is oversized so it bleeds off all four edges. Fitted whole it grids
+# badly: the mark is round, so the corner cells come out as bare plate, and the
+# emptiest lands top-left — the last tile posted and the one that sits highest on
+# the profile for good. The crop this costs is the top of the bell and the bottom
+# of the clapper, and it buys nine tiles that each carry something.
+plate "$canvas_w" "$canvas_h" "$TMP/mosaic-plate.png"
 magick "$TMP/mosaic-plate.png" \
-  \( "$TMP/bell-red.png" -resize "x$(python3 -c "print(round($mosaic_px * 1.18))")" \) \
+  \( "$TMP/bell-red.png" -resize "x$(python3 -c "print(round($canvas_h * 1.02))")" \) \
   -gravity center -composite \
   -strip -define png:color-type=6 "$TMP/mosaic.png"
 
 mkdir -p "$OUT/instagram-grid"
-magick "$TMP/mosaic.png" -crop "${MOSAIC_TILE}x${MOSAIC_TILE}" +repage +adjoin \
-  -strip -define png:color-type=6 "$TMP/tile-%d.png"
+magick "$TMP/mosaic.png" -crop "${MOSAIC_CELL_W}x${MOSAIC_CELL_H}" +repage +adjoin \
+  -strip -define png:color-type=6 "$TMP/cell-%d.png"
 
 # Instagram fills the grid newest-first from the top left, so the posting order
 # is the reading order reversed: the tile that ends up bottom-right has to go up
 # first. The files are numbered by the order they are posted, not by where they
 # land, because the only thing the person posting them has to get right is the
 # order — post-1 through post-9, oldest to newest.
+plate "$MOSAIC_TILE_W" "$MOSAIC_CELL_H" "$TMP/tile-plate.png"
 last=$((MOSAIC_SPAN * MOSAIC_SPAN - 1))
 for n in $(seq 1 $((last + 1))); do
-  mv "$TMP/tile-$((last + 1 - n)).png" "$OUT/instagram-grid/post-$n.png"
+  magick "$TMP/tile-plate.png" "$TMP/cell-$((last + 1 - n)).png" \
+    -gravity center -composite \
+    -strip -define png:color-type=6 "$OUT/instagram-grid/post-$n.png"
 done
 
-# A flattened preview of the assembled result, for checking the framing without
-# reassembling nine files by hand. Not for posting.
-magick "$TMP/mosaic.png" -resize 1080x1080 \
+# The assembled result at grid width, which is what the profile shows: the cells
+# without the padding the grid crops off. Not for posting.
+magick "$TMP/mosaic.png" -resize 1080x \
   -strip -define png:color-type=6 "$OUT/instagram-grid/preview.png"
 
-echo "  instagram-grid/post-1.png … post-9.png  ${MOSAIC_TILE}x${MOSAIC_TILE} each"
-echo "  instagram-grid/preview.png  1080x1080 (not for posting)"
+echo "  instagram-grid/post-1.png … post-9.png  ${MOSAIC_TILE_W}x${MOSAIC_CELL_H} each"
+echo "  instagram-grid/preview.png  (not for posting)"

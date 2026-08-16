@@ -54,16 +54,29 @@ BANNER / COVER
 
 INSTAGRAM MOSAIC
 
-  docs/socials/images/instagram-grid/post-1.png … post-9.png   1080x1080 each
+  docs/socials/images/instagram-grid/post-1.png … post-9.png   1080x1350 each
   docs/socials/images/instagram-grid/preview.png               not for posting
 
-  One bell drawn at 3240 square and cut into nine. The plate is drawn once at
-  full size and sliced, so the grain runs unbroken across the seams; nine
-  separately-plated tiles would each carry their own noise and the joins would
-  show as a grid of edges.
+  One bell cut into nine. Two rectangles are in play and the gap between them is
+  the whole trick.
+
+  A feed post is 4:5, 1080x1350. A profile grid thumbnail is 3:4 — measured off
+  a live profile at 279x372, since Instagram changed the grid from square in
+  early 2025. The grid fills its frame from the post, so it shaves 6.25% off the
+  width, about 33px a side.
+
+  So the picture is drawn at the width that survives that crop — three 1013px
+  cells, 3039 total — and each cell is centred in a 1080-wide post. The 33px of
+  plate either side is exactly what the grid discards, which is what keeps the
+  bell continuous across the seams. Draw at the post width instead and the grid
+  eats a strip out of every join.
+
+  The padding is plate, not white. It is cropped away in the grid but fully
+  visible in the feed, where white bars down both sides of a dark tile read as a
+  mistake.
 
   The bell bleeds off all four edges. Fitted whole it grids badly — the mark is
-  round, so the corner tiles come out as bare plate, and the emptiest of them
+  round, so the corner cells come out as bare plate, and the emptiest of them
   lands top-left and stays there.
 
   Post them in filename order, 1 through 9. Instagram fills the grid newest
