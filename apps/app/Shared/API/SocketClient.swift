@@ -15,9 +15,6 @@ final class SocketClient {
     private(set) var state: State = .idle
 
     private let api: APIClient
-    // The argument is the server id of a message the server could not push
-    // (APNs refused or the device has no token), or nil for a plain wake.
-    // It is the app's cue to post its own banner for that message.
     private let onWake: (Int?) async -> Void
     private let log = Logger(subsystem: "it.notifi.notifi", category: "socket")
 

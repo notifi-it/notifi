@@ -37,15 +37,11 @@ private enum StaticNoise {
 
     private static let size = 512
 
-    /// Hand-kept copies of `Theme.bg`. The tile is generated into a bitmap
-    /// before any view exists, so it cannot read the token.
     private static let darkGround: Double = 0.11
     private static let darkAmplitude: Double = 0.055
     private static let lightGround: Double = 0.949
     private static let lightAmplitude: Double = 0.035
 
-    /// Sized so a raised patch lands on `Theme.groupFill`. Both step up: this is
-    /// a card on a page, and on paper a card is the whiter thing.
     private static let darkStep: Double = 0.075
     private static let lightStep: Double = 0.051
 

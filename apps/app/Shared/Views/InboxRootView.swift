@@ -52,20 +52,12 @@ struct InboxRootView: View {
         #endif
     }
 
-    /// The App Store screenshot script's hook. Seeding through the ••• menu
-    /// needs a tap the script would have to aim by pixel; these run the same
-    /// seed from launch environment instead, so a capture is
-    /// launch → settle → screenshot with nothing to miss. `#if DEBUG` for the
-    /// same reason as `NOTIFI_START_TAB`: it exists for the script, nothing
-    /// else may set it.
     private func shotSetup() async {
         #if DEBUG
         let env = ProcessInfo.processInfo.environment
         guard env["NOTIFI_SEED_SAMPLE"] == "1" else { return }
         SampleData.seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
         if env["NOTIFI_OPEN_SAMPLE_MESSAGE"] == "1" {
-            // The push happens after the feed has the seeded rows, or the
-            // detail resolves an id nothing holds yet and shows "not found".
             try? await Task.sleep(for: .milliseconds(400))
             model.path.append(SampleData.idFloor)
         }
@@ -110,9 +102,6 @@ struct InboxRootView: View {
                 Label(Copy.Tabs.settings, image: "akar-gear").labelStyle(.iconOnly)
             }
 
-            // Only over the list. Search is a way into the inbox, and offering
-            // it from a message already opened from that inbox reads as a
-            // second, unrelated control on a page that is not a list.
             if sizeClass == .compact, model.path.isEmpty,
                model.selectedTab == .inbox || model.selectedTab == .search {
                 Tab(value: AppTab.search, role: .search) {

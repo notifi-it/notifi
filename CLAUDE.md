@@ -303,7 +303,7 @@ heights is obvious that way and invisible one screenshot at a time.
 
 ## No automated tests
 
-By decision. `make typecheck` plus both `xcodebuild` schemes is the full
+By decision. `make typecheck`, `make lint`, plus both `xcodebuild` schemes is the full
 automated gate; everything else is checked by hand. Do not add a test framework to make a
 change feel verified. Say plainly what was and was not exercised instead.
 
@@ -350,8 +350,9 @@ the branch quietly predates work that is already on main. And when a command's
 log matters, do not pipe it through `tail`: the failure that needed diagnosing
 survives only if the full output was written somewhere.
 
-## Comments explain why, never what
+## Never add comments
 
-The Swift and TypeScript here carry long comments justifying non-obvious
-decisions, and none restating the code. Match that. A comment that describes what
-the line below does should be deleted.
+The Swift and TypeScript here carry no comments at all, and `make lint`
+(`scripts/lint-comments.mjs`, run by CI on every PR) fails on any comment in
+either language. Do not add one. Reasoning that would have been a comment goes
+in the commit message or the PR description.

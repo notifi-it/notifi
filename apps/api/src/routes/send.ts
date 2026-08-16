@@ -279,9 +279,6 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     payload = pushPayload(messageId, sealed, row.key_id, critical, deviceStrings);
   }
 
-  // The wake waits for the push on purpose: it carries whether APNs accepted
-  // this message, and that is what lets the app decide deterministically
-  // whether to post its own banner instead of racing the push on a timer.
   const pushed = await push(
     c.env,
     c.env.DB,

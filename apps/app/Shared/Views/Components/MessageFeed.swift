@@ -353,10 +353,6 @@ private struct MessageRow: View {
         .padding(.horizontal, 18)
         .frame(minHeight: 44)
         #if os(macOS)
-        // An escalated row already carries brand colour, so the text-colour
-        // shift below says nothing on it. The ground is the one cue every row
-        // can show. It steps in grain rather than to a flat fill, so the row
-        // stays part of the same surface as the page under it.
         .background {
             if isHovered {
                 StaticField(level: .hover, fillsScreen: false)

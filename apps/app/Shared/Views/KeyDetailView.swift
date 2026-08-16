@@ -91,10 +91,6 @@ struct KeyDetailView: View {
             }
             .padding(.top, 6)
 
-            // The sentence explaining the key sits under the title; the masked
-            // value follows it. For the default key the order is the other way
-            // round further down, because there the sentence explains the copy
-            // buttons directly above it rather than the title.
             if !key.isDefault {
                 Text(Copy.KeyDetail.shownOnceDetail)
                     .geistConsequence()

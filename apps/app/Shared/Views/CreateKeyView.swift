@@ -177,10 +177,6 @@ struct CreateKeyView: View {
                 .foregroundStyle(Theme.muted)
                 .padding(.top, 8)
 
-            // Zero-width spaces let the key wrap at any character instead of
-            // breaking raggedly after the first hyphen. They also mean the
-            // rendered string is not the key, so it is not selectable — Copy
-            // and Share below carry the real value.
             Text(response.key.map(String.init).joined(separator: "\u{200B}"))
                 .font(.inco(.subheadline, weight: .medium))
                 .foregroundStyle(Theme.fg)

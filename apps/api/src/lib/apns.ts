@@ -53,10 +53,6 @@ export async function push(
         'apns-push-type': 'alert',
         'apns-priority': '10',
         'apns-expiration': String(expiresAt),
-        // The collapse id becomes the delivered notification's request
-        // identifier, so the app's own backstop banner — posted under the
-        // same message id — and this push occupy one Notification Center
-        // slot instead of two. Capped at 64 bytes by APNs.
         'apns-collapse-id': collapseId,
       },
       body: JSON.stringify(payload),

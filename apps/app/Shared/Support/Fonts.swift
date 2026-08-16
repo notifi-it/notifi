@@ -10,9 +10,6 @@ extension Font {
         .custom("Recursive Mono", size: size, relativeTo: style).weight(incoWeight(weight))
     }
 
-    /// Recursive Mono draws lighter than Inconsolata did at the same nominal
-    /// weight, so every request is bumped a step and bold two. Call sites still
-    /// ask in Inconsolata-era terms.
     private static func incoWeight(_ weight: Font.Weight) -> Font.Weight {
         switch weight {
         case .regular: .medium

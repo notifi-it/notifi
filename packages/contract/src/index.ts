@@ -146,9 +146,6 @@ export const historyResponse = z.object({
 });
 export type HistoryResponse = z.infer<typeof historyResponse>;
 
-// One frame per send, emitted by the device socket after the APNs attempt.
-// `pushed` is whether APNs accepted the push — not whether it was delivered —
-// and is what tells the app to post its own banner when no push is coming.
 export const socketFrame = z.object({
   type: z.literal('message'),
   latest_id: z.number().int(),

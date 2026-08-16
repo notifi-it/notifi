@@ -12,9 +12,6 @@ enum RelativeAge {
         }
     }
 
-    // "now" cannot take the "{relative} ago" wrapper — "used now ago" — so the
-    // under-a-minute case has its own phrasing and every "ago" label goes
-    // through here rather than composing the two copy keys itself.
     static func agoString(since basis: Date, at now: Date = Date()) -> String {
         if now.timeIntervalSince(basis) < 60 { return Copy.Age.justNow }
         return Copy.Age.ago(string(since: basis, at: now))

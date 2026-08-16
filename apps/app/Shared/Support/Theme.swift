@@ -7,11 +7,7 @@ import AppKit
 
 enum Theme {
 
-    /// `LaunchBackground` in the asset catalog is a hand-kept copy of this pair,
-    /// as are `StaticNoise`'s grounds. Change one, change all three.
     static let bg = grey(light: 0.949, dark: 0.11)
-    /// A section of settings rows, one step up off `bg`. This is the app's
-    /// grouping device, which is why no rule draws that boundary as well.
     static let groupFill = grey(light: 1.0, dark: 0.185)
     static let fg = grey(light: 0.102, dark: 0.929)
     static let read = grey(light: 0.28, dark: 0.72)
@@ -70,12 +66,8 @@ enum Theme {
 
     static let blockRadius: CGFloat = 10
 
-    /// How far a `GeistGroup`'s fill sits in from the screen edge. Adds to
-    /// `gutter`, which insets the rows inside it, for 32pt of text inset.
     static let groupInset: CGFloat = 12
 
-    /// One device pixel. Was 1pt, which is three on a 3x screen — a bar rather
-    /// than a separator.
     #if os(iOS)
     static var hairline: CGFloat { 1 / UIScreen.main.scale }
     #else
@@ -107,10 +99,6 @@ enum Theme {
 
     static let topFade: CGFloat = 24
 
-    /// Where a screen's first block starts. iOS keeps its top fade drawn at all
-    /// times and so must hold content clear of it; the macOS fade only appears
-    /// once the content has moved under the header, and reserving a resting gap
-    /// for something that is not there yet reads as 24pt of empty ground.
     #if os(macOS)
     static let contentTop: CGFloat = firstBlockTop
     #else
@@ -140,8 +128,6 @@ enum Theme {
     static var metaSmall: Font { .inco(.caption2, weight: .regular) }
     static var label: Font { .inco(.caption2, weight: .medium) }
     static var screenTitle: Font { .inco(.title, weight: .semibold) }
-    /// Tracking is a view modifier rather than part of a Font, so every screen
-    /// title applies this alongside `screenTitle`.
     static let screenTitleTracking: CGFloat = 1
     static var sectionLabel: Font { .inco(.caption2, weight: .semibold) }
 }
@@ -149,8 +135,6 @@ enum Theme {
 extension View {
     func geistGutter() -> some View { padding(.horizontal, Theme.gutter) }
 
-    /// For anything sitting beside a `GeistGroup` rather than in one — the
-    /// section label. Lands on the same left edge as the rows inside it.
     func geistGroupGutter() -> some View {
         padding(.horizontal, Theme.groupInset + Theme.gutter)
     }
@@ -198,10 +182,6 @@ extension View {
 }
 
 #if os(macOS)
-/// The fade marks content passing under the header, so at rest — nothing
-/// scrolled — there is nothing to mark and it stays out of the way. Reading the
-/// offset needs macOS 15; before that the fade is simply never drawn, which is
-/// what this screen did already.
 struct ScrolledTopFade: ViewModifier {
     @State private var scrolled = false
 

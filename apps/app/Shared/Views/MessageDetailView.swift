@@ -15,8 +15,6 @@ struct MessageDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    // iOS only: the Mac build ships as a direct-download DMG with no App Store
-    // listing, so a rating prompt there collects stars it can deliver nowhere.
     #if os(iOS)
     @Environment(\.requestReview) private var requestReview
     #endif
@@ -141,8 +139,6 @@ struct MessageDetailView: View {
         .geistGutter()
         .geistMeasure()
         .padding(.top, 22)
-        // The head block below sets its own space above the title; the bar only
-        // needs to clear its own buttons.
         .padding(.bottom, 6)
         .background(StaticField())
     }
@@ -164,9 +160,6 @@ struct MessageDetailView: View {
         return key.isDefault ? nil : key.name
     }
 
-    // Nil when the key is not in the cache — the chip is then showing a
-    // fallback name for a key this device cannot open, so it stays inert
-    // rather than pushing a screen that would have nothing to render.
     private func key(for message: Message) -> CachedKey? {
         guard let id = message.keyID else { return nil }
         guard let key = model.sync?.keys.first(where: { $0.id == id }) else { return nil }
@@ -177,10 +170,6 @@ struct MessageDetailView: View {
     private func content(for message: Message) -> some View {
         let anyScheme = model.allowsAnyLink(keyID: message.keyID)
         VStack(alignment: .leading, spacing: 0) {
-            // The title and its metadata centre; everything below stays ranged
-            // left. They are the head of the page rather than part of the
-            // reading column, and the body is prose, which centring makes
-            // harder to read down.
             Text(message.title)
                 .font(.inco(.title, weight: .bold))
                 .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
@@ -236,8 +225,6 @@ struct MessageDetailView: View {
             .accessibilityHidden(true)
     }
 
-    // No border at all: the key and the time are one dim line, so the title is
-    // the only loud thing at the head of the page.
     private func quietLine(_ name: String?, age: String, stamp: String) -> some View {
         HStack(spacing: 6) {
             if let name {
@@ -272,9 +259,6 @@ struct MessageDetailView: View {
         }
     }
 
-    // The chip pushes its key when the key is on this device; when it is not,
-    // the same label is shown inert rather than pushing a screen that would
-    // have nothing to render.
     @ViewBuilder
     private func tappableKey<Label: View>(_ message: Message,
                                           @ViewBuilder label: () -> Label) -> some View {
@@ -425,9 +409,6 @@ struct MessageDetailView: View {
             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
             #else
             await MainActor.run {
-                // An accessory app is never the active one, so without this the
-                // panel opens behind whatever the reader was looking at and
-                // reads as the download having done nothing.
                 NSApp.activate(ignoringOtherApps: true)
 
                 let panel = NSSavePanel()
@@ -437,9 +418,6 @@ struct MessageDetailView: View {
                     appropriateFor: nil, create: false)
                 panel.level = .modalPanel
 
-                // `begin`, not `runModal`: this runs inside the popover's own
-                // event-tracking loop, and a nested modal loop there never gets
-                // its events — the panel is created and then simply sits there.
                 macMenuBar.holdOpen()
                 panel.begin { response in
                     if response == .OK, let target = panel.url {

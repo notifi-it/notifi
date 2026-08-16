@@ -172,10 +172,6 @@ struct SettingsView: View {
                         .geistGutter()
                     RowRule()
 
-                    // Duplicated from the Permissions section on purpose: up
-                    // there it only appears when permission is missing, and
-                    // hiding the healthy row took the only path to the system
-                    // page with it.
                     Button {
                         model.openSystemNotificationSettings()
                     } label: {
