@@ -172,6 +172,7 @@ export const copy = {
   search: {
     prompt: 'Search notifications',
     matches: plural('1 match', '{n} matches'),
+    recent: 'Recent',
   },
 
   message: {

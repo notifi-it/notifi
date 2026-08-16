@@ -7241,6 +7241,17 @@
         }
       }
     },
+    "search.recent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent"
+          }
+        }
+      }
+    },
     "settings.automaticUpdates": {
       "extractionState": "manual",
       "localizations": {

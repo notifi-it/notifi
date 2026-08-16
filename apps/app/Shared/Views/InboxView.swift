@@ -126,6 +126,9 @@ struct InboxView: View {
                 searchFocused = true
             }
         }
+        // ⌘F is the shortcut every Mac field answers to; a popover with a
+        // search button and no ⌘F makes the keyboard user reach for the mouse.
+        .keyboardShortcut("f", modifiers: .command)
     }
 
     private func closeSearch() {

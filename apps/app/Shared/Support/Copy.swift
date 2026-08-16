@@ -77,6 +77,7 @@ enum Copy {
     enum Search {
         static var prompt: String { NSLocalizedString("search.prompt", comment: "") }
         static func matches(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("search.matches", comment: ""), n) }
+        static var recent: String { NSLocalizedString("search.recent", comment: "") }
     }
     enum Message {
         static var notFound: String { NSLocalizedString("message.notFound", comment: "") }
