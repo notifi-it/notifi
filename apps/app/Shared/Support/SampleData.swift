@@ -79,19 +79,23 @@ enum SampleData {
              "Someone at the door — clip saved to the hub.",
              nil, nil, 14, true),
 
+            ("Leak sensor under the sink went wet",
+             "Water detected at 16:32 — the shut-off valve closed itself.",
+             nil, nil, 47, true),
+
             ("Deploy 9c41f2 finished",
-             "Rolled out to eu-west-2 in 38s. All checks green.",
+             "api.notifi.it rolled out in 38s. All checks green.",
              nil, "https://ci.notifi.sh/builds/1291", 76, true),
 
             ("Backup to r2 finished",
-             "pg → r2, 4.6 GB in 2m 58s.",
+             "notifi-db → r2, 4.6 GB in 2m 58s.",
              nil, nil, 210, false),
 
-            ("SSL renewed for internal.shorepine.co",
+            ("SSL renewed for notifi.it",
              nil, nil, nil, 340, false),
 
-            ("p95 back under 300 ms",
-             "Recovered after the 02:10 spike. No action needed.",
+            ("Send p95 back under 300 ms",
+             "notifi.it/send recovered after the 02:10 spike. No action needed.",
              nil, "https://grafana.internal/d/api-latency", 1_510, true),
 
             ("New signup",
@@ -106,15 +110,15 @@ enum SampleData {
              "https://github.com/notifi/notifi/releases/tag/v2.4.1", 2_130, false),
 
             ("Disk cleanup reclaimed 18 GB",
-             "vault-01 is back to 26% used.",
+             "notifi-db-01 is back to 26% used.",
              nil, nil, 3_050, false),
 
             ("Certificate expires in 30 days",
-             "The star.shorepine.co wildcard renews on the 14th.",
+             "The star.notifi.it wildcard renews on the 14th.",
              nil, nil, 3_390, false),
 
             ("Incident INC-2051 resolved",
-             "Delivery delays cleared after the queue redrive completed.",
+             "Push delivery delays cleared after the queue redrive completed.",
              nil, nil, 4_490, false),
 
             ("Weekly digest ready",
@@ -130,15 +134,15 @@ enum SampleData {
         ]
         #else
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
-            ("p99 latency crossed 800 ms",
+            ("Send p99 crossed 800 ms",
              """
-             api.eu-west-2 — **782 ms**, up from 214 ms over 12 minutes.
+             notifi.it/send — **782 ms**, up from 214 ms over 12 minutes.
 
              ## What moved
 
-             - `checkout-api` — 782 ms *(was 214 ms)*
-             - `search` — 240 ms, flat
-             - `payments` — 198 ms, flat
+             - `send-api` — 782 ms *(was 214 ms)*
+             - `keys` — 240 ms, flat
+             - `delivery` — 198 ms, flat
 
              Connection pool saturation on the primary, not the app tier.
 
@@ -153,18 +157,18 @@ enum SampleData {
              "\(demo)/latency.png",
              "https://grafana.internal/d/api-latency", 9, true),
 
-            ("Disk 91% full",
-             "vault-01 /dev/nvme0n1 — 41 GB free of 460 GB.",
+            ("Disk 91% full on notifi-db-01",
+             "/dev/nvme0n1 — 41 GB free of 460 GB.",
              nil, nil, 6, true),
 
-            ("Error rate spiked to 4.1%",
+            ("Send error rate spiked to 4.1%",
              nil, nil, nil, 18, true),
 
             ("Release v2.4.0 published",
              nil, nil, "https://github.com/notifi/notifi/releases/tag/v2.4.0", 40, false),
 
             ("Nightly backup complete",
-             "pg → r2, 4.2 GB in 3m 11s. Retention trimmed to 30 snapshots.",
+             "notifi-db → r2, 4.2 GB in 3m 11s. Retention trimmed to 30 snapshots.",
              nil, nil, 300, false),
 
             ("New signup",
@@ -183,7 +187,7 @@ enum SampleData {
             ("Deploy 4f2c1e9 finished",
              """
              ## Summary
-             Rolled out to **eu-west-2** in *42s*. One check is still amber.
+             api.notifi.it rolled out to **eu-west-2** in *42s*. One check is still amber.
 
              - `queue-worker` — healthy
              - `redrive` — restarting
@@ -205,7 +209,7 @@ enum SampleData {
              "Renew before Friday or the workers start failing TLS handshakes.",
              nil, nil, 1_500, true),
 
-            ("Scheduled maintenance on the eu-west-2 primary database cluster has been "
+            ("Scheduled maintenance on the notifi eu-west-2 primary database cluster has been "
              + "extended by a further four hours following a failed failover",
              "The standby did not promote cleanly after the primary was fenced at 02:14 UTC. "
              + "Engineering has rolled back to the previous topology and is replaying the "
@@ -227,7 +231,7 @@ enum SampleData {
             ("Build artefact published",
              "Signed and notarised. Retention on this bucket is 30 days.",
              nil,
-             "https://registry.internal.acme-corp.io/artifacts/v2/builds/2026/08/02/"
+             "https://registry.notifi.internal/artifacts/v2/builds/2026/08/02/"
              + "notifi-ios/release/arm64/notifi-ios-4f2c1e9a8b7c6d5e-signed-notarised.tar.gz"
              + "?signature=aG1hYy1zaGEyNTY9YzhkOWUwZjFhMmIzYzRkNWU2ZjcwODE5&expires=1785638400",
              2_400, false),
