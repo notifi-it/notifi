@@ -23,6 +23,8 @@ OUT=${OUT:-/tmp/notifi-screens}
 SITE=apps/api/public/screens
 IPAD_NAME="notifi-shots-iPad"
 IPAD_TYPE="com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4-8GB"
+PHONE_NAME="notifi-shots-iPhone"
+PHONE_TYPE="com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro-Max"
 
 # The phone half rides on shots.sh: same build-if-stale rule, same booted
 # simulator, same DerivedData. Its tab screenshots land in /tmp/notifi-shots
@@ -32,26 +34,39 @@ TABS="inbox" apps/app/Scripts/shots.sh >/dev/null
 APP=$(find "$DERIVED/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.app' | head -1)
 [ -n "$APP" ] || { echo "no .app in $DERIVED" >&2; exit 1; }
 
-PHONE=$(xcrun simctl list devices booted -j | python3 -c '
-import json,sys
-for runtime in json.load(sys.stdin)["devices"].values():
-    for d in runtime:
-        print(d["udid"]); raise SystemExit
-')
-
-IPAD=$(xcrun simctl list devices available -j | python3 -c "
+named() { # name
+  xcrun simctl list devices available -j | python3 -c "
 import json,sys
 for runtime in json.load(sys.stdin)['devices'].values():
     for d in runtime:
-        if d['name'] == '$IPAD_NAME':
+        if d['name'] == '$1':
             print(d['udid']); raise SystemExit
-")
-if [ -z "$IPAD" ]; then
-  IPAD=$(xcrun simctl create "$IPAD_NAME" "$IPAD_TYPE")
-fi
-xcrun simctl bootstatus "$IPAD" -b >/dev/null
+"
+}
 
+# Both sets are captured on a device this script owns. Riding on whatever
+# happens to be booted gave a 6.3\" phone, whose capture the frame then
+# upscaled to the 6.9\" canvas and whose status bar the strip missed.
+PHONE=$(named "$PHONE_NAME")
+[ -n "$PHONE" ] || PHONE=$(xcrun simctl create "$PHONE_NAME" "$PHONE_TYPE")
+xcrun simctl bootstatus "$PHONE" -b >/dev/null
+xcrun simctl install "$PHONE" "$APP"
+
+IPAD=$(named "$IPAD_NAME")
+[ -n "$IPAD" ] || IPAD=$(xcrun simctl create "$IPAD_NAME" "$IPAD_TYPE")
+xcrun simctl bootstatus "$IPAD" -b >/dev/null
 xcrun simctl install "$IPAD" "$APP"
+
+# Apple's own 09:41 on a full battery and full bars. Without it the captures
+# carry whatever the clock said, and the three frames sit side by side on the
+# listing with three different times.
+for udid in "$PHONE" "$IPAD"; do
+  xcrun simctl status_bar "$udid" override \
+    --time "09:41" \
+    --dataNetwork wifi --wifiMode active --wifiBars 3 \
+    --cellularMode active --cellularBars 4 \
+    --batteryState discharging --batteryLevel 100
+done
 
 mkdir -p "$OUT"
 

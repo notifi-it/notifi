@@ -247,6 +247,15 @@ final class SyncEngine {
 
     func refreshKeys() async {
         do {
+            #if DEBUG
+            if SampleData.usesSampleKeys {
+                keys = SampleData.keys
+                keysRefreshFailed = false
+                KeyCacheStore.save(keys)
+                NotificationCategories.register(keys: Self.summaryKeys(keys))
+                return
+            }
+            #endif
             let response = try await api.listKeys()
             var built: [CachedKey] = []
             for summary in response.keys {

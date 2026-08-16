@@ -60,12 +60,14 @@ GUTTER = 96
 TOP = 268
 # Fixed, not text-relative: the three frames sit side by side on the listing,
 # and a device that starts at a different height on each reads as a mistake.
-DEVICE_TOP = 780
-TITLE_SIZE, DESC_SIZE = 82, 42
+DEVICE_TOP = 820
+TITLE_SIZE, DESC_SIZE = 82, 45
 if os.environ.get("IPAD"):
-    # Wider canvas, same lockup scale; the device shot is near-square so it
-    # starts a little higher to keep a comparable bleed.
-    DEVICE_TOP = 820
+    # Wider canvas, so the lockup scales with it; the device shot is near-square
+    # so it starts a little higher to keep a comparable bleed.
+    GUTTER = 120
+    TITLE_SIZE, DESC_SIZE = 108, 56
+    DEVICE_TOP = 840
 
 # The wordmark is an SVG of outlined glyphs; rasterise it once at the size used.
 # Its letterforms are #EDEDED for a black page; on this white one they have to
@@ -176,6 +178,11 @@ def frame(shot_name, title, desc, out_name):
 
     # ── the device, bled off the bottom
     shot = Image.open(f"{SHOTS}/{shot_name}").convert("RGB")
+
+    # The status bar stays. Cutting it left the title flush against the top
+    # edge, and filling the gap with ground read as a mistake — a frame without
+    # a drawn bezel has nothing else to stand in for the device's own inset.
+    # screens.sh overrides it to 09:41 first, so it is the same on every shot.
     target_w = W - GUTTER * 2
     shot = shot.resize(
         (target_w, round(shot.height * target_w / shot.width)), Image.LANCZOS
@@ -188,20 +195,22 @@ def frame(shot_name, title, desc, out_name):
 
 frame("inbox.png",
       "One request.\nStraight to your pocket.",
-      "One HTTP request to notifi.it and it arrives a moment later. "
-      "No SDK and no dependency.",
+      "Push notifications for your scripts and servers. One HTTP request to "
+      "notifi.it and it arrives a moment later. No account, no SDK.",
       "01_inbox.png")
 
 frame("detail.png",
-      "Markdown, rendered.",
-      "Headings, lists, quotes and code blocks. Attach an image and a link, "
-      "and the whole thing arrives as one push.",
+      "Images, links,\nMarkdown.",
+      "A title, a body, an image and a link. Headings, lists, quotes and code "
+      "blocks are rendered on the device. Encrypted with your public key, so "
+      "we cannot read your messages.",
       "02_message.png")
 
 frame("keys.png",
-      "One key per source.",
-      "Give the deploy bot one key and the doorbell another. Revoke one and the "
-      "rest keep working. No account to make first.",
+      "One key\nper source.",
+      "Give the deploy bot one key and the doorbell another. Revoke one and "
+      "the rest keep working. Each key carries its own send count, and there "
+      "is no account to make first.",
       "03_keys.png")
 
 for tmp in (WORDMARK, WORDMARK_SVG, BELL, MONO, SANS):

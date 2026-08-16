@@ -97,7 +97,7 @@ enum Theme {
 
     static let bottomFade: CGFloat = 44
 
-    static let topFade: CGFloat = 24
+    static let topFade: CGFloat = 14
 
     #if os(macOS)
     static let contentTop: CGFloat = firstBlockTop
@@ -156,9 +156,9 @@ extension View {
 
     func geistPageHeader() -> some View {
         #if os(macOS)
-        padding(.top, 18).padding(.bottom, 14)
+        padding(.top, 18).padding(.bottom, 6)
         #else
-        padding(.top, 4).padding(.bottom, 14)
+        padding(.top, 4).padding(.bottom, 6)
         #endif
     }
 
