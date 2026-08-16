@@ -45,6 +45,7 @@ struct KeysView: View {
                 if refreshFailed {
                     InlineError(message: Copy.Keys.refreshFailed)
                         .geistGutter()
+                        .geistBannerTransition()
                 }
 
                 SectionLabel(text: Copy.Keys.sectionActive,
@@ -102,6 +103,7 @@ struct KeysView: View {
                 .padding(.bottom, 40)
                 .geistGutter()
             }
+            .animation(Theme.state, value: refreshFailed)
         }
         .navigationDestination(for: CachedKey.self) { key in
             KeyDetailView(keyID: key.id)

@@ -144,6 +144,12 @@ extension View {
             .frame(maxWidth: .infinity)
     }
 
+    func geistBannerTransition() -> some View {
+        transition(Theme.reduceMotion
+                   ? .opacity
+                   : .opacity.combined(with: .move(edge: .top)))
+    }
+
     func geistHitArea(expandedBy pad: CGFloat) -> some View {
         contentShape(.interaction, Rectangle().inset(by: -pad))
     }

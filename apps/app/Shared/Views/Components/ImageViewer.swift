@@ -78,10 +78,12 @@ struct ImageViewer: View {
                 dragged = value.translation
             }
             .onEnded { _ in
-                offset = clamp(CGSize(width: offset.width + dragged.width,
-                                      height: offset.height + dragged.height),
-                               in: size)
-                dragged = .zero
+                withAnimation(Theme.state) {
+                    offset = clamp(CGSize(width: offset.width + dragged.width,
+                                          height: offset.height + dragged.height),
+                                   in: size)
+                    dragged = .zero
+                }
             }
     }
 

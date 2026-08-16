@@ -40,10 +40,13 @@ struct SettingsView: View {
                                 .foregroundStyle(Theme.brandText)
                         }
                         .geistGutter()
+                        .geistBannerTransition()
                         Text(Copy.Settings.deliveryBrokenDetail)
                             .geistConsequence()
                             .geistGutter()
+                            .geistBannerTransition()
                         RowRule()
+                            .geistBannerTransition()
                     }
 
                     ToggleRow(
@@ -77,8 +80,11 @@ struct SettingsView: View {
                         InlineError(message: Copy.Settings.strictSendFailed)
                             .padding(.bottom, 12)
                             .geistGutter()
+                            .geistBannerTransition()
                     }
                 }
+                .animation(Theme.state, value: strictSendFailed)
+                .animation(Theme.state, value: model.pushDeliveryLooksBroken)
 
                 SectionLabel(text: Copy.Settings.sectionAppearance)
                     .geistGroupGutter()
