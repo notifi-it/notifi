@@ -13,7 +13,7 @@ private struct GrainRevealEffect: ViewModifier, Animatable {
         content
             .colorEffect(ShaderLibrary.grainReveal(.float(Float(progress))))
             .blur(radius: (1 - progress) * 1.5 * strength)
-            .offset(x: sin(progress * 110) * (1 - progress) * 2)
+            .offset(x: sin(progress * 150) * pow(1 - progress, 1.5) * 5 * strength)
     }
 }
 

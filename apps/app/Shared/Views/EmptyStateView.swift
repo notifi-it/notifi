@@ -187,7 +187,7 @@ private struct GrainyBell: View {
             .resizable()
             .scaledToFit()
 
-        bell
+        let body = bell
             .foregroundStyle(Theme.muted)
             .overlay {
                 if reduceMotion {
@@ -213,6 +213,20 @@ private struct GrainyBell: View {
                 }
             }
             .mask(bell)
+
+        if reduceMotion {
+            body
+        } else {
+            TimelineView(.animation) { context in
+                body.offset(x: Self.jitter(at: context.date.timeIntervalSinceReferenceDate))
+            }
+        }
+    }
+
+    private static func jitter(at time: TimeInterval) -> CGFloat {
+        var generator = SeededGenerator(seed: (time * 14).rounded(.down))
+        guard Double.random(in: 0...1, using: &generator) < 0.25 else { return 0 }
+        return CGFloat(Double.random(in: -3...3, using: &generator))
     }
 }
 
