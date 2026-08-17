@@ -422,7 +422,12 @@ struct MessageDetailView: View {
                 macMenuBar.holdOpen()
                 panel.begin { response in
                     if response == .OK, let target = panel.url {
-                        try? data.write(to: target)
+                        do {
+                            try data.write(to: target)
+                            NSWorkspace.shared.activateFileViewerSelecting([target])
+                        } catch {
+                            log.error("image save failed: \(String(describing: error), privacy: .public)")
+                        }
                     }
                     macMenuBar.releaseHold()
                 }
