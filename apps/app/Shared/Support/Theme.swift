@@ -28,6 +28,10 @@ enum Theme {
 
     static let danger = rgb(light: (0.701, 0.133, 0.149), dark: (0.898, 0.282, 0.302))
 
+    static let chromaWarm = rgb(light: (0.737, 0.129, 0.133), dark: (0.878, 0.196, 0.204))
+
+    static let chromaCool = rgb(light: (0.086, 0.478, 0.545), dark: (0.212, 0.769, 0.847))
+
     private static func grey(light: Double, dark: Double) -> Color {
         pair(light: (light, light, light), dark: (dark, dark, dark))
     }

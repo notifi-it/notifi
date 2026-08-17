@@ -182,44 +182,67 @@ private struct GrainyBell: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        let bell = Image("EmptyBell")
+        if reduceMotion {
+            frame(shift: 0, glow: 1, grainAt: nil)
+        } else {
+            TimelineView(.animation) { context in
+                let time = context.date.timeIntervalSinceReferenceDate
+                frame(
+                    shift: Self.chromaShift(at: time),
+                    glow: Self.glow(at: time),
+                    grainAt: time
+                )
+                .offset(x: Self.jitter(at: time))
+            }
+        }
+    }
+
+    private var mark: some View {
+        Image("EmptyBell")
             .renderingMode(.template)
             .resizable()
             .scaledToFit()
+    }
 
-        let body = bell
-            .foregroundStyle(Theme.muted)
-            .overlay {
-                if reduceMotion {
-                    Color.clear
-                } else {
-                    TimelineView(.animation) { context in
-                        Canvas { canvasContext, size in
-                            var generator = SeededGenerator(seed: context.date.timeIntervalSinceReferenceDate)
-                            let cell: CGFloat = 3
-                            let columns = Int(size.width / cell) + 1
-                            let rows = Int(size.height / cell) + 1
-                            for row in 0..<rows {
-                                for column in 0..<columns {
-                                    guard Double.random(in: 0...1, using: &generator) < 0.5 else { continue }
-                                    let rect = CGRect(x: CGFloat(column) * cell, y: CGFloat(row) * cell, width: cell, height: cell)
-                                    let brightness = Double.random(in: 0...1, using: &generator)
-                                    canvasContext.fill(Path(rect), with: .color(.white.opacity(brightness * 0.35)))
-                                }
-                            }
-                        }
+    private func frame(shift: CGFloat, glow: Double, grainAt time: TimeInterval?) -> some View {
+        ZStack {
+            if shift > 0 {
+                mark
+                    .foregroundStyle(Theme.chromaWarm)
+                    .offset(x: -shift)
+                mark
+                    .foregroundStyle(Theme.chromaCool)
+                    .offset(x: shift)
+            }
+
+            mark
+                .foregroundStyle(Theme.muted)
+                .overlay { grain(at: time) }
+                .mask(mark)
+        }
+        .opacity(glow)
+    }
+
+    @ViewBuilder
+    private func grain(at time: TimeInterval?) -> some View {
+        if let time {
+            Canvas { canvasContext, size in
+                var generator = SeededGenerator(seed: time)
+                let cell: CGFloat = 3
+                let columns = Int(size.width / cell) + 1
+                let rows = Int(size.height / cell) + 1
+                for row in 0..<rows {
+                    for column in 0..<columns {
+                        guard Double.random(in: 0...1, using: &generator) < 0.5 else { continue }
+                        let rect = CGRect(x: CGFloat(column) * cell, y: CGFloat(row) * cell, width: cell, height: cell)
+                        let brightness = Double.random(in: 0...1, using: &generator)
+                        canvasContext.fill(Path(rect), with: .color(.white.opacity(brightness * 0.35)))
                     }
-                    .blendMode(.overlay)
                 }
             }
-            .mask(bell)
-
-        if reduceMotion {
-            body
+            .blendMode(.overlay)
         } else {
-            TimelineView(.animation) { context in
-                body.offset(x: Self.jitter(at: context.date.timeIntervalSinceReferenceDate))
-            }
+            Color.clear
         }
     }
 
@@ -227,6 +250,20 @@ private struct GrainyBell: View {
         var generator = SeededGenerator(seed: (time * 14).rounded(.down))
         guard Double.random(in: 0...1, using: &generator) < 0.25 else { return 0 }
         return CGFloat(Double.random(in: -3...3, using: &generator))
+    }
+
+    private static func chromaShift(at time: TimeInterval) -> CGFloat {
+        var generator = SeededGenerator(seed: (time * 11).rounded(.down))
+        guard Double.random(in: 0...1, using: &generator) < 0.22 else { return 0 }
+        return CGFloat(Double.random(in: 0.8...3.2, using: &generator))
+    }
+
+    private static func glow(at time: TimeInterval) -> Double {
+        var episode = SeededGenerator(seed: (time * 1.7).rounded(.down))
+        guard Double.random(in: 0...1, using: &episode) < 0.13 else { return 1 }
+        var pulse = SeededGenerator(seed: (time * 18).rounded(.down))
+        guard Double.random(in: 0...1, using: &pulse) < 0.4 else { return 1 }
+        return Double.random(in: 0.35...0.62, using: &pulse)
     }
 }
 
