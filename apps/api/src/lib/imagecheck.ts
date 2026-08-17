@@ -48,9 +48,10 @@ export async function checkImage(raw: string): Promise<ImageRejection | null> {
   const type = (res.headers.get('content-type') ?? '').split(';')[0]!.trim().toLowerCase();
   if (!ALLOWED_TYPES.includes(type)) return 'unreachable';
 
-  const length = Number(res.headers.get('content-length'));
-  if (!Number.isFinite(length) || length <= 0 || length > MAX_IMAGE_BYTES) {
-    return 'unreachable';
+  const header = res.headers.get('content-length');
+  if (header !== null) {
+    const length = Number(header);
+    if (Number.isFinite(length) && length > MAX_IMAGE_BYTES) return 'unreachable';
   }
 
   return null;

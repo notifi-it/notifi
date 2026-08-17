@@ -116,7 +116,7 @@ final class SyncEngine {
         if newMessages > 0 {
             NotificationCenter.default.post(name: .notifiNewMessages, object: nil)
         }
-        if !firstSync { backstopBanners(arrivals) }
+        if !firstSync { announceArrivals(arrivals) }
     }
 
     private var unpushedIDs: Set<Int> = []
@@ -125,8 +125,12 @@ final class SyncEngine {
         unpushedIDs.insert(serverID)
     }
 
-    private func backstopBanners(_ arrivals: [Arrival]) {
+    private func announceArrivals(_ arrivals: [Arrival]) {
+        #if os(macOS)
+        let wanted = arrivals
+        #else
         let wanted = arrivals.filter { unpushedIDs.contains($0.serverID) }
+        #endif
         unpushedIDs.subtract(arrivals.map(\.serverID))
         guard !wanted.isEmpty else { return }
         Task {
@@ -149,6 +153,9 @@ final class SyncEngine {
                 content.userInfo = [
                     "notifi": ["id": arrival.serverID, "sealed": arrival.sealed]
                 ]
+                if let attachment = await Self.attachment(for: arrival.content) {
+                    content.attachments = [attachment]
+                }
                 try? await center.add(UNNotificationRequest(
                     identifier: "\(arrival.serverID)",
                     content: content,
@@ -156,6 +163,36 @@ final class SyncEngine {
                 ))
             }
         }
+    }
+
+    private static let maxImageBytes: Int64 = 5 * 1024 * 1024
+    private static let allowedImageTypes: Set<String> = ["image/png", "image/jpeg", "image/gif"]
+
+    private static func attachment(for content: MessageContent) async -> UNNotificationAttachment? {
+        guard RemoteImages.isEnabled,
+              let image = content.image,
+              let url = URL(string: image),
+              url.scheme == "https" else { return nil }
+
+        guard let (tmp, response) = try? await URLSession.shared.download(from: url),
+              let http = response as? HTTPURLResponse,
+              let mime = http.mimeType?.lowercased(),
+              allowedImageTypes.contains(mime) else { return nil }
+
+        let attributes = try? FileManager.default.attributesOfItem(atPath: tmp.path)
+        if let size = attributes?[.size] as? Int64, size > maxImageBytes { return nil }
+
+        let ext: String
+        switch mime {
+        case "image/png": ext = "png"
+        case "image/gif": ext = "gif"
+        default: ext = "jpg"
+        }
+        let dest = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(ext)
+        guard (try? FileManager.default.moveItem(at: tmp, to: dest)) != nil else { return nil }
+        return try? UNNotificationAttachment(identifier: "image", url: dest)
     }
 
     private static func bannerCategory(for content: MessageContent) -> String {
