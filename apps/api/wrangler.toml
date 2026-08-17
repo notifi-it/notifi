@@ -1,0 +1,53 @@
+name = "notifi-api"
+main = "src/index.ts"
+compatibility_date = "2026-07-01"
+# Sentry's Cloudflare SDK tracks the current scope through `AsyncLocalStorage`,
+# which is `node:async_hooks` and so needs this flag. Without it the Worker
+# fails at deploy rather than at runtime.
+compatibility_flags = ["nodejs_compat"]
+routes = [{ pattern = "notifi.it", custom_domain = true }]
+
+# The marketing site. Static files are served straight from ./public for any
+# path that matches a file; every other request falls through to the Worker, so
+# /send, /keys, /devices and /history are untouched.
+[assets]
+directory = "./public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "notifi-prod"
+database_id = "e6e8c82f-779f-4e27-9621-97426939ea9b"
+
+[vars]
+APNS_HOST = "https://api.push.apple.com"
+APNS_TOPIC = "it.notifi.notifi"
+# Names the Sentry environment. The DSN is a secret and is not here.
+SENTRY_ENVIRONMENT = "production"
+
+[[durable_objects.bindings]]
+name = "DEVICE_SOCKET"
+class_name = "DeviceSocket"
+
+[[durable_objects.bindings]]
+name = "APNS_TOKEN"
+class_name = "ApnsToken"
+
+# SQLite-backed, which is the only option for new namespaces and is what the
+# hibernation API expects. The class stores nothing; the tag is still required.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DeviceSocket"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["ApnsToken"]
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[[unsafe.bindings]]
+name = "SEND_IP_LIMIT"
+type = "ratelimit"
+namespace_id = "1002"
+simple = { limit = 100, period = 60 }

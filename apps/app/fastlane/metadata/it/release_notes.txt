@@ -1,0 +1,3 @@
+notifi 2.0 è una riscrittura completa. La vecchia app Flutter è sparita; questa è nativa Swift, ridisegnata da cima a fondo.
+
+Avvio più veloce, rendering nativo del testo, e un unico layout condiviso tra le tre schede. La schermata Chiavi ora spiega cos'è una chiave, e la chiave predefinita integrata guida l'elenco. I timestamp dei messaggi sono cifre semplici che puoi copiare.

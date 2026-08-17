@@ -1,0 +1,12 @@
+{
+  "private_key_raw_b64": "KKG7ddZqrEf1s87gRHGtcevlCPaMGUUUBQe9ht6rfbM=",
+  "private_key_pkcs8_b64": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgKKG7ddZqrEf1s87gRHGtcevlCPaMGUUUBQe9ht6rfbOhRANCAAR+0NVhQjHNNzjPlc5s1Wxltq3efqdML5tU650TRKDjVSVnlkRiW41R0hDf6vUspiExJ1cIxT4S9hvEwYGXr4rq",
+  "public_key_x963_b64": "BH7Q1WFCMc03OM+VzmzVbGW2rd5+p0wvm1TrnRNEoONVJWeWRGJbjVHSEN/q9SymITEnVwjFPhL2G8TBgZeviuo=",
+  "method": "GET",
+  "host": "notifi.it",
+  "path_with_query": "/history?since=41&limit=50",
+  "timestamp": 1753833600,
+  "body_b64": "",
+  "canonical_string": "GET\nnotifi.it\n/history?since=41&limit=50\n1753833600\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "signature_b64": "KJJSwglMz3uuDmUuuosof3g5kioCA7d+UqJggmFMEIHUskiD/6fe6I5n6OSVcejipht2ZxqgvA3W3PrjylwxtQ=="
+}

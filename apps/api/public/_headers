@@ -1,0 +1,32 @@
+# Applies to static asset responses only, never to anything the Worker
+# generates. index.html deliberately gets no Cache-Control here: the Workers
+# default (max-age=0, must-revalidate) is what an HTML entry point wants.
+#
+# None of these filenames are content-hashed, so a week is the ceiling — a
+# longer max-age would mean a new screenshot could not ship without a rename.
+
+/screens/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/bell.svg
+  Cache-Control: public, max-age=604800
+
+/wordmark.svg
+  Cache-Control: public, max-age=604800
+
+/favicon.svg
+  Cache-Control: public, max-age=604800
+
+/apple-touch-icon.png
+  Cache-Control: public, max-age=604800
+
+/og.png
+  Cache-Control: public, max-age=604800
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains

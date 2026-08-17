@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://notifi.it/</loc>
+    <lastmod>2026-08-16</lastmod>
+  </url>
+  <!-- Served from privacy.html; the assets binding 307s the .html form to this
+       one, so this is the URL that should be indexed. -->
+  <url>
+    <loc>https://notifi.it/privacy</loc>
+    <lastmod>2026-08-16</lastmod>
+  </url>
+  <url>
+    <loc>https://notifi.it/terms</loc>
+    <lastmod>2026-08-16</lastmod>
+  </url>
+  <url>
+    <loc>https://notifi.it/faq</loc>
+    <lastmod>2026-08-16</lastmod>
+  </url>
+</urlset>

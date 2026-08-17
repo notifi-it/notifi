@@ -1,0 +1,1 @@
+Push notifications for your scripts and servers, in one HTTP request. Neither we nor Apple can read your notifications. Free, no signup, no SDK.

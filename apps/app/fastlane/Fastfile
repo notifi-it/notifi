@@ -1,0 +1,472 @@
+# notifi release lanes. Driven by the Makefile at the repo root, which runs
+# xcodegen first and bridges the Keychain creds into ASC_KEY_ID / ASC_ISSUER_ID /
+# ASC_KEY_PATH.
+#
+#   make app-testflight -> fastlane ios beta
+#   make app-submit     -> fastlane ios submit
+#   make app-dmg        -> fastlane mac dmg
+#
+# The two platforms ship differently on purpose: iOS goes to the App Store,
+# macOS is a direct-download Developer ID DMG and is never uploaded to the store.
+
+require "shellwords"
+
+# This folder's docs are hand-written; don't regenerate fastlane/README.md.
+skip_docs
+
+# Build number = local time as YYYYMMDDHHMM. It always moves forward, so it
+# outranks every earlier build with no shared-state lookup. A git commit count
+# does not survive re-running the same commit after a failed upload.
+def build_number
+  ENV.fetch("BUILD_NUMBER", Time.now.strftime("%Y%m%d%H%M"))
+end
+
+# Empty, not a default, when unset: unlike the build number a marketing version
+# has no meaningless-but-valid fallback, and MARKETING_VERSION missing from
+# xcargs just leaves project.yml's committed "1.1" in the built binary. That is
+# correct for a local Debug build, which never ships. The release workflow sets
+# MARKETING_VERSION from the `v*` tag before calling in here, so the version a
+# user sees is the version that was tagged, not whatever this file last had
+# hand-typed into it -- there is no "bump the app to X.Y" commit anymore.
+def marketing_version_xcargs
+  ENV["MARKETING_VERSION"] ? "MARKETING_VERSION=#{ENV['MARKETING_VERSION']}" : ""
+end
+
+# get_version_number reads whatever xcodegen wrote into notifi.xcodeproj, which
+# is not the xcarg override above -- that changes the built binary but never
+# touches the project file on disk. Anything naming a release artifact after
+# "the version" (the DMG filename, the R2 upload path, the App Store submission
+# call) has to agree with the binary it names, so it checks the override first
+# and only falls back to the project file for a local run with none set.
+def release_version(target)
+  ENV["MARKETING_VERSION"] || get_version_number(xcodeproj: "notifi.xcodeproj", target: target)
+end
+
+# Sparkle's tools ship as an SPM binary artifact, so they live under DerivedData
+# rather than anywhere stable. Resolve at call time and fail with the fix.
+# Generate the Xcode project inside the lane, where DEVELOPMENT_TEAM is exported.
+# Running xcodegen from a separate Makefile prerequisite loses it, project.yml
+# interpolates an empty team, and every signed build fails on "requires a
+# development team".
+def generate_project
+  # fastlane's `sh` runs inside fastlane/, not the project root, so the spec and
+  # output have to be absolute or xcodegen looks for fastlane/project.yml.
+  root = File.expand_path("..", __dir__)
+  sh("xcodegen", "generate", "--spec", "#{root}/project.yml", "--project", root)
+end
+
+def sparkle_bin(tool)
+  matches = Dir.glob(File.expand_path("~/Library/Developer/Xcode/DerivedData/**/artifacts/sparkle/Sparkle/bin/#{tool}"))
+  if matches.empty?
+    UI.user_error!("Sparkle's #{tool} not found. Resolve packages first: xcodebuild -resolvePackageDependencies -project notifi.xcodeproj")
+  end
+  matches.max_by { |f| File.mtime(f) }
+end
+
+def asc_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    key_filepath: ENV.fetch("ASC_KEY_PATH")
+  )
+end
+
+# TestFlight and the App Store ship the identical binary; only what happens after
+# the upload differs. Keeping one build here means a build that reached testers
+# cannot differ from the one submitted for review.
+def build_ios_release
+  generate_project
+  build_app(
+    project: "notifi.xcodeproj",
+    scheme: "notifi-iOS",
+    configuration: "Release",
+    output_directory: "build",
+    output_name: "notifi.ipa",
+    export_method: "app-store",
+    export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+    # No export_xcargs: gym appends xcargs AND export_xcargs to the export
+    # command, and -authenticationKeyPath may only be provided once. xcargs
+    # alone reaches both the archive and the export.
+    xcargs: "#{provisioning_xcargs} #{marketing_version_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
+  )
+end
+
+# Without ITSAppUsesNonExemptEncryption in the Info.plist, App Store Connect asks
+# the export compliance question once per build and parks the version until
+# someone answers it in the web UI -- `submit_for_review` reports success and the
+# submission then sits there. Both plists declare it; this fails a signed build in
+# a second if that ever stops being true, or if the two platforms disagree on a
+# bundle id they share.
+def assert_export_compliance_declared
+  declared = %w[App-iOS-Info.plist App-macOS-Info.plist].to_h do |name|
+    path = File.expand_path("../Support/Info/#{name}", __dir__)
+    [name, `/usr/libexec/PlistBuddy -c "Print :ITSAppUsesNonExemptEncryption" #{path.shellescape} 2>&1`.strip]
+  end
+
+  missing = declared.select { |_, v| !%w[true false].include?(v) }
+  unless missing.empty?
+    UI.user_error!(<<~MSG)
+      ITSAppUsesNonExemptEncryption is missing or unreadable in: #{missing.keys.join(', ')}
+      App Store Connect will park the submission on the export compliance question.
+      Apple's guidance: https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations
+    MSG
+  end
+
+  if declared.values.uniq.size > 1
+    UI.user_error!("iOS and macOS disagree on ITSAppUsesNonExemptEncryption (#{declared.map { |k, v| "#{k}=#{v}" }.join(', ')}). They are one App Store Connect record; the answer has to match.")
+  end
+
+  UI.message("Export compliance: ITSAppUsesNonExemptEncryption = #{declared.values.first}")
+end
+
+# `-allowProvisioningUpdates` alone leans on the account signed in to Xcode,
+# which exists on a developer's Mac and not on a CI runner — there it fails as
+# "No Accounts". When the App Store Connect key is in the environment it is
+# handed to xcodebuild too, which needs the key to be Admin: cloud signing with
+# a lesser role fails as "Cloud signing permission error". The current key
+# (notifi-ci-release) is Admin for exactly this reason.
+def provisioning_xcargs
+  args = ["-allowProvisioningUpdates"]
+  if ENV["ASC_KEY_PATH"] && ENV["ASC_KEY_ID"] && ENV["ASC_ISSUER_ID"]
+    args += [
+      "-authenticationKeyPath", ENV["ASC_KEY_PATH"].shellescape,
+      "-authenticationKeyID", ENV["ASC_KEY_ID"].shellescape,
+      "-authenticationKeyIssuerID", ENV["ASC_ISSUER_ID"].shellescape,
+    ]
+  end
+  args.join(" ")
+end
+
+# The one signing operation the API key cannot cloud-manage: Apple grants
+# cloud-managed Developer ID signing only to the Account Holder signed in to
+# Xcode, so on CI the developer-id export must be manual. The certificate is
+# already in the runner's keychain; what the export still needs is a Developer
+# ID provisioning profile per bundle id — the time-sensitive entitlement is
+# restricted, and a restricted entitlement without a profile fails signing —
+# which sigh fetches (or creates) through the API, where Admin *is* enough.
+def developer_id_export_options
+  key = asc_key
+  profiles = {}
+  ["it.notifi.notifi", "it.notifi.notifi.nse"].each do |id|
+    get_provisioning_profile(
+      api_key: key,
+      developer_id: true,
+      platform: "macos",
+      app_identifier: id,
+      output_path: File.expand_path("../build/profiles", __dir__)
+    )
+    # Read immediately: sigh overwrites this on its next run.
+    profiles[id] = lane_context[SharedValues::SIGH_NAME]
+  end
+  {
+    signingStyle: "manual",
+    teamID: "Z28DW76Y3W",
+    signingCertificate: "Developer ID Application",
+    provisioningProfiles: profiles,
+  }
+end
+
+# Notarization round-trips to Apple and takes minutes, so a binary that can never
+# pass should fail here instead -- locally, in a second, naming the reason.
+#
+# This exists because of a real mistake: `output_name: "notifi.app"` made gym
+# write notifi.app.app, leaving an Apple Development-signed bundle at the path
+# this lane expected. Apple rejected it with "not signed with a valid Developer
+# ID certificate" only after a full submission.
+def assert_distributable(app)
+  UI.user_error!("#{app} does not exist -- check gym's output_name.") unless File.exist?(app)
+  info = `codesign -dvv "#{app}" 2>&1`
+  unless info.include?("Developer ID Application")
+    UI.user_error!("#{app} is not signed with a Developer ID certificate:\n#{info}")
+  end
+  UI.user_error!("#{app} has no secure timestamp; notarization rejects that.") unless info.include?("Timestamp=")
+  UI.user_error!("#{app} does not have the hardened runtime enabled.") unless info.include?("flags=0x10000(runtime)")
+
+  # The app embeds Sparkle.framework, which carries its own nested signable code
+  # (Autoupdate, Updater.app, Downloader.xpc, Installer.xpc). A problem in any of
+  # them invalidates the outer signature, and checking only the top level would
+  # miss it. --deep here is *verification*, which is fine; what Quinn warns
+  # against is `codesign --deep` to *sign*, which this lane never does.
+  deep = `codesign --verify --deep --strict --verbose=2 "#{app}" 2>&1`
+  UI.user_error!("#{app} failed deep signature verification:\n#{deep}") unless $?.success?
+
+  UI.success("#{File.basename(app)}: Developer ID, timestamped, hardened runtime, nested code valid")
+end
+
+platform :ios do
+  desc "Build the Release app and upload it to TestFlight"
+  lane :beta do
+    build_ios_release
+
+    # SKIP_UPLOAD=1 builds and signs exactly as a real release but publishes
+    # nothing -- the way to prove signing works without putting a build in front
+    # of App Store Connect.
+    if ENV["SKIP_UPLOAD"]
+      UI.important("SKIP_UPLOAD set - nothing was uploaded")
+      next
+    end
+
+    upload_to_testflight(
+      api_key: asc_key,
+      skip_waiting_for_build_processing: true,
+      changelog: ENV.fetch("TF_CHANGELOG", "Latest build.")
+    )
+  end
+
+  # The production release. Same binary as `beta`, but attached to the App Store
+  # version and submitted for review rather than handed to testers. Approval
+  # releases: `automatic_release` is on, so an approved version goes live without
+  # anyone pressing Release. A store build that depends on a Worker change must
+  # therefore have that change deployed before the submission, not after -- there
+  # is no longer a pause between approval and release to do it in.
+  desc "Build, attach the binary to the App Store version, and submit for review"
+  lane :submit do
+    assert_export_compliance_declared
+
+    build_ios_release
+
+    if ENV["SKIP_UPLOAD"]
+      UI.important("SKIP_UPLOAD set - nothing was uploaded and nothing was submitted")
+      next
+    end
+
+    upload_to_app_store(
+      api_key: asc_key,
+      app_version: release_version("notifi-iOS"),
+      ipa: lane_context[SharedValues::IPA_OUTPUT_PATH],
+      # Same as the `metadata` lane: the frames in fastlane/screenshots are
+      # generated by Scripts/appstore-frames.py, so a submission carries the
+      # screenshots that match the binary it is submitting.
+      skip_screenshots: false,
+      overwrite_screenshots: true,
+      # deliver's own `submit_for_review` posts to appStoreVersionSubmissions,
+      # which App Store Connect now answers with "does not allow CREATE. Allowed
+      # operation is: DELETE". It uploads everything and then fails on the last
+      # call, reporting "appStoreVersions ... is not in valid state" -- which
+      # reads as a metadata problem and is not one. Upload here, submit below.
+      submit_for_review: false,
+      automatic_release: true,
+      force: true, # no HTML preview to confirm; this runs unattended
+      run_precheck_before_submit: true,
+      precheck_include_in_app_purchases: false, # API-key auth cannot read IAP, and there are none
+      submission_information: {
+        # No ad SDKs and nothing that touches the IDFA -- the only packages the
+        # app links are Sparkle and MarkdownUI. Export compliance is answered by
+        # ITSAppUsesNonExemptEncryption in the Info.plist, checked above.
+        add_id_info_uses_idfa: false
+      }
+    )
+
+    submit_for_review_via_review_submissions
+  end
+
+  # The replacement for deliver's `submit_for_review`. Apple's current path is a
+  # reviewSubmission holding one item per version: reuse the open one if there is
+  # one (a second is rejected while one is open), attach this version, then flip
+  # it to submitted.
+  #
+  # When a version will not attach, the raised message carries Apple's
+  # associatedErrors -- one line per actual blocker. That is the only place they
+  # appear; the age-rating questionnaire gains required fields over time, and an
+  # unanswered one surfaces here and nowhere else.
+  def submit_for_review_via_review_submissions
+    app = Spaceship::ConnectAPI::App.find(CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier))
+    version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    UI.user_error!("No editable App Store version to submit.") if version.nil?
+
+    states = Spaceship::ConnectAPI::ReviewSubmission::ReviewSubmissionState
+    existing = app.get_review_submissions(
+      filter: { platform: Spaceship::ConnectAPI::Platform::IOS }
+    ).reject { |s| [states::COMPLETE, states::CANCELING].include?(s.state) }.first
+
+    # Re-running after the upload half succeeded is normal; re-submitting an
+    # already-submitted version is not, and Apple's own error for it names
+    # neither the version nor the submission.
+    if existing && [states::WAITING_FOR_REVIEW, states::IN_REVIEW].include?(existing.state)
+      UI.user_error!("#{version.version_string} is already submitted (#{existing.state}). Cancel it in App Store Connect to submit again.")
+    end
+
+    submission = existing || app.create_review_submission(platform: Spaceship::ConnectAPI::Platform::IOS)
+
+    Spaceship::ConnectAPI.post_review_submission_item(
+      review_submission_id: submission.id,
+      app_store_version_id: version.id
+    )
+
+    submission.submit_for_review
+    UI.success("Submitted #{version.version_string} for review.")
+  end
+
+  desc "Push fastlane/metadata and fastlane/screenshots to App Store Connect"
+  lane :metadata do
+    # Screenshots come from fastlane/screenshots/<locale>, generated by
+    # Scripts/appstore-frames.py from real simulator captures. overwrite is on
+    # because deliver otherwise appends to what is already on the listing, and
+    # a half-replaced set is worse than either.
+    upload_to_app_store(
+      api_key: asc_key,
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      overwrite_screenshots: true,
+      skip_app_version_update: true,
+      precheck_include_in_app_purchases: false,
+      force: true # no HTML preview to confirm; this runs unattended
+    )
+  end
+
+  desc "Show what would be pushed, without touching App Store Connect"
+  lane :metadata_check do
+    # deliver's own dry run. Catches a metadata field that is too long or a URL
+    # Apple will not accept, before the upload rather than after.
+    upload_to_app_store(
+      api_key: asc_key,
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      overwrite_screenshots: true,
+      skip_app_version_update: true,
+      precheck_include_in_app_purchases: false,
+      verify_only: true,
+      force: true
+    )
+  end
+end
+
+platform :mac do
+  desc "Build a Developer ID app, notarize it, and package a stapled DMG"
+  lane :dmg do
+    generate_project
+    build_mac_app(
+      project: "notifi.xcodeproj",
+      scheme: "notifi-macOS",
+      configuration: "Release",
+      output_directory: "build",
+      # gym appends the extension: "notifi" yields build/notifi.app.
+      output_name: "notifi",
+      export_method: "developer-id",
+      # Locally, automatic: the signed-in Xcode account may cloud-manage
+      # Developer ID. On CI there is no account and Apple does not extend that
+      # to API keys, so the export goes manual — see developer_id_export_options.
+      export_options: ENV["CI"] ? developer_id_export_options
+                                : { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+      # No export_xcargs -- same reason as build_ios_release.
+      xcargs: "#{provisioning_xcargs} #{marketing_version_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
+    )
+
+    app = File.expand_path("../build/notifi.app", __dir__)
+    version = release_version("notifi-macOS")
+    dmg = File.expand_path("../build/notifi-#{version}.dmg", __dir__)
+
+    # Round 1: notarize the .app so its ticket can be stapled into the bundle
+    # itself. Stapling only the DMG is not enough -- once the app is dragged to
+    # /Applications it carries no ticket, so a Mac that is offline and has never
+    # seen the app has nothing local to verify against. `spctl` hides this: it
+    # happily reports "accepted" by asking Apple. `syspolicy_check distribution`
+    # is the offline-truthful check, and it calls the missing ticket fatal.
+    assert_distributable(app)
+    notarize(package: app, api_key: asc_key, print_log: true)
+
+    identity = "Developer ID Application: Max Mitchell (Z28DW76Y3W)"
+    stage = File.expand_path("../build/dmg-stage", __dir__)
+    sh("rm", "-rf", stage, dmg)
+    sh("mkdir", "-p", stage)
+    sh("cp", "-R", app, "#{stage}/notifi.app")
+    sh("ln", "-s", "/Applications", "#{stage}/Applications")
+    sh("mkdir", "-p", "#{stage}/.background")
+    sh("cp", File.expand_path("../Shared/Resources/dmg-background/background.png", __dir__),
+       "#{stage}/.background/background.png")
+
+    # Two passes, because the window layout is Finder state stored in the
+    # volume's .DS_Store and a UDZO image is read-only: an UDRW image is built,
+    # mounted, arranged, then converted. Laying it out after compression looks
+    # like it works and silently produces a default window.
+    rw = File.expand_path("../build/notifi-rw.dmg", __dir__)
+    mnt = "/Volumes/notifi"
+    sh("rm", "-f", rw)
+    sh("hdiutil", "create", "-volname", "notifi", "-srcfolder", stage,
+       "-ov", "-format", "UDRW", rw)
+    sh("hdiutil", "attach", rw, "-nobrowse", "-mountpoint", mnt)
+    begin
+      sh("osascript", File.expand_path("../Scripts/dmg-layout.applescript", __dir__), "notifi")
+      sh("sync")
+    ensure
+      # Finder is still writing the .DS_Store the layout just arranged, and a
+      # detach that races it fails with "Resource busy". Ordinary detach with
+      # patience first; -force only as the last resort, because a forced eject
+      # mid-write is how the layout silently ships half-saved.
+      detached = false
+      5.times do
+        detached = system("hdiutil", "detach", mnt)
+        break if detached
+        sleep(3)
+      end
+      sh("hdiutil", "detach", mnt, "-force") unless detached
+    end
+    sh("hdiutil", "convert", rw, "-format", "UDZO", "-imagekey", "zlib-level=9",
+       "-ov", "-o", dmg)
+    sh("rm", "-f", rw)
+    sh("codesign", "--force", "--sign", identity, "--timestamp", dmg)
+
+    # Round 2 covers the DMG the user actually downloads. notarize reads the
+    # bundle id out of a .app's Info.plist, but a .dmg has none -- it has to be
+    # passed explicitly or the action fails after the DMG is already built.
+    notarize(package: dmg, api_key: asc_key, bundle_id: "it.notifi.notifi", print_log: true)
+
+    verify_distribution(dmg: dmg)
+
+    # The same stapled DMG serves both first install and Sparkle updates, so
+    # there is only ever one artifact to publish and one thing to get right.
+    # generate_appcast signs each entry with the EdDSA key held in the login
+    # Keychain under the "notifi" account -- deliberately not the default
+    # account, which holds a different app's key.
+    # The asset is named notifi.dmg, not notifi-<version>.dmg, so that
+    # /releases/latest/download/notifi.dmg is a stable link the website can use.
+    # Per-version URLs stay unique because the tag is in the path, and Sparkle
+    # reads the version out of the app bundle, not the filename.
+    updates = File.expand_path("../build/updates", __dir__)
+    sh("mkdir", "-p", updates)
+    sh("cp", dmg, "#{updates}/notifi.dmg")
+
+    prefix = "https://github.com/notifi-it/notifi/releases/download/v#{version}/"
+    if ENV["SPARKLE_ED_PRIVATE_KEY"]
+      # CI has no login Keychain to read the key from. `--ed-key-file -` takes it
+      # on stdin, so the secret is never written to the runner's disk.
+      tool = Shellwords.escape(sparkle_bin("generate_appcast"))
+      sh("bash", "-c",
+         "printf '%s' \"$SPARKLE_ED_PRIVATE_KEY\" | #{tool} --ed-key-file - " \
+         "--download-url-prefix #{Shellwords.escape(prefix)} #{Shellwords.escape(updates)}")
+    else
+      sh(sparkle_bin("generate_appcast"), "--account", "notifi",
+         "--download-url-prefix", prefix, updates)
+    end
+
+    appcast = "#{updates}/appcast.xml"
+    UI.user_error!("generate_appcast produced no appcast.xml") unless File.exist?(appcast)
+
+    # A signing key that does not match SUPublicEDKey is a warning to
+    # generate_appcast, not an error: it writes the entry unsigned and exits 0,
+    # and Sparkle then refuses every update. Three releases shipped that way.
+    unless File.read(appcast).include?("sparkle:edSignature")
+      UI.user_error!("appcast has no sparkle:edSignature -- the signing key does not " \
+                     "match SUPublicEDKey, and Sparkle will reject this update")
+    end
+
+    # The lane stops at the artifacts. Publishing is one `gh release create` in
+    # the release-macos job, which is also the thing that has a token.
+    UI.success("==> #{updates}/notifi.dmg")
+    UI.success("==> #{appcast}")
+  end
+
+  # A DMG that passes spctl can still be undistributable, because spctl consults
+  # Apple over the network. Fail the lane on anything syspolicy_check rejects.
+  private_lane :verify_distribution do |options|
+    dmg = options[:dmg]
+    mnt = File.expand_path("../build/verify-mnt", __dir__)
+    sh("xcrun", "stapler", "validate", dmg)
+    sh("hdiutil", "attach", dmg, "-nobrowse", "-readonly", "-mountpoint", mnt)
+    result = sh("syspolicy_check", "distribution", "#{mnt}/notifi.app",
+                log: false, error_callback: ->(r) { r })
+    sh("hdiutil", "detach", mnt)
+    UI.user_error!("app failed pre-distribution checks:\n#{result}") if result.include?("failed one or more")
+    UI.success("syspolicy_check: passed")
+  end
+end

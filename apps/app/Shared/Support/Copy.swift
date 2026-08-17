@@ -1,0 +1,273 @@
+import Foundation
+
+enum Copy {
+    enum Push {
+        static var fallbackTitle: String { NSLocalizedString("push.fallbackTitle", comment: "") }
+        static var fallbackBody: String { NSLocalizedString("push.fallbackBody", comment: "") }
+        static var actionOpenLink: String { NSLocalizedString("push.actionOpenLink", comment: "") }
+        static var actionMarkAsRead: String { NSLocalizedString("push.actionMarkAsRead", comment: "") }
+        static func summaryFormat(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("push.summaryFormat", comment: ""), name) }
+    }
+    enum Common {
+        static var cancel: String { NSLocalizedString("common.cancel", comment: "") }
+        static var close: String { NSLocalizedString("common.close", comment: "") }
+        static var delete: String { NSLocalizedString("common.delete", comment: "") }
+        static var done: String { NSLocalizedString("common.done", comment: "") }
+        static var copy: String { NSLocalizedString("common.copy", comment: "") }
+        static var copied: String { NSLocalizedString("common.copied", comment: "") }
+        static var share: String { NSLocalizedString("common.share", comment: "") }
+        static var clear: String { NSLocalizedString("common.clear", comment: "") }
+        static var search: String { NSLocalizedString("common.search", comment: "") }
+        static var tryAgain: String { NSLocalizedString("common.tryAgain", comment: "") }
+        static var continueAction: String { NSLocalizedString("common.continueAction", comment: "") }
+        static var quit: String { NSLocalizedString("common.quit", comment: "") }
+        static var markAsRead: String { NSLocalizedString("common.markAsRead", comment: "") }
+        static var markAsUnread: String { NSLocalizedString("common.markAsUnread", comment: "") }
+        static var openLink: String { NSLocalizedString("common.openLink", comment: "") }
+        static var never: String { NSLocalizedString("common.never", comment: "") }
+        static var expand: String { NSLocalizedString("common.expand", comment: "") }
+        static var collapse: String { NSLocalizedString("common.collapse", comment: "") }
+    }
+    enum Tabs {
+        static var notifications: String { NSLocalizedString("tabs.notifications", comment: "") }
+        static var keys: String { NSLocalizedString("tabs.keys", comment: "") }
+        static var settings: String { NSLocalizedString("tabs.settings", comment: "") }
+        static var inbox: String { NSLocalizedString("tabs.inbox", comment: "") }
+    }
+    enum Age {
+        static var now: String { NSLocalizedString("age.now", comment: "") }
+        static var justNow: String { NSLocalizedString("age.justNow", comment: "") }
+        static func minutes(_ n: String) -> String { String.localizedStringWithFormat(NSLocalizedString("age.minutes", comment: ""), n) }
+        static func hours(_ n: String) -> String { String.localizedStringWithFormat(NSLocalizedString("age.hours", comment: ""), n) }
+        static func days(_ n: String) -> String { String.localizedStringWithFormat(NSLocalizedString("age.days", comment: ""), n) }
+        static func weeks(_ n: String) -> String { String.localizedStringWithFormat(NSLocalizedString("age.weeks", comment: ""), n) }
+        static func ago(_ relative: String) -> String { String.localizedStringWithFormat(NSLocalizedString("age.ago", comment: ""), relative) }
+    }
+    enum Inbox {
+        static var title: String { NSLocalizedString("inbox.title", comment: "") }
+        static var offline: String { NSLocalizedString("inbox.offline", comment: "") }
+        static func count(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.count", comment: ""), n) }
+        static func unreadSummary(_ total: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.unreadSummary", comment: ""), total) }
+        static func filteredToKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.filteredToKey", comment: ""), name) }
+        static var closeSearch: String { NSLocalizedString("inbox.closeSearch", comment: "") }
+        static var markAllAsRead: String { NSLocalizedString("inbox.markAllAsRead", comment: "") }
+        static var filterByKey: String { NSLocalizedString("inbox.filterByKey", comment: "") }
+        static var allKeys: String { NSLocalizedString("inbox.allKeys", comment: "") }
+        static var refresh: String { NSLocalizedString("inbox.refresh", comment: "") }
+        static var more: String { NSLocalizedString("inbox.more", comment: "") }
+        static var copyTitle: String { NSLocalizedString("inbox.copyTitle", comment: "") }
+        static var copyMessage: String { NSLocalizedString("inbox.copyMessage", comment: "") }
+        static var copyLink: String { NSLocalizedString("inbox.copyLink", comment: "") }
+        static var seedSampleData: String { NSLocalizedString("inbox.seedSampleData", comment: "") }
+        static var clearSampleData: String { NSLocalizedString("inbox.clearSampleData", comment: "") }
+        static var bandToday: String { NSLocalizedString("inbox.bandToday", comment: "") }
+        static var bandYesterday: String { NSLocalizedString("inbox.bandYesterday", comment: "") }
+        static func bandLabel(_ title: String, _ count: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.bandLabel", comment: ""), title, count) }
+        static var unread: String { NSLocalizedString("inbox.unread", comment: "") }
+        static var critical: String { NSLocalizedString("inbox.critical", comment: "") }
+        static func linkTo(_ host: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.linkTo", comment: ""), host) }
+        static func deleteTitle(_ title: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.deleteTitle", comment: ""), title) }
+        static var deleteTitleFallback: String { NSLocalizedString("inbox.deleteTitleFallback", comment: "") }
+        static var deleteMessage: String { NSLocalizedString("inbox.deleteMessage", comment: "") }
+    }
+    enum Search {
+        static var prompt: String { NSLocalizedString("search.prompt", comment: "") }
+        static func matches(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("search.matches", comment: ""), n) }
+        static var recent: String { NSLocalizedString("search.recent", comment: "") }
+    }
+    enum Message {
+        static var notFound: String { NSLocalizedString("message.notFound", comment: "") }
+        static var notFoundDetail: String { NSLocalizedString("message.notFoundDetail", comment: "") }
+        static var downloadImage: String { NSLocalizedString("message.downloadImage", comment: "") }
+        static var backToNotifications: String { NSLocalizedString("message.backToNotifications", comment: "") }
+        static func keyFallbackName(_ id: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.keyFallbackName", comment: ""), id) }
+        static func sentWithKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.sentWithKey", comment: ""), name) }
+        static func openKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.openKey", comment: ""), name) }
+        static var viewImageFullScreen: String { NSLocalizedString("message.viewImageFullScreen", comment: "") }
+        static var shareLink: String { NSLocalizedString("message.shareLink", comment: "") }
+        static var imageFailedToLoad: String { NSLocalizedString("message.imageFailedToLoad", comment: "") }
+        static var imageHidden: String { NSLocalizedString("message.imageHidden", comment: "") }
+        static var imageHost: String { NSLocalizedString("message.imageHost", comment: "") }
+        static func imageLoadWarning(_ host: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.imageLoadWarning", comment: ""), host) }
+        static var loadImage: String { NSLocalizedString("message.loadImage", comment: "") }
+        static var load: String { NSLocalizedString("message.load", comment: "") }
+        static var imageBlocked: String { NSLocalizedString("message.imageBlocked", comment: "") }
+        static var sourceHeader: String { NSLocalizedString("message.sourceHeader", comment: "") }
+    }
+    enum Keys {
+        static var title: String { NSLocalizedString("keys.title", comment: "") }
+        static var newKey: String { NSLocalizedString("keys.newKey", comment: "") }
+        static var refreshFailed: String { NSLocalizedString("keys.refreshFailed", comment: "") }
+        static var sectionActive: String { NSLocalizedString("keys.sectionActive", comment: "") }
+        static var sectionRevoked: String { NSLocalizedString("keys.sectionRevoked", comment: "") }
+        static var intro: String { NSLocalizedString("keys.intro", comment: "") }
+        static var aboutKeys: String { NSLocalizedString("keys.aboutKeys", comment: "") }
+        static func sent(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.sent", comment: ""), n) }
+        static func rowLastUsed(_ ago: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLastUsed", comment: ""), ago) }
+        static var docsLink: String { NSLocalizedString("keys.docsLink", comment: "") }
+        static var chipDefault: String { NSLocalizedString("keys.chipDefault", comment: "") }
+        static var chipRevoked: String { NSLocalizedString("keys.chipRevoked", comment: "") }
+        static var chipCritical: String { NSLocalizedString("keys.chipCritical", comment: "") }
+        static func rowLabel(_ name: String, _ suffix: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLabel", comment: ""), name, suffix) }
+        static var rowLabelRevoked: String { NSLocalizedString("keys.rowLabelRevoked", comment: "") }
+        static var rowLabelCritical: String { NSLocalizedString("keys.rowLabelCritical", comment: "") }
+        static func maskedValue(_ prefix: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.maskedValue", comment: ""), prefix) }
+    }
+    enum KeyDetail {
+        static var notFound: String { NSLocalizedString("keyDetail.notFound", comment: "") }
+        static var notFoundDetail: String { NSLocalizedString("keyDetail.notFoundDetail", comment: "") }
+        static var criticalOn: String { NSLocalizedString("keyDetail.criticalOn", comment: "") }
+        static var criticalTimeSensitive: String { NSLocalizedString("keyDetail.criticalTimeSensitive", comment: "") }
+        static var copyKey: String { NSLocalizedString("keyDetail.copyKey", comment: "") }
+        static var shareKey: String { NSLocalizedString("keyDetail.shareKey", comment: "") }
+        static var copyCurl: String { NSLocalizedString("keyDetail.copyCurl", comment: "") }
+        static var examplesLink: String { NSLocalizedString("keyDetail.examplesLink", comment: "") }
+        static var defaultKeyDetail: String { NSLocalizedString("keyDetail.defaultKeyDetail", comment: "") }
+        static var shownOnceDetail: String { NSLocalizedString("keyDetail.shownOnceDetail", comment: "") }
+        static var sectionUsage: String { NSLocalizedString("keyDetail.sectionUsage", comment: "") }
+        static var fieldSent: String { NSLocalizedString("keyDetail.fieldSent", comment: "") }
+        static var fieldCreated: String { NSLocalizedString("keyDetail.fieldCreated", comment: "") }
+        static var fieldLastUsed: String { NSLocalizedString("keyDetail.fieldLastUsed", comment: "") }
+        static var sectionLinks: String { NSLocalizedString("keyDetail.sectionLinks", comment: "") }
+        static var openAnyLink: String { NSLocalizedString("keyDetail.openAnyLink", comment: "") }
+        static var openAnyLinkDetail: String { NSLocalizedString("keyDetail.openAnyLinkDetail", comment: "") }
+        static var sectionAlerts: String { NSLocalizedString("keyDetail.sectionAlerts", comment: "") }
+        static var criticalAlerts: String { NSLocalizedString("keyDetail.criticalAlerts", comment: "") }
+        static var revokedNotice: String { NSLocalizedString("keyDetail.revokedNotice", comment: "") }
+        static var sectionDanger: String { NSLocalizedString("keyDetail.sectionDanger", comment: "") }
+        static var regenerate: String { NSLocalizedString("keyDetail.regenerate", comment: "") }
+        static var regenerating: String { NSLocalizedString("keyDetail.regenerating", comment: "") }
+        static var regenerateDetail: String { NSLocalizedString("keyDetail.regenerateDetail", comment: "") }
+        static var revoke: String { NSLocalizedString("keyDetail.revoke", comment: "") }
+        static var revoking: String { NSLocalizedString("keyDetail.revoking", comment: "") }
+        static var revokeDetail: String { NSLocalizedString("keyDetail.revokeDetail", comment: "") }
+        static func revokeTitle(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keyDetail.revokeTitle", comment: ""), name) }
+        static var revokeTitleFallback: String { NSLocalizedString("keyDetail.revokeTitleFallback", comment: "") }
+        static var revokeConfirm: String { NSLocalizedString("keyDetail.revokeConfirm", comment: "") }
+        static var revokeMessage: String { NSLocalizedString("keyDetail.revokeMessage", comment: "") }
+        static func regenerateTitle(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keyDetail.regenerateTitle", comment: ""), name) }
+        static var regenerateTitleFallback: String { NSLocalizedString("keyDetail.regenerateTitleFallback", comment: "") }
+        static var regenerateConfirm: String { NSLocalizedString("keyDetail.regenerateConfirm", comment: "") }
+        static var regenerateMessage: String { NSLocalizedString("keyDetail.regenerateMessage", comment: "") }
+        static var regeneratedAnnouncement: String { NSLocalizedString("keyDetail.regeneratedAnnouncement", comment: "") }
+        static var regenerateFailed: String { NSLocalizedString("keyDetail.regenerateFailed", comment: "") }
+        static var revokedAnnouncement: String { NSLocalizedString("keyDetail.revokedAnnouncement", comment: "") }
+        static var revokeFailed: String { NSLocalizedString("keyDetail.revokeFailed", comment: "") }
+        static var criticalNotPermitted: String { NSLocalizedString("keyDetail.criticalNotPermitted", comment: "") }
+        static var criticalChangeFailed: String { NSLocalizedString("keyDetail.criticalChangeFailed", comment: "") }
+    }
+    enum CreateKey {
+        static var title: String { NSLocalizedString("createKey.title", comment: "") }
+        static var intro: String { NSLocalizedString("createKey.intro", comment: "") }
+        static var sectionName: String { NSLocalizedString("createKey.sectionName", comment: "") }
+        static var namePrompt: String { NSLocalizedString("createKey.namePrompt", comment: "") }
+        static var nameLabel: String { NSLocalizedString("createKey.nameLabel", comment: "") }
+        static func charCount(_ n: String, _ max: String) -> String { String.localizedStringWithFormat(NSLocalizedString("createKey.charCount", comment: ""), n, max) }
+        static var nameReserved: String { NSLocalizedString("createKey.nameReserved", comment: "") }
+        static var nameTaken: String { NSLocalizedString("createKey.nameTaken", comment: "") }
+        static var create: String { NSLocalizedString("createKey.create", comment: "") }
+        static var creating: String { NSLocalizedString("createKey.creating", comment: "") }
+        static var validationEmpty: String { NSLocalizedString("createKey.validationEmpty", comment: "") }
+        static var validationTooLong: String { NSLocalizedString("createKey.validationTooLong", comment: "") }
+        static var validationReserved: String { NSLocalizedString("createKey.validationReserved", comment: "") }
+        static var validationTaken: String { NSLocalizedString("createKey.validationTaken", comment: "") }
+        static var createFailed: String { NSLocalizedString("createKey.createFailed", comment: "") }
+        static var revealTitle: String { NSLocalizedString("createKey.revealTitle", comment: "") }
+        static var revealDetail: String { NSLocalizedString("createKey.revealDetail", comment: "") }
+        static var revealLabel: String { NSLocalizedString("createKey.revealLabel", comment: "") }
+        static var revealWarning: String { NSLocalizedString("createKey.revealWarning", comment: "") }
+        static var leaveTitle: String { NSLocalizedString("createKey.leaveTitle", comment: "") }
+        static var leaveCopyAndClose: String { NSLocalizedString("createKey.leaveCopyAndClose", comment: "") }
+        static var leaveCloseAndRevoke: String { NSLocalizedString("createKey.leaveCloseAndRevoke", comment: "") }
+        static var leaveMessage: String { NSLocalizedString("createKey.leaveMessage", comment: "") }
+    }
+    enum Settings {
+        static var title: String { NSLocalizedString("settings.title", comment: "") }
+        static var sectionPermissions: String { NSLocalizedString("settings.sectionPermissions", comment: "") }
+        static var permission: String { NSLocalizedString("settings.permission", comment: "") }
+        static var openSystemSettings: String { NSLocalizedString("settings.openSystemSettings", comment: "") }
+        static var permissionEnabled: String { NSLocalizedString("settings.permissionEnabled", comment: "") }
+        static var permissionOff: String { NSLocalizedString("settings.permissionOff", comment: "") }
+        static var permissionProvisional: String { NSLocalizedString("settings.permissionProvisional", comment: "") }
+        static var permissionEphemeral: String { NSLocalizedString("settings.permissionEphemeral", comment: "") }
+        static var delivery: String { NSLocalizedString("settings.delivery", comment: "") }
+        static var deliveryBroken: String { NSLocalizedString("settings.deliveryBroken", comment: "") }
+        static var deliveryBrokenDetail: String { NSLocalizedString("settings.deliveryBrokenDetail", comment: "") }
+        static var permissionNotSet: String { NSLocalizedString("settings.permissionNotSet", comment: "") }
+        static var permissionUnknown: String { NSLocalizedString("settings.permissionUnknown", comment: "") }
+        static var sectionAppearance: String { NSLocalizedString("settings.sectionAppearance", comment: "") }
+        static var theme: String { NSLocalizedString("settings.theme", comment: "") }
+        static var themeDark: String { NSLocalizedString("settings.themeDark", comment: "") }
+        static var themeLight: String { NSLocalizedString("settings.themeLight", comment: "") }
+        static var loadImages: String { NSLocalizedString("settings.loadImages", comment: "") }
+        static var loadImagesDetail: String { NSLocalizedString("settings.loadImagesDetail", comment: "") }
+        static var strictSend: String { NSLocalizedString("settings.strictSend", comment: "") }
+        static var strictSendDetail: String { NSLocalizedString("settings.strictSendDetail", comment: "") }
+        static var strictSendFailed: String { NSLocalizedString("settings.strictSendFailed", comment: "") }
+        static var testTitle: String { NSLocalizedString("settings.testTitle", comment: "") }
+        static var testBody: String { NSLocalizedString("settings.testBody", comment: "") }
+        static var sectionSupport: String { NSLocalizedString("settings.sectionSupport", comment: "") }
+        static var sectionApplication: String { NSLocalizedString("settings.sectionApplication", comment: "") }
+        static var sectionAbout: String { NSLocalizedString("settings.sectionAbout", comment: "") }
+        static var version: String { NSLocalizedString("settings.version", comment: "") }
+        static var openAtLogin: String { NSLocalizedString("settings.openAtLogin", comment: "") }
+        static var openAtLoginDetail: String { NSLocalizedString("settings.openAtLoginDetail", comment: "") }
+        static var automaticUpdates: String { NSLocalizedString("settings.automaticUpdates", comment: "") }
+        static var automaticUpdatesDetail: String { NSLocalizedString("settings.automaticUpdatesDetail", comment: "") }
+        static var checkForUpdates: String { NSLocalizedString("settings.checkForUpdates", comment: "") }
+        static var support: String { NSLocalizedString("settings.support", comment: "") }
+        static var feedback: String { NSLocalizedString("settings.feedback", comment: "") }
+        static var privacyPolicy: String { NSLocalizedString("settings.privacyPolicy", comment: "") }
+        static var website: String { NSLocalizedString("settings.website", comment: "") }
+    }
+    enum Empty {
+        static var sampleTitle: String { NSLocalizedString("empty.sampleTitle", comment: "") }
+        static var sampleMessage: String { NSLocalizedString("empty.sampleMessage", comment: "") }
+        static var title: String { NSLocalizedString("empty.title", comment: "") }
+        static var detail: String { NSLocalizedString("empty.detail", comment: "") }
+        static var stepAllow: String { NSLocalizedString("empty.stepAllow", comment: "") }
+        static var notificationsOn: String { NSLocalizedString("empty.notificationsOn", comment: "") }
+        static var enableNotifications: String { NSLocalizedString("empty.enableNotifications", comment: "") }
+        static var stepSend: String { NSLocalizedString("empty.stepSend", comment: "") }
+        static var sendTest: String { NSLocalizedString("empty.sendTest", comment: "") }
+        static var sending: String { NSLocalizedString("empty.sending", comment: "") }
+        static var sent: String { NSLocalizedString("empty.sent", comment: "") }
+        static var sentDetail: String { NSLocalizedString("empty.sentDetail", comment: "") }
+        static var sendFailed: String { NSLocalizedString("empty.sendFailed", comment: "") }
+        static var makingKey: String { NSLocalizedString("empty.makingKey", comment: "") }
+        static var makeKeyFailed: String { NSLocalizedString("empty.makeKeyFailed", comment: "") }
+        static func stepLabel(_ n: String, _ title: String) -> String { String.localizedStringWithFormat(NSLocalizedString("empty.stepLabel", comment: ""), n, title) }
+        static var stepDone: String { NSLocalizedString("empty.stepDone", comment: "") }
+    }
+    enum Components {
+        static var clearSearch: String { NSLocalizedString("components.clearSearch", comment: "") }
+        static var noMatches: String { NSLocalizedString("components.noMatches", comment: "") }
+        static var noMatchesDetail: String { NSLocalizedString("components.noMatchesDetail", comment: "") }
+        static func noMatchesQuery(_ query: String) -> String { String.localizedStringWithFormat(NSLocalizedString("components.noMatchesQuery", comment: ""), query) }
+        static func errorLabel(_ message: String) -> String { String.localizedStringWithFormat(NSLocalizedString("components.errorLabel", comment: ""), message) }
+        static func backTo(_ label: String) -> String { String.localizedStringWithFormat(NSLocalizedString("components.backTo", comment: ""), label) }
+        static var createKey: String { NSLocalizedString("components.createKey", comment: "") }
+        static var wordmark: String { NSLocalizedString("components.wordmark", comment: "") }
+    }
+    enum Identity {
+        static var title: String { NSLocalizedString("identity.title", comment: "") }
+        static var detail: String { NSLocalizedString("identity.detail", comment: "") }
+    }
+    enum Unsupported {
+        static var title: String { NSLocalizedString("unsupported.title", comment: "") }
+        static var detail: String { NSLocalizedString("unsupported.detail", comment: "") }
+    }
+    enum Restore {
+        static var title: String { NSLocalizedString("restore.title", comment: "") }
+        static var detail: String { NSLocalizedString("restore.detail", comment: "") }
+    }
+    enum ClientErrors {
+        static var unauthorized: String { NSLocalizedString("clientErrors.unauthorized", comment: "") }
+        static var notFound: String { NSLocalizedString("clientErrors.notFound", comment: "") }
+        static var rateLimited: String { NSLocalizedString("clientErrors.rateLimited", comment: "") }
+        static var server: String { NSLocalizedString("clientErrors.server", comment: "") }
+        static var generic: String { NSLocalizedString("clientErrors.generic", comment: "") }
+        static var transport: String { NSLocalizedString("clientErrors.transport", comment: "") }
+        static var decoding: String { NSLocalizedString("clientErrors.decoding", comment: "") }
+    }
+}

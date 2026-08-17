@@ -1,0 +1,191 @@
+name: app
+
+# Only a `v*` tag runs this workflow. Every job here needs a macOS runner, and
+# nothing else in CI does, so branch and PR pushes are deliberately not built:
+# the Xcode schemes are checked by hand before tagging.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    runs-on: macos-26
+    environment: production
+    env:
+      DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # The version that ships is the tag that triggered this workflow, not a
+      # number someone hand-edited into project.yml before tagging -- a `v1.2.3`
+      # push needs no companion "bump the app to 1.2.3" commit. `#v` strips
+      # exactly the leading `v` the tag pattern requires.
+      - run: echo "MARKETING_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+      - run: brew install xcodegen
+      - name: Import the Apple Distribution identity
+        env:
+          IOS_DISTRIBUTION_CERT_P12: ${{ secrets.IOS_DISTRIBUTION_CERT_P12 }}
+          IOS_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/ios.keychain-db"
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          echo "$IOS_DISTRIBUTION_CERT_P12" | base64 --decode > "$RUNNER_TEMP/ios-dist.p12"
+          security import "$RUNNER_TEMP/ios-dist.p12" -k "$KEYCHAIN" -P "$IOS_DISTRIBUTION_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN"
+      # The profile's own name is read back out of it rather than carried as a
+      # third secret, so renaming a profile in the portal cannot desync CI.
+      - name: Install the App Store provisioning profiles
+        env:
+          IOS_APP_PROFILE_B64: ${{ secrets.IOS_APP_PROFILE_B64 }}
+          IOS_NSE_PROFILE_B64: ${{ secrets.IOS_NSE_PROFILE_B64 }}
+        run: |
+          DEST="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$DEST"
+          install_profile() {
+            echo "$2" | base64 --decode > "$RUNNER_TEMP/$1.mobileprovision"
+            UUID="$(security cms -D -i "$RUNNER_TEMP/$1.mobileprovision" | plutil -extract UUID raw -)"
+            NAME="$(security cms -D -i "$RUNNER_TEMP/$1.mobileprovision" | plutil -extract Name raw -)"
+            cp "$RUNNER_TEMP/$1.mobileprovision" "$DEST/$UUID.mobileprovision"
+            echo "$1=$NAME" >> "$GITHUB_ENV"
+          }
+          install_profile IOS_APP_PROFILE "$IOS_APP_PROFILE_B64"
+          install_profile IOS_NSE_PROFILE "$IOS_NSE_PROFILE_B64"
+      - working-directory: apps/app
+        # XcodeGen interpolates all four into project.yml. Manual signing with an
+        # imported identity is the point: automatic signing mints a new
+        # Development certificate on every clean runner and never removes one,
+        # which is what filled the account's certificate cap.
+        env:
+          CODE_SIGN_STYLE: Manual
+          IOS_CODE_SIGN_IDENTITY: Apple Distribution
+        run: xcodegen generate
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/asc"
+          echo "$ASC_API_KEY_P8" | base64 --decode > "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8"
+      - name: Write export options
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions-appstore.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+            <key>teamID</key>
+            <string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>signingCertificate</key>
+            <string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>it.notifi.notifi</key>
+              <string>${IOS_APP_PROFILE}</string>
+              <key>it.notifi.notifi.nse</key>
+              <string>${IOS_NSE_PROFILE}</string>
+            </dict>
+          </dict>
+          </plist>
+          PLIST
+      - name: Archive and upload iOS
+        working-directory: apps/app
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild archive \
+            -scheme notifi-iOS \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive" \
+            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
+            MARKETING_VERSION="$MARKETING_VERSION"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-appstore.plist" \
+            -exportPath "$RUNNER_TEMP/export-iOS" \
+            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      # macOS is deliberately not uploaded to the App Store. It ships as a
+      # direct-download Developer ID DMG, published by the release job below.
+
+  # A `v*` tag publishes the macOS build as a GitHub Release: notarized DMG plus
+  # the Sparkle appcast. This is not cosmetic -- notifi.it/download/appcast.xml
+  # (SUFeedURL) and notifi.it/download/mac are redirects to this release's
+  # assets, so shipping an update to existing macOS users *is* creating it.
+  release-macos:
+    runs-on: macos-26
+    environment: production
+    permissions:
+      contents: write # create the release and upload assets
+    env:
+      DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # See the testflight job above: the tag is the version, and the Fastfile
+      # reads this from the environment rather than from project.yml.
+      - run: echo "MARKETING_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+      - run: brew install xcodegen
+      - uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # v1.299.0
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+          working-directory: apps/app
+      - name: Import Developer ID signing assets
+        env:
+          DEVELOPER_ID_CERT_P12: ${{ secrets.DEVELOPER_ID_CERT_P12 }}
+          DEVELOPER_ID_CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/devid.keychain-db"
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          echo "$DEVELOPER_ID_CERT_P12" | base64 --decode > "$RUNNER_TEMP/devid.p12"
+          security import "$RUNNER_TEMP/devid.p12" -k "$KEYCHAIN" -P "$DEVELOPER_ID_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN"
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/asc"
+          echo "$ASC_API_KEY_P8" | base64 --decode > "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8"
+      - name: Build, notarize, and generate appcast
+        working-directory: apps/app
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
+        run: |
+          export ASC_KEY_PATH="$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8"
+          xcodegen generate
+          bundle exec fastlane mac dmg
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            apps/app/build/updates/notifi.dmg \
+            apps/app/build/updates/appcast.xml

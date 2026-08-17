@@ -1,0 +1,3 @@
+notifi 2.0 ist eine komplette Neuentwicklung. Die alte Flutter-App ist verschwunden; diese ist nativ in Swift geschrieben, von Grund auf neu gestaltet.
+
+Schnellerer Start, natives Text-Rendering und ein gemeinsames Layout für alle drei Tabs. Der Bildschirm Schlüssel sagt jetzt, wofür ein Schlüssel steht, und der eingebaute Standardschlüssel führt die Liste an. Zeitstempel bei Nachrichten sind reine Ziffern, die sich kopieren lassen.
