@@ -1,0 +1,224 @@
+# Working in this repo
+
+Only things that are easy to get wrong and expensive to discover.
+
+## Contract
+
+`packages/contract/src/index.ts` (Zod) and the hand-written Swift mirror
+`apps/app/Shared/API/ContractModels.swift` must change together — a lone change
+typechecks on both sides and fails at runtime.
+
+## Copy
+
+All user-facing strings live in `packages/copy/src/strings.ts`. Nothing else may
+hold a user-facing literal. `make gen-copy` generates
+`apps/app/Shared/Resources/Localizable.xcstrings` (keyed by dotted path, not
+source text) and `apps/app/Shared/Support/Copy.swift`. Never edit the generated
+files; `make check-copy` (CI) fails on drift.
+
+The server reads the TypeScript directly via `t(c)`, negotiated once per request
+from `Accept-Language`. The app sends `Locale.preferredLanguages` on every
+signed request, outside the signed canonical string.
+
+Adding a language: add the code to `LANGUAGE_CODES` in `src/languages.ts`, add
+`src/translations/<code>.ts`, run `make gen-copy`. Missing keys or lost
+`{placeholder}`s fail the build. No machine translation, by decision.
+
+Generator rules: placeholders are `{name}` (positional, first-appearance order);
+plurals are `plural(one, other)` and a plural leaf may contain **nothing but
+`{n}`** — anything mixing a count with text composes an already-rendered count
+(`inbox.bandLabel` takes `inbox.count`'s output).
+
+Deliberately not in the app catalog: the `api` namespace (server responses are
+shown as-is), the push fallback title (sent in the source language — the
+sender's `Accept-Language` says nothing about the recipient), and the website
+(`apps/api/public/index.html` / `privacy.html`, hand-kept duplicates).
+
+## Marketing copy
+
+In anything pitching the product (App Store listing, README opening, site meta
+descriptions and captions): say "HTTP request" not "curl", and "notifi.it" not
+"notifi.it/send". Exempt: code examples, UI labels like "Copy curl", and the App
+Store keywords field.
+
+Encryption claim: "encrypted with your public key", never "end-to-end
+encrypted". Follow it with "neither we nor Apple can read your notifications" —
+except in fastlane metadata, where we say we cannot read them without naming
+Apple.
+
+The thing the product sends is a **notification**, never a "message", in every
+string a person reads: app copy, the website, the App Store listing, the README,
+social bios.
+
+Two exceptions, both load-bearing:
+
+- `message` is a wire field of `/send`, and appears as itself in code examples,
+  parameter tables and error listings. Renaming it there would be a lie about
+  the API. Where prose needs a word for that field's contents, "body" is the one
+  the API already uses alongside `title`.
+- `settings.deliveryBrokenDetail` uses both words on purpose. A notification is
+  the banner APNs delivers; the payload can arrive over the live connection
+  without one, and that string exists to explain exactly that case. Collapsing
+  the two words makes it say nothing.
+
+Copy keys keep their existing names (`inbox.copyMessage`, the `message.*`
+namespace). They are internal, they key the xcstrings catalogue, and renaming
+them churns every Swift call site for no reader's benefit.
+
+## Migrations
+
+**Never type a migration by hand.** `apps/api/prisma/schema.prisma` is the
+source of truth: describe the change there, then
+
+```bash
+make migration name=snake_case_name    # writes apps/api/migrations/NNNN_*.sql
+make migrate                           # applies it locally
+```
+
+`make check-migrations` (CI, in the lint workflow) fails a PR that touches
+`migrations/` without touching the schema, so a hand-written file is caught
+before review.
+
+The generator diffs the **committed** schema against the working copy — it
+never inspects a live database. The tables predate the schema file, so Prisma's
+canonical DDL differs from them cosmetically (`AUTOINCREMENT` on `keys.id`,
+`NOT NULL` on a TEXT primary key); diffing against real D1 asks to rebuild every
+table to close a gap that changes nothing. The cost is that the schema is only
+as accurate as the last person to edit it — describe first, generate second.
+
+Four-digit sequence, no gaps. CI applies migrations on merge before deploying
+the Worker (dev then prod), so migration + code land in one PR. Additive columns
+only; no down migrations.
+
+Two things the generator will not do for you:
+
+- **A `NOT NULL DEFAULT` column comes out as a table rebuild**, because Prisma's
+  SQLite provider will not trust an in-place add. `make migration` refuses to
+  write it, and `check-migrations` refuses to merge it. Add the column as
+  nullable, or write that one `ALTER TABLE ... ADD COLUMN x INTEGER NOT NULL
+  DEFAULT 0` by hand — and say why in the commit, because CI will ask.
+- **Backfills and renames.** `0005` and `0008` are correlated updates and a
+  column rename; a diff cannot infer intent. Hand-written, deliberately.
+
+## Building the app
+
+```bash
+xcodebuild -project apps/app/notifi.xcodeproj -scheme notifi-iOS -configuration Debug -destination 'generic/platform=iOS Simulator' DEVELOPMENT_TEAM=Z28DW76Y3W build
+```
+
+`DEVELOPMENT_TEAM` must be passed by hand (only CI sets the env var). Run
+`cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes:
+`notifi-iOS`, `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi
+(installs fail silently and can't be screenshotted).
+
+## Verifying a visual change: `make shots`
+
+Never hand-roll build-install-boot-tap. A run is 14-24s for all three tabs.
+
+```
+make shots                     # one screenshot per screen
+TABS="inbox settings" make shots
+MESSAGE_INDEX=4 make shots     # open a different seeded message
+FORCE_BUILD=1 make shots       # rebuild even if nothing looks changed
+```
+
+Writes `/tmp/notifi-shots/<name>.png`: the three tabs plus `message.png` (the
+detail page, reached by seeding data and pushing at launch, not tapping). The
+default `MESSAGE_INDEX` carries a body, image, link and key. There is
+deliberately no skip-the-build flag: a screenshot of a stale build looks exactly
+like an answer.
+
+It sets the tab with `NOTIFI_START_TAB` instead of tapping (tapping is flaky).
+`NOTIFI_START_TAB`, `NOTIFI_SAMPLE_DATA`, `NOTIFI_START_MESSAGE` are DEBUG-only
+and exist only for this script — nothing else may set them. The message override
+waits for `bootState == .ready`; a path pushed before the stack exists is
+silently dropped.
+
+## A PR that changes the UI attaches screenshots
+
+One per touched screen; before/after when moving something existing. `make
+shots` covers the tabs; sheets and the Mac popover are captured by hand. If
+filing from a CLI that can't upload images, say so and attach via the web UI.
+
+## Confirmations are centred alerts
+
+Use `.alert` with a title, `message:`, and action buttons — question in the
+title, consequence in the message. Never `confirmationDialog`: on iOS 26 it
+anchors to its control as a popover and reads as a stray tooltip.
+
+## The bell is drawn once
+
+`apps/app/Support/Icon/notifi-logo.svg` is the master. Every other mark (tab
+icon, wordmark bell, empty state, menu bar glyph, app icons, favicon, touch
+icon, website bell) is generated by `Support/Icon/generate-marks.sh` — edit the
+master, run it, commit its output. Never edit the generated SVGs.
+
+The script declares two viewBoxes; `BellMark`'s unread dot (`Wordmark.swift`)
+and the site CSS badge disc (in both `index.html` and `privacy.html`) are
+positioned as fractions of them. The script prints those fractions each run and
+refuses a box the artwork no longer fits. Reframe one → re-measure all.
+
+The unread badge has one position: in the artwork. Never place it by hand with
+hard-coded fractions — every copy has drifted. `generate-marks.sh` bakes it into
+`BellTabUnread`; `generate-menu-icon.sh` writes `menu_dot` cropped by the same
+box as the bell, so `MacMenuBar` composites them with no coordinates. Only
+`BellMark` and the site CSS overlay live views and must take the printed
+fractions.
+
+## The DMG's install window is two files that must agree
+
+`Support/Icon/generate-dmg-background.sh` draws the background;
+`Scripts/dmg-layout.applescript` places the icons. The coordinates live in both
+(the script prints them) — change them together. The background is 2x pixels
+tagged 144 dpi (1x ships visibly soft). The `dmg` lane arranges a mounted UDRW
+image before converting to UDZO — arranging a compressed image silently produces
+a default window.
+
+## Layout changes go in GeistPage, not in three screens
+
+The tabs use different containers (Inbox is a `List`, Keys/Settings are
+`ScrollView`s), so all geometry — ground, reading measure, gutter, rhythm,
+header rule, fades, nav bar visibility — lives in `GeistPage`. Screens pass a
+header and content and choose only `scroll:` (`.content` = own container,
+`.page` = given one). Never reintroduce per-screen geometry; that's what drifted
+before (titles 107pt apart on iPad).
+
+Know before changing: the nav bar is shown on all three tabs at regular width
+(it carries a safe-area inset regardless; hiding it moves titles), and
+`GeistHeader` reserves the subtitle line on screens without a count (Settings)
+so the rule doesn't jump between tabs.
+
+The gutter is `Theme.gutter` (20pt) via `geistGutter()` — never a literal, and
+never a compensating offset to cancel a container quirk.
+
+Verify on the Simulator across all three tabs, phone **and** iPad — the measure
+only bites at regular width. Screenshot the three headers side by side.
+
+## No automated tests
+
+By decision. `make typecheck`, `make lint`, plus both `xcodebuild` schemes is
+the full gate. Don't add a test framework; say plainly what was and wasn't
+exercised.
+
+## Releasing to the App Store
+
+- **Tag first, submit second, metadata last.** A `v*` tag runs CI (TestFlight +
+  DMG). `MARKETING_VERSION=X.Y make app-submit` (local) *creates* the App Store
+  version; `make app-metadata` before that retries "Cannot find edit app store
+  version" for ~20 minutes and fails — it's not hung, the version doesn't exist.
+- **`make app-metadata-check` is broken upstream** (`verify_only` hashes a
+  missing ipa). Skip the dry run.
+- **"Not in valid state" names no field.** Causes met so far: a missing
+  screenshot set, an empty `fastlane/metadata/en-GB/release_notes.txt`.
+- **iPad screenshots are mandatory** (`ipadPro129`, 2048x2732) because the app
+  runs on iPad. `make appstore-shots` builds and captures both sets, seeding via
+  `NOTIFI_SEED_SAMPLE` / `NOTIFI_OPEN_SAMPLE_MESSAGE` (DEBUG only), no tapping.
+- **Screenshot uploads cry wolf**: "X is missing ... Tries remaining: N" once
+  per run is normal; only repeated rounds are a failure.
+- **Two local traps**: `git checkout -b x origin/main` uses the last *fetched*
+  origin/main — fetch first. And don't pipe important logs through `tail`.
+
+## Never add comments
+
+No comments in Swift or TypeScript; `make lint` (`scripts/lint-comments.mjs`,
+CI) fails on any. Reasoning goes in the commit message or PR description.

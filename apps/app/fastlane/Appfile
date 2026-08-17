@@ -1,0 +1,7 @@
+# iOS and macOS share this bundle id (one App Store Connect record, universal
+# purchase). Auth is the App Store Connect API key wired up in fastlane/Fastfile,
+# so no Apple ID / password is needed here.
+app_identifier("it.notifi.notifi")
+team_id("Z28DW76Y3W") # Apple Developer team
+
+# App Store Connect app ID (numeric): 1563961135

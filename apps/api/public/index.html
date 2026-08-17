@@ -1,0 +1,1812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>
+// First thing in the head, before anything paints: lift the key out of the URL
+// and rewrite the history entry, so the address bar and history only ever hold
+// the clean URL. The prefill script at the foot reads the stash, not the URL.
+// A plain anchor (?key=…#send) survives the rewrite; a key that arrived in the
+// fragment takes the whole fragment with it.
+(function () {
+  var hash = new URLSearchParams(location.hash.slice(1));
+  var key = hash.get('key') || new URLSearchParams(location.search).get('key');
+  if (!key) return;
+  window.__notifiKey = key;
+  history.replaceState(null, '', location.pathname + (hash.get('key') ? '' : location.hash));
+})();
+</script>
+<!-- Kept under ~60 characters: a result page truncates past that, and the
+     differentiator sits at the end where it would be the part cut. -->
+<title>notifi: push notifications to iPhone and Mac from one request</title>
+<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, no SDK, open source, and the notification is sealed so neither we nor Apple can read it.">
+<meta name="theme-color" content="#1C1C1E">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<!-- Safari on iOS puts an install banner above the page for this, which reaches
+     a reader before they have scrolled to either download button. -->
+<meta name="apple-itunes-app" content="app-id=1563961135">
+
+<!-- The page also answers on /?key=… (the sample key-prefill link), so every
+     shared one of those would otherwise be a separate crawlable URL. -->
+<link rel="canonical" href="https://notifi.it/">
+
+<meta property="og:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
+<meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your notifications. No account, no SDK, open source.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://notifi.it/">
+<meta property="og:site_name" content="notifi">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://notifi.it/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
+<meta name="twitter:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your notifications. No account, no SDK, open source.">
+<meta name="twitter:image" content="https://notifi.it/og.png">
+<meta name="twitter:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
+
+<!-- Self-hosted, so the page has no third-party request at all. A stylesheet
+     link to fonts.googleapis.com is render-blocking and costs two serialised
+     hops before the browser can even discover which font files it needs, and
+     the h1, which is the LCP element, is set in Recursive Mono. Latin subset only. -->
+<link rel="preload" href="/fonts/recursive-mono.woff2" as="font" type="font/woff2" crossorigin>
+
+<style>
+@font-face{font-family:'Recursive Mono';font-style:normal;font-weight:300 800;font-display:swap;
+  src:url(/fonts/recursive-mono.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:swap;
+  src:url(/fonts/karla.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+/* ─────────────────────────────────────────────────────────────
+   The same system as the app: pure black, hairline rules, mono
+   for everything that is not prose, and exactly one accent used
+   only where something is unread or urgent.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --bg:#1C1C1E;
+  --fg:#EDEDED;
+  --muted:#A1A1A1;
+  /* 4.75:1 on --bg and 4.6:1 on --surface. It was #6E6E6E, which measured
+     4.26:1 on --surface, below the 4.5:1 floor for text under 18px, and
+     .term .c, .term .p, .term-title and the .copy label all sit on --surface. */
+  --dim:#8A8A8A;
+  --line:#333333;
+  --chip:#3C3C3C;
+  /* 3.45:1 on --bg, clearing the floor for a control identifiable only by its
+     border. Kept separate from --line and --chip, which stay decorative
+     hairlines everywhere else. */
+  --control-border:#707070;
+  --surface:#262628;
+  --brand:#C82A2A;
+  --brand-text:#DB4A4B;      /* lifted to clear 4.5:1 on the ground */
+  --mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --gutter:clamp(20px,5vw,40px);
+
+  /* Motion. Three durations and one curve, mirroring the app's Theme tokens so
+     the site and the product decelerate the same way. These are duplicated in
+     privacy.html by hand — the site has no build step, so a token added here
+     has to be added there too. */
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --dur-press:.12s;
+  --dur-state:.2s;
+  --dur-reveal:.25s;
+  --max:1080px;
+}
+*{box-sizing:border-box;margin:0}
+/* scroll-padding-top clears the 60px sticky header, which would otherwise sit
+   on top of whatever an in-page anchor just jumped to. */
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
+body{
+  counter-reset:sec;
+  background:var(--bg);color:var(--fg);
+  font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* Television static over the ground.
+   Greys only, and deliberately shallow: --dim measures 4.75:1 on a flat --bg,
+   a quarter of a point above the 4.5:1 floor, and the grain spends that margin.
+   The speckle runs #101010 to #292929, which holds --dim at roughly 4.5:1 at
+   its worst. Widening it is a legibility regression, not a stronger texture.
+   Painted by the canvas below; position:fixed so it does not scroll with the
+   page, and z-index 0 with the content lifted above it. */
+#static{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+  display:block;width:100%;height:100%;
+}
+body>*:not(#static){position:relative;z-index:1}
+::selection{background:var(--brand);color:#fff}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+.rule{height:1px;background:var(--line);border:0}
+
+/* ── type ───────────────────────────────────────────────────── */
+h1,h2,h3{font-family:var(--mono);font-weight:700;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
+h1{font-size:clamp(34px,6.4vw,60px)}
+h2{font-size:clamp(24px,3.6vw,34px)}
+h3{font-size:17px;letter-spacing:-.02em}
+p{max-width:62ch}
+.lede{font-size:clamp(17px,2.1vw,20px);color:var(--muted);line-height:1.55}
+.meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+}
+.section-head{display:flex;align-items:center;gap:14px;margin-bottom:26px;counter-increment:sec}
+.section-head .rule{flex:1}
+/* Section number, as an instrument readout rather than an ordered list — the
+   sections are already navigable by name in the header, so this is orientation,
+   not structure. Generated content, so it stays out of the accessible name. */
+.section-head .eyebrow::before{
+  content:counter(sec,decimal-leading-zero);
+  color:var(--fg);margin-right:.7em;
+}
+/* The count on the far side of the rule. Set by script from the number of
+   sections actually on the page; hidden until then, so a stale hard-coded
+   total can never be shown. */
+.section-head::after{
+  content:attr(data-of);
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.18em;color:var(--line);
+}
+
+/* The cursor after the headline. `steps(2)` so it snaps on and off the way a
+   terminal caret does; a fade would read as a pulsing decoration. */
+.caret{
+  display:inline-block;width:.52em;height:.075em;
+  background:var(--brand);vertical-align:baseline;
+  margin-left:.12em;
+  animation:blink 1.06s steps(2,jump-none) infinite;
+}
+@keyframes blink{50%{opacity:0}}
+
+/* Scroll reveal: the text resolves out of the static, letter by letter.
+   The arrival is faded rather than snapped. Each letter carries its own long
+   ease, so what travels down a paragraph is a soft front a few characters wide
+   instead of a hard edge — they still light one at a time, it is only the
+   colour that takes its time.
+   Letters start at full contrast and are dimmed by script only once it has
+   taken over, so a reader with no JS — or one who arrives before it runs —
+   gets the text at its designed contrast rather than buried in the ground. */
+.reveal.armed .c{color:#2B2B2D;transition:color .55s var(--ease-out)}
+.reveal.armed .c.on{color:var(--fg)}
+.lede.reveal.armed .c.on{color:var(--muted)}
+/* Letters are wrapped inside their word so a line can still only break at a
+   space. Splitting straight to characters let the browser break mid-word. */
+.reveal .w{white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  .caret{animation:none}
+  .reveal.armed .c{color:inherit}
+  header .bell::before,header .bell::after{animation:none}
+}
+
+/* ── header ─────────────────────────────────────────────────── */
+header{position:sticky;top:0;z-index:20;background:rgba(28,28,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:60px}
+.mark{display:flex;align-items:center;gap:9px;text-decoration:none}
+.mark img{height:17px;width:auto;display:block}
+.mark svg{height:21px;width:21px;display:block}
+nav{margin-left:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--fg)}
+@media(max-width:620px){nav .hide-sm{display:none}}
+
+/* ── buttons ────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:14px;font-weight:600;
+  padding:11px 18px;border-radius:8px;text-decoration:none;
+  border:1px solid var(--control-border);color:var(--fg);background:transparent;
+  transition:background var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out),
+             transform var(--dur-press) var(--ease-out);
+}
+.btn:hover{background:#0E0E0E;border-color:#6A6A6A}
+/* Hover does not exist on a phone, so without this a tap on the download
+   buttons produced nothing at all until the navigation happened. */
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
+.btn-primary:hover{background:#fff;border-color:#fff}
+/* The download buttons carry two lines — what it is, and which machine it is
+   for — so the reader does not have to guess which of the two is theirs. */
+.btn-get{align-items:center;gap:11px;padding:12px 20px}
+.btn-get svg{width:19px;height:19px;flex:none}
+.btn-get b{display:block;font-size:14px;font-weight:700;line-height:1.25}
+.btn-get span{display:block;font-size:11px;font-weight:400;opacity:.72;line-height:1.35}
+/* ── hero ───────────────────────────────────────────────────── */
+.hero{padding:clamp(56px,10vw,110px) 0 clamp(40px,7vw,72px)}
+.hero h1{margin-bottom:20px}
+/* The command in the headline is the literal thing you type, so it is marked up
+   as code — but at headline size the usual inset chip reads as a button. Colour
+   alone carries it here. */
+.h1-cmd{font:inherit;background:none;padding:0;color:var(--brand-text)}
+.hero .lede{margin-bottom:34px}
+.cta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.cta .meta{width:100%;margin-top:6px}
+
+/* the terminal block that is the whole product */
+/* No edge at all. The panel is already a step up from the ground in --surface,
+   and that step is enough to say where it starts and stops. A box read as a
+   card; corner ticks read as an instrument panel; neither is what this is. */
+.term{
+  margin-top:40px;
+  background:var(--surface);
+  border-radius:12px;overflow:hidden;
+}
+.term-bar{
+  display:flex;align-items:center;gap:9px;padding:9px 13px;
+  border-bottom:1px solid var(--line);
+}
+.dot3{display:flex;gap:5px}
+.dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
+.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
+.term pre{
+  margin:0;padding:16px 18px;overflow-x:auto;
+  font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--fg);
+}
+.term .p{color:var(--dim)}          /* prompt */
+.term .s{color:#7FA8E0}             /* string */
+.term .f{color:var(--muted)}        /* flag */
+.term .c{color:var(--dim)}          /* comment */
+.term .k{color:var(--brand-text)}   /* the key you swap in */
+.copy{
+  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
+  background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
+}
+.copy:hover{color:var(--fg);background:#141414}
+.copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
+.copy:active{color:var(--fg);background:#1C1C1C}
+.copy[data-state="failed"]{color:var(--brand-text)}
+
+/* The key bar is filled in from the URL fragment after the page has painted, so
+   it cannot be rendered up front — it arrives above the tabs and pushes the
+   whole code block down. Uncollapsing a grid row animates that height without
+   anyone having to measure it. `hidden` still does the real hiding, so a visitor
+   without a key gets no empty landmark; the class only runs the reveal.
+
+   minmax(0,…) rather than a bare 0fr: an fr track keeps an automatic minimum
+   sized to its content, so 0fr alone left the terminal's title bar standing at
+   42px instead of collapsing. */
+#keybar-slot{
+  display:grid;grid-template-rows:minmax(0,0fr);opacity:0;
+  transition:grid-template-rows var(--dur-reveal) var(--ease-out),
+             opacity var(--dur-state) var(--ease-out),
+             margin-bottom var(--dur-reveal) var(--ease-out);
+}
+#keybar-slot>*{min-height:0;overflow:hidden}
+#keybar-slot.is-open{grid-template-rows:minmax(0,1fr);opacity:1;margin-bottom:22px}
+
+/* ── generic section ────────────────────────────────────────── */
+section{padding:clamp(48px,7vw,86px) 0}
+.section-alt{border-top:1px solid var(--line)}
+
+/* ── feature rows: hairline list, no cards ──────────────────── */
+.rows{border-top:1px solid var(--line)}
+.row{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);
+  gap:8px 40px;padding:22px 0;border-bottom:1px solid var(--line);
+  align-items:start;
+}
+.row h3{margin:0}
+.row p{color:var(--muted);margin:0}
+.row .src{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
+.row .src:hover{text-decoration-color:var(--fg)}
+@media(max-width:720px){.row{grid-template-columns:1fr;gap:6px}}
+
+/* ── the brand mark ─────────────────────────────────────────── */
+.bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
+/* Two layers, not one: the body and the clapper are cropped by the same box by
+   generate-marks.sh, so stacking them is the whole alignment — and it is what
+   lets the clapper swing late without the bell coming apart. */
+.bell::before,.bell::after{
+  content:"";position:absolute;inset:0;background:currentColor;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+}
+.bell::before{-webkit-mask-image:url(/bell-body.svg);mask-image:url(/bell-body.svg)}
+.bell::after{-webkit-mask-image:url(/bell-clapper.svg);mask-image:url(/bell-clapper.svg)}
+/* No badge disc on the site's mark. The page already has one red thing that
+   blinks — the caret after the headline — and two of them competing in the same
+   viewport read as an error state rather than as the brand. bell.svg carries no
+   badge of its own, so removing this overlay is the whole change; the fractions
+   that used to be here are still printed by generate-marks.sh for the app,
+   which does need them. */
+/* The header bell rings once on arrival. Pivot at the crown, not the centre —
+   a real bell swings from where it hangs — and each swing loses height so it
+   settles rather than stops. Runs on ::before so the layout box never moves. */
+/* These are Theme.swift's bellSwing and clapperSwing, keyframe for keyframe, so
+   the site and the app ring the same bell: the percentages are each track's
+   cumulative time over its own total (2.585s and 2.42s), which is why the two
+   durations differ rather than being rounded to match. Change one and the other
+   has to move with it. */
+header .bell::before{transform-origin:50% 0;animation:ring-body 2.585s ease-in-out .25s both}
+header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-out .25s both}
+@keyframes ring-body{
+  0%{transform:rotate(0)}
+  4.26%{transform:rotate(-20deg)}
+  12.96%{transform:rotate(18deg)}
+  21.66%{transform:rotate(-16deg)}
+  30.37%{transform:rotate(14deg)}
+  39.07%{transform:rotate(-13deg)}
+  47.78%{transform:rotate(12deg)}
+  56.48%{transform:rotate(-10deg)}
+  65.18%{transform:rotate(8deg)}
+  73.89%{transform:rotate(-6deg)}
+  82.59%{transform:rotate(4deg)}
+  91.30%{transform:rotate(-2deg)}
+  100%{transform:rotate(0)}
+}
+@keyframes ring-clapper{
+  0%,2.48%{transform:rotate(0)}
+  7.02%{transform:rotate(-30deg)}
+  16.32%{transform:rotate(27deg)}
+  25.62%{transform:rotate(-24deg)}
+  34.92%{transform:rotate(20deg)}
+  44.21%{transform:rotate(-18deg)}
+  53.51%{transform:rotate(15deg)}
+  62.81%{transform:rotate(-12deg)}
+  72.11%{transform:rotate(9deg)}
+  81.40%{transform:rotate(-6deg)}
+  90.70%{transform:rotate(3deg)}
+  100%{transform:rotate(0)}
+}
+.lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
+.lockup img{display:block;height:var(--word,20px);width:auto}
+
+/* ── icons ──────────────────────────────────────────────────── */
+.ico{width:19px;height:19px;flex:0 0 auto;color:var(--dim)}
+.row h3{display:flex;align-items:center;gap:10px}
+.use-col .eyebrow{display:flex;align-items:center;gap:8px}
+.use-col .ico{width:15px;height:15px}
+
+/* ── uses: four hairline lists, no bullets, no boxes ────────── */
+.uses{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,2.4vw,30px)}
+/* Four columns rather than five, so every heading fits on two lines and the
+   reserved height came down with it. It is still reserved rather than
+   auto — the first list item has to start on the same baseline across all
+   four, or the hairlines under the headings stop reading as one rule. */
+.use-col .eyebrow{padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:4px;min-height:calc(2.2em + 10px)}
+.use-col ul{list-style:none;margin:0;padding:0}
+.use-col li{
+  color:var(--muted);font-size:15px;line-height:1.45;
+  padding:11px 0;border-bottom:1px solid var(--line);
+}
+@media(max-width:920px){.uses{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.uses{grid-template-columns:1fr}}
+
+/* ── reviews: the live App Store feed, newest first ─────────── */
+/* The section is hidden until the fetch returns. Apple's feed is per
+   storefront and can be empty or unreachable, and a heading over an empty
+   grid reads as a broken page rather than a quiet one. */
+#reviews[hidden]{display:none}
+.reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,22px);margin-top:8px}
+.review{
+  border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  padding:18px 20px 16px;display:flex;flex-direction:column;gap:8px;
+}
+.review h3{font-size:16px;margin:0}
+.review p{color:var(--muted);font-size:15px;line-height:1.5;margin:0}
+.review .stars{
+  font-family:var(--mono);font-size:13px;letter-spacing:.22em;
+  color:var(--brand-text);
+}
+.review .stars .off{color:var(--chip)}
+.review .by{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  margin-top:auto;padding-top:6px;
+}
+/* The average is drawn, not spelled out: five stars, the last one part-filled
+   to the decimal. The number itself survives only in the aria-label, because a
+   partly-lit star is a picture of 4.1 and not a reading of it. */
+.rating{display:flex;align-items:center;gap:14px;margin:2px 0 14px}
+.rating .glyphs{display:flex;gap:4px}
+.rating .star{position:relative;color:var(--chip);font-size:22px;line-height:1}
+.rating .star .lit{
+  position:absolute;left:0;top:0;overflow:hidden;
+  color:var(--brand-text);white-space:nowrap;
+}
+.rating .count{font-family:var(--mono);font-size:13px;color:var(--dim)}
+.reviews-meta{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:18px}
+.reviews-meta a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
+.reviews-meta a:hover{text-decoration-color:var(--fg)}
+@media(max-width:920px){.reviews{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.reviews{grid-template-columns:1fr}}
+
+/* ── screenshots ────────────────────────────────────────────── */
+/* One framed hero shot with the other screens as thumbnails beside it,
+   rather than four equal tiles. The bezel is silver because the screenshot
+   and the page are both near-black: a dark screen inside a dark bezel on a
+   dark page disappears into its own frame, and the light metal is what
+   separates the phone from the ground. No shadow under the phone — the site
+   has no other elevation, and hairlines are how every panel here ends. */
+/* The launch animation, mounted into the page by film.js at the stage's own
+   2160x960 and scaled down to fit. It ran in an iframe first, and an iframe
+   cannot inherit the static behind it — its ground stopped the grain dead in a
+   rectangle. In the page there is no ground to stop it: the scene's own
+   backdrop and grain layers are dropped and the page's static shows through.
+   The transport bar belongs to /gif, which is still the authoring page. */
+/* The engine fits the stage to the box less a fixed 44pt for the transport bar
+   it is not drawing here, so the box carries that 44 as padding and the scene
+   comes out the full width instead of a tenth short. */
+/* The scene insets its own content by 90 of its 2160, so a box the width of
+   the column leaves the terminal short of the heading above it. The box is
+   pulled out by exactly that fraction (90/2160 of the widened box, which is
+   4.5455% of this one) and the scene's margins spill past the column instead
+   of eating into it. */
+.app-film{
+  position:relative;margin:30px -4.5455% -22px;
+  box-sizing:content-box;aspect-ratio:2160/960;padding-bottom:44px;
+}
+/* Nothing is mounted on a phone or under reduced motion, and an empty box would
+   hold open a screen's worth of nothing. */
+.app-film:empty{display:none}
+/* Three devices across a phone's width leaves each one a thumbnail, and the
+   scene is a running animation to pay for. The screenshots below carry the
+   section on their own. */
+@media(max-width:760px){.app-film{display:none}}
+.app-film [data-om-starter],
+.app-film foreignObject > div,
+.app-film foreignObject > div > div{background:transparent!important}
+.app-film foreignObject > div > div > div[style*="pixelated"]{display:none!important}
+.app-film [data-omelette-chrome]{display:none!important}
+.app-film svg{box-shadow:none!important}
+
+.app-two{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(24px,4.5vw,56px);align-items:center;margin-top:30px;
+}
+.app-phone{margin:0}
+.app-phone .phone{
+  max-width:340px;margin:0 auto;
+  border:1px solid #9A9A98;
+  background:linear-gradient(160deg,#E8E8E6,#C9C9C7);
+  border-radius:clamp(28px,4.5vw,44px);
+  padding:clamp(8px,1.3vw,12px);
+}
+.app-phone img{width:100%;height:auto;display:block;border-radius:clamp(20px,3.4vw,34px)}
+.app-phone figcaption{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  margin-top:10px;text-align:center;
+}
+.app-two .mac{width:100%;max-width:440px;margin:0 auto}
+.app-two .mac-shot{width:min(360px,92%)}
+.app-two .mac figcaption{margin-top:10px;text-align:center}
+/* The launch gif's Mac, minus its wallpaper: the popover is cut out of its
+   black field (mac-cut.webp) and hangs over the page's own grainy ground,
+   under a frosted bar. The shadow follows the popover's alpha, arrow and
+   all — the one place the site casts a shadow, because a popover without
+   one reads as a flat card, not a thing hanging from the bar. */
+.mac-wall .mac-desk{background:transparent}
+.mac-wall .mac-bar{background:rgba(28,28,30,0.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,0.06)}
+.mac-wall .mac-shot{padding:0 0 26px;filter:drop-shadow(0 18px 36px rgba(0,0,0,0.55))}
+/* One under the other on a phone: side by side, each shot is half a narrow
+   column and neither reads. */
+@media(max-width:760px){
+  .app-two{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ── the Mac, hanging from its menu bar ─────────────────────── */
+/* Same construction as the iOS shots — hairline border, surface ground — but
+   the popover is shown attached to the thing that anchors it. The bar is drawn
+   in HTML rather than captured, so it carries no real desktop; the bell sits
+   dead centre because the popover's arrow is at the centre of the screenshot
+   below it, and the two must line up or the figure reads as broken. */
+.mac{margin:34px 0 0;max-width:520px}
+.mac-desk{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.mac-bar{
+  position:relative;display:flex;align-items:center;justify-content:space-between;
+  height:36px;padding:0 16px;border-bottom:1px solid var(--line);
+}
+.mac-bar .bell{position:absolute;left:50%;transform:translateX(-50%);color:var(--fg)}
+.mac-menus{
+  display:flex;align-items:center;gap:12px;
+  font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  font-size:12px;color:var(--dim);
+}
+.mac-menus b{color:var(--fg);font-weight:600}
+.mac-apple{width:15px;height:15px;color:var(--fg)}
+.mac-status{display:flex;align-items:center;gap:13px}
+.mac-ico{width:15px;height:15px;color:var(--dim)}
+.mac-clock{font-family:var(--mono);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+.mac-shot{display:block;width:min(460px,94%);height:auto;margin:0 auto}
+.mac figcaption{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
+
+/* ── language tabs ──────────────────────────────────────────── */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{
+  font-family:var(--mono);font-size:13px;color:var(--muted);
+  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
+  background:transparent;cursor:pointer;
+  transition:color var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out),
+             background var(--dur-press) var(--ease-out);
+}
+.tab:hover{color:var(--fg);border-color:#6A6A6A}
+.tab:active{border-color:var(--fg)}
+.tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
+.panel[hidden]{display:none}
+
+/* Panels differ in height by hundreds of pixels, so switching language used to
+   snap the page. The incoming panel fades; the outgoing one does not, because
+   crossfading two blocks of different heights looks worse than replacing one.
+   The height itself is deliberately not animated — the tablist is arrow-key
+   navigable, and a growing container under a held arrow key is unreadable. */
+.panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
+@keyframes panel-in{from{opacity:0}to{opacity:1}}
+
+/* ── parameter table ────────────────────────────────────────── */
+.tablewrap{overflow-x:auto;border-top:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:13px 16px 13px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);
+}
+td:first-child{font-family:var(--mono);color:var(--fg);white-space:nowrap}
+td{color:var(--muted);font-size:15px}
+td .req{color:var(--brand-text);font-family:var(--mono);font-size:12px}
+code{font-family:var(--mono);font-size:.92em;color:var(--fg)}
+
+/* ── footer ─────────────────────────────────────────────────── */
+footer{border-top:1px solid var(--line);padding:40px 0 56px}
+.foot{display:flex;flex-wrap:wrap;gap:18px 30px;align-items:center}
+.foot a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--fg)}
+.foot .meta{margin-left:auto}
+
+/* Reduce Motion asks for less movement, not for none. Killing every transition
+   outright turned each of these into a hard cut, which is the jarring change the
+   motion was added to prevent. So: nothing moves or resizes, and the fades stay. */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .btn:active{transform:none}
+  /* The row snaps to its height; only the fade is left to carry the arrival. */
+  #keybar-slot{transition:opacity var(--dur-state) var(--ease-out)}
+}
+</style>
+
+<!-- No aggregateRating: the rating shown on the page comes from /reviews.json at
+     load, and a number hard-coded here would be a hand-maintained copy that
+     drifts the day someone leaves a review. Google's SoftwareApplication rich
+     result needs one in the static markup, so expect no stars in the SERP. The markup still earns its place as entity data.
+     No FAQPage either: Google stopped rendering FAQ rich results in May 2026. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://notifi.it/#org",
+      "name": "notifi",
+      "url": "https://notifi.it/",
+      "logo": "https://notifi.it/apple-touch-icon.png",
+      "email": "hello@notifi.it",
+      "sameAs": [
+        "https://github.com/notifi-it/notifi",
+        "https://x.com/notifiit",
+        "https://instagram.com/notifidotit",
+        "https://facebook.com/notifidotit"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://notifi.it/#website",
+      "url": "https://notifi.it/",
+      "name": "notifi",
+      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No account, no SDK, encrypted with your public key, and open source.",
+      "publisher": { "@id": "https://notifi.it/#org" },
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://notifi.it/#app",
+      "name": "notifi",
+      "url": "https://notifi.it/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "iOS 17.0 or later, macOS 14.0 or later",
+      "installUrl": "https://apps.apple.com/app/id1563961135",
+      "downloadUrl": "https://notifi.it/download/mac",
+      "description": "The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it from any script, and a native push notification arrives on your iPhone or Mac. Notification content is encrypted with your public key. No SDK, no account, no sign-in.",
+      "featureList": [
+        "One plain HTTP request, GET or POST, JSON or form-encoded",
+        "No SDK, no account and no sign-in",
+        "Notification content encrypted with your public key",
+        "Open source",
+        "Per-script revocable send keys",
+        "Title, body, link and image parameters",
+        "Searchable notification history"
+      ],
+      "publisher": { "@id": "https://notifi.it/#org" },
+      "offers": { "@type": "Offer", "price": 0, "priceCurrency": "GBP" }
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<canvas id="static" aria-hidden="true"></canvas>
+
+<!-- Icon sprite. Thin stroke, currentColor, so each icon inherits whatever
+     colour the text around it already has. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-noaccount" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="3.4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/><path d="M3 3l18 18"/>
+    </symbol>
+
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2.4"/>
+      <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>
+    </symbol>
+
+    <symbol id="i-erase" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 7h14"/><path d="M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/>
+      <path d="M7 7l1 12a1.6 1.6 0 0 0 1.6 1.5h4.8A1.6 1.6 0 0 0 16 19l1-12"/>
+    </symbol>
+
+    <symbol id="i-urgent" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4v9"/><circle cx="12" cy="18.5" r="0.4" fill="currentColor"/>
+    </symbol>
+
+    <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="7.5" cy="16.5" r="3.5"/><path d="M10 14L20 4"/><path d="M17 7l2.5 2.5"/>
+    </symbol>
+
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/>
+      <path d="M12 3.5c2.4 2.4 3.6 5.3 3.6 8.5S14.4 18.1 12 20.5c-2.4-2.4-3.6-5.3-3.6-8.5S9.6 5.9 12 3.5Z"/>
+    </symbol>
+
+    <symbol id="i-branch" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="7" cy="5.5" r="2.4"/><circle cx="7" cy="18.5" r="2.4"/><circle cx="17" cy="9.5" r="2.4"/>
+      <path d="M7 8v8"/><path d="M17 12v.5a4 4 0 0 1-4 4H9.4"/>
+    </symbol>
+
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3.5 10.4 12 3.6l8.5 6.8"/>
+      <path d="M5.6 12v7.2a1 1 0 0 0 1 1h10.8a1 1 0 0 0 1-1V12"/>
+      <path d="M10 20.2v-5.1h4v5.1"/>
+    </symbol>
+
+    <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3.5" y="4" width="17" height="6.5" rx="1.8"/>
+      <rect x="3.5" y="13.5" width="17" height="6.5" rx="1.8"/>
+      <path d="M7 7.2h.01"/><path d="M7 16.8h.01"/>
+    </symbol>
+
+    <symbol id="i-agent" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="7.5" width="16" height="12" rx="3"/>
+      <path d="M12 7.5V4"/><circle cx="12" cy="3" r="1.3"/>
+      <path d="M9 12.5h.01"/><path d="M15 12.5h.01"/><path d="M9.5 16h5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap bar">
+    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
+    </a>
+    <nav>
+      <a href="#api" class="hide-sm">API</a>
+      <a href="#send">Send</a>
+      <a href="#uses" class="hide-sm">Uses</a>
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="#download">Download</a>
+      <a href="/faq" class="hide-sm">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ══ hero ══════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="wrap">
+    <!-- "No account" and "no sign-in" were the same claim twice; the third slot
+         buys the open-source line, which is the only trust claim on the page a
+         reader can go and check for themselves. -->
+    <p class="eyebrow" style="margin-bottom:20px">No account. Encrypted. Sends from anything that can send an HTTP request.</p>
+    <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
+    <p class="lede">
+      Install the app, grab your key, and send an HTTP request to
+      <code>notifi.it/send</code>. The notification shows up on your iPhone or Mac,
+      encrypted with your public key, so neither we nor Apple can read it.
+    </p>
+
+    <div class="cta">
+      <a class="btn btn-primary btn-get" href="https://apps.apple.com/app/id1563961135">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+        <span class="lbl"><b>Download&nbsp;on&nbsp;the&nbsp;App&nbsp;Store</b><span>iPhone and iPad · iOS 17+</span></span>
+      </a>
+      <a class="btn btn-get" href="/download/mac">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
+        <span class="lbl"><b>Download&nbsp;for&nbsp;Mac</b><span>Apple silicon · macOS 14+</span></span>
+      </a>
+    </div>
+
+    <div class="term">
+      <div class="term-bar">
+        <span class="dot3"><i></i><i></i><i></i></span>
+        <span class="term-title">~/deploy.sh</span>
+        <!-- A literal placeholder rather than $NOTIFI_KEY: a first-time reader
+             has nothing in that variable, so pasting the shell-variable form
+             sends an empty key and answers 401. -->
+        <button class="copy" aria-label="Copy the example curl command" data-copy='curl https://notifi.it/send -d key=nk_yourkeyhere -d title="hello world"'>Copy</button>
+      </div>
+<pre><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span>
+<span class="c">{"ok":true}</span></pre>
+    </div>
+    <!-- Carries the one instruction the removed three-step section was for:
+         nk_yourkeyhere is the slot, and the app is where the key comes from. -->
+    <p class="meta" style="margin-top:12px">
+      Replace <code>nk_yourkeyhere</code> with the key from
+      <a class="src app-get" href="https://apps.apple.com/app/id1563961135">the app</a>. More fields in the
+      <a href="#api" class="src">API docs</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ══ screenshots ═══════════════════════════════════════════ -->
+<section class="section-alt" id="app">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">The app</p><hr class="rule">
+    </div>
+    <h2>One inbox,<br>on every Apple device you own.</h2>
+
+    <figure class="app-film" id="film"
+            aria-label="A curl command, a Grafana webhook and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac."></figure>
+    <script src="/film.js" defer></script>
+
+    <div class="app-two">
+      <figure class="app-phone">
+        <div class="phone">
+          <img src="/screens/notifications.webp" width="620" height="1348" loading="lazy"
+               alt="The notifi inbox: a black list of alerts grouped under Today and Yesterday, unread ones showing their age in red.">
+        </div>
+        <figcaption>Inbox</figcaption>
+      </figure>
+      <figure class="mac mac-wall">
+        <div class="mac-desk">
+          <div class="mac-bar" aria-hidden="true">
+            <span class="mac-menus">
+              <svg class="mac-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+            </span>
+            <span class="bell" style="--bell:15px"></span>
+            <span class="mac-status">
+              <svg class="mac-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 9.5a11.5 11.5 0 0 1 16 0"/><path d="M6.8 12.8a7.5 7.5 0 0 1 10.4 0"/>
+                <path d="M9.6 16a3.6 3.6 0 0 1 4.8 0"/><path d="M12 18.8h.01"/>
+              </svg>
+              <svg class="mac-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2.5" y="8" width="16" height="8" rx="2.4"/>
+                <rect x="4.4" y="9.9" width="9" height="4.2" rx="1" fill="currentColor" stroke="none"/>
+                <path d="M20.5 10.8v2.4"/>
+              </svg>
+              <span class="mac-clock">18:41</span>
+            </span>
+          </div>
+          <img class="mac-shot" src="/screens/mac-cut.webp" width="840" height="1296" loading="lazy"
+               alt="The same inbox hanging from the Mac menu bar: the bell sits in the bar and the popover beneath it lists the day's alerts, the urgent one in red.">
+        </div>
+        <figcaption>Mac menu bar</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ══ api reference ═════════════════════════════════════════ -->
+<section class="section-alt" id="api">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">API</p><hr class="rule">
+    </div>
+    <h2>One endpoint.</h2>
+    <p class="lede" style="margin-top:14px;margin-bottom:8px">
+      <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
+    </p>
+    <p class="meta" style="margin-bottom:26px">
+      JSON or form-encoded. Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>,
+      or pass <code>key</code> as a parameter. The header keeps it out of logs.
+      Query parameters win over the body.
+    </p>
+
+    <!-- The table has a min-width and this scrolls, so on a narrow viewport part
+         of it is off-screen. Focusable and named, or a keyboard user cannot
+         reach the scroll container to move it. -->
+    <div class="tablewrap" tabindex="0" role="group" aria-label="Send parameters, scrollable">
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Type</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>key <span class="req">required</span></td>
+            <td>string</td>
+            <td>The key from the app. It picks which device gets the push. Send it as a
+                header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of
+                logs; or pass it as this parameter.</td>
+          </tr>
+          <tr>
+            <td>title <span class="req">required</span></td>
+            <td>string</td>
+            <td>The notification title. Up to 200 characters.</td>
+          </tr>
+          <tr>
+            <td>message</td>
+            <td>string</td>
+            <td>The notification body. Markdown, up to 16,000 characters. The push shows
+                a short preview; the app renders the full text.</td>
+          </tr>
+          <tr>
+            <td>link</td>
+            <td>URL</td>
+            <td>URL opened when the notification is tapped. Up to 2,048 characters.</td>
+          </tr>
+          <tr>
+            <td>image</td>
+            <td>URL</td>
+            <td>Image displayed with the notification. Must be <code>https</code>.
+                PNG, JPEG or GIF, 5&nbsp;MB max, URL up to 2,048 characters.</td>
+          </tr>
+          <tr>
+            <td>occurred_at</td>
+            <td>integer</td>
+            <td>When the event actually happened, as unix <em>milliseconds</em>, useful when
+                a send is queued or retried. Only changes the timestamp shown in the app;
+                defaults to when we receive the request.</td>
+          </tr>
+          <tr>
+            <td>is_critical</td>
+            <td>boolean</td>
+            <td>Ask for a critical alert: it breaks through Focus and stays on the lock screen,
+                but does not sound through silent mode. The key must also have <em>Critical
+                alerts</em> switched on in the app; a send that asks without that arrives as an
+                ordinary notification rather than failing, and the reply carries a
+                <code>warning</code> saying so.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Two hairline rows for four facts read as a section; the facts are the
+         same size as the sentence they now sit in. -->
+    <p class="meta" style="margin-top:22px">
+      60 sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
+      <code>message</code>: <code>400</code> invalid parameters · <code>401</code> unknown or
+      revoked key · <code>429</code> rate limited. <code>GET</code> works for a quick
+      test; <code>POST</code> is recommended.
+    </p>
+  </div>
+</section>
+
+<!-- ══ languages ═════════════════════════════════════════════ -->
+<section class="section-alt" id="send">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Send</p><hr class="rule">
+    </div>
+    <h2>The same one request,<br>from wherever you run.</h2>
+    <p class="lede" style="margin-top:14px;margin-bottom:26px">
+      Copy one and put your key in it. Anything that can make an HTTP request can send.
+    </p>
+
+    <!-- Filled in only when the page is opened with a key in the URL fragment
+         (#key=…). The fragment never leaves the browser, so the key is never
+         sent to the server or written to any edge log. -->
+    <div id="keybar-slot">
+      <div class="term" id="keybar" hidden>
+        <div class="term-bar">
+          <span class="dot3"><i></i><i></i><i></i></span>
+          <span class="term-title">your key</span>
+          <button class="copy" id="copykey" aria-label="Copy the export line for your key">Copy</button>
+        </div>
+<pre><span class="p">$</span> export NOTIFI_KEY=<span class="k" id="keyval"></span></pre>
+      </div>
+    </div>
+
+    <!-- Seven, and they fit on one line. Twelve wrapped to three rows of chips,
+         which is a lot of furniture above a block only one of them can fill —
+         and Ruby, PHP, Rust and Swift were each the same six-line POST written
+         out again, so the row cost more than the samples were worth. Anyone on
+         those reads the curl one. -->
+    <div class="tabs" role="tablist" aria-label="Examples">
+      <button class="tab" role="tab" aria-selected="true"  aria-controls="p-curl"   id="t-curl">curl</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-js"     id="t-js">JavaScript</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-py"     id="t-py">Python</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-go"     id="t-go">Go</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-swift"  id="t-swift">Swift</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-ruby"   id="t-ruby">Ruby</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-php"    id="t-php">PHP</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust"   id="t-rust">Rust</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-hook"   id="t-hook">Claude&nbsp;Code</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-gha"    id="t-gha">GitHub&nbsp;Actions</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-shell"  id="t-shell">Shell&nbsp;hook</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-systemd" id="t-systemd">systemd</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-kube" id="t-kube">Kubernetes</button>
+    </div>
+
+    <div class="term">
+      <div class="term-bar">
+        <span class="dot3"><i></i><i></i><i></i></span>
+        <span class="term-title" id="langname">send.sh</span>
+        <button class="copy" id="copycode" aria-label="Copy the sample for the selected language">Copy</button>
+      </div>
+
+      <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh">
+<pre>curl -X POST https://notifi.it/send \
+  -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+  -d <span class="s">"title=Backup complete"</span> \
+  -d <span class="s">"message=4.2 GB in 3m 11s"</span> \
+  -d <span class="s">"link=https://console.internal/backups"</span></pre>
+      </div>
+
+      <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" hidden>
+<pre>await fetch(<span class="s">"https://notifi.it/send"</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: {
+    <span class="s">"Authorization"</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
+    <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
+  },
+  body: JSON.stringify({
+    title: <span class="s">"Backup complete"</span>,
+    message: <span class="s">"4.2 GB in 3m 11s"</span>,
+  }),
+});</pre>
+      </div>
+
+      <div class="panel" id="p-py" role="tabpanel" tabindex="0" aria-labelledby="t-py" data-name="send.py" hidden>
+<pre><span class="f">import</span> os, requests
+
+requests.post(
+    <span class="s">"https://notifi.it/send"</span>,
+    headers={<span class="s">"Authorization"</span>: <span class="s">f"Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}"</span>},
+    json={
+        <span class="s">"title"</span>: <span class="s">"Backup complete"</span>,
+        <span class="s">"message"</span>: <span class="s">"4.2 GB in 3m 11s"</span>,
+    },
+)</pre>
+      </div>
+
+      <div class="panel" id="p-go" role="tabpanel" tabindex="0" aria-labelledby="t-go" data-name="send.go" hidden>
+<pre><span class="f">package</span> main
+
+<span class="f">import</span> (
+	<span class="s">"net/http"</span>
+	<span class="s">"net/url"</span>
+	<span class="s">"os"</span>
+	<span class="s">"strings"</span>
+)
+
+<span class="f">func</span> main() {
+	form := url.Values{
+		<span class="s">"title"</span>:   {<span class="s">"Backup complete"</span>},
+		<span class="s">"message"</span>: {<span class="s">"4.2 GB in 3m 11s"</span>},
+	}
+	req, _ := http.NewRequest(<span class="s">"POST"</span>, <span class="s">"https://notifi.it/send"</span>,
+		strings.NewReader(form.Encode()))
+	req.Header.Set(<span class="s">"Authorization"</span>, <span class="s">"Bearer "</span>+os.Getenv(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>))
+	req.Header.Set(<span class="s">"Content-Type"</span>, <span class="s">"application/x-www-form-urlencoded"</span>)
+	http.DefaultClient.Do(req)
+}</pre>
+      </div>
+
+      <div class="panel" id="p-swift" role="tabpanel" tabindex="0" aria-labelledby="t-swift" data-name="Send.swift" hidden>
+<pre><span class="f">import</span> Foundation
+
+<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">"https://notifi.it/send"</span>)!)
+request.httpMethod = <span class="s">"POST"</span>
+request.setValue(<span class="s">"Bearer \(key)"</span>, forHTTPHeaderField: <span class="s">"Authorization"</span>)
+request.setValue(<span class="s">"application/json"</span>, forHTTPHeaderField: <span class="s">"Content-Type"</span>)
+request.httpBody = <span class="f">try</span> JSONEncoder().encode([
+    <span class="s">"title"</span>: <span class="s">"Backup complete"</span>,
+    <span class="s">"message"</span>: <span class="s">"4.2 GB in 3m 11s"</span>,
+])
+
+_ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
+      </div>
+
+      <div class="panel" id="p-ruby" role="tabpanel" tabindex="0" aria-labelledby="t-ruby" data-name="send.rb" hidden>
+<pre><span class="f">require</span> <span class="s">"net/http"</span>
+
+uri = URI(<span class="s">"https://notifi.it/send"</span>)
+req = Net::HTTP::Post.new(uri)
+req[<span class="s">"Authorization"</span>] = <span class="s">"Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}"</span>
+req.set_form_data(
+  <span class="s">"title"</span> =&gt; <span class="s">"Backup complete"</span>,
+  <span class="s">"message"</span> =&gt; <span class="s">"4.2 GB in 3m 11s"</span>
+)
+
+Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
+      </div>
+
+      <div class="panel" id="p-php" role="tabpanel" tabindex="0" aria-labelledby="t-php" data-name="send.php" hidden>
+<pre><span class="p">&lt;?php</span>
+$ch = curl_init(<span class="s">"https://notifi.it/send"</span>);
+curl_setopt_array($ch, [
+    CURLOPT_POST       =&gt; <span class="f">true</span>,
+    CURLOPT_HTTPHEADER =&gt; [<span class="s">"Authorization: Bearer "</span> . getenv(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)],
+    CURLOPT_POSTFIELDS =&gt; [
+        <span class="s">"title"</span>   =&gt; <span class="s">"Backup complete"</span>,
+        <span class="s">"message"</span> =&gt; <span class="s">"4.2 GB in 3m 11s"</span>,
+    ],
+]);
+curl_exec($ch);</pre>
+      </div>
+
+      <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" hidden>
+<pre><span class="c">// Fires when Claude stops.</span>
+{
+  <span class="s">"hooks"</span>: {
+    <span class="s">"Stop"</span>: [{
+      <span class="s">"hooks"</span>: [{
+        <span class="s">"type"</span>: <span class="s">"command"</span>,
+        <span class="s">"command"</span>: <span class="s">"curl -s https://notifi.it/send \
+                     -H \"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>\" \
+                     -d \"title=Claude finished\" \
+                     -d \"message=$CLAUDE_PROJECT_DIR\""</span>
+      }]
+    }]
+  }
+}</pre>
+      </div>
+
+      <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" hidden>
+<pre><span class="c"># Put NOTIFI_KEY in the repository's secrets.</span>
+- <span class="s">name</span>: Tell me it broke
+  <span class="s">if</span>: failure()
+  <span class="s">run</span>: |
+    curl -s https://notifi.it/send \
+      -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+      -d <span class="s">"title=$GITHUB_WORKFLOW failed"</span> \
+      -d <span class="s">"message=$GITHUB_REF_NAME at $(git log -1 --format=%s)"</span> \
+      -d <span class="s">"link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"</span>
+  <span class="s">env</span>:
+    <span class="s">NOTIFI_KEY</span>: ${{ secrets.NOTIFI_KEY }}</pre>
+      </div>
+
+      <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" hidden>
+<pre><span class="c"># Notify for any command that took longer than a minute, and say</span>
+<span class="c"># whether it worked.</span>
+<span class="f">autoload</span> -Uz add-zsh-hook
+
+_notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
+_notifi_end() {
+  <span class="f">local</span> code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
+  (( secs &lt; 60 )) &amp;&amp; <span class="f">return</span>
+  curl -s https://notifi.it/send \
+    -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+    -d <span class="s">"title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s"</span> \
+    -d <span class="s">"message=$_NOTIFI_CMD"</span> &gt;/dev/null
+}
+add-zsh-hook preexec _notifi_start
+add-zsh-hook precmd  _notifi_end</pre>
+      </div>
+
+      <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" hidden>
+<pre><span class="c"># Drop this in /etc/systemd/system/, then add one line to any unit:</span>
+<span class="c">#   OnFailure=notifi-failed@%n.service</span>
+<span class="c"># Every unit on the box can share it. %i is the unit that failed.</span>
+[<span class="f">Unit</span>]
+<span class="s">Description</span>=Push a notification when %i fails
+
+[<span class="f">Service</span>]
+<span class="s">Type</span>=oneshot
+<span class="s">EnvironmentFile</span>=/etc/notifi.env
+<span class="s">ExecStart</span>=/usr/bin/curl -s https://notifi.it/send \
+  -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+  -d <span class="s">"title=%i failed on %H"</span> \
+  --data-urlencode <span class="s">"message=$(systemctl status %i --lines=10 --no-pager)"</span></pre>
+      </div>
+
+      <div class="panel" id="p-kube" role="tabpanel" tabindex="0" aria-labelledby="t-kube" data-name="backup.yaml" hidden>
+<pre><span class="c"># Put the key in a Secret, then curl at the end of any Job's command.</span>
+<span class="s">apiVersion</span>: batch/v1
+<span class="s">kind</span>: CronJob
+<span class="s">metadata</span>:
+  <span class="s">name</span>: nightly-backup
+<span class="s">spec</span>:
+  <span class="s">schedule</span>: <span class="s">"0 3 * * *"</span>
+  <span class="s">jobTemplate</span>:
+    <span class="s">spec</span>:
+      <span class="s">template</span>:
+        <span class="s">spec</span>:
+          <span class="s">restartPolicy</span>: Never
+          <span class="s">containers</span>:
+          - <span class="s">name</span>: backup
+            <span class="s">image</span>: alpine/curl
+            <span class="s">command</span>: [<span class="s">"/bin/sh"</span>, <span class="s">"-c"</span>]
+            <span class="s">args</span>:
+            - |
+              ./backup.sh &amp;&amp;
+              curl -s https://notifi.it/send \
+                -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
+                -d <span class="s">"title=Backup complete"</span>
+            <span class="s">env</span>:
+            - <span class="s">name</span>: NOTIFI_KEY
+              <span class="s">valueFrom</span>: { <span class="s">secretKeyRef</span>: { <span class="s">name</span>: notifi, <span class="s">key</span>: key } }</pre>
+      </div>
+
+      <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" hidden>
+<pre><span class="c">// reqwest = { version = "0.12", features = ["json"] }</span>
+<span class="f">let</span> key = std::env::var(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)?;
+
+reqwest::Client::new()
+    .post(<span class="s">"https://notifi.it/send"</span>)
+    .bearer_auth(key)
+    .form(&amp;[
+        (<span class="s">"title"</span>, <span class="s">"Backup complete"</span>),
+        (<span class="s">"message"</span>, <span class="s">"4.2 GB in 3m 11s"</span>),
+    ])
+    .send()
+    .<span class="f">await</span>?;</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ uses ══════════════════════════════════════════════════ -->
+<section class="section-alt" id="uses">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Uses</p><hr class="rule">
+    </div>
+    <h2 style="margin-bottom:34px">Anything that finishes,<br>fails, or changes.</h2>
+
+    <!-- Three examples a column, not five. The list is here to make a reader
+         recognise their own case, and that happens on the first line or two;
+         everything after it is read as inventory. -->
+    <div class="uses">
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>Agents</p>
+        <ul>
+          <li>A Claude Code run finished</li>
+          <li>An agent stopped and needs a decision</li>
+          <li>A watched price dropped below your number</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Builds and deploys</p>
+        <ul>
+          <li>A deploy failed, with the failing step</li>
+          <li>A release went out, with the tag</li>
+          <li>A flaky test failed again on main</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-server"/></svg>Servers and jobs</p>
+        <ul>
+          <li>A disk crossed 90%</li>
+          <li>A health check has been down five minutes</li>
+          <li>A training run finished, with the final loss</li>
+        </ul>
+      </div>
+
+      <div class="use-col">
+        <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-home"/></svg>Home and hardware</p>
+        <ul>
+          <li>A leak sensor under the sink went wet</li>
+          <li>The UPS switched to battery</li>
+          <li>The car finished charging overnight</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ how it works ══════════════════════════════════════════ -->
+<section class="section-alt" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">How it works</p><hr class="rule">
+    </div>
+    <h2 style="margin-bottom:26px">Your phone holds the only key.</h2>
+
+    <div class="rows">
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>No account</h3>
+        <p>No signup, no email, no password. The app generates a keypair on first
+           launch and that keypair is your identity.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your notifications</h3>
+        <div>
+          <p>Notifications are
+             <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">encrypted</a>
+             with your public key before they are stored, so the server only ever holds
+             encrypted text. Apple relays an alert that just says <code>notifi</code>,
+             and your phone
+             <a href="https://github.com/notifi-it/notifi/blob/main/apps/app/Shared/Identity/DeviceIdentity.swift" class="src">decrypts</a>
+             the real title when it arrives.</p>
+          <p style="margin-top:12px">
+             <a href="/privacy" class="src">See more</a>.</p>
+        </div>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-erase"/></svg>Nothing kept after delivery</h3>
+        <p>The server deletes a notification as soon as your device confirms it has collected
+           it. Your history lives on your device, not in our database.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>Critical alerts</h3>
+        <p>Send with <code>is_critical=1</code> on a key you have marked critical, and the
+           notification breaks through Focus and lands on the lock screen.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>One key per script, revocable</h3>
+        <p>CI gets a key, the backup job gets a key, the scraper gets a key. If one
+           leaks, revoke it and the rest keep working.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>Send from anywhere</h3>
+        <p>Plain HTTP and no SDK, so anything that can make an HTTP request can send: a
+           Linux box, a CI runner, a router, a home hub, another phone.</p>
+      </div>
+      <div class="row">
+        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Open source</h3>
+        <p>The app, the API and the crypto are on
+           <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ download ══════════════════════════════════════════════ -->
+<section class="section-alt" id="download">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Download</p><hr class="rule">
+    </div>
+    <h2>Get notifi on iPhone and Mac.</h2>
+    <p class="lede" style="margin-top:14px;margin-bottom:28px">
+      On the Mac it lives in the menu bar. Each key delivers to one device, so a script
+      pages your phone, your Mac, or both if you give it two keys.
+    </p>
+
+    <!-- The Mac link is /download/mac, not a GitHub release URL: the Worker
+         redirects to the latest release asset, so the URL here never has to be
+         edited on a release. See apps/api/src/routes/downloads.ts. -->
+    <div class="cta">
+      <a class="btn btn-primary btn-get" href="https://apps.apple.com/app/id1563961135">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+        <span class="lbl"><b>Download&nbsp;on&nbsp;the&nbsp;App&nbsp;Store</b><span>iPhone and iPad · iOS 17+</span></span>
+      </a>
+      <a class="btn btn-get" href="/download/mac">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
+        <span class="lbl"><b>Download&nbsp;the&nbsp;Mac&nbsp;app&nbsp;(.dmg)</b><span>Apple silicon or T2 · macOS 14+</span></span>
+      </a>
+      <p class="meta">The Mac build updates itself. Homebrew works too: <code>brew install --cask notifi-it/tap/notifi</code></p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ reviews ═══════════════════════════════════════════════ -->
+<!-- Everything below is filled from /reviews.json, which merges Apple's
+     customer-review RSS across storefronts. Newest first, unfiltered: a wall
+     that only ever shows five stars is one nobody believes. -->
+<section class="section-alt" id="reviews" hidden>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Reviews</p><hr class="rule">
+    </div>
+    <h2 style="margin-bottom:10px">What people write on the App Store.</h2>
+    <div class="rating" id="reviews-rating"></div>
+    <p class="lede" style="margin-bottom:28px;font-style:italic">
+      Unfortunately, we didn't realize we had any users when we took down the servers.
+    </p>
+    <div class="reviews" id="reviews-list"></div>
+    <p class="reviews-meta">
+      Pulled from Apple's public review feed, newest first, nothing filtered out.
+      <a href="https://apps.apple.com/app/id1563961135">Write one</a>.
+    </p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
+    </div>
+  </div>
+  <!-- The section links are not repeated here. The header is sticky, so it is
+       already on screen at the bottom of the page; a second copy of the same
+       six anchors is furniture, and it buried the two links that only exist
+       down here. -->
+  <div class="wrap foot">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/faq">FAQ</a>
+    <a href="mailto:hello@notifi.it">Contact</a>
+    <a href="https://github.com/notifi-it/notifi">GitHub</a>
+    <a href="https://x.com/notifiit" rel="me">X</a>
+    <a href="https://instagram.com/notifidotit" rel="me">Instagram</a>
+    <a href="https://facebook.com/notifidotit" rel="me">Facebook</a>
+    <span class="meta">Built by Maximilian Mitchell</span>
+  </div>
+</footer>
+
+<!-- The copy buttons swap their own label, which a screen reader does not
+     announce because focus never moves. This is where the outcome is said. -->
+<p id="copystatus" role="status" aria-live="polite"
+   style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap"></p>
+
+<script>
+// ── language tabs ───────────────────────────────────────────
+(function () {
+  const tabs = [...document.querySelectorAll('.tab')];
+  const name = document.getElementById('langname');
+
+  function select(tab) {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      // Roving tabindex: the tablist is one Tab stop, not twelve, and the
+      // arrow keys below move within it.
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    const panel = document.getElementById(tab.getAttribute('aria-controls'));
+    name.textContent = panel.dataset.name;
+  }
+
+  tabs.forEach(tab => {
+    tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
+    tab.addEventListener('click', () => select(tab));
+  });
+
+  // arrows, Home and End move between tabs, as a tablist should
+  document.querySelector('.tabs').addEventListener('keydown', e => {
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    let next;
+    if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    else return;
+    e.preventDefault();
+    const target = tabs[next];
+    target.focus();
+    select(target);
+  });
+})();
+
+// ── copy buttons ────────────────────────────────────────────
+(function () {
+  const status = document.getElementById('copystatus');
+
+  function flash(btn, text) {
+    // Read the label before awaiting, or a second click inside the 1.5s window
+    // captures "Copied" as the label to restore and it never goes back.
+    const was = btn.dataset.label || btn.textContent;
+    btn.dataset.label = was;
+
+    const settle = (label, state, said) => {
+      btn.textContent = label;
+      if (state) btn.dataset.state = state; else delete btn.dataset.state;
+      status.textContent = said;
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => {
+        btn.textContent = was;
+        delete btn.dataset.state;
+        status.textContent = '';
+      }, state ? 4000 : 1500);
+    };
+
+    // Rejects on an insecure origin or a denied permission, and the button
+    // would otherwise sit reading "Copy" as though nothing had been asked.
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+      .then(() => settle('Copied', null, 'Copied to the clipboard'),
+            () => settle('Select and copy', 'failed',
+                         'Could not copy. Select the text and copy it yourself.'));
+  }
+
+  document.querySelectorAll('.copy[data-copy]').forEach(btn =>
+    btn.addEventListener('click', () => flash(btn, btn.dataset.copy)));
+
+  const codeBtn = document.getElementById('copycode');
+  codeBtn.addEventListener('click', () => {
+    const open = document.querySelector('.panel:not([hidden]) pre');
+    if (open) flash(codeBtn, open.innerText);
+  });
+
+  // ── pre-filled key ────────────────────────────────────────
+  // The app links here as https://notifi.it/#key=… (the key page uses
+  // ?key=…#send) so a key created on the phone can be pasted straight
+  // into a terminal. The head script stripped the key from the URL before
+  // first paint and left it in the stash; by the time this runs the URL is
+  // already clean.
+  (function () {
+    const key = window.__notifiKey;
+    if (!key) return;
+    delete window.__notifiKey;
+
+    // Anything that is not a plausible key is ignored rather than shown.
+    if (!/^[A-Za-z0-9._-]{8,128}$/.test(key)) return;
+
+    // Only the shell spots hold the key itself. NOTIFI_KEY inside a
+    // process.env / os.environ lookup is a variable name and must stay a name.
+    // nk_yourkeyhere is the paste-ready placeholder the hero shows a reader who
+    // has no key yet; it is a value, so it is replaced too.
+    const slots = ['$NOTIFI_KEY', 'nk_yourkeyhere'];
+    document.querySelectorAll('.k').forEach(el => {
+      if (slots.includes(el.textContent)) el.textContent = key;
+    });
+    document.querySelectorAll('[data-copy]').forEach(el => {
+      el.dataset.copy = slots.reduce((s, slot) => s.split(slot).join(key), el.dataset.copy);
+    });
+
+    const bar = document.getElementById('keybar');
+    const slot = document.getElementById('keybar-slot');
+    document.getElementById('keyval').textContent = key;
+    bar.hidden = false;
+    // Reading a layout property flushes the collapsed state, so the class that
+    // follows has something to transition from. Deliberately not requestAnimation-
+    // Frame: rAF does not run in a background tab, and this page is usually opened
+    // from a link on the phone — the bar would have sat at zero height with the
+    // key in it until the tab was looked at.
+    void slot.offsetHeight;
+    slot.classList.add('is-open');
+    document.getElementById('copykey')
+      .addEventListener('click', e => flash(e.currentTarget, 'export NOTIFI_KEY=' + key));
+  })();
+})();
+</script>
+
+<script>
+// The static. Six noise tiles are baked once and cycled at 12fps rather than a
+// frame being generated per paint — real static never repeats, but at this
+// amplitude the loop is invisible and the tiles cost nothing to redraw.
+(function(){
+  var cv = document.getElementById("static");
+  if (!cv) return;
+  var ctx = cv.getContext("2d", { alpha: false });
+
+  var SIZE = 256;   // tile edge; large enough that the repeat forms no visible grid
+  var CELL = 1;     // one speckle per device pixel — the finest the screen can draw
+  var GROUND = 28;  // --bg, #1C1C1E
+  var SPREAD = 14;  // ± either side. See the note on #static in the stylesheet.
+
+  function tile(){
+    var t = document.createElement("canvas");
+    t.width = t.height = SIZE;
+    var tc = t.getContext("2d");
+    var img = tc.createImageData(SIZE, SIZE);
+    var d = img.data;
+    var g = SIZE / CELL;
+    var cells = new Float32Array(g * g);
+    for (var i = 0; i < cells.length; i++) cells[i] = Math.random();
+
+    for (var y = 0; y < SIZE; y++){
+      for (var x = 0; x < SIZE; x++){
+        var cx = (x / CELL) | 0, cy = (y / CELL) | 0;
+        var v = GROUND + (cells[cy*g + cx] - 0.5) * 2 * SPREAD;
+        var o = (y*SIZE + x) * 4;
+        d[o] = d[o+1] = d[o+2] = v; d[o+3] = 255;
+      }
+    }
+    tc.putImageData(img, 0, 0);
+    return ctx.createPattern(t, "repeat");
+  }
+
+  var frames = [], f = 0;
+  for (var k = 0; k < 6; k++) frames.push(tile());
+
+  function paint(){
+    ctx.fillStyle = frames[f++ % frames.length];
+    ctx.fillRect(0, 0, cv.width, cv.height);
+  }
+
+  function resize(){
+    // Backing store at device resolution, so one speckle is one physical pixel
+    // rather than one CSS pixel — on a 2x or 3x screen the latter is a visible
+    // block, which reads as noise added to the page rather than grain in it.
+    var dpr = Math.min(window.devicePixelRatio || 1, 3);
+    var w = Math.floor(cv.clientWidth * dpr);
+    var h = Math.floor(cv.clientHeight * dpr);
+    if (!w || !h) return;               // nothing to paint into yet
+    if (w === cv.width && h === cv.height) return;
+    cv.width = w; cv.height = h;        // assigning either one clears the canvas
+    paint();
+  }
+
+  // Measured off the element rather than the window, and observed rather than
+  // waiting for a resize event: the canvas is laid out by CSS, and a page that
+  // first paints at a zero or provisional viewport would otherwise stay blank
+  // until something happened to resize the window.
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(cv);
+  else window.addEventListener("resize", resize);
+  resize();
+
+  // Reduce Motion leaves one still frame. The crawl is the whole effect, so
+  // there is nothing to soften — it simply stops.
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var timer = null;
+  function apply(){
+    if (timer) { clearInterval(timer); timer = null; }
+    if (!still.matches) timer = setInterval(paint, 1000/12);
+  }
+  still.addEventListener("change", apply);
+  apply();
+
+  // setInterval is throttled but not stopped in a hidden tab, and a background
+  // tab redrawing static is pure battery cost.
+  document.addEventListener("visibilitychange", function(){
+    if (document.hidden) { if (timer) { clearInterval(timer); timer = null; } }
+    else apply();
+  });
+})();
+
+// Section numbering: the total is counted from the page rather than written
+// down, so adding or removing a section cannot leave a wrong denominator.
+(function(){
+  var heads = document.querySelectorAll(".section-head");
+  var of = String(heads.length).padStart(2, "0");
+  for (var i = 0; i < heads.length; i++) heads[i].setAttribute("data-of", of);
+})();
+
+// Headings and ledes light up word by word as they cross the viewport.
+//
+// The words are wrapped here rather than in the markup so the HTML stays
+// readable and the text stays one string for anything that copies or reads it.
+(function(){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  var targets = document.querySelectorAll("h2, .lede");
+  if (!targets.length) return;
+
+  var items = [];
+  for (var t = 0; t < targets.length; t++) items.push(prepare(targets[t]));
+
+  // A heading and its lede sit close enough that their bands overlap, which
+  // animated both at once. Split the band instead: the heading takes the first
+  // stretch, the lede that follows it in the same section takes the rest.
+  for (var s = 1; s < items.length; s++){
+    var a = items[s - 1], b = items[s];
+    if (a.el.tagName === "H2" && b.el.classList.contains("lede") &&
+        a.el.closest("section") === b.el.closest("section")){
+      a.phase = [0, 0.55];
+      b.phase = [0.55, 1];
+    }
+  }
+
+  function prepare(el){
+    // Walk the children rather than rewriting innerHTML: the headings contain
+    // <br> and the ledes contain <code> and links, and all of that has to
+    // survive the split intact.
+    var nodes = [].slice.call(el.childNodes);
+    for (var i = 0; i < nodes.length; i++){
+      var node = nodes[i];
+      if (node.nodeType !== 3) continue;             // element — leave it alone
+      var parts = node.nodeValue.split(/(\s+)/);
+      var frag = document.createDocumentFragment();
+      for (var p = 0; p < parts.length; p++){
+        if (!parts[p]) continue;
+        if (/^\s+$/.test(parts[p])) { frag.appendChild(document.createTextNode(parts[p])); continue; }
+        // A word span holds the line-breaking, and one span per character
+        // inside it holds the reveal.
+        var word = document.createElement("span");
+        word.className = "w";
+        for (var ch = 0; ch < parts[p].length; ch++){
+          var c = document.createElement("span");
+          c.className = "c";
+          c.textContent = parts[p][ch];
+          word.appendChild(c);
+        }
+        frag.appendChild(word);
+      }
+      el.replaceChild(frag, node);
+    }
+    el.classList.add("reveal", "armed");
+    return { el: el, words: el.querySelectorAll(".c"), lit: -1 };
+  }
+
+  // The band the reveal happens over: a word is lit once the element has risen
+  // from 88% of the viewport height to 45% of it. Ending well above the fold
+  // means the last word lands while the reader is still approaching the text,
+  // not after they have already read past it.
+  var START = 0.88, END = 0.45;
+
+  function frame(){
+    var vh = window.innerHeight;
+    for (var i = 0; i < items.length; i++){
+      var it = items[i];
+      if (it.done) continue;
+      var top = it.el.getBoundingClientRect().top / vh;
+      var p = (START - top) / (START - END);
+      p = p < 0 ? 0 : p > 1 ? 1 : p;
+      if (it.phase){
+        p = (p - it.phase[0]) / (it.phase[1] - it.phase[0]);
+        p = p < 0 ? 0 : p > 1 ? 1 : p;
+      }
+      var want = Math.round(p * it.words.length);
+      if (want === it.lit) continue;
+      // Only the words between the old and new marks are touched, so a fast
+      // scroll costs a handful of class flips rather than a full rewrite.
+      var from = it.lit < 0 ? 0 : it.lit;
+      if (want > from) for (var j = from; j < want; j++) it.words[j].classList.add("on");
+      else for (var k = from - 1; k >= want; k--) if (it.words[k]) it.words[k].classList.remove("on");
+
+
+      it.lit = want;
+    }
+    ticking = false;
+  }
+
+  var ticking = false;
+  function onScroll(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+
+  // Anything already on screen when the page loads is resolved outright. The
+  // reveal is for text the reader scrolls down to; applying it to the hero left
+  // a half-lit sentence sitting there at rest, which reads as a rendering fault
+  // rather than as an effect.
+  for (var i = 0; i < items.length; i++){
+    var it = items[i];
+    if (it.el.getBoundingClientRect().top >= window.innerHeight) continue;
+    for (var j = 0; j < it.words.length; j++) it.words[j].classList.add("on");
+    it.lit = it.words.length;
+    it.done = true;
+  }
+  frame();
+})();
+
+// ── the reader's own platform leads ─────────────────────────
+// The markup ships with the App Store first, which is what a reader with no
+// JavaScript and every crawler sees. On a Mac that is the wrong one to lead
+// with, so the pair is swapped and the emphasis moves with it.
+(function () {
+  var mac = /Macintosh|Mac OS X/.test(navigator.userAgent) &&
+            !(navigator.maxTouchPoints > 1);
+  if (!mac) return;
+
+  var links = document.querySelectorAll('a.app-get');
+  for (var k = 0; k < links.length; k++) links[k].href = '/download/mac';
+
+  var groups = document.querySelectorAll('.cta');
+  for (var i = 0; i < groups.length; i++) {
+    var btns = groups[i].querySelectorAll('.btn-get');
+    if (btns.length < 2) continue;
+    var store = btns[0], desktop = btns[1];
+    store.parentNode.insertBefore(desktop, store);
+    desktop.classList.add('btn-primary');
+    store.classList.remove('btn-primary');
+  }
+})();
+
+// ── App Store reviews ───────────────────────────────────────
+// Built with textContent, never innerHTML: every string here is written by a
+// stranger on the App Store. The section stays hidden unless the fetch comes
+// back with at least one review.
+(function () {
+  var section = document.getElementById('reviews');
+  if (!section) return;
+
+  function stars(rating) {
+    var el = document.createElement('p');
+    el.className = 'stars';
+    var on = document.createElement('span');
+    on.textContent = '★★★★★'.slice(0, rating);
+    var off = document.createElement('span');
+    off.className = 'off';
+    off.textContent = '★★★★★'.slice(0, 5 - rating);
+    el.appendChild(on);
+    el.appendChild(off);
+    el.setAttribute('aria-label', rating + ' out of 5');
+    return el;
+  }
+
+  function when(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function card(r) {
+    var el = document.createElement('article');
+    el.className = 'review';
+
+    var title = document.createElement('h3');
+    title.textContent = r.title;
+
+    var body = document.createElement('p');
+    body.textContent = r.body;
+
+    var by = document.createElement('p');
+    by.className = 'by';
+    by.textContent = [r.author, r.country.toUpperCase(), when(r.date)]
+      .filter(Boolean)
+      .join(' · ');
+
+    el.appendChild(stars(r.rating));
+    el.appendChild(title);
+    el.appendChild(body);
+    el.appendChild(by);
+    return el;
+  }
+
+  fetch('/reviews.json')
+    .then(function (res) { return res.ok ? res.json() : null; })
+    .then(function (data) {
+      if (!data || !data.reviews || !data.reviews.length) return;
+
+      var list = document.getElementById('reviews-list');
+      for (var i = 0; i < data.reviews.length; i++) list.appendChild(card(data.reviews[i]));
+
+      var rating = document.getElementById('reviews-rating');
+      var glyphs = document.createElement('div');
+      glyphs.className = 'glyphs';
+      for (var s = 1; s <= 5; s++) {
+        var star = document.createElement('span');
+        star.className = 'star';
+        star.textContent = '★';
+        var lit = document.createElement('span');
+        lit.className = 'lit';
+        lit.textContent = '★';
+        lit.setAttribute('aria-hidden', 'true');
+        lit.style.width = Math.max(0, Math.min(1, data.average - (s - 1))) * 100 + '%';
+        star.appendChild(lit);
+        glyphs.appendChild(star);
+      }
+      glyphs.setAttribute('role', 'img');
+      glyphs.setAttribute('aria-label', data.average + ' out of 5');
+
+      var count = document.createElement('p');
+      count.className = 'count';
+      count.textContent = data.count + (data.count === 1 ? ' review' : ' reviews');
+
+      rating.appendChild(glyphs);
+      rating.appendChild(count);
+
+      section.hidden = false;
+    })
+    .catch(function () {});
+})();
+
+</script>
+</body>
+</html>

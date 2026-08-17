@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A storyboard rather than the UILaunchScreen dict in Info.plist: that dict
+     takes a background *colour* and one image, so grain behind the bell is not
+     expressible in it. Nothing here animates — a launch screen runs no code, so
+     the grain is one baked frame and StaticField takes over at first paint. -->
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <!-- scaleAspectFill, not scaleToFill: the tile is square and
+                                 the screen is not, and stretching noise on one axis
+                                 turns the speckle into visible streaks. -->
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchGrain" translatesAutoresizingMaskIntoConstraints="NO" id="grn-01-aaa">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchBell" translatesAutoresizingMaskIntoConstraints="NO" id="bel-01-bbb">
+                                <rect key="frame" x="156.5" y="386" width="80" height="80"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="80" id="bel-w-001"/>
+                                    <constraint firstAttribute="height" constant="80" id="bel-h-001"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" name="LaunchBackground"/>
+                        <constraints>
+                            <constraint firstItem="grn-01-aaa" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="grn-c-001"/>
+                            <constraint firstItem="grn-01-aaa" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="grn-c-002"/>
+                            <constraint firstAttribute="trailing" secondItem="grn-01-aaa" secondAttribute="trailing" id="grn-c-003"/>
+                            <constraint firstAttribute="bottom" secondItem="grn-01-aaa" secondAttribute="bottom" id="grn-c-004"/>
+                            <constraint firstItem="bel-01-bbb" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="bel-c-001"/>
+                            <constraint firstItem="bel-01-bbb" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="bel-c-002"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="LaunchBell" width="80" height="80"/>
+        <image name="LaunchGrain" width="512" height="512"/>
+        <namedColor name="LaunchBackground">
+            <color red="0.949" green="0.949" blue="0.949" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

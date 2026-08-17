@@ -1,0 +1,8 @@
+{
+  "recipient_private_key_raw_b64": "cDjFJDM0JScQEm2uZJqnXdolq7dBrnKWH2xUAogOuy8=",
+  "recipient_private_key_pkcs8_b64": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgcDjFJDM0JScQEm2uZJqnXdolq7dBrnKWH2xUAogOuy+hRANCAASRdLPPu4cvpgtx2Z6a6FTr8IknpuwjXA7V55ePJpS9O2GRvS1GieHJFyNUunlL+mxy+5nYmuhkZRpwkBEGKv9u",
+  "recipient_public_key_x963_b64": "BJF0s8+7hy+mC3HZnproVOvwiSem7CNcDtXnl48mlL07YZG9LUaJ4ckXI1S6eUv6bHL7mdia6GRlGnCQEQYq/24=",
+  "info": "content",
+  "plaintext": "{\"title\":\"Deploy finished\",\"message\":\"main → prod\"}",
+  "sealed_b64": "BO55sG8Sn7GEvwHnhh8EHbj8WGY9DOkdYJs3gKlqpIm2k+j3xxTvyyQZd6umkXBvm45v2H47bshMY2C+ivwqtheFX25v/vCrasEY/JyRt25ZaLfbe4VHNX5sShTNOAZX5pwnI3VrFdJZgtv1eil4eWSvZE5MHSJU5/Bg/J/vUBXvewDF9Fg="
+}

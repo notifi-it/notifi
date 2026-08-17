@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>notifi — native iOS feed · 6 directions</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --grouped: #f2f2f7;
+    --card: #ffffff;
+    --label: #000000;
+    --label2: rgba(60,60,67,.6);
+    --label3: rgba(60,60,67,.3);
+    --sep: rgba(60,60,67,.29);
+    --fill: rgba(120,120,128,.12);
+    --fill2: rgba(120,120,128,.2);
+    --tint: #d92d28;
+    --tint-soft: #fbe9e8;
+    --sf: -apple-system, system-ui, "SF Pro Text", "Helvetica Neue", sans-serif;
+    --page-ink: #1c1c1e;
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  body { margin: 0; background: #ebe9e6; color: var(--page-ink); font-family: var(--sf); line-height: 1.5; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 28px 100px; }
+
+  header.top { padding: 56px 0 30px; }
+  header.top .eyebrow { color: var(--tint); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+  header.top h1 { font-size: 34px; font-weight: 700; letter-spacing: -.02em; margin: 8px 0 10px; }
+  header.top p { color: #6b6862; font-size: 16px; max-width: 68ch; margin: 0; }
+  header.top .kept { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  header.top .kept span { background: #fff; border: 1px solid #dedbd6; border-radius: 99px; padding: 5px 13px; font-size: 13px; font-weight: 500; }
+  header.top .kept b { color: var(--tint); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 30px; margin-top: 10px; }
+  .option { background: #fff; border: 1px solid #ddd9d3; border-radius: 20px; padding: 22px 22px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 10px 30px rgba(0,0,0,.05); }
+  .option .head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .option .num { font-size: 13px; font-weight: 700; color: #fff; background: var(--tint); border-radius: 7px; padding: 2px 8px; }
+  .option h2 { font-size: 19px; font-weight: 700; letter-spacing: -.01em; margin: 0; }
+  .option .concept { color: #6b6862; font-size: 14px; margin: 2px 0 18px; min-height: 40px; }
+
+  /* ---- phone ---- */
+  .phone {
+    width: 288px; margin: 0 auto; border: 9px solid #1a1a1c; border-radius: 42px;
+    background: var(--bg); overflow: hidden; position: relative; height: 588px;
+    display: flex; flex-direction: column; box-shadow: 0 8px 26px rgba(0,0,0,.18);
+  }
+  .phone.grouped { background: var(--grouped); }
+  .statusbar { height: 34px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; font-size: 13px; font-weight: 600; position: relative; z-index: 2; }
+  .statusbar .dots { display: flex; gap: 4px; align-items: center; }
+  .statusbar svg { width: 16px; height: 11px; }
+
+  .navbar { flex: none; padding: 2px 16px 8px; }
+  .navbar .big { font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
+  .navbar .row { display: flex; align-items: center; justify-content: space-between; }
+  .navbar .search { margin-top: 8px; background: var(--fill); border-radius: 10px; height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 9px; color: var(--label2); font-size: 15px; }
+  .navbar .search svg { width: 14px; height: 14px; }
+
+  .feed { flex: 1; overflow: hidden; position: relative; }
+  .feed.pad { padding: 8px 14px; display: flex; flex-direction: column; gap: 12px; }
+  .feed.plain { }
+
+  /* tab bar */
+  .tabbar { flex: none; height: 62px; border-top: .5px solid var(--sep); background: rgba(255,255,255,.86); backdrop-filter: blur(12px); display: flex; }
+  .tabbar .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--label3); font-size: 10px; font-weight: 500; }
+  .tabbar .tab svg { width: 24px; height: 24px; }
+  .tabbar .tab.on { color: var(--tint); }
+
+  /* generic feed pieces */
+  .unread { width: 9px; height: 9px; border-radius: 50%; background: var(--tint); flex: none; }
+  .ttl { font-weight: 600; font-size: 15px; color: var(--label); letter-spacing: -.01em; }
+  .msg { font-size: 14px; color: var(--label2); }
+  .time { font-size: 13px; color: var(--label3); font-weight: 400; flex: none; }
+  .clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .clamp3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .clamp1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .keychip { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 6px; background: var(--tint-soft); color: var(--tint); }
+
+  /* opt1 mail: inset grouped */
+  .inset { background: #fff; border-radius: 12px; margin: 10px; overflow: hidden; }
+  .mrow { display: flex; gap: 11px; padding: 11px 14px; align-items: flex-start; }
+  .mrow + .mrow { border-top: .5px solid var(--sep); }
+  .mrow .col { flex: 1; min-width: 0; }
+  .mrow .top { display: flex; justify-content: space-between; gap: 8px; }
+  .chev { color: var(--label3); font-size: 17px; align-self: center; }
+
+  /* opt2 banner cards */
+  .banner { background: #fff; border-radius: 18px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,.06); cursor: pointer; }
+  .banner .hd { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+  .banner .appicon { width: 20px; height: 20px; border-radius: 5px; background: var(--tint); display: grid; place-items: center; }
+  .banner .appicon svg { width: 13px; height: 13px; }
+  .banner .src { font-size: 12px; color: var(--label2); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .grab { width: 34px; height: 5px; border-radius: 3px; background: var(--label3); margin: 9px auto 1px; }
+
+  /* opt3 thread grouped by key */
+  .sechead { font-size: 13px; font-weight: 600; color: var(--label2); padding: 4px 6px; }
+  .more { color: var(--tint); font-weight: 600; cursor: pointer; }
+
+  /* opt4 compact log */
+  .logrow { display: flex; gap: 9px; padding: 9px 14px; align-items: baseline; border-bottom: .5px solid var(--sep); cursor: pointer; }
+  .logrow .t { font-size: 12px; color: var(--label3); font-variant-numeric: tabular-nums; font-family: ui-monospace, monospace; flex: none; }
+  .logrow .c { flex: 1; min-width: 0; }
+  .logrow .lt { font-weight: 600; font-size: 14px; }
+  .logrow .lm { font-size: 13px; color: var(--label2); font-family: ui-monospace, monospace; }
+
+  /* opt5 card + fade */
+  .fadecard { background: #fff; border-radius: 16px; padding: 13px 15px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .fadewrap { position: relative; max-height: 62px; overflow: hidden; transition: max-height .3s ease; }
+  .fadewrap.open { max-height: 400px; }
+  .fadewrap::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 30px; background: linear-gradient(transparent, #fff); pointer-events: none; transition: opacity .2s; }
+  .fadewrap.open::after { opacity: 0; }
+  .readmore { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--tint); background: var(--tint-soft); padding: 4px 11px; border-radius: 99px; cursor: pointer; }
+
+  /* opt6 peek row */
+  .peekrow { display: flex; gap: 11px; padding: 11px 14px; align-items: flex-start; cursor: pointer; }
+  .peekrow + .peekrow { border-top: .5px solid var(--sep); }
+
+  /* overlays inside phone */
+  .ov { position: absolute; inset: 0; z-index: 5; display: none; }
+  .ov.show { display: block; }
+  .ov .dim { position: absolute; inset: 0; background: rgba(0,0,0,.32); backdrop-filter: blur(2px); }
+  /* push detail */
+  .detail { position: absolute; inset: 0; background: #fff; transform: translateX(100%); transition: transform .32s cubic-bezier(.3,.7,.3,1); display: flex; flex-direction: column; }
+  .ov.show .detail { transform: translateX(0); }
+  .detail .dnav { flex: none; height: 44px; display: flex; align-items: center; padding: 0 12px; border-bottom: .5px solid var(--sep); gap: 4px; color: var(--tint); font-size: 16px; font-weight: 400; cursor: pointer; }
+  .detail .dbody { padding: 16px; overflow: auto; }
+  .detail .dbody h3 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .detail .dbody .meta { color: var(--label3); font-size: 13px; margin-bottom: 14px; }
+  .detail .dbody p { font-size: 16px; color: var(--label); margin: 0; }
+  /* sheet */
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 16px 16px 0 0; transform: translateY(100%); transition: transform .3s cubic-bezier(.3,.7,.3,1); padding: 8px 18px 24px; }
+  .ov.show .sheet { transform: translateY(0); }
+  .sheet .grab { margin: 6px auto 14px; }
+  .sheet h3 { font-size: 18px; font-weight: 700; margin: 0 0 8px; }
+  .sheet p { font-size: 15px; color: var(--label); margin: 0; }
+  /* context menu */
+  .menu { position: absolute; left: 14px; right: 14px; top: 96px; z-index: 6; opacity: 0; transform: scale(.94); transition: .18s; }
+  .ov.show .menu { opacity: 1; transform: scale(1); }
+  .menu .preview { background: #fff; border-radius: 14px; padding: 13px 15px; margin-bottom: 8px; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+  .menu .acts { background: rgba(250,250,250,.86); backdrop-filter: blur(20px); border-radius: 14px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,.2); }
+  .menu .act { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 16px; }
+  .menu .act + .act { border-top: .5px solid var(--sep); }
+  .menu .act.del { color: var(--tint); }
+
+  .mech { margin-top: 16px; border-top: 1px solid #ededea; padding-top: 13px; }
+  .mech .lab { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--tint); }
+  .mech p { margin: 4px 0 0; font-size: 13.5px; color: #55524d; }
+  .mech .try { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--tint); }
+
+  .foot { margin-top: 44px; padding: 22px 24px; background: #fff; border: 1px solid #ddd9d3; border-radius: 16px; }
+  .foot h2 { margin: 0 0 8px; font-size: 18px; }
+  .foot p { margin: 0 0 6px; font-size: 14px; color: #55524d; }
+  .foot b { color: var(--tint); }
+  code { font-family: ui-monospace, monospace; font-size: .9em; background: var(--fill); padding: 1px 5px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">notifi · feed design</div>
+    <h1>Six native-iOS directions for the feed</h1>
+    <p>Same skeleton in every one — three pages on a bottom tab bar (Feed · Keys · Settings), and the feed you already have. What changes is how a feed row looks and, above all, <b>how a long message hides and reveals</b>. Every phone below is live: tap the long "Deploy failed" message to see that option's reveal.</p>
+    <div class="kept">
+      <span><b>Kept:</b> three pages</span>
+      <span><b>Kept:</b> the feed</span>
+      <span><b>New:</b> native SF Pro, system lists, semantic colour</span>
+      <span><b>Focus:</b> long-message truncation</span>
+    </div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="foot">
+    <h2>If you want a steer</h2>
+    <p><b>Option 2 (Banner)</b> is the most on-brand: the feed row is the notification, and expanding in place mirrors the Lock Screen — a notifications app that feels like notifications. <b>Option 1 (Mail)</b> is the safest and most familiar. <b>Option 6 (Peek)</b> gives the richest actions for the least chrome.</p>
+    <p>Whichever you pick, the long-message rule is the same choice underneath: <b>expand in place</b> (2, 3, 5) keeps you in the feed; <b>go somewhere</b> (1 push, 4 sheet, 6 menu) gives the full message its own space. Tell me which one and I'll build it into the real SwiftUI app.</p>
+  </div>
+
+</div>
+
+<script>
+const LONG = "Build #4127 failed on integration-tests — 3 of 214 tests failed after 6m22s. First failure: PaymentFlowTests.testDeclinedCardRetry expected 402, got 500. Runner web-ci-03 ran out of memory at 94% and was killed by the OOM reaper. A re-run was triggered automatically; this is attempt 2 of 3. Full logs at ci.internal/builds/4127.";
+const SHORT1 = "main → prod in 42s";
+const SHORT2 = "postgres · 4.2 GB · 11s";
+
+const statusbar = `<div class="statusbar"><span>9:41</span><span class="dots"><svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4" y="5" width="3" height="6" rx="1"/><rect x="8" y="3" width="3" height="8" rx="1"/><rect x="12" y="1" width="3" height="10" rx="1" fill-opacity=".35"/></svg><svg viewBox="0 0 22 12"><rect x="1" y="1" width="18" height="10" rx="3" fill="none" stroke="black" stroke-opacity=".4"/><rect x="3" y="3" width="12" height="6" rx="1.5"/><rect x="20" y="4" width="1.5" height="4" rx="1" fill-opacity=".4"/></svg></span></div>`;
+
+const iconBell = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
+const iconKey = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.5 12.5 20 3m-3 0 3 3-3 3"/></svg>`;
+const iconGear = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>`;
+const iconSearch = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>`;
+const iconBellSolid = `<svg viewBox="0 0 24 24" fill="white"><path d="M12 2a6 6 0 0 0-6 6c0 6-2.5 8-2.5 8h17S18 14 18 8a6 6 0 0 0-6-6z"/></svg>`;
+
+function tabbar() {
+  return `<div class="tabbar">
+    <div class="tab on">${iconBell}<span>Feed</span></div>
+    <div class="tab">${iconKey}<span>Keys</span></div>
+    <div class="tab">${iconGear}<span>Settings</span></div>
+  </div>`;
+}
+function navbar(withSearch) {
+  return `<div class="navbar"><div class="big">notifi</div>${withSearch ? `<div class="search">${iconSearch}<span>Search</span></div>` : ""}</div>`;
+}
+
+const options = [
+  {
+    n: 1, name: "Mail", vibe: "light",
+    concept: "Inset-grouped list, straight out of Mail. Unread dot, bold title, two lines of message, timestamp, chevron.",
+    mechLab: "Long message → clamp 2 lines, tap to push",
+    mech: "Truncates at two lines with an ellipsis. The row is a NavigationLink — tap pushes a full detail screen where the message, link and image get real space.",
+    feed: `<div class="feed grouped plain" data-reveal="push">
+      <div class="inset">
+        <div class="mrow" data-long="1"><span class="unread"></span><div class="col"><div class="top"><span class="ttl">Deploy failed</span><span class="time">9:41</span></div><div class="msg clamp2" data-msgslot>${LONG}</div></div><span class="chev">›</span></div>
+        <div class="mrow"><span class="unread"></span><div class="col"><div class="top"><span class="ttl">Deploy finished</span><span class="time">9:12</span></div><div class="msg clamp2">${SHORT1}</div></div><span class="chev">›</span></div>
+        <div class="mrow"><span style="width:9px"></span><div class="col"><div class="top"><span class="ttl">Backup complete</span><span class="time">8:03</span></div><div class="msg clamp2">${SHORT2}</div></div><span class="chev">›</span></div>
+      </div></div>`,
+    overlay: pushOverlay
+  },
+  {
+    n: 2, name: "Banner", vibe: "grouped",
+    concept: "Every row is the notification itself — rounded card, source, title, body. Feels like the Lock Screen because it is one.",
+    mechLab: "Long message → clamp 3 lines, tap to expand in place",
+    mech: "Collapsed to three lines with a grabber. Tap the card and it springs open inline to the full text — exactly the Lock-Screen expand gesture, no navigation.",
+    feed: `<div class="feed pad" data-reveal="expand">
+      <div class="banner" data-long="1"><div class="hd"><span class="appicon">${iconBellSolid}</span><span class="src">grafana</span><span class="time" style="margin-left:auto">now</span></div><div class="ttl">Deploy failed</div><div class="msg clamp3" data-msgslot>${LONG}</div><div class="grab"></div></div>
+      <div class="banner"><div class="hd"><span class="appicon">${iconBellSolid}</span><span class="src">deploy-bot</span><span class="time" style="margin-left:auto">9:12</span></div><div class="ttl">Deploy finished</div><div class="msg">${SHORT1}</div></div>
+      <div class="banner"><div class="hd"><span class="appicon">${iconBellSolid}</span><span class="src">cron</span><span class="time" style="margin-left:auto">8:03</span></div><div class="ttl">Backup complete</div><div class="msg">${SHORT2}</div></div>
+    </div>`,
+    overlay: null
+  },
+  {
+    n: 3, name: "Thread", vibe: "grouped",
+    concept: "Grouped by the key that sent it, like Messages conversations. Scan by source, not just by time.",
+    mechLab: "Long message → 2 lines + inline “more”",
+    mech: "Clamps to two lines with an inline red “more”. Tap it and the text unfolds in place — the row grows, the rest of the feed slides down. Nothing leaves the screen.",
+    feed: `<div class="feed grouped plain" style="padding:8px 12px" data-reveal="inline">
+      <div class="sechead">grafana</div>
+      <div class="inset" style="margin:0 0 12px">
+        <div class="mrow" data-long="1"><div class="col"><div class="top"><span class="ttl">Deploy failed</span><span class="time">now</span></div><div class="msg"><span class="clamp2" data-msgslot>${LONG}</span> <span class="more" data-moretoggle>more</span></div></div></div>
+      </div>
+      <div class="sechead">deploy-bot</div>
+      <div class="inset" style="margin:0">
+        <div class="mrow"><div class="col"><div class="top"><span class="ttl">Deploy finished</span><span class="time">9:12</span></div><div class="msg clamp2">${SHORT1}</div></div></div>
+        <div class="mrow"><div class="col"><div class="top"><span class="ttl">Backup complete</span><span class="time">8:03</span></div><div class="msg clamp2">${SHORT2}</div></div></div>
+      </div>
+    </div>`,
+    overlay: null
+  },
+  {
+    n: 4, name: "Compact", vibe: "light",
+    concept: "Dense one-line log — timestamp, title, message tail in mono. Built for a firehose of CI and cron pings.",
+    mechLab: "Long message → single line, tap for a sheet",
+    mech: "One line, hard-truncated. Tap the row and a bottom sheet slides up with the whole message — quick peek, swipe down to dismiss, you never lose your place in the list.",
+    feed: `<div class="feed plain" data-reveal="sheet">
+      <div class="logrow" data-long="1"><span class="t">9:41</span><div class="c"><span class="lt">Deploy failed</span> <span class="lm clamp1" data-msgslot style="display:inline-block;max-width:150px;vertical-align:bottom">${LONG}</span></div></div>
+      <div class="logrow"><span class="t">9:12</span><div class="c"><span class="lt">Deploy finished</span> <span class="lm">${SHORT1}</span></div></div>
+      <div class="logrow"><span class="t">8:03</span><div class="c"><span class="lt">Backup complete</span> <span class="lm">${SHORT2}</span></div></div>
+      <div class="logrow"><span class="t">7:55</span><div class="c"><span class="lt">Disk 85%</span> <span class="lm">web-01 /var</span></div></div>
+    </div>`,
+    overlay: sheetOverlay
+  },
+  {
+    n: 5, name: "Card + fade", vibe: "grouped",
+    concept: "Roomy cards. The message fades out under a soft gradient instead of a hard ellipsis, with a Read-more pill.",
+    mechLab: "Long message → gradient mask + Read more",
+    mech: "The body is masked to ~3 lines with a fade to the card colour — softer than “…”. The Read-more pill expands the card inline; the fade dissolves as it opens.",
+    feed: `<div class="feed pad" data-reveal="fade">
+      <div class="fadecard" data-long="1"><div class="ttl" style="margin-bottom:3px">Deploy failed</div><div class="fadewrap"><div class="msg" data-msgslot>${LONG}</div></div><span class="readmore" data-fadetoggle>Read more</span></div>
+      <div class="fadecard"><div class="ttl" style="margin-bottom:3px">Deploy finished</div><div class="msg">${SHORT1}</div></div>
+      <div class="fadecard"><div class="ttl" style="margin-bottom:3px">Backup complete</div><div class="msg">${SHORT2}</div></div>
+    </div>`,
+    overlay: null
+  },
+  {
+    n: 6, name: "Peek", vibe: "light",
+    concept: "Clean two-line rows. The row stays minimal; long-press summons a preview with the full message and every action.",
+    mechLab: "Long message → 2 lines, long-press to peek",
+    mech: "Two-line clamp in the list. Press-and-hold blurs the feed and floats a preview card with the full message plus Copy, Open Link and Delete — the native context menu doing the reveal.",
+    feed: `<div class="feed plain" data-reveal="menu">
+      <div class="inset" style="margin:10px">
+        <div class="peekrow" data-long="1"><span class="unread"></span><div class="col"><div class="top"><span class="ttl">Deploy failed</span><span class="time">9:41</span></div><div class="msg clamp2" data-msgslot>${LONG}</div></div></div>
+        <div class="peekrow"><span class="unread"></span><div class="col"><div class="top"><span class="ttl">Deploy finished</span><span class="time">9:12</span></div><div class="msg clamp2">${SHORT1}</div></div></div>
+        <div class="peekrow"><span style="width:9px"></span><div class="col"><div class="top"><span class="ttl">Backup complete</span><span class="time">8:03</span></div><div class="msg clamp2">${SHORT2}</div></div></div>
+      </div>
+      <div style="text-align:center;color:var(--label3);font-size:12px;margin-top:4px">press &amp; hold a row</div>
+    </div>`,
+    overlay: menuOverlay
+  }
+];
+
+function pushOverlay() {
+  return `<div class="ov" data-ov><div class="detail"><div class="dnav" data-close>‹ notifi</div><div class="dbody"><h3>Deploy failed</h3><div class="meta">grafana · today 9:41</div><p>${LONG}</p></div></div></div>`;
+}
+function sheetOverlay() {
+  return `<div class="ov" data-ov><div class="dim" data-close></div><div class="sheet"><div class="grab"></div><h3>Deploy failed</h3><p>${LONG}</p></div></div>`;
+}
+function menuOverlay() {
+  return `<div class="ov" data-ov><div class="dim" data-close></div><div class="menu"><div class="preview"><div class="ttl" style="margin-bottom:4px">Deploy failed</div><div class="msg">${LONG}</div></div><div class="acts"><div class="act">Copy Message <span>⧉</span></div><div class="act">Open Link <span>↗</span></div><div class="act del">Delete <span>🗑</span></div></div></div></div>`;
+}
+
+const grid = document.getElementById("grid");
+options.forEach(o => {
+  const el = document.createElement("div");
+  el.className = "option";
+  el.innerHTML = `
+    <div class="head"><span class="num">${o.n}</span><h2>${o.name}</h2></div>
+    <div class="concept">${o.concept}</div>
+    <div class="phone ${o.vibe==='grouped'?'grouped':''}">
+      ${statusbar}
+      ${navbar(o.n===1 || o.n===6)}
+      ${o.feed}
+      ${tabbar()}
+      ${o.overlay ? o.overlay() : ""}
+    </div>
+    <div class="mech"><div class="lab">${o.mechLab}</div><p>${o.mech}</p><div class="try">↑ tap the “Deploy failed” message</div></div>`;
+  grid.appendChild(el);
+
+  const phone = el.querySelector(".phone");
+  const reveal = phone.querySelector("[data-reveal]").dataset.reveal;
+  const longEl = phone.querySelector('[data-long="1"]');
+  const ov = phone.querySelector("[data-ov]");
+
+  function open() { if (ov) ov.classList.add("show"); }
+  function close() { if (ov) ov.classList.remove("show"); }
+  if (ov) ov.querySelectorAll("[data-close]").forEach(c => c.addEventListener("click", e => { e.stopPropagation(); close(); }));
+
+  if (reveal === "push" || reveal === "sheet" || reveal === "menu") {
+    longEl.addEventListener("click", open);
+  } else if (reveal === "expand") {
+    longEl.addEventListener("click", () => {
+      const m = longEl.querySelector("[data-msgslot]");
+      m.classList.toggle("clamp3");
+    });
+  } else if (reveal === "inline") {
+    const tog = longEl.querySelector("[data-moretoggle]");
+    const m = longEl.querySelector("[data-msgslot]");
+    tog.addEventListener("click", () => {
+      const open = m.classList.toggle("clamp2");
+      tog.textContent = open ? "more" : "less";
+    });
+  } else if (reveal === "fade") {
+    const tog = longEl.querySelector("[data-fadetoggle]");
+    const w = longEl.querySelector(".fadewrap");
+    tog.addEventListener("click", () => {
+      const open = w.classList.toggle("open");
+      tog.textContent = open ? "Read less" : "Read more";
+    });
+  }
+});
+</script>
+</body>
+</html>

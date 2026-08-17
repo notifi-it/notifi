@@ -1,0 +1,3 @@
+notifi 2.0 est une réécriture complète. L'ancienne application Flutter a disparu ; celle-ci est en Swift natif, repensée de fond en comble.
+
+Lancement plus rapide, rendu de texte natif, et une seule mise en page partagée entre les trois onglets. L'écran Clés indique désormais ce qu'est une clé, et la clé par défaut intégrée mène la liste. Les horodatages des messages sont de simples chiffres que vous pouvez copier.

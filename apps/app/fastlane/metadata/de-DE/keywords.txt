@@ -1,0 +1,1 @@
+curl,webhook,api,alarm,cli,server,überwachung,cron,skript,entwickler,terminal,devops,homelab,pager

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# The API routes are not pages. They are all POST or signed GETs and return
+# JSON, so there is nothing to index and a crawl only burns rate limit.
+Disallow: /send
+Disallow: /keys
+Disallow: /devices
+Disallow: /history
+
+Sitemap: https://notifi.it/sitemap.xml
