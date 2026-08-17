@@ -271,29 +271,45 @@ function Mac({ opacity, ring, children }) {
 
 /* the send: a subtle dotted line traced across the gap between the panels — it stops
    at the device edge, never crossing on top of either */
+const TRAVEL = 0.5;
 function TransitDot({ t0, tEnd, ex, ty, T }) {
-  const draw = clamp((T - (t0 + 1.7)) / 0.5, 0, 1);
-  if (T < t0 + 1.7) return null;
-  const p = Easing.easeInOutCubic(draw);
+  const age = T - (t0 + 1.7);
+  if (age < 0) return null;
+  /* the front accelerates into the device, so it is moving fastest at the moment the
+     banner's spring starts and the spring picks the motion up rather than restarting it */
+  const p = Easing.easeInQuad(clamp(age / TRAVEL, 0, 1));
   const sx = 940, sy = 480;
   const op = 0.45 * MOTION.fade(tEnd - 0.3, tEnd)(T);
   /* the DMG's trail: a level row of dots growing in size and brightness toward the
      destination, revealed left to right as the send travels */
   const N = 9;
-  /* the packet: a bright spot sweeping the trail; each dot eases up as the front
-     reaches it, then settles, so arrival reads as travel rather than a reveal */
+  /* the packet: a bright spot sweeping the trail, each dot easing up as the front reaches
+     it. The trail holds while the send is in flight — it is what draws the connection
+     between the two panels — and empties from the back once the send has landed, so it is
+     gone by the time the banner settles. Holding it lit through the rest of the pass read
+     as a standing pipe rather than something that travelled. */
+  const land = clamp((age - TRAVEL) / 0.26, 0, 1);
   return React.createElement('svg', { width: 2160, height: 960, style: { position: 'absolute', inset: 0, pointerEvents: 'none', opacity: op } },
     Array.from({ length: N }, (_, i) => {
       const f = i / (N - 1);
-      const dp = Easing.easeOutCubic(clamp((p - f) * 4, 0, 1));
-      if (dp <= 0) return null;
-      const glow = Math.exp(-Math.pow((p - f) * 6, 2));
+      const d = p - f;
+      if (d < 0) return null;
+      const drain = clamp((age - TRAVEL) / 0.65 + (1 - f) * 0.3, 0, 1);
+      const dp = Easing.easeOutCubic(clamp(d * 5, 0, 1)) * (1 - drain);
+      const glow = Math.exp(-Math.pow(d * 6, 2)) * (1 - drain);
       return React.createElement('circle', {
         key: i,
         cx: sx + f * (ex - sx), cy: sy,
         r: (2 + f * 3.5) * (0.6 + 0.4 * dp) + glow * 2.5,
         fill: DIM, fillOpacity: dp * (0.2 + f * 0.6) + glow * 0.45,
       });
+    }),
+    /* the landing: the packet opens into a ring at the device edge over the first frames
+       of the banner's spring, so the card reads as born from the send and not as the next
+       thing to happen after it */
+    age >= TRAVEL && land < 1 && React.createElement('circle', {
+      cx: ex, cy: sy, r: 4 + land * 18, fill: 'none', stroke: DIM,
+      strokeWidth: 2.5 * (1 - land), strokeOpacity: 0.45 * (1 - land),
     }),
   );
 }
