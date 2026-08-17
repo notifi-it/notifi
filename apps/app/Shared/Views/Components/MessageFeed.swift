@@ -33,9 +33,8 @@ struct MessageFeed<Empty: View>: View {
                     .geistGutter()
                     .plainRow()
 
-                ForEach(Array(band.messages.enumerated()),
-                        id: \.element.serverID) { index, message in
-                    row(for: message, position: index)
+                ForEach(band.messages, id: \.serverID) { message in
+                    row(for: message)
                 }
             }
         }
@@ -85,11 +84,11 @@ struct MessageFeed<Empty: View>: View {
     }
 
     @ViewBuilder
-    private func row(for message: Message, position: Int) -> some View {
+    private func row(for message: Message) -> some View {
         Button {
             model.path.append(message.serverID)
         } label: {
-            MessageRow(message: message, now: now, position: position)
+            MessageRow(message: message, now: now)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.geistRow)
@@ -281,20 +280,13 @@ private struct BandHeader: View {
                 .frame(height: Theme.cellFrame)
                 .accessibilityHidden(true)
 
-            HStack(spacing: 10) {
-                Text(title.uppercased())
-                    .font(Theme.railStrong)
-                    .tracking(Theme.railTracking)
-                    .foregroundStyle(Theme.fg)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-                Text("\(count)")
-                    .font(Theme.rail)
-                    .tracking(Theme.railTracking)
-                    .foregroundStyle(Theme.dim)
-                    .monospacedDigit()
-            }
-            .padding(.vertical, 10)
+            Text(title.uppercased())
+                .font(Theme.railStrong)
+                .tracking(Theme.railTracking)
+                .foregroundStyle(Theme.fg)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 10)
         }
         .padding(.top, isFirst ? 0 : Theme.bandGap)
         .accessibilityElement(children: .combine)
@@ -305,7 +297,6 @@ private struct BandHeader: View {
 private struct MessageRow: View {
     let message: Message
     let now: Date
-    let position: Int
 
     @State private var isHovered = false
     @State private var hoverTask: Task<Void, Never>?
@@ -339,8 +330,8 @@ private struct MessageRow: View {
         cell
             .background(ground)
             .overlay(alignment: .bottom) { edge(horizontal: true) }
-            .overlay(alignment: .leading) { edge(horizontal: false) }
             .overlay(alignment: .trailing) { edge(horizontal: false) }
+            .overlay(alignment: .leading) { stateEdge }
         #if os(macOS)
             .grainReveal(trigger: message.id, duration: 0.5, once: true, strength: 1.2)
         #endif
@@ -394,37 +385,25 @@ private struct MessageRow: View {
 
     private var rail: some View {
         HStack(spacing: 12) {
-            Text(String(format: "%02d", position + 1))
-                .foregroundStyle(Theme.dim)
-                .monospacedDigit()
             Text(Self.clock.string(from: basis))
                 .foregroundStyle(isEscalated ? Theme.muted : Theme.dim)
                 .monospacedDigit()
             Spacer(minLength: 0)
-            if message.isCritical {
-                tag(Copy.Inbox.critical, inverted: true)
-            } else if !message.isRead {
-                tag(Copy.Inbox.unread, inverted: false)
-            }
+            if message.isCritical { tag(Copy.Inbox.critical) }
         }
         .font(Theme.rail)
         .tracking(Theme.railTracking)
         .lineLimit(1)
     }
 
-    private func tag(_ text: String, inverted: Bool) -> some View {
+    private func tag(_ text: String) -> some View {
         Text(text.uppercased())
             .font(Theme.railStrong)
             .tracking(Theme.railTracking)
-            .foregroundStyle(inverted ? Theme.bg : Theme.fg)
+            .foregroundStyle(Theme.bg)
             .padding(.horizontal, 6)
             .padding(.vertical, Theme.cellTag)
-            .background(inverted ? Theme.brand : Color.clear)
-            .overlay {
-                Rectangle()
-                    .strokeBorder(inverted ? Color.clear : Theme.cellFrameColor,
-                                  lineWidth: Theme.cellRule)
-            }
+            .background(Theme.brand)
             .fixedSize()
     }
 
@@ -465,14 +444,17 @@ private struct MessageRow: View {
         #if os(macOS)
         if isHovered {
             StaticField(level: .hover, fillsScreen: false)
-        } else if isEscalated {
-            StaticField(level: .raised, fillsScreen: false)
-        }
-        #else
-        if isEscalated {
-            StaticField(level: .raised, fillsScreen: false)
         }
         #endif
+    }
+
+    private var stateEdge: some View {
+        Rectangle()
+            .fill(message.isCritical ? Theme.brand
+                  : message.isRead ? Theme.cellRuleColor : Theme.cellFrameColor)
+            .frame(width: message.isRead && !message.isCritical
+                   ? Theme.cellRule : Theme.cellFrame)
+            .accessibilityHidden(true)
     }
 
     private func edge(horizontal: Bool) -> some View {
