@@ -30,13 +30,12 @@ struct MessageFeed<Empty: View>: View {
                 BandHeader(title: DayBand.title(for: band.day, now: now),
                            count: band.messages.count,
                            isFirst: band.id == banded.first?.id)
-                    .padding(.horizontal, 18)
+                    .geistGutter()
                     .plainRow()
 
                 ForEach(Array(band.messages.enumerated()),
                         id: \.element.serverID) { index, message in
-                    row(for: message,
-                        showsRule: index < band.messages.count - 1)
+                    row(for: message, position: index)
                 }
             }
         }
@@ -86,15 +85,15 @@ struct MessageFeed<Empty: View>: View {
     }
 
     @ViewBuilder
-    private func row(for message: Message, showsRule: Bool) -> some View {
+    private func row(for message: Message, position: Int) -> some View {
         Button {
             model.path.append(message.serverID)
         } label: {
-            MessageRow(message: message, now: now,
-                       showsRule: showsRule)
+            MessageRow(message: message, now: now, position: position)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.geistRow)
+        .geistGutter()
         .plainRow()
         #if os(iOS)
         .swipeActions(edge: .leading) {
@@ -276,23 +275,28 @@ private struct BandHeader: View {
     let isFirst: Bool
 
     var body: some View {
-        HStack(spacing: 10) {
-            Text(title.uppercased())
-                .font(Theme.sectionLabel)
-                .tracking(1.4)
-                .foregroundStyle(Theme.fg)
-                .lineLimit(1)
+        VStack(spacing: 0) {
             Rectangle()
-                .fill(Theme.dim)
-                .frame(height: 1.5)
+                .fill(Theme.cellFrameColor)
+                .frame(height: Theme.cellFrame)
                 .accessibilityHidden(true)
-            Text("\(count)")
-                .font(Theme.metaSmall)
-                .foregroundStyle(Theme.dim)
-                .monospacedDigit()
+
+            HStack(spacing: 10) {
+                Text(title.uppercased())
+                    .font(Theme.railStrong)
+                    .tracking(Theme.railTracking)
+                    .foregroundStyle(Theme.fg)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                Text("\(count)")
+                    .font(Theme.rail)
+                    .tracking(Theme.railTracking)
+                    .foregroundStyle(Theme.dim)
+                    .monospacedDigit()
+            }
+            .padding(.vertical, 10)
         }
-        .padding(.top, isFirst ? 0 : 26)
-        .padding(.bottom, 10)
+        .padding(.top, isFirst ? 0 : Theme.bandGap)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Copy.Inbox.bandLabel(title, Copy.Inbox.count(count)))
     }
@@ -301,12 +305,10 @@ private struct BandHeader: View {
 private struct MessageRow: View {
     let message: Message
     let now: Date
-    let showsRule: Bool
+    let position: Int
 
     @State private var isHovered = false
     @State private var hoverTask: Task<Void, Never>?
-
-    static let drawsRules = false
 
     private static let clock: DateFormatter = {
         let f = DateFormatter()
@@ -318,49 +320,62 @@ private struct MessageRow: View {
 
     private var isEscalated: Bool { !message.isRead || message.isCritical }
 
-    var body: some View {
-        VStack(spacing: 0) {
-            content
-            if showsRule && Self.drawsRules { rule }
-        }
-        #if os(macOS)
-        .grainReveal(trigger: message.id, duration: 0.5, once: true, strength: 1.2)
-        #endif
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(spokenDescription)
+    private var preview: String? {
+        guard let body = message.body else { return nil }
+        let text = MarkdownPreview.text(body)
+        return text.isEmpty ? nil : text
     }
 
-    private var content: some View {
-        HStack(spacing: 12) {
-            Text(Self.clock.string(from: basis))
-                .font(.inco(size: 12, weight: isEscalated ? .semibold : .regular))
-                .monospacedDigit()
-                .foregroundStyle(isEscalated ? Theme.brandText
-                                 : isHovered ? Theme.muted : Theme.dim)
-                .lineLimit(1)
-                .fixedSize()
+    private var host: String? {
+        message.link?.host()?.replacingOccurrences(of: "www.", with: "")
+    }
 
-            Text(message.title)
-                .font(.inco(size: 13.5, weight: isEscalated ? .bold : .regular,
-                            relativeTo: .footnote))
-                .foregroundStyle(message.isCritical ? Theme.brandText
-                                 : message.isRead && !isHovered ? Theme.read : Theme.fg)
-                .lineLimit(1)
-                .truncationMode(.tail)
+    private var titleColor: Color {
+        if message.isCritical { return Theme.brandText }
+        return message.isRead && !isHovered ? Theme.read : Theme.fg
+    }
+
+    var body: some View {
+        cell
+            .background(ground)
+            .overlay(alignment: .bottom) { edge(horizontal: true) }
+            .overlay(alignment: .leading) { edge(horizontal: false) }
+            .overlay(alignment: .trailing) { edge(horizontal: false) }
+        #if os(macOS)
+            .grainReveal(trigger: message.id, duration: 0.5, once: true, strength: 1.2)
+        #endif
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(spokenDescription)
+    }
+
+    private var cell: some View {
+        VStack(alignment: .leading, spacing: Theme.cellStack) {
+            rail
+
+            Text(message.title.uppercased())
+                .font(isEscalated ? Theme.cellTitleUnread : Theme.cellTitle)
+                .tracking(Theme.cellTitleTracking)
+                .foregroundStyle(titleColor)
+                .lineLimit(3)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let preview {
+                Text(preview)
+                    .font(Theme.cellBody)
+                    .foregroundStyle(Theme.muted)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             Spacer(minLength: 0)
 
-            slot(present: message.link != nil, systemName: "globe")
-            slot(present: message.imageURL != nil, systemName: "photo")
+            if message.imageURL != nil || host != nil { attachments }
         }
-        .padding(.horizontal, 18)
-        .frame(minHeight: 44)
+        .padding(Theme.cellPad)
+        .frame(maxWidth: .infinity, minHeight: Theme.cellMinHeight, alignment: .topLeading)
         #if os(macOS)
-        .background {
-            if isHovered {
-                StaticField(level: .hover, fillsScreen: false)
-            }
-        }
         .animation(.easeOut(duration: 0.12), value: isHovered)
         .onHover { hovering in
             hoverTask?.cancel()
@@ -377,17 +392,95 @@ private struct MessageRow: View {
         #endif
     }
 
-    private func slot(present: Bool, systemName: String) -> some View {
-        Image(systemName: systemName)
-            .font(.system(size: 11, weight: .medium))
-            .foregroundStyle(Theme.dim)
-            .opacity(present ? 1 : 0)
-            .frame(width: 12)
-            .accessibilityHidden(true)
+    private var rail: some View {
+        HStack(spacing: 12) {
+            Text(String(format: "%02d", position + 1))
+                .foregroundStyle(Theme.dim)
+                .monospacedDigit()
+            Text(Self.clock.string(from: basis))
+                .foregroundStyle(isEscalated ? Theme.muted : Theme.dim)
+                .monospacedDigit()
+            Spacer(minLength: 0)
+            if message.isCritical {
+                tag(Copy.Inbox.critical, inverted: true)
+            } else if !message.isRead {
+                tag(Copy.Inbox.unread, inverted: false)
+            }
+        }
+        .font(Theme.rail)
+        .tracking(Theme.railTracking)
+        .lineLimit(1)
     }
 
-    private var rule: some View {
-        Hairline()
+    private func tag(_ text: String, inverted: Bool) -> some View {
+        Text(text.uppercased())
+            .font(Theme.railStrong)
+            .tracking(Theme.railTracking)
+            .foregroundStyle(inverted ? Theme.bg : Theme.fg)
+            .padding(.horizontal, 6)
+            .padding(.vertical, Theme.cellTag)
+            .background(inverted ? Theme.brand : Color.clear)
+            .overlay {
+                Rectangle()
+                    .strokeBorder(inverted ? Color.clear : Theme.cellFrameColor,
+                                  lineWidth: Theme.cellRule)
+            }
+            .fixedSize()
+    }
+
+    private var attachments: some View {
+        HStack(alignment: .bottom, spacing: 12) {
+            if message.imageURL != nil { mark }
+            if let host {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(host.uppercased())
+                        .font(Theme.rail)
+                        .tracking(Theme.railTracking)
+                        .foregroundStyle(Theme.muted)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Rectangle()
+                        .fill(Theme.cellRuleColor)
+                        .frame(height: Theme.cellRule)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .accessibilityHidden(true)
+    }
+
+    private var mark: some View {
+        Image(systemName: "photo")
+            .font(.system(size: 15, weight: .light))
+            .foregroundStyle(Theme.muted)
+            .frame(width: Theme.cellMark, height: Theme.cellMark)
+            .overlay {
+                Rectangle()
+                    .strokeBorder(Theme.cellRuleColor, lineWidth: Theme.cellRule)
+            }
+    }
+
+    @ViewBuilder
+    private var ground: some View {
+        #if os(macOS)
+        if isHovered {
+            StaticField(level: .hover, fillsScreen: false)
+        } else if isEscalated {
+            StaticField(level: .raised, fillsScreen: false)
+        }
+        #else
+        if isEscalated {
+            StaticField(level: .raised, fillsScreen: false)
+        }
+        #endif
+    }
+
+    private func edge(horizontal: Bool) -> some View {
+        Rectangle()
+            .fill(Theme.cellRuleColor)
+            .frame(width: horizontal ? nil : Theme.cellRule,
+                   height: horizontal ? Theme.cellRule : nil)
+            .accessibilityHidden(true)
     }
 
     private var spokenDescription: String {

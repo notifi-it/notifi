@@ -123,6 +123,26 @@ enum Theme {
         #endif
     }
 
+    static let cellMinHeight: CGFloat = 138
+    static let cellPad: CGFloat = 16
+    static let cellRule: CGFloat = 1
+    static let cellFrame: CGFloat = 1.5
+    static let cellStack: CGFloat = 12
+    static let cellMark: CGFloat = 52
+    static let cellTag: CGFloat = 5
+    static let bandGap: CGFloat = 28
+    static let railTracking: CGFloat = 1.1
+    static let cellTitleTracking: CGFloat = -0.2
+
+    static let cellRuleColor = chip
+    static let cellFrameColor = fg
+
+    static var rail: Font { .carbon(.caption2) }
+    static var railStrong: Font { .carbon(.caption2, weight: .semibold) }
+    static var cellTitle: Font { .carbon(.subheadline) }
+    static var cellTitleUnread: Font { .carbon(.subheadline, weight: .semibold) }
+    static var cellBody: Font { .carbon(.caption) }
+
     static var title: Font { .inco(.headline, weight: .semibold) }
     static var titleUnread: Font { .inco(.headline, weight: .bold) }
     static var body: Font { .karla(.subheadline) }

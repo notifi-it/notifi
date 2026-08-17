@@ -99,6 +99,9 @@ enum SampleData {
             ("SSL renewed for notifi.it",
              nil, nil, nil, 340, false),
 
+            ("Camera 3 captured a plate",
+             nil, "\(demo)/plate.png", nil, 360, false),
+
             ("Send p95 back under 300 ms",
              "notifi.it/send recovered after the 02:10 spike. No action needed.",
              nil, "https://grafana.internal/d/api-latency", 1_510, true),
@@ -171,6 +174,13 @@ enum SampleData {
 
             ("Release v2.4.0 published",
              nil, nil, "https://github.com/notifi/notifi/releases/tag/v2.4.0", 40, false),
+
+            ("Camera 3 captured a plate",
+             nil, "\(demo)/plate.png", nil, 52, true),
+
+            ("Roast profile finished",
+             "Ethiopia Guji — 11m 40s, first crack at 9m 02s.",
+             "\(demo)/roast.png", nil, 120, false),
 
             ("Nightly backup complete",
              "notifi-db → r2, 4.2 GB in 3m 11s. Retention trimmed to 30 snapshots.",

@@ -20,6 +20,10 @@ extension Font {
         }
     }
 
+    static func carbon(_ style: Font.TextStyle, weight: Font.Weight = .regular) -> Font {
+        .system(style, design: .monospaced).weight(weight)
+    }
+
     static func karla(_ style: Font.TextStyle, weight: Font.Weight = .regular) -> Font {
         .custom("Karla", size: incoSize(style), relativeTo: style).weight(weight)
     }
