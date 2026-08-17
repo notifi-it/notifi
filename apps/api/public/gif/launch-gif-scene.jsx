@@ -84,18 +84,31 @@ function Terminal({ tabs, active, children, opacity }) {
   );
 }
 
-/* Liquid Glass (iOS 26+/macOS Tahoe): translucent fill, heavy blur+saturation, a specular
-   top-edge highlight and a faint glass rim instead of a border */
+/* Liquid Glass (iOS 26+/macOS Tahoe), tuned to the Tinted variant — the higher-opacity,
+   higher-contrast setting under Display & Brightness, and the one most people read
+   notifications on. Apple names three layers: illumination (the translucent fill), highlight
+   (the specular line where light catches the top edge) and shadow (separation from what is
+   behind). The fill is deliberately thin: on iOS 26 the wallpaper reads through a Lock Screen
+   notification, so a heavier tint is the tell that this is a drawn card and not glass.
+   Not modelled: lensing, the bending of the background that needs backdrop-filter: url(),
+   which is Chromium-only — this animation runs live in visitors' browsers, most of them
+   Safari on the page of an iOS app. */
 const CARD = {
-  background: 'linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.02) 40%), rgba(58,58,64,0.44)',
-  backdropFilter: 'blur(40px) saturate(1.8)',
-  WebkitBackdropFilter: 'blur(40px) saturate(1.8)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 0 1px rgba(255,255,255,0.08), 0 16px 40px rgba(0,0,0,0.45)',
+  background: 'linear-gradient(rgba(255,255,255,0.14), rgba(255,255,255,0.04) 34%, rgba(255,255,255,0.02)), rgba(74,74,84,0.32)',
+  backdropFilter: 'blur(32px) saturate(1.9)',
+  WebkitBackdropFilter: 'blur(32px) saturate(1.9)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -1px 0 rgba(255,255,255,0.07), inset 0 0 0 1px rgba(255,255,255,0.1), 0 12px 34px rgba(0,0,0,0.42)',
+  /* Apple's corners are continuous, not the circular arc border-radius draws. corner-shape
+     is Chromium-only; browsers without it keep the plain rounded rect they render today. */
+  cornerShape: 'squircle',
 };
 
 /* ── banners ── */
-/* Real iOS metrics, ~1pt≈1px at this device scale: 42pt icon, 18pt text, 26pt radius,
-   banner spans the screen minus ~8pt margins; compact two-line stack, "now" top-right. */
+/* Apple publishes no pixel spec for banners, so these are matched by eye at ~1pt≈1px for
+   this device scale: 42pt icon, 18pt text, banner spanning the screen minus ~8pt margins,
+   compact two-line stack, "now" top-right. The radius is larger than a squircle of the same
+   nominal size would read, because a superellipse hugs its corner tighter than a circular
+   arc of equal radius. */
 function IosBanner({ w, title, body, thumb, on }) {
   /* lock-screen arrival: fade + scale-up in place (iOS does not drop banners from the top);
      the underdamped spring overshoots past 1 and settles, so the landing has weight */
@@ -106,11 +119,11 @@ function IosBanner({ w, title, body, thumb, on }) {
       ...CARD,
       position: 'absolute', top: 0, left: '50%', width: w,
       transform: `translate(-50%, ${on.top}px) scale(${scale})`, opacity: on.opacity * p,
-      borderRadius: 24, padding: '13px 16px',
+      borderRadius: 28, padding: '13px 16px',
       display: 'flex', alignItems: 'center', gap: 13,
     },
   },
-    React.createElement('img', { src: '/apple-touch-icon.png', width: 42, height: 42, style: { borderRadius: 10, flex: 'none' } }),
+    React.createElement('img', { src: '/apple-touch-icon.png', width: 42, height: 42, style: { borderRadius: 10, cornerShape: 'squircle', flex: 'none' } }),
     React.createElement('div', { style: { flex: 1, minWidth: 0, fontFamily: SANS } },
       React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: 10 } },
         React.createElement('div', { style: { fontSize: 18, fontWeight: 700, color: FG, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, title),
@@ -118,7 +131,9 @@ function IosBanner({ w, title, body, thumb, on }) {
       ),
       React.createElement('div', { style: { fontSize: 18, color: MUTED, lineHeight: 1.25, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, body),
     ),
-    thumb && React.createElement('img', { src: thumb, width: 42, height: 42, style: { borderRadius: 8, flex: 'none', objectFit: 'cover', background: '#000' } }),
+    /* iOS 26 derives a child's radius from its parent's minus the padding it sits in: 28 − 16.
+       The app icon opposite it keeps its own fixed squircle proportion instead, as icons do. */
+    thumb && React.createElement('img', { src: thumb, width: 42, height: 42, style: { borderRadius: 12, cornerShape: 'squircle', flex: 'none', objectFit: 'cover', background: '#000' } }),
   );
 }
 
@@ -130,11 +145,11 @@ function MacBanner({ title, body, sub, on }) {
       ...CARD,
       position: 'absolute', top: 76, right: 16, width: 380,
       transform: `translateX(${x}px)`, opacity: on.opacity,
-      borderRadius: 14,
+      borderRadius: 17,
       padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 13,
     },
   },
-    React.createElement('img', { src: '/apple-touch-icon.png', width: 44, height: 44, style: { borderRadius: 10, flex: 'none' } }),
+    React.createElement('img', { src: '/apple-touch-icon.png', width: 44, height: 44, style: { borderRadius: 10, cornerShape: 'squircle', flex: 'none' } }),
     React.createElement('div', { style: { fontFamily: SANS, minWidth: 0 } },
       React.createElement('div', { style: { fontSize: 13, fontWeight: 600, letterSpacing: 0.6, color: DIM } }, 'NOTIFI'),
       React.createElement('div', { style: { fontSize: 19, fontWeight: 700, color: FG } }, title),
