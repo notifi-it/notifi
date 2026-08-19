@@ -163,12 +163,12 @@ p{max-width:62ch}
   letter-spacing:.18em;color:var(--line);
 }
 
-/* The cursor after the headline. `steps(2)` so it snaps on and off the way a
+/* The dot after the headline. `steps(2)` so it snaps on and off the way a
    terminal caret does; a fade would read as a pulsing decoration. */
 .caret{
-  display:inline-block;width:.52em;height:.075em;
+  display:inline-block;width:.17em;height:.17em;border-radius:50%;
   background:var(--brand);vertical-align:baseline;
-  margin-left:.12em;
+  margin-left:.14em;
   animation:blink 1.06s steps(2,jump-none) infinite;
 }
 @keyframes blink{50%{opacity:0}}
@@ -321,7 +321,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .bell::before{-webkit-mask-image:url(/bell-body.svg);mask-image:url(/bell-body.svg)}
 .bell::after{-webkit-mask-image:url(/bell-clapper.svg);mask-image:url(/bell-clapper.svg)}
 /* No badge disc on the site's mark. The page already has one red thing that
-   blinks — the caret after the headline — and two of them competing in the same
+   blinks — the dot after the headline — and two of them competing in the same
    viewport read as an error state rather than as the brand. bell.svg carries no
    badge of its own, so removing this overlay is the whole change; the fractions
    that used to be here are still printed by generate-marks.sh for the app,
@@ -730,10 +730,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 <!-- ══ hero ══════════════════════════════════════════════════ -->
 <section class="hero">
   <div class="wrap">
-    <!-- "No account" and "no sign-in" were the same claim twice; the third slot
-         buys the open-source line, which is the only trust claim on the page a
-         reader can go and check for themselves. -->
-    <p class="eyebrow" style="margin-bottom:20px">No account. Encrypted. Sends from anything that can send an HTTP request.</p>
     <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede">
       Install the app, grab your key, and send an HTTP request to
