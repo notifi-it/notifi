@@ -221,6 +221,8 @@ DARK_TAB = '  <style>@media (prefers-color-scheme: dark) {\n' \
 svg("%s/favicon.svg" % web, 32, 32, logo_box,
     "%s\n%s" % (DARK_TAB, favicon_ink("#1A1A1A")))
 
+svg("%s/favicon-flat.svg" % TMP, 32, 32, logo_box, mark(logo_box, "#1A1A1A", "#BC2122"))
+
 plate = ('  <rect width="32" height="32" rx="7" fill="#1C1C1E"/>\n'
          '  <g transform="translate(16 16) scale(0.78) translate(-16 -16)">\n'
          '%s\n  </g>' % mark("0 0 32 32", "#EDEDED", "#BC2122", indent="    "))
@@ -229,6 +231,12 @@ PY
 
 rsvg-convert -w 180 -h 180 "$TMP/touch-icon.svg" -o "$WEB/apple-touch-icon.png"
 echo "  wrote $WEB/apple-touch-icon.png"
+
+for s in 16 32 48; do
+  rsvg-convert -w "$s" -h "$s" "$TMP/favicon-flat.svg" -o "$TMP/favicon-$s.png"
+done
+magick "$TMP/favicon-16.png" "$TMP/favicon-32.png" "$TMP/favicon-48.png" "$WEB/favicon.ico"
+echo "  wrote $WEB/favicon.ico"
 
 echo "rasters:"
 ./generate-menu-icon.sh
