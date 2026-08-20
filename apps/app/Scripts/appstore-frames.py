@@ -86,14 +86,24 @@ DEVICE_TOP = 920
 DEVICE_BOTTOM = 76
 TITLE_SIZE, DESC_SIZE = 82, 45
 RULE_W, RULE_H = 150, 7
+RADIUS_RATIO = 0.058
+# Both captures carry the aspect ratio of the canvas they are framed on, so a
+# caption above the device and a device at full width cannot both be had: every
+# pixel the caption takes comes off the width. The phone can afford it — a tall
+# slab with air down its sides still reads as a phone. The near-square iPad
+# cannot, so it keeps the full width and runs off the bottom edge instead.
+BLEED = bool(os.environ.get("IPAD"))
 if os.environ.get("IPAD"):
-    # Wider canvas, so the lockup scales with it; the device shot is
-    # near-square, so it needs more of the page to reach a readable width.
     GUTTER = 120
     TITLE_SIZE, DESC_SIZE = 108, 56
+    # 980, not the phone's 920: the iPad caption wraps to five lines in German
+    # and reaches 923. Raising it costs no width here, only device height, and
+    # the device runs off the page anyway.
     DEVICE_TOP = 980
-    DEVICE_BOTTOM = 90
     RULE_W, RULE_H = 190, 9
+    # Only the top corners are on the page, and at 1808px wide the phone's
+    # ratio rounds them far harder than the hardware does.
+    RADIUS_RATIO = 0.031
 
 # The wordmark is an SVG of outlined glyphs; rasterise it once at the size used.
 # Its letterforms are #EDEDED for a black page; on this white one they have to
@@ -237,19 +247,24 @@ def frame(shot_name, title, desc, out_name):
     if y > DEVICE_TOP - 40:
         print(f"WARNING {out_name}: caption ends at {y}, device starts at {DEVICE_TOP}")
 
-    # ── the device, whole, floating on the page
+    # ── the device: whole and floating on the phone, bled off the bottom on
+    # the iPad
     shot = Image.open(f"{SHOTS}/{shot_name}").convert("RGB")
 
     # The status bar stays. Cutting it left the title flush against the top
     # edge, and filling the gap with ground read as a mistake — a frame without
     # a drawn bezel has nothing else to stand in for the device's own inset.
     # screens.sh overrides it to 09:41 first, so it is the same on every shot.
-    target_h = H - DEVICE_TOP - DEVICE_BOTTOM
-    target_w = round(shot.width * target_h / shot.height)
+    if BLEED:
+        target_w = W - GUTTER * 2
+        target_h = round(shot.height * target_w / shot.width)
+    else:
+        target_h = H - DEVICE_TOP - DEVICE_BOTTOM
+        target_w = round(shot.width * target_h / shot.height)
     shot = shot.resize((target_w, target_h), Image.LANCZOS)
-    # Proportional, so the phone and the near-square iPad round by the same
-    # amount of their own width rather than by the same number of pixels.
-    radius = round(target_w * 0.058)
+    # Proportional, so a device rounds by an amount of its own width rather
+    # than by the same number of pixels at either size.
+    radius = round(target_w * RADIUS_RATIO)
     left = (W - target_w) // 2
     box = [left, DEVICE_TOP, left + target_w, DEVICE_TOP + target_h]
 
