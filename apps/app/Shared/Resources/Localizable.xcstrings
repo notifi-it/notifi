@@ -6767,31 +6767,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search notifications"
+            "value": "Search inbox"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar notificaciones"
+            "value": "Buscar en Inbox"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Benachrichtigungen durchsuchen"
+            "value": "Inbox durchsuchen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rechercher des notifications"
+            "value": "Rechercher dans Inbox"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerca notifiche"
+            "value": "Cerca in Inbox"
           }
         }
       }

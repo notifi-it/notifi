@@ -98,7 +98,7 @@ export const it: Translation = {
   'inbox.deleteTitleFallback': 'Eliminare questa notifica?',
   'inbox.deleteMessage': "Questa azione non può essere annullata.",
 
-  'search.prompt': 'Cerca notifiche',
+  'search.prompt': 'Cerca in Inbox',
   'search.matches': { one: '1 risultato', other: '{n} risultati' },
   'search.recent': 'Recenti',
 

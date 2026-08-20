@@ -98,7 +98,7 @@ export const es: Translation = {
   'inbox.deleteTitleFallback': '¿Eliminar esta notificación?',
   'inbox.deleteMessage': 'Esto no se puede deshacer.',
 
-  'search.prompt': 'Buscar notificaciones',
+  'search.prompt': 'Buscar en Inbox',
   'search.matches': { one: '1 coincidencia', other: '{n} coincidencias' },
   'search.recent': 'Recientes',
 

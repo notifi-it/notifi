@@ -164,7 +164,7 @@ export const copy = {
   },
 
   search: {
-    prompt: 'Search notifications',
+    prompt: 'Search inbox',
     matches: plural('1 match', '{n} matches'),
     recent: 'Recent',
   },

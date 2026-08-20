@@ -151,7 +151,7 @@ export const de: Translation = {
   'inbox.deleteTitleFallback': 'Diese Benachrichtigung löschen?',
   'inbox.deleteMessage': 'Das kann nicht rückgängig gemacht werden.',
 
-  'search.prompt': 'Benachrichtigungen durchsuchen',
+  'search.prompt': 'Inbox durchsuchen',
   'search.matches': { one: '1 Treffer', other: '{n} Treffer' },
   'search.recent': 'Zuletzt',
 
