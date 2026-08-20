@@ -49,6 +49,13 @@ struct InboxView: View {
 
     private var unreadCount: Int { messages.reduce(0) { $0 + ($1.isRead ? 0 : 1) } }
 
+    private var isOffline: Bool {
+        #if DEBUG
+        if SampleData.isEnabled { return false }
+        #endif
+        return model.isOffline
+    }
+
     private var subtitle: Text {
         let total = Copy.Inbox.count(messages.count)
         guard unreadCount > 0 else { return Text(total) }
@@ -78,7 +85,7 @@ struct InboxView: View {
                 .onAppear { SampleData.pushLaunchMessage(into: model) }
             #endif
 
-            if model.isOffline {
+            if isOffline {
                 InlineError(message: Copy.Inbox.offline, followsAction: false)
                     .padding(.top, Theme.contentTop)
                     .geistGutter()

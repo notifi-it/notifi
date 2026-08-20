@@ -94,10 +94,14 @@ shoot() { # udid outfile extra-env...
   echo "$OUT/$outfile"
 }
 
+# Appearance is named on every capture, never inherited. The app persists what
+# NOTIFI_APPEARANCE sets, so the light settings shot at the end of a run used to
+# come back as the first shot of the NEXT run — a whole App Store set in the
+# wrong colour scheme, from a script that had not changed.
 capture_set() { # udid prefix
-  shoot "$1" "$2inbox.png"   SIMCTL_CHILD_NOTIFI_START_TAB=inbox
-  shoot "$1" "$2detail.png"  SIMCTL_CHILD_NOTIFI_START_TAB=inbox SIMCTL_CHILD_NOTIFI_OPEN_SAMPLE_MESSAGE=1
-  shoot "$1" "$2keys.png"    SIMCTL_CHILD_NOTIFI_START_TAB=keys
+  shoot "$1" "$2inbox.png"   SIMCTL_CHILD_NOTIFI_START_TAB=inbox SIMCTL_CHILD_NOTIFI_APPEARANCE=dark
+  shoot "$1" "$2detail.png"  SIMCTL_CHILD_NOTIFI_START_TAB=inbox SIMCTL_CHILD_NOTIFI_OPEN_SAMPLE_MESSAGE=1 SIMCTL_CHILD_NOTIFI_APPEARANCE=dark
+  shoot "$1" "$2keys.png"    SIMCTL_CHILD_NOTIFI_START_TAB=keys SIMCTL_CHILD_NOTIFI_APPEARANCE=dark
 }
 
 # One pass per App Store locale. The pairing of language code to store locale
