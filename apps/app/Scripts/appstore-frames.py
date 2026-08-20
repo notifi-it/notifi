@@ -18,8 +18,12 @@ output directory under fastlane/screenshots, and defaults to en-GB.
 Run it from the repo root. The seeded feed points its one image at
 notifi.it/demo/latency.png, so that has to be deployed for the graph to appear.
 """
-import json, os, subprocess
+import json, os, subprocess, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from publish_image import publish
 
 REPO = os.environ.get("REPO", os.getcwd())
 SHOTS = os.environ.get("SHOTS", "shots")
@@ -261,8 +265,7 @@ def frame(shot_name, title, desc, out_name):
     # The ring is the bezel. Without it a dark capture on a light page has no
     # edge of its own, and the corners read as torn rather than cut.
     d.rounded_rectangle(box, radius=radius, outline=(10, 10, 10, 46), width=3)
-    canvas.convert("RGB").save(f"{OUT}/{out_name}", "PNG")
-    print(out_name, canvas.size)
+    publish(canvas.convert("RGB"), f"{OUT}/{out_name}", "PNG")
 
 
 frame("inbox.png", CAPTIONS["inboxTitle"], CAPTIONS["inboxBody"], "01_inbox.png")

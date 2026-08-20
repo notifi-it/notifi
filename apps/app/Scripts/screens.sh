@@ -134,6 +134,10 @@ python3 - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, "apps/app/Scripts")
+from publish_image import publish
+
 out, site = sys.argv[1], sys.argv[2]
 W, H = 1240, 2696
 for shot, name in [("inbox", "notifications"), ("detail", "detail"),
@@ -145,7 +149,6 @@ for shot, name in [("inbox", "notifications"), ("detail", "detail"),
     x, y = (im.width - W) // 2, (im.height - H) // 2
     # At 2x the grain sits at pixel scale and survives compression; 80 keeps
     # it fully (measured), and lower only shaves file size by blurring it.
-    im.crop((x, y, x + W, y + H)).save(f"{site}/{name}.webp",
-                                       "WEBP", quality=80, method=6)
-    print(f"{site}/{name}.webp")
+    publish(im.crop((x, y, x + W, y + H)), f"{site}/{name}.webp",
+            "WEBP", quality=80, method=6)
 EOF

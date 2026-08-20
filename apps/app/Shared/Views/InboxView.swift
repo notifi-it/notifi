@@ -47,20 +47,11 @@ struct InboxView: View {
         }
     }
 
-    private var unreadCount: Int { messages.reduce(0) { $0 + ($1.isRead ? 0 : 1) } }
-
     private var isOffline: Bool {
         #if DEBUG
         if SampleData.isEnabled { return false }
         #endif
         return model.isOffline
-    }
-
-    private var subtitle: Text {
-        let total = Copy.Inbox.count(messages.count)
-        guard unreadCount > 0 else { return Text(total) }
-        return Text("\(unreadCount)").foregroundColor(Theme.brandText)
-            + Text(Copy.Inbox.unreadSummary(total))
     }
 
     @ViewBuilder
@@ -153,7 +144,7 @@ struct InboxView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FeedHeader(subtitle: subtitle, filterKeyID: $filterKeyID) {
+            FeedHeader(filterKeyID: $filterKeyID) {
                 #if os(macOS)
                 if !messages.isEmpty { searchToggle }
                 #endif

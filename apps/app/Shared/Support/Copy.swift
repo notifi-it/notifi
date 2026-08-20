@@ -46,7 +46,6 @@ enum Copy {
         static var title: String { NSLocalizedString("inbox.title", comment: "") }
         static var offline: String { NSLocalizedString("inbox.offline", comment: "") }
         static func count(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.count", comment: ""), n) }
-        static func unreadSummary(_ total: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.unreadSummary", comment: ""), total) }
         static func filteredToKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.filteredToKey", comment: ""), name) }
         static var closeSearch: String { NSLocalizedString("inbox.closeSearch", comment: "") }
         static var markAllAsRead: String { NSLocalizedString("inbox.markAllAsRead", comment: "") }

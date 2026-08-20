@@ -67,6 +67,10 @@ python3 - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, "apps/app/Scripts")
+from publish_image import publish
+
 out, site = sys.argv[1], sys.argv[2]
 W, H = 840, 1296
 im = Image.open(f"{out}/mac.png").convert("RGBA")
@@ -104,13 +108,11 @@ at = (W // 2 - round(panel_cx * scale), (H - im.height) // 2)
 # flattened onto black, for anywhere a plate is wanted instead of a cut-out.
 cut = Image.new("RGBA", (W, H), (0, 0, 0, 0))
 cut.paste(im, at)
-cut.save(f"{site}/mac-cut.webp", "WEBP", quality=82, method=6)
-print(f"{site}/mac-cut.webp")
+publish(cut, f"{site}/mac-cut.webp", "WEBP", quality=82, method=6)
 
 canvas = Image.new("RGB", (W, H), (0, 0, 0))
 canvas.paste(im, at, im)
-canvas.save(f"{site}/mac.webp", "WEBP", quality=82, method=6)
-print(f"{site}/mac.webp")
+publish(canvas, f"{site}/mac.webp", "WEBP", quality=82, method=6)
 EOF
 
 # A Debug build shares the push identity with the installed app and has

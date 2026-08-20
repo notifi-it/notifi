@@ -127,7 +127,6 @@ export const de: Translation = {
   'inbox.title': 'Inbox',
   'inbox.offline': 'notifi-Server nicht erreichbar. Verbindung prüfen und erneut versuchen.',
   'inbox.count': { one: '1 Benachrichtigung', other: '{n} Benachrichtigungen' },
-  'inbox.unreadSummary': ' ungelesen · {total}',
   'inbox.filteredToKey': 'Gefiltert nach Schlüssel „{name}“.',
   'inbox.closeSearch': 'Suche schließen',
   'inbox.markAllAsRead': 'Alle als gelesen markieren',

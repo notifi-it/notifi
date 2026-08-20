@@ -75,7 +75,6 @@ export const fr: Translation = {
   'inbox.offline':
     'Impossible de joindre les serveurs notifi. Vérifiez votre connexion et réessayez.',
   'inbox.count': { one: '1 notification', other: '{n} notifications' },
-  'inbox.unreadSummary': ' non lues · {total}',
   'inbox.filteredToKey': 'Filtré sur la clé « {name} ».',
   'inbox.closeSearch': 'Fermer la recherche',
   'inbox.markAllAsRead': 'Tout marquer comme lu',

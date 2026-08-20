@@ -3771,41 +3771,6 @@
         }
       }
     },
-    "inbox.unreadSummary": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " unread · %1$@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " sin leer · %1$@"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " ungelesen · %1$@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " non lues · %1$@"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " non lette · %1$@"
-          }
-        }
-      }
-    },
     "keyDetail.copyCurl": {
       "extractionState": "manual",
       "localizations": {

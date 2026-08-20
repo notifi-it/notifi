@@ -74,7 +74,6 @@ export const it: Translation = {
   'inbox.title': 'Inbox',
   'inbox.offline': 'Impossibile raggiungere i server notifi. Controlla la connessione e riprova.',
   'inbox.count': { one: '1 notifica', other: '{n} notifiche' },
-  'inbox.unreadSummary': ' non lette · {total}',
   'inbox.filteredToKey': 'Filtrato sulla chiave “{name}”.',
   'inbox.closeSearch': 'Chiudi ricerca',
   'inbox.markAllAsRead': 'Segna tutte come lette',

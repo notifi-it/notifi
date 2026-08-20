@@ -74,7 +74,6 @@ export const es: Translation = {
   'inbox.title': 'Inbox',
   'inbox.offline': 'No se puede conectar con los servidores de notifi. Comprueba tu conexión e inténtalo de nuevo.',
   'inbox.count': { one: '1 notificación', other: '{n} notificaciones' },
-  'inbox.unreadSummary': ' sin leer · {total}',
   'inbox.filteredToKey': 'Filtrado por la clave "{name}".',
   'inbox.closeSearch': 'Cerrar búsqueda',
   'inbox.markAllAsRead': 'Marcar todo como leído',

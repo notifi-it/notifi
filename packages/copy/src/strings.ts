@@ -138,7 +138,6 @@ export const copy = {
     title: 'Inbox',
     offline: "Can't reach notifi servers. Check your connection and try again.",
     count: plural('1 notification', '{n} notifications'),
-    unreadSummary: ' unread · {total}',
     filteredToKey: 'Filtered to the “{name}” key.',
     closeSearch: 'Close search',
     markAllAsRead: 'Mark all as read',
