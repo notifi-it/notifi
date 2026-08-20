@@ -18,7 +18,7 @@ output directory under fastlane/screenshots, and defaults to en-GB.
 Run it from the repo root. The seeded feed points its one image at
 notifi.it/demo/latency.png, so that has to be deployed for the graph to appear.
 """
-import json, os, subprocess, sys
+import json, os, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 sys.dont_write_bytecode = True
@@ -75,14 +75,14 @@ MONO = dehinted("RecursiveMono-SemiBold")
 SANS = dehinted("Karla")
 
 GUTTER = 96
-TOP = 268
+TOP = 150
 # Fixed, not text-relative: the three frames sit side by side on the listing,
 # and a device that starts at a different height on each reads as a mistake.
 # The whole device is on the page now, so its height and the gap below it are
 # what fix it in place — a bleed only had to name where it started.
 # 920 is set by the longest caption, not by taste: the French message frame
 # runs to five lines and ends at 864.
-DEVICE_TOP = 920
+DEVICE_TOP = 840
 DEVICE_BOTTOM = 76
 TITLE_SIZE, DESC_SIZE = 82, 45
 RULE_W, RULE_H = 150, 7
@@ -96,42 +96,15 @@ BLEED = bool(os.environ.get("IPAD"))
 if os.environ.get("IPAD"):
     GUTTER = 120
     TITLE_SIZE, DESC_SIZE = 108, 56
-    # 980, not the phone's 920: the iPad caption wraps to five lines in German
-    # and reaches 923. Raising it costs no width here, only device height, and
-    # the device runs off the page anyway.
-    DEVICE_TOP = 980
+    # The iPad caption wraps to five lines in German, so its device starts
+    # lower than the phone's. Height is free here — the device runs off the
+    # page regardless.
+    TOP = 190
+    DEVICE_TOP = 900
     RULE_W, RULE_H = 190, 9
     # Only the top corners are on the page, and at 1808px wide the phone's
     # ratio rounds them far harder than the hardware does.
     RADIUS_RATIO = 0.031
-
-# The wordmark is an SVG of outlined glyphs; rasterise it once at the size used.
-# Its letterforms are #EDEDED for a black page; on this white one they have to
-# be dark. The bell keeps its red tittle either way.
-WORDMARK_SVG = f"{OUT}/.wordmark.svg"
-with open(f"{REPO}/apps/api/public/wordmark.svg") as f:
-    open(WORDMARK_SVG, "w").write(f.read().replace('fill="#EDEDED"', f'fill="{FG}"'))
-WORDMARK = f"{OUT}/.wordmark.png"
-subprocess.run(
-    ["rsvg-convert", "-h", "140", "-b", "none", WORDMARK_SVG, "-o", WORDMARK],
-    check=True,
-)
-# The bell is composed, not a flat asset: the site masks bell.svg in the text
-# colour and puts the brand-red disc on top at fractions of the same viewBox.
-# Same construction here and the same fractions — see the note beside `.bell` in
-# index.html. Reframing the box in generate-marks.sh moves both.
-#
-# The disc is centred 14.98% down and drawn 34.19% wide, so it reaches about 2%
-# of the box above its own top edge. The browser lets it overhang; drawing it
-# into the rasterised bell clipped it flat, so it goes on the page instead.
-BELL_BOX = 80
-BELL = f"{OUT}/.bell.png"
-subprocess.run(
-    ["rsvg-convert", "-h", str(BELL_BOX * 4), "-b", "none",
-     f"{REPO}/apps/api/public/bell.svg", "-o", BELL],
-    check=True,
-)
-
 
 def wrap(draw, text, font, width):
     lines, line = [], ""
@@ -191,22 +164,6 @@ def frame(shot_name, title, desc, out_name):
         return
     canvas = ground()
     d = ImageDraw.Draw(canvas)
-
-    # ── wordmark, bell first. Sized as a poster lockup, not a web header —
-    # at the header's 44px the mark disappeared on a 1290px canvas.
-    bell = Image.open(BELL).convert("RGBA")
-    mark = Image.open(WORDMARK).convert("RGBA")
-    bell = bell.resize(
-        (round(bell.width * BELL_BOX / bell.height), BELL_BOX), Image.LANCZOS
-    )
-    mh = 68
-    mark = mark.resize((round(mark.width * mh / mark.height), mh), Image.LANCZOS)
-    top = 120
-    canvas.paste(bell, (GUTTER, top), bell)
-    disc = BELL_BOX * 0.3419
-    cx, cy = GUTTER + BELL_BOX * 0.7006, top + BELL_BOX * 0.1498
-    d.ellipse([cx - disc / 2, cy - disc / 2, cx + disc / 2, cy + disc / 2], fill=BRAND)
-    canvas.paste(mark, (GUTTER + bell.width + 28, top + (BELL_BOX - mh) // 2), mark)
 
     # ── title
     # A variable font left at its default instance renders a broken outline in
@@ -287,5 +244,5 @@ frame("inbox.png", CAPTIONS["inboxTitle"], CAPTIONS["inboxBody"], "01_inbox.png"
 frame("detail.png", CAPTIONS["messageTitle"], CAPTIONS["messageBody"], "02_message.png")
 frame("keys.png", CAPTIONS["keysTitle"], CAPTIONS["keysBody"], "03_keys.png")
 
-for tmp in (WORDMARK, WORDMARK_SVG, BELL, MONO, SANS):
+for tmp in (MONO, SANS):
     os.remove(tmp)
