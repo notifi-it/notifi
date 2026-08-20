@@ -41,15 +41,21 @@ def _changed_fraction(a_path, b_path):
 
 
 def publish(image, path, fmt=None, **save_kwargs):
-    """Save `image` to `path`, or keep what is there if only noise moved."""
+    """Save `image` to `path`, or keep what is there if only noise moved.
+
+    PUBLISH_ALL=1 writes regardless. A change can be real and still fall under
+    the gate: insetting the key icon moved about 60 pixels of a 3.6M-pixel
+    frame, so every screen carrying a tab bar was kept and the fix reached
+    only the frames that happened to churn for other reasons."""
     suffix = os.path.splitext(path)[1] or ".png"
     handle, temp = tempfile.mkstemp(suffix=suffix)
     os.close(handle)
     try:
         image.save(temp, fmt, **save_kwargs)
+        forced = os.environ.get("PUBLISH_ALL") == "1"
         if os.path.exists(path):
             fraction = _changed_fraction(path, temp)
-            if fraction < THRESHOLD:
+            if fraction < THRESHOLD and not forced:
                 print(f"kept {path} ({fraction * 100:.3f}% differs)")
                 return False
             print(f"wrote {path} ({fraction * 100:.3f}% differs)")
