@@ -113,10 +113,9 @@ export const de: Translation = {
   'common.expand': 'Erweitern',
   'common.collapse': 'Einklappen',
 
-  'tabs.notifications': 'Benachrichtigungen',
   'tabs.keys': 'Schlüssel',
   'tabs.settings': 'Einstellungen',
-  'tabs.inbox': 'Posteingang',
+  'tabs.inbox': 'Inbox',
 
   'age.now': 'jetzt',
   'age.justNow': 'gerade eben',
@@ -125,7 +124,7 @@ export const de: Translation = {
   'age.days': '{n} T',
   'age.weeks': '{n} W',
   'age.ago': 'vor {relative}',
-  'inbox.title': 'Benachrichtigungen',
+  'inbox.title': 'Inbox',
   'inbox.offline': 'notifi-Server nicht erreichbar. Verbindung prüfen und erneut versuchen.',
   'inbox.count': { one: '1 Benachrichtigung', other: '{n} Benachrichtigungen' },
   'inbox.unreadSummary': ' ungelesen · {total}',
@@ -160,7 +159,6 @@ export const de: Translation = {
   'message.notFound': 'Nachricht nicht gefunden',
   'message.notFoundDetail': 'Sie wurde möglicherweise auf diesem Gerät gelöscht.',
   'message.downloadImage': 'Bild herunterladen',
-  'message.backToNotifications': 'Zurück zu Benachrichtigungen',
   'message.keyFallbackName': 'Schlüssel {id}',
   'message.sentWithKey': 'Gesendet mit Schlüssel {name}',
   'message.openKey': 'Gesendet mit Schlüssel {name}. Öffnen.',

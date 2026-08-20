@@ -60,10 +60,9 @@ export const es: Translation = {
   'common.expand': 'Expandir',
   'common.collapse': 'Contraer',
 
-  'tabs.notifications': 'Notificaciones',
   'tabs.keys': 'Claves',
   'tabs.settings': 'Ajustes',
-  'tabs.inbox': 'Bandeja',
+  'tabs.inbox': 'Inbox',
 
   'age.now': 'ahora',
   'age.justNow': 'ahora mismo',
@@ -72,7 +71,7 @@ export const es: Translation = {
   'age.days': '{n} d',
   'age.weeks': '{n} sem',
   'age.ago': 'hace {relative}',
-  'inbox.title': 'Notificaciones',
+  'inbox.title': 'Inbox',
   'inbox.offline': 'No se puede conectar con los servidores de notifi. Comprueba tu conexión e inténtalo de nuevo.',
   'inbox.count': { one: '1 notificación', other: '{n} notificaciones' },
   'inbox.unreadSummary': ' sin leer · {total}',
@@ -107,7 +106,6 @@ export const es: Translation = {
   'message.notFound': 'Mensaje no encontrado',
   'message.notFoundDetail': 'Puede que se haya eliminado en este dispositivo.',
   'message.downloadImage': 'Descargar imagen',
-  'message.backToNotifications': 'Volver a Notificaciones',
   'message.keyFallbackName': 'Clave {id}',
   'message.sentWithKey': 'Enviado con la clave {name}',
   'message.openKey': 'Enviado con la clave {name}. Ábrela.',

@@ -149,7 +149,7 @@ struct MessageDetailView: View {
 
     private var backButton: some View {
         IconButton(systemName: "chevron.backward",
-                   label: Copy.Message.backToNotifications) { goBack() }
+                   label: Copy.Components.backTo(Copy.Inbox.title)) { goBack() }
     }
 
     private func keyName(for message: Message) -> String? {

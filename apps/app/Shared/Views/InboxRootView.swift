@@ -85,7 +85,7 @@ struct InboxRootView: View {
                         }
                 }
             } label: {
-                Label(Copy.Tabs.notifications,
+                Label(Copy.Tabs.inbox,
                       image: model.hasUnread ? "BellTabUnread" : "BellTab")
                     .labelStyle(.iconOnly)
             }
@@ -125,7 +125,7 @@ struct InboxRootView: View {
                         }
                 }
                 .tabItem {
-                    Label(Copy.Tabs.notifications,
+                    Label(Copy.Tabs.inbox,
                           image: model.hasUnread ? "BellTabUnread" : "BellTab")
                         .labelStyle(.iconOnly)
                 }

@@ -119,7 +119,6 @@ export const copy = {
   },
 
   tabs: {
-    notifications: 'Notifications',
     keys: 'Keys',
     settings: 'Settings',
     inbox: 'Inbox',
@@ -136,7 +135,7 @@ export const copy = {
   },
 
   inbox: {
-    title: 'Notifications',
+    title: 'Inbox',
     offline: "Can't reach notifi servers. Check your connection and try again.",
     count: plural('1 notification', '{n} notifications'),
     unreadSummary: ' unread · {total}',
@@ -175,7 +174,6 @@ export const copy = {
     notFound: 'Notification not found',
     notFoundDetail: 'It may have been deleted on this device.',
     downloadImage: 'Download image',
-    backToNotifications: 'Back to Notifications',
     keyFallbackName: 'Key {id}',
     sentWithKey: 'Sent with key {name}',
     openKey: 'Sent with key {name}. Open it.',

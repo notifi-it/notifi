@@ -18,7 +18,7 @@ struct GeistTabBar: View {
 
     private var items: [Item] {
         [
-            Item(tab: .inbox, title: Copy.Tabs.notifications,
+            Item(tab: .inbox, title: Copy.Tabs.inbox,
                  icon: model.hasUnread ? "BellTabUnreadBody" : "BellTabBody",
                  templated: !model.hasUnread,
                  clapper: "BellTabClapper"),

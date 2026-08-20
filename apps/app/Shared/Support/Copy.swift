@@ -29,7 +29,6 @@ enum Copy {
         static var collapse: String { NSLocalizedString("common.collapse", comment: "") }
     }
     enum Tabs {
-        static var notifications: String { NSLocalizedString("tabs.notifications", comment: "") }
         static var keys: String { NSLocalizedString("tabs.keys", comment: "") }
         static var settings: String { NSLocalizedString("tabs.settings", comment: "") }
         static var inbox: String { NSLocalizedString("tabs.inbox", comment: "") }
@@ -79,7 +78,6 @@ enum Copy {
         static var notFound: String { NSLocalizedString("message.notFound", comment: "") }
         static var notFoundDetail: String { NSLocalizedString("message.notFoundDetail", comment: "") }
         static var downloadImage: String { NSLocalizedString("message.downloadImage", comment: "") }
-        static var backToNotifications: String { NSLocalizedString("message.backToNotifications", comment: "") }
         static func keyFallbackName(_ id: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.keyFallbackName", comment: ""), id) }
         static func sentWithKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.sentWithKey", comment: ""), name) }
         static func openKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.openKey", comment: ""), name) }

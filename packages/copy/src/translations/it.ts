@@ -60,10 +60,9 @@ export const it: Translation = {
   'common.expand': 'Espandi',
   'common.collapse': 'Comprimi',
 
-  'tabs.notifications': 'Notifiche',
   'tabs.keys': 'Chiavi',
   'tabs.settings': 'Impostazioni',
-  'tabs.inbox': 'Posta in arrivo',
+  'tabs.inbox': 'Inbox',
 
   'age.now': 'ora',
   'age.justNow': 'proprio ora',
@@ -72,7 +71,7 @@ export const it: Translation = {
   'age.days': '{n} g',
   'age.weeks': '{n} sett',
   'age.ago': '{relative} fa',
-  'inbox.title': 'Notifiche',
+  'inbox.title': 'Inbox',
   'inbox.offline': 'Impossibile raggiungere i server notifi. Controlla la connessione e riprova.',
   'inbox.count': { one: '1 notifica', other: '{n} notifiche' },
   'inbox.unreadSummary': ' non lette · {total}',
@@ -107,7 +106,6 @@ export const it: Translation = {
   'message.notFound': 'Messaggio non trovato',
   'message.notFoundDetail': 'Potrebbe essere stato eliminato su questo dispositivo.',
   'message.downloadImage': 'Scarica immagine',
-  'message.backToNotifications': 'Torna alle notifiche',
   'message.keyFallbackName': 'Chiave {id}',
   'message.sentWithKey': 'Inviato con la chiave {name}',
   'message.openKey': 'Inviato con la chiave {name}. Aprila.',
