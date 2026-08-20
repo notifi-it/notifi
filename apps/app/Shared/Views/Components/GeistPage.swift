@@ -23,11 +23,9 @@ struct GeistPage<Header: View, Content: View>: View {
             header()
                 .geistPageHeader()
                 .geistGutter()
-                .geistMeasure()
                 .background(StaticField())
 
             scrollingContent
-                .geistMeasure()
         }
         .background(StaticField())
         #if os(iOS)

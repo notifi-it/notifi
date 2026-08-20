@@ -28,7 +28,7 @@ struct KeyDetailView: View {
     var body: some View {
         ScrollView {
             if let key {
-                content(for: key).geistGutter().geistMeasure()
+                content(for: key).geistGutter()
             } else {
                 VStack(spacing: 10) {
                     Text(Copy.KeyDetail.notFound)
@@ -47,7 +47,6 @@ struct KeyDetailView: View {
         .safeAreaInset(edge: .top) {
             GeistBackBar(label: Copy.Tabs.keys, dismiss: { dismiss() }, trailing: nil)
                 .geistGutter()
-                .geistMeasure()
                 .background(StaticField())
         }
         #if os(iOS)

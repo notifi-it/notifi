@@ -57,7 +57,6 @@ struct MessageDetailView: View {
             if let message {
                 content(for: message)
                     .geistGutter()
-                    .geistMeasure()
             } else {
                 VStack(spacing: 10) {
                     Text(Copy.Message.notFound)
@@ -137,7 +136,6 @@ struct MessageDetailView: View {
             }
         }
         .geistGutter()
-        .geistMeasure()
         .padding(.top, 22)
         .padding(.bottom, 6)
         .background(StaticField())
