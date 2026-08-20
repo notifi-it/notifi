@@ -91,6 +91,15 @@ shoot() { # udid outfile extra-env...
   # network, and a shot before it does ships a placeholder.
   case "$outfile" in *detail*) sleep 8 ;; *) sleep 4 ;; esac
   xcrun simctl io "$udid" screenshot --type=png "$OUT/$outfile" >/dev/null
+  # iOS draws the home indicator at launch and fades it about two seconds
+  # later. The wait above normally clears it, but on a loaded machine the app
+  # renders late and the shot lands inside the fade -- one frame in the set
+  # then carries a pill none of the others have.
+  for _ in 1 2 3 4 5; do
+    python3 apps/app/Scripts/home-indicator.py "$OUT/$outfile" || break
+    sleep 1
+    xcrun simctl io "$udid" screenshot --type=png "$OUT/$outfile" >/dev/null
+  done
   echo "$OUT/$outfile"
 }
 
