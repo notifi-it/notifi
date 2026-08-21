@@ -66,12 +66,8 @@ export const de: Translation = {
     'Markiere einen Schlüssel als dringend, und seine Benachrichtigungen durchbrechen ' +
     'den Fokus und landen auf dem Sperrbildschirm.\n',
   'store.releaseNotes':
-    'notifi 2.0 ist eine komplette Neuentwicklung. Die alte Flutter-App ist verschwunden; ' +
-    'diese ist nativ in Swift geschrieben, von Grund auf neu gestaltet.\n\n' +
-    'Schnellerer Start, natives Text-Rendering und ein gemeinsames Layout für alle drei ' +
-    'Tabs. Der Bildschirm Schlüssel sagt jetzt, wofür ein Schlüssel steht, und der ' +
-    'eingebaute Standardschlüssel führt die Liste an. Zeitstempel bei Nachrichten sind ' +
-    'reine Ziffern, die sich kopieren lassen.\n',
+    'Der Bildschirm Benachrichtigungen heißt jetzt Inbox, und die Suche durchsucht die Inbox. Die Zählung über der Liste ist verschwunden.\n\n' +
+    'Auf dem iPad nutzt die App die volle Breite des Bildschirms statt einer Spalte in Telefonbreite, und die Liste scrollt unter der Tab-Leiste bis zum unteren Rand. Das Schlüsselsymbol in der Tab-Leiste wird dort nicht mehr abgeschnitten.\n',
 
   'store.shotInboxTitle': 'Eine Anfrage.\nDirekt in deine Tasche.',
   'store.shotInboxBody':

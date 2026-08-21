@@ -375,11 +375,8 @@ export const it: Translation = {
     'Contrassegna una chiave come urgente e le sue notifiche superano Focus e arrivano sulla ' +
     'schermata di blocco.\n',
   'store.releaseNotes':
-    'notifi 2.0 è una riscrittura completa. La vecchia app Flutter è sparita; questa è nativa ' +
-    'Swift, ridisegnata da cima a fondo.\n\n' +
-    'Avvio più veloce, rendering nativo del testo, e un unico layout condiviso tra le tre schede. ' +
-    'La schermata Chiavi ora spiega cos\'è una chiave, e la chiave predefinita integrata guida ' +
-    'l\'elenco. I timestamp dei messaggi sono cifre semplici che puoi copiare.\n',
+    "La schermata Notifiche ora si chiama Inbox e la ricerca cerca nella Inbox. Il conteggio sopra l'elenco è sparito.\n\n" +
+    "Su iPad l'app usa tutta la larghezza dello schermo invece di una colonna larga quanto un telefono, e l'elenco scorre sotto la barra delle schede fino al bordo inferiore. L'icona della chiave nella barra delle schede non è più tagliata.\n",
   'store.shotInboxTitle': 'Una richiesta.\nDritta in tasca.',
   'store.shotInboxBody':
     'Notifiche push per i tuoi script e server. Una richiesta HTTP a notifi.it e arriva un ' +

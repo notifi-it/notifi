@@ -69,11 +69,8 @@ export const copy = {
       'Mark a key as urgent and its notifications break through Focus and land on the lock ' +
       'screen.\n',
     releaseNotes:
-      'notifi 2.0 is a ground-up rewrite. The old Flutter app is gone; this one is native ' +
-      'Swift, redesigned top to bottom.\n\n' +
-      'Faster launch, native text rendering, and one shared layout across the three tabs. ' +
-      'The Keys screen now says what a key is, and the built-in default key leads the list. ' +
-      'Notification timestamps are plain digits you can copy.\n',
+      'The Notifications screen is called the Inbox now, and search asks to search the inbox. The count above the list is gone.\n\n' +
+      'On iPad the app uses the full width of the screen rather than a phone-width column, and the list scrolls under the tab bar to the bottom edge. The key icon in the tab bar is no longer clipped there.\n',
 
     shotInboxTitle: 'One request.\nStraight to your pocket.',
     shotInboxBody:
