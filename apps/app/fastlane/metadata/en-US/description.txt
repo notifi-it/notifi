@@ -1,0 +1,17 @@
+Push notifications for your scripts and servers.
+
+Create a send key and send a title and a body to notifi.it in one HTTP request. The notification lands on your iPhone or Mac. Anything that can make an HTTP request can send one, e.g. a shell script, a cron job, a CI pipeline.
+
+https://notifi.it/send?title=hello+world
+
+WHAT A NOTIFICATION CARRIES
+A title, a body, an image and a link. The body is Markdown: headings, lists, quotes, links and code blocks are rendered on the device.
+
+ENCRYPTED
+Your device holds the only private key. Notification content is encrypted with your public key at ingest, so we cannot read your notifications. Each one is deleted from the server once your device acknowledges it.
+
+NO ACCOUNTS
+No sign-up, no sign-in, no device linking. The app mints a send key on first launch. Keys can be renamed, paused and revoked per source.
+
+URGENT ALERTS
+Mark a key as urgent and its notifications break through Focus and land on the lock screen.

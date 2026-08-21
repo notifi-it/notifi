@@ -1,1 +1,1 @@
-Une requête HTTP, un push
+Pour scripts et serveurs
