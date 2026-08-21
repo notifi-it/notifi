@@ -7,14 +7,6 @@ compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
 routes = [{ pattern = "notifi.it", custom_domain = true }]
 
-# Without this, `wrangler dev` takes the hostname from the route above and
-# rewrites both the request URL and the Host header to notifi.it, while still
-# serving over http. Two things then break: src/index.ts stops recognising the
-# request as loopback and 301s to https in a loop, and the signature canonical
-# string in src/lib/signature.ts binds the host, so it can never match what the
-# app signed.
-# The port is pinned because the app's Debug build hard-codes it in
-# apps/app/project.yml; the two must agree.
 [dev]
 host = "localhost:8787"
 port = 8787
