@@ -63,20 +63,26 @@ SVG=["""<svg viewBox="0 0 428 900">
       <mask id="gfPhoneCut"><rect x="-20" y="-20" width="468" height="940" fill="#fff"/><rect x="151.5" y="24" width="125" height="37" rx="18.5" fill="#000"/></mask>
       <g mask="url(#gfPhoneCut)">
       <rect class="o" x="0" y="0" width="428" height="900" rx="75"/>
+      <filter id="gfG0" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.364" numOctaves="1" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
       <rect class="scr" x="13" y="13" width="402" height="874" rx="62"/>
+      <rect class="grain" style="filter:url(#gfG0)" x="13" y="13" width="402" height="874" rx="62"/>
       </g>
       <rect class="dot" x="145.5" y="870" width="137" height="5" rx="2.5"/>
     </svg>""",
 """<svg viewBox="0 0 1292 916">
       <rect class="o" x="0" y="0" width="1292" height="916" rx="42"/>
+      <filter id="gfG1" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.265" numOctaves="1" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
       <rect class="scr" x="41" y="41" width="1210" height="834" rx="18"/>
+      <rect class="grain" style="filter:url(#gfG1)" x="41" y="41" width="1210" height="834" rx="18"/>
       <circle class="dot" cx="646" cy="20" r="5"/>
     </svg>""",
 """<svg viewBox="0 0 1640 1040">
       <mask id="gfMacCut"><rect x="-20" y="-20" width="1680" height="1080" fill="#fff"/><path d="M 727.5 32 L 727.5 65 Q 727.5 85 747.5 85 L 892.5 85 Q 912.5 85 912.5 65 L 912.5 32 Z" fill="#000"/></mask>
       <g mask="url(#gfMacCut)">
       <path class="o" d="M 64 1000 L 64 40 Q 64 0 104 0 L 1536 0 Q 1576 0 1576 40 L 1576 1000"/>
+      <filter id="gfG2" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.223" numOctaves="1" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
       <rect class="scr" x="99" y="35" width="1442" height="930" rx="16"/>
+      <rect class="grain" style="filter:url(#gfG2)" x="99" y="35" width="1442" height="930" rx="16"/>
       <path d="M 99 85 L 99 51 Q 99 35 115 35 L 1525 35 Q 1541 35 1541 51 L 1541 85 Z" style="fill:#2E2E31;stroke:none"/>
       </g>
       <path class="o" d="M 0 1000 L 730 1000 C 752 1026 888 1026 910 1000 L 1640 1000 L 1640 1016 Q 1640 1040 1604 1040 L 36 1040 Q 0 1040 0 1016 Z"/>
@@ -218,6 +224,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
 .o{{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}}
 .scr{{fill:var(--surface);stroke:none}}
+.grain{{stroke:none;opacity:.16;mix-blend-mode:overlay;pointer-events:none}}
 .dot{{fill:var(--stroke2);stroke:none}}
 .sbar{{position:absolute;display:flex;align-items:center;justify-content:space-between;font-family:var(--ui);font-weight:600;color:var(--fg)}}
 .sbar .icons{{display:flex;align-items:center;gap:.42cqw}}
