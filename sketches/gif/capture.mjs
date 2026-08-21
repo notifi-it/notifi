@@ -37,10 +37,35 @@ await page.goto(`http://127.0.0.1:${server.address().port}/__film`, { waitUntil:
 await page.evaluate(() => document.fonts.ready)
 await page.evaluate(() => document.querySelector('.stage').classList.add('gif'))
 
+await page.evaluate(() => {
+  const stage = document.querySelector('.stage')
+  const cv = document.createElement('canvas')
+  cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'
+  stage.prepend(cv)
+  const dpr = 2
+  cv.width = Math.floor(stage.clientWidth * dpr)
+  cv.height = Math.floor(stage.clientHeight * dpr)
+  const ctx = cv.getContext('2d', { alpha: false })
+  const SIZE = 256, GROUND = 28, SPREAD = 14
+  const t = document.createElement('canvas')
+  t.width = t.height = SIZE
+  const tc = t.getContext('2d')
+  const img = tc.createImageData(SIZE, SIZE)
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    const v = GROUND + (Math.random() - 0.5) * 2 * SPREAD
+    img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v
+    img.data[i * 4 + 3] = 255
+  }
+  tc.putImageData(img, 0, 0)
+  ctx.fillStyle = ctx.createPattern(t, 'repeat')
+  ctx.fillRect(0, 0, cv.width, cv.height)
+})
+
 const stage = page.locator('.stage').first()
 const count = LOOP_MS / 1000 * FPS
 for (let i = 0; i < count; i++) {
-  await page.evaluate(t => document.getAnimations().forEach(a => { a.currentTime = t; a.pause() }), i * LOOP_MS / count)
+  const at = i * LOOP_MS / count
+  await page.evaluate(t => document.getAnimations().forEach(a => { a.currentTime = t; a.pause() }), at)
   await stage.screenshot({ path: path.join(frames, `f${String(i).padStart(4, '0')}.png`) })
   process.stderr.write(`\rframe ${i + 1}/${count}`)
 }
