@@ -1,3 +1,3 @@
-notifi 2.0 è una riscrittura completa. La vecchia app Flutter è sparita; questa è nativa Swift, ridisegnata da cima a fondo.
+La schermata Notifiche ora si chiama Inbox e il conteggio sopra l'elenco è sparito.
 
-Avvio più veloce, rendering nativo del testo, e un unico layout condiviso tra le tre schede. La schermata Chiavi ora spiega cos'è una chiave, e la chiave predefinita integrata guida l'elenco. I timestamp dei messaggi sono cifre semplici che puoi copiare.
+Su iPad l'app usa tutta la larghezza dello schermo invece di una colonna larga quanto un telefono, e l'elenco scorre sotto la barra delle schede fino al bordo inferiore. L'icona della chiave nella barra delle schede non è più tagliata.

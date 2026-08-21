@@ -1,3 +1,3 @@
-notifi 2.0 ist eine komplette Neuentwicklung. Die alte Flutter-App ist verschwunden; diese ist nativ in Swift geschrieben, von Grund auf neu gestaltet.
+Der Bildschirm Benachrichtigungen heißt jetzt Inbox, und die Zählung über der Liste ist verschwunden.
 
-Schnellerer Start, natives Text-Rendering und ein gemeinsames Layout für alle drei Tabs. Der Bildschirm Schlüssel sagt jetzt, wofür ein Schlüssel steht, und der eingebaute Standardschlüssel führt die Liste an. Zeitstempel bei Nachrichten sind reine Ziffern, die sich kopieren lassen.
+Auf dem iPad nutzt die App die volle Breite des Bildschirms statt einer Spalte in Telefonbreite, und die Liste scrollt unter der Tab-Leiste bis zum unteren Rand. Das Schlüsselsymbol in der Tab-Leiste wird dort nicht mehr abgeschnitten.

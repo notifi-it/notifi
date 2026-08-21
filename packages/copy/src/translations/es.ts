@@ -374,12 +374,8 @@ export const es: Translation = {
     'Marca una clave como urgente y sus notificaciones atraviesan el modo Enfoque y aparecen en la ' +
     'pantalla de bloqueo.\n',
   'store.releaseNotes':
-    'notifi 2.0 es una reescritura desde cero. La antigua app en Flutter ha desaparecido; esta es ' +
-    'Swift nativo, rediseñada de arriba abajo.\n\n' +
-    'Inicio más rápido, renderizado de texto nativo y un mismo diseño compartido entre las tres ' +
-    'pestañas. La pantalla de Claves ahora explica qué es una clave, y la clave predeterminada ' +
-    'encabeza la lista. Las marcas de tiempo de los mensajes son dígitos simples que puedes copiar.\n',
-
+    'La pantalla Notificaciones ahora se llama Inbox y el recuento sobre la lista ha desaparecido.\n\n' +
+    'En iPad la app usa todo el ancho de la pantalla en lugar de una columna con ancho de teléfono, y la lista se desplaza bajo la barra de pestañas hasta el borde inferior. El icono de la llave en la barra de pestañas ya no aparece recortado.\n',
   'store.shotInboxTitle': 'Una solicitud.\nDirecto a tu bolsillo.',
   'store.shotInboxBody':
     'Notificaciones push para tus scripts y servidores. Una solicitud HTTP a notifi.it y llega un ' +
