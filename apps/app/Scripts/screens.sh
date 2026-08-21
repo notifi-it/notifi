@@ -81,25 +81,31 @@ shoot() { # udid outfile extra-env...
   # must be its own step with a beat in between.
   xcrun simctl terminate "$udid" "$BUNDLE_ID" 2>/dev/null || true
   sleep 1
+  local marker
+  marker="$(xcrun simctl get_app_container "$udid" "$BUNDLE_ID" data)/Documents/shot-ready"
+  rm -f "$marker"
   # -AppleLanguages is read at launch, so the app comes up in LANG's language
   # without touching the simulator's own settings. Capturing every locale off
   # one English boot would ship a Spanish listing showing an English app.
   env "$@" SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 SIMCTL_CHILD_NOTIFI_SEED_SAMPLE=1 \
     xcrun simctl launch "$udid" "$BUNDLE_ID" \
     -AppleLanguages "($LANG_CODE)" -AppleLocale "$LANG_CODE" >/dev/null
-  # The detail screen settles slowest: the seeded image arrives over the
-  # network, and a shot before it does ships a placeholder.
-  case "$outfile" in *detail*) sleep 8 ;; *) sleep 4 ;; esac
+  # Wait for the app to say the screen is up, rather than for a number of
+  # seconds. A fixed wait counts from the moment simctl returns, which is when
+  # the process was spawned -- on a loaded machine the app can still be drawing
+  # a second or two later, and the shot lands early. The marker is written when
+  # the requested screen has appeared, and for the detail screen when its image
+  # has arrived, which is what the old eight-second guess was standing in for.
+  for _ in $(seq 1 80); do
+    [ -f "$marker" ] && break
+    sleep 0.25
+  done
+  [ -f "$marker" ] || echo "warning: $outfile captured with no ready marker" >&2
+  # iOS 26 fades the home indicator about two seconds after a screen appears
+  # and does not bring it back without a swipe. Counted from the marker this is
+  # a wait for one known animation, not a guess at how long a launch takes.
+  sleep 3
   xcrun simctl io "$udid" screenshot --type=png "$OUT/$outfile" >/dev/null
-  # iOS draws the home indicator at launch and fades it about two seconds
-  # later. The wait above normally clears it, but on a loaded machine the app
-  # renders late and the shot lands inside the fade -- one frame in the set
-  # then carries a pill none of the others have. The fade is short and the
-  # capture is cheap, so one more beat is enough.
-  if python3 apps/app/Scripts/home-indicator.py "$OUT/$outfile"; then
-    sleep 3
-    xcrun simctl io "$udid" screenshot --type=png "$OUT/$outfile" >/dev/null
-  fi
   echo "$OUT/$outfile"
 }
 

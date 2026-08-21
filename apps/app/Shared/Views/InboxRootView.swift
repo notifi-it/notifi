@@ -57,10 +57,11 @@ struct InboxRootView: View {
         let env = ProcessInfo.processInfo.environment
         guard env["NOTIFI_SEED_SAMPLE"] == "1" else { return }
         SampleData.seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
-        if env["NOTIFI_OPEN_SAMPLE_MESSAGE"] == "1" {
+        if SampleData.opensSampleMessage {
             try? await Task.sleep(for: .milliseconds(400))
             model.path.append(SampleData.idFloor)
         }
+        SampleData.screenDidAppear()
         #endif
     }
 
