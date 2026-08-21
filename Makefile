@@ -1,6 +1,6 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-metadata app-metadata-check shots screens screens-mac film film-gif
+	app-metadata app-metadata-check shots screens screens-mac film film-gif check-film
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -43,6 +43,9 @@ check-copy:
 # them with preact for the page itself. Output is committed.
 film:
 	cd sketches/gif && python3 build.py
+
+check-film:
+	node scripts/check-film.mjs
 
 film-gif:
 	cd sketches/gif && node capture.mjs
