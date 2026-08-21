@@ -508,7 +508,9 @@ final class AppModel {
             UIApplication.shared.open(url)
         }
         #else
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
+        let pane = "x-apple.systempreferences:com.apple.Notifications-Settings.extension"
+        let target = Bundle.main.bundleIdentifier.map { "\(pane)?id=\($0)" } ?? pane
+        if let url = URL(string: target) {
             NSWorkspace.shared.open(url)
         }
         #endif
