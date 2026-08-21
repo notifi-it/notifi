@@ -1,1 +1,1 @@
-Una solicitud HTTP, un aviso
+Avisos de scripts y servidores
