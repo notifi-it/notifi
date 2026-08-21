@@ -35,6 +35,7 @@ const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: WIDTH, height: 720 }, deviceScaleFactor: 2 })
 await page.goto(`http://127.0.0.1:${server.address().port}/__film`, { waitUntil: 'networkidle' })
 await page.evaluate(() => document.fonts.ready)
+await page.evaluate(() => document.querySelector('.stage').classList.add('gif'))
 
 const stage = page.locator('.stage').first()
 const count = LOOP_MS / 1000 * FPS

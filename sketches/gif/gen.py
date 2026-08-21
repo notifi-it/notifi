@@ -183,6 +183,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .tp0_0,.tp0_1,.tp0_2,.cr0_0,.cr0_1,.cr0_2,.rp0,.trail i,.tabs button,.bell i{{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}}
 .head{{position:absolute;left:4.17%;top:9.2%;line-height:1.35;letter-spacing:-.01em;opacity:0}}
 .head .l1{{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}}
+.gif .l1{{color:var(--red)}}
 .head .l2{{--fs:2.0;font-weight:400;color:var(--muted)}}
 .term{{position:absolute;{TERM};background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
 .term .bar{{position:relative;display:flex;align-items:center;gap:.5cqw;padding:.9cqw 1.2cqw}}
