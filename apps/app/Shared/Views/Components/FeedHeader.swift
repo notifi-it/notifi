@@ -7,7 +7,7 @@ struct FeedHeader<Trailing: View>: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \Message.createdAt, order: .reverse) private var messages: [Message]
 
-    let subtitle: Text
+    var subtitle: Text? = nil
     @Binding var filterKeyID: Int?
     @ViewBuilder var trailing: () -> Trailing
 
@@ -21,10 +21,17 @@ struct FeedHeader<Trailing: View>: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .frame(height: Theme.headerBarHeight, alignment: .leading)
-                subtitle
-                    .font(Theme.meta)
-                    .foregroundColor(Theme.muted)
-                    .lineLimit(1)
+                if let subtitle {
+                    subtitle
+                        .font(Theme.meta)
+                        .foregroundColor(Theme.muted)
+                        .lineLimit(1)
+                } else {
+                    Text(verbatim: " ")
+                        .font(Theme.meta)
+                        .hidden()
+                        .accessibilityHidden(true)
+                }
             }
             Spacer(minLength: 8)
             HStack(spacing: 8) {
@@ -104,7 +111,7 @@ struct FeedHeader<Trailing: View>: View {
 }
 
 extension FeedHeader where Trailing == EmptyView {
-    init(subtitle: Text, filterKeyID: Binding<Int?>) {
+    init(subtitle: Text? = nil, filterKeyID: Binding<Int?>) {
         self.init(subtitle: subtitle, filterKeyID: filterKeyID) { EmptyView() }
     }
 }

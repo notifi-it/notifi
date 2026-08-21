@@ -97,8 +97,6 @@ enum Theme {
 
     static let minTarget: CGFloat = 44
 
-    static let measure: CGFloat = 620
-
     static let bottomPlate: CGFloat = 44
 
     static let topFade: CGFloat = 14
@@ -143,11 +141,6 @@ extension View {
         padding(.horizontal, Theme.groupInset + Theme.gutter)
     }
 
-    func geistMeasure() -> some View {
-        frame(maxWidth: Theme.measure, alignment: .leading)
-            .frame(maxWidth: .infinity)
-    }
-
     func geistBannerTransition() -> some View {
         transition(Theme.reduceMotion
                    ? .opacity
@@ -170,19 +163,6 @@ extension View {
         font(Theme.body)
             .foregroundStyle(Theme.muted)
             .fixedSize(horizontal: false, vertical: true)
-    }
-
-    @ViewBuilder
-    func geistBottomPlate() -> some View {
-        #if os(macOS)
-        self
-        #else
-        overlay(alignment: .bottom) {
-            StaticField()
-                .frame(height: Theme.bottomPlate)
-                .allowsHitTesting(false)
-        }
-        #endif
     }
 
     @ViewBuilder

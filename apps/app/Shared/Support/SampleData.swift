@@ -51,6 +51,30 @@ enum SampleData {
         ProcessInfo.processInfo.environment["NOTIFI_APPEARANCE"].flatMap(Appearance.init(rawValue:))
     }
 
+    static var opensSampleMessage: Bool {
+        ProcessInfo.processInfo.environment["NOTIFI_OPEN_SAMPLE_MESSAGE"] == "1"
+    }
+
+    @MainActor
+    static func screenDidAppear() {
+        guard !opensSampleMessage else { return }
+        writeReadyMarker()
+    }
+
+    @MainActor
+    static func imageDidSettle() {
+        guard opensSampleMessage else { return }
+        writeReadyMarker()
+    }
+
+    @MainActor
+    private static func writeReadyMarker() {
+        guard isEnabled else { return }
+        let documents = FileManager.default.urls(for: .documentDirectory,
+                                                 in: .userDomainMask)[0]
+        try? Data().write(to: documents.appending(path: "shot-ready"))
+    }
+
     static func serverID(at index: Int) -> Int { idFloor - index }
 
     @MainActor

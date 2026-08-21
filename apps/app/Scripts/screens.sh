@@ -81,23 +81,42 @@ shoot() { # udid outfile extra-env...
   # must be its own step with a beat in between.
   xcrun simctl terminate "$udid" "$BUNDLE_ID" 2>/dev/null || true
   sleep 1
+  local marker
+  marker="$(xcrun simctl get_app_container "$udid" "$BUNDLE_ID" data)/Documents/shot-ready"
+  rm -f "$marker"
   # -AppleLanguages is read at launch, so the app comes up in LANG's language
   # without touching the simulator's own settings. Capturing every locale off
   # one English boot would ship a Spanish listing showing an English app.
   env "$@" SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 SIMCTL_CHILD_NOTIFI_SEED_SAMPLE=1 \
     xcrun simctl launch "$udid" "$BUNDLE_ID" \
     -AppleLanguages "($LANG_CODE)" -AppleLocale "$LANG_CODE" >/dev/null
-  # The detail screen settles slowest: the seeded image arrives over the
-  # network, and a shot before it does ships a placeholder.
-  case "$outfile" in *detail*) sleep 8 ;; *) sleep 4 ;; esac
+  # Wait for the app to say the screen is up, rather than for a number of
+  # seconds. A fixed wait counts from the moment simctl returns, which is when
+  # the process was spawned -- on a loaded machine the app can still be drawing
+  # a second or two later, and the shot lands early. The marker is written when
+  # the requested screen has appeared, and for the detail screen when its image
+  # has arrived, which is what the old eight-second guess was standing in for.
+  for _ in $(seq 1 80); do
+    [ -f "$marker" ] && break
+    sleep 0.25
+  done
+  [ -f "$marker" ] || echo "warning: $outfile captured with no ready marker" >&2
+  # iOS 26 fades the home indicator about two seconds after a screen appears
+  # and does not bring it back without a swipe. Counted from the marker this is
+  # a wait for one known animation, not a guess at how long a launch takes.
+  sleep 3
   xcrun simctl io "$udid" screenshot --type=png "$OUT/$outfile" >/dev/null
   echo "$OUT/$outfile"
 }
 
+# Appearance is named on every capture, never inherited. The app persists what
+# NOTIFI_APPEARANCE sets, so the light settings shot at the end of a run used to
+# come back as the first shot of the NEXT run — a whole App Store set in the
+# wrong colour scheme, from a script that had not changed.
 capture_set() { # udid prefix
-  shoot "$1" "$2inbox.png"   SIMCTL_CHILD_NOTIFI_START_TAB=inbox
-  shoot "$1" "$2detail.png"  SIMCTL_CHILD_NOTIFI_START_TAB=inbox SIMCTL_CHILD_NOTIFI_OPEN_SAMPLE_MESSAGE=1
-  shoot "$1" "$2keys.png"    SIMCTL_CHILD_NOTIFI_START_TAB=keys
+  shoot "$1" "$2inbox.png"   SIMCTL_CHILD_NOTIFI_START_TAB=inbox SIMCTL_CHILD_NOTIFI_APPEARANCE=dark
+  shoot "$1" "$2detail.png"  SIMCTL_CHILD_NOTIFI_START_TAB=inbox SIMCTL_CHILD_NOTIFI_OPEN_SAMPLE_MESSAGE=1 SIMCTL_CHILD_NOTIFI_APPEARANCE=dark
+  shoot "$1" "$2keys.png"    SIMCTL_CHILD_NOTIFI_START_TAB=keys SIMCTL_CHILD_NOTIFI_APPEARANCE=dark
 }
 
 # One pass per App Store locale. The pairing of language code to store locale
@@ -130,6 +149,10 @@ python3 - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, "apps/app/Scripts")
+from publish_image import publish
+
 out, site = sys.argv[1], sys.argv[2]
 W, H = 1240, 2696
 for shot, name in [("inbox", "notifications"), ("detail", "detail"),
@@ -141,7 +164,6 @@ for shot, name in [("inbox", "notifications"), ("detail", "detail"),
     x, y = (im.width - W) // 2, (im.height - H) // 2
     # At 2x the grain sits at pixel scale and survives compression; 80 keeps
     # it fully (measured), and lower only shaves file size by blurring it.
-    im.crop((x, y, x + W, y + H)).save(f"{site}/{name}.webp",
-                                       "WEBP", quality=80, method=6)
-    print(f"{site}/{name}.webp")
+    publish(im.crop((x, y, x + W, y + H)), f"{site}/{name}.webp",
+            "WEBP", quality=80, method=6)
 EOF

@@ -3707,31 +3707,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notifications"
+            "value": "Inbox"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notificaciones"
+            "value": "Inbox"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Benachrichtigungen"
+            "value": "Inbox"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notifications"
+            "value": "Inbox"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notifiche"
+            "value": "Inbox"
           }
         }
       }
@@ -3767,41 +3767,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Non letta"
-          }
-        }
-      }
-    },
-    "inbox.unreadSummary": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " unread · %1$@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " sin leer · %1$@"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " ungelesen · %1$@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " non lues · %1$@"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " non lette · %1$@"
           }
         }
       }
@@ -5896,41 +5861,6 @@
         }
       }
     },
-    "message.backToNotifications": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Back to Notifications"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Volver a Notificaciones"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zurück zu Benachrichtigungen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retour aux notifications"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Torna alle notifiche"
-          }
-        }
-      }
-    },
     "message.downloadImage": {
       "extractionState": "manual",
       "localizations": {
@@ -6837,31 +6767,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search notifications"
+            "value": "Search inbox"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar notificaciones"
+            "value": "Buscar en Inbox"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Benachrichtigungen durchsuchen"
+            "value": "Inbox durchsuchen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rechercher des notifications"
+            "value": "Rechercher dans Inbox"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerca notifiche"
+            "value": "Cerca in Inbox"
           }
         }
       }
@@ -8208,25 +8138,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bandeja"
+            "value": "Inbox"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Posteingang"
+            "value": "Inbox"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Boîte de réception"
+            "value": "Inbox"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Posta in arrivo"
+            "value": "Inbox"
           }
         }
       }
@@ -8262,41 +8192,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chiavi"
-          }
-        }
-      }
-    },
-    "tabs.notifications": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notifications"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notificaciones"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benachrichtigungen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notifications"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notifiche"
           }
         }
       }

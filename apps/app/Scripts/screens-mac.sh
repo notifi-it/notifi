@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The Mac popover shot the website carries: build the macOS app, open the
 # popover with sample data, photograph just that window, and write
-# apps/api/public/screens/mac.webp.
+# apps/api/public/screens/mac-cut.webp (what index.html shows) and mac.webp.
 #
 #   make screens-mac
 #
@@ -67,13 +67,20 @@ python3 - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, "apps/app/Scripts")
+from publish_image import publish
+
 out, site = sys.argv[1], sys.argv[2]
 W, H = 840, 1296
-im = Image.open(f"{out}/mac.png").convert("RGB")
-px = im.load()
+im = Image.open(f"{out}/mac.png").convert("RGBA")
+# `screencapture -o` leaves everything outside the window transparent, so the
+# window's own shape is the alpha channel — which is both how the popover is
+# measured here and what mac-cut.webp carries to the site.
+alpha = im.getchannel("A").load()
 
 def row_span(y):
-    xs = [x for x in range(im.width) if sum(px[x, y]) > 18]
+    xs = [x for x in range(im.width) if alpha[x, y] > 8]
     return (min(xs), max(xs)) if xs else None
 
 apex_y = next(y for y in range(im.height) if row_span(y))
@@ -88,16 +95,24 @@ panel_cx = (p[0] + p[1]) / 2
 pad = 6
 box = (ax0 - pad, apex_y, ax1 + pad + 1, panel_top)
 arrow = im.crop(box)
-im.paste((0, 0, 0), box)
+im.paste((0, 0, 0, 0), box)
 dx = round(panel_cx - (ax0 + ax1 + 1) / 2)
 im.paste(arrow, (box[0] + dx, box[1]))
 
 scale = max(W / im.width, H / im.height)
 im = im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS)
+at = (W // 2 - round(panel_cx * scale), (H - im.height) // 2)
+
+# Two files, one capture. The page hangs the cut-out over its own ground and
+# casts a shadow that follows the popover's alpha; mac.webp is the same figure
+# flattened onto black, for anywhere a plate is wanted instead of a cut-out.
+cut = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+cut.paste(im, at)
+publish(cut, f"{site}/mac-cut.webp", "WEBP", quality=82, method=6)
+
 canvas = Image.new("RGB", (W, H), (0, 0, 0))
-canvas.paste(im, (W // 2 - round(panel_cx * scale), (H - im.height) // 2))
-canvas.save(f"{site}/mac.webp", "WEBP", quality=82, method=6)
-print(f"{site}/mac.webp")
+canvas.paste(im, at, im)
+publish(canvas, f"{site}/mac.webp", "WEBP", quality=82, method=6)
 EOF
 
 # A Debug build shares the push identity with the installed app and has

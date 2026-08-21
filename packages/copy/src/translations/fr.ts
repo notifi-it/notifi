@@ -60,10 +60,9 @@ export const fr: Translation = {
   'common.expand': 'Déplier',
   'common.collapse': 'Replier',
 
-  'tabs.notifications': 'Notifications',
   'tabs.keys': 'Clés',
   'tabs.settings': 'Réglages',
-  'tabs.inbox': 'Boîte de réception',
+  'tabs.inbox': 'Inbox',
 
   'age.now': 'à l’instant',
   'age.justNow': 'à l’instant',
@@ -72,11 +71,10 @@ export const fr: Translation = {
   'age.days': '{n} j',
   'age.weeks': '{n} sem.',
   'age.ago': 'il y a {relative}',
-  'inbox.title': 'Notifications',
+  'inbox.title': 'Inbox',
   'inbox.offline':
     'Impossible de joindre les serveurs notifi. Vérifiez votre connexion et réessayez.',
   'inbox.count': { one: '1 notification', other: '{n} notifications' },
-  'inbox.unreadSummary': ' non lues · {total}',
   'inbox.filteredToKey': 'Filtré sur la clé « {name} ».',
   'inbox.closeSearch': 'Fermer la recherche',
   'inbox.markAllAsRead': 'Tout marquer comme lu',
@@ -101,14 +99,13 @@ export const fr: Translation = {
   'inbox.deleteTitleFallback': 'Supprimer cette notification ?',
   'inbox.deleteMessage': 'Cette action est irréversible.',
 
-  'search.prompt': 'Rechercher des notifications',
+  'search.prompt': 'Rechercher dans Inbox',
   'search.matches': { one: '1 résultat', other: '{n} résultats' },
   'search.recent': 'Récents',
 
   'message.notFound': 'Message introuvable',
   'message.notFoundDetail': 'Il a peut-être été supprimé sur cet appareil.',
   'message.downloadImage': "Télécharger l'image",
-  'message.backToNotifications': 'Retour aux notifications',
   'message.keyFallbackName': 'Clé {id}',
   'message.sentWithKey': 'Envoyé avec la clé {name}',
   'message.openKey': 'Envoyé avec la clé {name}. Ouvrir.',

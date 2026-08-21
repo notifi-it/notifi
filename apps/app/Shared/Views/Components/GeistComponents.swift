@@ -513,7 +513,7 @@ extension GeistHeader where Trailing == EmptyView {
 }
 
 struct GeistBackBar: View {
-    var label: String = Copy.Tabs.notifications
+    var label: String = Copy.Tabs.inbox
     var dismiss: () -> Void
     var trailing: AnyView?
 

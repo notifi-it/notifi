@@ -57,7 +57,6 @@ struct MessageDetailView: View {
             if let message {
                 content(for: message)
                     .geistGutter()
-                    .geistMeasure()
             } else {
                 VStack(spacing: 10) {
                     Text(Copy.Message.notFound)
@@ -137,7 +136,6 @@ struct MessageDetailView: View {
             }
         }
         .geistGutter()
-        .geistMeasure()
         .padding(.top, 22)
         .padding(.bottom, 6)
         .background(StaticField())
@@ -149,7 +147,7 @@ struct MessageDetailView: View {
 
     private var backButton: some View {
         IconButton(systemName: "chevron.backward",
-                   label: Copy.Message.backToNotifications) { goBack() }
+                   label: Copy.Components.backTo(Copy.Inbox.title)) { goBack() }
     }
 
     private func keyName(for message: Message) -> String? {
@@ -542,11 +540,17 @@ private struct ImageBlock: View {
     private func load() async {
         guard let (data, _) = try? await URLSession.shared.data(from: url) else {
             phase = .failed
+            #if DEBUG
+            SampleData.imageDidSettle()
+            #endif
             return
         }
         #if os(iOS)
         guard let native = UIImage(data: data) else {
             phase = .failed
+            #if DEBUG
+            SampleData.imageDidSettle()
+            #endif
             return
         }
         let loaded = Loaded(image: Image(uiImage: native),
@@ -557,6 +561,9 @@ private struct ImageBlock: View {
         guard let native = NSImage(data: data),
               let rep = native.representations.first else {
             phase = .failed
+            #if DEBUG
+            SampleData.imageDidSettle()
+            #endif
             return
         }
         let loaded = Loaded(image: Image(nsImage: native),
@@ -565,6 +572,9 @@ private struct ImageBlock: View {
                             bytes: data.count)
         #endif
         phase = .loaded(loaded)
+        #if DEBUG
+        SampleData.imageDidSettle()
+        #endif
     }
 }
 

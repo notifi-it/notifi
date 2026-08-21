@@ -23,11 +23,9 @@ struct GeistPage<Header: View, Content: View>: View {
             header()
                 .geistPageHeader()
                 .geistGutter()
-                .geistMeasure()
                 .background(StaticField())
 
             scrollingContent
-                .geistMeasure()
         }
         .background(StaticField())
         #if os(iOS)
@@ -46,9 +44,10 @@ struct GeistPage<Header: View, Content: View>: View {
             }
             .scrollContentBackground(.hidden)
             .contentMargins(.top, Theme.contentTop, for: .scrollContent)
+            #if os(macOS)
             .contentMargins(.bottom, Theme.bottomPlate, for: .scrollContent)
+            #endif
             .geistTopFade()
-            .geistBottomPlate()
         }
     }
 }

@@ -47,13 +47,11 @@ struct InboxView: View {
         }
     }
 
-    private var unreadCount: Int { messages.reduce(0) { $0 + ($1.isRead ? 0 : 1) } }
-
-    private var subtitle: Text {
-        let total = Copy.Inbox.count(messages.count)
-        guard unreadCount > 0 else { return Text(total) }
-        return Text("\(unreadCount)").foregroundColor(Theme.brandText)
-            + Text(Copy.Inbox.unreadSummary(total))
+    private var isOffline: Bool {
+        #if DEBUG
+        if SampleData.isEnabled { return false }
+        #endif
+        return model.isOffline
     }
 
     @ViewBuilder
@@ -78,7 +76,7 @@ struct InboxView: View {
                 .onAppear { SampleData.pushLaunchMessage(into: model) }
             #endif
 
-            if model.isOffline {
+            if isOffline {
                 InlineError(message: Copy.Inbox.offline, followsAction: false)
                     .padding(.top, Theme.contentTop)
                     .geistGutter()
@@ -111,7 +109,6 @@ struct InboxView: View {
             )
         }
         .geistTopFade()
-        .geistBottomPlate()
     }
 
     #if os(macOS)
@@ -146,7 +143,7 @@ struct InboxView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FeedHeader(subtitle: subtitle, filterKeyID: $filterKeyID) {
+            FeedHeader(filterKeyID: $filterKeyID) {
                 #if os(macOS)
                 if !messages.isEmpty { searchToggle }
                 #endif
