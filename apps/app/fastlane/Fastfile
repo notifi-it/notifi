@@ -383,6 +383,16 @@ platform :ios do
     )
   end
 
+  # `submit` builds first, because it exists to ship a binary. Metadata that
+  # changed after a version was submitted needs the same version back in review
+  # with no new build: cancel the open submission in App Store Connect, fix the
+  # listing, then run this.
+  desc "Submit the current App Store version for review without building"
+  lane :resubmit do
+    asc_key
+    submit_for_review_via_review_submissions
+  end
+
   desc "Push fastlane/metadata to App Store Connect"
   lane :metadata do
     # Apple gates the two halves of a listing differently: name, subtitle,

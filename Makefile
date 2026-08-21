@@ -1,6 +1,6 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-metadata app-metadata-check app-screenshots shots screens screens-mac
+	app-metadata app-metadata-check app-screenshots app-resubmit shots screens screens-mac
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -97,6 +97,11 @@ app-metadata:
 # means a copy fix after submission fails on a half it did not need to touch.
 app-screenshots:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios screenshots
+
+# Puts the current version back in review with no new build, for a listing that
+# changed after it was submitted. Cancel the open submission first.
+app-resubmit:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios resubmit
 
 # Verifying a layout change: one command, one screenshot per tab, from a
 # Simulator that stays booted between runs. SKIP_BUILD=1 when no Swift changed.
