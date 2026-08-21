@@ -1,6 +1,6 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-metadata app-metadata-check shots screens screens-mac
+	app-metadata app-metadata-check shots screens screens-mac film film-gif
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -41,8 +41,11 @@ check-copy:
 # The landing page's launch animation. Sources are the scene and engine under
 # public/gif (the authoring page runs them through a CDN Babel); this bundles
 # them with preact for the page itself. Output is committed.
-gen-film:
-	cd apps/api && node film/build.mjs
+film:
+	cd sketches/gif && python3 build.py
+
+film-gif:
+	cd sketches/gif && node capture.mjs
 
 app-project:
 	cd apps/app && xcodegen generate
