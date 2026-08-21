@@ -1,0 +1,158 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "notifi",
+    "summary": "Push notifications to an iPhone, iPad or Mac from one HTTP request.",
+    "description": "notifi delivers a push notification to the device that created the send key you authenticate with. There is no account and no SDK: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device's public key before it is stored, so neither notifi nor Apple can read your notifications.\n\nSend keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app's Keys tab.\n\nWhen to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.",
+    "version": "1.0.0",
+    "termsOfService": "https://notifi.it/terms",
+    "license": { "name": "MIT", "url": "https://github.com/notifi-it/notifi/blob/main/LICENSE" },
+    "contact": { "name": "notifi", "url": "https://notifi.it/contact", "email": "hello@notifi.it" }
+  },
+  "externalDocs": { "description": "notifi API documentation", "url": "https://notifi.it/docs" },
+  "servers": [{ "url": "https://notifi.it", "description": "Production" }],
+  "tags": [{ "name": "send", "description": "Delivering a notification." }],
+  "paths": {
+    "/send": {
+      "get": {
+        "tags": ["send"],
+        "operationId": "sendNotificationViaQuery",
+        "summary": "Send a notification with query parameters",
+        "description": "The same operation as POST /send, for a quick test from a browser or a shell. A key in a query string ends up in edge logs and shell history, so prefer POST with an Authorization header.",
+        "security": [{ "sendKey": [] }, { "keyParameter": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/key" },
+          { "$ref": "#/components/parameters/title" },
+          { "$ref": "#/components/parameters/message" },
+          { "$ref": "#/components/parameters/link" },
+          { "$ref": "#/components/parameters/image" },
+          { "$ref": "#/components/parameters/occurredAt" },
+          { "$ref": "#/components/parameters/isCritical" }
+        ],
+        "responses": {
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "400": { "$ref": "#/components/responses/InvalidRequest" },
+          "401": { "$ref": "#/components/responses/UnknownKey" },
+          "422": { "$ref": "#/components/responses/InvalidContent" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      },
+      "post": {
+        "tags": ["send"],
+        "operationId": "sendNotification",
+        "summary": "Send a notification",
+        "description": "Delivers a notification to the device that created the send key. Answers 202 once the server has accepted it, which is not a delivery receipt. Query parameters win over body fields when both are present.",
+        "security": [{ "sendKey": [] }, { "keyParameter": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/SendParams" } },
+            "application/x-www-form-urlencoded": { "schema": { "$ref": "#/components/schemas/SendParams" } },
+            "multipart/form-data": { "schema": { "$ref": "#/components/schemas/SendParams" } }
+          }
+        },
+        "responses": {
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "400": { "$ref": "#/components/responses/InvalidRequest" },
+          "401": { "$ref": "#/components/responses/UnknownKey" },
+          "422": { "$ref": "#/components/responses/InvalidContent" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sendKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "nk_",
+        "description": "The send key from the app's Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history."
+      },
+      "keyParameter": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "key",
+        "description": "The send key as a parameter. Convenient for a one-off request, but it appears in edge logs, in shell history and in any proxy in between."
+      }
+    },
+    "parameters": {
+      "key": { "name": "key", "in": "query", "required": false, "description": "The send key, if it is not sent as a bearer token.", "schema": { "type": "string", "pattern": "^nk_" } },
+      "title": { "name": "title", "in": "query", "required": true, "description": "The notification title.", "schema": { "type": "string", "minLength": 1, "maxLength": 200 } },
+      "message": { "name": "message", "in": "query", "required": false, "description": "The notification body, in Markdown.", "schema": { "type": "string", "maxLength": 16000 } },
+      "link": { "name": "link", "in": "query", "required": false, "description": "URL opened when the notification is tapped.", "schema": { "type": "string", "format": "uri", "maxLength": 2048 } },
+      "image": { "name": "image", "in": "query", "required": false, "description": "https URL of a PNG, JPEG or GIF up to 5 MB.", "schema": { "type": "string", "format": "uri", "maxLength": 2048 } },
+      "occurredAt": { "name": "occurred_at", "in": "query", "required": false, "description": "When the event happened, as unix milliseconds.", "schema": { "type": "integer", "format": "int64" } },
+      "isCritical": { "name": "is_critical", "in": "query", "required": false, "description": "Ask for a critical alert.", "schema": { "type": "boolean" } }
+    },
+    "schemas": {
+      "SendParams": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "key": { "type": "string", "pattern": "^nk_", "description": "The send key, if it is not sent as a bearer token. It picks the device the notification lands on." },
+          "title": { "type": "string", "minLength": 1, "maxLength": 200, "description": "The notification title. A longer title is delivered cropped, with a warning in the response." },
+          "message": { "type": "string", "maxLength": 16000, "description": "The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning." },
+          "link": { "type": "string", "format": "uri", "maxLength": 2048, "description": "URL opened when the notification is tapped." },
+          "image": { "type": "string", "format": "uri", "maxLength": 2048, "description": "https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives." },
+          "occurred_at": { "type": "integer", "format": "int64", "description": "When the event actually happened, as unix milliseconds, for a queued or retried send. Defaults to arrival time." },
+          "is_critical": { "type": "boolean", "description": "Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warning." }
+        },
+        "additionalProperties": false
+      },
+      "SendResponse": {
+        "type": "object",
+        "required": ["ok"],
+        "properties": {
+          "ok": { "const": true },
+          "warnings": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one."
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["invalid_request", "unknown_key", "invalid_content", "rate_limited", "not_found", "internal_error"],
+                "description": "Read error.code, not code: the code is nested one level down."
+              },
+              "message": { "type": "string", "description": "A readable explanation, in the language negotiated from Accept-Language." }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Accepted": {
+        "description": "The server accepted the notification. Not a delivery receipt.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SendResponse" } } }
+      },
+      "InvalidRequest": {
+        "description": "A parameter is missing or malformed.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "UnknownKey": {
+        "description": "The key is unknown or has been revoked.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "InvalidContent": {
+        "description": "The device is set to refuse a notification it cannot deliver as written.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "RateLimited": {
+        "description": "Over 60 notifications an hour for this device, or over 100 requests a minute for this IP address.",
+        "headers": { "Retry-After": { "description": "Seconds until the window resets.", "schema": { "type": "integer" } } },
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      }
+    }
+  }
+}

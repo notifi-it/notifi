@@ -34,6 +34,11 @@
      shared one of those would otherwise be a separate crawlable URL. -->
 <link rel="canonical" href="https://notifi.it/">
 
+<!-- The same page as Markdown. The Worker also answers this URL with it
+     when a request asks for `Accept: text/markdown`, so an agent gets the
+     prose without the markup from whichever address it already had. -->
+<link rel="alternate" type="text/markdown" href="/index.md" title="This page as Markdown">
+
 <!-- The same product as a plain-text file: install, key, API and hooks, with
      none of the markup. What a coding agent should fetch instead of this page. -->
 <link rel="alternate" type="text/plain" href="/llms.txt" title="notifi for coding agents">
@@ -597,9 +602,29 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "@type": "Organization",
       "@id": "https://notifi.it/#org",
       "name": "notifi",
+      "alternateName": "notifi.it",
       "url": "https://notifi.it/",
+      "description": "notifi delivers a push notification to an iPhone, iPad or Mac from one HTTP request. No account, no SDK, and notification content is encrypted with the device's public key.",
       "logo": "https://notifi.it/apple-touch-icon.png",
       "email": "hello@notifi.it",
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "hello@notifi.it",
+          "url": "https://notifi.it/contact",
+          "availableLanguage": ["en"]
+        },
+        {
+          "@type": "ContactPoint",
+          "contactType": "technical support",
+          "email": "hello@notifi.it",
+          "url": "https://github.com/notifi-it/notifi/issues",
+          "availableLanguage": ["en"]
+        }
+      ],
+      "address": { "@type": "PostalAddress", "addressCountry": "GB" },
+      "founder": { "@type": "Person", "name": "Maximilian Mitchell" },
       "sameAs": [
         "https://github.com/notifi-it/notifi",
         "https://x.com/notifiit",
@@ -1352,11 +1377,13 @@ reqwest::Client::new()
        six anchors is furniture, and it buried the two links that only exist
        down here. -->
   <div class="wrap foot">
+    <a href="/about">About</a>
+    <a href="/docs">Docs</a>
+    <a href="/faq">FAQ</a>
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
-    <a href="/faq">FAQ</a>
     <a href="/llms.txt">llms.txt</a>
-    <a href="mailto:hello@notifi.it">Contact</a>
+    <a href="/contact">Contact</a>
     <a href="https://github.com/notifi-it/notifi">GitHub</a>
     <a href="https://x.com/notifiit" rel="me">X</a>
     <a href="https://instagram.com/notifidotit" rel="me">Instagram</a>

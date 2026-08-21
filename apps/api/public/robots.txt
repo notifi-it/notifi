@@ -8,4 +8,16 @@ Disallow: /keys
 Disallow: /devices
 Disallow: /history
 
+# The body of a 404, not a page of its own. It answers on every unknown path
+# with the real status code; indexing the 200 copy would be a soft 404.
+Disallow: /404.html
+Disallow: /404.md
+
+# Written for agents rather than crawlers: the whole product as plain text, the
+# API as OpenAPI 3.1, and a Markdown twin of every page. Each page also answers
+# `Accept: text/markdown` on its own URL.
+# llms.txt: https://notifi.it/llms.txt
+# OpenAPI:  https://notifi.it/openapi.json
+# Docs:     https://notifi.it/docs
+
 Sitemap: https://notifi.it/sitemap.xml

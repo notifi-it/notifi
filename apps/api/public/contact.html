@@ -3,25 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>notifi: privacy policy</title>
-<meta name="description" content="What notifi stores, for how long, what the server can and cannot read, and what a sender can learn about you.">
+<title>notifi: contact and security disclosure</title>
+<meta name="description" content="How to reach notifi: email hello@notifi.it, bug reports and feature requests on GitHub, security disclosure, and privacy or data requests.">
 <meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-<!-- The assets binding 307s /privacy.html to /privacy, so both forms are
-     reachable. Pin the one that should be indexed. -->
-<link rel="canonical" href="https://notifi.it/privacy">
+<link rel="canonical" href="https://notifi.it/contact">
 
 <!-- The same page as Markdown. The Worker also answers this URL with it
      when a request asks for `Accept: text/markdown`, so an agent gets the
      prose without the markup from whichever address it already had. -->
-<link rel="alternate" type="text/markdown" href="/privacy.md" title="This page as Markdown">
+<link rel="alternate" type="text/markdown" href="/contact.md" title="This page as Markdown">
 
-<meta property="og:title" content="notifi: privacy policy">
-<meta property="og:description" content="What notifi stores, for how long, and what it cannot read.">
+<meta property="og:title" content="Contact notifi">
+<meta property="og:description" content="Email, GitHub issues, security disclosure and privacy requests — and who answers them.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://notifi.it/privacy">
+<meta property="og:url" content="https://notifi.it/contact">
 <meta property="og:site_name" content="notifi">
 <meta property="og:locale" content="en_GB">
 <meta property="og:image" content="https://notifi.it/og.png">
@@ -30,14 +28,63 @@
 <meta property="og:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="notifi: privacy policy">
-<meta name="twitter:description" content="What notifi stores, for how long, and what it cannot read.">
+<meta name="twitter:title" content="Contact notifi">
+<meta name="twitter:description" content="Email, GitHub issues, security disclosure and privacy requests — and who answers them.">
 <meta name="twitter:image" content="https://notifi.it/og.png">
 <meta name="twitter:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
 
-<!-- Self-hosted, so the page has no third-party request at all. This page used
-     to link fonts.googleapis.com, which handed every visitor's IP address to
-     Google from a page whose subject is what is and is not observed. Latin
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://notifi.it/#org",
+      "name": "notifi",
+      "alternateName": "notifi.it",
+      "url": "https://notifi.it/",
+      "description": "notifi delivers a push notification to an iPhone, iPad or Mac from one HTTP request. No account, no SDK, and notification content is encrypted with the device's public key.",
+      "logo": "https://notifi.it/apple-touch-icon.png",
+      "email": "hello@notifi.it",
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "hello@notifi.it",
+          "url": "https://notifi.it/contact",
+          "availableLanguage": ["en"]
+        },
+        {
+          "@type": "ContactPoint",
+          "contactType": "technical support",
+          "email": "hello@notifi.it",
+          "url": "https://github.com/notifi-it/notifi/issues",
+          "availableLanguage": ["en"]
+        }
+      ],
+      "address": { "@type": "PostalAddress", "addressCountry": "GB" },
+      "founder": { "@type": "Person", "name": "Maximilian Mitchell" },
+      "sameAs": [
+        "https://github.com/notifi-it/notifi",
+        "https://x.com/notifiit",
+        "https://instagram.com/notifidotit",
+        "https://facebook.com/notifidotit"
+      ]
+    },
+    {
+      "@type": "ContactPage",
+      "@id": "https://notifi.it/contact#page",
+      "url": "https://notifi.it/contact",
+      "name": "Contact notifi",
+      "description": "Email, GitHub issues, security disclosure and privacy requests.",
+      "about": { "@id": "https://notifi.it/#org" },
+      "publisher": { "@id": "https://notifi.it/#org" },
+      "inLanguage": "en"
+    }
+  ]
+}
+</script>
+<!-- Self-hosted, so the page has no third-party request at all. Latin
      subset only. -->
 <link rel="preload" href="/fonts/recursive-mono.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -50,9 +97,9 @@
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
 /* This block, and the @font-face rules above it, are a copy of the ones in
-   index.html. The two pages are standalone documents with no shared stylesheet,
-   so there is nowhere else to put them; a token changed in one has to be
-   changed in the other or the pages drift apart. */
+   index.html and privacy.html. The pages are standalone documents with no
+   shared stylesheet, so there is nowhere else to put them; a token changed in
+   one has to be changed in the others or the pages drift apart. */
 :root{
   --bg:#1C1C1E;
   --fg:#EDEDED;
@@ -68,8 +115,6 @@
   --mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --gutter:clamp(20px,5vw,40px);
-  /* The letter reveal below transitions with var(--ease-out); without the
-     token the whole transition value is invalid and the letters snap. */
   --ease-out:cubic-bezier(0.23,1,0.32,1);
   --max:1080px;
 }
@@ -147,12 +192,6 @@ nav a:hover{color:var(--fg)}
   -webkit-mask:url(/bell.svg) center/contain no-repeat;
           mask:url(/bell.svg) center/contain no-repeat;
 }
-/* No badge disc on the site's mark. The page already has one red thing that
-   blinks — the dot after the headline — and two of them competing in the same
-   viewport read as an error state rather than as the brand. bell.svg carries no
-   badge of its own, so removing this overlay is the whole change; the fractions
-   that used to be here are still printed by generate-marks.sh for the app,
-   which does need them. */
 .lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
 .lockup img{display:block;height:var(--word,20px);width:auto}
 
@@ -211,215 +250,78 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
 <main class="wrap doc">
 
-  <p class="eyebrow">Privacy</p>
-  <h1>Privacy policy</h1>
+  <p class="eyebrow">Contact</p>
+  <h1>Contact notifi</h1>
   <p class="lede">
-    This describes what notifi stores, how long it keeps it, what the server can
-    and cannot read, and what the person sending you a notification can learn
-    about you.
+    One person answers everything here, in English, usually within a few working
+    days. Pick whichever route fits what you are writing about.
   </p>
-  <p class="meta">Last updated 3 August 2026</p>
 
   <section>
-    <h2>There is no account</h2>
+    <h2>Email</h2>
     <p>
-      notifi has no sign-up, no email address, no password and no device linking.
-      On first launch the app generates two keypairs on the device. The private
-      halves never leave it: the signing key is held in the Secure Enclave and
-      cannot be exported at all, and the decryption key is held in the keychain,
-      marked so that it is not included in iCloud backups or synced to other
-      devices.
+      <a href="mailto:hello@notifi.it"><code>hello@notifi.it</code></a> reaches
+      the person who builds notifi. Use it for anything that does not belong in
+      a public issue: press and partnership questions, App Store or licensing
+      questions, or a problem you would rather not describe in the open.
     </p>
     <p>
-      The server identifies a device only by its public key. Nothing in the system
-      links that key to a name, an email address or any other identity.
+      There is no phone line and no support desk. notifi is free, has no
+      accounts to lock you out of, and holds nothing about you that a support
+      agent could look up, so email is the whole of it.
     </p>
   </section>
 
   <section>
-    <h2>What the server stores</h2>
-
-    <h3>Your device</h3>
-    <ul>
-      <li>Two public keys: one for verifying requests, one for encrypting notifications to you.</li>
-      <li>Your Apple push token, encrypted with a key held by the server, so notifications can be delivered.</li>
-      <li>The platform (<code>ios</code> or <code>macos</code>) and app version, encrypted with the same key.</li>
-      <li>When the device first registered and when it was last seen.</li>
-    </ul>
-
-    <h3>Your send keys</h3>
-    <ul>
-      <li>A SHA-256 hash of the key. The key itself is never stored, so it cannot be recovered or shown again.</li>
-      <li>The name and visible prefix you gave it, encrypted so only your device can read them.</li>
-      <li>How many notifications it has sent, when it was created, when it was last used, and whether it is revoked.</li>
-    </ul>
-
-    <h3>Your notifications</h3>
-    <ul>
-      <li>The notification, encrypted to your device's public key at the moment it arrives.</li>
-      <li>Which key sent it, when the server received it, and the event time the sender supplied, if any.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>What the server cannot read</h2>
+    <h2>Bugs and feature requests</h2>
     <p>
-      Notification content (the title, body, link and image URL) is encrypted to your
-      device's public key before it is written to the database, using HPKE
-      (P-256 / HKDF-SHA256 / AES-256-GCM). The server holds no private key that
-      can undo this. A full copy of the database, together with every server
-      secret, does not reveal the contents of a single notification. Your send key
-      names are encrypted the same way.
-    </p>
-    <p>
-      This is what "neither we nor Apple can read your notifications" means on the landing
-      page, and it is the limit of that claim. The sections below cover what
-      remains visible.
-    </p>
-  </section>
-
-  <section>
-    <h2>What the server can see</h2>
-    <p>
-      Encrypting the contents does not hide the fact that a notification happened. The
-      server necessarily observes:
-    </p>
-    <ul>
-      <li>The IP address of whoever sends a notification, and the IP address of your device when it collects one.</li>
-      <li>The time of every send and every collection, and the approximate size of each notification.</li>
-      <li>Which of your keys sent which notification, and how often each key is used.</li>
-      <li>Your Apple push token, which is required to deliver a notification at all.</li>
-    </ul>
-    <p>
-      Because the sender and the recipient both talk to the same server, that
-      server is in a position to correlate the two. If your threat model does not
-      allow for that, notifi is not the right tool.
-    </p>
-  </section>
-
-  <section>
-    <h2>How long it is kept</h2>
-    <ul>
-      <li><strong>Notifications</strong> are deleted from the server as soon as your device confirms it has collected them. A daily job removes them.</li>
-      <li><strong>Uncollected notifications</strong> are kept, encrypted, until your device collects them. There is no time limit.</li>
-      <li><strong>Devices</strong> are kept as long as they are registered. Deleting the app's data on your device is what ends a registration.</li>
-      <li><strong>Send keys</strong> are kept while the device exists, including revoked ones, so that a revoked key cannot be reused.</li>
-    </ul>
-    <p>
-      notifi is a relay, not a mailbox. Once your device has a notification, the server
-      copy is gone and the only copy is the one on your device.
-    </p>
-  </section>
-
-  <section>
-    <h2>Server logs</h2>
-    <p>
-      The service runs on Cloudflare Workers. Cloudflare records the metadata of
-      requests reaching the network, including source IP address, timestamp and
-      the full request URL. notifi does not control the contents of those logs and
-      does not write notification contents to logs of its own.
-    </p>
-    <div class="card">
-      <p>
-        <strong>This matters for how you send.</strong> The <code>/send</code>
-        endpoint accepts a key and a body as URL query parameters, which is
-        convenient for a one-off <code>curl</code>. Anything placed in a URL
-        appears in those logs in the clear, before it is ever encrypted, and also
-        in your shell history and in any proxy between you and Cloudflare.
-      </p>
-      <p>
-        Send the key as an <code>Authorization: Bearer</code> header and the
-        body in a <code>POST</code> body instead. Neither is logged.
-      </p>
-    </div>
-    <p>
-      When the server hits an error it cannot handle, a report of that error is
-      sent to Sentry, an error-tracking service, so that it can be fixed. A
-      report carries the failure itself — what broke, and where in the code —
-      along with the request's method and route. It does not carry notification
-      contents, request bodies, headers, or the source IP address. A send key
-      involved in a failed request is replaced, before the report leaves the
-      server, by a short one-way fingerprint of itself: enough to tell that
-      several reports concern the same key, and not enough to recover the key
-      from. Nothing about your
-      device or your notifications is sent to Sentry in the ordinary course of a
-      request; a report exists only where something has gone wrong.
-    </p>
-  </section>
-
-  <section>
-    <h2>Images in notifications</h2>
-    <p>
-      A notification can carry a link to an image, and the host serving it is chosen by
-      whoever sent the notification, not by notifi. Loading such an image means your
-      device makes a request to that host, which reveals your IP address, your
-      rough location, and the exact moment the notification reached you. A sender can
-      use this to tell whether and when you received something.
-    </p>
-    <p>
-      Because of this, the app does not load images automatically. It shows a
-      placeholder and loads the image only when you tap it. If you would rather
-      images appear on their own, there is a switch in <strong>Settings &rsaquo;
-      Privacy</strong>. Turning it on applies to notifications as well, which
-      means images will be fetched on arrival, before you have opened anything.
-    </p>
-  </section>
-
-  <section>
-    <h2>On your device</h2>
-    <ul>
-      <li>Collected notifications are stored locally and protected by the device's own encryption. They are readable only after the device has been unlocked at least once since it started.</li>
-      <li>Private keys are in the Secure Enclave and the keychain, marked as not backed up and not synced.</li>
-      <li>Deleting a notification in the app deletes it from the device. The server copy is already gone.</li>
-      <li>Deleting the app deletes the notifications, the keys and the identity. None of it can be recovered afterwards, and any send keys you had created stop working.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>No tracking</h2>
-    <p>
-      The app contains no analytics, no crash reporting and no advertising
-      identifiers — the error reporting described under <strong>Server logs</strong>
-      above is the server's own, and the app takes no part in it. It talks to
-      <code>notifi.it</code> and to Apple's push
-      service, and to an image host only when you ask it to load an image. The
-      Mac app additionally embeds Sparkle, an open-source updater, which
-      periodically checks <code>github.com</code> for a new release; that
-      request exposes your IP address to GitHub and carries nothing else about
-      you. This website sets no cookies, loads
-      no analytics, and makes no third-party request of any kind: its fonts are
-      served from <code>notifi.it</code>.
-    </p>
-    <p>
-      No data is sold, rented or shared with anyone, and nothing here is used to
-      build a profile or to advertise.
-    </p>
-  </section>
-
-  <section>
-    <h2>Children</h2>
-    <p>
-      notifi is not directed at children and collects no information that would
-      identify anyone, of any age.
-    </p>
-  </section>
-
-  <section>
-    <h2>Changes and contact</h2>
-    <p>
-      If this policy changes, the date at the top of this page changes with it,
-      and the previous versions remain in the public git history of the project.
-    </p>
-    <p>
-      Questions about privacy, or a request to delete data held about a device,
-      can be raised at
+      Open an issue at
       <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.
-      Note that without your device's public key there is no way to identify which
-      records are yours. Deleting the app is the faster and more complete route.
+      A bug report travels faster in the open, and the code it concerns is right
+      there. Include the platform and app version, what you sent, and what
+      arrived — never include a send key, and never paste one into an issue: a
+      key is a credential, and anything in a public issue is public forever.
+      Revoke it in the app if you have already posted one.
     </p>
+  </section>
+
+  <section>
+    <h2>Security disclosure</h2>
+    <p>
+      Email <a href="mailto:hello@notifi.it"><code>hello@notifi.it</code></a>
+      with the details rather than opening a public issue, and give a reasonable
+      window to fix it before publishing. The cryptography, the API and both
+      apps are open source, so a report can point straight at a line. Probing
+      the live service beyond what a proof of concept needs is out of bounds —
+      the <a href="/terms">terms</a> cover that.
+    </p>
+  </section>
+
+  <section>
+    <h2>Privacy and data requests</h2>
+    <p>
+      The <a href="/privacy">privacy policy</a> describes what is stored, which
+      is deliberately almost nothing: there is no account, no email address and
+      no name attached to a device. Without your device's public key there is no
+      way to tell which records are yours, so deleting the app is both the
+      faster and the more complete route. If you would still like a request
+      raised, email
+      <a href="mailto:hello@notifi.it"><code>hello@notifi.it</code></a> or open
+      an issue.
+    </p>
+  </section>
+
+  <section>
+    <h2>Elsewhere</h2>
+    <ul>
+      <li><a href="https://github.com/notifi-it/notifi">GitHub</a> — the app, the API and the cryptography.</li>
+      <li><a href="https://x.com/notifiit" rel="me">X</a>, <a href="https://instagram.com/notifidotit" rel="me">Instagram</a> and <a href="https://facebook.com/notifidotit" rel="me">Facebook</a> — release notes and not much else.</li>
+      <li><a href="/about">About</a> — who runs notifi and how it is hosted.</li>
+    </ul>
   </section>
 
 </main>
+
 
 <footer>
   <div class="wrap">
@@ -429,16 +331,15 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
   </div>
   <!-- Matches the home page: the sticky header carries the navigation, so the
-       footer holds only what is not already up there. The self-link to
-       /privacy went with it. -->
+       footer holds only what is not already up there. -->
   <div class="wrap foot">
     <a href="/">Home</a>
     <a href="/about">About</a>
     <a href="/docs">Docs</a>
     <a href="/faq">FAQ</a>
+    <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
     <a href="/llms.txt">llms.txt</a>
-    <a href="/contact">Contact</a>
     <a href="https://github.com/notifi-it/notifi">GitHub</a>
     <a href="https://x.com/notifiit" rel="me">X</a>
     <a href="https://instagram.com/notifidotit" rel="me">Instagram</a>
