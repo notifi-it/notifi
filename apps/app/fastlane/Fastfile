@@ -257,7 +257,47 @@ platform :ios do
       }
     )
 
+    attach_uploaded_build(release_version("notifi-iOS"))
     submit_for_review_via_review_submissions
+  end
+
+  # App Store Connect processes an upload for some minutes before the build can
+  # be attached to a version, and deliver returns as soon as the upload lands.
+  # Submitting in that gap is refused with "not in valid state", whose associated
+  # error is the one that names the cause: "The build associated with
+  # appStoreVersions ... was not found". Wait for processing, then attach.
+  def attach_uploaded_build(version_string)
+    app = Spaceship::ConnectAPI::App.find(CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier))
+    states = Spaceship::ConnectAPI::Build::ProcessingState
+    deadline = Time.now + 30 * 60
+
+    build = nil
+    loop do
+      build = Spaceship::ConnectAPI::Build.all(
+        app_id: app.id,
+        version: version_string,
+        platform: Spaceship::ConnectAPI::Platform::IOS,
+        sort: "-uploadedDate",
+        limit: 1
+      ).first
+
+      break if build && build.processing_state == states::VALID
+
+      # processed? is true for FAILED and INVALID as well, so a build that will
+      # never become VALID stops the wait rather than running out the clock.
+      if build && build.processed?
+        UI.user_error!("Build #{build.version} for #{version_string} finished processing as #{build.processing_state}.")
+      end
+      UI.user_error!("Timed out waiting for a processed build for #{version_string}.") if Time.now > deadline
+
+      UI.message("Waiting for App Store Connect to finish processing the build ...")
+      sleep(30)
+    end
+
+    version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    UI.user_error!("No editable App Store version to attach a build to.") if version.nil?
+    version.select_build(build_id: build.id)
+    UI.success("Attached build #{build.version} to #{version.version_string}.")
   end
 
   # The replacement for deliver's `submit_for_review`. Apple's current path is a
