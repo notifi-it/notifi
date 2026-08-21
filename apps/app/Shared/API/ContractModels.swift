@@ -6,6 +6,7 @@ struct RegisterDeviceBody: Codable, Sendable {
     let apnsToken: String
     let platform: String
     let appVersion: String
+    let osVersion: String
 
     enum CodingKeys: String, CodingKey {
         case publicKey = "public_key"
@@ -13,6 +14,7 @@ struct RegisterDeviceBody: Codable, Sendable {
         case apnsToken = "apns_token"
         case platform
         case appVersion = "app_version"
+        case osVersion = "os_version"
     }
 }
 

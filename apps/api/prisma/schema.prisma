@@ -26,6 +26,7 @@ model devices {
   apns_token_hmac       String  @unique
   platform              String
   app_version           String
+  os_version            String?
   created_at            Int
   last_seen_at          Int
   acked_id              Int     @default(0)

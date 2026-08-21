@@ -70,6 +70,7 @@ export const registerDeviceBody = z
     apns_token: z.string().min(1),
     platform: z.string().min(1).max(16),
     app_version: z.string().min(1).max(16),
+    os_version: z.string().min(1).max(16),
   })
   .strict();
 export type RegisterDeviceBody = z.infer<typeof registerDeviceBody>;

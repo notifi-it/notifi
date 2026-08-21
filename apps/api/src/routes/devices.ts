@@ -47,6 +47,7 @@ devices.post('/devices', async (c) => {
   const apnsEnc = await encryptField(c.env, parsed.apns_token);
   const platformEnc = await encryptPadded(c.env, parsed.platform);
   const versionEnc = await encryptPadded(c.env, parsed.app_version);
+  const osVersionEnc = await encryptPadded(c.env, parsed.os_version);
 
   const retireOthers = c.env.DB.prepare(
     `UPDATE devices SET apns_token = '', apns_token_hmac = 'retired:' || id
@@ -55,14 +56,15 @@ devices.post('/devices', async (c) => {
 
   const upsert = c.env.DB.prepare(
     `INSERT INTO devices
-       (public_key, encryption_public_key, apns_token, apns_token_hmac, platform, app_version, created_at, last_seen_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+       (public_key, encryption_public_key, apns_token, apns_token_hmac, platform, app_version, os_version, created_at, last_seen_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(public_key) DO UPDATE SET
        encryption_public_key = excluded.encryption_public_key,
        apns_token            = excluded.apns_token,
        apns_token_hmac       = excluded.apns_token_hmac,
        platform              = excluded.platform,
        app_version           = excluded.app_version,
+       os_version            = excluded.os_version,
        last_seen_at          = excluded.last_seen_at
      RETURNING id, strict_send`,
   ).bind(
@@ -72,6 +74,7 @@ devices.post('/devices', async (c) => {
     tokenHmac,
     platformEnc,
     versionEnc,
+    osVersionEnc,
     nowS,
     nowS,
   );

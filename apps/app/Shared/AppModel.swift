@@ -336,7 +336,8 @@ final class AppModel {
             encryptionPublicKey: identity.encryptionPublicKeyX963.base64EncodedString(),
             apnsToken: apnsToken,
             platform: Self.platformName,
-            appVersion: Self.appVersion
+            appVersion: Self.appVersion,
+            osVersion: Self.osVersion
         )
         do {
             let response = try await api.registerDevice(body)
@@ -526,6 +527,13 @@ final class AppModel {
 
     static var appVersion: String {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "0"
+    }
+
+    static var osVersion: String {
+        let v = ProcessInfo.processInfo.operatingSystemVersion
+        return v.patchVersion == 0
+            ? "\(v.majorVersion).\(v.minorVersion)"
+            : "\(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
     }
 
 }
