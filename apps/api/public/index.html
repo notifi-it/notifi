@@ -34,6 +34,10 @@
      shared one of those would otherwise be a separate crawlable URL. -->
 <link rel="canonical" href="https://notifi.it/">
 
+<!-- The same product as a plain-text file: install, key, API and hooks, with
+     none of the markup. What a coding agent should fetch instead of this page. -->
+<link rel="alternate" type="text/plain" href="/llms.txt" title="notifi for coding agents">
+
 <meta property="og:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
 <meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your notifications. No account, no SDK, open source.">
 <meta property="og:type" content="website">
@@ -1351,6 +1355,7 @@ reqwest::Client::new()
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
     <a href="/faq">FAQ</a>
+    <a href="/llms.txt">llms.txt</a>
     <a href="mailto:hello@notifi.it">Contact</a>
     <a href="https://github.com/notifi-it/notifi">GitHub</a>
     <a href="https://x.com/notifiit" rel="me">X</a>
