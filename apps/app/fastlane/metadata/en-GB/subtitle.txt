@@ -1,1 +1,1 @@
-Alerts for scripts and servers
+For scripts and servers

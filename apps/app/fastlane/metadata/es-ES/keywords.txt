@@ -1,1 +1,1 @@
-webhook,api,avisar,auto,alojado,cron,curl,cli,devops,homelab,ssh,docker,http,monitor,alerta
+webhook,api,avisar,alerta,auto,alojado,cron,curl,cli,devops,homelab,ssh,docker,monitor

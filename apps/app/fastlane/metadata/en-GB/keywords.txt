@@ -1,1 +1,1 @@
-webhook,api,notify,self,hosted,cron,curl,cli,devops,homelab,uptime,ssh,docker,deploy,http
+webhook,api,notify,alerts,self,hosted,cron,curl,cli,devops,homelab,uptime,ssh,docker,http
