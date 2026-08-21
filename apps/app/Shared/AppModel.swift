@@ -241,11 +241,17 @@ final class AppModel {
         if wantsLiveUpdates { startLiveUpdates() }
 
         Task {
-            await enqueueRegistration(token: token).value
             await refreshPermission()
-            await sync?.sync()
+            if notificationStatus == .notDetermined {
+                await requestNotificationPermission()
+            }
+        }
+
+        Task {
+            await enqueueRegistration(token: token).value
             await sync?.refreshKeys()
             await ensureDefaultKey()
+            await sync?.sync()
         }
     }
 
