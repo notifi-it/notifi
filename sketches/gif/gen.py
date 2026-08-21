@@ -1,11 +1,7 @@
-import base64
 O=[0.0,100/3,200/3]
 def g(p,x): return round(O[p]+x,3)
-def b64(f): return base64.b64encode(open(f,'rb').read()).decode()
-EMBED=False
 KARLA,RECUR=('/fonts/karla.woff2','/fonts/recursive-mono.woff2')
 BODY,CLAP,BELL=('/bell-body.svg','/bell-clapper.svg','/bell.svg')
-DU=lambda s:s
 
 # ---- original composition (film.js): terminal centred, devices centred, dots on the 50% midline
 TERM='left:4.17%;top:24.5%;width:38.43%;height:55%'
@@ -233,7 +229,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .sbar svg.st path{{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}}
 .sbar svg.st circle.fl{{fill:currentColor;stroke:none}}
 .sbar .dt{{--fs:.68;font-weight:400;color:var(--muted);margin-left:.2cqw}}
-.mbell{{width:.90cqw;height:.90cqw;transform:translateY(.09cqw);background:var(--fg);-webkit-mask:url({DU(BELL)}) center/contain no-repeat;mask:url({DU(BELL)}) center/contain no-repeat}}
+.mbell{{width:.90cqw;height:.90cqw;transform:translateY(.09cqw);background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
 .sbar svg.amark{{width:1.10cqw;height:1.10cqw;display:block;fill:var(--fg);opacity:.85;flex:none}}
 .trail{{position:absolute;display:flex;align-items:center;justify-content:space-between;transform:translateY(-50%)}}
 .trail i{{border-radius:50%;background:var(--dim);opacity:0}}
@@ -242,8 +238,8 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .scard{{background:var(--surface);border:1px solid var(--line);border-radius:.95cqw;padding:.8cqw 1cqw;display:flex;gap:.75cqw;align-items:center;overflow:hidden;box-shadow:0 .8cqw 2.4cqw rgba(0,0,0,.4);opacity:0;animation-duration:var(--T);animation-iteration-count:infinite}}
 .bell{{position:relative;width:1.95cqw;height:1.95cqw;flex:none}}
 .bell i{{position:absolute;inset:0;background:var(--fg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;transform-origin:50% 0}}
-.bell .bb{{-webkit-mask-image:url({DU(BODY)});mask-image:url({DU(BODY)})}}
-.bell .bc{{-webkit-mask-image:url({DU(CLAP)});mask-image:url({DU(CLAP)})}}
+.bell .bb{{-webkit-mask-image:url({BODY});mask-image:url({BODY})}}
+.bell .bc{{-webkit-mask-image:url({CLAP});mask-image:url({CLAP})}}
 .scard .t{{--fs:1.05;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
 .scard .b{{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
 {NL.join(anim)}

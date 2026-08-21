@@ -458,9 +458,6 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
   position:relative;margin:30px -4.5455% -22px;
   box-sizing:content-box;aspect-ratio:2160/960;
 }
-/* Nothing is mounted on a phone or under reduced motion, and an empty box would
-   hold open a screen's worth of nothing. */
-.app-film:empty{display:none}
 /* gf:css:start */
 .app-film{--bg:#1C1C1E;--surface:#262628;--line:#333;--chip:#3C3C3C;--fg:#EDEDED;--muted:#A1A1A1;--dim:#8A8A8A;--red:#DB4A4B;--blue:#7FA8E0;--stroke:#7A7A82;--stroke2:#55555A;
 --mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:15s}
@@ -631,15 +628,11 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .app-film .gf-stage{width:100%;height:100%;max-width:none;aspect-ratio:auto;border:0;border-radius:0;background:transparent;position:absolute;inset:0}
 /* gf:css:end */
 /* Three devices across a phone's width leaves each one a thumbnail, and the
-   scene is a running animation to pay for. The screenshots below carry the
-   section on their own. */
-@media(max-width:760px){.app-film{display:none}}
-.app-film [data-om-starter],
-.app-film foreignObject > div,
-.app-film foreignObject > div > div{background:transparent!important}
-.app-film foreignObject > div > div > div[style*="pixelated"]{display:none!important}
-.app-film [data-omelette-chrome]{display:none!important}
-.app-film svg{box-shadow:none!important}
+   scene is a running animation to pay for. Reduced motion gets the same
+   treatment: the loop has no still frame that reads on its own, and every
+   element it would freeze on is mid-fade. The screenshots below carry the
+   section either way. */
+@media(max-width:760px),(prefers-reduced-motion:reduce){.app-film{display:none}}
 
 .app-two{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -959,7 +952,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h2>One inbox,<br>on every Apple device you own.</h2>
 
     <figure class="app-film" id="film"
-            aria-label="A curl command, a training run and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac.">
+            aria-label="A coding agent, a deploy script and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac.">
       <!-- gf:html:start -->
       <div class="gf-stage">
         <div class="gf-head gf-hd0"><div class="gf-l1">Get a push notification to your device</div><div class="gf-l2">from anything that can make an HTTP request.</div></div>

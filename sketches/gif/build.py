@@ -10,9 +10,7 @@ subprocess.run(['python3', 'gen.py'], cwd=HERE, check=True)
 src = (HERE / 'gif-full.html').read_text(encoding='utf-8')
 
 style  = re.search(r'<style>(.*?)</style>', src, re.S).group(1)
-m = re.search(r'<!--STAGE-->(.*?)<!--/STAGE-->', src, re.S)
-markup = (m.group(1) if m else
-          re.search(r'(<div class="stage".*?)(?:<script|</body>|$)', src, re.S).group(1)).strip()
+markup = re.search(r'<!--STAGE-->(.*?)<!--/STAGE-->', src, re.S).group(1).strip()
 
 urls = []
 style = re.sub(r'url\([^)]*\)', lambda m: (urls.append(m.group(0)), f"\x00U{len(urls)-1}\x00")[1], style)
