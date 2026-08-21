@@ -62,6 +62,14 @@
   --surface:#262628;
   --brand:#C82A2A;
   --brand-text:#DB4A4B;
+  /* Theme.chromaWarm and Theme.chromaCool, dark values, from the app's
+     Theme.swift. The 404 glyph degrades the same way the app's empty-state
+     bell does, so it fringes in the same two colours. */
+  --chroma-warm:#E03234;
+  --chroma-cool:#36C4D8;
+  /* Replaced by the script with a noise tile. `none` is a real background
+     layer, so the glyph still paints its base tone with no JS. */
+  --noise:none;
   --mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --gutter:clamp(20px,5vw,40px);
@@ -91,24 +99,6 @@ body{
   display:block;width:100%;height:100%;
 }
 body>*:not(#static){position:relative;z-index:1}
-/* Scroll reveal: the text resolves out of the static, letter by letter.
-   The arrival is faded rather than snapped. Each letter carries its own long
-   ease, so what travels down a paragraph is a soft front a few characters wide
-   instead of a hard edge — they still light one at a time, it is only the
-   colour that takes its time.
-   Letters start at full contrast and are dimmed by script only once it has
-   taken over, so a reader with no JS — or one who arrives before it runs —
-   gets the text at its designed contrast rather than buried in the ground. */
-.reveal.armed .c{color:#2B2B2D;transition:color .55s var(--ease-out)}
-.reveal.armed .c.on{color:var(--fg)}
-.lede.reveal.armed .c.on{color:var(--muted)}
-/* Letters are wrapped inside their word so a line can still only break at a
-   space. Splitting straight to characters let the browser break mid-word. */
-.reveal .w{white-space:nowrap}
-
-@media (prefers-reduced-motion:reduce){
-  .reveal.armed .c{color:inherit}
-}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
@@ -127,6 +117,85 @@ p,li{max-width:70ch}
   font-family:var(--mono);font-size:11px;font-weight:600;
   letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
 }
+
+/* The 404 glyph. A direct port of GrainyBell in the app's EmptyStateView: a
+   mark in --muted with film grain overlaid and masked to its own shape, plus
+   two chroma copies fringing either side of it, and an occasional dropout in
+   brightness. The page already paints television static across the ground, and
+   this is the same signal failing harder over the one thing worth looking at.
+
+   The grain is the first background layer blended onto a flat --muted second
+   layer and clipped to the glyph, which is what .overlay(grain).mask(mark) does
+   in SwiftUI. -webkit-text-fill-color has to be put back on the chroma copies:
+   they inherit the transparent fill that makes the clip visible. */
+/* The bell decays with the glyph rather than beside it: the four variables the
+   script drives live on the hero, so both marks fringe and drop out on the same
+   frame, as one signal failing. */
+.notfound h1{margin:0;line-height:1}
+.bellmark{
+  display:block;position:relative;margin:0 auto clamp(10px,1.6vw,18px);
+  width:clamp(64px,10vw,116px);height:clamp(64px,10vw,116px);
+  opacity:var(--glow,1);
+}
+/* bell-empty.svg, the hollowed-out mark the app draws over an empty inbox. */
+.bellmark span{
+  position:absolute;inset:0;
+  -webkit-mask:url(/bell-empty.svg) center/contain no-repeat;
+          mask:url(/bell-empty.svg) center/contain no-repeat;
+}
+.bghost{background:currentColor;opacity:var(--chroma,0)}
+.bsolid{
+  background-image:var(--noise),linear-gradient(var(--muted),var(--muted));
+  background-size:60px 60px,auto;
+  background-blend-mode:overlay,normal;
+}
+.glyph{
+  display:block;position:relative;
+  font-family:var(--mono);font-weight:800;
+  font-size:clamp(120px,34vw,420px);line-height:.84;letter-spacing:-.06em;
+  opacity:var(--glow,1);
+}
+/* Three layers in the order SwiftUI stacks them: the two chroma copies, then
+   the mark itself over the top, so only the fringes show. All three are
+   positioned, so document order is what puts the solid one on top. */
+.ghost{position:absolute;inset:0;opacity:var(--chroma,0)}
+.ghost::before{content:attr(data-text)}
+.warm{color:var(--chroma-warm);transform:translateX(calc(var(--shift,0em) * -1))}
+.cool{color:var(--chroma-cool);transform:translateX(var(--shift,0em))}
+.solid{
+  position:relative;display:block;
+  background-image:var(--noise),linear-gradient(var(--muted),var(--muted));
+  background-size:180px 180px,auto;
+  background-blend-mode:overlay,normal;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+}
+.said{
+  display:block;font-family:var(--mono);font-weight:700;
+  font-size:clamp(19px,2.6vw,27px);letter-spacing:-.03em;
+  color:var(--fg);margin-top:clamp(6px,1vw,12px);
+}
+
+/* Everything under the glyph is a way out, not the point of the page. The
+   index sits at --dim in the eyebrow's size, and the reveal lands the words
+   there rather than at --fg, which is where h2 normally resolves. */
+.notfound .doc{text-align:center}
+.notfound .doc .lede{color:var(--dim);margin:18px auto 0;max-width:52ch}
+.notfound .doc section{margin-top:clamp(30px,4vw,42px)}
+.notfound .doc h2{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+  margin-bottom:10px;
+}
+.notfound .doc li,.notfound .doc li:first-child{
+  color:var(--dim);font-size:13px;padding:4px 0;border:0;line-height:1.55;
+  max-width:62ch;margin-inline:auto;
+}
+.notfound .doc p{color:var(--dim);font-size:13px;max-width:62ch;margin-inline:auto}
+.notfound .doc a{color:var(--muted);text-decoration-color:transparent}
+.notfound .doc a:hover{color:var(--fg);text-decoration-color:var(--chip)}
+/* The header is chrome on every other page and a distraction on this one. */
+.notfound header nav a{font-size:12px;color:var(--dim)}
 
 header{position:sticky;top:0;z-index:20;background:rgba(28,28,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:14px;height:60px}
@@ -180,7 +249,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
-<body>
+<body class="notfound">
 <canvas id="static" aria-hidden="true"></canvas>
 
 <header>
@@ -200,8 +269,19 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
 <main class="wrap doc">
 
-  <p class="eyebrow">404</p>
-  <h1>Page not found</h1>
+  <h1>
+    <span class="bellmark" aria-hidden="true">
+      <span class="bghost warm"></span>
+      <span class="bghost cool"></span>
+      <span class="bsolid"></span>
+    </span>
+    <span class="glyph">
+      <span class="ghost warm" aria-hidden="true" data-text="404"></span>
+      <span class="ghost cool" aria-hidden="true" data-text="404"></span>
+      <span class="solid">404</span>
+    </span>
+    <span class="said">Page not found</span>
+  </h1>
   <p class="lede">
     Nothing lives at that address. Everything notifi has is on this short list.
   </p>
@@ -352,84 +432,85 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   });
 })();
 
-// Headings and ledes light up word by word as they cross the viewport.
+// The 404 glyph decaying, ported from GrainyBell in EmptyStateView.swift so the
+// site and the app fail in the same visual language. Three things move, each on
+// its own clock and each mostly idle:
 //
-// The words are wrapped here rather than in the markup so the HTML stays
-// readable and the text stays one string for anything that copies or reads it.
+//   grain    six tiles baked once and cycled at 12fps, as the ground static is
+//   chroma   a horizontal split, 22% of the time, 11 times a second
+//   glow     brief dropouts: a 13% chance of an episode 1.7 times a second,
+//            and inside one a 40% chance per 18Hz frame of dimming
+//
+// The probabilities are the Swift ones unchanged. The shift is in em rather
+// than px because the glyph is three times the bell's size and a fixed offset
+// that reads as a fringe at 96px reads as a seam at 320.
 (function(){
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var hero = document.querySelector(".notfound h1");
+  if (!hero) return;
 
-  var targets = document.querySelectorAll("h2, .lede");
-  if (!targets.length) return;
+  var SIZE = 180;   // tile edge in CSS px, matching background-size
+  var CELL = 2;     // the app's grain cell, scaled down for a mark this size
 
-  var items = [];
-  for (var t = 0; t < targets.length; t++) items.push(prepare(targets[t]));
-
-  function prepare(el){
-    // Walk the children rather than rewriting innerHTML: the headings contain
-    // <br> and the ledes contain <code> and links, and all of that has to
-    // survive the split intact.
-    var nodes = [].slice.call(el.childNodes);
-    for (var i = 0; i < nodes.length; i++){
-      var node = nodes[i];
-      if (node.nodeType !== 3) continue;             // element — leave it alone
-      var parts = node.nodeValue.split(/(\s+)/);
-      var frag = document.createDocumentFragment();
-      for (var p = 0; p < parts.length; p++){
-        if (!parts[p]) continue;
-        if (/^\s+$/.test(parts[p])) { frag.appendChild(document.createTextNode(parts[p])); continue; }
-        // A word span holds the line-breaking, and one span per character
-        // inside it holds the reveal.
-        var word = document.createElement("span");
-        word.className = "w";
-        for (var ch = 0; ch < parts[p].length; ch++){
-          var c = document.createElement("span");
-          c.className = "c";
-          c.textContent = parts[p][ch];
-          word.appendChild(c);
-        }
-        frag.appendChild(word);
+  function tile(dpr){
+    var c = document.createElement("canvas");
+    c.width = c.height = SIZE * dpr;
+    var ctx = c.getContext("2d");
+    var cell = CELL * dpr;
+    for (var y = 0; y < c.height; y += cell){
+      for (var x = 0; x < c.width; x += cell){
+        if (Math.random() >= 0.5) continue;
+        ctx.fillStyle = "rgba(255,255,255," + (Math.random() * 0.35).toFixed(3) + ")";
+        ctx.fillRect(x, y, cell, cell);
       }
-      el.replaceChild(frag, node);
     }
-    el.classList.add("reveal", "armed");
-    return { el: el, words: el.querySelectorAll(".c"), lit: -1 };
+    return "url(" + c.toDataURL("image/png") + ")";
   }
 
-  // The band the reveal happens over: a word is lit once the element has risen
-  // from 88% of the viewport height to 45% of it. Ending well above the fold
-  // means the last word lands while the reader is still approaching the text,
-  // not after they have already read past it.
-  var START = 0.88, END = 0.45;
+  var dpr = Math.min(window.devicePixelRatio || 1, 3);
+  var frames = [];
+  for (var i = 0; i < 6; i++) frames.push(tile(dpr));
+  hero.style.setProperty("--noise", frames[0]);
 
-  function frame(){
-    var vh = window.innerHeight;
-    for (var i = 0; i < items.length; i++){
-      var it = items[i];
-      var top = it.el.getBoundingClientRect().top / vh;
-      var p = (START - top) / (START - END);
-      p = p < 0 ? 0 : p > 1 ? 1 : p;
-      var want = Math.round(p * it.words.length);
-      if (want === it.lit) continue;
-      // Only the words between the old and new marks are touched, so a fast
-      // scroll costs a handful of class flips rather than a full rewrite.
-      var from = it.lit < 0 ? 0 : it.lit;
-      if (want > from) for (var j = from; j < want; j++) it.words[j].classList.add("on");
-      else for (var k = from - 1; k >= want; k--) if (it.words[k]) it.words[k].classList.remove("on");
-      it.lit = want;
+  // Reduce Motion keeps the grain — it is texture, not movement — and stops
+  // everything that flickers, which is the whole of what could trigger anyone.
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var timer = null;
+  var n = 0;
+  var episode = false;
+
+  function tick(){
+    n++;
+    hero.style.setProperty("--noise", frames[((n / 1.5) | 0) % frames.length]);
+
+    if (n % 11 === 0) episode = Math.random() < 0.13;
+    var dim = episode && Math.random() < 0.4;
+    hero.style.setProperty("--glow", dim ? (0.35 + Math.random() * 0.27).toFixed(2) : "1");
+
+    if (n % 2 === 0){
+      var split = Math.random() < 0.22;
+      hero.style.setProperty("--chroma", split ? "1" : "0");
+      if (split) {
+        hero.style.setProperty("--shift", (0.008 + Math.random() * 0.025).toFixed(4) + "em");
+      }
     }
-    ticking = false;
   }
 
-  var ticking = false;
-  function onScroll(){
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(frame);
+  function apply(){
+    if (timer) { clearInterval(timer); timer = null; }
+    if (still.matches){
+      hero.style.setProperty("--glow", "1");
+      hero.style.setProperty("--chroma", "0");
+      return;
+    }
+    timer = setInterval(tick, 1000 / 18);
   }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll);
-  frame();
+  still.addEventListener("change", apply);
+  apply();
+
+  document.addEventListener("visibilitychange", function(){
+    if (document.hidden) { if (timer) { clearInterval(timer); timer = null; } }
+    else apply();
+  });
 })();
 </script>
 </body>

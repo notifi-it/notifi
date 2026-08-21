@@ -205,6 +205,10 @@ for name, ink in (("bell-light", "#A1A1A1"), ("bell-dark", "#5B5B5B")):
 
 svg("%s/bell.svg" % web, 32, 32, logo_box, mark(logo_box, "#000", "#000"))
 
+svg("%s/bell-empty.svg" % web, 32, 32, logo_box, ghost("#000", logo_box),
+    note="\n\n       The 404 page's mark: the same hollowed-out bell the app shows over an\n"
+         "       empty inbox.")
+
 svg("%s/bell-body.svg" % web, 32, 32, logo_box, body("#000", "#000"))
 svg("%s/bell-clapper.svg" % web, 32, 32, logo_box, clap("#000"))
 
