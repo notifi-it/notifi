@@ -65,6 +65,43 @@ Copy keys keep their existing names (`inbox.copyMessage`, the `message.*`
 namespace). They are internal, they key the xcstrings catalogue, and renaming
 them churns every Swift call site for no reader's benefit.
 
+## The website is served twice: HTML and Markdown
+
+`apps/api/public/*.html` are the source. Every doc-shaped page (the ones whose
+body is `<main class="wrap doc">`) has a generated `.md` sibling written by
+`make gen-site-md`; `make check-site-md` (CI, in the lint workflow) fails on
+drift. **Never edit a generated `.md` by hand.** `index.md` is the one exception
+and is hand-written, because the landing page does not survive a mechanical
+conversion — change `index.html` and you have to change it too.
+
+The converter understands only the tags those pages already use and throws on
+anything else, so a new construct fails the build rather than silently vanishing
+from the copy agents read.
+
+The Worker answers `Accept: text/markdown` on the page's own URL
+(acceptmarkdown.com): q-values are parsed properly, `Vary: Accept` is on every
+negotiated response, HTML carries `Link: </x.md>; rel="alternate"`, and an
+`Accept` we cannot satisfy gets a `406` rather than a silent fallback. That is
+why those paths are listed in `run_worker_first` in `wrangler.toml` — the asset
+bucket would otherwise answer before the Worker could negotiate. A page added to
+the site has to be added there, to `PAGES`/`PAGE_MARKDOWN` in
+`src/routes/site.ts`, and to `sitemap.xml`.
+
+An unknown path answers `404` with the Markdown or HTML body of `404.md` /
+`404.html` — a site map an agent can recover from — except under `/send`,
+`/keys`, `/devices`, `/history`, `/socket`, `/reviews` and `/download`, and for
+any method other than GET or HEAD, which keep the JSON `error.code` shape API
+clients parse.
+
+Those page requests are exempt from the per-IP limiter. They used to be answered
+by the asset bucket without ever reaching the Worker, and a shared IP reading the
+site should not spend the budget `/send` needs; unknown paths are still limited.
+
+`make check-site` asks a running origin for all of that and fails if any of it
+regressed. It runs against production after every deploy; point `BASE` at a
+local `make dev` (started with `--local-protocol https`, or the http→https
+redirect answers first) before pushing.
+
 ## Migrations
 
 **Never type a migration by hand.** `apps/api/prisma/schema.prisma` is the
@@ -196,9 +233,10 @@ only bites at regular width. Screenshot the three headers side by side.
 
 ## No automated tests
 
-By decision. `make typecheck`, `make lint`, plus both `xcodebuild` schemes is
-the full gate. Don't add a test framework; say plainly what was and wasn't
-exercised.
+By decision. `make typecheck`, `make lint`, `make check-site-md`, plus both
+`xcodebuild` schemes is the full gate — and `make check-site` against a running
+origin for anything that touches the website's negotiation or its 404. Don't add
+a test framework; say plainly what was and wasn't exercised.
 
 ## Releasing to the App Store
 

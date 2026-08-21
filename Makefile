@@ -1,4 +1,5 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
+	gen-site-md check-site-md check-site \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-metadata app-metadata-check shots screens screens-mac
 
@@ -37,6 +38,24 @@ gen-copy:
 
 check-copy:
 	pnpm --filter @notifi/copy check-copy
+
+# The website twice over. Every doc-shaped page in apps/api/public is converted
+# to a .md sibling, which is what the Worker serves to a request asking for
+# `Accept: text/markdown`. The HTML is the source; the .md files are generated
+# and must never be edited by hand. index.md is the exception and is written by
+# hand, because the landing page does not survive a mechanical conversion.
+gen-site-md:
+	node scripts/gen-site-md.mjs
+
+check-site-md:
+	node scripts/gen-site-md.mjs --check
+
+# The agent-facing contract of the website, against a running origin: the
+# Markdown variant of every page, `Vary: Accept`, the 406, and the 404 that
+# answers with a site map. Defaults to production; point BASE at a local
+# `make dev` (which serves https via --local-protocol) to check before deploying.
+check-site:
+	node scripts/check-site.mjs $(BASE)
 
 # The landing page's launch animation. Sources are the scene and engine under
 # public/gif (the authoring page runs them through a CDN Babel); this bundles

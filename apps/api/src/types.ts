@@ -9,6 +9,7 @@ import type { ApnsToken } from './apnstoken.js';
 import type { DeviceSocket } from './socket.js';
 
 export interface Env {
+  ASSETS: Fetcher;
   DB: D1Database;
   DEVICE_SOCKET: DurableObjectNamespace<DeviceSocket>;
   APNS_TOKEN: DurableObjectNamespace<ApnsToken>;

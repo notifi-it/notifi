@@ -13,6 +13,11 @@
      reachable. Pin the one that should be indexed. -->
 <link rel="canonical" href="https://notifi.it/terms">
 
+<!-- The same page as Markdown. The Worker also answers this URL with it
+     when a request asks for `Accept: text/markdown`, so an agent gets the
+     prose without the markup from whichever address it already had. -->
+<link rel="alternate" type="text/markdown" href="/terms.md" title="This page as Markdown">
+
 <meta property="og:title" content="notifi: terms of service">
 <meta property="og:description" content="What the service is, what you may do with it, and what it does not promise.">
 <meta property="og:type" content="website">
@@ -302,10 +307,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
        footer holds only what is not already up there. -->
   <div class="wrap foot">
     <a href="/">Home</a>
-    <a href="/privacy">Privacy</a>
+    <a href="/about">About</a>
+    <a href="/docs">Docs</a>
     <a href="/faq">FAQ</a>
+    <a href="/privacy">Privacy</a>
     <a href="/llms.txt">llms.txt</a>
-    <a href="mailto:hello@notifi.it">Contact</a>
+    <a href="/contact">Contact</a>
     <a href="https://github.com/notifi-it/notifi">GitHub</a>
     <a href="https://x.com/notifiit" rel="me">X</a>
     <a href="https://instagram.com/notifidotit" rel="me">Instagram</a>

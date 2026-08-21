@@ -25,6 +25,21 @@ zero-dependency SwiftUI client for iOS 17+ and macOS 14+.
   <img src="apps/app/fastlane/screenshots/en-GB/03_keys.png" width="30%">
 </p>
 
+## Documentation
+
+- **[notifi API documentation](https://notifi.it/docs)** — the `/send` endpoint,
+  its parameters, its error codes and its limits.
+- **[llms.txt](https://notifi.it/llms.txt)** — the same thing as plain text for
+  coding agents, including when to reach for notifi and how to ask a human for a
+  send key.
+- **[openapi.json](https://notifi.it/openapi.json)** — OpenAPI 3.1 for `/send`.
+- **[FAQ](https://notifi.it/faq)**, **[about](https://notifi.it/about)**,
+  **[contact](https://notifi.it/contact)**, **[privacy](https://notifi.it/privacy)**
+  and **[terms](https://notifi.it/terms)**.
+
+Every page of notifi.it is also served as Markdown: send `Accept: text/markdown`
+to any page URL, or append `.md` to its path.
+
 ## Quickstart
 
 ```bash
