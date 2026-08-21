@@ -105,6 +105,36 @@ regressed. It runs against production after every deploy; run it against a local
 BASE=http://localhost:8787 make check-site
 ```
 
+## API documentation is generated
+
+`packages/apidoc/src` is the source of truth for everything that describes
+`/send`. Change a parameter, an error code or a limit there and run
+
+```bash
+make gen-api
+make gen-site-md
+```
+
+which rewrites five files, none of which may be edited by hand:
+
+- `apps/api/public/docs.html` — the reference page, from `templates/docs.html`
+  plus `html.ts`
+- `apps/api/public/openapi.json`
+- `apps/api/public/notifi.postman_collection.json` and `notifi.bru`
+- the landing page's endpoint prose, parameter table, language tabs and code
+  panels, spliced between the `<!-- gen:… -->` markers in `index.html`
+
+`make check-api` (CI, in the lint workflow) fails on drift. `docs.md` then comes
+from `docs.html` through `gen-site-md`, as every other page's Markdown does.
+
+The samples in `samples.ts` are stored as plain source; the landing page's
+syntax colouring is applied by `landing.ts` — strings, `NOTIFI_KEY`, and a
+per-sample `keywords` list for the `.f` class. Add a sample and it appears in
+the landing page tabs and in the /docs recipes together.
+
+`llms.txt` is still hand-written. It carries prose the spec has no room for, and
+duplicating the error table there would be the next thing to generate.
+
 ## Migrations
 
 **Never type a migration by hand.** `apps/api/prisma/schema.prisma` is the

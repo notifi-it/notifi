@@ -117,6 +117,23 @@ if (spec) {
   ok("openapi.json carries a contact", Boolean(spec.info?.contact?.url));
 }
 
+const collection = await get("/notifi.postman_collection.json", null);
+ok("GET the Postman collection 200", collection.res.status === 200, String(collection.res.status));
+let postman = null;
+try {
+  postman = JSON.parse(collection.body);
+} catch (err) {
+  ok("the Postman collection parses", false, err.message);
+}
+if (postman) {
+  ok("the collection names a schema", String(postman.info?.schema ?? "").includes("v2.1.0"));
+  ok("the collection has a send request", (postman.item ?? []).length > 0);
+}
+
+const bru = await get("/notifi.bru", null);
+ok("GET the Bruno request 200", bru.res.status === 200, String(bru.res.status));
+ok("the Bruno request posts to /send", bru.body.includes("url: https://notifi.it/send"));
+
 const robots = await get("/robots.txt", null);
 ok("GET /robots.txt 200", robots.res.status === 200, String(robots.res.status));
 ok("robots.txt points at the sitemap", robots.body.includes("Sitemap: https://notifi.it/sitemap.xml"));

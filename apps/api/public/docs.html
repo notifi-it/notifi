@@ -230,6 +230,34 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 @media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
 
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.doc.api p.meta a{color:var(--muted);text-decoration:none}
+.doc.api p.meta a:hover{color:var(--fg)}
+.doc.api h3 .meta{font-weight:400;color:var(--dim);margin-left:8px}
+.doc.api section{scroll-margin-top:76px}
+.doc.api pre{
+  font-family:var(--mono);font-size:12.5px;line-height:1.55;
+  color:var(--fg);background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;
+  padding:14px 16px;margin-top:14px;overflow-x:auto;
+  white-space:pre;-webkit-text-size-adjust:100%;
+}
+.doc.api .tablewrap{overflow-x:auto;margin-top:14px;border:1px solid var(--line);border-radius:8px}
+.doc.api table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+.doc.api th,.doc.api td{
+  text-align:left;vertical-align:top;padding:9px 14px;
+  border-bottom:1px solid var(--line);
+}
+.doc.api thead th{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  background:var(--surface);
+}
+.doc.api tbody tr:last-child td{border-bottom:0}
+.doc.api td{color:var(--muted)}
+.doc.api td:first-child{color:var(--fg);white-space:nowrap}
+.doc.api ul{margin-top:14px}
+
 </style>
 </head>
 <body>
@@ -250,127 +278,461 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </div>
 </header>
 
-<main class="wrap doc">
+<main class="wrap doc api">
 
-  <p class="eyebrow">Documentation</p>
+  <p class="eyebrow">API reference</p>
   <h1>notifi API documentation</h1>
   <p class="lede">
-    notifi has one endpoint and seven parameters. This page is the whole
-    reference: how to authenticate, what to send, what comes back, and where
-    the machine-readable versions live.
+    One endpoint, seven parameters, no SDK. Everything on this page is generated
+    from the same file that generates <a href="/openapi.json"><code>/openapi.json</code></a>
+    and the client collections, so the three cannot disagree.
   </p>
 
-  <section>
-    <h2>Before you start</h2>
+  <p class="meta"><a href="#quickstart">Quickstart</a> · <a href="#auth">Authentication</a> · <a href="#request">Request</a> · <a href="#parameters">Parameters</a> · <a href="#response">Response</a> · <a href="#errors">Errors</a> · <a href="#limits">Rate limits</a> · <a href="#clients">Clients and import</a> · <a href="#machine">Machine-readable</a> · <a href="#recipes">Recipes</a></p>
+
+  <section id="quickstart">
+    <h2>Quickstart</h2>
     <p>
-      You need the app and a send key. Install notifi on
-      <a href="https://apps.apple.com/app/id1563961135">iPhone or iPad</a> or
-      <a href="/download/mac">on the Mac</a>, allow notifications, then open the
-      Keys tab and copy the <code>Default</code> key the app made on first
-      launch. A key starts with <code>nk_</code> and delivers only to the device
-      that created it, so which key a script holds decides where its
-      notifications land.
+      Install notifi on <a href="https://apps.apple.com/app/id1563961135">iPhone or iPad</a>
+      or <a href="/download/mac">on the Mac</a>, allow notifications, open the Keys tab and
+      copy the <code>Default</code> key. It starts with <code>nk_</code> and delivers only to
+      the device that made it.
     </p>
+    <pre data-lang="bash">curl -X POST https://notifi.it/send \
+  -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
+  -d &quot;title=Backup complete&quot; \
+  -d &quot;message=4.2 GB in 3m 11s&quot;</pre>
     <p>
-      Keys are minted on the device by a request signed with a private key that
-      never leaves it. There is no endpoint that creates one, which is also why
-      a coding agent cannot create a key for you — it has to ask you for it.
-      Keep the key in the environment rather than in a file that gets committed.
+      There is no endpoint that creates a key: keys are minted on the device by a request
+      signed with a private key that never leaves it. A coding agent has to ask you for one.
+      Keep it in the environment, not in a file that gets committed.
     </p>
   </section>
 
-  <section>
-    <h2>Send a notification</h2>
-    <p>
-      <code>POST https://notifi.it/send</code>, JSON or form-encoded.
-      <code>GET</code> works for a quick test. Authenticate with an
-      <code>Authorization: Bearer nk_yourkey</code> header; a <code>key</code>
-      parameter also works but puts the key in edge logs and shell history.
-      Query parameters win over the body.
-    </p>
-    <div class="card">
-      <p><code>curl -X POST https://notifi.it/send \<br>
-      &nbsp;&nbsp;-H "Authorization: Bearer $NOTIFI_KEY" \<br>
-      &nbsp;&nbsp;-d "title=Backup complete" \<br>
-      &nbsp;&nbsp;-d "message=4.2 GB in 3m 11s"</code></p>
+  <section id="auth">
+    <h2>Authentication</h2>
+    <p>Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between.</p>
+    <div class="tablewrap" tabindex="0" role="group" aria-label="Authentication methods">
+      <table>
+        <thead><tr><th>Method</th><th>Sent as</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Bearer token</td>
+            <td><code>Authorization: Bearer nk_yourkey</code></td>
+            <td>The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history.</td>
+          </tr>
+          <tr>
+            <td>Parameter</td>
+            <td><code>key=nk_yourkey</code></td>
+            <td>The send key as a parameter. Convenient for a one-off request, but it appears in edge logs, in shell history and in any proxy in between.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
-  <section>
+  <section id="request">
+    <h2>Request</h2>
+    <p>
+      <code>POST https://notifi.it/send</code>, JSON, form-encoded or multipart.
+      <code>GET</code> takes the same parameters in the query string and is there for a quick
+      test. Query parameters win over body fields when both are present.
+    </p>
+    <pre data-lang="http">POST /send HTTP/1.1
+Host: notifi.it
+Authorization: Bearer nk_yourkey
+Content-Type: application/json
+Accept-Language: en-GB
+
+{&quot;title&quot;:&quot;Backup complete&quot;,&quot;message&quot;:&quot;4.2 GB in 3m 11s&quot;,&quot;link&quot;:&quot;https://console.internal/backups&quot;}</pre>
+  </section>
+
+  <section id="parameters">
     <h2>Parameters</h2>
-    <ul>
-      <li><code>key</code> — string, required unless sent as a bearer token. The send key from the app.</li>
-      <li><code>title</code> — string, required. 1 to 200 characters.</li>
-      <li><code>message</code> — string. The notification body, Markdown, up to 16,000 characters. The push shows a short preview; the app renders the full text.</li>
-      <li><code>link</code> — URL, up to 2,048 characters. Opened when the notification is tapped.</li>
-      <li><code>image</code> — <code>https</code> URL, up to 2,048 characters. PNG, JPEG or GIF, 5&nbsp;MB max. One that cannot be fetched is dropped and the notification still arrives.</li>
-      <li><code>occurred_at</code> — integer, unix milliseconds. When the event actually happened, for a queued or retried send. Defaults to arrival time.</li>
-      <li><code>is_critical</code> — boolean. Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the reply carries a <code>warnings</code> array.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Responses</h2>
     <p>
-      A successful send answers <code>202</code> with
-      <code>{"ok":true}</code>. That means the server accepted it, not that it
-      was delivered — delivery is best-effort, as the
-      <a href="/terms">terms</a> describe.
+      <code>key</code> is required unless the request carries a bearer token.
+      An image is fetched server-side and must be <code>https</code>, PNG, JPEG or GIF,
+      5&nbsp;MB at most.
     </p>
-    <p>
-      Every error nests the code one level down, so read <code>error.code</code>
-      and not <code>code</code>:
-    </p>
-    <div class="card">
-      <p><code>{"error":{"code":"unknown_key","message":"Unknown or revoked key."}}</code></p>
+    <div class="tablewrap" tabindex="0" role="group" aria-label="Send parameters, scrollable">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Type</th><th>Required</th><th>Limit</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>key</code></td>
+            <td>string</td>
+            <td>conditional</td>
+            <td><code>nk_…</code></td>
+            <td>The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on, so which key a script holds decides where its notifications go.</td>
+          </tr>
+          <tr>
+            <td><code>title</code></td>
+            <td>string</td>
+            <td>required</td>
+            <td><code>1–200 chars</code></td>
+            <td>The notification title. A longer title is delivered cropped, with a warning in the response.</td>
+          </tr>
+          <tr>
+            <td><code>message</code></td>
+            <td>string</td>
+            <td>optional</td>
+            <td><code>≤ 16,000 chars</code></td>
+            <td>The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning.</td>
+          </tr>
+          <tr>
+            <td><code>link</code></td>
+            <td>string (uri)</td>
+            <td>optional</td>
+            <td><code>≤ 2,048 chars</code></td>
+            <td>URL opened when the notification is tapped.</td>
+          </tr>
+          <tr>
+            <td><code>image</code></td>
+            <td>string (uri)</td>
+            <td>optional</td>
+            <td><code>≤ 2,048 chars</code></td>
+            <td>https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives.</td>
+          </tr>
+          <tr>
+            <td><code>occurred_at</code></td>
+            <td>integer</td>
+            <td>optional</td>
+            <td><code>unix ms</code></td>
+            <td>When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to arrival time.</td>
+          </tr>
+          <tr>
+            <td><code>is_critical</code></td>
+            <td>boolean</td>
+            <td>optional</td>
+            <td>—</td>
+            <td>Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <ul>
-      <li><code>invalid_request</code> — <code>400</code>. A parameter is missing or malformed.</li>
-      <li><code>unknown_key</code> — <code>401</code>. The key is unknown or has been revoked.</li>
-      <li><code>invalid_content</code> — <code>422</code>. The device is set to refuse a notification it cannot deliver as written.</li>
-      <li><code>rate_limited</code> — <code>429</code>, with a <code>Retry-After</code> header.</li>
-      <li><code>not_found</code> — <code>404</code>. No such path.</li>
-      <li><code>internal_error</code> — <code>500</code>.</li>
-    </ul>
   </section>
 
-  <section>
-    <h2>Limits</h2>
+  <section id="response">
+    <h2>Response</h2>
+    <p>
+      A send answers <code>202</code>. That means the server accepted it, not that it was
+      delivered — delivery is best-effort, as the <a href="/terms">terms</a> describe.
+    </p>
+    <pre data-lang="http">HTTP/1.1 202 Accepted
+Content-Type: application/json; charset=utf-8
+
+{&quot;ok&quot;:true}</pre>
+    <p>
+      A <code>warnings</code> array is present only when the notification was delivered
+      differently from what was asked: a cropped title or body, a dropped image, or a critical
+      alert downgraded to an ordinary one.
+    </p>
+  </section>
+
+  <section id="errors">
+    <h2>Errors</h2>
+    <p>
+      Every error nests the code one level down. Read <code>error.code</code>, not
+      <code>code</code>. The <code>message</code> is in the language negotiated from
+      <code>Accept-Language</code> and is meant for a human, so match on the code.
+    </p>
+    <pre data-lang="http">HTTP/1.1 401 Unauthorized
+Content-Type: application/json; charset=utf-8
+
+{&quot;error&quot;:{&quot;code&quot;:&quot;unknown_key&quot;,&quot;message&quot;:&quot;Unknown or revoked key.&quot;}}</pre>
+    <div class="tablewrap" tabindex="0" role="group" aria-label="Error codes">
+      <table>
+        <thead><tr><th>Status</th><th><code>error.code</code></th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>400</code></td>
+            <td><code>invalid_request</code></td>
+            <td>A parameter is missing or malformed.</td>
+          </tr>
+          <tr>
+            <td><code>401</code></td>
+            <td><code>unknown_key</code></td>
+            <td>The key is unknown or has been revoked.</td>
+          </tr>
+          <tr>
+            <td><code>422</code></td>
+            <td><code>invalid_content</code></td>
+            <td>The device is set to refuse a notification it cannot deliver as written.</td>
+          </tr>
+          <tr>
+            <td><code>429</code></td>
+            <td><code>rate_limited</code></td>
+            <td>Over the hourly device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets.</td>
+          </tr>
+          <tr>
+            <td><code>404</code></td>
+            <td><code>not_found</code></td>
+            <td>No such path.</td>
+          </tr>
+          <tr>
+            <td><code>500</code></td>
+            <td><code>internal_error</code></td>
+            <td>Something broke on our side.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="limits">
+    <h2>Rate limits</h2>
     <ul>
       <li>60 notifications an hour per device, shared across every key on it.</li>
-      <li>Five active send keys per device, one of which is the app's own default.</li>
+      <li>5 active send keys per device, one of which is the app’s own default.</li>
       <li>100 requests a minute per IP address, across every endpoint.</li>
       <li>Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.</li>
     </ul>
-  </section>
-
-  <section>
-    <h2>Machine-readable resources</h2>
-    <ul>
-      <li><a href="/llms.txt"><code>/llms.txt</code></a> — the full reference as plain text, written for coding agents: install, key, endpoint, error codes and hook recipes, with a section on when to reach for notifi.</li>
-      <li><a href="/openapi.json"><code>/openapi.json</code></a> — an OpenAPI 3.1 description of <code>/send</code>, for generating a client or wiring notifi into a tool that reads specifications.</li>
-      <li><a href="/sitemap.xml"><code>/sitemap.xml</code></a> and <a href="/robots.txt"><code>/robots.txt</code></a>.</li>
-      <li>Every page on this site is also served as Markdown. Ask for it with an <code>Accept: text/markdown</code> header on the same URL, or append <code>.md</code> — this page is <a href="/docs.md"><code>/docs.md</code></a>.</li>
-      <li><a href="https://github.com/notifi-it/notifi">Source</a> — the app, the API and the cryptography.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Recipes</h2>
     <p>
-      The <a href="/#send">home page</a> carries the same request in thirteen
-      languages and runtimes, including a Claude Code hook, a GitHub Actions
-      step, a systemd unit and a Kubernetes job. <a href="/llms.txt">llms.txt</a>
-      carries the hook recipes as copyable text.
+      A <code>429</code> carries <code>Retry-After</code> in seconds. The device limit is
+      60 an hour across all 5 keys; the address limit is
+      100 requests a minute and covers every endpoint.
     </p>
   </section>
 
-  <section>
+  <section id="clients">
+    <h2>Clients and import</h2>
+    <p>
+      The collection and the OpenAPI document are generated from the same source as this page.
+      Set <code>NOTIFI_KEY</code> and send.
+    </p>
+    <h3>Postman</h3>
+    <p>Import → Link, and paste the collection URL. Postman keeps it in sync from there.</p>
+    <pre data-lang="bash">https://notifi.it/notifi.postman_collection.json</pre>
+    <h3>Bruno</h3>
+    <p>Drop the .bru file into a collection folder, or use Import → Postman Collection with the URL above.</p>
+    <pre data-lang="bash">curl -O https://notifi.it/notifi.bru</pre>
+    <h3>Insomnia</h3>
+    <p>Import from URL accepts either the OpenAPI document or the Postman collection.</p>
+    <pre data-lang="bash">https://notifi.it/openapi.json</pre>
+    <h3>HTTPie</h3>
+    <p>No import needed.</p>
+    <pre data-lang="bash">http -f POST https://notifi.it/send &quot;Authorization:Bearer $NOTIFI_KEY&quot; title=&quot;Backup complete&quot;</pre>
+    <h3>Generated clients</h3>
+    <p>Any generator that reads OpenAPI 3.1.</p>
+    <pre data-lang="bash">openapi-generator-cli generate -i https://notifi.it/openapi.json -g typescript-fetch -o ./notifi</pre>
+  </section>
+
+  <section id="machine">
+    <h2>Machine-readable</h2>
+    <ul>
+      <li><a href="/llms.txt"><code>/llms.txt</code></a> — The full reference as plain text, written for coding agents.</li>
+      <li><a href="/openapi.json"><code>/openapi.json</code></a> — OpenAPI 3.1 for /send.</li>
+      <li><a href="/notifi.postman_collection.json"><code>/notifi.postman_collection.json</code></a> — Postman v2.1 collection. Bruno, Insomnia, Hoppscotch and Paw import it too.</li>
+      <li><a href="/notifi.bru"><code>/notifi.bru</code></a> — A Bruno request file, for dropping straight into a collection folder.</li>
+      <li><a href="/sitemap.xml"><code>/sitemap.xml</code></a> — Every page worth reading.</li>
+      <li><a href="/docs.md"><code>/docs.md</code></a> — This page as Markdown.</li>
+    </ul>
+    <p>
+      Every page on this site is also served as Markdown: send
+      <code>Accept: text/markdown</code> on the same URL, or append <code>.md</code>.
+      <a href="https://github.com/notifi-it/notifi">The source</a> covers the app, the API and
+      the cryptography.
+    </p>
+  </section>
+
+  <section id="recipes">
+    <h2>Recipes</h2>
+    <p>
+      The same request from everywhere it tends to get sent from. Each one wants
+      <code>NOTIFI_KEY</code> in the environment.
+    </p>
+    <h3>curl <span class="meta">send.sh</span></h3>
+    <pre data-lang="curl">curl -X POST https://notifi.it/send \
+  -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
+  -d &quot;title=Backup complete&quot; \
+  -d &quot;message=4.2 GB in 3m 11s&quot; \
+  -d &quot;link=https://console.internal/backups&quot;</pre>
+    <h3>JavaScript <span class="meta">send.js</span></h3>
+    <pre data-lang="js">await fetch(&quot;https://notifi.it/send&quot;, {
+  method: &quot;POST&quot;,
+  headers: {
+    &quot;Authorization&quot;: `Bearer ${process.env.NOTIFI_KEY}`,
+    &quot;Content-Type&quot;: &quot;application/json&quot;,
+  },
+  body: JSON.stringify({
+    title: &quot;Backup complete&quot;,
+    message: &quot;4.2 GB in 3m 11s&quot;,
+  }),
+});</pre>
+    <h3>Python <span class="meta">send.py</span></h3>
+    <pre data-lang="py">import os, requests
+
+requests.post(
+    &quot;https://notifi.it/send&quot;,
+    headers={&quot;Authorization&quot;: f&quot;Bearer {os.environ['NOTIFI_KEY']}&quot;},
+    json={
+        &quot;title&quot;: &quot;Backup complete&quot;,
+        &quot;message&quot;: &quot;4.2 GB in 3m 11s&quot;,
+    },
+)</pre>
+    <h3>Go <span class="meta">send.go</span></h3>
+    <pre data-lang="go">package main
+
+import (
+	&quot;net/http&quot;
+	&quot;net/url&quot;
+	&quot;os&quot;
+	&quot;strings&quot;
+)
+
+func main() {
+	form := url.Values{
+		&quot;title&quot;:   {&quot;Backup complete&quot;},
+		&quot;message&quot;: {&quot;4.2 GB in 3m 11s&quot;},
+	}
+	req, _ := http.NewRequest(&quot;POST&quot;, &quot;https://notifi.it/send&quot;,
+		strings.NewReader(form.Encode()))
+	req.Header.Set(&quot;Authorization&quot;, &quot;Bearer &quot;+os.Getenv(&quot;NOTIFI_KEY&quot;))
+	req.Header.Set(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;)
+	http.DefaultClient.Do(req)
+}</pre>
+    <h3>Swift <span class="meta">Send.swift</span></h3>
+    <pre data-lang="swift">import Foundation
+
+var request = URLRequest(url: URL(string: &quot;https://notifi.it/send&quot;)!)
+request.httpMethod = &quot;POST&quot;
+request.setValue(&quot;Bearer \(key)&quot;, forHTTPHeaderField: &quot;Authorization&quot;)
+request.setValue(&quot;application/json&quot;, forHTTPHeaderField: &quot;Content-Type&quot;)
+request.httpBody = try JSONEncoder().encode([
+    &quot;title&quot;: &quot;Backup complete&quot;,
+    &quot;message&quot;: &quot;4.2 GB in 3m 11s&quot;,
+])
+
+_ = try await URLSession.shared.data(for: request)</pre>
+    <h3>Ruby <span class="meta">send.rb</span></h3>
+    <pre data-lang="ruby">require &quot;net/http&quot;
+
+uri = URI(&quot;https://notifi.it/send&quot;)
+req = Net::HTTP::Post.new(uri)
+req[&quot;Authorization&quot;] = &quot;Bearer #{ENV['NOTIFI_KEY']}&quot;
+req.set_form_data(
+  &quot;title&quot; =&gt; &quot;Backup complete&quot;,
+  &quot;message&quot; =&gt; &quot;4.2 GB in 3m 11s&quot;
+)
+
+Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }</pre>
+    <h3>PHP <span class="meta">send.php</span></h3>
+    <pre data-lang="php">&lt;?php
+$ch = curl_init(&quot;https://notifi.it/send&quot;);
+curl_setopt_array($ch, [
+    CURLOPT_POST       =&gt; true,
+    CURLOPT_HTTPHEADER =&gt; [&quot;Authorization: Bearer &quot; . getenv(&quot;NOTIFI_KEY&quot;)],
+    CURLOPT_POSTFIELDS =&gt; [
+        &quot;title&quot;   =&gt; &quot;Backup complete&quot;,
+        &quot;message&quot; =&gt; &quot;4.2 GB in 3m 11s&quot;,
+    ],
+]);
+curl_exec($ch);</pre>
+    <h3>Rust <span class="meta">main.rs</span></h3>
+    <pre data-lang="rust">// reqwest = { version = &quot;0.12&quot;, features = [&quot;json&quot;] }
+let key = std::env::var(&quot;NOTIFI_KEY&quot;)?;
+
+reqwest::Client::new()
+    .post(&quot;https://notifi.it/send&quot;)
+    .bearer_auth(key)
+    .form(&amp;[
+        (&quot;title&quot;, &quot;Backup complete&quot;),
+        (&quot;message&quot;, &quot;4.2 GB in 3m 11s&quot;),
+    ])
+    .send()
+    .await?;</pre>
+    <h3>Claude Code <span class="meta">.claude/settings.json</span></h3>
+    <pre data-lang="hook">// Fires when Claude stops.
+{
+  &quot;hooks&quot;: {
+    &quot;Stop&quot;: [{
+      &quot;hooks&quot;: [{
+        &quot;type&quot;: &quot;command&quot;,
+        &quot;command&quot;: &quot;curl -s https://notifi.it/send \
+                     -H \&quot;Authorization: Bearer $NOTIFI_KEY\&quot; \
+                     -d \&quot;title=Claude finished\&quot; \
+                     -d \&quot;message=$CLAUDE_PROJECT_DIR\&quot;&quot;
+      }]
+    }]
+  }
+}</pre>
+    <h3>GitHub Actions <span class="meta">.github/workflows/ci.yml</span></h3>
+    <pre data-lang="gha"># Put NOTIFI_KEY in the repository's secrets.
+- name: Tell me it broke
+  if: failure()
+  run: |
+    curl -s https://notifi.it/send \
+      -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
+      -d &quot;title=$GITHUB_WORKFLOW failed&quot; \
+      -d &quot;message=$GITHUB_REF_NAME at $(git log -1 --format=%s)&quot; \
+      -d &quot;link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID&quot;
+  env:
+    NOTIFI_KEY: ${{ secrets.NOTIFI_KEY }}</pre>
+    <h3>Shell hook <span class="meta">~/.zshrc</span></h3>
+    <pre data-lang="shell"># Notify for any command that took longer than a minute, and say
+# whether it worked.
+autoload -Uz add-zsh-hook
+
+_notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
+_notifi_end() {
+  local code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
+  (( secs &lt; 60 )) &amp;&amp; return
+  curl -s https://notifi.it/send \
+    -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
+    -d &quot;title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s&quot; \
+    -d &quot;message=$_NOTIFI_CMD&quot; &gt;/dev/null
+}
+add-zsh-hook preexec _notifi_start
+add-zsh-hook precmd  _notifi_end</pre>
+    <h3>systemd <span class="meta">notifi-failed@.service</span></h3>
+    <pre data-lang="systemd"># Drop this in /etc/systemd/system/, then add one line to any unit:
+#   OnFailure=notifi-failed@%n.service
+# Every unit on the box can share it. %i is the unit that failed.
+[Unit]
+Description=Push a notification when %i fails
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/notifi.env
+ExecStart=/usr/bin/curl -s https://notifi.it/send \
+  -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
+  -d &quot;title=%i failed on %H&quot; \
+  --data-urlencode &quot;message=$(systemctl status %i --lines=10 --no-pager)&quot;</pre>
+    <h3>Kubernetes <span class="meta">backup.yaml</span></h3>
+    <pre data-lang="kube"># Put the key in a Secret, then curl at the end of any Job's command.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nightly-backup
+spec:
+  schedule: &quot;0 3 * * *&quot;
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: backup
+            image: alpine/curl
+            command: [&quot;/bin/sh&quot;, &quot;-c&quot;]
+            args:
+            - |
+              ./backup.sh &amp;&amp;
+              curl -s https://notifi.it/send \
+                -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
+                -d &quot;title=Backup complete&quot;
+            env:
+            - name: NOTIFI_KEY
+              valueFrom: { secretKeyRef: { name: notifi, key: key } }</pre>
+  </section>
+
+  <section id="questions">
     <h2>Questions</h2>
     <p>
-      The <a href="/faq">FAQ</a> covers cost, limits, what the server can read
-      and what happens when you delete the app. Anything else goes to
-      <a href="/contact">contact</a>.
+      The <a href="/faq">FAQ</a> covers cost, limits, what the server can read and what happens
+      when you delete the app. Anything else goes to <a href="/contact">contact</a>.
     </p>
   </section>
 

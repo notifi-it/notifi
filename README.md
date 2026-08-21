@@ -33,6 +33,9 @@ zero-dependency SwiftUI client for iOS 17+ and macOS 14+.
   coding agents, including when to reach for notifi and how to ask a human for a
   send key.
 - **[openapi.json](https://notifi.it/openapi.json)** — OpenAPI 3.1 for `/send`.
+- **[Postman collection](https://notifi.it/notifi.postman_collection.json)** —
+  v2.1, which Bruno, Insomnia and Hoppscotch import as well; the
+  **[.bru file](https://notifi.it/notifi.bru)** is there for Bruno directly.
 - **[FAQ](https://notifi.it/faq)**, **[about](https://notifi.it/about)**,
   **[contact](https://notifi.it/contact)**, **[privacy](https://notifi.it/privacy)**
   and **[terms](https://notifi.it/terms)**.

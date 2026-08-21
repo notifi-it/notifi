@@ -201,6 +201,11 @@ old key stops working. There is no migration.
   predictable URL, with the error codes and limits in one place.
 - [OpenAPI 3.1 description](https://notifi.it/openapi.json): `/send` as a
   machine-readable spec, for generating a client or registering notifi as a tool.
+- [Postman collection](https://notifi.it/notifi.postman_collection.json): v2.1,
+  which Bruno, Insomnia, Hoppscotch and Paw import as well. Set the `NOTIFI_KEY`
+  variable and send.
+- [Bruno request](https://notifi.it/notifi.bru): a single `.bru` file to drop
+  into a collection folder.
 - Every page of this site is also served as Markdown. Send
   `Accept: text/markdown` to any page URL, or append `.md` to its path —
   `https://notifi.it/docs.md`, `https://notifi.it/faq.md`. Responses carry

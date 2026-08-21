@@ -1,69 +1,394 @@
 # notifi API documentation
 
-> notifi has one endpoint and seven parameters. This page is the whole reference: how to authenticate, what to send, what comes back, and where the machine-readable versions live.
+> One endpoint, seven parameters, no SDK. Everything on this page is generated from the same file that generates [`/openapi.json`](https://notifi.it/openapi.json) and the client collections, so the three cannot disagree.
 
-## Before you start
+_[Quickstart](https://notifi.it/docs#quickstart) · [Authentication](https://notifi.it/docs#auth) · [Request](https://notifi.it/docs#request) · [Parameters](https://notifi.it/docs#parameters) · [Response](https://notifi.it/docs#response) · [Errors](https://notifi.it/docs#errors) · [Rate limits](https://notifi.it/docs#limits) · [Clients and import](https://notifi.it/docs#clients) · [Machine-readable](https://notifi.it/docs#machine) · [Recipes](https://notifi.it/docs#recipes)_
 
-You need the app and a send key. Install notifi on [iPhone or iPad](https://apps.apple.com/app/id1563961135) or [on the Mac](https://notifi.it/download/mac), allow notifications, then open the Keys tab and copy the `Default` key the app made on first launch. A key starts with `nk_` and delivers only to the device that created it, so which key a script holds decides where its notifications land.
+## Quickstart
 
-Keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, which is also why a coding agent cannot create a key for you — it has to ask you for it. Keep the key in the environment rather than in a file that gets committed.
+Install notifi on [iPhone or iPad](https://apps.apple.com/app/id1563961135) or [on the Mac](https://notifi.it/download/mac), allow notifications, open the Keys tab and copy the `Default` key. It starts with `nk_` and delivers only to the device that made it.
 
-## Send a notification
-
-`POST https://notifi.it/send`, JSON or form-encoded. `GET` works for a quick test. Authenticate with an `Authorization: Bearer nk_yourkey` header; a `key` parameter also works but puts the key in edge logs and shell history. Query parameters win over the body.
-
-```
+```bash
 curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
   -d "title=Backup complete" \
   -d "message=4.2 GB in 3m 11s"
 ```
 
+There is no endpoint that creates a key: keys are minted on the device by a request signed with a private key that never leaves it. A coding agent has to ask you for one. Keep it in the environment, not in a file that gets committed.
+
+## Authentication
+
+Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between.
+
+| Method | Sent as | Notes |
+| --- | --- | --- |
+| Bearer token | `Authorization: Bearer nk_yourkey` | The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history. |
+| Parameter | `key=nk_yourkey` | The send key as a parameter. Convenient for a one-off request, but it appears in edge logs, in shell history and in any proxy in between. |
+
+## Request
+
+`POST https://notifi.it/send`, JSON, form-encoded or multipart. `GET` takes the same parameters in the query string and is there for a quick test. Query parameters win over body fields when both are present.
+
+```http
+POST /send HTTP/1.1
+Host: notifi.it
+Authorization: Bearer nk_yourkey
+Content-Type: application/json
+Accept-Language: en-GB
+
+{"title":"Backup complete","message":"4.2 GB in 3m 11s","link":"https://console.internal/backups"}
+```
+
 ## Parameters
 
-- `key` — string, required unless sent as a bearer token. The send key from the app.
-- `title` — string, required. 1 to 200 characters.
-- `message` — string. The notification body, Markdown, up to 16,000 characters. The push shows a short preview; the app renders the full text.
-- `link` — URL, up to 2,048 characters. Opened when the notification is tapped.
-- `image` — `https` URL, up to 2,048 characters. PNG, JPEG or GIF, 5 MB max. One that cannot be fetched is dropped and the notification still arrives.
-- `occurred_at` — integer, unix milliseconds. When the event actually happened, for a queued or retried send. Defaults to arrival time.
-- `is_critical` — boolean. Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the reply carries a `warnings` array.
+`key` is required unless the request carries a bearer token. An image is fetched server-side and must be `https`, PNG, JPEG or GIF, 5 MB at most.
 
-## Responses
+| Name | Type | Required | Limit | Description |
+| --- | --- | --- | --- | --- |
+| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on, so which key a script holds decides where its notifications go. |
+| `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
+| `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning. |
+| `link` | string (uri) | optional | `≤ 2,048 chars` | URL opened when the notification is tapped. |
+| `image` | string (uri) | optional | `≤ 2,048 chars` | https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives. |
+| `occurred_at` | integer | optional | `unix ms` | When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to arrival time. |
+| `is_critical` | boolean | optional | — | Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array. |
 
-A successful send answers `202` with `{"ok":true}`. That means the server accepted it, not that it was delivered — delivery is best-effort, as the [terms](https://notifi.it/terms) describe.
+## Response
 
-Every error nests the code one level down, so read `error.code` and not `code`:
+A send answers `202`. That means the server accepted it, not that it was delivered — delivery is best-effort, as the [terms](https://notifi.it/terms) describe.
 
+```http
+HTTP/1.1 202 Accepted
+Content-Type: application/json; charset=utf-8
+
+{"ok":true}
 ```
+
+A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one.
+
+## Errors
+
+Every error nests the code one level down. Read `error.code`, not `code`. The `message` is in the language negotiated from `Accept-Language` and is meant for a human, so match on the code.
+
+```http
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json; charset=utf-8
+
 {"error":{"code":"unknown_key","message":"Unknown or revoked key."}}
 ```
 
-- `invalid_request` — `400`. A parameter is missing or malformed.
-- `unknown_key` — `401`. The key is unknown or has been revoked.
-- `invalid_content` — `422`. The device is set to refuse a notification it cannot deliver as written.
-- `rate_limited` — `429`, with a `Retry-After` header.
-- `not_found` — `404`. No such path.
-- `internal_error` — `500`.
+| Status | `error.code` | Meaning |
+| --- | --- | --- |
+| `400` | `invalid_request` | A parameter is missing or malformed. |
+| `401` | `unknown_key` | The key is unknown or has been revoked. |
+| `422` | `invalid_content` | The device is set to refuse a notification it cannot deliver as written. |
+| `429` | `rate_limited` | Over the hourly device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets. |
+| `404` | `not_found` | No such path. |
+| `500` | `internal_error` | Something broke on our side. |
 
-## Limits
+## Rate limits
 
 - 60 notifications an hour per device, shared across every key on it.
-- Five active send keys per device, one of which is the app's own default.
+- 5 active send keys per device, one of which is the app’s own default.
 - 100 requests a minute per IP address, across every endpoint.
 - Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.
 
-## Machine-readable resources
+A `429` carries `Retry-After` in seconds. The device limit is 60 an hour across all 5 keys; the address limit is 100 requests a minute and covers every endpoint.
 
-- [`/llms.txt`](https://notifi.it/llms.txt) — the full reference as plain text, written for coding agents: install, key, endpoint, error codes and hook recipes, with a section on when to reach for notifi.
-- [`/openapi.json`](https://notifi.it/openapi.json) — an OpenAPI 3.1 description of `/send`, for generating a client or wiring notifi into a tool that reads specifications.
-- [`/sitemap.xml`](https://notifi.it/sitemap.xml) and [`/robots.txt`](https://notifi.it/robots.txt).
-- Every page on this site is also served as Markdown. Ask for it with an `Accept: text/markdown` header on the same URL, or append `.md` — this page is [`/docs.md`](https://notifi.it/docs.md).
-- [Source](https://github.com/notifi-it/notifi) — the app, the API and the cryptography.
+## Clients and import
+
+The collection and the OpenAPI document are generated from the same source as this page. Set `NOTIFI_KEY` and send.
+
+### Postman
+
+Import → Link, and paste the collection URL. Postman keeps it in sync from there.
+
+```bash
+https://notifi.it/notifi.postman_collection.json
+```
+
+### Bruno
+
+Drop the .bru file into a collection folder, or use Import → Postman Collection with the URL above.
+
+```bash
+curl -O https://notifi.it/notifi.bru
+```
+
+### Insomnia
+
+Import from URL accepts either the OpenAPI document or the Postman collection.
+
+```bash
+https://notifi.it/openapi.json
+```
+
+### HTTPie
+
+No import needed.
+
+```bash
+http -f POST https://notifi.it/send "Authorization:Bearer $NOTIFI_KEY" title="Backup complete"
+```
+
+### Generated clients
+
+Any generator that reads OpenAPI 3.1.
+
+```bash
+openapi-generator-cli generate -i https://notifi.it/openapi.json -g typescript-fetch -o ./notifi
+```
+
+## Machine-readable
+
+- [`/llms.txt`](https://notifi.it/llms.txt) — The full reference as plain text, written for coding agents.
+- [`/openapi.json`](https://notifi.it/openapi.json) — OpenAPI 3.1 for /send.
+- [`/notifi.postman_collection.json`](https://notifi.it/notifi.postman_collection.json) — Postman v2.1 collection. Bruno, Insomnia, Hoppscotch and Paw import it too.
+- [`/notifi.bru`](https://notifi.it/notifi.bru) — A Bruno request file, for dropping straight into a collection folder.
+- [`/sitemap.xml`](https://notifi.it/sitemap.xml) — Every page worth reading.
+- [`/docs.md`](https://notifi.it/docs.md) — This page as Markdown.
+
+Every page on this site is also served as Markdown: send `Accept: text/markdown` on the same URL, or append `.md`. [The source](https://github.com/notifi-it/notifi) covers the app, the API and the cryptography.
 
 ## Recipes
 
-The [home page](https://notifi.it/#send) carries the same request in thirteen languages and runtimes, including a Claude Code hook, a GitHub Actions step, a systemd unit and a Kubernetes job. [llms.txt](https://notifi.it/llms.txt) carries the hook recipes as copyable text.
+The same request from everywhere it tends to get sent from. Each one wants `NOTIFI_KEY` in the environment.
+
+### curl send.sh
+
+```curl
+curl -X POST https://notifi.it/send \
+  -H "Authorization: Bearer $NOTIFI_KEY" \
+  -d "title=Backup complete" \
+  -d "message=4.2 GB in 3m 11s" \
+  -d "link=https://console.internal/backups"
+```
+
+### JavaScript send.js
+
+```js
+await fetch("https://notifi.it/send", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.NOTIFI_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    title: "Backup complete",
+    message: "4.2 GB in 3m 11s",
+  }),
+});
+```
+
+### Python send.py
+
+```py
+import os, requests
+
+requests.post(
+    "https://notifi.it/send",
+    headers={"Authorization": f"Bearer {os.environ['NOTIFI_KEY']}"},
+    json={
+        "title": "Backup complete",
+        "message": "4.2 GB in 3m 11s",
+    },
+)
+```
+
+### Go send.go
+
+```go
+package main
+
+import (
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+)
+
+func main() {
+	form := url.Values{
+		"title":   {"Backup complete"},
+		"message": {"4.2 GB in 3m 11s"},
+	}
+	req, _ := http.NewRequest("POST", "https://notifi.it/send",
+		strings.NewReader(form.Encode()))
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("NOTIFI_KEY"))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	http.DefaultClient.Do(req)
+}
+```
+
+### Swift Send.swift
+
+```swift
+import Foundation
+
+var request = URLRequest(url: URL(string: "https://notifi.it/send")!)
+request.httpMethod = "POST"
+request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+request.httpBody = try JSONEncoder().encode([
+    "title": "Backup complete",
+    "message": "4.2 GB in 3m 11s",
+])
+
+_ = try await URLSession.shared.data(for: request)
+```
+
+### Ruby send.rb
+
+```ruby
+require "net/http"
+
+uri = URI("https://notifi.it/send")
+req = Net::HTTP::Post.new(uri)
+req["Authorization"] = "Bearer #{ENV['NOTIFI_KEY']}"
+req.set_form_data(
+  "title" => "Backup complete",
+  "message" => "4.2 GB in 3m 11s"
+)
+
+Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
+```
+
+### PHP send.php
+
+```php
+<?php
+$ch = curl_init("https://notifi.it/send");
+curl_setopt_array($ch, [
+    CURLOPT_POST       => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer " . getenv("NOTIFI_KEY")],
+    CURLOPT_POSTFIELDS => [
+        "title"   => "Backup complete",
+        "message" => "4.2 GB in 3m 11s",
+    ],
+]);
+curl_exec($ch);
+```
+
+### Rust main.rs
+
+```rust
+// reqwest = { version = "0.12", features = ["json"] }
+let key = std::env::var("NOTIFI_KEY")?;
+
+reqwest::Client::new()
+    .post("https://notifi.it/send")
+    .bearer_auth(key)
+    .form(&[
+        ("title", "Backup complete"),
+        ("message", "4.2 GB in 3m 11s"),
+    ])
+    .send()
+    .await?;
+```
+
+### Claude Code .claude/settings.json
+
+```hook
+// Fires when Claude stops.
+{
+  "hooks": {
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "curl -s https://notifi.it/send \
+                     -H \"Authorization: Bearer $NOTIFI_KEY\" \
+                     -d \"title=Claude finished\" \
+                     -d \"message=$CLAUDE_PROJECT_DIR\""
+      }]
+    }]
+  }
+}
+```
+
+### GitHub Actions .github/workflows/ci.yml
+
+```gha
+# Put NOTIFI_KEY in the repository's secrets.
+- name: Tell me it broke
+  if: failure()
+  run: |
+    curl -s https://notifi.it/send \
+      -H "Authorization: Bearer $NOTIFI_KEY" \
+      -d "title=$GITHUB_WORKFLOW failed" \
+      -d "message=$GITHUB_REF_NAME at $(git log -1 --format=%s)" \
+      -d "link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+  env:
+    NOTIFI_KEY: ${{ secrets.NOTIFI_KEY }}
+```
+
+### Shell hook ~/.zshrc
+
+```shell
+# Notify for any command that took longer than a minute, and say
+# whether it worked.
+autoload -Uz add-zsh-hook
+
+_notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
+_notifi_end() {
+  local code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
+  (( secs < 60 )) && return
+  curl -s https://notifi.it/send \
+    -H "Authorization: Bearer $NOTIFI_KEY" \
+    -d "title=$([[ $code == 0 ]] && echo ok || echo failed) after ${secs}s" \
+    -d "message=$_NOTIFI_CMD" >/dev/null
+}
+add-zsh-hook preexec _notifi_start
+add-zsh-hook precmd  _notifi_end
+```
+
+### systemd notifi-failed@.service
+
+```systemd
+# Drop this in /etc/systemd/system/, then add one line to any unit:
+#   OnFailure=notifi-failed@%n.service
+# Every unit on the box can share it. %i is the unit that failed.
+[Unit]
+Description=Push a notification when %i fails
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/notifi.env
+ExecStart=/usr/bin/curl -s https://notifi.it/send \
+  -H "Authorization: Bearer $NOTIFI_KEY" \
+  -d "title=%i failed on %H" \
+  --data-urlencode "message=$(systemctl status %i --lines=10 --no-pager)"
+```
+
+### Kubernetes backup.yaml
+
+```kube
+# Put the key in a Secret, then curl at the end of any Job's command.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nightly-backup
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: backup
+            image: alpine/curl
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              ./backup.sh &&
+              curl -s https://notifi.it/send \
+                -H "Authorization: Bearer $NOTIFI_KEY" \
+                -d "title=Backup complete"
+            env:
+            - name: NOTIFI_KEY
+              valueFrom: { secretKeyRef: { name: notifi, key: key } }
+```
 
 ## Questions
 

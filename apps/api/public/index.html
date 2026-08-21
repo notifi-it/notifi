@@ -857,6 +857,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <p class="eyebrow">API</p><hr class="rule">
     </div>
     <h2>One endpoint.</h2>
+<!-- gen:endpoint -->
     <p class="lede" style="margin-top:14px;margin-bottom:8px">
       <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
     </p>
@@ -865,6 +866,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       or pass <code>key</code> as a parameter. The header keeps it out of logs.
       Query parameters win over the body.
     </p>
+<!-- /gen:endpoint -->
 
     <!-- The table has a min-width and this scrolls, so on a narrow viewport part
          of it is off-screen. Focusable and named, or a keyboard user cannot
@@ -875,12 +877,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr><th>Parameter</th><th>Type</th><th>Notes</th></tr>
         </thead>
         <tbody>
+<!-- gen:params -->
           <tr>
             <td>key <span class="req">required</span></td>
             <td>string</td>
-            <td>The key from the app. It picks which device gets the push. Send it as a
-                header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of
-                logs; or pass it as this parameter.</td>
+            <td>The key from the app. It picks which device gets the push. Send it as a header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of logs; or pass it as this parameter.</td>
           </tr>
           <tr>
             <td>title <span class="req">required</span></td>
@@ -890,8 +891,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>message</td>
             <td>string</td>
-            <td>The notification body. Markdown, up to 16,000 characters. The push shows
-                a short preview; the app renders the full text.</td>
+            <td>The notification body. Markdown, up to 16,000 characters. The push shows a short preview; the app renders the full text.</td>
           </tr>
           <tr>
             <td>link</td>
@@ -901,37 +901,32 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>image</td>
             <td>URL</td>
-            <td>Image displayed with the notification. Must be <code>https</code>.
-                PNG, JPEG or GIF, 5&nbsp;MB max, URL up to 2,048 characters.</td>
+            <td>Image displayed with the notification. Must be <code>https</code>. PNG, JPEG or GIF, 5&nbsp;MB max, URL up to 2,048 characters.</td>
           </tr>
           <tr>
             <td>occurred_at</td>
             <td>integer</td>
-            <td>When the event actually happened, as unix <em>milliseconds</em>, useful when
-                a send is queued or retried. Only changes the timestamp shown in the app;
-                defaults to when we receive the request.</td>
+            <td>When the event actually happened, as unix <em>milliseconds</em>, useful when a send is queued or retried. Only changes the timestamp shown in the app; defaults to when we receive the request.</td>
           </tr>
           <tr>
             <td>is_critical</td>
             <td>boolean</td>
-            <td>Ask for a critical alert: it breaks through Focus and stays on the lock screen,
-                but does not sound through silent mode. The key must also have <em>Critical
-                alerts</em> switched on in the app; a send that asks without that arrives as an
-                ordinary notification rather than failing, and the reply carries a
-                <code>warning</code> saying so.</td>
+            <td>Ask for a critical alert: it breaks through Focus and stays on the lock screen, but does not sound through silent mode. The key must also have <em>Critical alerts</em> switched on in the app; a send that asks without that arrives as an ordinary notification rather than failing, and the reply carries a <code>warning</code> saying so.</td>
           </tr>
+<!-- /gen:params -->
         </tbody>
       </table>
     </div>
 
     <!-- Two hairline rows for four facts read as a section; the facts are the
          same size as the sentence they now sit in. -->
+<!-- gen:apinote -->
     <p class="meta" style="margin-top:22px">
       60 sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
-      <code>message</code>: <code>400</code> invalid parameters · <code>401</code> unknown or
-      revoked key · <code>429</code> rate limited. <code>GET</code> works for a quick
+      <code>message</code>: <code>400</code> invalid parameters · <code>401</code> unknown or revoked key · <code>429</code> rate limited. <code>GET</code> works for a quick
       test; <code>POST</code> is recommended.
     </p>
+<!-- /gen:apinote -->
   </div>
 </section>
 
@@ -966,19 +961,21 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
          out again, so the row cost more than the samples were worth. Anyone on
          those reads the curl one. -->
     <div class="tabs" role="tablist" aria-label="Examples">
-      <button class="tab" role="tab" aria-selected="true"  aria-controls="p-curl"   id="t-curl">curl</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-js"     id="t-js">JavaScript</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-py"     id="t-py">Python</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-go"     id="t-go">Go</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-swift"  id="t-swift">Swift</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-ruby"   id="t-ruby">Ruby</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-php"    id="t-php">PHP</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust"   id="t-rust">Rust</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-hook"   id="t-hook">Claude&nbsp;Code</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-gha"    id="t-gha">GitHub&nbsp;Actions</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-shell"  id="t-shell">Shell&nbsp;hook</button>
+<!-- gen:tabs -->
+      <button class="tab" role="tab" aria-selected="true" aria-controls="p-curl" id="t-curl">curl</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-js" id="t-js">JavaScript</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-py" id="t-py">Python</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-go" id="t-go">Go</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-swift" id="t-swift">Swift</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-ruby" id="t-ruby">Ruby</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-php" id="t-php">PHP</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust" id="t-rust">Rust</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-hook" id="t-hook">Claude&nbsp;Code</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-gha" id="t-gha">GitHub&nbsp;Actions</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-shell" id="t-shell">Shell&nbsp;hook</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-systemd" id="t-systemd">systemd</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="p-kube" id="t-kube">Kubernetes</button>
+<!-- /gen:tabs -->
     </div>
 
     <div class="term">
@@ -988,141 +985,147 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <button class="copy" id="copycode" aria-label="Copy the sample for the selected language">Copy</button>
       </div>
 
+<!-- gen:panels -->
       <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh">
 <pre>curl -X POST https://notifi.it/send \
-  -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
-  -d <span class="s">"title=Backup complete"</span> \
-  -d <span class="s">"message=4.2 GB in 3m 11s"</span> \
-  -d <span class="s">"link=https://console.internal/backups"</span></pre>
+  -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+  -d <span class="s">&quot;title=Backup complete&quot;</span> \
+  -d <span class="s">&quot;message=4.2 GB in 3m 11s&quot;</span> \
+  -d <span class="s">&quot;link=https://console.internal/backups&quot;</span></pre>
       </div>
-
       <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" hidden>
-<pre>await fetch(<span class="s">"https://notifi.it/send"</span>, {
-  method: <span class="s">"POST"</span>,
+<pre>await fetch(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
+  method: <span class="s">&quot;POST&quot;</span>,
   headers: {
-    <span class="s">"Authorization"</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
-    <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
+    <span class="s">&quot;Authorization&quot;</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
+    <span class="s">&quot;Content-Type&quot;</span>: <span class="s">&quot;application/json&quot;</span>,
   },
   body: JSON.stringify({
-    title: <span class="s">"Backup complete"</span>,
-    message: <span class="s">"4.2 GB in 3m 11s"</span>,
+    title: <span class="s">&quot;Backup complete&quot;</span>,
+    message: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
   }),
 });</pre>
       </div>
-
       <div class="panel" id="p-py" role="tabpanel" tabindex="0" aria-labelledby="t-py" data-name="send.py" hidden>
 <pre><span class="f">import</span> os, requests
 
 requests.post(
-    <span class="s">"https://notifi.it/send"</span>,
-    headers={<span class="s">"Authorization"</span>: <span class="s">f"Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}"</span>},
+    <span class="s">&quot;https://notifi.it/send&quot;</span>,
+    headers={<span class="s">&quot;Authorization&quot;</span>: f<span class="s">&quot;Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}&quot;</span>},
     json={
-        <span class="s">"title"</span>: <span class="s">"Backup complete"</span>,
-        <span class="s">"message"</span>: <span class="s">"4.2 GB in 3m 11s"</span>,
+        <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Backup complete&quot;</span>,
+        <span class="s">&quot;message&quot;</span>: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
     },
 )</pre>
       </div>
-
       <div class="panel" id="p-go" role="tabpanel" tabindex="0" aria-labelledby="t-go" data-name="send.go" hidden>
 <pre><span class="f">package</span> main
 
 <span class="f">import</span> (
-	<span class="s">"net/http"</span>
-	<span class="s">"net/url"</span>
-	<span class="s">"os"</span>
-	<span class="s">"strings"</span>
+	<span class="s">&quot;net/http&quot;</span>
+	<span class="s">&quot;net/url&quot;</span>
+	<span class="s">&quot;os&quot;</span>
+	<span class="s">&quot;strings&quot;</span>
 )
 
 <span class="f">func</span> main() {
 	form := url.Values{
-		<span class="s">"title"</span>:   {<span class="s">"Backup complete"</span>},
-		<span class="s">"message"</span>: {<span class="s">"4.2 GB in 3m 11s"</span>},
+		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Backup complete&quot;</span>},
+		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;4.2 GB in 3m 11s&quot;</span>},
 	}
-	req, _ := http.NewRequest(<span class="s">"POST"</span>, <span class="s">"https://notifi.it/send"</span>,
+	req, _ := http.NewRequest(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
 		strings.NewReader(form.Encode()))
-	req.Header.Set(<span class="s">"Authorization"</span>, <span class="s">"Bearer "</span>+os.Getenv(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>))
-	req.Header.Set(<span class="s">"Content-Type"</span>, <span class="s">"application/x-www-form-urlencoded"</span>)
+	req.Header.Set(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span>+os.Getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
+	req.Header.Set(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
 	http.DefaultClient.Do(req)
 }</pre>
       </div>
-
       <div class="panel" id="p-swift" role="tabpanel" tabindex="0" aria-labelledby="t-swift" data-name="Send.swift" hidden>
 <pre><span class="f">import</span> Foundation
 
-<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">"https://notifi.it/send"</span>)!)
-request.httpMethod = <span class="s">"POST"</span>
-request.setValue(<span class="s">"Bearer \(key)"</span>, forHTTPHeaderField: <span class="s">"Authorization"</span>)
-request.setValue(<span class="s">"application/json"</span>, forHTTPHeaderField: <span class="s">"Content-Type"</span>)
+<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">&quot;https://notifi.it/send&quot;</span>)!)
+request.httpMethod = <span class="s">&quot;POST&quot;</span>
+request.setValue(<span class="s">&quot;Bearer \(key)&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Authorization&quot;</span>)
+request.setValue(<span class="s">&quot;application/json&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Content-Type&quot;</span>)
 request.httpBody = <span class="f">try</span> JSONEncoder().encode([
-    <span class="s">"title"</span>: <span class="s">"Backup complete"</span>,
-    <span class="s">"message"</span>: <span class="s">"4.2 GB in 3m 11s"</span>,
+    <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Backup complete&quot;</span>,
+    <span class="s">&quot;message&quot;</span>: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
 ])
 
 _ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
       </div>
-
       <div class="panel" id="p-ruby" role="tabpanel" tabindex="0" aria-labelledby="t-ruby" data-name="send.rb" hidden>
-<pre><span class="f">require</span> <span class="s">"net/http"</span>
+<pre><span class="f">require</span> <span class="s">&quot;net/http&quot;</span>
 
-uri = URI(<span class="s">"https://notifi.it/send"</span>)
+uri = URI(<span class="s">&quot;https://notifi.it/send&quot;</span>)
 req = Net::HTTP::Post.new(uri)
-req[<span class="s">"Authorization"</span>] = <span class="s">"Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}"</span>
+req[<span class="s">&quot;Authorization&quot;</span>] = <span class="s">&quot;Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}&quot;</span>
 req.set_form_data(
-  <span class="s">"title"</span> =&gt; <span class="s">"Backup complete"</span>,
-  <span class="s">"message"</span> =&gt; <span class="s">"4.2 GB in 3m 11s"</span>
+  <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Backup complete&quot;</span>,
+  <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
       </div>
-
       <div class="panel" id="p-php" role="tabpanel" tabindex="0" aria-labelledby="t-php" data-name="send.php" hidden>
-<pre><span class="p">&lt;?php</span>
-$ch = curl_init(<span class="s">"https://notifi.it/send"</span>);
+<pre>&lt;?php
+$ch = curl_init(<span class="s">&quot;https://notifi.it/send&quot;</span>);
 curl_setopt_array($ch, [
     CURLOPT_POST       =&gt; <span class="f">true</span>,
-    CURLOPT_HTTPHEADER =&gt; [<span class="s">"Authorization: Bearer "</span> . getenv(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)],
+    CURLOPT_HTTPHEADER =&gt; [<span class="s">&quot;Authorization: Bearer &quot;</span> . getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)],
     CURLOPT_POSTFIELDS =&gt; [
-        <span class="s">"title"</span>   =&gt; <span class="s">"Backup complete"</span>,
-        <span class="s">"message"</span> =&gt; <span class="s">"4.2 GB in 3m 11s"</span>,
+        <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Backup complete&quot;</span>,
+        <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
     ],
 ]);
 curl_exec($ch);</pre>
       </div>
+      <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" hidden>
+<pre>// reqwest = { version = <span class="s">&quot;0.12&quot;</span>, features = [<span class="s">&quot;json&quot;</span>] }
+<span class="f">let</span> key = std::env::var(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)?;
 
+reqwest::Client::new()
+    .post(<span class="s">&quot;https://notifi.it/send&quot;</span>)
+    .bearer_auth(key)
+    .form(&amp;[
+        (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Backup complete&quot;</span>),
+        (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>),
+    ])
+    .send()
+    .<span class="f">await</span>?;</pre>
+      </div>
       <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" hidden>
-<pre><span class="c">// Fires when Claude stops.</span>
+<pre>// Fires when Claude stops.
 {
-  <span class="s">"hooks"</span>: {
-    <span class="s">"Stop"</span>: [{
-      <span class="s">"hooks"</span>: [{
-        <span class="s">"type"</span>: <span class="s">"command"</span>,
-        <span class="s">"command"</span>: <span class="s">"curl -s https://notifi.it/send \
-                     -H \"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>\" \
-                     -d \"title=Claude finished\" \
-                     -d \"message=$CLAUDE_PROJECT_DIR\""</span>
+  <span class="s">&quot;hooks&quot;</span>: {
+    <span class="s">&quot;Stop&quot;</span>: [{
+      <span class="s">&quot;hooks&quot;</span>: [{
+        <span class="s">&quot;type&quot;</span>: <span class="s">&quot;command&quot;</span>,
+        <span class="s">&quot;command&quot;</span>: &quot;curl -s https://notifi.it/send \
+                     -H \<span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>\&quot;</span> \
+                     -d \<span class="s">&quot;title=Claude finished\&quot;</span> \
+                     -d \<span class="s">&quot;message=$CLAUDE_PROJECT_DIR\&quot;</span>&quot;
       }]
     }]
   }
 }</pre>
       </div>
-
       <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" hidden>
-<pre><span class="c"># Put NOTIFI_KEY in the repository's secrets.</span>
-- <span class="s">name</span>: Tell me it broke
-  <span class="s">if</span>: failure()
-  <span class="s">run</span>: |
+<pre># Put <span class="k">NOTIFI_KEY</span> in the repository's secrets.
+- name: Tell me it broke
+  if: failure()
+  run: |
     curl -s https://notifi.it/send \
-      -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
-      -d <span class="s">"title=$GITHUB_WORKFLOW failed"</span> \
-      -d <span class="s">"message=$GITHUB_REF_NAME at $(git log -1 --format=%s)"</span> \
-      -d <span class="s">"link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"</span>
-  <span class="s">env</span>:
-    <span class="s">NOTIFI_KEY</span>: ${{ secrets.NOTIFI_KEY }}</pre>
+      -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+      -d <span class="s">&quot;title=$GITHUB_WORKFLOW failed&quot;</span> \
+      -d <span class="s">&quot;message=$GITHUB_REF_NAME at $(git log -1 --format=%s)&quot;</span> \
+      -d <span class="s">&quot;link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID&quot;</span>
+  env:
+    <span class="k">NOTIFI_KEY</span>: ${{ secrets.<span class="k">NOTIFI_KEY</span> }}</pre>
       </div>
-
       <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" hidden>
-<pre><span class="c"># Notify for any command that took longer than a minute, and say</span>
-<span class="c"># whether it worked.</span>
+<pre># Notify for any command that took longer than a minute, and say
+# whether it worked.
 <span class="f">autoload</span> -Uz add-zsh-hook
 
 _notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
@@ -1130,72 +1133,56 @@ _notifi_end() {
   <span class="f">local</span> code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
   (( secs &lt; 60 )) &amp;&amp; <span class="f">return</span>
   curl -s https://notifi.it/send \
-    -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
-    -d <span class="s">"title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s"</span> \
-    -d <span class="s">"message=$_NOTIFI_CMD"</span> &gt;/dev/null
+    -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+    -d <span class="s">&quot;title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s&quot;</span> \
+    -d <span class="s">&quot;message=$_NOTIFI_CMD&quot;</span> &gt;/dev/null
 }
 add-zsh-hook preexec _notifi_start
 add-zsh-hook precmd  _notifi_end</pre>
       </div>
-
       <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" hidden>
-<pre><span class="c"># Drop this in /etc/systemd/system/, then add one line to any unit:</span>
-<span class="c">#   OnFailure=notifi-failed@%n.service</span>
-<span class="c"># Every unit on the box can share it. %i is the unit that failed.</span>
+<pre># Drop this in /etc/systemd/system/, then add one line to any unit:
+#   OnFailure=notifi-failed@%n.service
+# Every unit on the box can share it. %i is the unit that failed.
 [<span class="f">Unit</span>]
-<span class="s">Description</span>=Push a notification when %i fails
+Description=Push a notification when %i fails
 
 [<span class="f">Service</span>]
-<span class="s">Type</span>=oneshot
-<span class="s">EnvironmentFile</span>=/etc/notifi.env
-<span class="s">ExecStart</span>=/usr/bin/curl -s https://notifi.it/send \
-  -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
-  -d <span class="s">"title=%i failed on %H"</span> \
-  --data-urlencode <span class="s">"message=$(systemctl status %i --lines=10 --no-pager)"</span></pre>
+Type=oneshot
+EnvironmentFile=/etc/notifi.env
+ExecStart=/usr/bin/curl -s https://notifi.it/send \
+  -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+  -d <span class="s">&quot;title=%i failed on %H&quot;</span> \
+  --data-urlencode <span class="s">&quot;message=$(systemctl status %i --lines=10 --no-pager)&quot;</span></pre>
       </div>
-
       <div class="panel" id="p-kube" role="tabpanel" tabindex="0" aria-labelledby="t-kube" data-name="backup.yaml" hidden>
-<pre><span class="c"># Put the key in a Secret, then curl at the end of any Job's command.</span>
-<span class="s">apiVersion</span>: batch/v1
-<span class="s">kind</span>: CronJob
-<span class="s">metadata</span>:
-  <span class="s">name</span>: nightly-backup
-<span class="s">spec</span>:
-  <span class="s">schedule</span>: <span class="s">"0 3 * * *"</span>
-  <span class="s">jobTemplate</span>:
-    <span class="s">spec</span>:
-      <span class="s">template</span>:
-        <span class="s">spec</span>:
-          <span class="s">restartPolicy</span>: Never
-          <span class="s">containers</span>:
-          - <span class="s">name</span>: backup
-            <span class="s">image</span>: alpine/curl
-            <span class="s">command</span>: [<span class="s">"/bin/sh"</span>, <span class="s">"-c"</span>]
-            <span class="s">args</span>:
+<pre># Put the key in a Secret, then curl at the end of any Job's command.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nightly-backup
+spec:
+  schedule: <span class="s">&quot;0 3 * * *&quot;</span>
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: backup
+            image: alpine/curl
+            command: [<span class="s">&quot;/bin/sh&quot;</span>, <span class="s">&quot;-c&quot;</span>]
+            args:
             - |
               ./backup.sh &amp;&amp;
               curl -s https://notifi.it/send \
-                -H <span class="s">"Authorization: Bearer <span class="k">$NOTIFI_KEY</span>"</span> \
-                -d <span class="s">"title=Backup complete"</span>
-            <span class="s">env</span>:
-            - <span class="s">name</span>: NOTIFI_KEY
-              <span class="s">valueFrom</span>: { <span class="s">secretKeyRef</span>: { <span class="s">name</span>: notifi, <span class="s">key</span>: key } }</pre>
+                -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+                -d <span class="s">&quot;title=Backup complete&quot;</span>
+            env:
+            - name: <span class="k">NOTIFI_KEY</span>
+              valueFrom: { secretKeyRef: { name: notifi, key: key } }</pre>
       </div>
-
-      <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" hidden>
-<pre><span class="c">// reqwest = { version = "0.12", features = ["json"] }</span>
-<span class="f">let</span> key = std::env::var(<span class="s">"<span class="k">NOTIFI_KEY</span>"</span>)?;
-
-reqwest::Client::new()
-    .post(<span class="s">"https://notifi.it/send"</span>)
-    .bearer_auth(key)
-    .form(&amp;[
-        (<span class="s">"title"</span>, <span class="s">"Backup complete"</span>),
-        (<span class="s">"message"</span>, <span class="s">"4.2 GB in 3m 11s"</span>),
-    ])
-    .send()
-    .<span class="f">await</span>?;</pre>
-      </div>
+<!-- /gen:panels -->
     </div>
   </div>
 </section>

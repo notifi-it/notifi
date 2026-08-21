@@ -140,6 +140,43 @@ function codeText(node) {
   return node.children.map(codeText).join("");
 }
 
+// <pre> is verbatim, so unlike codeText this keeps every newline and every
+// space that follows one.
+function rawText(node) {
+  if (node.tag === "#text") return node.value;
+  if (node.tag === "br") return "\n";
+  return node.children.map(rawText).join("");
+}
+
+function rows(node, out) {
+  for (const child of node.children) {
+    if (child.tag === "tr") out.push(child);
+    else if (child.tag === "thead" || child.tag === "tbody" || child.tag === "tfoot") {
+      rows(child, out);
+    }
+  }
+  return out;
+}
+
+// GitHub-flavoured, because that is what reads as a table wherever the .md
+// lands. A cell cannot hold a newline, so a pipe is escaped rather than the
+// row being broken up.
+function table(node) {
+  const all = rows(node, []);
+  if (!all.length) throw new Error("empty <table>");
+  const cells = (tr) =>
+    tr.children
+      .filter((c) => c.tag === "th" || c.tag === "td")
+      .map((c) => inlineOf(c).replace(/\|/g, "\\|"));
+  const head = cells(all[0]);
+  const body = all.slice(1).map(cells);
+  return [
+    `| ${head.join(" | ")} |`,
+    `| ${head.map(() => "---").join(" | ")} |`,
+    ...body.map((r) => `| ${r.join(" | ")} |`),
+  ].join("\n");
+}
+
 function isCodeCard(node) {
   const kids = node.children.filter((c) => c.tag !== "#text" || c.value.trim() !== "");
   if (kids.length !== 1 || kids[0].tag !== "p") return false;
@@ -181,8 +218,18 @@ function blocks(node, depth) {
         );
         break;
       }
+      case "pre": {
+        const lang = child.attrs["data-lang"] ?? "";
+        out.push("```" + lang + "\n" + rawText(child).replace(/\n+$/, "") + "\n```");
+        break;
+      }
+      case "table":
+        out.push(table(child));
+        break;
       case "div":
-        if (isCodeCard(child)) {
+        if (cls.includes("tablewrap")) {
+          out.push(...blocks(child, depth));
+        } else if (isCodeCard(child)) {
           const body = spaces(codeText(child))
             .split("\n")
             .map((line) => line.trimEnd())
@@ -221,10 +268,22 @@ function footerLinks(html) {
   return links.map(([, href, label]) => `- [${spaces(decode(label))}](${absolute(href)})`).join("\n");
 }
 
+// The opening tag is matched on its prefix, not in full: a page that adds a
+// modifier class to it — docs.html carries `api` — is still a doc page, and
+// matching the whole tag silently dropped it from the agent-facing copy
+// instead of failing.
+function sliceMain(html) {
+  const open = /<main class="wrap doc[^"]*">/.exec(html);
+  if (!open) return null;
+  const end = html.indexOf("</main>", open.index);
+  if (end === -1) throw new Error("missing </main>");
+  return html.slice(open.index, end + "</main>".length);
+}
+
 function render(html, canonical) {
   pageUrl = canonical;
   const stripped = html.replace(/<!--[\s\S]*?-->/g, "");
-  const main = slice(stripped, '<main class="wrap doc">', "</main>");
+  const main = sliceMain(stripped);
   if (!main) return null;
   const tree = parse(main).children.find((c) => c.tag === "main");
   const body = blocks(tree, 0).join("\n\n");

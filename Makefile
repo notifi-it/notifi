@@ -1,5 +1,5 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
-	gen-site-md check-site-md check-site \
+	gen-site-md check-site-md check-site gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-metadata app-metadata-check shots screens screens-mac
 
@@ -38,6 +38,17 @@ gen-copy:
 
 check-copy:
 	pnpm --filter @notifi/copy check-copy
+
+# The API reference, from packages/apidoc outwards. That one module is the
+# source of truth for the /docs page, openapi.json, the Postman and Bruno
+# collections, and the landing page's parameter table and code samples; all
+# five are generated and must never be edited by hand. `check-api` is the CI
+# half and fails on drift.
+gen-api:
+	pnpm --filter @notifi/apidoc gen-api
+
+check-api:
+	pnpm --filter @notifi/apidoc check-api
 
 # The website twice over. Every doc-shaped page in apps/api/public is converted
 # to a .md sibling, which is what the Worker serves to a request asking for

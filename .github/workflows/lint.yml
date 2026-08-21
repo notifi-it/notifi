@@ -31,4 +31,5 @@ jobs:
       # check-migrations validates the schema, which needs the pinned prisma:
       # a bare npx fetches the newest major and fails on syntax this one accepts.
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @notifi/apidoc check-api
       - run: node scripts/check-migrations.mjs
