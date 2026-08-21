@@ -374,7 +374,7 @@ export const es: Translation = {
     'Marca una clave como urgente y sus notificaciones atraviesan el modo Enfoque y aparecen en la ' +
     'pantalla de bloqueo.\n',
   'store.releaseNotes':
-    'La pantalla Notificaciones ahora se llama Inbox, y la búsqueda busca en la Inbox. El recuento sobre la lista ha desaparecido.\n\n' +
+    'La pantalla Notificaciones ahora se llama Inbox y el recuento sobre la lista ha desaparecido.\n\n' +
     'En iPad la app usa todo el ancho de la pantalla en lugar de una columna con ancho de teléfono, y la lista se desplaza bajo la barra de pestañas hasta el borde inferior. El icono de la llave en la barra de pestañas ya no aparece recortado.\n',
   'store.shotInboxTitle': 'Una solicitud.\nDirecto a tu bolsillo.',
   'store.shotInboxBody':

@@ -1,3 +1,3 @@
-L'écran Notifications s'appelle désormais Inbox, et la recherche porte sur l'Inbox. Le compteur au-dessus de la liste a disparu.
+L'écran Notifications s'appelle désormais Inbox, et le compteur au-dessus de la liste a disparu.
 
 Sur iPad, l'app occupe toute la largeur de l'écran au lieu d'une colonne à la largeur d'un téléphone, et la liste défile sous la barre d'onglets jusqu'au bord inférieur. L'icône de clé dans la barre d'onglets n'est plus rognée.

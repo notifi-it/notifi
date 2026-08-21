@@ -66,7 +66,7 @@ export const de: Translation = {
     'Markiere einen Schlüssel als dringend, und seine Benachrichtigungen durchbrechen ' +
     'den Fokus und landen auf dem Sperrbildschirm.\n',
   'store.releaseNotes':
-    'Der Bildschirm Benachrichtigungen heißt jetzt Inbox, und die Suche durchsucht die Inbox. Die Zählung über der Liste ist verschwunden.\n\n' +
+    'Der Bildschirm Benachrichtigungen heißt jetzt Inbox, und die Zählung über der Liste ist verschwunden.\n\n' +
     'Auf dem iPad nutzt die App die volle Breite des Bildschirms statt einer Spalte in Telefonbreite, und die Liste scrollt unter der Tab-Leiste bis zum unteren Rand. Das Schlüsselsymbol in der Tab-Leiste wird dort nicht mehr abgeschnitten.\n',
 
   'store.shotInboxTitle': 'Eine Anfrage.\nDirekt in deine Tasche.',

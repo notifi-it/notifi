@@ -1,3 +1,3 @@
-The Notifications screen is called the Inbox now, and search asks to search the inbox. The count above the list is gone.
+The Notifications screen is called the Inbox now, and the count above the list is gone.
 
 On iPad the app uses the full width of the screen rather than a phone-width column, and the list scrolls under the tab bar to the bottom edge. The key icon in the tab bar is no longer clipped there.
