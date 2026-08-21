@@ -128,9 +128,10 @@ p,li{max-width:70ch}
    layer and clipped to the glyph, which is what .overlay(grain).mask(mark) does
    in SwiftUI. -webkit-text-fill-color has to be put back on the chroma copies:
    they inherit the transparent fill that makes the clip visible. */
-/* The bell decays with the glyph rather than beside it: the four variables the
-   script drives live on the hero, so both marks fringe and drop out on the same
-   frame, as one signal failing. */
+/* The bell is the only thing that moves. The numeral takes the same grain, at
+   the ground static's one-pixel cell and the app's own foreground white, but
+   holds still — 420px of type fringing and dropping out reads as a broken page
+   rather than a mark with a bad signal. */
 .notfound h1{margin:0;line-height:1}
 .bellmark{
   display:block;position:relative;margin:0 auto clamp(10px,1.6vw,18px);
@@ -153,20 +154,18 @@ p,li{max-width:70ch}
   display:block;position:relative;
   font-family:var(--mono);font-weight:800;
   font-size:clamp(120px,34vw,420px);line-height:.84;letter-spacing:-.06em;
-  opacity:var(--glow,1);
 }
-/* Three layers in the order SwiftUI stacks them: the two chroma copies, then
-   the mark itself over the top, so only the fringes show. All three are
-   positioned, so document order is what puts the solid one on top. */
-.ghost{position:absolute;inset:0;opacity:var(--chroma,0)}
-.ghost::before{content:attr(data-text)}
 .warm{color:var(--chroma-warm);transform:translateX(calc(var(--shift,0em) * -1))}
 .cool{color:var(--chroma-cool);transform:translateX(var(--shift,0em))}
+/* hard-light, not overlay: overlay keys off the backdrop, and against a
+   backdrop this close to white every grain pixel screens, so the texture
+   disappears. hard-light keys off the grain instead, which lets the dark half
+   of it darken. */
 .solid{
-  position:relative;display:block;
-  background-image:var(--noise),linear-gradient(var(--muted),var(--muted));
+  display:block;
+  background-image:var(--grain,none),linear-gradient(var(--fg),var(--fg));
   background-size:180px 180px,auto;
-  background-blend-mode:overlay,normal;
+  background-blend-mode:hard-light,normal;
   -webkit-background-clip:text;background-clip:text;
   color:transparent;-webkit-text-fill-color:transparent;
 }
@@ -275,11 +274,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <span class="bghost cool"></span>
       <span class="bsolid"></span>
     </span>
-    <span class="glyph">
-      <span class="ghost warm" aria-hidden="true" data-text="404"></span>
-      <span class="ghost cool" aria-hidden="true" data-text="404"></span>
-      <span class="solid">404</span>
-    </span>
+    <span class="glyph"><span class="solid">404</span></span>
     <span class="said">Page not found</span>
   </h1>
   <p class="lede">
@@ -445,17 +440,17 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 // than px because the glyph is three times the bell's size and a fixed offset
 // that reads as a fringe at 96px reads as a seam at 320.
 (function(){
-  var hero = document.querySelector(".notfound h1");
-  if (!hero) return;
+  var bell = document.querySelector(".bellmark");
+  var solid = document.querySelector(".solid");
+  if (!bell || !solid) return;
 
   var SIZE = 180;   // tile edge in CSS px, matching background-size
-  var CELL = 2;     // the app's grain cell, scaled down for a mark this size
 
-  function tile(dpr){
+  function tile(dpr, px){
     var c = document.createElement("canvas");
     c.width = c.height = SIZE * dpr;
     var ctx = c.getContext("2d");
-    var cell = CELL * dpr;
+    var cell = px * dpr;
     for (var y = 0; y < c.height; y += cell){
       for (var x = 0; x < c.width; x += cell){
         if (Math.random() >= 0.5) continue;
@@ -466,10 +461,28 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     return "url(" + c.toDataURL("image/png") + ")";
   }
 
+  // The still tile under the numeral. Opaque greys either side of mid, so
+  // hard-light has something to darken with; the spread is the ground
+  // static's, at a cell a third the size.
+  function still(dpr){
+    var c = document.createElement("canvas");
+    c.width = c.height = SIZE * dpr;
+    var ctx = c.getContext("2d");
+    var img = ctx.createImageData(c.width, c.height);
+    var d = img.data;
+    for (var i = 0; i < d.length; i += 4){
+      var v = 128 + (Math.random() - 0.5) * 2 * 34;
+      d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    return "url(" + c.toDataURL("image/png") + ")";
+  }
+
   var dpr = Math.min(window.devicePixelRatio || 1, 3);
   var frames = [];
-  for (var i = 0; i < 6; i++) frames.push(tile(dpr));
-  hero.style.setProperty("--noise", frames[0]);
+  for (var i = 0; i < 6; i++) frames.push(tile(dpr, 2));
+  bell.style.setProperty("--noise", frames[0]);
+  solid.style.setProperty("--grain", still(dpr));
 
   // Reduce Motion keeps the grain — it is texture, not movement — and stops
   // everything that flickers, which is the whole of what could trigger anyone.
@@ -480,17 +493,17 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   function tick(){
     n++;
-    hero.style.setProperty("--noise", frames[((n / 1.5) | 0) % frames.length]);
+    bell.style.setProperty("--noise", frames[((n / 1.5) | 0) % frames.length]);
 
     if (n % 11 === 0) episode = Math.random() < 0.13;
     var dim = episode && Math.random() < 0.4;
-    hero.style.setProperty("--glow", dim ? (0.35 + Math.random() * 0.27).toFixed(2) : "1");
+    bell.style.setProperty("--glow", dim ? (0.35 + Math.random() * 0.27).toFixed(2) : "1");
 
     if (n % 2 === 0){
       var split = Math.random() < 0.22;
-      hero.style.setProperty("--chroma", split ? "1" : "0");
+      bell.style.setProperty("--chroma", split ? "1" : "0");
       if (split) {
-        hero.style.setProperty("--shift", (0.008 + Math.random() * 0.025).toFixed(4) + "em");
+        bell.style.setProperty("--shift", (0.008 + Math.random() * 0.025).toFixed(4) + "em");
       }
     }
   }
@@ -498,8 +511,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   function apply(){
     if (timer) { clearInterval(timer); timer = null; }
     if (still.matches){
-      hero.style.setProperty("--glow", "1");
-      hero.style.setProperty("--chroma", "0");
+      bell.style.setProperty("--glow", "1");
+      bell.style.setProperty("--chroma", "0");
       return;
     }
     timer = setInterval(tick, 1000 / 18);
