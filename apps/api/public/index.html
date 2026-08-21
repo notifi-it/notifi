@@ -506,8 +506,9 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-c{color:var(--dim)}.gf-k{color:var(--red)}.gf-s{color:var(--blue)}.gf-r{color:var(--dim)}
 .gf-dev{position:absolute;opacity:0}
 .gf-dev svg{display:block;width:100%;height:100%;overflow:visible}
-.gf-o{fill:none;stroke:var(--stroke);stroke-width:1.5px;vector-effect:non-scaling-stroke}
-.gf-o2{fill:none;stroke:var(--stroke2);stroke-width:1.5px;vector-effect:non-scaling-stroke}
+.gf-o{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.gf-scr{fill:var(--surface);stroke:none}
+.gf-dot{fill:var(--stroke2);stroke:none}
 .gf-sbar{position:absolute;display:flex;align-items:center;justify-content:space-between;font-family:var(--ui);font-weight:600;color:var(--fg)}
 .gf-sbar .gf-icons{display:flex;align-items:center;gap:.42cqw}
 .gf-lock{position:absolute;text-align:center;font-family:var(--ui);color:var(--fg)}
@@ -982,20 +983,20 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             <mask id="gfPhoneCut"><rect x="-20" y="-20" width="468" height="940" fill="#fff"/><rect x="151.5" y="24" width="125" height="37" rx="18.5" fill="#000"/></mask>
             <g mask="url(#gfPhoneCut)">
             <rect class="gf-o" x="0" y="0" width="428" height="900" rx="75"/>
-            <rect class="gf-o2" style="fill:var(--surface)" x="13" y="13" width="402" height="874" rx="62"/>
+            <rect class="gf-scr" x="13" y="13" width="402" height="874" rx="62"/>
             </g>
-            <rect class="gf-o2" x="145.5" y="870" width="137" height="5" rx="2.5"/>
+            <rect class="gf-dot" x="145.5" y="870" width="137" height="5" rx="2.5"/>
           </svg><div class="gf-sbar gf-ph" style="left:7%;right:7%;top:2.3%;height:4.6%;--fs:1.10"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic" style="width:1.07cqw"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg><svg viewBox="0 0 25 18" class="gf-ic gf-st" style="width:1.05cqw"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="gf-fl"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="width:1.62cqw"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13.5%"><div class="gf-ldate" data-clock="date" style="--fs:.86">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:4.55">10:24</div></div></div>
       <div class="gf-dev gf-dv1" style="left:53.15%;top:17.55%;width:40.7%;aspect-ratio:1292/916"><svg viewBox="0 0 1292 916">
             <rect class="gf-o" x="0" y="0" width="1292" height="916" rx="42"/>
-            <rect class="gf-o2" style="fill:var(--surface)" x="41" y="41" width="1210" height="834" rx="18"/>
-            <circle class="gf-o2" cx="646" cy="20" r="5"/>
+            <rect class="gf-scr" x="41" y="41" width="1210" height="834" rx="18"/>
+            <circle class="gf-dot" cx="646" cy="20" r="5"/>
           </svg><div class="gf-sbar" style="left:7.5%;right:7.5%;top:5.4%;height:4.2%;--fs:.72"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic gf-st" style="width:1.28cqw"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="gf-fl"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="width:1.76cqw"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13%"><div class="gf-ldate" data-clock="date" style="--fs:.60">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:3.25">10:24</div></div></div>
       <div class="gf-dev gf-dv2" style="left:51.75%;top:18.96%;width:43.5%;aspect-ratio:1640/1040"><svg viewBox="0 0 1640 1040">
             <mask id="gfMacCut"><rect x="-20" y="-20" width="1680" height="1080" fill="#fff"/><path d="M 727.5 32 L 727.5 65 Q 727.5 85 747.5 85 L 892.5 85 Q 912.5 85 912.5 65 L 912.5 32 Z" fill="#000"/></mask>
             <g mask="url(#gfMacCut)">
             <path class="gf-o" d="M 64 1000 L 64 40 Q 64 0 104 0 L 1536 0 Q 1576 0 1576 40 L 1576 1000"/>
-            <rect class="gf-o2" style="fill:var(--surface)" x="99" y="35" width="1442" height="930" rx="16"/>
+            <rect class="gf-scr" x="99" y="35" width="1442" height="930" rx="16"/>
             <path d="M 99 85 L 99 51 Q 99 35 115 35 L 1525 35 Q 1541 35 1541 51 L 1541 85 Z" style="fill:#2E2E31;stroke:none"/>
             </g>
             <path class="gf-o" d="M 0 1000 L 730 1000 C 752 1026 888 1026 910 1000 L 1640 1000 L 1640 1016 Q 1640 1040 1604 1040 L 36 1040 Q 0 1040 0 1016 Z"/>
