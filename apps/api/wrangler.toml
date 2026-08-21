@@ -7,6 +7,10 @@ compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
 routes = [{ pattern = "notifi.it", custom_domain = true }]
 
+[dev]
+host = "localhost:8787"
+port = 8787
+
 # The marketing site. Static files are served straight from ./public for any
 # path that matches a file; every other request falls through to the Worker, so
 # /send, /keys, /devices and /history are untouched.
