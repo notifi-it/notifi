@@ -91,10 +91,16 @@ works, but puts the key in edge logs and shell history.
 | `occurred_at` | Unix milliseconds, for a queued or retried send. Defaults to arrival time. |
 | `is_critical` | Breaks through Focus. The key must also be marked Critical in the app, or an ordinary notification is delivered and the response carries a `warnings` array. |
 
-`202` with `{"ok":true}` on success. Errors are JSON carrying a `code`:
-`invalid_request` (400), `unknown_key` (401), `invalid_content` (422 — the
-device refuses sends that would arrive with a warning), `rate_limited` (429,
-with `Retry-After`).
+`202` with `{"ok":true}` on success. Every error nests the code one level down,
+so read `error.code` and not `code`:
+
+```json
+{"error":{"code":"unknown_key","message":"Unknown or revoked key."}}
+```
+
+The codes are `invalid_request` (400), `unknown_key` (401), `invalid_content`
+(422 — the device refuses sends that would arrive with a warning) and
+`rate_limited` (429, which carries `Retry-After`).
 
 60 sends an hour per device, shared across every key on it. Five active keys per
 device. Delivery is not guaranteed, so do not make notifi the only path for
