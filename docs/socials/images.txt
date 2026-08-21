@@ -52,6 +52,23 @@ BANNER / COVER
   Instagram has no banner.
 
 
+PRODUCT HUNT
+
+  docs/socials/images/producthunt-cover.png   1270x760
+
+  The gallery image on producthunt.com/products/notifi. The whole frame is
+  shown, so the lockup is sized against the file rather than against a crop the
+  way Facebook's is.
+
+  Not og.png. That is 1200x630, a 1.90 aspect against this 1.67, and Product
+  Hunt letterboxes it.
+
+  This is the mark, not the product. Product Hunt uses the first gallery image
+  as the launch preview and the rest as a carousel, so a gallery carrying only
+  this one says nothing about what the app does. The remaining slots want
+  screenshots, which nothing here produces at this size yet.
+
+
 INSTAGRAM MOSAIC
 
   docs/socials/images/instagram-grid/post-1.png … post-6.png   1080x1350 each
