@@ -52,8 +52,8 @@ check-site-md:
 
 # The agent-facing contract of the website, against a running origin: the
 # Markdown variant of every page, `Vary: Accept`, the 406, and the 404 that
-# answers with a site map. Defaults to production; point BASE at a local
-# `make dev` (which serves https via --local-protocol) to check before deploying.
+# answers with a site map. Defaults to production; set BASE=http://localhost:8787
+# to check a local `make dev` before deploying.
 check-site:
 	node scripts/check-site.mjs $(BASE)
 

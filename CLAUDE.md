@@ -98,9 +98,12 @@ by the asset bucket without ever reaching the Worker, and a shared IP reading th
 site should not spend the budget `/send` needs; unknown paths are still limited.
 
 `make check-site` asks a running origin for all of that and fails if any of it
-regressed. It runs against production after every deploy; point `BASE` at a
-local `make dev` (started with `--local-protocol https`, or the http→https
-redirect answers first) before pushing.
+regressed. It runs against production after every deploy; run it against a local
+`make dev` before pushing:
+
+```bash
+BASE=http://localhost:8787 make check-site
+```
 
 ## Migrations
 

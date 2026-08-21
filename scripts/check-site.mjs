@@ -4,11 +4,12 @@
 // cacheable and discoverable, the 406 for something we cannot produce, and the
 // 404 that answers with a site map instead of an app shell.
 //
-//   node scripts/check-site.mjs                    # production
-//   node scripts/check-site.mjs https://127.0.0.1:8789   # `make dev`, https
+//   node scripts/check-site.mjs                          # production
+//   node scripts/check-site.mjs http://localhost:8787    # `make dev`
 //
-// A local wrangler dev server serves a self-signed certificate, so certificate
-// verification is switched off for loopback origins only.
+// A wrangler dev server started with --local-protocol https serves a
+// self-signed certificate, so certificate verification is switched off for
+// https loopback origins only.
 const base = (process.argv[2] ?? "https://notifi.it").replace(/\/$/, "");
 if (/^https:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(base)) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
