@@ -23,8 +23,8 @@ importers:
         specifier: ^10.70.0
         version: 10.70.0(@cloudflare/workers-types@4.20260702.1)(wrangler@4.116.0(@cloudflare/workers-types@4.20260702.1))
       hono:
-        specifier: ^4.6.3
-        version: 4.12.32
+        specifier: ^4.12.34
+        version: 4.12.34
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20240925.0
@@ -641,8 +641,8 @@ packages:
     resolution: {integrity: sha512-L5bGsVkxJbJgdnwyuheIunkGatUF/zssUoxxjACCseZYAVbaqdh9Tsmmlkl8vYan09H7sbvKt4pS8GqKLBrEzA==}
     hasBin: true
 
-  hono@4.12.32:
-    resolution: {integrity: sha512-XcuyW9qE2kJn07PkecMOBd5Vq/hMy7mmGw+idz1yblbg9N17ijJODrvPkn7/dwL3Kulj8LcRJ69DLOWf91dRUg==}
+  hono@4.12.34:
+    resolution: {integrity: sha512-GqXJqY/xJkJmuloTrnV1ZEXG3fqte+VjkUqoRNZXcrUidiUOP4fMSIHHY4tsqZBK++kVyWmt/AAfSUuy57/eSA==}
     engines: {node: '>=16.9.0'}
 
   jiti@2.7.0:
@@ -1261,7 +1261,7 @@ snapshots:
       nypm: 0.6.9
       pathe: 2.0.3
 
-  hono@4.12.32: {}
+  hono@4.12.34: {}
 
   jiti@2.7.0: {}
 
