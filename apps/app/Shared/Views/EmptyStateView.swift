@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct EmptyStateView: View {
     @Environment(AppModel.self) private var model
@@ -92,6 +93,10 @@ struct EmptyStateView: View {
                         Text(Copy.Empty.notificationsOn)
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.muted)
+                    } else if model.notificationStatus == .denied {
+                        OutlineButton(title: Copy.Settings.openSystemSettings, fill: true) {
+                            model.openSystemNotificationSettings()
+                        }
                     } else {
                         OutlineButton(title: Copy.Empty.enableNotifications, fill: true) {
                             Task {
@@ -192,7 +197,6 @@ private struct GrainyBell: View {
                     glow: Self.glow(at: time),
                     grainAt: time
                 )
-                .offset(x: Self.jitter(at: time))
             }
         }
     }
@@ -246,12 +250,6 @@ private struct GrainyBell: View {
         }
     }
 
-    private static func jitter(at time: TimeInterval) -> CGFloat {
-        var generator = SeededGenerator(seed: (time * 14).rounded(.down))
-        guard Double.random(in: 0...1, using: &generator) < 0.25 else { return 0 }
-        return CGFloat(Double.random(in: -3...3, using: &generator))
-    }
-
     private static func chromaShift(at time: TimeInterval) -> CGFloat {
         var generator = SeededGenerator(seed: (time * 11).rounded(.down))
         guard Double.random(in: 0...1, using: &generator) < 0.22 else { return 0 }
@@ -282,6 +280,8 @@ private struct SeededGenerator: RandomNumberGenerator {
     }
 }
 
+private let onboardingSoftEdge: CGFloat = 22
+
 private struct OnboardingStep<Content: View>: View {
     var number: Int
     var title: String
@@ -289,6 +289,9 @@ private struct OnboardingStep<Content: View>: View {
     var open: Bool
     var toggle: () -> Void
     @ViewBuilder var content: Content
+
+    @State private var contentHeight: CGFloat = 0
+    @State private var revealed: CGFloat = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -330,14 +333,41 @@ private struct OnboardingStep<Content: View>: View {
             .accessibilityHint(open ? Copy.Common.collapse : Copy.Common.expand)
 
             VStack(alignment: .leading, spacing: 10) {
-                if open {
-                    content
+                content
+            }
+            .padding(.top, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
+            .background {
+                GeometryReader { proxy in
+                    Color.clear
+                        .onChange(of: proxy.size.height, initial: true) { _, height in
+                            contentHeight = height
+                        }
                 }
             }
-            .padding(.top, open ? 10 : 0)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .geometryGroup()
+            .frame(height: contentHeight * revealed, alignment: .top)
+            .mask(alignment: .top) {
+                VStack(spacing: 0) {
+                    Rectangle()
+                    LinearGradient(
+                        colors: [Color.black, Color.black.opacity(0)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: onboardingSoftEdge * (1 - revealed))
+                }
+            }
+            .clipped()
+            .accessibilityHidden(!open)
+            .onChange(of: open, initial: true) { _, isOpen in
+                withAnimation(Theme.reveal) { revealed = isOpen ? 1 : 0 }
+            }
         }
+        .geometryGroup()
         .frame(maxWidth: .infinity, alignment: .leading)
         .animation(Theme.state, value: done)
+        .animation(Theme.reveal, value: open)
     }
 }
