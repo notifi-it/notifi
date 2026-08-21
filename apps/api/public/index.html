@@ -110,7 +110,7 @@ body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+  overflow-x:clip;
 }
 
 /* Television static over the ground.
@@ -125,7 +125,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(header){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
