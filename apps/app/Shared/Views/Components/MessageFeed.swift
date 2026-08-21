@@ -57,7 +57,9 @@ struct MessageFeed<Empty: View>: View {
         .listStyle(.plain)
         .environment(\.defaultMinListRowHeight, 0)
         .scrollContentBackground(.hidden)
+        #if os(macOS)
         .contentMargins(.bottom, Theme.bottomPlate, for: .scrollContent)
+        #endif
         .contentMargins(.top, Theme.contentTop, for: .scrollContent)
         .geistTopFade()
         .background(Color.clear)

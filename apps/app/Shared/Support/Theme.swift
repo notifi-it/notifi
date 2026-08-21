@@ -166,19 +166,6 @@ extension View {
     }
 
     @ViewBuilder
-    func geistBottomPlate() -> some View {
-        #if os(macOS)
-        self
-        #else
-        overlay(alignment: .bottom) {
-            StaticField()
-                .frame(height: Theme.bottomPlate)
-                .allowsHitTesting(false)
-        }
-        #endif
-    }
-
-    @ViewBuilder
     func geistTopFade() -> some View {
         #if os(macOS)
         modifier(ScrolledTopFade())

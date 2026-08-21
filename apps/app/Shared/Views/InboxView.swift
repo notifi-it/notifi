@@ -109,7 +109,6 @@ struct InboxView: View {
             )
         }
         .geistTopFade()
-        .geistBottomPlate()
     }
 
     #if os(macOS)
