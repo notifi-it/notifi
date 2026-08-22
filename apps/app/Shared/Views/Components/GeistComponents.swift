@@ -500,7 +500,9 @@ struct GeistHeader<Trailing: View>: View {
                 }
             }
             Spacer(minLength: 8)
-            trailing
+            HStack(spacing: Theme.headerActionSpacing) {
+                trailing
+            }
                 .frame(minHeight: Theme.headerBarHeight)
         }
     }
@@ -527,6 +529,6 @@ struct GeistBackBar: View {
             Spacer(minLength: 8)
             if let trailing { trailing }
         }
-        .padding(.vertical, 10)
+        .geistPageHeader()
     }
 }
