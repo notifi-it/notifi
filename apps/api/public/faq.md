@@ -24,7 +24,9 @@ One request, `GET` or `POST`, JSON or form-encoded:
 curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
   -d "title=Hello from notifi" \
-  -d "message=Your first notification."
+  -d "message=Your first notification." \
+  -d "link=https://notifi.it/docs" \
+  -d "image=https://notifi.it/sad-logo.png"
 ```
 
 A successful send answers `202` with `{"ok":true}`. The key can also be passed as a `key` parameter, though the [note on query strings](https://notifi.it/faq#logs) below applies if you do.

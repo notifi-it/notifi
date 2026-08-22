@@ -43,7 +43,9 @@ struct EmptyStateView: View {
         curl "\(model.baseURL.absoluteString)/send" \\
           -d key=\(key) \\
           -d title="\(Self.sampleTitle)" \\
-          -d message="\(Self.sampleMessage)"
+          -d message="\(Self.sampleMessage)" \\
+          -d link="\(AppModel.sampleLink)" \\
+          -d image="\(AppModel.sampleImage)"
         """
     }
 

@@ -38,7 +38,9 @@ function required(param: { required: boolean; name: string }): string {
 const QUICKSTART = `curl -X POST ${ORIGIN}${ENDPOINT} \\
   -H "Authorization: Bearer $NOTIFI_KEY" \\
   -d "title=Hello from notifi" \\
-  -d "message=Your first notification."`;
+  -d "message=Your first notification." \\
+  -d "link=https://notifi.it/docs" \\
+  -d "image=https://notifi.it/sad-logo.png"`;
 
 const RAW_REQUEST = `POST /send HTTP/1.1
 Host: notifi.it
@@ -46,7 +48,7 @@ Authorization: Bearer nk_yourkey
 Content-Type: application/json
 Accept-Language: en-GB
 
-{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs"}`;
+{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs","image":"https://notifi.it/sad-logo.png"}`;
 
 function responseBody(status: number, reason: string, body: string, retry = false): string {
   const head = [
@@ -115,7 +117,9 @@ ${ORIGIN}/openapi.json`,
 http -f POST ${ORIGIN}${ENDPOINT} \\
   "Authorization:Bearer $NOTIFI_KEY" \\
   title="Hello from notifi" \\
-  message="Your first notification."`,
+  message="Your first notification." \\
+  link="https://notifi.it/docs" \\
+  image="https://notifi.it/sad-logo.png"`,
   },
   {
     id: 'generate',

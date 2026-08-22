@@ -73,12 +73,20 @@ final class APIClient {
         }
     }
 
-    func send(key: String, title: String, message: String?) async throws -> SendResponse {
+    func send(
+        key: String,
+        title: String,
+        message: String?,
+        link: String? = nil,
+        image: String? = nil
+    ) async throws -> SendResponse {
         struct Body: Encodable {
             let title: String
             let message: String?
+            let link: String?
+            let image: String?
         }
-        let body = try encode(Body(title: title, message: message))
+        let body = try encode(Body(title: title, message: message, link: link, image: image))
 
         var request = URLRequest(url: baseComponents(path: "/send").url!)
         request.httpMethod = "POST"

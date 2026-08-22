@@ -12,7 +12,9 @@ Install notifi on [iPhone or iPad](https://apps.apple.com/app/id1563961135) or [
 curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
   -d "title=Hello from notifi" \
-  -d "message=Your first notification."
+  -d "message=Your first notification." \
+  -d "link=https://notifi.it/docs" \
+  -d "image=https://notifi.it/sad-logo.png"
 ```
 
 There is no endpoint that creates a key: keys are minted on the device by a request signed with a private key that never leaves it. A coding agent has to ask you for one. Keep it in the environment, not in a file that gets committed.
@@ -37,7 +39,7 @@ Authorization: Bearer nk_yourkey
 Content-Type: application/json
 Accept-Language: en-GB
 
-{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs"}
+{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs","image":"https://notifi.it/sad-logo.png"}
 ```
 
 ## Parameters
@@ -162,7 +164,9 @@ https://notifi.it/openapi.json
 http -f POST https://notifi.it/send \
   "Authorization:Bearer $NOTIFI_KEY" \
   title="Hello from notifi" \
-  message="Your first notification."
+  message="Your first notification." \
+  link="https://notifi.it/docs" \
+  image="https://notifi.it/sad-logo.png"
 ```
 
 ### Client generator
@@ -199,7 +203,8 @@ curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
   -d "title=Hello from notifi" \
   -d "message=Your first notification." \
-  -d "link=https://notifi.it/docs"
+  -d "link=https://notifi.it/docs" \
+  -d "image=https://notifi.it/sad-logo.png"
 ```
 
 ### JavaScript
@@ -214,6 +219,8 @@ await fetch("https://notifi.it/send", {
   body: JSON.stringify({
     title: "Hello from notifi",
     message: "Your first notification.",
+    link: "https://notifi.it/docs",
+    image: "https://notifi.it/sad-logo.png",
   }),
 });
 ```
@@ -229,6 +236,8 @@ requests.post(
     json={
         "title": "Hello from notifi",
         "message": "Your first notification.",
+        "link": "https://notifi.it/docs",
+        "image": "https://notifi.it/sad-logo.png",
     },
 )
 ```
@@ -249,6 +258,8 @@ func main() {
 	form := url.Values{
 		"title":   {"Hello from notifi"},
 		"message": {"Your first notification."},
+		"link":    {"https://notifi.it/docs"},
+		"image":   {"https://notifi.it/sad-logo.png"},
 	}
 	req, _ := http.NewRequest("POST", "https://notifi.it/send",
 		strings.NewReader(form.Encode()))
@@ -270,6 +281,8 @@ request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 request.httpBody = try JSONEncoder().encode([
     "title": "Hello from notifi",
     "message": "Your first notification.",
+    "link": "https://notifi.it/docs",
+    "image": "https://notifi.it/sad-logo.png",
 ])
 
 _ = try await URLSession.shared.data(for: request)
@@ -285,7 +298,9 @@ req = Net::HTTP::Post.new(uri)
 req["Authorization"] = "Bearer #{ENV['NOTIFI_KEY']}"
 req.set_form_data(
   "title" => "Hello from notifi",
-  "message" => "Your first notification."
+  "message" => "Your first notification.",
+  "link" => "https://notifi.it/docs",
+  "image" => "https://notifi.it/sad-logo.png"
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
@@ -302,6 +317,8 @@ curl_setopt_array($ch, [
     CURLOPT_POSTFIELDS => [
         "title"   => "Hello from notifi",
         "message" => "Your first notification.",
+        "link"    => "https://notifi.it/docs",
+        "image"   => "https://notifi.it/sad-logo.png",
     ],
 ]);
 curl_exec($ch);
@@ -319,6 +336,8 @@ reqwest::Client::new()
     .form(&[
         ("title", "Hello from notifi"),
         ("message", "Your first notification."),
+        ("link", "https://notifi.it/docs"),
+        ("image", "https://notifi.it/sad-logo.png"),
     ])
     .send()
     .await?;
@@ -421,7 +440,7 @@ spec:
               ./backup.sh &&
               curl -s https://notifi.it/send \
                 -H "Authorization: Bearer $NOTIFI_KEY" \
-                -d "title=Hello from notifi"
+                -d "title=Backup complete"
             env:
             - name: NOTIFI_KEY
               valueFrom: { secretKeyRef: { name: notifi, key: key } }

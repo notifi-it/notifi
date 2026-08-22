@@ -38,7 +38,9 @@ best-effort.
 curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
   -d "title=Hello from notifi" \
-  -d "message=Your first notification."
+  -d "message=Your first notification." \
+  -d "link=https://notifi.it/docs" \
+  -d "image=https://notifi.it/sad-logo.png"
 ```
 
 `202` with `{"ok":true}` means the server took it.

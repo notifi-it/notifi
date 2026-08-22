@@ -11,7 +11,8 @@ export const samples: Sample[] = [
   -H "Authorization: Bearer $NOTIFI_KEY" \\
   -d "title=Hello from notifi" \\
   -d "message=Your first notification." \\
-  -d "link=https://notifi.it/docs"`,
+  -d "link=https://notifi.it/docs" \\
+  -d "image=https://notifi.it/sad-logo.png"`,
   },
   {
     id: 'js',
@@ -28,6 +29,8 @@ export const samples: Sample[] = [
   body: JSON.stringify({
     title: "Hello from notifi",
     message: "Your first notification.",
+    link: "https://notifi.it/docs",
+    image: "https://notifi.it/sad-logo.png",
   }),
 });`,
   },
@@ -46,6 +49,8 @@ requests.post(
     json={
         "title": "Hello from notifi",
         "message": "Your first notification.",
+        "link": "https://notifi.it/docs",
+        "image": "https://notifi.it/sad-logo.png",
     },
 )`,
   },
@@ -69,6 +74,8 @@ func main() {
 	form := url.Values{
 		"title":   {"Hello from notifi"},
 		"message": {"Your first notification."},
+		"link":    {"https://notifi.it/docs"},
+		"image":   {"https://notifi.it/sad-logo.png"},
 	}
 	req, _ := http.NewRequest("POST", "https://notifi.it/send",
 		strings.NewReader(form.Encode()))
@@ -93,6 +100,8 @@ request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 request.httpBody = try JSONEncoder().encode([
     "title": "Hello from notifi",
     "message": "Your first notification.",
+    "link": "https://notifi.it/docs",
+    "image": "https://notifi.it/sad-logo.png",
 ])
 
 _ = try await URLSession.shared.data(for: request)`,
@@ -111,7 +120,9 @@ req = Net::HTTP::Post.new(uri)
 req["Authorization"] = "Bearer #{ENV['NOTIFI_KEY']}"
 req.set_form_data(
   "title" => "Hello from notifi",
-  "message" => "Your first notification."
+  "message" => "Your first notification.",
+  "link" => "https://notifi.it/docs",
+  "image" => "https://notifi.it/sad-logo.png"
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }`,
@@ -131,6 +142,8 @@ curl_setopt_array($ch, [
     CURLOPT_POSTFIELDS => [
         "title"   => "Hello from notifi",
         "message" => "Your first notification.",
+        "link"    => "https://notifi.it/docs",
+        "image"   => "https://notifi.it/sad-logo.png",
     ],
 ]);
 curl_exec($ch);`,
@@ -151,6 +164,8 @@ reqwest::Client::new()
     .form(&[
         ("title", "Hello from notifi"),
         ("message", "Your first notification."),
+        ("link", "https://notifi.it/docs"),
+        ("image", "https://notifi.it/sad-logo.png"),
     ])
     .send()
     .await?;`,
@@ -265,7 +280,7 @@ spec:
               ./backup.sh &&
               curl -s https://notifi.it/send \\
                 -H "Authorization: Bearer $NOTIFI_KEY" \\
-                -d "title=Hello from notifi"
+                -d "title=Backup complete"
             env:
             - name: NOTIFI_KEY
               valueFrom: { secretKeyRef: { name: notifi, key: key } }`,
