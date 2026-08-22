@@ -33,22 +33,6 @@ struct SettingsView: View {
                         RowRule()
                     }
 
-                    if model.pushDeliveryLooksBroken {
-                        FieldRow(label: Copy.Settings.delivery) {
-                            Text(Copy.Settings.deliveryBroken)
-                                .font(.inco(.subheadline, weight: .medium))
-                                .foregroundStyle(Theme.brandText)
-                        }
-                        .geistGutter()
-                        .geistBannerTransition()
-                        Text(Copy.Settings.deliveryBrokenDetail)
-                            .geistConsequence()
-                            .geistGutter()
-                            .geistBannerTransition()
-                        RowRule()
-                            .geistBannerTransition()
-                    }
-
                     ToggleRow(
                         title: Copy.Settings.loadImages,
                         detail: Copy.Settings.loadImagesDetail,
@@ -84,7 +68,6 @@ struct SettingsView: View {
                     }
                 }
                 .animation(Theme.state, value: strictSendFailed)
-                .animation(Theme.state, value: model.pushDeliveryLooksBroken)
 
                 SectionLabel(text: Copy.Settings.sectionAppearance)
                     .geistGroupGutter()

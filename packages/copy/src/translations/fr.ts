@@ -250,12 +250,6 @@ export const fr: Translation = {
   'settings.permissionOff': 'Désactivée',
   'settings.permissionProvisional': 'Provisoire',
   'settings.permissionEphemeral': 'Éphémère',
-  'settings.delivery': 'Livraison',
-  'settings.deliveryBroken': 'Pas de push',
-  'settings.deliveryBrokenDetail':
-    "Des messages récents sont arrivés sans notification associée. Les notifications " +
-    "n'atteignent pas cet appareil ; les messages arrivent encore via sa connexion " +
-    "en direct, et à chaque ouverture ou actualisation de l'application.",
   'settings.permissionNotSet': 'Non défini',
   'settings.permissionUnknown': 'Inconnue',
 

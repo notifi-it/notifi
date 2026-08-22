@@ -97,18 +97,6 @@ final class AppModel {
 
     var isOffline: Bool { socket?.state == .failed }
 
-    private(set) var pollOnlyArrivals: Int = UserDefaults.standard.integer(forKey: pollOnlyKey)
-    #if DEBUG
-    private static let pollOnlyKey = "notifi.pollOnlyArrivals.debug"
-    #else
-    private static let pollOnlyKey = "notifi.pollOnlyArrivals"
-    #endif
-
-    var pushDeliveryLooksBroken: Bool { pollOnlyArrivals >= 3 }
-
-    private var lastPushAt: Date?
-    private var hasCompletedFirstSync = false
-    private var arrivalObserver: NSObjectProtocol?
     private var socket: SocketClient?
     private var wantsLiveUpdates = false
 
@@ -169,16 +157,6 @@ final class AppModel {
         let queued = AppModel.pendingActions
         AppModel.pendingActions = []
         for action in queued { apply(action) }
-
-        if arrivalObserver == nil {
-            arrivalObserver = NotificationCenter.default.addObserver(
-                forName: .notifiNewMessages,
-                object: nil,
-                queue: .main
-            ) { _ in
-                Task { @MainActor in AppModel.shared?.noteMessagesArrived() }
-            }
-        }
 
         #if !targetEnvironment(simulator)
         guard SecureEnclave.isAvailable else {
@@ -358,32 +336,9 @@ final class AppModel {
     }
 
     func handleForegroundPush() {
-        notePushArrived()
         Task {
             await sync?.sync()
         }
-    }
-
-    func notePushArrived() {
-        lastPushAt = Date()
-    }
-
-    private static let pushGrace: TimeInterval = 20
-
-    private func noteMessagesArrived() {
-        guard hasCompletedFirstSync else {
-            hasCompletedFirstSync = true
-            return
-        }
-        if let lastPushAt, Date().timeIntervalSince(lastPushAt) < Self.pushGrace {
-            if pollOnlyArrivals != 0 {
-                pollOnlyArrivals = 0
-                UserDefaults.standard.set(0, forKey: Self.pollOnlyKey)
-            }
-            return
-        }
-        pollOnlyArrivals += 1
-        UserDefaults.standard.set(pollOnlyArrivals, forKey: Self.pollOnlyKey)
     }
 
     func startLiveUpdates() {

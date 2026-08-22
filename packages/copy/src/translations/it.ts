@@ -247,12 +247,6 @@ export const it: Translation = {
   'settings.permissionOff': 'Disattivata',
   'settings.permissionProvisional': 'Provvisoria',
   'settings.permissionEphemeral': 'Effimera',
-  'settings.delivery': 'Recapito',
-  'settings.deliveryBroken': 'Nessun invio push',
-  'settings.deliveryBrokenDetail':
-    'I messaggi recenti sono arrivati senza una notifica al seguito. Le notifiche '
-    + 'non stanno raggiungendo questo dispositivo; i messaggi arrivano comunque tramite la sua connessione '
-    + 'attiva, e ogni volta che l\'app si apre o si aggiorna.',
   'settings.permissionNotSet': 'Non impostata',
   'settings.permissionUnknown': 'Sconosciuta',
 
