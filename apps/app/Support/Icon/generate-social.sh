@@ -130,6 +130,11 @@ banner 1640 856 110 facebook-cover.png
 # LinkedIn. 5.9:1 and only 191 tall; a lockup is all that fits.
 banner 1128 191 96 linkedin-banner.png
 
+# Product Hunt gallery. The whole frame is shown, so the lockup is sized against
+# the file the way X's is rather than against a crop: 0.30 of the height, which
+# is X's ratio and the one Facebook's 110 works out to against its visible 360.
+banner 1270 760 228 producthunt-cover.png
+
 # Square profile picture: the mark alone. The lockup does not belong here — a
 # wordmark wide enough to read has to shrink until the bell is a speck, and
 # every platform crops this to a circle anyway, which would cut the word's ends
