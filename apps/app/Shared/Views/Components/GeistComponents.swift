@@ -178,11 +178,15 @@ extension View {
     @ViewBuilder
     func glassBackground(enabled: Bool = true, in shape: some Shape = Circle()) -> some View {
         if enabled {
-            if #available(iOS 26.0, macOS 26.0, *) {
+            #if os(macOS)
+            background(shape.fill(Theme.chip.opacity(0.6)))
+            #else
+            if #available(iOS 26.0, *) {
                 glassEffect(.regular, in: shape)
             } else {
                 background(shape.fill(Theme.chip.opacity(0.6)))
             }
+            #endif
         } else {
             self
         }
