@@ -1,1 +1,1 @@
-curl,webhook,api,alerte,cli,serveur,monitoring,cron,script,dev,terminal,devops,homelab,pager
+webhook,api,avertir,alerte,auto,hébergé,cron,curl,cli,devops,homelab,ssh,docker,monitor

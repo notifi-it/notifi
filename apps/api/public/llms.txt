@@ -1,0 +1,169 @@
+# notifi
+
+> Push notifications to an iPhone, iPad or Mac from one HTTP request to
+> notifi.it. No account, no SDK. Notification content is encrypted with the
+> device's public key, so neither we nor Apple can read your notifications.
+
+Bigger products link out from here to a documentation site. notifi has one
+endpoint and seven parameters, so the whole thing is inlined below and this is
+the only file you need to read. Links to the human pages are at the end.
+
+## What you can and cannot do on your own
+
+You can install the app, take a key from a human, send notifications, and wire
+notifi into any script, hook, CI job or unit.
+
+You cannot create a send key. Keys are minted only by a request signed with a
+private key that never leaves the device, so there is no endpoint for it and no
+credential that would let you call one. Do not go looking. Ask the human, using
+the wording under "Getting the key".
+
+## Install on macOS
+
+```bash
+brew install --cask notifi-it/tap/notifi
+open -a notifi
+```
+
+Without Homebrew:
+
+```bash
+curl -fL https://notifi.it/download/mac -o /tmp/notifi.dmg
+hdiutil attach /tmp/notifi.dmg -nobrowse -quiet
+cp -R /Volumes/notifi/notifi.app /Applications/
+hdiutil detach /Volumes/notifi -quiet
+open -a notifi
+```
+
+macOS 14 or later, Apple silicon or T2. The app lives in the menu bar and
+updates itself. It is not on the Mac App Store.
+
+## Install on iPhone and iPad
+
+<https://apps.apple.com/app/id1563961135> — iOS 17 or later. There is nothing
+here you can do from a shell. Give the human the link.
+
+## Getting the key
+
+The app makes a key named "Default" the first time it launches and keeps it on
+the device, so it can be copied again whenever it is needed. There is no
+create-a-key step to walk anyone through.
+
+Two things need a human at the device. Ask for both at once:
+
+> notifi is installed and open. Two things I can't do myself:
+>   1. Allow notifications when it asks.
+>   2. Open the Keys tab, pick "Default", press "Copy key".
+> Then paste the key here. It starts with nk_.
+
+Prefer that Default key. A key someone creates by hand is shown once, at
+creation, and is never recoverable — if it is lost, the only fix is a new key.
+
+Put the key in the environment, not in a file that gets committed:
+
+```bash
+export NOTIFI_KEY=nk_...
+```
+
+Then prove the chain works before building anything on top of it:
+
+```bash
+curl -s https://notifi.it/send \
+  -H "Authorization: Bearer $NOTIFI_KEY" \
+  -d "title=notifi is wired up"
+```
+
+`202` with `{"ok":true}` means the server took it. That is not proof of
+delivery — ask the human whether the notification actually arrived.
+
+## Send
+
+`POST https://notifi.it/send`, JSON or form-encoded. `GET` works for a quick
+test. Authenticate with `Authorization: Bearer nk_...` — a `key` parameter also
+works, but puts the key in edge logs and shell history.
+
+| Parameter | Notes |
+| --- | --- |
+| `title` | Required. 1 to 200 characters. |
+| `message` | Up to 16,000 characters, Markdown. The push shows a preview; the app renders all of it. |
+| `link` | URL, up to 2,048 characters. Opened when the notification is tapped. |
+| `image` | `https` URL. PNG, JPEG or GIF, 5 MB max. One that cannot be fetched is dropped and the notification still arrives. |
+| `occurred_at` | Unix milliseconds, for a queued or retried send. Defaults to arrival time. |
+| `is_critical` | Breaks through Focus. The key must also be marked Critical in the app, or an ordinary notification is delivered and the response carries a `warnings` array. |
+
+`202` with `{"ok":true}` on success. Every error nests the code one level down,
+so read `error.code` and not `code`:
+
+```json
+{"error":{"code":"unknown_key","message":"Unknown or revoked key."}}
+```
+
+The codes are `invalid_request` (400), `unknown_key` (401), `invalid_content`
+(422 — the device refuses sends that would arrive with a warning) and
+`rate_limited` (429, which carries `Retry-After`).
+
+60 sends an hour per device, shared across every key on it. Five active keys per
+device. Delivery is not guaranteed, so do not make notifi the only path for
+anything where a missed notification causes harm.
+
+## Recipe: Claude Code
+
+Get paged when a run ends. In `.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "curl -s https://notifi.it/send -H \"Authorization: Bearer $NOTIFI_KEY\" -d \"title=Claude finished\" -d \"message=$CLAUDE_PROJECT_DIR\""
+      }]
+    }]
+  }
+}
+```
+
+Use the `Notification` hook instead to be paged when Claude is waiting on a
+decision rather than when it stops. `NOTIFI_KEY` has to be set in the
+environment the hook runs in. A key exported in the shell you are sitting in is
+gone by the next run, so put it in the profile that shell reads:
+
+```bash
+echo 'export NOTIFI_KEY=nk_...' >> ~/.zshrc
+```
+
+## Recipe: GitHub Actions
+
+Put the key in the repository's secrets, then:
+
+```yaml
+- name: Tell me it broke
+  if: failure()
+  run: |
+    curl -s https://notifi.it/send \
+      -H "Authorization: Bearer $NOTIFI_KEY" \
+      -d "title=$GITHUB_WORKFLOW failed" \
+      -d "message=$GITHUB_REF_NAME at $(git log -1 --format=%s)" \
+      -d "link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+  env:
+    NOTIFI_KEY: ${{ secrets.NOTIFI_KEY }}
+```
+
+## Keys
+
+One key per script, so a leak costs one script rather than all of them. Each key
+delivers only to the device that made it, so which key a script holds decides
+where its notifications land; give a script two keys to reach a phone and a Mac.
+Revoking is done in the app and takes effect on the next send.
+
+Reinstalling the app, or moving to a new device, makes a new identity and every
+old key stops working. There is no migration.
+
+
+## Links
+
+- [Product page](https://notifi.it/): the same API, plus samples in 13 languages.
+- [FAQ](https://notifi.it/faq): limits, encryption, reliability, deleting the app.
+- [Privacy policy](https://notifi.it/privacy)
+- [Terms](https://notifi.it/terms)
+- [Source](https://github.com/notifi-it/notifi): the app, the API and the crypto.

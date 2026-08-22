@@ -285,6 +285,9 @@ export const it: Translation = {
   'settings.automaticUpdates': 'Aggiornamenti automatici',
   'settings.automaticUpdatesDetail': 'Verifica la presenza di nuove versioni in background.',
   'settings.checkForUpdates': 'Verifica aggiornamenti',
+  'settings.deleteAll': 'Elimina tutte le notifiche',
+  'settings.deleteAllTitle': 'Eliminare tutte le notifiche?',
+  'settings.deleteAllMessage': 'Questa azione non può essere annullata.',
   'settings.support': 'Segnala un problema',
   'settings.feedback': 'Feedback',
   'settings.privacyPolicy': 'Informativa sulla privacy',
@@ -347,13 +350,14 @@ export const it: Translation = {
   'clientErrors.transport': 'Impossibile raggiungere il server. Controlla la connessione e riprova.',
   'clientErrors.decoding': 'Il server ha restituito qualcosa di inatteso. Riprova tra un momento.',
 
-  'store.subtitle': 'Una richiesta, dritta in tasca',
+  'store.name': 'notifi: notifiche push',
+  'store.subtitle': 'Per script e server',
   'store.promotionalText':
     'Una richiesta HTTP e la notifica arriva sul tuo iPhone o Mac. Cifrato con la tua chiave ' +
     'pubblica: non possiamo leggere i tuoi messaggi. Niente account, niente SDK.',
   'store.keywords':
-    'curl,webhook,api,notifica,avviso,cli,server,monitor,cron,script,sviluppatore,devops,' +
-    'homelab,pager',
+    'webhook,api,avvisare,allerta,auto,ospitato,cron,curl,cli,devops,homelab,ssh,docker,' +
+    'monitor',
   'store.description':
     'Notifiche push per i tuoi script e server.\n\n' +
     'Crea una chiave di invio e manda un titolo e un messaggio a notifi.it in un\'unica richiesta ' +
