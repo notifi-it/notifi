@@ -109,7 +109,7 @@ export function openapi(): Record<string, unknown> {
           operationId: 'sendNotificationViaQuery',
           summary: 'Send a notification with query parameters',
           description:
-            'The same operation as POST /send, for a quick test from a browser or a shell. A key in a query string ends up in edge logs and shell history, so prefer POST with an Authorization header.',
+            'The same operation as POST /send, for a quick test from a browser or a shell. A key in a query string ends up in edge logs and shell history, so prefer POST with an Authorization header, and rotate any key you have sent this way.',
           security,
           parameters: params.map((p) => ({ $ref: `#/components/parameters/${p.name}` })),
           responses: operationResponses(),

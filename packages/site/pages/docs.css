@@ -42,6 +42,13 @@
   padding:14px 16px;margin-top:14px;overflow-x:auto;
   white-space:pre;-webkit-text-size-adjust:100%;
 }
+.doc.api figure{margin:20px 0 0;max-width:340px}
+.doc.api figure img{
+  display:block;width:100%;height:auto;
+  border:1px solid var(--line);border-radius:12px;
+}
+.doc.api figcaption{margin-top:9px;font-size:12.5px;color:var(--dim)}
+.doc.api .term pre{background:none;border:0;border-radius:0;margin-top:0}
 .doc.api .tablewrap{overflow-x:auto;margin-top:14px;border:1px solid var(--line);border-radius:8px}
 .doc.api table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
 .doc.api th,.doc.api td{

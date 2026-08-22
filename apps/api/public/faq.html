@@ -258,7 +258,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h3>What can the server see?</h3>
     <p>The IP addresses of the sender and the device, the time of every send and every collection, the approximate size of a notification, which key sent it and how often, and your device's push token. Because the sender and the recipient both talk to the same server, that server is in a position to correlate the two. The <a href="/privacy">privacy policy</a> covers this in full.</p>
     <h3>Is it safe to put the key in the URL?</h3>
-    <p>It is convenient and it is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Send the key as a <code>Authorization: Bearer</code> header and the body in a <code>POST</code> body where you can.</p>
+    <p>It is convenient and it is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a <code>Authorization: Bearer</code> header and the body in a <code>POST</code> body where you can.</p>
     <h3>How long are notifications kept?</h3>
     <p>A notification is deleted as soon as your device confirms it has it. One your device never collects stays, encrypted, until it does — there is no time limit. Revoked send keys are kept forever, as hashes, so that a revoked key can never be reused.</p>
     <h3>What happens if I delete the app?</h3>

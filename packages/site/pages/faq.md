@@ -69,7 +69,7 @@ The IP addresses of the sender and the device, the time of every send and every 
 
 ### Is it safe to put the key in the URL?
 
-It is convenient and it is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Send the key as a `Authorization: Bearer` header and the body in a `POST` body where you can.
+It is convenient and it is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a `Authorization: Bearer` header and the body in a `POST` body where you can.
 
 ### How long are notifications kept?
 

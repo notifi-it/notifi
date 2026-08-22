@@ -47,6 +47,12 @@ enum SampleData {
         ProcessInfo.processInfo.environment["NOTIFI_START_MESSAGE"].flatMap(Int.init)
     }
 
+    static var suppressesPermissionPrompt: Bool { isEnabled || usesSampleKeys }
+
+    static var launchKeyIndex: Int? {
+        ProcessInfo.processInfo.environment["NOTIFI_START_KEY"].flatMap(Int.init)
+    }
+
     static var launchAppearance: Appearance? {
         ProcessInfo.processInfo.environment["NOTIFI_APPEARANCE"].flatMap(Appearance.init(rawValue:))
     }

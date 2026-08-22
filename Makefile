@@ -1,7 +1,7 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
 	gen-site check-site-html gen-site-md check-site-md check-site gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-metadata app-metadata-check app-screenshots app-resubmit shots screens screens-mac \
+	app-metadata app-metadata-check app-screenshots app-resubmit shots doc-shots screens screens-mac \
 	film film-gif check-film
 
 # Random port so parallel worktrees never collide. The signed canonical string
@@ -159,6 +159,13 @@ app-resubmit:
 # Simulator that stays booted between runs. SKIP_BUILD=1 when no Swift changed.
 shots:
 	apps/app/Scripts/shots.sh
+
+# The two figures /docs shows: the Settings screen and a key's screen. Captures
+# both, then crops them to the boxes in doc-shots.py — never crop by hand, or
+# the figure quietly starts showing the wrong part of the screen.
+doc-shots:
+	TABS="settings key" apps/app/Scripts/shots.sh
+	python3 apps/app/Scripts/doc-shots.py
 
 # Every published iOS screenshot from one command: both App Store sets (the
 # iPad one is required — ASC refuses a submission without ipadPro129) and the

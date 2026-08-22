@@ -56,11 +56,11 @@ export const DESCRIPTION = [
 export const AUTH = {
   header: 'Authorization: Bearer nk_yourkey',
   summary:
-    'Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between.',
+    'Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between: use it only for a quick test, and rotate the key afterwards.',
   bearerDescription:
     'The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history.',
   parameterDescription:
-    'The send key as a parameter. Convenient for a one-off request, but it appears in edge logs, in shell history and in any proxy in between.',
+    'The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option: use it only for a quick test, and rotate the key afterwards.',
 };
 
 export const params: Param[] = [
@@ -123,7 +123,7 @@ export const params: Param[] = [
     limit: 'unix ms',
     summary: 'When the event actually happened, as unix milliseconds.',
     detail:
-      'For a queued or retried send. Only changes the timestamp shown in the app; defaults to arrival time.',
+      'For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request.',
     openapi: { type: 'integer', format: 'int64' },
   },
   {
@@ -158,7 +158,7 @@ export const errors: ErrorRow[] = [
     code: 'invalid_content',
     status: 422,
     reason: 'Unprocessable Content',
-    message: 'This device refuses notifications it cannot show as written.',
+    message: 'Not sent. This device is set to refuse a notification it cannot deliver as written.',
     summary: 'The device is set to refuse a notification it cannot deliver as written.',
     detail: '',
   },

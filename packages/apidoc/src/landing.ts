@@ -123,7 +123,8 @@ export function landingNote(): string {
   return `    <p class="meta" style="margin-top:22px">
       ${SENDS_PER_HOUR} sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
       <code>message</code>: ${codes}. <code>GET</code> works for a quick
-      test; <code>POST</code> is recommended.
+      test, but puts the key in edge logs and shell history, so rotate it afterwards;
+      <code>POST</code> with an <code>Authorization</code> header is recommended.
       The full reference is at <a href="/docs">notifi.it/docs</a>.
     </p>`;
 }

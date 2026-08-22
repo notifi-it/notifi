@@ -5,11 +5,14 @@ cd "$(dirname "$0")/../../.."
 
 BUNDLE_ID=${BUNDLE_ID:-it.notifi.notifi}
 DEVICE=${DEVICE:-iPhone 17 Pro}
-TABS=${TABS:-inbox keys settings message}
+TABS=${TABS:-inbox keys settings message key}
 # Which seeded message the "message" shot opens. 0 is the richest one — long
 # body, image, link, key chip — so the detail page is shot with something in
 # every part of it rather than a bare title.
 MESSAGE_INDEX=${MESSAGE_INDEX:-0}
+# Which seeded key the "key" shot opens. 2 is the one with critical alerts on,
+# so the toggle is shot in the state the docs point at.
+KEY_INDEX=${KEY_INDEX:-2}
 OUT=${OUT:-/tmp/notifi-shots}
 DERIVED=${DERIVED:-/tmp/notifi-derived}
 
@@ -53,19 +56,27 @@ else
 fi
 
 [ -n "$APP" ] || { echo "no .app in $DERIVED after building" >&2; exit 1; }
+# The notification permission alert belongs to SpringBoard, not the app, so an
+# unanswered one outlives both a relaunch and an uninstall, and lands in the
+# middle of every shot. Restarting SpringBoard is what clears it. The launches
+# below never raise a new one: SampleData suppresses the request.
+xcrun simctl spawn "$UDID" launchctl kickstart -k system/com.apple.SpringBoard >/dev/null 2>&1 || true
+sleep 5
 xcrun simctl install "$UDID" "$APP"
 
 mkdir -p "$OUT"
 for tab in $TABS; do
-  if [ "$tab" = "message" ]; then
-    START_TAB=inbox
-    START_MESSAGE=$MESSAGE_INDEX
-  else
-    START_TAB=$tab
-    START_MESSAGE=
-  fi
+  START_MESSAGE=
+  START_KEY=
+  case "$tab" in
+    message) START_TAB=inbox; START_MESSAGE=$MESSAGE_INDEX ;;
+    key) START_TAB=keys; START_KEY=$KEY_INDEX ;;
+    *) START_TAB=$tab ;;
+  esac
   SIMCTL_CHILD_NOTIFI_START_TAB=$START_TAB \
   SIMCTL_CHILD_NOTIFI_START_MESSAGE=$START_MESSAGE \
+  SIMCTL_CHILD_NOTIFI_START_KEY=$START_KEY \
+  SIMCTL_CHILD_NOTIFI_SEED_SAMPLE=1 \
   SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 \
     xcrun simctl launch --terminate-running-process \
     "$UDID" "$BUNDLE_ID" >/dev/null
