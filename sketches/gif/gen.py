@@ -18,14 +18,14 @@ def lock(st,dfs,tfs,date,time):
     return (f'<div class="lock" style="{st}">'
             f'<div class="ldate" data-clock="date" style="--fs:{dfs}">{date}</div>'
             f'<div class="ltime" data-clock="time" style="--fs:{tfs}">{time}</div></div>')
-PH_LOCK=lock('left:0;right:0;top:13.5%','.86','4.55','Tuesday 11 August','10:24')
-PD_LOCK=lock('left:0;right:0;top:13%','.60','3.25','Tuesday 11 August','10:24')
+PH_LOCK=lock('left:0;right:0;top:13.5%','4.649','24.595','Tuesday 11 August','10:24')
+PD_LOCK=lock('left:0;right:0;top:13%','1.474','7.985','Tuesday 11 August','10:24')
 PHFIX=lambda h: h.replace('class="sbar"','class="sbar ph"',1)
 def sbar(st,fs,l,ic): return f'<div class="sbar" style="{st};--fs:{fs}"><span>{l}</span><span class="icons">{ic}</span></div>'
-PH_SB=PHFIX(sbar('left:7%;right:7%;top:2.3%;height:4.6%','1.10','',SIG.format(w=1.07)+WIFI.format(w=1.05)+BATT.format(w=1.62)))
-PD_SB=sbar('left:7.5%;right:7.5%;top:5.4%;height:4.2%','.72','',WIFI.format(w=1.28)+BATT.format(w=1.76))
-MC_SB=('<div class="sbar mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs:.68">'
-       '<svg class="amark" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg><span class="icons"><span class="mbell"></span>'+BATT.format(w=1.40)+
+PH_SB=PHFIX(sbar('left:7%;right:7%;top:2.3%;height:4.6%','5.946','',SIG.format(w=5.784)+WIFI.format(w=5.676)+BATT.format(w=8.757)))
+PD_SB=sbar('left:7.5%;right:7.5%;top:5.4%;height:4.2%','1.769','',WIFI.format(w=3.145)+BATT.format(w=4.324))
+MC_SB=('<div class="sbar mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs:1.563">'
+       '<svg class="amark" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg><span class="icons"><span class="mbell"></span>'+BATT.format(w=3.218)+
        '<span class="dt" data-clock="menubar">Tue 11 Aug 10:24</span></span></div>')
 
 CLAUDE_ORANGE='#D97757'
@@ -158,9 +158,8 @@ VERT_DEV=['left:19%;top:55%;width:62%;aspect-ratio:428/900',
           'left:4%;top:56%;width:92%;aspect-ratio:1292/916',
           'left:2%;top:57%;width:96%;aspect-ratio:1640/1040']
 VERT_CARD=['left:50%;top:88.4%;width:50%','left:50%;top:73.5%;width:41%','left:50%;top:50%;width:92%']
-VERT_TRAIL=['left:50%;width:6%;top:48%;height:3.2%','left:50%;width:6%;top:52.4%;height:3.2%','left:50%;width:6%;top:53.6%;height:3.2%']
 VERT_CLIP=['','','left:48%;top:58.9%;width:46%;height:9%']
-VERT_FS=[('.term',2.39),('.dv0',3.35),('.cp0',3.35),('.dv1',2.26),('.cp1',2.26),('.dv2',2.21),('.cp2',2.21)]
+VERT_FS=[('.cp0',3.35),('.cp1',2.26),('.cp2',2.21)]
 vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
       ".head .l1{--fs:3.6}.head .l2{--fs:3.0}",
@@ -172,7 +171,6 @@ for sel,k in VERT_FS:
 for p in range(3):
     vgeo.append(f".dv{p}{{{VERT_DEV[p]}}}")
     vgeo.append(f".cp{p}{{{VERT_CARD[p]}}}")
-    vgeo.append(f".tr{p}{{{VERT_TRAIL[p]}}}")
     if VERT_CLIP[p]: vgeo.append(f".cl{p}{{{VERT_CLIP[p]}}}")
 NLV=chr(10)
 VERTICAL="@media(max-width:760px){"+NLV+NLV.join(vgeo)+NLV+"}"
@@ -213,56 +211,56 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .head .l1{{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}}
 .gif .l1{{--fs:2.3;color:var(--red)}}
 .head .l2{{--fs:2.0;font-weight:400;color:var(--muted)}}
-.term{{position:absolute;{TERM};background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
-.term .bar{{position:relative;display:flex;align-items:center;gap:.5cqw;padding:.9cqw 1.2cqw}}
-.term .bar i{{width:.85cqw;height:.85cqw;border-radius:50%;background:var(--chip)}}
-.term .title{{--fs:1.0;position:absolute;left:5.8cqw;top:50%;transform:translateY(-50%);font-family:var(--mono);color:var(--dim);opacity:0}}
-.term .tabs{{display:flex;gap:.45cqw;padding:0 .8cqw .7cqw}}
-.term .tabs button{{--fs:1.0;flex:1;text-align:center;font-family:var(--mono);color:var(--dim);background:#222224;border-radius:.9cqw;padding:.38cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.term{{position:absolute;{TERM};container-type:inline-size;background:var(--surface);border-radius:2.862cqw;overflow:hidden}}
+.term .bar{{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}}
+.term .bar i{{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}}
+.term .title{{--fs:2.602;position:absolute;left:15.092cqw;top:50%;transform:translateY(-50%);font-family:var(--mono);color:var(--dim);opacity:0}}
+.term .tabs{{display:flex;gap:1.171cqw;padding:0 2.082cqw 1.821cqw}}
+.term .tabs button{{--fs:2.602;flex:1;text-align:center;font-family:var(--mono);color:var(--dim);background:#222224;border-radius:2.342cqw;padding:0.989cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 @keyframes blink{{0%,49%{{opacity:1}}50%,100%{{opacity:.15}}}}
 .term .tabs button{{border:0;cursor:pointer;font-family:var(--mono);line-height:inherit;-webkit-appearance:none;appearance:none}}
 .term .tabs button:focus-visible{{outline:2px solid var(--fg);outline-offset:2px}}
 .tabA{{animation-name:tabA}}.tabB{{animation-name:tabB}}.tabC{{animation-name:tabC}}
-.bodywrap{{position:relative;height:calc(100% - 5cqw);border-top:1px solid var(--line)}}
-.body{{position:absolute;inset:0;--fs:1.14;font-family:var(--mono);line-height:1.8;padding:1.2cqw 1.7cqw;white-space:pre;opacity:0}}
+.bodywrap{{position:relative;height:calc(100% - 13.011cqw);border-top:1px solid var(--line)}}
+.body{{position:absolute;inset:0;--fs:2.966;font-family:var(--mono);line-height:1.8;padding:3.123cqw 4.424cqw;white-space:pre;opacity:0}}
 .body div{{width:0;overflow:hidden;white-space:pre}}
 .body div.resp{{width:auto;opacity:0}}
-.cbody{{white-space:normal;line-height:1.7;padding:1.3cqw 1.5cqw}}
+.cbody{{white-space:normal;line-height:1.7;padding:3.383cqw 3.903cqw}}
 .cbody div{{width:auto;overflow:visible;white-space:normal}}
-.cbanner{{display:flex;align-items:flex-start;gap:1.1cqw;margin-bottom:1.1cqw}}
-.mascot{{width:3.6cqw;height:auto;flex:none;margin-top:.15cqw;overflow:visible}}
-.cmeta{{--fs:1.05;line-height:1.5}}
+.cbanner{{display:flex;align-items:flex-start;gap:2.862cqw;margin-bottom:2.862cqw}}
+.mascot{{width:9.368cqw;height:auto;flex:none;margin-top:0.390cqw;overflow:visible}}
+.cmeta{{--fs:2.732;line-height:1.5}}
 .cmeta b{{font-weight:700;color:var(--fg)}}
-.crule{{height:1px;background:var(--line);margin:.5cqw 0}}
-.cinput{{display:flex;align-items:baseline;gap:.6cqw;padding:.35cqw 0;white-space:pre}}
+.crule{{height:1px;background:var(--line);margin:1.301cqw 0}}
+.cinput{{display:flex;align-items:baseline;gap:1.561cqw;padding:0.911cqw 0;white-space:pre}}
 .cchev{{color:var(--dim);flex:none}}
 .ctype{{display:inline-block;width:0;overflow:hidden;white-space:pre;vertical-align:bottom}}
-.ccar{{display:inline-block;width:.62cqw;height:1.25cqw;background:var(--fg);opacity:0;flex:none;align-self:center}}
-.cinput+.cinput{{margin-top:-.1cqw}}
-.creply{{margin-top:.9cqw;opacity:0;white-space:normal}}
-.cdot{{color:#D97757;--fs:.9}}
+.ccar{{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}}
+.cinput+.cinput{{margin-top:-0.260cqw}}
+.creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
+.cdot{{color:#D97757;--fs:2.342}}
 .c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.r{{color:var(--dim)}}
-.dev{{position:absolute;opacity:0}}
+.dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
 .o{{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}}
 .scr{{fill:var(--surface);stroke:none}}
 .dot{{fill:var(--stroke2);stroke:none}}
 .sbar{{position:absolute;display:flex;align-items:center;justify-content:space-between;font-family:var(--ui);font-weight:600;color:var(--fg)}}
-.sbar .icons{{display:flex;align-items:center;gap:calc(1cqw * var(--k,1) * .42)}}
+.sbar .icons{{display:flex;align-items:center;gap:1.032cqw}}
 .lock{{position:absolute;text-align:center;font-family:var(--ui);color:var(--fg)}}
 .lock .ldate{{font-weight:600;opacity:.9;letter-spacing:.01em}}
 .lock .ltime{{font-weight:600;line-height:1.02;letter-spacing:-.02em;margin-top:.25em}}
-.sbar.ph .icons{{gap:calc(1cqw * var(--k,1) * .34);margin-right:calc(1cqw * var(--k,1) * .32)}}
-.sbar.mb .icons{{gap:calc(1cqw * var(--k,1) * .62)}}
+.sbar.ph .icons{{gap:1.838cqw;margin-right:1.730cqw}}
+.sbar.mb .icons{{gap:1.425cqw}}
 .sbar.ph>span:first-child{{flex:0 0 28.3%;text-align:center}}
-.sbar svg.ic{{display:block;width:calc(1cqw * var(--k,1) * var(--w));height:auto;fill:currentColor;overflow:visible}}
+.sbar svg.ic{{display:block;width:calc(1cqw * var(--w));height:auto;fill:currentColor;overflow:visible}}
 .sbar svg.st path{{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}}
 .sbar svg.st circle.fl{{fill:currentColor;stroke:none}}
-.sbar .dt{{--fs:.68;font-weight:400;color:var(--muted);margin-left:.2cqw}}
-.mbell{{width:calc(1cqw * var(--k,1) * .90);height:calc(1cqw * var(--k,1) * .90);transform:translateY(calc(1cqw * var(--k,1) * .09));background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
-.sbar svg.amark{{width:calc(1cqw * var(--k,1) * 1.10);height:calc(1cqw * var(--k,1) * 1.10);display:block;fill:var(--fg);opacity:.85;flex:none}}
+.sbar .dt{{--fs:1.563;font-weight:400;color:var(--muted);margin-left:0.460cqw}}
+.mbell{{width:2.069cqw;height:2.069cqw;transform:translateY(0.207cqw);background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
+.sbar svg.amark{{width:2.529cqw;height:2.529cqw;display:block;fill:var(--fg);opacity:.85;flex:none}}
 .trail{{position:absolute;display:flex;align-items:center;justify-content:space-between;transform:translateY(-50%)}}
-.trail i{{width:calc(1cqw * var(--k,1) * var(--d));height:calc(1cqw * var(--k,1) * var(--d));border-radius:50%;background:var(--dim);opacity:0}}
+.trail i{{width:calc(1cqw * var(--d));height:calc(1cqw * var(--d));border-radius:50%;background:var(--dim);opacity:0}}
 .clip{{position:absolute;overflow:hidden;border-radius:.6cqw;opacity:0}}
 .cardpos{{position:absolute;transform:translate(-50%,-50%)}}
 .scard{{background:var(--surface);border:1px solid var(--line);border-radius:.95cqw;padding:.8cqw 1cqw;display:flex;gap:.75cqw;align-items:center;overflow:hidden;box-shadow:0 .8cqw 2.4cqw rgba(0,0,0,.4);opacity:0;animation-duration:var(--T);animation-iteration-count:infinite}}
