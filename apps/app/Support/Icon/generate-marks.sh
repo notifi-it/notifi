@@ -55,6 +55,32 @@ def mark(box, colour, badge, indent="  "):
 
 GHOST = dict(px=1400, eps=2.6, smooth=3, dash="1.5 0.95", width=0.5, notch=4.85, keep=120)
 
+def outset(box, pad):
+    """`box` with `pad` added on every side.
+
+    The ghost is stroked, not filled, so it reaches half a stroke width past
+    the silhouette it traces and the round caps push a little further still.
+    LOGO_BOX is fitted to the solid artwork, so framing a ghost in it slices
+    the topmost and bottommost dashes off. A whole stroke width of slack
+    covers the overhang with room to spare.
+    """
+    bx, by, bw, bh = map(float, box.split())
+    return "%.4f %.4f %.4f %.4f" % (bx - pad, by - pad, bw + 2*pad, bh + 2*pad)
+
+ghost_box = outset(logo_box, GHOST["width"])
+
+def framed(path, n=512):
+    """Fail if the mark just written runs off its own viewBox."""
+    sub.run(["rsvg-convert", "-w", str(n), "-h", str(n), path, "-o", TMP + "/fit.png"], check=True)
+    out = sub.run(["magick", TMP + "/fit.png", "-alpha", "extract", "-format", "%@", "info:"],
+                  capture_output=True, text=True, check=True).stdout
+    w, h, x, y = map(int, re.match(r"(\d+)x(\d+)\+(-?\d+)\+(-?\d+)", out).groups())
+    edge = min(x, y, n - (x + w), n - (y + h))
+    if edge <= 0:
+        sys.exit("%s is clipped by its own viewBox: ink is %dx%d+%d+%d in %dpx.\n"
+                 "Widen the box it is framed in." % (path, w, h, x, y, n))
+    print("  %s clears its frame by %dpx of %d" % (path, edge, n))
+
 def silhouette(box):
     """The outline of the bell and its clapper as one shape, traced off a render.
 
@@ -194,8 +220,9 @@ for name, ink in (("bell-light", "#1A1A1A"), ("bell-dark", "#EDEDED")):
     svg("%s/BellTabUnreadBody.imageset/%s.svg" % (assets, name), 24, 24, tab_box,
         body(ink, "#BC2122"))
 
-svg("%s/EmptyBell.imageset/bell.svg" % assets, 32, 32, logo_box, ghost("#000", logo_box),
+svg("%s/EmptyBell.imageset/bell.svg" % assets, 32, 32, ghost_box, ghost("#000", ghost_box),
     note="\n\n       The empty inbox: the mark hollowed out, drawn from its own outline.")
+framed("%s/EmptyBell.imageset/bell.svg" % assets)
 
 for name, ink in (("bell-light", "#A1A1A1"), ("bell-dark", "#5B5B5B")):
     svg("%s/LaunchBell.imageset/%s.svg" % (assets, name), 88, 88, logo_box,
@@ -205,9 +232,10 @@ for name, ink in (("bell-light", "#A1A1A1"), ("bell-dark", "#5B5B5B")):
 
 svg("%s/bell.svg" % web, 32, 32, logo_box, mark(logo_box, "#000", "#000"))
 
-svg("%s/bell-empty.svg" % web, 32, 32, logo_box, ghost("#000", logo_box),
+svg("%s/bell-empty.svg" % web, 32, 32, ghost_box, ghost("#000", ghost_box),
     note="\n\n       The 404 page's mark: the same hollowed-out bell the app shows over an\n"
          "       empty inbox.")
+framed("%s/bell-empty.svg" % web)
 
 svg("%s/bell-body.svg" % web, 32, 32, logo_box, body("#000", "#000"))
 svg("%s/bell-clapper.svg" % web, 32, 32, logo_box, clap("#000"))
