@@ -4,7 +4,7 @@
 .term{
   margin-top:40px;
   background:var(--surface);
-  border-radius:12px;overflow:hidden;
+  border-radius:8px;overflow:hidden;
 }
 .term-bar{
   display:flex;align-items:center;gap:9px;padding:9px 13px;
