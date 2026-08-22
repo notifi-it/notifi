@@ -81,7 +81,7 @@ enum Theme {
     #if os(macOS)
     static let firstBlockTop: CGFloat = 16
     #else
-    static let firstBlockTop: CGFloat = 2
+    static let firstBlockTop: CGFloat = 0
     #endif
 
     static let headerBarHeight: CGFloat = 30
@@ -156,7 +156,7 @@ extension View {
         #if os(macOS)
         padding(.top, 18).padding(.bottom, 6)
         #else
-        padding(.top, 4).padding(.bottom, 6)
+        padding(.top, 4).padding(.bottom, 2)
         #endif
     }
 

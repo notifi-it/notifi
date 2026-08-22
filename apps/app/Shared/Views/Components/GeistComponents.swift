@@ -484,7 +484,7 @@ struct GeistHeader<Trailing: View>: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text(title.uppercased())
                     .font(Theme.screenTitle)
                     .tracking(Theme.screenTitleTracking)
