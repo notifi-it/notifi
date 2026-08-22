@@ -154,22 +154,21 @@ for p,P in enumerate(PASSES):
     geo.append(f".cp{p}{{{P['cardpos']}}}")
     geo.append(f".tr{p}{{{TRAIL[p]}}}")
     if P['clip']: geo.append(f".cl{p}{{{P['clip']}}}")
-VERT_DEV=['left:19%;top:51.25%;width:62%;aspect-ratio:428/900',
-          'left:4%;top:56.25%;width:92%;aspect-ratio:1292/916',
-          'left:2%;top:57.5%;width:96%;aspect-ratio:1640/1040']
-VERT_CARD=['left:50%;top:84.5%;width:50%','left:50%;top:73.7%;width:41%','left:50%;top:50%;width:92%']
+VERT_DEV=['left:19%;top:55%;width:62%;aspect-ratio:428/900',
+          'left:4%;top:56%;width:92%;aspect-ratio:1292/916',
+          'left:2%;top:57%;width:96%;aspect-ratio:1640/1040']
+VERT_CARD=['left:50%;top:88.4%;width:50%','left:50%;top:73.5%;width:41%','left:50%;top:50%;width:92%']
 VERT_TRAIL=['left:50%;width:6%;top:48%;height:3.2%','left:50%;width:6%;top:52.4%;height:3.2%','left:50%;width:6%;top:53.6%;height:3.2%']
-VERT_CLIP=['','','left:48%;top:59.4%;width:46%;height:9%']
+VERT_CLIP=['','','left:48%;top:58.9%;width:46%;height:9%']
 VERT_FS=[('.term',2.39),('.dv0',3.35),('.cp0',3.35),('.dv1',2.26),('.cp1',2.26),('.dv2',2.21),('.cp2',2.21)]
 vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
       ".head .l1{--fs:3.6}.head .l2{--fs:3.0}",
-      ".term{left:4%;top:16.25%;width:92%;height:31.25%}",
-      ".trail{flex-direction:column;align-items:center;transform:translateX(-50%)}"]
+      ".term{left:4%;top:16.25%;width:92%;height:auto;aspect-ratio:830/528}",
+      ".trail{display:none}"]
 for sel,k in VERT_FS:
     vgeo.append(f"{sel} *{{font-size:calc(1cqw * var(--fs,1.5) * {k})}}")
     vgeo.append(f"{sel}{{--k:{k}}}")
-vgeo.append(".trail{--k:2.6}")
 for p in range(3):
     vgeo.append(f".dv{p}{{{VERT_DEV[p]}}}")
     vgeo.append(f".cp{p}{{{VERT_CARD[p]}}}")

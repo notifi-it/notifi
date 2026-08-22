@@ -592,8 +592,8 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-stage{aspect-ratio:10/16}
 .gf-head{left:4%;top:3.75%;width:92%}
 .gf-head .gf-l1{--fs:3.6}.gf-head .gf-l2{--fs:3.0}
-.gf-term{left:4%;top:16.25%;width:92%;height:31.25%}
-.gf-trail{flex-direction:column;align-items:center;transform:translateX(-50%)}
+.gf-term{left:4%;top:16.25%;width:92%;height:auto;aspect-ratio:830/528}
+.gf-trail{display:none}
 .gf-term *{font-size:calc(1cqw * var(--fs,1.5) * 2.39)}
 .gf-term{--k:2.39}
 .gf-dv0 *{font-size:calc(1cqw * var(--fs,1.5) * 3.35)}
@@ -608,17 +608,16 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-dv2{--k:2.21}
 .gf-cp2 *{font-size:calc(1cqw * var(--fs,1.5) * 2.21)}
 .gf-cp2{--k:2.21}
-.gf-trail{--k:2.6}
-.gf-dv0{left:19%;top:51.25%;width:62%;aspect-ratio:428/900}
-.gf-cp0{left:50%;top:84.5%;width:50%}
+.gf-dv0{left:19%;top:55%;width:62%;aspect-ratio:428/900}
+.gf-cp0{left:50%;top:88.4%;width:50%}
 .gf-tr0{left:50%;width:6%;top:48%;height:3.2%}
-.gf-dv1{left:4%;top:56.25%;width:92%;aspect-ratio:1292/916}
-.gf-cp1{left:50%;top:73.7%;width:41%}
+.gf-dv1{left:4%;top:56%;width:92%;aspect-ratio:1292/916}
+.gf-cp1{left:50%;top:73.5%;width:41%}
 .gf-tr1{left:50%;width:6%;top:52.4%;height:3.2%}
-.gf-dv2{left:2%;top:57.5%;width:96%;aspect-ratio:1640/1040}
+.gf-dv2{left:2%;top:57%;width:96%;aspect-ratio:1640/1040}
 .gf-cp2{left:50%;top:50%;width:92%}
 .gf-tr2{left:50%;width:6%;top:53.6%;height:3.2%}
-.gf-cl2{left:48%;top:59.4%;width:46%;height:9%}
+.gf-cl2{left:48%;top:58.9%;width:46%;height:9%}
 }
 @keyframes gf-vis0{0%,0.5%{opacity:0} 2.0%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
 @keyframes gf-type0_0{0%,3.0%{width:0;animation-timing-function:steps(43,end)} 7.6%,100%{width:43ch}}
@@ -678,7 +677,7 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 /* Three devices across a phone's width leaves each one a thumbnail, so the
    scene stacks instead: the film carries a portrait layout of its own below
    this width, and the figure has to stop imposing a landscape box on it. */
-@media(max-width:760px){.app-film{aspect-ratio:10/16;margin:24px 0}}
+@media(max-width:760px){.app-film{aspect-ratio:10/16;margin:24px calc(50% - 50vw)}}
 
 .app-two{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
