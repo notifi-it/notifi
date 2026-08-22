@@ -33,6 +33,7 @@
 
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 .tab{
+  display:inline-flex;align-items:center;gap:7px;
   font-family:var(--mono);font-size:13px;color:var(--muted);
   padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
   background:transparent;cursor:pointer;
@@ -52,3 +53,10 @@
    navigable, and a growing container under a held arrow key is unreadable. */
 .panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
 @keyframes panel-in{from{opacity:0}to{opacity:1}}
+
+/* The glyph says where the sample goes — a shell, a program, a file, a URL —
+   rather than naming the language the label already names. Held back from the
+   text so the row still reads as words first. */
+.tab-i{flex:0 0 auto;opacity:.55}
+.tab:hover .tab-i{opacity:.8}
+.tab[aria-selected="true"] .tab-i{opacity:.7}

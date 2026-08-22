@@ -58,6 +58,7 @@ Content-Type: application/json; charset=utf-8
 const CLIENTS: Group[] = [
   {
     id: 'postman',
+    icon: 'link',
     label: 'Postman',
     file: 'postman',
     code: `# Import → Link, then paste this. Postman keeps it in sync from there.
@@ -65,6 +66,7 @@ ${ORIGIN}/notifi.postman_collection.json`,
   },
   {
     id: 'bruno',
+    icon: 'terminal',
     label: 'Bruno',
     file: 'bruno',
     code: `# Drop the .bru straight into a collection folder,
@@ -73,6 +75,7 @@ curl -O ${ORIGIN}/notifi.bru`,
   },
   {
     id: 'insomnia',
+    icon: 'link',
     label: 'Insomnia',
     file: 'insomnia',
     code: `# Import From → URL takes either the OpenAPI document
@@ -81,6 +84,7 @@ ${ORIGIN}/openapi.json`,
   },
   {
     id: 'httpie',
+    icon: 'terminal',
     label: 'HTTPie',
     file: 'httpie',
     code: `# No import needed.
@@ -91,6 +95,7 @@ http -f POST ${ORIGIN}${ENDPOINT} \\
   },
   {
     id: 'generate',
+    icon: 'terminal',
     label: 'Client generator',
     file: 'openapi-generator',
     code: `# Any generator that reads OpenAPI 3.1.

@@ -3,6 +3,7 @@ import type { Sample } from './spec.js';
 export const samples: Sample[] = [
   {
     id: 'curl',
+    icon: 'terminal',
     label: 'curl',
     file: 'send.sh',
     code: `curl -X POST https://notifi.it/send \\
@@ -13,6 +14,7 @@ export const samples: Sample[] = [
   },
   {
     id: 'js',
+    icon: 'braces',
     label: 'JavaScript',
     file: 'send.js',
     code: `await fetch("https://notifi.it/send", {
@@ -29,6 +31,7 @@ export const samples: Sample[] = [
   },
   {
     id: 'py',
+    icon: 'braces',
     keywords: ['import'],
     label: 'Python',
     file: 'send.py',
@@ -45,6 +48,7 @@ requests.post(
   },
   {
     id: 'go',
+    icon: 'braces',
     keywords: ['package', 'import', 'func'],
     label: 'Go',
     file: 'send.go',
@@ -71,6 +75,7 @@ func main() {
   },
   {
     id: 'swift',
+    icon: 'braces',
     keywords: ['import', 'var', 'try await', 'try', 'for'],
     label: 'Swift',
     file: 'Send.swift',
@@ -89,6 +94,7 @@ _ = try await URLSession.shared.data(for: request)`,
   },
   {
     id: 'ruby',
+    icon: 'braces',
     keywords: ['require', 'true'],
     label: 'Ruby',
     file: 'send.rb',
@@ -106,6 +112,7 @@ Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }`
   },
   {
     id: 'php',
+    icon: 'braces',
     keywords: ['true'],
     label: 'PHP',
     file: 'send.php',
@@ -123,6 +130,7 @@ curl_exec($ch);`,
   },
   {
     id: 'rust',
+    icon: 'braces',
     keywords: ['let', 'await'],
     label: 'Rust',
     file: 'main.rs',
@@ -141,6 +149,7 @@ reqwest::Client::new()
   },
   {
     id: 'hook',
+    icon: 'file',
     label: 'Claude Code',
     file: '.claude/settings.json',
     code: `// Fires when Claude stops.
@@ -160,6 +169,7 @@ reqwest::Client::new()
   },
   {
     id: 'gha',
+    icon: 'file',
     label: 'GitHub Actions',
     file: '.github/workflows/ci.yml',
     code: `# Put NOTIFI_KEY in the repository's secrets.
@@ -176,6 +186,7 @@ reqwest::Client::new()
   },
   {
     id: 'shell',
+    icon: 'file',
     keywords: ['autoload', 'local', 'return'],
     label: 'Shell hook',
     file: '~/.zshrc',
@@ -197,6 +208,7 @@ add-zsh-hook precmd  _notifi_end`,
   },
   {
     id: 'systemd',
+    icon: 'file',
     keywords: ['Unit', 'Service'],
     label: 'systemd',
     file: 'notifi-failed@.service',
@@ -216,6 +228,7 @@ ExecStart=/usr/bin/curl -s https://notifi.it/send \\
   },
   {
     id: 'kube',
+    icon: 'file',
     label: 'Kubernetes',
     file: 'backup.yaml',
     code: `# Put the key in a Secret, then curl at the end of any Job's command.

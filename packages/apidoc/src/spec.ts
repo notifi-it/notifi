@@ -1,3 +1,5 @@
+import type { IconName } from './icons.js';
+
 export interface Param {
   name: string;
   type: string;
@@ -12,6 +14,7 @@ export interface Param {
 export interface ErrorRow {
   code: string;
   status: number;
+  reason: string;
   summary: string;
   detail: string;
 }
@@ -22,6 +25,7 @@ export interface Sample {
   file: string;
   code: string;
   keywords?: string[];
+  icon?: IconName;
 }
 
 export interface Resource {
@@ -137,29 +141,39 @@ export const errors: ErrorRow[] = [
   {
     code: 'invalid_request',
     status: 400,
+    reason: 'Bad Request',
     summary: 'A parameter is missing or malformed.',
     detail: '',
   },
   {
     code: 'unknown_key',
     status: 401,
+    reason: 'Unauthorized',
     summary: 'The key is unknown or has been revoked.',
     detail: '',
   },
   {
     code: 'invalid_content',
     status: 422,
+    reason: 'Unprocessable Content',
     summary: 'The device is set to refuse a notification it cannot deliver as written.',
     detail: '',
   },
   {
     code: 'rate_limited',
     status: 429,
+    reason: 'Too Many Requests',
     summary: 'Over the hourly device limit or the per-minute IP limit.',
     detail: 'Carries a Retry-After header with the seconds until the window resets.',
   },
-  { code: 'not_found', status: 404, summary: 'No such path.', detail: '' },
-  { code: 'internal_error', status: 500, summary: 'Something broke on our side.', detail: '' },
+  { code: 'not_found', status: 404, reason: 'Not Found', summary: 'No such path.', detail: '' },
+  {
+    code: 'internal_error',
+    status: 500,
+    reason: 'Internal Server Error',
+    summary: 'Something broke on our side.',
+    detail: '',
+  },
 ];
 
 export const limits: string[] = [
@@ -168,6 +182,11 @@ export const limits: string[] = [
   `${REQUESTS_PER_MINUTE} requests a minute per IP address, across every endpoint.`,
   'Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.',
 ];
+
+export const OPERATION_ERRORS = ['invalid_request', 'unknown_key', 'invalid_content', 'rate_limited'];
+
+export const INTEGRATION_SURFACE =
+  'There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface, and anything claiming otherwise is not us.';
 
 export const resources: Resource[] = [
   { path: '/llms.txt', summary: 'The full reference as plain text, written for coding agents.' },

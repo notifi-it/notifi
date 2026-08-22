@@ -287,6 +287,7 @@ nav a:hover{color:var(--fg)}
 
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 .tab{
+  display:inline-flex;align-items:center;gap:7px;
   font-family:var(--mono);font-size:13px;color:var(--muted);
   padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
   background:transparent;cursor:pointer;
@@ -306,6 +307,13 @@ nav a:hover{color:var(--fg)}
    navigable, and a growing container under a held arrow key is unreadable. */
 .panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
 @keyframes panel-in{from{opacity:0}to{opacity:1}}
+
+/* The glyph says where the sample goes — a shell, a program, a file, a URL —
+   rather than naming the language the label already names. Held back from the
+   text so the row still reads as words first. */
+.tab-i{flex:0 0 auto;opacity:.55}
+.tab:hover .tab-i{opacity:.8}
+.tab[aria-selected="true"] .tab-i{opacity:.7}
 /* /gen:termcss */
 
 /* The key bar is filled in from the URL fragment after the page has painted, so
@@ -988,19 +996,19 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
          those reads the curl one. -->
     <div class="tabs" role="tablist" aria-label="Examples">
 <!-- gen:tabs -->
-      <button class="tab" role="tab" aria-selected="true" aria-controls="p-curl" id="t-curl">curl</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-js" id="t-js">JavaScript</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-py" id="t-py">Python</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-go" id="t-go">Go</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-swift" id="t-swift">Swift</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-ruby" id="t-ruby">Ruby</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-php" id="t-php">PHP</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust" id="t-rust">Rust</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-hook" id="t-hook">Claude&nbsp;Code</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-gha" id="t-gha">GitHub&nbsp;Actions</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-shell" id="t-shell">Shell&nbsp;hook</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-systemd" id="t-systemd">systemd</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="p-kube" id="t-kube">Kubernetes</button>
+      <button class="tab" role="tab" aria-selected="true" aria-controls="p-curl" id="t-curl"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 4.4 6.6 8l-3.4 3.6"/><path d="M8.4 11.9h4.4"/></svg><span>curl</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-js" id="t-js"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 2.8c-1.5 0-1.8 1-1.8 2.3v1.2c0 .9-.5 1.6-1.3 1.7.8.1 1.3.8 1.3 1.7v1.2c0 1.3.3 2.3 1.8 2.3"/><path d="M9.6 2.8c1.5 0 1.8 1 1.8 2.3v1.2c0 .9.5 1.6 1.3 1.7-.8.1-1.3.8-1.3 1.7v1.2c0 1.3-.3 2.3-1.8 2.3"/></svg><span>JavaScript</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-py" id="t-py"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 2.8c-1.5 0-1.8 1-1.8 2.3v1.2c0 .9-.5 1.6-1.3 1.7.8.1 1.3.8 1.3 1.7v1.2c0 1.3.3 2.3 1.8 2.3"/><path d="M9.6 2.8c1.5 0 1.8 1 1.8 2.3v1.2c0 .9.5 1.6 1.3 1.7-.8.1-1.3.8-1.3 1.7v1.2c0 1.3-.3 2.3-1.8 2.3"/></svg><span>Python</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-go" id="t-go"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 2.8c-1.5 0-1.8 1-1.8 2.3v1.2c0 .9-.5 1.6-1.3 1.7.8.1 1.3.8 1.3 1.7v1.2c0 1.3.3 2.3 1.8 2.3"/><path d="M9.6 2.8c1.5 0 1.8 1 1.8 2.3v1.2c0 .9.5 1.6 1.3 1.7-.8.1-1.3.8-1.3 1.7v1.2c0 1.3-.3 2.3-1.8 2.3"/></svg><span>Go</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-swift" id="t-swift"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 2.8c-1.5 0-1.8 1-1.8 2.3v1.2c0 .9-.5 1.6-1.3 1.7.8.1 1.3.8 1.3 1.7v1.2c0 1.3.3 2.3 1.8 2.3"/><path d="M9.6 2.8c1.5 0 1.8 1 1.8 2.3v1.2c0 .9.5 1.6 1.3 1.7-.8.1-1.3.8-1.3 1.7v1.2c0 1.3-.3 2.3-1.8 2.3"/></svg><span>Swift</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-ruby" id="t-ruby"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 2.8c-1.5 0-1.8 1-1.8 2.3v1.2c0 .9-.5 1.6-1.3 1.7.8.1 1.3.8 1.3 1.7v1.2c0 1.3.3 2.3 1.8 2.3"/><path d="M9.6 2.8c1.5 0 1.8 1 1.8 2.3v1.2c0 .9.5 1.6 1.3 1.7-.8.1-1.3.8-1.3 1.7v1.2c0 1.3-.3 2.3-1.8 2.3"/></svg><span>Ruby</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-php" id="t-php"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 2.8c-1.5 0-1.8 1-1.8 2.3v1.2c0 .9-.5 1.6-1.3 1.7.8.1 1.3.8 1.3 1.7v1.2c0 1.3.3 2.3 1.8 2.3"/><path d="M9.6 2.8c1.5 0 1.8 1 1.8 2.3v1.2c0 .9.5 1.6 1.3 1.7-.8.1-1.3.8-1.3 1.7v1.2c0 1.3-.3 2.3-1.8 2.3"/></svg><span>PHP</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust" id="t-rust"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 2.8c-1.5 0-1.8 1-1.8 2.3v1.2c0 .9-.5 1.6-1.3 1.7.8.1 1.3.8 1.3 1.7v1.2c0 1.3.3 2.3 1.8 2.3"/><path d="M9.6 2.8c1.5 0 1.8 1 1.8 2.3v1.2c0 .9.5 1.6 1.3 1.7-.8.1-1.3.8-1.3 1.7v1.2c0 1.3-.3 2.3-1.8 2.3"/></svg><span>Rust</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-hook" id="t-hook"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 2.4H4.9a1.5 1.5 0 0 0-1.5 1.5v8.2a1.5 1.5 0 0 0 1.5 1.5h6.2a1.5 1.5 0 0 0 1.5-1.5V5.7z"/><path d="M9.1 2.4v2.8a.5.5 0 0 0 .5.5h3"/></svg><span>Claude&nbsp;Code</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-gha" id="t-gha"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 2.4H4.9a1.5 1.5 0 0 0-1.5 1.5v8.2a1.5 1.5 0 0 0 1.5 1.5h6.2a1.5 1.5 0 0 0 1.5-1.5V5.7z"/><path d="M9.1 2.4v2.8a.5.5 0 0 0 .5.5h3"/></svg><span>GitHub&nbsp;Actions</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-shell" id="t-shell"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 2.4H4.9a1.5 1.5 0 0 0-1.5 1.5v8.2a1.5 1.5 0 0 0 1.5 1.5h6.2a1.5 1.5 0 0 0 1.5-1.5V5.7z"/><path d="M9.1 2.4v2.8a.5.5 0 0 0 .5.5h3"/></svg><span>Shell&nbsp;hook</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-systemd" id="t-systemd"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 2.4H4.9a1.5 1.5 0 0 0-1.5 1.5v8.2a1.5 1.5 0 0 0 1.5 1.5h6.2a1.5 1.5 0 0 0 1.5-1.5V5.7z"/><path d="M9.1 2.4v2.8a.5.5 0 0 0 .5.5h3"/></svg><span>systemd</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-kube" id="t-kube"><svg class="tab-i" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 2.4H4.9a1.5 1.5 0 0 0-1.5 1.5v8.2a1.5 1.5 0 0 0 1.5 1.5h6.2a1.5 1.5 0 0 0 1.5-1.5V5.7z"/><path d="M9.1 2.4v2.8a.5.5 0 0 0 .5.5h3"/></svg><span>Kubernetes</span></button>
 <!-- /gen:tabs -->
     </div>
 
