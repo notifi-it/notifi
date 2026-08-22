@@ -67,7 +67,7 @@ export const registerDeviceBody = z
   .object({
     public_key: z.string(),
     encryption_public_key: z.string(),
-    apns_token: z.string().min(1),
+    apns_token: z.string().min(1).optional(),
     platform: z.string().min(1).max(16),
     app_version: z.string().min(1).max(16),
   })

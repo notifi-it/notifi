@@ -3,7 +3,7 @@ import Foundation
 struct RegisterDeviceBody: Codable, Sendable {
     let publicKey: String
     let encryptionPublicKey: String
-    let apnsToken: String
+    let apnsToken: String?
     let platform: String
     let appVersion: String
 
