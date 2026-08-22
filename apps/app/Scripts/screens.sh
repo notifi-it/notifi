@@ -21,6 +21,7 @@ BUNDLE_ID=${BUNDLE_ID:-it.notifi.notifi}
 DERIVED=${DERIVED:-/tmp/notifi-derived}
 OUT=${OUT:-/tmp/notifi-screens}
 SITE=apps/api/public/screens
+mkdir -p "$SITE"   # not in the repo any more: the site shows the film, not these
 IPAD_NAME="notifi-shots-iPad"
 IPAD_TYPE="com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4-8GB"
 PHONE_NAME="notifi-shots-iPhone"

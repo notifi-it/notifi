@@ -17,6 +17,7 @@ cd "$(dirname "$0")/../../.."
 
 DERIVED=${DERIVED:-/tmp/notifi-derived-mac}
 SITE=apps/api/public/screens
+mkdir -p "$SITE"   # not in the repo any more: the site shows the film, not these
 OUT=${OUT:-/tmp/notifi-screens}
 mkdir -p "$OUT"
 
