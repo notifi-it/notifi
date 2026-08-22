@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# The Mac popover shot the website carries: build the macOS app, open the
-# popover with sample data, photograph just that window, and write
-# apps/api/public/screens/mac-cut.webp (what index.html shows) and mac.webp.
+# The Mac popover shot: build the macOS app, open the popover with sample
+# data, photograph just that window, and write
+# apps/api/public/screens/mac-cut.webp and mac.webp.
 #
 #   make screens-mac
 #
@@ -17,6 +17,7 @@ cd "$(dirname "$0")/../../.."
 
 DERIVED=${DERIVED:-/tmp/notifi-derived-mac}
 SITE=apps/api/public/screens
+mkdir -p "$SITE"
 OUT=${OUT:-/tmp/notifi-screens}
 mkdir -p "$OUT"
 
