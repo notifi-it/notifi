@@ -1,10 +1,13 @@
+import SwiftData
 import SwiftUI
 import UserNotifications
 
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.modelContext) private var context
 
     @State private var strictSendFailed = false
+    @State private var confirmingDeleteAll = false
 
     var body: some View {
         @Bindable var model = model
@@ -110,11 +113,11 @@ struct SettingsView: View {
                     .geistGutter()
                 }
 
-                #if os(macOS)
                 SectionLabel(text: Copy.Settings.sectionApplication)
                     .geistGroupGutter()
 
                 GeistGroup {
+                    #if os(macOS)
                     ToggleRow(
                         title: Copy.Settings.openAtLogin,
                         detail: Copy.Settings.openAtLoginDetail,
@@ -150,8 +153,22 @@ struct SettingsView: View {
                     .buttonStyle(.geistRow)
                     .disabled(!Updater.shared.canCheck)
                     .geistGutter()
+                    RowRule()
+                    #endif
+
+                    Button {
+                        confirmingDeleteAll = true
+                    } label: {
+                        DisclosureRow {
+                            Text(Copy.Settings.deleteAll)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.danger)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
                 }
-                #endif
 
                 SectionLabel(text: Copy.Settings.sectionAbout)
                     .geistGroupGutter()
@@ -201,6 +218,12 @@ struct SettingsView: View {
                 .padding(.bottom, 40)
             }
         }
+        .alert(Copy.Settings.deleteAllTitle, isPresented: $confirmingDeleteAll) {
+            Button(Copy.Common.delete, role: .destructive) { deleteAllMessages() }
+            Button(Copy.Common.cancel, role: .cancel) {}
+        } message: {
+            Text(Copy.Settings.deleteAllMessage)
+        }
         .task {
             await model.refreshPermission()
             #if os(macOS)
@@ -208,6 +231,17 @@ struct SettingsView: View {
             Updater.shared.refresh()
             #endif
         }
+    }
+
+    private func deleteAllMessages() {
+        let all = (try? context.fetch(FetchDescriptor<Message>())) ?? []
+        for message in all {
+            context.delete(message)
+        }
+        try? context.save()
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        model.sync?.reconcileNotifications()
+        Haptics.success()
     }
 
     private var permissionText: String {
