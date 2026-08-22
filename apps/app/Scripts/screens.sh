@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Every iOS screenshot the product publishes, from one command: the App Store
 # sets (iPhone 6.9" and the mandatory iPad 12.9") into fastlane/screenshots,
-# and the four device shots the website shows into apps/api/public/screens.
+# and four device shots into apps/api/public/screens.
 #
 #   make screens
 #
@@ -11,8 +11,8 @@
 # was the flaky half of doing this by hand: a shot taken before a menu closed
 # or a row settled looks like a bug in the thing being screenshotted.
 #
-# The Mac popover shot the website also carries is `make screens-mac` — a
-# separate command because it builds and drives the macOS app.
+# The Mac popover shot is `make screens-mac` — a separate command because it
+# builds and drives the macOS app.
 set -euo pipefail
 
 cd "$(dirname "$0")/../../.."
@@ -21,7 +21,7 @@ BUNDLE_ID=${BUNDLE_ID:-it.notifi.notifi}
 DERIVED=${DERIVED:-/tmp/notifi-derived}
 OUT=${OUT:-/tmp/notifi-screens}
 SITE=apps/api/public/screens
-mkdir -p "$SITE"   # not in the repo any more: the site shows the film, not these
+mkdir -p "$SITE"
 IPAD_NAME="notifi-shots-iPad"
 IPAD_TYPE="com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4-8GB"
 PHONE_NAME="notifi-shots-iPhone"
