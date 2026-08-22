@@ -2,7 +2,7 @@
 
 > One endpoint, seven parameters, no SDK. Everything on this page is generated from the same file that generates [`/openapi.json`](https://notifi.it/openapi.json) and the client collections, so the three cannot disagree.
 
-_[Quickstart](https://notifi.it/docs#quickstart) · [Authentication](https://notifi.it/docs#auth) · [Request](https://notifi.it/docs#request) · [Parameters](https://notifi.it/docs#parameters) · [Response](https://notifi.it/docs#response) · [Errors](https://notifi.it/docs#errors) · [Rate limits](https://notifi.it/docs#limits) · [Clients and import](https://notifi.it/docs#clients) · [Machine-readable](https://notifi.it/docs#machine) · [Recipes](https://notifi.it/docs#recipes)_
+_[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi.it/docs#auth) [Request](https://notifi.it/docs#request) [Parameters](https://notifi.it/docs#parameters) [Response](https://notifi.it/docs#response) [Errors](https://notifi.it/docs#errors) [Rate limits](https://notifi.it/docs#limits) [Clients and import](https://notifi.it/docs#clients) [Machine-readable](https://notifi.it/docs#machine) [Recipes](https://notifi.it/docs#recipes)_
 
 ## Quickstart
 
@@ -56,13 +56,52 @@ Accept-Language: en-GB
 
 ## Response
 
-A send answers `202`. That means the server accepted it, not that it was delivered — delivery is best-effort, as the [terms](https://notifi.it/terms) describe.
+A send answers `202`. That means the server accepted it, not that it was delivered — delivery is best-effort, as the [terms](https://notifi.it/terms) describe. Every status the endpoint can answer with is here:
 
-```http
+### 202
+
+```
 HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
 {"ok":true}
+```
+
+### 400
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/json; charset=utf-8
+
+{"error":{"code":"invalid_request","message":"title is required."}}
+```
+
+### 401
+
+```
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json; charset=utf-8
+
+{"error":{"code":"unknown_key","message":"Unknown or revoked key."}}
+```
+
+### 422
+
+```
+HTTP/1.1 422 Unprocessable Content
+Content-Type: application/json; charset=utf-8
+
+{"error":{"code":"invalid_content","message":"This device refuses notifications it cannot show as written."}}
+```
+
+### 429
+
+```
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json; charset=utf-8
+Retry-After: 42
+
+{"error":{"code":"rate_limited","message":"Too many notifications. Try again shortly."}}
 ```
 
 A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one.
@@ -70,13 +109,6 @@ A `warnings` array is present only when the notification was delivered different
 ## Errors
 
 Every error nests the code one level down. Read `error.code`, not `code`. The `message` is in the language negotiated from `Accept-Language` and is meant for a human, so match on the code.
-
-```http
-HTTP/1.1 401 Unauthorized
-Content-Type: application/json; charset=utf-8
-
-{"error":{"code":"unknown_key","message":"Unknown or revoked key."}}
-```
 
 | Status | `error.code` | Meaning |
 | --- | --- | --- |
@@ -153,6 +185,8 @@ openapi-generator-cli generate \
 - [`/docs.md`](https://notifi.it/docs.md) — This page as Markdown.
 
 Every page on this site is also served as Markdown: send `Accept: text/markdown` on the same URL, or append `.md`. [The source](https://github.com/notifi-it/notifi) covers the app, the API and the cryptography.
+
+There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface, and anything claiming otherwise is not us.
 
 ## Recipes
 

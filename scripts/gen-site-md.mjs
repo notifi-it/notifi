@@ -204,6 +204,8 @@ function blocks(node, depth) {
         break;
       case "p": {
         if (cls.includes("eyebrow")) break;
+        // Controls, not copy: they do nothing in a Markdown reader.
+        if (cls.includes("screen-only")) break;
         if (inlineOf(child) === "") break;
         if (cls.includes("lede")) out.push(`> ${inlineOf(child)}`);
         else if (cls.includes("meta")) out.push(`_${inlineOf(child)}_`);
@@ -243,7 +245,7 @@ function blocks(node, depth) {
           if (!label || !code) throw new Error("a .panel needs data-label and a <pre>");
           out.push(`### ${label}`);
           out.push("```\n" + rawText(code).replace(/\n+$/, "") + "\n```");
-        } else if (cls.includes("term") || cls.includes("tablewrap")) {
+        } else if (cls.includes("term") || cls.includes("tablewrap") || cls.includes("toc")) {
           out.push(...blocks(child, depth));
         } else if (isCodeCard(child)) {
           const body = spaces(codeText(child))

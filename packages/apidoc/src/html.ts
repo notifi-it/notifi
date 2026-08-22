@@ -1,5 +1,7 @@
 import {
   AUTH,
+  INTEGRATION_SURFACE,
+  OPERATION_ERRORS,
   ENDPOINT,
   IMAGE_MAX_MB,
   KEYS_PER_DEVICE,
@@ -12,7 +14,8 @@ import {
   resources,
 } from './spec.js';
 import { samples } from './samples.js';
-import { terminal, terminalGroup } from './landing.js';
+import { terminalGroup } from './landing.js';
+import { icon } from './icons.js';
 import type { Group } from './landing.js';
 
 export function escape(text: string): string {
@@ -45,20 +48,41 @@ Accept-Language: en-GB
 
 {"title":"Backup complete","message":"4.2 GB in 3m 11s","link":"https://console.internal/backups"}`;
 
-const RAW_RESPONSE = `HTTP/1.1 202 Accepted
-Content-Type: application/json; charset=utf-8
+function responseBody(status: number, reason: string, body: string, retry = false): string {
+  const head = [
+    `HTTP/1.1 ${status} ${reason}`,
+    'Content-Type: application/json; charset=utf-8',
+    ...(retry ? ['Retry-After: 42'] : []),
+  ].join('\n');
+  return `${head}\n\n${body}`;
+}
 
-{"ok":true}`;
-
-const RAW_ERROR = `HTTP/1.1 401 Unauthorized
-Content-Type: application/json; charset=utf-8
-
-{"error":{"code":"unknown_key","message":"Unknown or revoked key."}}`;
+const RESPONSES: Group[] = [
+  {
+    id: '202',
+    label: '202',
+    file: 'accepted',
+    code: responseBody(202, 'Accepted', '{"ok":true}'),
+  },
+  ...errors
+    .filter((e) => OPERATION_ERRORS.includes(e.code))
+    .map((e): Group => ({
+      id: String(e.status),
+      label: String(e.status),
+      file: e.code,
+      code: responseBody(
+        e.status,
+        e.reason,
+        `{"error":{"code":"${e.code}","message":"${e.message}"}}`,
+        e.code === 'rate_limited',
+      ),
+    })),
+];
 
 const CLIENTS: Group[] = [
   {
     id: 'postman',
-    icon: 'link',
+    icon: 'siPostman',
     label: 'Postman',
     file: 'postman',
     code: `# Import → Link, then paste this. Postman keeps it in sync from there.
@@ -66,7 +90,7 @@ ${ORIGIN}/notifi.postman_collection.json`,
   },
   {
     id: 'bruno',
-    icon: 'terminal',
+    icon: 'siBruno',
     label: 'Bruno',
     file: 'bruno',
     code: `# Drop the .bru straight into a collection folder,
@@ -75,7 +99,7 @@ curl -O ${ORIGIN}/notifi.bru`,
   },
   {
     id: 'insomnia',
-    icon: 'link',
+    icon: 'siInsomnia',
     label: 'Insomnia',
     file: 'insomnia',
     code: `# Import From → URL takes either the OpenAPI document
@@ -84,7 +108,7 @@ ${ORIGIN}/openapi.json`,
   },
   {
     id: 'httpie',
-    icon: 'terminal',
+    icon: 'siHttpie',
     label: 'HTTPie',
     file: 'httpie',
     code: `# No import needed.
@@ -95,7 +119,7 @@ http -f POST ${ORIGIN}${ENDPOINT} \\
   },
   {
     id: 'generate',
-    icon: 'terminal',
+    icon: 'siOpenapiinitiative',
     label: 'Client generator',
     file: 'openapi-generator',
     code: `# Any generator that reads OpenAPI 3.1.
@@ -146,7 +170,7 @@ function errorRows(): string {
 }
 
 function contents(): string {
-  return SECTIONS.map(([id, label]) => `<a href="#${id}">${label}</a>`).join(' · ');
+  return SECTIONS.map(([id, label]) => `<a href="#${id}">${label}</a>`).join('\n    ');
 }
 
 export function docsBody(): string {
@@ -160,7 +184,14 @@ export function docsBody(): string {
     and the client collections, so the three cannot disagree.
   </p>
 
-  <p class="meta">${contents()}</p>
+  <p class="meta actions screen-only">
+    <a href="/docs.md">${icon('file')}<span>View as Markdown</span></a>
+    <button class="linkish" id="copymd" data-src="/docs.md">${icon('copy')}<span>Copy page as Markdown</span></button>
+  </p>
+
+  <div class="toc">
+    <p class="meta">${contents()}</p>
+  </div>
 
   <section id="quickstart">
     <h2>Quickstart</h2>
@@ -233,9 +264,10 @@ ${parameterRows()}
     <h2>Response</h2>
     <p>
       A send answers <code>202</code>. That means the server accepted it, not that it was
-      delivered — delivery is best-effort, as the <a href="/terms">terms</a> describe.
+      delivered — delivery is best-effort, as the <a href="/terms">terms</a> describe. Every
+      status the endpoint can answer with is here:
     </p>
-    ${pre(RAW_RESPONSE, 'http')}
+${terminalGroup('r-', 'Responses', RESPONSES)}
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
       differently from what was asked: a cropped title or body, a dropped image, or a critical
@@ -250,7 +282,6 @@ ${parameterRows()}
       <code>code</code>. The <code>message</code> is in the language negotiated from
       <code>Accept-Language</code> and is meant for a human, so match on the code.
     </p>
-    ${pre(RAW_ERROR, 'http')}
     <div class="tablewrap" tabindex="0" role="group" aria-label="Error codes">
       <table>
         <thead><tr><th>Status</th><th><code>error.code</code></th><th>Meaning</th></tr></thead>
@@ -295,6 +326,7 @@ ${resources
       <a href="https://github.com/notifi-it/notifi">The source</a> covers the app, the API and
       the cryptography.
     </p>
+    <p>${escape(INTEGRATION_SURFACE)}</p>
   </section>
 
   <section id="recipes">
@@ -304,7 +336,7 @@ ${resources
       them, the same block the home page carries. Each one wants
       <code>NOTIFI_KEY</code> in the environment.
     </p>
-${terminal()}
+${terminalGroup('', 'Examples', samples)}
   </section>
 
   <p id="copystatus" role="status" aria-live="polite"
@@ -325,6 +357,38 @@ export function docsStyle(): string {
   return `
 .doc.api p.meta a{color:var(--muted);text-decoration:none}
 .doc.api p.meta a:hover{color:var(--fg)}
+/* The actions row: the Markdown twin is served and negotiated already, and
+   nothing on the page said so. */
+.doc.api .actions{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:16px}
+.doc.api .actions a,.doc.api .linkish{
+  display:inline-flex;align-items:center;gap:7px;
+  font:inherit;color:var(--muted);background:none;border:0;padding:0;cursor:pointer;
+  text-decoration:none;
+}
+.doc.api .actions .tab-i{opacity:.55}
+.doc.api .actions a:hover,.doc.api .linkish:hover{color:var(--fg)}
+.doc.api .actions a:hover .tab-i,.doc.api .linkish:hover .tab-i{opacity:.8}
+.doc.api .linkish[data-state="failed"]{color:var(--brand-text)}
+/* The contents. A line of anchors at the top is gone on the first scroll, so
+   at a width that has room for it the same links become a rail that stays. */
+.doc.api .toc p{margin:0}
+.doc.api .toc a + a::before{content:"·";color:var(--dim);margin:0 8px}
+@media(min-width:1120px){
+  .doc.api{
+    display:grid;grid-template-columns:158px minmax(0,1fr);column-gap:44px;
+    align-items:start;
+  }
+  .doc.api > *{grid-column:2;min-width:0}
+  /* span 100, not 1 / -1: every row here is implicit, so -1 resolves to the
+     first line and the rail would sit in row one and stretch it. */
+  .doc.api > .toc{grid-column:1;grid-row:1 / span 100;align-self:stretch}
+  .doc.api .toc p{
+    position:sticky;top:88px;
+    display:flex;flex-direction:column;gap:9px;
+    max-height:calc(100vh - 120px);overflow-y:auto;
+  }
+  .doc.api .toc a + a::before{content:none;margin:0}
+}
 .doc.api h3 .meta{font-weight:400;color:var(--dim);margin-left:8px}
 .doc.api section{scroll-margin-top:76px}
 .doc.api pre{

@@ -11,8 +11,7 @@ import {
 } from './spec.js';
 import { samples } from './samples.js';
 import { escape } from './html.js';
-import { icon } from './icons.js';
-import type { IconName } from './icons.js';
+import { brand } from './icons.js';
 
 const KEY = /\$?NOTIFI_KEY/g;
 
@@ -86,7 +85,7 @@ export function landingTabs(): string {
     .map((s, i) => {
       const selected = i === 0 ? 'true' : 'false';
       const label = s.label.replace(/ /g, '&nbsp;');
-      const glyph = s.icon ? icon(s.icon) : '';
+      const glyph = s.icon ? brand(s.icon) : '';
       return `      <button class="tab" role="tab" aria-selected="${selected}" aria-controls="p-${s.id}" id="t-${s.id}">${glyph}<span>${label}</span></button>`;
     })
     .join('\n');
@@ -141,7 +140,7 @@ export interface Group {
   file: string;
   code: string;
   keywords?: string[];
-  icon?: IconName;
+  icon?: string;
 }
 
 export function terminalGroup(prefix: string, aria: string, items: Group[]): string {
@@ -151,7 +150,7 @@ export function terminalGroup(prefix: string, aria: string, items: Group[]): str
     .map((item, i) => {
       const selected = i === 0 ? 'true' : 'false';
       const label = item.label.replace(/ /g, '&nbsp;');
-      const glyph = item.icon ? icon(item.icon) : '';
+      const glyph = item.icon ? brand(item.icon) : '';
       return `      <button class="tab" role="tab" aria-selected="${selected}" aria-controls="${prefix}p-${item.id}" id="${prefix}t-${item.id}">${glyph}<span>${label}</span></button>`;
     })
     .join('\n');

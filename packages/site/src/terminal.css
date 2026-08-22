@@ -54,9 +54,9 @@
 .panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
 @keyframes panel-in{from{opacity:0}to{opacity:1}}
 
-/* The glyph says where the sample goes — a shell, a program, a file, a URL —
-   rather than naming the language the label already names. Held back from the
-   text so the row still reads as words first. */
-.tab-i{flex:0 0 auto;opacity:.55}
-.tab:hover .tab-i{opacity:.8}
-.tab[aria-selected="true"] .tab-i{opacity:.7}
+/* Each tab carries its own mark, from simple-icons, monochrome in currentColor
+   and held back from the text so the row still reads as words first. Filled
+   marks read heavier than the type beside them, hence the low opacity. */
+.tab-i{flex:0 0 auto;opacity:.62}
+.tab:hover .tab-i{opacity:.85}
+.tab[aria-selected="true"] .tab-i{opacity:.75}

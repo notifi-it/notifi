@@ -158,6 +158,13 @@ through `gen-site-md`, as every other page's Markdown does.
 `make check-api` and `make check-site-html` (CI, in the lint workflow) fail on
 drift.
 
+Each tab carries its language's own mark. `icons.ts` pulls the path out of
+`simple-icons` at generation time and inlines it, so the page still makes no
+third-party request; a sample names a slug (`siPython`) and an unknown one
+throws rather than rendering blank. `simple-icons` is a devDependency and the
+paths are baked into the committed HTML, so bumping it can show up as
+`check-site-html` drift — that is the check working.
+
 The samples in `samples.ts` are stored as plain source; the landing page's
 syntax colouring is applied by `landing.ts` — strings, `NOTIFI_KEY`, and a
 per-sample `keywords` list for the `.f` class. Add a sample and it appears in

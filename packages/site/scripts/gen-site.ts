@@ -25,6 +25,7 @@ const read = (...parts: string[]) => readFileSync(join(ROOT, ...parts), 'utf8');
 const tokens = read('src', 'tokens.css');
 const terminalCss = read('src', 'terminal.css');
 const terminalJs = read('src', 'terminal.js');
+const pageMdJs = read('src', 'pagemd.js');
 const site = read('src', 'site.js');
 
 const PROSE = ['about', 'contact', 'faq', 'terms', 'privacy'];
@@ -78,7 +79,7 @@ function docs(): Page {
     },
     body: docsBody(),
     style: `${docsStyle()}\n${terminalCss}`,
-    script: terminalJs,
+    script: `${terminalJs}\n${pageMdJs}`,
   };
 }
 

@@ -1,5 +1,3 @@
-import type { IconName } from './icons.js';
-
 export interface Param {
   name: string;
   type: string;
@@ -15,6 +13,7 @@ export interface ErrorRow {
   code: string;
   status: number;
   reason: string;
+  message: string;
   summary: string;
   detail: string;
 }
@@ -25,7 +24,7 @@ export interface Sample {
   file: string;
   code: string;
   keywords?: string[];
-  icon?: IconName;
+  icon?: string;
 }
 
 export interface Resource {
@@ -142,6 +141,7 @@ export const errors: ErrorRow[] = [
     code: 'invalid_request',
     status: 400,
     reason: 'Bad Request',
+    message: 'title is required.',
     summary: 'A parameter is missing or malformed.',
     detail: '',
   },
@@ -149,6 +149,7 @@ export const errors: ErrorRow[] = [
     code: 'unknown_key',
     status: 401,
     reason: 'Unauthorized',
+    message: 'Unknown or revoked key.',
     summary: 'The key is unknown or has been revoked.',
     detail: '',
   },
@@ -156,6 +157,7 @@ export const errors: ErrorRow[] = [
     code: 'invalid_content',
     status: 422,
     reason: 'Unprocessable Content',
+    message: 'This device refuses notifications it cannot show as written.',
     summary: 'The device is set to refuse a notification it cannot deliver as written.',
     detail: '',
   },
@@ -163,14 +165,16 @@ export const errors: ErrorRow[] = [
     code: 'rate_limited',
     status: 429,
     reason: 'Too Many Requests',
+    message: 'Too many notifications. Try again shortly.',
     summary: 'Over the hourly device limit or the per-minute IP limit.',
     detail: 'Carries a Retry-After header with the seconds until the window resets.',
   },
-  { code: 'not_found', status: 404, reason: 'Not Found', summary: 'No such path.', detail: '' },
+  { code: 'not_found', status: 404, reason: 'Not Found', message: 'No such path.', summary: 'No such path.', detail: '' },
   {
     code: 'internal_error',
     status: 500,
     reason: 'Internal Server Error',
+    message: 'Something went wrong.',
     summary: 'Something broke on our side.',
     detail: '',
   },
