@@ -32,4 +32,5 @@ jobs:
       # a bare npx fetches the newest major and fails on syntax this one accepts.
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @notifi/apidoc check-api
+      - run: pnpm --filter @notifi/site check-site-html
       - run: node scripts/check-migrations.mjs

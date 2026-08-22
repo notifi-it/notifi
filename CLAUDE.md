@@ -65,14 +65,46 @@ Copy keys keep their existing names (`inbox.copyMessage`, the `message.*`
 namespace). They are internal, they key the xcstrings catalogue, and renaming
 them churns every Swift call site for no reader's benefit.
 
+## Every page in apps/api/public is generated
+
+**Nothing in `apps/api/public` is edited by hand.** `packages/site` assembles
+all eight pages and `make gen-site` writes them; `make check-site-html` (CI)
+fails on drift.
+
+| Change | Edit |
+|---|---|
+| Prose on about / contact / faq / terms / privacy | `packages/site/pages/<name>.md` |
+| The 404's markup, styles or glyph script | `packages/site/pages/404.{html,css,js}` |
+| The /docs reference | `packages/apidoc/src` (see below) |
+| The landing page's body | `apps/api/public/index.html`, between its `<!-- gen:… -->` markers |
+| Header, footer, `<head>`, shared CSS or JS | `packages/site/src/` |
+| A social URL, the contact address, the App Store link, the author | `packages/site/src/constants.ts` |
+| The schema.org Organization node | `packages/site/src/schema.ts` |
+
+The five prose pages are Markdown in, HTML *and* Markdown out. The dialect is
+whatever `gen-site-md` emits, so the two converters are inverses and the
+round-trip is the test: regenerate, run `make gen-site-md`, and the `.md` should
+come back unchanged. Two rules are positional rather than syntactic — the first
+`>` block after the `# ` heading is the lede and every later one is a
+`<div class="card">` callout, and `_text_` alone on a line is `<p class="meta">`.
+The eyebrow and all `<head>` values live in the front matter.
+
+The header nav and the footer both drop the link to the page they are on. That
+rule is in `chrome.ts`, not in seven hand-maintained copies.
+
+`index.html` is the exception that keeps its own body, its own 522 lines of CSS
+and its own scripts: it has an early `<head>` script, a canvas film and a
+superset of the design tokens, and folding those in has not been done. It still
+takes its footer, its schema and its whole API section from the shared source.
+
 ## The website is served twice: HTML and Markdown
 
-`apps/api/public/*.html` are the source. Every doc-shaped page (the ones whose
-body is `<main class="wrap doc">`) has a generated `.md` sibling written by
-`make gen-site-md`; `make check-site-md` (CI, in the lint workflow) fails on
-drift. **Never edit a generated `.md` by hand.** `index.md` is the one exception
-and is hand-written, because the landing page does not survive a mechanical
-conversion — change `index.html` and you have to change it too.
+Every doc-shaped page (the ones whose body is `<main class="wrap doc">`) has a
+generated `.md` sibling written by `make gen-site-md`; `make check-site-md` (CI,
+in the lint workflow) fails on drift. **Never edit a generated `.md` by hand.**
+`index.md` is the one exception and is hand-written, because the landing page
+does not survive a mechanical conversion — change `index.html` and you have to
+change it too.
 
 The converter understands only the tags those pages already use and throws on
 anything else, so a new construct fails the build rather than silently vanishing
@@ -112,20 +144,19 @@ BASE=http://localhost:8787 make check-site
 
 ```bash
 make gen-api
+make gen-site
 make gen-site-md
 ```
 
-which rewrites five files, none of which may be edited by hand:
+`gen-api` writes `openapi.json`, `notifi.postman_collection.json` and
+`notifi.bru`. `gen-site` renders the /docs page body and style from `html.ts`,
+and splices the landing page's endpoint prose, parameter table, language tabs
+and code panels between its `<!-- gen:… -->` markers — one generator per file,
+so the two never fight over `index.html`. `docs.md` then comes from `docs.html`
+through `gen-site-md`, as every other page's Markdown does.
 
-- `apps/api/public/docs.html` — the reference page, from `templates/docs.html`
-  plus `html.ts`
-- `apps/api/public/openapi.json`
-- `apps/api/public/notifi.postman_collection.json` and `notifi.bru`
-- the landing page's endpoint prose, parameter table, language tabs and code
-  panels, spliced between the `<!-- gen:… -->` markers in `index.html`
-
-`make check-api` (CI, in the lint workflow) fails on drift. `docs.md` then comes
-from `docs.html` through `gen-site-md`, as every other page's Markdown does.
+`make check-api` and `make check-site-html` (CI, in the lint workflow) fail on
+drift.
 
 The samples in `samples.ts` are stored as plain source; the landing page's
 syntax colouring is applied by `landing.ts` — strings, `NOTIFI_KEY`, and a

@@ -594,6 +594,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
      drifts the day someone leaves a review. Google's SoftwareApplication rich
      result needs one in the static markup, so expect no stars in the SERP. The markup still earns its place as entity data.
      No FAQPage either: Google stopped rendering FAQ rich results in May 2026. -->
+<!-- gen:schema -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -613,18 +614,28 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           "contactType": "customer support",
           "email": "hello@notifi.it",
           "url": "https://notifi.it/contact",
-          "availableLanguage": ["en"]
+          "availableLanguage": [
+            "en"
+          ]
         },
         {
           "@type": "ContactPoint",
           "contactType": "technical support",
           "email": "hello@notifi.it",
           "url": "https://github.com/notifi-it/notifi/issues",
-          "availableLanguage": ["en"]
+          "availableLanguage": [
+            "en"
+          ]
         }
       ],
-      "address": { "@type": "PostalAddress", "addressCountry": "GB" },
-      "founder": { "@type": "Person", "name": "Maximilian Mitchell" },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "GB"
+      },
+      "founder": {
+        "@type": "Person",
+        "name": "Maximilian Mitchell"
+      },
       "sameAs": [
         "https://github.com/notifi-it/notifi",
         "https://x.com/notifiit",
@@ -638,7 +649,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "url": "https://notifi.it/",
       "name": "notifi",
       "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No account, no SDK, encrypted with your public key, and open source.",
-      "publisher": { "@id": "https://notifi.it/#org" },
+      "publisher": {
+        "@id": "https://notifi.it/#org"
+      },
       "inLanguage": "en"
     },
     {
@@ -660,12 +673,19 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         "Title, body, link and image parameters",
         "Searchable notification history"
       ],
-      "publisher": { "@id": "https://notifi.it/#org" },
-      "offers": { "@type": "Offer", "price": 0, "priceCurrency": "GBP" }
+      "publisher": {
+        "@id": "https://notifi.it/#org"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": 0,
+        "priceCurrency": "GBP"
+      }
     }
   ]
 }
 </script>
+<!-- /gen:schema -->
 </head>
 
 <body>
@@ -1352,6 +1372,7 @@ spec:
 
 </main>
 
+<!-- gen:footer -->
 <footer>
   <div class="wrap">
     <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
@@ -1359,10 +1380,8 @@ spec:
       <img src="/wordmark.svg" alt="notifi">
     </div>
   </div>
-  <!-- The section links are not repeated here. The header is sticky, so it is
-       already on screen at the bottom of the page; a second copy of the same
-       six anchors is furniture, and it buried the two links that only exist
-       down here. -->
+  <!-- The sticky header already carries the navigation, so the footer holds
+       only what is not up there — and never a link to the page you are on. -->
   <div class="wrap foot">
     <a href="/about">About</a>
     <a href="/docs">Docs</a>
@@ -1378,6 +1397,7 @@ spec:
     <span class="meta">Built by Maximilian Mitchell</span>
   </div>
 </footer>
+<!-- /gen:footer -->
 
 <!-- The copy buttons swap their own label, which a screen reader does not
      announce because focus never moves. This is where the outcome is said. -->

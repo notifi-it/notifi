@@ -1,0 +1,48 @@
+<main class="wrap doc">
+
+  <h1>
+    <span class="bellmark" aria-hidden="true">
+      <span class="bghost warm"></span>
+      <span class="bghost cool"></span>
+      <span class="bsolid"></span>
+    </span>
+    <span class="glyph"><span class="solid">404</span></span>
+    <span class="said">Page not found</span>
+  </h1>
+  <p class="lede">
+    Nothing lives at that address. Everything notifi has is on this short list.
+  </p>
+
+  <section>
+    <h2>The site</h2>
+    <ul>
+      <li><a href="/">Home</a> — what notifi is, the API, and the download links.</li>
+      <li><a href="/docs">API documentation</a> — the endpoint, its parameters and its error codes.</li>
+      <li><a href="/faq">FAQ</a> — cost, limits, encryption, deleting the app.</li>
+      <li><a href="/about">About</a> — who runs notifi and how it is hosted.</li>
+      <li><a href="/contact">Contact</a> — email, issues and security disclosure.</li>
+      <li><a href="/privacy">Privacy policy</a> and <a href="/terms">terms of service</a>.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>For agents and crawlers</h2>
+    <ul>
+      <li><a href="/llms.txt"><code>/llms.txt</code></a> — the whole product as plain text, including when to reach for notifi.</li>
+      <li><a href="/openapi.json"><code>/openapi.json</code></a> — OpenAPI 3.1 for <code>/send</code>.</li>
+      <li><a href="/sitemap.xml"><code>/sitemap.xml</code></a> — every page worth reading.</li>
+      <li>Any page is available as Markdown: send <code>Accept: text/markdown</code>, or append <code>.md</code> to its path.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>If you were sending a notification</h2>
+    <p>
+      The only API path is <code>/send</code>. A request to anything else
+      answers <code>404</code> with
+      <code>{"error":{"code":"not_found"}}</code>. Check the method and the
+      path against the <a href="/docs">documentation</a>.
+    </p>
+  </section>
+
+</main>

@@ -9,8 +9,8 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-<!-- The assets binding 307s /faq.html to /faq, so both forms are
-     reachable. Pin the one that should be indexed. -->
+<!-- The assets binding 307s the .html form of this path to the extensionless
+     one, so both are reachable. Pin the one that should be indexed. -->
 <link rel="canonical" href="https://notifi.it/faq">
 
 <!-- The same page as Markdown. The Worker also answers this URL with it
@@ -47,10 +47,11 @@
   src:url(/fonts/karla.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
-/* This block, and the @font-face rules above it, are a copy of the ones in
-   index.html and privacy.html. The pages are standalone documents with no
-   shared stylesheet, so there is nowhere else to put them; a token changed in
-   one has to be changed in the others or the pages drift apart. */
+/* The one copy. Every page inlines this block rather than linking it, so the
+   first paint needs no round trip and each page stays a self-contained
+   document; `make gen-site` is what keeps the copies identical.
+   index.html still carries its own superset of these tokens — four motion
+   values the doc pages do not use — and has not been folded in yet. */
 :root{
   --bg:#1C1C1E;
   --fg:#EDEDED;
@@ -202,216 +203,96 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <p class="eyebrow">FAQ</p>
   <h1>Frequently asked questions</h1>
-  <p class="lede">
-    What notifi costs, what the limits are, what the server can and cannot
-    read, and what happens when you delete the app.
-  </p>
+  <p class="lede">What notifi costs, what the limits are, what the server can and cannot read, and what happens when you delete the app.</p>
 
   <section>
     <h2>The basics</h2>
-
     <h3>What is notifi?</h3>
-    <p>
-      A push-notification relay. You create a send key in the app, send an HTTP
-      request to <code>notifi.it/send</code> with a title and a body, and the
-      alert lands on your iPhone and Mac. There is no SDK to install and nothing
-      to sign up for.
-    </p>
-
+    <p>A push-notification relay. You create a send key in the app, send an HTTP request to <code>notifi.it/send</code> with a title and a body, and the alert lands on your iPhone and Mac. There is no SDK to install and nothing to sign up for.</p>
     <h3>What does it cost?</h3>
-    <p>
-      Nothing. The service is free and there is no paid tier.
-    </p>
-
+    <p>Nothing. The service is free and there is no paid tier.</p>
     <h3>Do I need an account?</h3>
-    <p>
-      No. The app generates a keypair on first launch, and that keypair is your
-      identity. There is no email address, no password, and no way to link two
-      devices together.
-    </p>
-
+    <p>No. The app generates a keypair on first launch, and that keypair is your identity. There is no email address, no password, and no way to link two devices together.</p>
     <h3>How do I send something?</h3>
-    <p>
-      One request, <code>GET</code> or <code>POST</code>, JSON or form-encoded:
-    </p>
+    <p>One request, <code>GET</code> or <code>POST</code>, JSON or form-encoded:</p>
     <div class="card">
       <p><code>curl -X POST https://notifi.it/send \<br>
       &nbsp;&nbsp;-H "Authorization: Bearer $NOTIFI_KEY" \<br>
       &nbsp;&nbsp;-d "title=Backup complete" \<br>
       &nbsp;&nbsp;-d "message=4.2 GB in 3m 11s"</code></p>
     </div>
-    <p>
-      A successful send answers <code>202</code> with <code>{"ok":true}</code>.
-      The key can also be passed as a <code>key</code> parameter, though the
-      <a href="#logs">note on query strings</a> below applies if you do.
-    </p>
+    <p>A successful send answers <code>202</code> with <code>{"ok":true}</code>. The key can also be passed as a <code>key</code> parameter, though the <a href="/faq#logs">note on query strings</a> below applies if you do.</p>
   </section>
 
   <section>
     <h2>Limits</h2>
-
     <h3>How much can I send?</h3>
     <ul>
       <li><strong>60 sends an hour per device</strong>, shared by every key on that device rather than counted per key. Over the limit answers <code>429</code> with a <code>Retry-After</code> header.</li>
       <li><strong>Five active send keys per device</strong>, one of which is the app's own default key.</li>
       <li>There is also a per-IP ceiling of 100 requests a minute on every endpoint.</li>
     </ul>
-
     <h3>How long can a notification be?</h3>
     <ul>
       <li><code>title</code> — 1 to 200 characters, required.</li>
       <li><code>message</code> — up to 16,000 characters.</li>
       <li><code>link</code> and <code>image</code> — up to 2,048 characters. An <code>image</code> must be <code>https</code>, and PNG, JPEG or GIF up to 5 MB.</li>
     </ul>
-    <p>
-      A push payload has a 4,000-byte ceiling set by Apple, so a long notification is
-      truncated in the banner and delivered in full to the app.
-    </p>
-
+    <p>A push payload has a 4,000-byte ceiling set by Apple, so a long notification is truncated in the banner and delivered in full to the app.</p>
     <h3>Why did my send get a 401?</h3>
-    <p>
-      The key is unknown or revoked. Revocation takes effect on the next send.
-      Reinstalling the app, or moving to a new phone, creates a new identity and
-      the old keys stop working — there is no migration, by design.
-    </p>
+    <p>The key is unknown or revoked. Revocation takes effect on the next send. Reinstalling the app, or moving to a new phone, creates a new identity and the old keys stop working — there is no migration, by design.</p>
   </section>
 
   <section>
     <h2>Privacy and encryption</h2>
-
     <h3>Can you read my notifications?</h3>
-    <p>
-      No. The title, body, link and image URL are encrypted with your
-      device's public key at the moment they arrive, before anything is written
-      to the database, and only your device holds the key that opens them. A
-      full copy of the database together with every server secret does not
-      reveal the contents of a single notification. The
-      <a href="https://github.com/notifi-it/notifi">source</a> is public if you
-      want to check that claim rather than take it.
-    </p>
-
+    <p>No. The title, body, link and image URL are encrypted with your device's public key at the moment they arrive, before anything is written to the database, and only your device holds the key that opens them. A full copy of the database together with every server secret does not reveal the contents of a single notification. The <a href="https://github.com/notifi-it/notifi">source</a> is public if you want to check that claim rather than take it.</p>
     <h3>What can the server see?</h3>
-    <p>
-      The IP addresses of the sender and the device, the time of every send and
-      every collection, the approximate size of a notification, which key sent it and
-      how often, and your device's push token. Because the sender and the
-      recipient both talk to the same server, that server is in a position to
-      correlate the two. The <a href="/privacy">privacy policy</a> covers this
-      in full.
-    </p>
-
-    <h3 id="logs">Is it safe to put the key in the URL?</h3>
-    <p>
-      It is convenient and it is the weaker option. A query string lands in
-      Cloudflare's edge logs, your shell history and any proxy in between, in
-      the clear, before the encryption happens. Send the key as a
-      <code>Authorization: Bearer</code> header and the body in a
-      <code>POST</code> body where you can.
-    </p>
-
+    <p>The IP addresses of the sender and the device, the time of every send and every collection, the approximate size of a notification, which key sent it and how often, and your device's push token. Because the sender and the recipient both talk to the same server, that server is in a position to correlate the two. The <a href="/privacy">privacy policy</a> covers this in full.</p>
+    <h3>Is it safe to put the key in the URL?</h3>
+    <p>It is convenient and it is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Send the key as a <code>Authorization: Bearer</code> header and the body in a <code>POST</code> body where you can.</p>
     <h3>How long are notifications kept?</h3>
-    <p>
-      A notification is deleted as soon as your device confirms it has it. One your
-      device never collects stays, encrypted, until it does — there is no time
-      limit. Revoked send keys are kept forever, as hashes, so that a revoked
-      key can never be reused.
-    </p>
-
+    <p>A notification is deleted as soon as your device confirms it has it. One your device never collects stays, encrypted, until it does — there is no time limit. Revoked send keys are kept forever, as hashes, so that a revoked key can never be reused.</p>
     <h3>What happens if I delete the app?</h3>
-    <p>
-      Your notifications, your keys and your identity go with it. None of it is
-      recoverable, because nothing is held that could recover it, and every send
-      key you created stops working.
-    </p>
-
+    <p>Your notifications, your keys and your identity go with it. None of it is recoverable, because nothing is held that could recover it, and every send key you created stops working.</p>
     <h3>Do you track me?</h3>
-    <p>
-      There is no analytics, no crash reporting, no advertising identifier and
-      no third-party SDK in the apps. This website sets no cookies and makes no
-      third-party request; the fonts are served from this domain.
-    </p>
+    <p>There is no analytics, no crash reporting, no advertising identifier and no third-party SDK in the apps. This website sets no cookies and makes no third-party request; the fonts are served from this domain.</p>
   </section>
 
   <section>
     <h2>The apps</h2>
-
     <h3>Which devices does it run on?</h3>
-    <p>
-      iPhone and iPad on iOS 17 or later, and Mac on macOS 14 or later, where it
-      lives in the menu bar. There is no Android app: delivery goes through
-      Apple's push service.
-    </p>
-
+    <p>iPhone and iPad on iOS 17 or later, and Mac on macOS 14 or later, where it lives in the menu bar. There is no Android app: delivery goes through Apple's push service.</p>
     <h3>Where do I get the Mac app?</h3>
-    <p>
-      From this site, as a notarized DMG. It is not on the App Store, and it
-      updates itself.
-    </p>
-
+    <p>From this site, as a notarized DMG. It is not on the App Store, and it updates itself.</p>
     <h3>Can I send to more than one device?</h3>
-    <p>
-      Yes, by creating a key on each. A key delivers only to the device that
-      created it, so which key a script holds decides where its alerts land.
-    </p>
-
+    <p>Yes, by creating a key on each. A key delivers only to the device that created it, so which key a script holds decides where its alerts land.</p>
     <h3>How do I revoke a key?</h3>
-    <p>
-      Delete it in the app. The next send with it is refused. A key is shown
-      once when it is created and is never stored, so it cannot be shown again —
-      if you lose it, make a new one.
-    </p>
+    <p>Delete it in the app. The next send with it is refused. A key is shown once when it is created and is never stored, so it cannot be shown again — if you lose it, make a new one.</p>
   </section>
 
   <section>
     <h2>Urgent alerts</h2>
-
     <h3>What does the urgent toggle do?</h3>
-    <p>
-      A key marked urgent, sent with <code>is_critical=1</code>, is delivered as
-      a Time Sensitive notification: it breaks through Focus and stays on the
-      lock screen. It does <strong>not</strong> sound through the silent switch.
-      Both halves are required — a send that asks for urgency with a key that
-      does not have it is delivered as an ordinary notification rather than
-      refused.
-    </p>
-
+    <p>A key marked urgent, sent with <code>is_critical=1</code>, is delivered as a Time Sensitive notification: it breaks through Focus and stays on the lock screen. It does <strong>not</strong> sound through the silent switch. Both halves are required — a send that asks for urgency with a key that does not have it is delivered as an ordinary notification rather than refused.</p>
     <h3>Will it ever ring through silent mode?</h3>
-    <p>
-      That needs Apple's Critical Alerts entitlement, which has been requested
-      and not yet granted. If it is granted, the same toggle reaches the higher
-      level with nothing else to change.
-    </p>
+    <p>That needs Apple's Critical Alerts entitlement, which has been requested and not yet granted. If it is granted, the same toggle reaches the higher level with nothing else to change.</p>
   </section>
 
   <section>
     <h2>Reliability</h2>
-
     <h3>Is delivery guaranteed?</h3>
-    <p>
-      No. Every send goes out over Apple's push service and a websocket at the
-      same time, and the notification is stored before either, so the app can fetch
-      anything a push missed. But delivery still depends on Apple, your network
-      and your device's settings, and the service is provided as is, without an
-      uptime guarantee. The <a href="/terms">terms</a> say so plainly.
-    </p>
+    <p>No. Every send goes out over Apple's push service and a websocket at the same time, and the notification is stored before either, so the app can fetch anything a push missed. But delivery still depends on Apple, your network and your device's settings, and the service is provided as is, without an uptime guarantee. The <a href="/terms">terms</a> say so plainly.</p>
     <div class="card">
-      <p>
-        <strong>Do not make notifi the only path for anything where a missed
-        notification causes harm.</strong> It is a pager for your own systems, not a
-        life-safety, medical or emergency alerting system.
-      </p>
+      <p><strong>Do not make notifi the only path for anything where a missed notification causes harm.</strong> It is a pager for your own systems, not a life-safety, medical or emergency alerting system.</p>
     </div>
   </section>
 
   <section>
     <h2>Something else</h2>
-    <p>
-      Questions not answered here can be raised at
-      <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.
-    </p>
+    <p>Questions not answered here can be raised at <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.</p>
   </section>
 
-</main>
 </main>
 
 <footer>
@@ -421,8 +302,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <img src="/wordmark.svg" alt="notifi">
     </div>
   </div>
-  <!-- Matches the home page: the sticky header carries the navigation, so the
-       footer holds only what is not already up there. -->
+  <!-- The sticky header already carries the navigation, so the footer holds
+       only what is not up there — and never a link to the page you are on. -->
   <div class="wrap foot">
     <a href="/">Home</a>
     <a href="/about">About</a>
@@ -438,7 +319,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <span class="meta">Built by Maximilian Mitchell</span>
   </div>
 </footer>
-
 
 <script>
 // The static. Six noise tiles are baked once and cycled at 12fps rather than a
@@ -530,6 +410,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 // readable and the text stays one string for anything that copies or reads it.
 (function(){
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  // Opted out per page with <body data-reveal="off">: the 404 has to be
+  // readable the instant it lands, not staged.
+  if (document.body.dataset.reveal === "off") return;
 
   var targets = document.querySelectorAll("h2, .lede");
   if (!targets.length) return;

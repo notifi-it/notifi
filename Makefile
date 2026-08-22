@@ -1,5 +1,5 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
-	gen-site-md check-site-md check-site gen-api check-api \
+	gen-site check-site-html gen-site-md check-site-md check-site gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-metadata app-metadata-check shots screens screens-mac
 
@@ -38,6 +38,17 @@ gen-copy:
 
 check-copy:
 	pnpm --filter @notifi/copy check-copy
+
+# The website's pages, assembled from packages/site. One stylesheet, one
+# script and one set of facts — the social URLs, the contact address, the
+# App Store link — instead of a copy per page. The seven doc pages are written
+# out whole; index.html keeps its own body and gets its footer, its schema and
+# its API section spliced between the `<!-- gen:… -->` markers.
+gen-site:
+	pnpm --filter @notifi/site gen-site
+
+check-site-html:
+	pnpm --filter @notifi/site check-site-html
 
 # The API reference, from packages/apidoc outwards. That one module is the
 # source of truth for the /docs page, openapi.json, the Postman and Bruno

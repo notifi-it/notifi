@@ -1,0 +1,141 @@
+
+@font-face{font-family:'Recursive Mono';font-style:normal;font-weight:300 800;font-display:swap;
+  src:url(/fonts/recursive-mono.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:swap;
+  src:url(/fonts/karla.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+/* The one copy. Every page inlines this block rather than linking it, so the
+   first paint needs no round trip and each page stays a self-contained
+   document; `make gen-site` is what keeps the copies identical.
+   index.html still carries its own superset of these tokens — four motion
+   values the doc pages do not use — and has not been folded in yet. */
+:root{
+  --bg:#1C1C1E;
+  --fg:#EDEDED;
+  --muted:#A1A1A1;
+  /* 4.75:1 on --bg and 4.6:1 on --surface. It was #6E6E6E, which measured
+     4.26:1 on --surface, below the 4.5:1 floor for text under 18px. */
+  --dim:#8A8A8A;
+  --line:#333333;
+  --chip:#3C3C3C;
+  --surface:#262628;
+  --brand:#C82A2A;
+  --brand-text:#DB4A4B;
+  --mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --gutter:clamp(20px,5vw,40px);
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --max:1080px;
+}
+*{box-sizing:border-box;margin:0}
+/* scroll-padding-top clears the 60px sticky header, which would otherwise sit
+   on top of whatever an in-page anchor just jumped to. */
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* Television static over the ground.
+   Greys only, and deliberately shallow: --dim measures 4.75:1 on a flat --bg,
+   a quarter of a point above the 4.5:1 floor, and the grain spends that margin.
+   The speckle runs #101010 to #292929, which holds --dim at roughly 4.5:1 at
+   its worst. Widening it is a legibility regression, not a stronger texture.
+   Painted by the canvas below; position:fixed so it does not scroll with the
+   page, and z-index 0 with the content lifted above it. */
+#static{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+  display:block;width:100%;height:100%;
+}
+body>*:not(#static){position:relative;z-index:1}
+/* Scroll reveal: the text resolves out of the static, letter by letter.
+   The arrival is faded rather than snapped. Each letter carries its own long
+   ease, so what travels down a paragraph is a soft front a few characters wide
+   instead of a hard edge — they still light one at a time, it is only the
+   colour that takes its time.
+   Letters start at full contrast and are dimmed by script only once it has
+   taken over, so a reader with no JS — or one who arrives before it runs —
+   gets the text at its designed contrast rather than buried in the ground. */
+.reveal.armed .c{color:#2B2B2D;transition:color .55s var(--ease-out)}
+.reveal.armed .c.on{color:var(--fg)}
+.lede.reveal.armed .c.on{color:var(--muted)}
+/* Letters are wrapped inside their word so a line can still only break at a
+   space. Splitting straight to characters let the browser break mid-word. */
+.reveal .w{white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  .reveal.armed .c{color:inherit}
+}
+::selection{background:var(--brand);color:#fff}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+.rule{height:1px;background:var(--line);border:0}
+
+h1,h2,h3{font-family:var(--mono);font-weight:700;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
+h1{font-size:clamp(30px,5.4vw,48px)}
+h2{font-size:clamp(21px,3vw,27px)}
+h3{font-size:16px;letter-spacing:-.02em}
+p,li{max-width:70ch}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+}
+
+header{position:sticky;top:0;z-index:20;background:rgba(28,28,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:60px}
+.mark{display:flex;align-items:center;gap:9px;text-decoration:none}
+.mark img{height:17px;width:auto;display:block}
+nav{margin-left:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--fg)}
+
+.bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
+.bell::before{
+  content:"";position:absolute;inset:0;background:currentColor;
+  -webkit-mask:url(/bell.svg) center/contain no-repeat;
+          mask:url(/bell.svg) center/contain no-repeat;
+}
+.lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
+.lockup img{display:block;height:var(--word,20px);width:auto}
+
+.doc{padding:clamp(44px,7vw,80px) 0 clamp(50px,8vw,90px)}
+.doc h1{margin-bottom:16px}
+.doc .lede{margin-bottom:12px}
+.doc section{margin-top:clamp(38px,5vw,58px)}
+.doc h2{margin-bottom:16px}
+.doc h3{margin-top:26px;margin-bottom:8px;color:var(--fg)}
+.doc p{color:var(--muted);margin-top:12px}
+.doc ul{margin:12px 0 0;padding:0;list-style:none}
+.doc li{
+  color:var(--muted);padding:11px 0;border-bottom:1px solid var(--line);
+  line-height:1.5;
+}
+.doc li:first-child{border-top:1px solid var(--line)}
+.doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
+.doc strong{color:var(--fg);font-weight:500}
+.doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
+.doc a:hover{text-decoration-color:var(--fg)}
+
+.card{
+  border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  padding:clamp(18px,2.4vw,26px);margin-top:20px;
+}
+.card p:first-child{margin-top:0}
+
+footer{border-top:1px solid var(--line);padding:40px 0 56px}
+.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+  font-family:var(--mono);font-size:13px;color:var(--dim)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--fg)}
+.foot .meta{margin-left:auto}
+@media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
