@@ -435,13 +435,6 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 @media(max-width:920px){.reviews{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.reviews{grid-template-columns:1fr}}
 
-/* ── screenshots ────────────────────────────────────────────── */
-/* One framed hero shot with the other screens as thumbnails beside it,
-   rather than four equal tiles. The bezel is silver because the screenshot
-   and the page are both near-black: a dark screen inside a dark bezel on a
-   dark page disappears into its own frame, and the light metal is what
-   separates the phone from the ground. No shadow under the phone — the site
-   has no other elevation, and hairlines are how every panel here ends. */
 /* The launch animation, inlined into the page at the stage's own 2160x960 and
    scaled down to fit. An iframe cannot inherit the static behind it — its ground
    stops the grain dead in a rectangle — so the scene is in the page, carrying no
@@ -608,6 +601,15 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-cp2{left:50%;top:50%;width:92%}
 .gf-cl2{left:48%;top:58.9%;width:46%;height:9%}
 }
+@media(prefers-reduced-motion:reduce){
+.gf-stage *{animation:none}
+.gf-hd0,.gf-bg0,.gf-dv0,.gf-sc0,.gf-rp0{opacity:1}
+.gf-term .gf-title.gf-ti0{opacity:1}
+.gf-tp0_0,.gf-tp0_1,.gf-tp0_2{width:auto}
+.gf-ccar,.gf-trail{display:none}
+.gf-hd1,.gf-hd2,.gf-bg1,.gf-bg2,.gf-dv1,.gf-dv2,.gf-ti1,.gf-ti2,.gf-cl2{display:none}
+.gf-term .gf-tabs button.gf-gf-tabA{background:var(--chip);color:var(--fg)}
+}
 @keyframes gf-vis0{0%,0.5%{opacity:0} 2.0%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
 @keyframes gf-type0_0{0%,3.0%{width:0;animation-timing-function:steps(43,end)} 7.6%,100%{width:43ch}}
 @keyframes gf-car0_0{0%,3.0%{opacity:0} 3.01%,7.6%{opacity:1} 7.61%,100%{opacity:0}}
@@ -659,74 +661,15 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 @keyframes gf-tabC{0%,66.2%{background:#222224;color:var(--dim)} 66.8%,100%{background:var(--chip);color:var(--fg)}}
 .app-film .gf-stage{width:100%;height:100%;max-width:none;aspect-ratio:auto;border:0;border-radius:0;background:transparent;position:absolute;inset:0}
 /* gf:css:end */
-/* The loop has no still frame that reads on its own — every element it would
-   freeze on is mid-fade — so reduced motion gets the screenshots below instead
-   of a frozen scene. */
-@media(prefers-reduced-motion:reduce){.app-film{display:none}}
+/* Reduced motion gets the first scene held at its end: the film is the only
+   thing in this section now, so hiding it would leave the heading alone. The
+   scene carries the rules that compose that still. */
 /* Three devices across a phone's width leaves each one a thumbnail, so the
    scene stacks instead: the film carries a portrait layout of its own below
    this width, and the figure has to stop imposing a landscape box on it. */
 @media(max-width:760px){.app-film{aspect-ratio:10/16;margin:24px calc(50% - 50vw)}}
 
-.app-two{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:clamp(24px,4.5vw,56px);align-items:center;margin-top:30px;
-}
-.app-phone{margin:0}
-.app-phone .phone{
-  max-width:340px;margin:0 auto;
-  border:1px solid #9A9A98;
-  background:linear-gradient(160deg,#E8E8E6,#C9C9C7);
-  border-radius:clamp(28px,4.5vw,44px);
-  padding:clamp(8px,1.3vw,12px);
-}
-.app-phone img{width:100%;height:auto;display:block;border-radius:clamp(20px,3.4vw,34px)}
-.app-phone figcaption{
-  font-family:var(--mono);font-size:12px;color:var(--dim);
-  margin-top:10px;text-align:center;
-}
-.app-two .mac{width:100%;max-width:440px;margin:0 auto}
-.app-two .mac-shot{width:min(360px,92%)}
-.app-two .mac figcaption{margin-top:10px;text-align:center}
-/* The launch gif's Mac, minus its wallpaper: the popover is cut out of its
-   black field (mac-cut.webp) and hangs over the page's own grainy ground,
-   under a frosted bar. The shadow follows the popover's alpha, arrow and
-   all — the one place the site casts a shadow, because a popover without
-   one reads as a flat card, not a thing hanging from the bar. */
-.mac-wall .mac-desk{background:transparent}
-.mac-wall .mac-bar{background:rgba(28,28,30,0.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,0.06)}
-.mac-wall .mac-shot{padding:0 0 26px;filter:drop-shadow(0 18px 36px rgba(0,0,0,0.55))}
-/* One under the other on a phone: side by side, each shot is half a narrow
-   column and neither reads. */
-@media(max-width:760px){
-  .app-two{grid-template-columns:minmax(0,1fr)}
-}
 
-/* ── the Mac, hanging from its menu bar ─────────────────────── */
-/* Same construction as the iOS shots — hairline border, surface ground — but
-   the popover is shown attached to the thing that anchors it. The bar is drawn
-   in HTML rather than captured, so it carries no real desktop; the bell sits
-   dead centre because the popover's arrow is at the centre of the screenshot
-   below it, and the two must line up or the figure reads as broken. */
-.mac{margin:34px 0 0;max-width:520px}
-.mac-desk{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
-.mac-bar{
-  position:relative;display:flex;align-items:center;justify-content:space-between;
-  height:36px;padding:0 16px;border-bottom:1px solid var(--line);
-}
-.mac-bar .bell{position:absolute;left:50%;transform:translateX(-50%);color:var(--fg)}
-.mac-menus{
-  display:flex;align-items:center;gap:12px;
-  font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-  font-size:12px;color:var(--dim);
-}
-.mac-menus b{color:var(--fg);font-weight:600}
-.mac-apple{width:15px;height:15px;color:var(--fg)}
-.mac-status{display:flex;align-items:center;gap:13px}
-.mac-ico{width:15px;height:15px;color:var(--dim)}
-.mac-clock{font-family:var(--mono);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
-.mac-shot{display:block;width:min(460px,94%);height:auto;margin:0 auto}
-.mac figcaption{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
 
 /* ── language tabs ──────────────────────────────────────────── */
 .tabs{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
@@ -1072,42 +1015,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 <!-- gf:html:end -->
     </figure>
 
-    <div class="app-two">
-      <figure class="app-phone">
-        <div class="phone">
-          <img src="/screens/notifications.webp" width="620" height="1348" loading="lazy"
-               alt="The notifi inbox: a black list of alerts grouped under Today and Yesterday, unread ones showing their age in red.">
-        </div>
-        <figcaption>Inbox</figcaption>
-      </figure>
-      <figure class="mac mac-wall">
-        <div class="mac-desk">
-          <div class="mac-bar" aria-hidden="true">
-            <span class="mac-menus">
-              <svg class="mac-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
-            </span>
-            <span class="bell" style="--bell:15px"></span>
-            <span class="mac-status">
-              <svg class="mac-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 9.5a11.5 11.5 0 0 1 16 0"/><path d="M6.8 12.8a7.5 7.5 0 0 1 10.4 0"/>
-                <path d="M9.6 16a3.6 3.6 0 0 1 4.8 0"/><path d="M12 18.8h.01"/>
-              </svg>
-              <svg class="mac-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2.5" y="8" width="16" height="8" rx="2.4"/>
-                <rect x="4.4" y="9.9" width="9" height="4.2" rx="1" fill="currentColor" stroke="none"/>
-                <path d="M20.5 10.8v2.4"/>
-              </svg>
-              <span class="mac-clock">18:41</span>
-            </span>
-          </div>
-          <img class="mac-shot" src="/screens/mac-cut.webp" width="840" height="1296" loading="lazy"
-               alt="The same inbox hanging from the Mac menu bar: the bell sits in the bar and the popover beneath it lists the day's alerts, the urgent one in red.">
-        </div>
-        <figcaption>Mac menu bar</figcaption>
-      </figure>
-    </div>
   </div>
 </section>
 

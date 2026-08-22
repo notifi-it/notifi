@@ -174,6 +174,14 @@ for p in range(3):
     if VERT_CLIP[p]: vgeo.append(f".cl{p}{{{VERT_CLIP[p]}}}")
 NLV=chr(10)
 VERTICAL="@media(max-width:760px){"+NLV+NLV.join(vgeo)+NLV+"}"
+still=[".stage *{animation:none}",
+       ".hd0,.bg0,.dv0,.sc0,.rp0{opacity:1}",
+       ".term .title.ti0{opacity:1}",
+       ".tp0_0,.tp0_1,.tp0_2{width:auto}",
+       ".ccar,.trail{display:none}",
+       ".hd1,.hd2,.bg1,.bg2,.dv1,.dv2,.ti1,.ti2,.cl2{display:none}",
+       ".term .tabs button.tabA{background:var(--chip);color:var(--fg)}"]
+STILL="@media(prefers-reduced-motion:reduce){"+NLV+NLV.join(still)+NLV+"}"
 anim=[]
 for p in range(3):
     anim.append(f".hd{p},.bg{p},.dv{p},.ti{p},.cl{p}{{animation-name:vis{p}}}")
@@ -273,6 +281,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 {NL.join(geo)}
 {NL.join(anim)}
 {VERTICAL}
+{STILL}
 {NL.join(kf)}
 </style>
 </head>
