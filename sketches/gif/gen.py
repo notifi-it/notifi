@@ -2,7 +2,7 @@ O=[0.0,100/3,200/3]
 def g(p,x): return round(O[p]+x,3)
 KARLA,RECUR=('/fonts/karla.woff2','/fonts/recursive-mono.woff2')
 BODY,CLAP,BELL=('/bell-body.svg','/bell-clapper.svg','/bell.svg')
-SAD='/sad-logo.png'
+ANAGLYPH='/anaglyph-bell.png'
 
 # ---- original composition (film.js): terminal centred, devices centred, dots on the 50% midline
 TERM='left:4.17%;top:24.5%;width:38.43%;height:55%'
@@ -53,8 +53,8 @@ PASSES=[
          '    -d key=<span class="k">nk_live_8f3a</span> \\','    -d title=<span class="s">"Hello from notifi"</span> \\',
          '    -d message=<span class="s">"Your first notification."</span> \\',
          '    -d link=<span class="s">https://notifi.it/docs</span> \\',
-         '    -d image=<span class="s">https://notifi.it/sad-logo.png</span>'],
-  card=('Hello from notifi','Your first notification.'),thumb=SAD,cardpos='left:73.5%;top:45.5%;width:22%',sb=PD_SB+PD_LOCK,clip=None),
+         '    -d image=<span class="s">https://notifi.it/anaglyph-bell.png</span>'],
+  card=('Hello from notifi','Your first notification.'),thumb=ANAGLYPH,cardpos='left:73.5%;top:45.5%;width:22%',sb=PD_SB+PD_LOCK,clip=None),
  dict(title='ci.yml — -zsh',head=('No signup, no SDK.','Install the app, copy your key, start sending.'),
   lines=['<span class="c"># a CI step fires only when the build fails</span>','<span class="s">- name:</span> notify',
          '  <span class="s">run:</span> <span class="c">|</span>','    curl notifi.it/send -d key=<span class="k">$NOTIFI_KEY</span> \\',

@@ -40,7 +40,7 @@ curl -X POST https://notifi.it/send \
   -d "title=Hello from notifi" \
   -d "message=Your first notification." \
   -d "link=https://notifi.it/docs" \
-  -d "image=https://notifi.it/sad-logo.png"
+  -d "image=https://notifi.it/anaglyph-bell.png"
 ```
 
 `202` with `{"ok":true}` means the server took it.

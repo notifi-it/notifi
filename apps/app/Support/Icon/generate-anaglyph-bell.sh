@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 EMPTY="../../../api/public/bell-empty.svg"
-OUT="../../../api/public/sad-logo.png"
+OUT="../../../api/public/anaglyph-bell.png"
 SIZE=512
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT

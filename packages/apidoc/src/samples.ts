@@ -12,7 +12,7 @@ export const samples: Sample[] = [
   -d "title=Hello from notifi" \\
   -d "message=Your first notification." \\
   -d "link=https://notifi.it/docs" \\
-  -d "image=https://notifi.it/sad-logo.png"`,
+  -d "image=https://notifi.it/anaglyph-bell.png"`,
   },
   {
     id: 'js',
@@ -30,7 +30,7 @@ export const samples: Sample[] = [
     title: "Hello from notifi",
     message: "Your first notification.",
     link: "https://notifi.it/docs",
-    image: "https://notifi.it/sad-logo.png",
+    image: "https://notifi.it/anaglyph-bell.png",
   }),
 });`,
   },
@@ -50,7 +50,7 @@ requests.post(
         "title": "Hello from notifi",
         "message": "Your first notification.",
         "link": "https://notifi.it/docs",
-        "image": "https://notifi.it/sad-logo.png",
+        "image": "https://notifi.it/anaglyph-bell.png",
     },
 )`,
   },
@@ -75,7 +75,7 @@ func main() {
 		"title":   {"Hello from notifi"},
 		"message": {"Your first notification."},
 		"link":    {"https://notifi.it/docs"},
-		"image":   {"https://notifi.it/sad-logo.png"},
+		"image":   {"https://notifi.it/anaglyph-bell.png"},
 	}
 	req, _ := http.NewRequest("POST", "https://notifi.it/send",
 		strings.NewReader(form.Encode()))
@@ -101,7 +101,7 @@ request.httpBody = try JSONEncoder().encode([
     "title": "Hello from notifi",
     "message": "Your first notification.",
     "link": "https://notifi.it/docs",
-    "image": "https://notifi.it/sad-logo.png",
+    "image": "https://notifi.it/anaglyph-bell.png",
 ])
 
 _ = try await URLSession.shared.data(for: request)`,
@@ -122,7 +122,7 @@ req.set_form_data(
   "title" => "Hello from notifi",
   "message" => "Your first notification.",
   "link" => "https://notifi.it/docs",
-  "image" => "https://notifi.it/sad-logo.png"
+  "image" => "https://notifi.it/anaglyph-bell.png"
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }`,
@@ -143,7 +143,7 @@ curl_setopt_array($ch, [
         "title"   => "Hello from notifi",
         "message" => "Your first notification.",
         "link"    => "https://notifi.it/docs",
-        "image"   => "https://notifi.it/sad-logo.png",
+        "image"   => "https://notifi.it/anaglyph-bell.png",
     ],
 ]);
 curl_exec($ch);`,
@@ -165,7 +165,7 @@ reqwest::Client::new()
         ("title", "Hello from notifi"),
         ("message", "Your first notification."),
         ("link", "https://notifi.it/docs"),
-        ("image", "https://notifi.it/sad-logo.png"),
+        ("image", "https://notifi.it/anaglyph-bell.png"),
     ])
     .send()
     .await?;`,
