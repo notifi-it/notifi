@@ -17,10 +17,7 @@ final class SyncEngine {
     private(set) var isSyncing = false
     private(set) var unread = 0
 
-    private static let legacyBookmarkKey = "lastSyncedDeviceSeq"
-    private static let legacyFailureKeyPrefix = "ingestFailedAt."
     private static let unreadableGraceSeconds: TimeInterval = 14 * 24 * 60 * 60
-    private static let seqMigrationKey = "didMigrateToDeviceSeq"
     private static let pageSize = 200
     private static let maxPagesPerSync = 50
 
@@ -29,37 +26,11 @@ final class SyncEngine {
         self.identity = identity
         self.context = context
         self.keys = KeyCacheStore.load()
-        migrateToDeviceSeqIfNeeded()
     }
 
     static func summaryKeys(_ keys: [CachedKey]) -> [NotificationCategories.SummaryKey] {
         keys.filter { !$0.isRevoked }
             .map { NotificationCategories.SummaryKey(id: $0.id, name: $0.name) }
-    }
-
-    private func migrateToDeviceSeqIfNeeded() {
-        guard !LocalDev.isActive else { return }
-        let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: Self.seqMigrationKey) else { return }
-
-        if let existing = try? context.fetch(FetchDescriptor<Message>()) {
-            for message in existing where message.serverID > 0 {
-                message.serverID = -message.serverID
-            }
-            do {
-                try context.save()
-            } catch {
-                log.error("device_seq migration failed: \(String(describing: error), privacy: .public)")
-                return
-            }
-        }
-
-        for key in defaults.dictionaryRepresentation().keys
-        where key.hasPrefix(Self.legacyFailureKeyPrefix) {
-            defaults.removeObject(forKey: key)
-        }
-        defaults.removeObject(forKey: "lastSyncedMessageID")
-        defaults.set(true, forKey: Self.seqMigrationKey)
     }
 
     private var cachedState: SyncState?
@@ -71,15 +42,6 @@ final class SyncEngine {
             return existing
         }
         let fresh = SyncState()
-        if !LocalDev.isActive {
-            let defaults = UserDefaults.standard
-            fresh.bookmark = defaults.integer(forKey: Self.legacyBookmarkKey)
-            defaults.removeObject(forKey: Self.legacyBookmarkKey)
-            for key in defaults.dictionaryRepresentation().keys
-            where key.hasPrefix(Self.legacyFailureKeyPrefix) {
-                defaults.removeObject(forKey: key)
-            }
-        }
         context.insert(fresh)
         try? context.save()
         cachedState = fresh
