@@ -1,0 +1,90 @@
+/* The 404 page only. Appended after the shared tokens, so nothing here
+   has to out-specify them by accident. */
+:root{
+  /* Theme.chromaWarm and Theme.chromaCool, dark values, from the app's
+     Theme.swift. The 404 glyph degrades the same way the app's empty-state
+     bell does, so it fringes in the same two colours. */
+  --chroma-warm:#E03234;
+  --chroma-cool:#36C4D8;
+  /* Replaced by the script with a noise tile. `none` is a real background
+     layer, so the glyph still paints its base tone with no JS. */
+  --noise:none;
+}
+
+/* The 404 glyph. A direct port of GrainyBell in the app's EmptyStateView: a
+   mark in --muted with film grain overlaid and masked to its own shape, plus
+   two chroma copies fringing either side of it, and an occasional dropout in
+   brightness. The page already paints television static across the ground, and
+   this is the same signal failing harder over the one thing worth looking at.
+
+   The grain is the first background layer blended onto a flat --muted second
+   layer and clipped to the glyph, which is what .overlay(grain).mask(mark) does
+   in SwiftUI. -webkit-text-fill-color has to be put back on the chroma copies:
+   they inherit the transparent fill that makes the clip visible. */
+/* The bell is the only thing that moves. The numeral takes the same grain, at
+   the ground static's one-pixel cell and the app's own foreground white, but
+   holds still — 420px of type fringing and dropping out reads as a broken page
+   rather than a mark with a bad signal. */
+.notfound h1{margin:0;line-height:1}
+.bellmark{
+  display:block;position:relative;margin:0 auto clamp(10px,1.6vw,18px);
+  width:clamp(64px,10vw,116px);height:clamp(64px,10vw,116px);
+  opacity:var(--glow,1);
+}
+/* bell-empty.svg, the hollowed-out mark the app draws over an empty inbox. */
+.bellmark span{
+  position:absolute;inset:0;
+  -webkit-mask:url(/bell-empty.svg) center/contain no-repeat;
+          mask:url(/bell-empty.svg) center/contain no-repeat;
+}
+.bghost{background:currentColor;opacity:var(--chroma,0)}
+.bsolid{
+  background-image:var(--noise),linear-gradient(var(--muted),var(--muted));
+  background-size:60px 60px,auto;
+  background-blend-mode:overlay,normal;
+}
+.glyph{
+  display:block;position:relative;
+  font-family:var(--mono);font-weight:800;
+  font-size:clamp(120px,34vw,420px);line-height:.84;letter-spacing:-.06em;
+}
+.warm{color:var(--chroma-warm);transform:translateX(calc(var(--shift,0em) * -1))}
+.cool{color:var(--chroma-cool);transform:translateX(var(--shift,0em))}
+/* hard-light, not overlay: overlay keys off the backdrop, and against a
+   backdrop this close to white every grain pixel screens, so the texture
+   disappears. hard-light keys off the grain instead, which lets the dark half
+   of it darken. */
+.solid{
+  display:block;
+  background-image:var(--grain,none),linear-gradient(var(--fg),var(--fg));
+  background-size:180px 180px,auto;
+  background-blend-mode:hard-light,normal;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+}
+.said{
+  display:block;font-family:var(--mono);font-weight:700;
+  font-size:clamp(19px,2.6vw,27px);letter-spacing:-.03em;
+  color:var(--fg);margin-top:clamp(6px,1vw,12px);
+}
+
+/* Everything under the glyph is a way out, not the point of the page. The
+   index sits at --dim in the eyebrow's size, and the reveal lands the words
+   there rather than at --fg, which is where h2 normally resolves. */
+.notfound .doc{text-align:center}
+.notfound .doc .lede{color:var(--dim);margin:18px auto 0;max-width:52ch}
+.notfound .doc section{margin-top:clamp(30px,4vw,42px)}
+.notfound .doc h2{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+  margin-bottom:10px;
+}
+.notfound .doc li,.notfound .doc li:first-child{
+  color:var(--dim);font-size:13px;padding:4px 0;border:0;line-height:1.55;
+  max-width:62ch;margin-inline:auto;
+}
+.notfound .doc p{color:var(--dim);font-size:13px;max-width:62ch;margin-inline:auto}
+.notfound .doc a{color:var(--muted);text-decoration-color:transparent}
+.notfound .doc a:hover{color:var(--fg);text-decoration-color:var(--chip)}
+/* The header is chrome on every other page and a distraction on this one. */
+.notfound header nav a{font-size:12px;color:var(--dim)}

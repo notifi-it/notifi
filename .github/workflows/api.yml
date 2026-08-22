@@ -75,3 +75,11 @@ jobs:
             "https://api.cloudflare.com/client/v4/zones/$zone/purge_cache" >/dev/null
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      # The site is only as agent-ready as the deployed Worker: this asks the
+      # live origin for the Markdown variant of every page, the Vary and Link
+      # headers, the 406 and the 404, and fails the deploy loudly if the
+      # negotiation regressed. It runs after the purge so it reads the new
+      # assets rather than the cached old ones.
+      - name: Verify the site answers agents
+        run: node scripts/check-site.mjs

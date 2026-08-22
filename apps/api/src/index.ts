@@ -9,6 +9,7 @@ import { history } from './routes/history.js';
 import { keys } from './routes/keys.js';
 import { reviews } from './routes/reviews.js';
 import { send } from './routes/send.js';
+import { isSitePath, notFound, site } from './routes/site.js';
 import { socket } from './routes/socket.js';
 import { ApnsToken as ApnsTokenBase } from './apnstoken.js';
 import { sentryOptions } from './sentry.js';
@@ -33,7 +34,13 @@ app.use('*', async (c, next) => {
   await next();
 });
 
-app.use('*', ipLimiter);
+app.use('*', async (c, next) => {
+  const method = c.req.method;
+  if ((method === 'GET' || method === 'HEAD') && isSitePath(new URL(c.req.url).pathname)) {
+    return next();
+  }
+  return ipLimiter(c, next);
+});
 
 app.route('/', send);
 app.route('/', devices);
@@ -42,8 +49,9 @@ app.route('/', history);
 app.route('/', downloads);
 app.route('/', reviews);
 app.route('/', socket);
+app.route('/', site);
 
-app.notFound((c) => c.json(errBody('not_found', t(c).api.notFound), 404));
+app.notFound(notFound);
 
 app.onError((err, c) => {
   console.error('http.unhandled', err, { method: c.req.method, route: c.req.routePath });

@@ -65,6 +65,114 @@ Copy keys keep their existing names (`inbox.copyMessage`, the `message.*`
 namespace). They are internal, they key the xcstrings catalogue, and renaming
 them churns every Swift call site for no reader's benefit.
 
+## Every page in apps/api/public is generated
+
+**Nothing in `apps/api/public` is edited by hand.** `packages/site` assembles
+all eight pages and `make gen-site` writes them; `make check-site-html` (CI)
+fails on drift.
+
+| Change | Edit |
+|---|---|
+| Prose on about / contact / faq / terms / privacy | `packages/site/pages/<name>.md` |
+| The 404's markup, styles or glyph script | `packages/site/pages/404.{html,css,js}` |
+| The /docs reference | `packages/apidoc/src` (see below) |
+| The landing page's body | `apps/api/public/index.html`, between its `<!-- gen:… -->` markers |
+| Header, footer, `<head>`, shared CSS or JS | `packages/site/src/` |
+| A social URL, the contact address, the App Store link, the author | `packages/site/src/constants.ts` |
+| The schema.org Organization node | `packages/site/src/schema.ts` |
+
+The five prose pages are Markdown in, HTML *and* Markdown out. The dialect is
+whatever `gen-site-md` emits, so the two converters are inverses and the
+round-trip is the test: regenerate, run `make gen-site-md`, and the `.md` should
+come back unchanged. Two rules are positional rather than syntactic — the first
+`>` block after the `# ` heading is the lede and every later one is a
+`<div class="card">` callout, and `_text_` alone on a line is `<p class="meta">`.
+The eyebrow and all `<head>` values live in the front matter.
+
+The header nav and the footer both drop the link to the page they are on. That
+rule is in `chrome.ts`, not in seven hand-maintained copies.
+
+`index.html` is the exception that keeps its own body, its own 522 lines of CSS
+and its own scripts: it has an early `<head>` script, a canvas film and a
+superset of the design tokens, and folding those in has not been done. It still
+takes its footer, its schema and its whole API section from the shared source.
+
+## The website is served twice: HTML and Markdown
+
+Every doc-shaped page (the ones whose body is `<main class="wrap doc">`) has a
+generated `.md` sibling written by `make gen-site-md`; `make check-site-md` (CI,
+in the lint workflow) fails on drift. **Never edit a generated `.md` by hand.**
+`index.md` is the one exception and is hand-written, because the landing page
+does not survive a mechanical conversion — change `index.html` and you have to
+change it too.
+
+The converter understands only the tags those pages already use and throws on
+anything else, so a new construct fails the build rather than silently vanishing
+from the copy agents read.
+
+The Worker answers `Accept: text/markdown` on the page's own URL
+(acceptmarkdown.com): q-values are parsed properly, `Vary: Accept` is on every
+negotiated response, HTML carries `Link: </x.md>; rel="alternate"`, and an
+`Accept` we cannot satisfy gets a `406` rather than a silent fallback. That is
+why those paths are listed in `run_worker_first` in `wrangler.toml` — the asset
+bucket would otherwise answer before the Worker could negotiate. A page added to
+the site has to be added there, to `PAGES`/`PAGE_MARKDOWN` in
+`src/routes/site.ts`, and to `sitemap.xml`.
+
+An unknown path answers `404` with the Markdown or HTML body of `404.md` /
+`404.html` — a site map an agent can recover from — except under `/send`,
+`/keys`, `/devices`, `/history`, `/socket`, `/reviews` and `/download`, and for
+any method other than GET or HEAD, which keep the JSON `error.code` shape API
+clients parse.
+
+Those page requests are exempt from the per-IP limiter. They used to be answered
+by the asset bucket without ever reaching the Worker, and a shared IP reading the
+site should not spend the budget `/send` needs; unknown paths are still limited.
+
+`make check-site` asks a running origin for all of that and fails if any of it
+regressed. It runs against production after every deploy; run it against a local
+`make dev` before pushing:
+
+```bash
+BASE=http://localhost:8787 make check-site
+```
+
+## API documentation is generated
+
+`packages/apidoc/src` is the source of truth for everything that describes
+`/send`. Change a parameter, an error code or a limit there and run
+
+```bash
+make gen-api
+make gen-site
+make gen-site-md
+```
+
+`gen-api` writes `openapi.json`, `notifi.postman_collection.json` and
+`notifi.bru`. `gen-site` renders the /docs page body and style from `html.ts`,
+and splices the landing page's endpoint prose, parameter table, language tabs
+and code panels between its `<!-- gen:… -->` markers — one generator per file,
+so the two never fight over `index.html`. `docs.md` then comes from `docs.html`
+through `gen-site-md`, as every other page's Markdown does.
+
+`make check-api` and `make check-site-html` (CI, in the lint workflow) fail on
+drift.
+
+Each tab carries its language's own mark. `icons.ts` pulls the path out of
+`simple-icons` at generation time and inlines it, so the page still makes no
+third-party request; a sample names a slug (`siPython`) and an unknown one
+throws rather than rendering blank. `simple-icons` is a devDependency and the
+paths are baked into the committed HTML, so bumping it can show up as
+`check-site-html` drift — that is the check working.
+
+The samples in `samples.ts` are stored as plain source; the landing page's
+syntax colouring is applied by `landing.ts` — strings, `NOTIFI_KEY`, and a
+per-sample `keywords` list for the `.f` class. Add a sample and it appears in
+the landing page tabs and in the /docs recipes together.
+
+`llms.txt` is still hand-written. It carries prose the spec has no room for, and
+duplicating the error table there would be the next thing to generate.
+
 ## Migrations
 
 **Never type a migration by hand.** `apps/api/prisma/schema.prisma` is the
@@ -223,9 +331,10 @@ only bites at regular width. Screenshot the three headers side by side.
 
 ## No automated tests
 
-By decision. `make typecheck`, `make lint`, plus both `xcodebuild` schemes is
-the full gate. Don't add a test framework; say plainly what was and wasn't
-exercised.
+By decision. `make typecheck`, `make lint`, `make check-site-md`, plus both
+`xcodebuild` schemes is the full gate — and `make check-site` against a running
+origin for anything that touches the website's negotiation or its 404. Don't add
+a test framework; say plainly what was and wasn't exercised.
 
 ## Releasing to the App Store
 

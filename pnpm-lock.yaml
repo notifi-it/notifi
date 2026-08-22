@@ -48,6 +48,21 @@ importers:
         specifier: ^4.0.0
         version: 4.116.0(@cloudflare/workers-types@4.20260702.1)
 
+  packages/apidoc:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.16.5
+        version: 20.19.43
+      simple-icons:
+        specifier: ^16.28.0
+        version: 16.28.0
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.1
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
   packages/contract:
     dependencies:
       zod:
@@ -68,6 +83,22 @@ importers:
         version: 5.9.3
 
   packages/copy:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.16.5
+        version: 20.19.43
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.1
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
+  packages/site:
+    dependencies:
+      '@notifi/apidoc':
+        specifier: workspace:*
+        version: link:../apidoc
     devDependencies:
       '@types/node':
         specifier: ^20.16.5
@@ -734,6 +765,10 @@ packages:
     resolution: {integrity: sha512-FVtFjtBCMiJS6yb5CX7Sop45WFMpeGw6oRKuJnXYgf/f1ms/D7LE/ZUSNxnW7rZ/dbslQWYkoqFHGPaDBtaK4w==}
     engines: {node: '>=20.9.0'}
 
+  simple-icons@16.28.0:
+    resolution: {integrity: sha512-sQPR5AtK/ijRjou7zw7mlLp08oB6FH7i0lOy5XJ2zp9mJs/yejgiOn7KvQoe2q4YJIx6VmgUSW5AOefebPt5kg==}
+    engines: {node: '>=0.12.18'}
+
   source-map@0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
@@ -1366,6 +1401,8 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.2
       '@img/sharp-win32-ia32': 0.35.2
       '@img/sharp-win32-x64': 0.35.2
+
+  simple-icons@16.28.0: {}
 
   source-map@0.6.1: {}
 

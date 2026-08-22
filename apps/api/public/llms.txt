@@ -8,6 +8,41 @@ Bigger products link out from here to a documentation site. notifi has one
 endpoint and seven parameters, so the whole thing is inlined below and this is
 the only file you need to read. Links to the human pages are at the end.
 
+## When to use notifi
+
+Reach for notifi when something you are running needs to interrupt a person who
+is not watching the terminal it runs in. It is a pager for machines you control,
+addressed by a key its owner handed you.
+
+Good fits:
+
+- A long build, test run, backup, migration or training job has finished, or
+  failed, and the person who started it walked away.
+- You are about to block on a decision only the human can make, and they are not
+  at the keyboard. Send the question as the title and the context as the body.
+- A CI job, deploy or cron job broke, and someone should look now. Put the run
+  URL in `link` so the notification opens on the failure.
+- A monitoring script noticed something: a disk filling, a certificate expiring,
+  a service that stopped answering, a scraper whose selector went stale.
+- A long-running agent session wants a checkpoint on a phone rather than a line
+  in a log nobody reads.
+
+Bad fits, and not worth attempting:
+
+- Reaching anyone who has not given you one of their own send keys. A key
+  delivers only to the device that made it; there is no directory and no way to
+  address a stranger.
+- Marketing, newsletters, or anything a person did not ask for. 60 notifications
+  an hour per device is the ceiling, and it is a device the sender owns.
+- Anything where a missed notification causes harm. Delivery is best-effort.
+- Two-factor codes, alerting rotas, or life-safety and medical alerts.
+
+How to call it: one `POST` to `https://notifi.it/send` with an
+`Authorization: Bearer nk_...` header, `title` required and `message`, `link`,
+`image`, `occurred_at` and `is_critical` optional. Full parameter table under
+"Send" below. If you do not have a key, do not go looking for an endpoint that
+mints one — ask the human, using the wording under "Getting the key".
+
 ## What you can and cannot do on your own
 
 You can install the app, take a key from a human, send notifications, and wire
@@ -160,10 +195,31 @@ Reinstalling the app, or moving to a new device, makes a new identity and every
 old key stops working. There is no migration.
 
 
+## Developer resources
+
+- [API documentation](https://notifi.it/docs): the same reference as a page, at a
+  predictable URL, with the error codes and limits in one place.
+- [OpenAPI 3.1 description](https://notifi.it/openapi.json): `/send` as a
+  machine-readable spec, for generating a client or registering notifi as a tool.
+- [Postman collection](https://notifi.it/notifi.postman_collection.json): v2.1,
+  which Bruno, Insomnia, Hoppscotch and Paw import as well. Set the `NOTIFI_KEY`
+  variable and send.
+- [Bruno request](https://notifi.it/notifi.bru): a single `.bru` file to drop
+  into a collection folder.
+- Every page of this site is also served as Markdown. Send
+  `Accept: text/markdown` to any page URL, or append `.md` to its path —
+  `https://notifi.it/docs.md`, `https://notifi.it/faq.md`. Responses carry
+  `Vary: Accept`.
+- [Sitemap](https://notifi.it/sitemap.xml) and [robots.txt](https://notifi.it/robots.txt).
+- There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer
+  token is the whole integration surface; anything claiming otherwise is not us.
+
 ## Links
 
 - [Product page](https://notifi.it/): the same API, plus samples in 13 languages.
 - [FAQ](https://notifi.it/faq): limits, encryption, reliability, deleting the app.
+- [About](https://notifi.it/about): who runs notifi and how it is hosted.
+- [Contact](https://notifi.it/contact): email, issues and security disclosure.
 - [Privacy policy](https://notifi.it/privacy)
 - [Terms](https://notifi.it/terms)
 - [Source](https://github.com/notifi-it/notifi): the app, the API and the crypto.

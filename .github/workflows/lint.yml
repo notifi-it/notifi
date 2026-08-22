@@ -27,9 +27,12 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: node scripts/lint-comments.mjs
+      - run: node scripts/gen-site-md.mjs --check
       # check-migrations validates the schema, which needs the pinned prisma:
       # a bare npx fetches the newest major and fails on syntax this one accepts.
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @notifi/apidoc check-api
+      - run: pnpm --filter @notifi/site check-site-html
       - run: node scripts/check-migrations.mjs
       - run: node scripts/check-film.mjs
       # check-copy generates into apps/app, so it belongs to the same class as

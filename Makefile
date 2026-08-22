@@ -1,4 +1,5 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
+	gen-site check-site-html gen-site-md check-site-md check-site gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-metadata app-metadata-check app-screenshots app-resubmit shots screens screens-mac \
 	film film-gif check-film
@@ -42,6 +43,46 @@ gen-copy:
 
 check-copy:
 	pnpm --filter @notifi/copy check-copy
+
+# The website's pages, assembled from packages/site. One stylesheet, one
+# script and one set of facts — the social URLs, the contact address, the
+# App Store link — instead of a copy per page. The seven doc pages are written
+# out whole; index.html keeps its own body and gets its footer, its schema and
+# its API section spliced between the `<!-- gen:… -->` markers.
+gen-site:
+	pnpm --filter @notifi/site gen-site
+
+check-site-html:
+	pnpm --filter @notifi/site check-site-html
+
+# The API reference, from packages/apidoc outwards. That one module is the
+# source of truth for the /docs page, openapi.json, the Postman and Bruno
+# collections, and the landing page's parameter table and code samples; all
+# five are generated and must never be edited by hand. `check-api` is the CI
+# half and fails on drift.
+gen-api:
+	pnpm --filter @notifi/apidoc gen-api
+
+check-api:
+	pnpm --filter @notifi/apidoc check-api
+
+# The website twice over. Every doc-shaped page in apps/api/public is converted
+# to a .md sibling, which is what the Worker serves to a request asking for
+# `Accept: text/markdown`. The HTML is the source; the .md files are generated
+# and must never be edited by hand. index.md is the exception and is written by
+# hand, because the landing page does not survive a mechanical conversion.
+gen-site-md:
+	node scripts/gen-site-md.mjs
+
+check-site-md:
+	node scripts/gen-site-md.mjs --check
+
+# The agent-facing contract of the website, against a running origin: the
+# Markdown variant of every page, `Vary: Accept`, the 406, and the 404 that
+# answers with a site map. Defaults to production; set BASE=http://localhost:8787
+# to check a local `make dev` before deploying.
+check-site:
+	node scripts/check-site.mjs $(BASE)
 
 # The landing page's launch animation. sketches/gif/gen.py is the scene;
 # build.py injects it between the gf: markers in index.html, and the injected

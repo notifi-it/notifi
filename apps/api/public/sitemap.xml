@@ -2,13 +2,28 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://notifi.it/</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-08-21</lastmod>
+  </url>
+  <!-- The developer documentation. Named and linked from llms.txt and the
+       footer of every page, so a search for "notifi API docs" has something
+       to land on. -->
+  <url>
+    <loc>https://notifi.it/docs</loc>
+    <lastmod>2026-08-21</lastmod>
+  </url>
+  <url>
+    <loc>https://notifi.it/about</loc>
+    <lastmod>2026-08-21</lastmod>
+  </url>
+  <url>
+    <loc>https://notifi.it/contact</loc>
+    <lastmod>2026-08-21</lastmod>
   </url>
   <!-- Served from privacy.html; the assets binding 307s the .html form to this
        one, so this is the URL that should be indexed. -->
   <url>
     <loc>https://notifi.it/privacy</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-08-21</lastmod>
   </url>
   <url>
     <loc>https://notifi.it/terms</loc>
@@ -16,6 +31,6 @@
   </url>
   <url>
     <loc>https://notifi.it/faq</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-08-21</lastmod>
   </url>
 </urlset>

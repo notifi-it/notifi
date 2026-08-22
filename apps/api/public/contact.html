@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>notifi: contact and security disclosure</title>
+<meta name="description" content="How to reach notifi: email hello@notifi.it, bug reports and feature requests on GitHub, security disclosure, and privacy or data requests.">
+<meta name="theme-color" content="#1C1C1E">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<!-- The assets binding 307s the .html form of this path to the extensionless
+     one, so both are reachable. Pin the one that should be indexed. -->
+<link rel="canonical" href="https://notifi.it/contact">
+
+<!-- The same page as Markdown. The Worker also answers this URL with it
+     when a request asks for `Accept: text/markdown`, so an agent gets the
+     prose without the markup from whichever address it already had. -->
+<link rel="alternate" type="text/markdown" href="/contact.md" title="This page as Markdown">
+
+<meta property="og:title" content="Contact notifi">
+<meta property="og:description" content="Email, GitHub issues, security disclosure and privacy requests — and who answers them.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://notifi.it/contact">
+<meta property="og:site_name" content="notifi">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://notifi.it/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contact notifi">
+<meta name="twitter:description" content="Email, GitHub issues, security disclosure and privacy requests — and who answers them.">
+<meta name="twitter:image" content="https://notifi.it/og.png">
+<meta name="twitter:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://notifi.it/#org",
+      "name": "notifi",
+      "alternateName": "notifi.it",
+      "url": "https://notifi.it/",
+      "description": "notifi delivers a push notification to an iPhone, iPad or Mac from one HTTP request. No account, no SDK, and notification content is encrypted with the device's public key.",
+      "logo": "https://notifi.it/apple-touch-icon.png",
+      "email": "hello@notifi.it",
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "hello@notifi.it",
+          "url": "https://notifi.it/contact",
+          "availableLanguage": [
+            "en"
+          ]
+        },
+        {
+          "@type": "ContactPoint",
+          "contactType": "technical support",
+          "email": "hello@notifi.it",
+          "url": "https://github.com/notifi-it/notifi/issues",
+          "availableLanguage": [
+            "en"
+          ]
+        }
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "GB"
+      },
+      "founder": {
+        "@type": "Person",
+        "name": "Maximilian Mitchell"
+      },
+      "sameAs": [
+        "https://github.com/notifi-it/notifi",
+        "https://x.com/notifiit",
+        "https://instagram.com/notifidotit",
+        "https://facebook.com/notifidotit"
+      ]
+    },
+    {
+      "@type": "ContactPage",
+      "@id": "https://notifi.it/contact#page",
+      "url": "https://notifi.it/contact",
+      "name": "Contact notifi",
+      "description": "Email, GitHub issues, security disclosure and privacy requests.",
+      "about": {
+        "@id": "https://notifi.it/#org"
+      },
+      "publisher": {
+        "@id": "https://notifi.it/#org"
+      },
+      "inLanguage": "en"
+    }
+  ]
+}
+</script>
+
+<!-- Self-hosted, so the page has no third-party request at all. Latin
+     subset only. -->
+<link rel="preload" href="/fonts/recursive-mono.woff2" as="font" type="font/woff2" crossorigin>
+
+<style>
+@font-face{font-family:'Recursive Mono';font-style:normal;font-weight:300 800;font-display:swap;
+  src:url(/fonts/recursive-mono.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:swap;
+  src:url(/fonts/karla.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+/* The one copy. Every page inlines this block rather than linking it, so the
+   first paint needs no round trip and each page stays a self-contained
+   document; `make gen-site` is what keeps the copies identical.
+   index.html still carries its own superset of these tokens — four motion
+   values the doc pages do not use — and has not been folded in yet. */
+:root{
+  --bg:#1C1C1E;
+  --fg:#EDEDED;
+  --muted:#A1A1A1;
+  /* 4.75:1 on --bg and 4.6:1 on --surface. It was #6E6E6E, which measured
+     4.26:1 on --surface, below the 4.5:1 floor for text under 18px. */
+  --dim:#8A8A8A;
+  --line:#333333;
+  --chip:#3C3C3C;
+  --surface:#262628;
+  --brand:#C82A2A;
+  --brand-text:#DB4A4B;
+  --mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --gutter:clamp(20px,5vw,40px);
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  /* Motion, mirroring the app's Theme tokens so the site and the product
+     decelerate the same way. */
+  --dur-press:.12s;
+  --dur-state:.2s;
+  --dur-reveal:.25s;
+  /* 3.45:1 on --bg, clearing the floor for a control identifiable only by its
+     border. Separate from --line and --chip, which stay decorative hairlines. */
+  --control-border:#707070;
+  --max:1080px;
+}
+*{box-sizing:border-box;margin:0}
+/* scroll-padding-top clears the 60px sticky header, which would otherwise sit
+   on top of whatever an in-page anchor just jumped to. */
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* Television static over the ground.
+   Greys only, and deliberately shallow: --dim measures 4.75:1 on a flat --bg,
+   a quarter of a point above the 4.5:1 floor, and the grain spends that margin.
+   The speckle runs #101010 to #292929, which holds --dim at roughly 4.5:1 at
+   its worst. Widening it is a legibility regression, not a stronger texture.
+   Painted by the canvas below; position:fixed so it does not scroll with the
+   page, and z-index 0 with the content lifted above it. */
+#static{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+  display:block;width:100%;height:100%;
+}
+body>*:not(#static){position:relative;z-index:1}
+/* Scroll reveal: the text resolves out of the static, letter by letter.
+   The arrival is faded rather than snapped. Each letter carries its own long
+   ease, so what travels down a paragraph is a soft front a few characters wide
+   instead of a hard edge — they still light one at a time, it is only the
+   colour that takes its time.
+   Letters start at full contrast and are dimmed by script only once it has
+   taken over, so a reader with no JS — or one who arrives before it runs —
+   gets the text at its designed contrast rather than buried in the ground. */
+.reveal.armed .c{color:#2B2B2D;transition:color .55s var(--ease-out)}
+.reveal.armed .c.on{color:var(--fg)}
+.lede.reveal.armed .c.on{color:var(--muted)}
+/* Letters are wrapped inside their word so a line can still only break at a
+   space. Splitting straight to characters let the browser break mid-word. */
+.reveal .w{white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  .reveal.armed .c{color:inherit}
+}
+::selection{background:var(--brand);color:#fff}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+.rule{height:1px;background:var(--line);border:0}
+
+h1,h2,h3{font-family:var(--mono);font-weight:700;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
+h1{font-size:clamp(30px,5.4vw,48px)}
+h2{font-size:clamp(21px,3vw,27px)}
+h3{font-size:16px;letter-spacing:-.02em}
+p,li{max-width:70ch}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+}
+
+header{position:sticky;top:0;z-index:20;background:rgba(28,28,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:60px}
+.mark{display:flex;align-items:center;gap:9px;text-decoration:none}
+.mark img{height:17px;width:auto;display:block}
+nav{margin-left:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--fg)}
+
+.bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
+.bell::before{
+  content:"";position:absolute;inset:0;background:currentColor;
+  -webkit-mask:url(/bell.svg) center/contain no-repeat;
+          mask:url(/bell.svg) center/contain no-repeat;
+}
+.lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
+.lockup img{display:block;height:var(--word,20px);width:auto}
+
+.doc{padding:clamp(44px,7vw,80px) 0 clamp(50px,8vw,90px)}
+.doc h1{margin-bottom:16px}
+.doc .lede{margin-bottom:12px}
+.doc section{margin-top:clamp(38px,5vw,58px)}
+.doc h2{margin-bottom:16px}
+.doc h3{margin-top:26px;margin-bottom:8px;color:var(--fg)}
+.doc p{color:var(--muted);margin-top:12px}
+.doc ul{margin:12px 0 0;padding:0;list-style:none}
+.doc li{
+  color:var(--muted);padding:11px 0;border-bottom:1px solid var(--line);
+  line-height:1.5;
+}
+.doc li:first-child{border-top:1px solid var(--line)}
+.doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
+.doc strong{color:var(--fg);font-weight:500}
+.doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
+.doc a:hover{text-decoration-color:var(--fg)}
+
+.card{
+  border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  padding:clamp(18px,2.4vw,26px);margin-top:20px;
+}
+.card p:first-child{margin-top:0}
+
+footer{border-top:1px solid var(--line);padding:40px 0 56px}
+.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+  font-family:var(--mono);font-size:13px;color:var(--dim)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--fg)}
+.foot .meta{margin-left:auto}
+@media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<canvas id="static" aria-hidden="true"></canvas>
+
+<header>
+  <div class="wrap bar">
+    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/#api">API</a>
+      <a href="/#download">Download</a>
+      <a href="/faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap doc">
+
+  <p class="eyebrow">Contact</p>
+  <h1>Contact notifi</h1>
+  <p class="lede">One person answers everything here, in English, usually within a few working days. Pick whichever route fits what you are writing about.</p>
+
+  <section>
+    <h2>Email</h2>
+    <p><a href="mailto:hello@notifi.it"><code>hello@notifi.it</code></a> reaches the person who builds notifi. Use it for anything that does not belong in a public issue: press and partnership questions, App Store or licensing questions, or a problem you would rather not describe in the open.</p>
+    <p>There is no phone line and no support desk. notifi is free, has no accounts to lock you out of, and holds nothing about you that a support agent could look up, so email is the whole of it.</p>
+  </section>
+
+  <section>
+    <h2>Bugs and feature requests</h2>
+    <p>Open an issue at <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>. A bug report travels faster in the open, and the code it concerns is right there. Include the platform and app version, what you sent, and what arrived — never include a send key, and never paste one into an issue: a key is a credential, and anything in a public issue is public forever. Revoke it in the app if you have already posted one.</p>
+  </section>
+
+  <section>
+    <h2>Security disclosure</h2>
+    <p>Email <a href="mailto:hello@notifi.it"><code>hello@notifi.it</code></a> with the details rather than opening a public issue, and give a reasonable window to fix it before publishing. The cryptography, the API and both apps are open source, so a report can point straight at a line. Probing the live service beyond what a proof of concept needs is out of bounds — the <a href="/terms">terms</a> cover that.</p>
+  </section>
+
+  <section>
+    <h2>Privacy and data requests</h2>
+    <p>The <a href="/privacy">privacy policy</a> describes what is stored, which is deliberately almost nothing: there is no account, no email address and no name attached to a device. Without your device's public key there is no way to tell which records are yours, so deleting the app is both the faster and the more complete route. If you would still like a request raised, email <a href="mailto:hello@notifi.it"><code>hello@notifi.it</code></a> or open an issue.</p>
+  </section>
+
+  <section>
+    <h2>Elsewhere</h2>
+    <ul>
+      <li><a href="https://github.com/notifi-it/notifi">GitHub</a> — the app, the API and the cryptography.</li>
+      <li><a href="https://x.com/notifiit">X</a>, <a href="https://instagram.com/notifidotit">Instagram</a> and <a href="https://facebook.com/notifidotit">Facebook</a> — release notes and not much else.</li>
+      <li><a href="/about">About</a> — who runs notifi and how it is hosted.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
+    </div>
+  </div>
+  <!-- The sticky header already carries the navigation, so the footer holds
+       only what is not up there — and never a link to the page you are on. -->
+  <div class="wrap foot">
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/docs">Docs</a>
+    <a href="/faq">FAQ</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/llms.txt">llms.txt</a>
+    <a href="https://github.com/notifi-it/notifi">GitHub</a>
+    <a href="https://x.com/notifiit" rel="me">X</a>
+    <a href="https://instagram.com/notifidotit" rel="me">Instagram</a>
+    <a href="https://facebook.com/notifidotit" rel="me">Facebook</a>
+    <span class="meta">Built by Maximilian Mitchell</span>
+  </div>
+</footer>
+
+<script>
+// The static. Six noise tiles are baked once and cycled at 12fps rather than a
+// frame being generated per paint — real static never repeats, but at this
+// amplitude the loop is invisible and the tiles cost nothing to redraw.
+(function(){
+  var cv = document.getElementById("static");
+  if (!cv) return;
+  var ctx = cv.getContext("2d", { alpha: false });
+
+  var SIZE = 256;   // tile edge; large enough that the repeat forms no visible grid
+  var CELL = 1;     // one speckle per device pixel — the finest the screen can draw
+  var GROUND = 28;  // --bg, #1C1C1E
+  var SPREAD = 14;  // ± either side. See the note on #static in the stylesheet.
+
+  function tile(){
+    var t = document.createElement("canvas");
+    t.width = t.height = SIZE;
+    var tc = t.getContext("2d");
+    var img = tc.createImageData(SIZE, SIZE);
+    var d = img.data;
+    var g = SIZE / CELL;
+    var cells = new Float32Array(g * g);
+    for (var i = 0; i < cells.length; i++) cells[i] = Math.random();
+
+    for (var y = 0; y < SIZE; y++){
+      for (var x = 0; x < SIZE; x++){
+        var cx = (x / CELL) | 0, cy = (y / CELL) | 0;
+        var v = GROUND + (cells[cy*g + cx] - 0.5) * 2 * SPREAD;
+        var o = (y*SIZE + x) * 4;
+        d[o] = d[o+1] = d[o+2] = v; d[o+3] = 255;
+      }
+    }
+    tc.putImageData(img, 0, 0);
+    return ctx.createPattern(t, "repeat");
+  }
+
+  var frames = [], f = 0;
+  for (var k = 0; k < 6; k++) frames.push(tile());
+
+  function paint(){
+    ctx.fillStyle = frames[f++ % frames.length];
+    ctx.fillRect(0, 0, cv.width, cv.height);
+  }
+
+  function resize(){
+    // Backing store at device resolution, so one speckle is one physical pixel
+    // rather than one CSS pixel — on a 2x or 3x screen the latter is a visible
+    // block, which reads as noise added to the page rather than grain in it.
+    var dpr = Math.min(window.devicePixelRatio || 1, 3);
+    var w = Math.floor(cv.clientWidth * dpr);
+    var h = Math.floor(cv.clientHeight * dpr);
+    if (!w || !h) return;               // nothing to paint into yet
+    if (w === cv.width && h === cv.height) return;
+    cv.width = w; cv.height = h;        // assigning either one clears the canvas
+    paint();
+  }
+
+  // Measured off the element rather than the window, and observed rather than
+  // waiting for a resize event: the canvas is laid out by CSS, and a page that
+  // first paints at a zero or provisional viewport would otherwise stay blank
+  // until something happened to resize the window.
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(cv);
+  else window.addEventListener("resize", resize);
+  resize();
+
+  // Reduce Motion leaves one still frame. The crawl is the whole effect, so
+  // there is nothing to soften — it simply stops.
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var timer = null;
+  function apply(){
+    if (timer) { clearInterval(timer); timer = null; }
+    if (!still.matches) timer = setInterval(paint, 1000/12);
+  }
+  still.addEventListener("change", apply);
+  apply();
+
+  // setInterval is throttled but not stopped in a hidden tab, and a background
+  // tab redrawing static is pure battery cost.
+  document.addEventListener("visibilitychange", function(){
+    if (document.hidden) { if (timer) { clearInterval(timer); timer = null; } }
+    else apply();
+  });
+})();
+
+// Headings and ledes light up word by word as they cross the viewport.
+//
+// The words are wrapped here rather than in the markup so the HTML stays
+// readable and the text stays one string for anything that copies or reads it.
+(function(){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  // Opted out per page with <body data-reveal="off">: the 404 has to be
+  // readable the instant it lands, not staged.
+  if (document.body.dataset.reveal === "off") return;
+
+  var targets = document.querySelectorAll("h2, .lede");
+  if (!targets.length) return;
+
+  var items = [];
+  for (var t = 0; t < targets.length; t++) items.push(prepare(targets[t]));
+
+  function prepare(el){
+    // Walk the children rather than rewriting innerHTML: the headings contain
+    // <br> and the ledes contain <code> and links, and all of that has to
+    // survive the split intact.
+    var nodes = [].slice.call(el.childNodes);
+    for (var i = 0; i < nodes.length; i++){
+      var node = nodes[i];
+      if (node.nodeType !== 3) continue;             // element — leave it alone
+      var parts = node.nodeValue.split(/(\s+)/);
+      var frag = document.createDocumentFragment();
+      for (var p = 0; p < parts.length; p++){
+        if (!parts[p]) continue;
+        if (/^\s+$/.test(parts[p])) { frag.appendChild(document.createTextNode(parts[p])); continue; }
+        // A word span holds the line-breaking, and one span per character
+        // inside it holds the reveal.
+        var word = document.createElement("span");
+        word.className = "w";
+        for (var ch = 0; ch < parts[p].length; ch++){
+          var c = document.createElement("span");
+          c.className = "c";
+          c.textContent = parts[p][ch];
+          word.appendChild(c);
+        }
+        frag.appendChild(word);
+      }
+      el.replaceChild(frag, node);
+    }
+    el.classList.add("reveal", "armed");
+    return { el: el, words: el.querySelectorAll(".c"), lit: -1 };
+  }
+
+  // The band the reveal happens over: a word is lit once the element has risen
+  // from 88% of the viewport height to 45% of it. Ending well above the fold
+  // means the last word lands while the reader is still approaching the text,
+  // not after they have already read past it.
+  var START = 0.88, END = 0.45;
+
+  function frame(){
+    var vh = window.innerHeight;
+    for (var i = 0; i < items.length; i++){
+      var it = items[i];
+      var top = it.el.getBoundingClientRect().top / vh;
+      var p = (START - top) / (START - END);
+      p = p < 0 ? 0 : p > 1 ? 1 : p;
+      var want = Math.round(p * it.words.length);
+      if (want === it.lit) continue;
+      // Only the words between the old and new marks are touched, so a fast
+      // scroll costs a handful of class flips rather than a full rewrite.
+      var from = it.lit < 0 ? 0 : it.lit;
+      if (want > from) for (var j = from; j < want; j++) it.words[j].classList.add("on");
+      else for (var k = from - 1; k >= want; k--) if (it.words[k]) it.words[k].classList.remove("on");
+      it.lit = want;
+    }
+    ticking = false;
+  }
+
+  var ticking = false;
+  function onScroll(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  frame();
+})();
+</script>
+</body>
+</html>

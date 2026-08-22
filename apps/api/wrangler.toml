@@ -14,8 +14,37 @@ port = 8787
 # The marketing site. Static files are served straight from ./public for any
 # path that matches a file; every other request falls through to the Worker, so
 # /send, /keys, /devices and /history are untouched.
+#
+# The pages listed in run_worker_first are the exception: the Worker sees those
+# requests before the asset bucket does, because it has to negotiate between the
+# HTML page and its Markdown sibling (acceptmarkdown.com) and cannot do that
+# once the bucket has already answered. Everything else — fonts, screenshots,
+# the icons, robots.txt, the .html forms that 307 to the extensionless ones —
+# keeps the asset-first path and the _headers rules that go with it.
+#
+# The binding is what lets the Worker ask the bucket for a specific file: the
+# .md sibling, or the 404 page it serves as the body of a 404.
 [assets]
 directory = "./public"
+binding = "ASSETS"
+run_worker_first = [
+  "/",
+  "/about",
+  "/contact",
+  "/docs",
+  "/faq",
+  "/privacy",
+  "/terms",
+  "/index.md",
+  "/about.md",
+  "/contact.md",
+  "/docs.md",
+  "/faq.md",
+  "/privacy.md",
+  "/terms.md",
+  "/404.md",
+  "/llms.txt",
+]
 
 [[d1_databases]]
 binding = "DB"
