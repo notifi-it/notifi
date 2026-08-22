@@ -115,12 +115,13 @@ attempt fails on the stub key every time. Arrivals still reach a running app
 over the socket, and the banner comes from the app's own unpushed announce.
 
 Point a DEBUG build at it with `NOTIFI_BASE_URL=http://localhost:<port>`.
-Setting it flips the app into local-dev isolation (`LocalDev`): in-memory
-message store, wiped-per-launch defaults suite for sync state and link policy,
-key cache neither read nor written. Without that isolation the Debug build
-shares the installed app's store and its `lastSyncedDeviceSeq` cursor sits at
-the production sequence, so history from a fresh local D1 (seq 1..n) is
-permanently invisible — sends look accepted but never appear.
+Setting it flips the app into local-dev isolation (`LocalDev.isActive`): the
+message store goes in-memory, and because the sync cursor lives *inside* the
+store (`SyncState`), it dies with it — the link-policy allow-list and key
+cache are simply not read or persisted. Without that isolation the Debug
+build shares the installed app's store, whose cursor sits at the production
+sequence, so history from a fresh local D1 (seq 1..n) is permanently
+invisible — sends look accepted but never appear.
 
 Seed sendable keys with `apps/api/seed-keys.mjs` (prints the secrets, writes
 `/tmp/notifi-seed.sql` to apply with `wrangler d1 execute --local`), using the

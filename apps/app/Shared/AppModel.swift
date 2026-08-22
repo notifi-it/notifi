@@ -129,7 +129,7 @@ final class AppModel {
         remoteImagesEnabled = RemoteImages.isEnabled
         appearance = Appearance(rawValue: UserDefaults.standard.string(forKey: Self.appearanceKey) ?? "")
             ?? .dark
-        keysAllowingAnyLink = LinkPolicy.allowedKeyIDs()
+        keysAllowingAnyLink = LocalDev.isActive ? [] : LinkPolicy.allowedKeyIDs()
     }
 
     func allowsAnyLink(keyID: Int?) -> Bool {
@@ -143,7 +143,7 @@ final class AppModel {
         } else {
             keysAllowingAnyLink.remove(keyID)
         }
-        LinkPolicy.store(keysAllowingAnyLink)
+        if !LocalDev.isActive { LinkPolicy.store(keysAllowingAnyLink) }
     }
 
     var baseURL: URL {
@@ -411,7 +411,7 @@ final class AppModel {
     }
 
     private func openLink(_ url: URL, keyID: Int?, serverID: Int) {
-        guard LinkPolicy.allows(url, keyID: keyID) else {
+        guard LinkPolicy.allows(url, anyScheme: allowsAnyLink(keyID: keyID)) else {
             handleTap(serverID: serverID)
             return
         }

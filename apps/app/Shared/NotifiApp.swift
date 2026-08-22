@@ -32,10 +32,10 @@ struct NotifiApp: App {
             #if DEBUG
             if SampleData.isEnabled || LocalDev.isActive {
                 let config = ModelConfiguration(isStoredInMemoryOnly: true)
-                return try ModelContainer(for: Message.self, configurations: config)
+                return try ModelContainer(for: Message.self, SyncState.self, configurations: config)
             }
             #endif
-            let container = try ModelContainer(for: Message.self)
+            let container = try ModelContainer(for: Message.self, SyncState.self)
             if let url = container.configurations.first?.url {
                 OnDiskProtection.protect(url)
             }

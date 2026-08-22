@@ -17,8 +17,8 @@ final class SyncEngine {
     private(set) var isSyncing = false
     private(set) var unread = 0
 
-    private let bookmarkKey = "lastSyncedDeviceSeq"
-    private let failureKeyPrefix = "ingestFailedAt."
+    private static let legacyBookmarkKey = "lastSyncedDeviceSeq"
+    private static let legacyFailureKeyPrefix = "ingestFailedAt."
     private static let unreadableGraceSeconds: TimeInterval = 14 * 24 * 60 * 60
     private static let seqMigrationKey = "didMigrateToDeviceSeq"
     private static let pageSize = 200
@@ -38,7 +38,8 @@ final class SyncEngine {
     }
 
     private func migrateToDeviceSeqIfNeeded() {
-        let defaults = LocalDev.defaults
+        guard !LocalDev.isActive else { return }
+        let defaults = UserDefaults.standard
         guard !defaults.bool(forKey: Self.seqMigrationKey) else { return }
 
         if let existing = try? context.fetch(FetchDescriptor<Message>()) {
@@ -53,16 +54,41 @@ final class SyncEngine {
             }
         }
 
-        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(failureKeyPrefix) {
+        for key in defaults.dictionaryRepresentation().keys
+        where key.hasPrefix(Self.legacyFailureKeyPrefix) {
             defaults.removeObject(forKey: key)
         }
         defaults.removeObject(forKey: "lastSyncedMessageID")
         defaults.set(true, forKey: Self.seqMigrationKey)
     }
 
+    private var cachedState: SyncState?
+
+    private var state: SyncState {
+        if let cachedState { return cachedState }
+        if let existing = try? context.fetch(FetchDescriptor<SyncState>()).first {
+            cachedState = existing
+            return existing
+        }
+        let fresh = SyncState()
+        if !LocalDev.isActive {
+            let defaults = UserDefaults.standard
+            fresh.bookmark = defaults.integer(forKey: Self.legacyBookmarkKey)
+            defaults.removeObject(forKey: Self.legacyBookmarkKey)
+            for key in defaults.dictionaryRepresentation().keys
+            where key.hasPrefix(Self.legacyFailureKeyPrefix) {
+                defaults.removeObject(forKey: key)
+            }
+        }
+        context.insert(fresh)
+        try? context.save()
+        cachedState = fresh
+        return fresh
+    }
+
     private var bookmark: Int {
-        get { LocalDev.defaults.integer(forKey: bookmarkKey) }
-        set { LocalDev.defaults.set(newValue, forKey: bookmarkKey) }
+        get { state.bookmark }
+        set { state.bookmark = newValue }
     }
 
     func sync() async {
@@ -99,12 +125,13 @@ final class SyncEngine {
                 }
 
                 let arrived = newMessages > insertedBefore
+                let advanced = ackable > bookmark
+                if advanced { bookmark = ackable }
                 try withAnimation(arrived && !Theme.reduceMotion ? Theme.reveal : nil) {
                     try context.save()
                 }
 
-                guard ackable > bookmark else { break pages }
-                bookmark = ackable
+                guard advanced else { break pages }
                 if blocked { break pages }
                 if page.messages.count < Self.pageSize { break }
             }
@@ -264,22 +291,22 @@ final class SyncEngine {
     }
 
     private func unreadableOrGiveUp(_ serverID: Int, reason: String) -> IngestResult {
-        let key = "\(failureKeyPrefix)\(serverID)"
-        let firstSeen = LocalDev.defaults.object(forKey: key) as? Double
-        guard let firstSeen else {
-            LocalDev.defaults.set(Date().timeIntervalSince1970, forKey: key)
+        let key = String(serverID)
+        guard let firstSeen = state.failureFirstSeen[key] else {
+            state.failureFirstSeen[key] = Date().timeIntervalSince1970
             return .unreadable
         }
         if Date().timeIntervalSince1970 - firstSeen > Self.unreadableGraceSeconds {
             log.error("giving up on message \(serverID) after grace period: \(reason, privacy: .public)")
-            LocalDev.defaults.removeObject(forKey: key)
+            state.failureFirstSeen[key] = nil
             return .discarded
         }
         return .unreadable
     }
 
     private func clearFailure(_ serverID: Int) {
-        LocalDev.defaults.removeObject(forKey: "\(failureKeyPrefix)\(serverID)")
+        guard state.failureFirstSeen[String(serverID)] != nil else { return }
+        state.failureFirstSeen[String(serverID)] = nil
     }
 
     func refreshKeys() async {

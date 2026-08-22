@@ -390,7 +390,7 @@ struct MessageDetailView: View {
     }
 
     private func open(_ url: URL, keyID: Int?) {
-        guard LinkPolicy.allows(url, keyID: keyID) else { return }
+        guard LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
         #if os(iOS)
         UIApplication.shared.open(url)
         #else
@@ -399,7 +399,7 @@ struct MessageDetailView: View {
     }
 
     fileprivate func downloadImage(_ url: URL, keyID: Int?) {
-        guard LinkPolicy.allows(url, keyID: keyID) else { return }
+        guard LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
         Task {
             guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
             #if os(iOS)
