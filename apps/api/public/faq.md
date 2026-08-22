@@ -26,7 +26,7 @@ curl -X POST https://notifi.it/send \
   -d "title=Hello from notifi" \
   -d "message=Your first notification." \
   -d "link=https://notifi.it/docs" \
-  -d "image=https://notifi.it/sad-logo.png"
+  -d "image=https://notifi.it/anaglyph-bell.png"
 ```
 
 A successful send answers `202` with `{"ok":true}`. The key can also be passed as a `key` parameter, though the [note on query strings](https://notifi.it/faq#logs) below applies if you do.

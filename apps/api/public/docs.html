@@ -450,7 +450,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   -d &quot;title=Hello from notifi&quot; \
   -d &quot;message=Your first notification.&quot; \
   -d &quot;link=https://notifi.it/docs&quot; \
-  -d &quot;image=https://notifi.it/sad-logo.png&quot;</pre>
+  -d &quot;image=https://notifi.it/anaglyph-bell.png&quot;</pre>
   </section>
 
   <section id="auth">
@@ -489,7 +489,7 @@ Authorization: Bearer nk_yourkey
 Content-Type: application/json
 Accept-Language: en-GB
 
-{&quot;title&quot;:&quot;Hello from notifi&quot;,&quot;message&quot;:&quot;Your first notification.&quot;,&quot;link&quot;:&quot;https://notifi.it/docs&quot;,&quot;image&quot;:&quot;https://notifi.it/sad-logo.png&quot;}</pre>
+{&quot;title&quot;:&quot;Hello from notifi&quot;,&quot;message&quot;:&quot;Your first notification.&quot;,&quot;link&quot;:&quot;https://notifi.it/docs&quot;,&quot;image&quot;:&quot;https://notifi.it/anaglyph-bell.png&quot;}</pre>
   </section>
 
   <section id="parameters">
@@ -752,7 +752,7 @@ http -f POST https://notifi.it/send \
   title=<span class="s">&quot;Hello from notifi&quot;</span> \
   message=<span class="s">&quot;Your first notification.&quot;</span> \
   link=<span class="s">&quot;https://notifi.it/docs&quot;</span> \
-  image=<span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span></pre>
+  image=<span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span></pre>
       </div>
       <div class="panel" id="c-p-generate" role="tabpanel" tabindex="0" aria-labelledby="c-t-generate" data-name="openapi-generator" data-label="Client generator" hidden>
 <pre><span class="c"># Any generator that reads OpenAPI 3.1.
@@ -828,7 +828,7 @@ openapi-generator-cli generate \
   -d <span class="s">&quot;title=Hello from notifi&quot;</span> \
   -d <span class="s">&quot;message=Your first notification.&quot;</span> \
   -d <span class="s">&quot;link=https://notifi.it/docs&quot;</span> \
-  -d <span class="s">&quot;image=https://notifi.it/sad-logo.png&quot;</span></pre>
+  -d <span class="s">&quot;image=https://notifi.it/anaglyph-bell.png&quot;</span></pre>
       </div>
       <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" data-label="JavaScript" hidden>
 <pre>await fetch(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
@@ -841,7 +841,7 @@ openapi-generator-cli generate \
     title: <span class="s">&quot;Hello from notifi&quot;</span>,
     message: <span class="s">&quot;Your first notification.&quot;</span>,
     link: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
-    image: <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>,
+    image: <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>,
   }),
 });</pre>
       </div>
@@ -855,7 +855,7 @@ requests.post(
         <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
         <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
         <span class="s">&quot;link&quot;</span>: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
-        <span class="s">&quot;image&quot;</span>: <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>,
+        <span class="s">&quot;image&quot;</span>: <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>,
     },
 )</pre>
       </div>
@@ -874,7 +874,7 @@ requests.post(
 		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Hello from notifi&quot;</span>},
 		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;Your first notification.&quot;</span>},
 		<span class="s">&quot;link&quot;</span>:    {<span class="s">&quot;https://notifi.it/docs&quot;</span>},
-		<span class="s">&quot;image&quot;</span>:   {<span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>},
+		<span class="s">&quot;image&quot;</span>:   {<span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>},
 	}
 	req, _ := http.NewRequest(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
 		strings.NewReader(form.Encode()))
@@ -894,7 +894,7 @@ request.httpBody = <span class="f">try</span> JSONEncoder().encode([
     <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
     <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
     <span class="s">&quot;link&quot;</span>: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
-    <span class="s">&quot;image&quot;</span>: <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>,
+    <span class="s">&quot;image&quot;</span>: <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>,
 ])
 
 _ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
@@ -909,7 +909,7 @@ req.set_form_data(
   <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
   <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
   <span class="s">&quot;link&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/docs&quot;</span>,
-  <span class="s">&quot;image&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>
+  <span class="s">&quot;image&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
@@ -924,7 +924,7 @@ curl_setopt_array($ch, [
         <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
         <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
         <span class="s">&quot;link&quot;</span>    =&gt; <span class="s">&quot;https://notifi.it/docs&quot;</span>,
-        <span class="s">&quot;image&quot;</span>   =&gt; <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>,
+        <span class="s">&quot;image&quot;</span>   =&gt; <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>,
     ],
 ]);
 curl_exec($ch);</pre>
@@ -940,7 +940,7 @@ reqwest::Client::new()
         (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
         (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
         (<span class="s">&quot;link&quot;</span>, <span class="s">&quot;https://notifi.it/docs&quot;</span>),
-        (<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>),
+        (<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>),
     ])
     .send()
     .<span class="f">await</span>?;</pre>

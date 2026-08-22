@@ -115,7 +115,7 @@ export const params: Param[] = [
     detail:
       'One that cannot be fetched is dropped, with a warning, and the notification still arrives.',
     openapi: { type: 'string', format: 'uri', maxLength: URL_MAX },
-    example: 'https://notifi.it/sad-logo.png',
+    example: 'https://notifi.it/anaglyph-bell.png',
   },
   {
     name: 'occurred_at',

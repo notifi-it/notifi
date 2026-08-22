@@ -49,7 +49,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"title\": \"Hello from notifi\",\n  \"message\": \"Your first notification.\",\n  \"link\": \"https://notifi.it/docs\",\n  \"image\": \"https://notifi.it/sad-logo.png\"\n}",
+          "raw": "{\n  \"title\": \"Hello from notifi\",\n  \"message\": \"Your first notification.\",\n  \"link\": \"https://notifi.it/docs\",\n  \"image\": \"https://notifi.it/anaglyph-bell.png\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -94,7 +94,7 @@
             },
             {
               "key": "image",
-              "value": "https://notifi.it/sad-logo.png",
+              "value": "https://notifi.it/anaglyph-bell.png",
               "type": "text"
             }
           ]

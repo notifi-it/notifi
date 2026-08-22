@@ -472,7 +472,7 @@ final class AppModel {
     }
 
     static let sampleLink = "https://notifi.it/docs"
-    static let sampleImage = "https://notifi.it/sad-logo.png"
+    static let sampleImage = "https://notifi.it/anaglyph-bell.png"
 
     func sendTestNotification(
         title: String = Copy.Settings.testTitle,

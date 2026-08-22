@@ -54,7 +54,7 @@ const QUICKSTART = `curl -X POST ${ORIGIN}${ENDPOINT} \\
   -d "title=Hello from notifi" \\
   -d "message=Your first notification." \\
   -d "link=https://notifi.it/docs" \\
-  -d "image=https://notifi.it/sad-logo.png"`;
+  -d "image=https://notifi.it/anaglyph-bell.png"`;
 
 const WARNINGS_RESPONSE = `HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
@@ -67,7 +67,7 @@ Authorization: Bearer nk_yourkey
 Content-Type: application/json
 Accept-Language: en-GB
 
-{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs","image":"https://notifi.it/sad-logo.png"}`;
+{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs","image":"https://notifi.it/anaglyph-bell.png"}`;
 
 function responseBody(status: number, reason: string, body: string, retry = false): string {
   const head = [
@@ -138,7 +138,7 @@ http -f POST ${ORIGIN}${ENDPOINT} \\
   title="Hello from notifi" \\
   message="Your first notification." \\
   link="https://notifi.it/docs" \\
-  image="https://notifi.it/sad-logo.png"`,
+  image="https://notifi.it/anaglyph-bell.png"`,
   },
   {
     id: 'generate',
