@@ -212,6 +212,9 @@ enum Copy {
         static var automaticUpdates: String { NSLocalizedString("settings.automaticUpdates", comment: "") }
         static var automaticUpdatesDetail: String { NSLocalizedString("settings.automaticUpdatesDetail", comment: "") }
         static var checkForUpdates: String { NSLocalizedString("settings.checkForUpdates", comment: "") }
+        static var deleteAll: String { NSLocalizedString("settings.deleteAll", comment: "") }
+        static var deleteAllTitle: String { NSLocalizedString("settings.deleteAllTitle", comment: "") }
+        static var deleteAllMessage: String { NSLocalizedString("settings.deleteAllMessage", comment: "") }
         static var support: String { NSLocalizedString("settings.support", comment: "") }
         static var feedback: String { NSLocalizedString("settings.feedback", comment: "") }
         static var privacyPolicy: String { NSLocalizedString("settings.privacyPolicy", comment: "") }
