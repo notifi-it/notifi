@@ -31,7 +31,9 @@
 .copy:active{color:var(--fg);background:#1C1C1C}
 .copy[data-state="failed"]{color:var(--brand-text)}
 
-.tabs{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.tabs{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;margin:24px 0 14px}
+.tabs:has(.tabgroup){flex-direction:column;gap:14px}
+.tabs + .term{margin-top:0}
 .tabgroup{display:flex;flex-direction:column;gap:7px}
 .tabgroup-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--muted);opacity:.65}

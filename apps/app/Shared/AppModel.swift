@@ -76,6 +76,7 @@ final class AppModel {
 
     var bootState: BootState = .loading
     var path = NavigationPath()
+    var keysPath: [CachedKey] = []
     var selectedTab: AppTab = AppTab.launchOverride ?? .inbox
     var notificationStatus: UNAuthorizationStatus = .notDetermined
     var criticalAlertStatus: UNNotificationSetting = .notSupported
@@ -218,7 +219,12 @@ final class AppModel {
 
         Task {
             await refreshPermission()
-            if notificationStatus == .notDetermined {
+            #if DEBUG
+            let suppressed = SampleData.suppressesPermissionPrompt
+            #else
+            let suppressed = false
+            #endif
+            if notificationStatus == .notDetermined, !suppressed {
                 await requestNotificationPermission()
             }
         }

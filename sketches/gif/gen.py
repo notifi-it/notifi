@@ -219,12 +219,12 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .head .l1{{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}}
 .gif .l1{{--fs:2.3;color:var(--red)}}
 .head .l2{{--fs:2.0;font-weight:400;color:var(--muted)}}
-.term{{position:absolute;{TERM};container-type:inline-size;background:var(--surface);border-radius:2.862cqw;overflow:hidden}}
+.term{{position:absolute;{TERM};container-type:inline-size;background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
 .term .bar{{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}}
 .term .bar i{{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}}
 .term .title{{--fs:2.602;position:absolute;left:15.092cqw;top:50%;transform:translateY(-50%);font-family:var(--mono);color:var(--dim);opacity:0}}
 .term .tabs{{display:flex;gap:1.171cqw;padding:0 2.082cqw 1.821cqw}}
-.term .tabs button{{--fs:2.602;flex:1;text-align:center;font-family:var(--mono);color:var(--dim);background:#222224;border-radius:2.342cqw;padding:0.989cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.term .tabs button{{--fs:2.602;flex:1;text-align:center;font-family:var(--mono);color:var(--dim);background:#222224;border-radius:0.85cqw;padding:0.989cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 @keyframes blink{{0%,49%{{opacity:1}}50%,100%{{opacity:.15}}}}
 .term .tabs button{{border:0;cursor:pointer;font-family:var(--mono);line-height:inherit;-webkit-appearance:none;appearance:none}}
 .term .tabs button:focus-visible{{outline:2px solid var(--fg);outline-offset:2px}}

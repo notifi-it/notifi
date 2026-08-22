@@ -153,7 +153,7 @@ export const fr: Translation = {
   'keyDetail.copyKey': 'Copier la clé',
   'keyDetail.shareKey': 'Partager la clé',
   'keyDetail.copyCurl': 'Copier curl',
-  'keyDetail.examplesLink': "D'autres façons d'envoyer",
+  'keyDetail.examplesLink': 'Docs',
   'keyDetail.defaultKeyDetail':
     'notifi conserve celle-ci sur votre appareil, vous pouvez donc la copier à nouveau ' +
     'quand vous en avez besoin, ou la régénérer ci-dessous.',
@@ -165,13 +165,11 @@ export const fr: Translation = {
   'keyDetail.fieldCreated': 'Créée le',
   'keyDetail.fieldLastUsed': 'Dernière utilisation',
 
-  'keyDetail.sectionLinks': 'Liens',
   'keyDetail.openAnyLink': "Ouvrir n'importe quel lien",
   'keyDetail.openAnyLinkDetail':
     'Désactivé, seuls les liens https s’ouvrent. Activé, d’autres schémas s’ouvrent aussi, ' +
     'y compris ceux qui lancent d’autres applications sur cet appareil.',
 
-  'keyDetail.sectionAlerts': 'Alertes',
   'keyDetail.criticalAlerts': 'Alertes critiques',
 
   'keyDetail.revokedNotice': "Cette clé est révoquée et n'accepte plus d'envois.",

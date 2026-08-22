@@ -300,6 +300,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   padding:14px 16px;margin-top:14px;overflow-x:auto;
   white-space:pre;-webkit-text-size-adjust:100%;
 }
+.doc.api figure{margin:20px 0 0;max-width:340px}
+.doc.api figure img{
+  display:block;width:100%;height:auto;
+  border:1px solid var(--line);border-radius:12px;
+}
+.doc.api figcaption{margin-top:9px;font-size:12.5px;color:var(--dim)}
+.doc.api .term pre{background:none;border:0;border-radius:0;margin-top:0}
 .doc.api .tablewrap{overflow-x:auto;margin-top:14px;border:1px solid var(--line);border-radius:8px}
 .doc.api table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
 .doc.api th,.doc.api td{
@@ -349,7 +356,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .copy:active{color:var(--fg);background:#1C1C1C}
 .copy[data-state="failed"]{color:var(--brand-text)}
 
-.tabs{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.tabs{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;margin:24px 0 14px}
+.tabs:has(.tabgroup){flex-direction:column;gap:14px}
+.tabs + .term{margin-top:0}
 .tabgroup{display:flex;flex-direction:column;gap:7px}
 .tabgroup-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--muted);opacity:.65}
@@ -434,23 +443,17 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p>
       Install notifi on <a href="https://apps.apple.com/app/id1563961135">iPhone or iPad</a>
       or <a href="/download/mac">on the Mac</a>, allow notifications, open the Keys tab and
-      copy the <code>Default</code> key. It starts with <code>nk_</code> and delivers only to
-      the device that made it.
+      copy the <code>Default</code> key. It starts with <code>nk_</code>.
     </p>
     <pre data-lang="bash">curl -X POST https://notifi.it/send \
   -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
   -d &quot;title=Backup complete&quot; \
   -d &quot;message=4.2 GB in 3m 11s&quot;</pre>
-    <p>
-      There is no endpoint that creates a key: keys are minted on the device by a request
-      signed with a private key that never leaves it. A coding agent has to ask you for one.
-      Keep it in the environment, not in a file that gets committed.
-    </p>
   </section>
 
   <section id="auth">
     <h2>Authentication</h2>
-    <p>Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between.</p>
+    <p>Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between: use it only for a quick test, and rotate the key afterwards.</p>
     <div class="tablewrap" tabindex="0" role="group" aria-label="Authentication methods">
       <table>
         <thead><tr><th>Method</th><th>Sent as</th><th>Notes</th></tr></thead>
@@ -463,7 +466,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>Parameter</td>
             <td><code>key=nk_yourkey</code></td>
-            <td>The send key as a parameter. Convenient for a one-off request, but it appears in edge logs, in shell history and in any proxy in between.</td>
+            <td>The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option: use it only for a quick test, and rotate the key afterwards.</td>
           </tr>
         </tbody>
       </table>
@@ -475,7 +478,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p>
       <code>POST https://notifi.it/send</code>, JSON, form-encoded or multipart.
       <code>GET</code> takes the same parameters in the query string and is there for a quick
-      test. Query parameters win over body fields when both are present.
+      test: a key sent that way lands in edge logs and shell history, so rotate it afterwards.
+      Query parameters win over body fields when both are present.
     </p>
     <pre data-lang="http">POST /send HTTP/1.1
 Host: notifi.it
@@ -539,7 +543,7 @@ Accept-Language: en-GB
             <td>integer</td>
             <td>optional</td>
             <td><code>unix ms</code></td>
-            <td>When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to arrival time.</td>
+            <td>When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request.</td>
           </tr>
           <tr>
             <td><code>is_critical</code></td>
@@ -596,7 +600,7 @@ Content-Type: application/json; charset=utf-8
 <pre>HTTP/1.1 422 Unprocessable Content
 Content-Type: application/json; charset=utf-8
 
-{<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;invalid_content&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;This device refuses notifications it cannot show as written.&quot;</span>}}</pre>
+{<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;invalid_content&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Not sent. This device is set to refuse a notification it cannot deliver as written.&quot;</span>}}</pre>
       </div>
       <div class="panel" id="r-p-429" role="tabpanel" tabindex="0" aria-labelledby="r-t-429" data-name="rate_limited" data-label="429" hidden>
 <pre>HTTP/1.1 429 Too Many Requests
@@ -609,8 +613,39 @@ Retry-After: 42
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
       differently from what was asked: a cropped title or body, a dropped image, or a critical
-      alert downgraded to an ordinary one.
+      alert downgraded to an ordinary one. The status is still <code>202</code> — the
+      notification was sent, in the altered form each warning describes.
     </p>
+<pre data-lang="http">HTTP/1.1 202 Accepted
+Content-Type: application/json; charset=utf-8
+
+{&quot;ok&quot;:true,&quot;warnings&quot;:[&quot;Sent with a shortened title: it was over 200 characters.&quot;,&quot;Sent as a normal notification: critical alerts are switched off for this key.&quot;]}</pre>
+
+    <h3>Over-length text is cropped</h3>
+    <p>
+      A title over 200 characters or a body over 16000 is delivered cropped,
+      with a warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
+      the app's Settings, makes a send that would have been cropped or stripped answer
+      <code>422 invalid_content</code> and store nothing. It is off by default, so cropping is
+      what a send meets unless the person holding the device turned it on.
+    </p>
+    <figure>
+      <img src="/shots/settings-reject-invalid-sends.png" width="660" height="325" alt="The Settings screen, showing the Reject invalid sends switch turned off.">
+      <figcaption>Settings → Permissions → Reject invalid sends. Off, the default: sends are cropped, not refused.</figcaption>
+    </figure>
+
+    <h3>Critical alerts are granted per key</h3>
+    <p>
+      <code>is_critical=1</code> asks for an alert that breaks through Focus and silent mode.
+      It is not enough on its own: the key it was sent with must have <strong>Critical
+      alerts</strong> switched on, on that device, in that key's screen under the Keys tab.
+      Without it the notification is delivered as an ordinary one and the response carries a
+      warning saying so. A sender cannot turn this on — only the person holding the device can.
+    </p>
+    <figure>
+      <img src="/shots/key-critical-alerts.png" width="660" height="815" alt="A key's screen in the app, showing the Critical alerts switch turned on.">
+      <figcaption>Keys → a key → Settings → Critical alerts. Each key carries its own permission.</figcaption>
+    </figure>
   </section>
 
   <section id="errors">
