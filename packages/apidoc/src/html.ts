@@ -12,6 +12,7 @@ import {
   resources,
 } from './spec.js';
 import { samples } from './samples.js';
+import { terminal } from './landing.js';
 
 export function escape(text: string): string {
   return text
@@ -279,16 +280,15 @@ ${resources
   <section id="recipes">
     <h2>Recipes</h2>
     <p>
-      The same request from everywhere it tends to get sent from. Each one wants
+      The same request from everywhere it tends to get sent from — ${samples.length} of
+      them, the same block the home page carries. Each one wants
       <code>NOTIFI_KEY</code> in the environment.
     </p>
-${samples
-  .map(
-    (s) => `    <h3>${escape(s.label)} <span class="meta">${escape(s.file)}</span></h3>
-    ${pre(s.code, s.id)}`,
-  )
-  .join('\n')}
+${terminal()}
   </section>
+
+  <p id="copystatus" role="status" aria-live="polite"
+     style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap"></p>
 
   <section id="questions">
     <h2>Questions</h2>

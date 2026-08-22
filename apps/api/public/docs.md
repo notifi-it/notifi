@@ -153,11 +153,11 @@ Every page on this site is also served as Markdown: send `Accept: text/markdown`
 
 ## Recipes
 
-The same request from everywhere it tends to get sent from. Each one wants `NOTIFI_KEY` in the environment.
+The same request from everywhere it tends to get sent from — 13 of them, the same block the home page carries. Each one wants `NOTIFI_KEY` in the environment.
 
-### curl send.sh
+### curl
 
-```curl
+```
 curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
   -d "title=Backup complete" \
@@ -165,9 +165,9 @@ curl -X POST https://notifi.it/send \
   -d "link=https://console.internal/backups"
 ```
 
-### JavaScript send.js
+### JavaScript
 
-```js
+```
 await fetch("https://notifi.it/send", {
   method: "POST",
   headers: {
@@ -181,9 +181,9 @@ await fetch("https://notifi.it/send", {
 });
 ```
 
-### Python send.py
+### Python
 
-```py
+```
 import os, requests
 
 requests.post(
@@ -196,9 +196,9 @@ requests.post(
 )
 ```
 
-### Go send.go
+### Go
 
-```go
+```
 package main
 
 import (
@@ -221,9 +221,9 @@ func main() {
 }
 ```
 
-### Swift Send.swift
+### Swift
 
-```swift
+```
 import Foundation
 
 var request = URLRequest(url: URL(string: "https://notifi.it/send")!)
@@ -238,9 +238,9 @@ request.httpBody = try JSONEncoder().encode([
 _ = try await URLSession.shared.data(for: request)
 ```
 
-### Ruby send.rb
+### Ruby
 
-```ruby
+```
 require "net/http"
 
 uri = URI("https://notifi.it/send")
@@ -254,9 +254,9 @@ req.set_form_data(
 Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
 ```
 
-### PHP send.php
+### PHP
 
-```php
+```
 <?php
 $ch = curl_init("https://notifi.it/send");
 curl_setopt_array($ch, [
@@ -270,9 +270,9 @@ curl_setopt_array($ch, [
 curl_exec($ch);
 ```
 
-### Rust main.rs
+### Rust
 
-```rust
+```
 // reqwest = { version = "0.12", features = ["json"] }
 let key = std::env::var("NOTIFI_KEY")?;
 
@@ -287,9 +287,9 @@ reqwest::Client::new()
     .await?;
 ```
 
-### Claude Code .claude/settings.json
+### Claude Code
 
-```hook
+```
 // Fires when Claude stops.
 {
   "hooks": {
@@ -306,9 +306,9 @@ reqwest::Client::new()
 }
 ```
 
-### GitHub Actions .github/workflows/ci.yml
+### GitHub Actions
 
-```gha
+```
 # Put NOTIFI_KEY in the repository's secrets.
 - name: Tell me it broke
   if: failure()
@@ -322,9 +322,9 @@ reqwest::Client::new()
     NOTIFI_KEY: ${{ secrets.NOTIFI_KEY }}
 ```
 
-### Shell hook ~/.zshrc
+### Shell hook
 
-```shell
+```
 # Notify for any command that took longer than a minute, and say
 # whether it worked.
 autoload -Uz add-zsh-hook
@@ -342,9 +342,9 @@ add-zsh-hook preexec _notifi_start
 add-zsh-hook precmd  _notifi_end
 ```
 
-### systemd notifi-failed@.service
+### systemd
 
-```systemd
+```
 # Drop this in /etc/systemd/system/, then add one line to any unit:
 #   OnFailure=notifi-failed@%n.service
 # Every unit on the box can share it. %i is the unit that failed.
@@ -360,9 +360,9 @@ ExecStart=/usr/bin/curl -s https://notifi.it/send \
   --data-urlencode "message=$(systemctl status %i --lines=10 --no-pager)"
 ```
 
-### Kubernetes backup.yaml
+### Kubernetes
 
-```kube
+```
 # Put the key in a Secret, then curl at the end of any Job's command.
 apiVersion: batch/v1
 kind: CronJob

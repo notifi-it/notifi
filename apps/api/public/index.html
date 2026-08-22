@@ -251,6 +251,10 @@ nav a:hover{color:var(--fg)}
 /* No edge at all. The panel is already a step up from the ground in --surface,
    and that step is enough to say where it starts and stops. A box read as a
    card; corner ticks read as an instrument panel; neither is what this is. */
+/* gen:termcss */
+/* The terminal block: the tab row, the window chrome and the code panel.
+   The landing page and the /docs recipes render the same markup from the same
+   samples, so they read the same way; this is the one copy of the styles. */
 .term{
   margin-top:40px;
   background:var(--surface);
@@ -280,6 +284,29 @@ nav a:hover{color:var(--fg)}
 .copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
 .copy:active{color:var(--fg);background:#1C1C1C}
 .copy[data-state="failed"]{color:var(--brand-text)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{
+  font-family:var(--mono);font-size:13px;color:var(--muted);
+  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
+  background:transparent;cursor:pointer;
+  transition:color var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out),
+             background var(--dur-press) var(--ease-out);
+}
+.tab:hover{color:var(--fg);border-color:#6A6A6A}
+.tab:active{border-color:var(--fg)}
+.tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
+.panel[hidden]{display:none}
+
+/* Panels differ in height by hundreds of pixels, so switching language used to
+   snap the page. The incoming panel fades; the outgoing one does not, because
+   crossfading two blocks of different heights looks worse than replacing one.
+   The height itself is deliberately not animated — the tablist is arrow-key
+   navigable, and a growing container under a held arrow key is unreadable. */
+.panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
+@keyframes panel-in{from{opacity:0}to{opacity:1}}
+/* /gen:termcss */
 
 /* The key bar is filled in from the URL fragment after the page has painted, so
    it cannot be rendered up front — it arrives above the tabs and pushes the
@@ -536,27 +563,6 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .mac figcaption{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
 
 /* ── language tabs ──────────────────────────────────────────── */
-.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.tab{
-  font-family:var(--mono);font-size:13px;color:var(--muted);
-  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
-  background:transparent;cursor:pointer;
-  transition:color var(--dur-press) var(--ease-out),
-             border-color var(--dur-press) var(--ease-out),
-             background var(--dur-press) var(--ease-out);
-}
-.tab:hover{color:var(--fg);border-color:#6A6A6A}
-.tab:active{border-color:var(--fg)}
-.tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
-.panel[hidden]{display:none}
-
-/* Panels differ in height by hundreds of pixels, so switching language used to
-   snap the page. The incoming panel fades; the outgoing one does not, because
-   crossfading two blocks of different heights looks worse than replacing one.
-   The height itself is deliberately not animated — the tablist is arrow-key
-   navigable, and a growing container under a held arrow key is unreadable. */
-.panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
-@keyframes panel-in{from{opacity:0}to{opacity:1}}
 
 /* ── parameter table ────────────────────────────────────────── */
 .tablewrap{overflow-x:auto;border-top:1px solid var(--line)}
@@ -1006,14 +1012,14 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </div>
 
 <!-- gen:panels -->
-      <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh">
+      <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh" data-label="curl">
 <pre>curl -X POST https://notifi.it/send \
   -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
   -d <span class="s">&quot;title=Backup complete&quot;</span> \
   -d <span class="s">&quot;message=4.2 GB in 3m 11s&quot;</span> \
   -d <span class="s">&quot;link=https://console.internal/backups&quot;</span></pre>
       </div>
-      <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" hidden>
+      <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" data-label="JavaScript" hidden>
 <pre>await fetch(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
   method: <span class="s">&quot;POST&quot;</span>,
   headers: {
@@ -1026,7 +1032,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   }),
 });</pre>
       </div>
-      <div class="panel" id="p-py" role="tabpanel" tabindex="0" aria-labelledby="t-py" data-name="send.py" hidden>
+      <div class="panel" id="p-py" role="tabpanel" tabindex="0" aria-labelledby="t-py" data-name="send.py" data-label="Python" hidden>
 <pre><span class="f">import</span> os, requests
 
 requests.post(
@@ -1038,7 +1044,7 @@ requests.post(
     },
 )</pre>
       </div>
-      <div class="panel" id="p-go" role="tabpanel" tabindex="0" aria-labelledby="t-go" data-name="send.go" hidden>
+      <div class="panel" id="p-go" role="tabpanel" tabindex="0" aria-labelledby="t-go" data-name="send.go" data-label="Go" hidden>
 <pre><span class="f">package</span> main
 
 <span class="f">import</span> (
@@ -1060,7 +1066,7 @@ requests.post(
 	http.DefaultClient.Do(req)
 }</pre>
       </div>
-      <div class="panel" id="p-swift" role="tabpanel" tabindex="0" aria-labelledby="t-swift" data-name="Send.swift" hidden>
+      <div class="panel" id="p-swift" role="tabpanel" tabindex="0" aria-labelledby="t-swift" data-name="Send.swift" data-label="Swift" hidden>
 <pre><span class="f">import</span> Foundation
 
 <span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">&quot;https://notifi.it/send&quot;</span>)!)
@@ -1074,7 +1080,7 @@ request.httpBody = <span class="f">try</span> JSONEncoder().encode([
 
 _ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
       </div>
-      <div class="panel" id="p-ruby" role="tabpanel" tabindex="0" aria-labelledby="t-ruby" data-name="send.rb" hidden>
+      <div class="panel" id="p-ruby" role="tabpanel" tabindex="0" aria-labelledby="t-ruby" data-name="send.rb" data-label="Ruby" hidden>
 <pre><span class="f">require</span> <span class="s">&quot;net/http&quot;</span>
 
 uri = URI(<span class="s">&quot;https://notifi.it/send&quot;</span>)
@@ -1087,7 +1093,7 @@ req.set_form_data(
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
       </div>
-      <div class="panel" id="p-php" role="tabpanel" tabindex="0" aria-labelledby="t-php" data-name="send.php" hidden>
+      <div class="panel" id="p-php" role="tabpanel" tabindex="0" aria-labelledby="t-php" data-name="send.php" data-label="PHP" hidden>
 <pre>&lt;?php
 $ch = curl_init(<span class="s">&quot;https://notifi.it/send&quot;</span>);
 curl_setopt_array($ch, [
@@ -1100,7 +1106,7 @@ curl_setopt_array($ch, [
 ]);
 curl_exec($ch);</pre>
       </div>
-      <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" hidden>
+      <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" data-label="Rust" hidden>
 <pre>// reqwest = { version = <span class="s">&quot;0.12&quot;</span>, features = [<span class="s">&quot;json&quot;</span>] }
 <span class="f">let</span> key = std::env::var(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)?;
 
@@ -1114,7 +1120,7 @@ reqwest::Client::new()
     .send()
     .<span class="f">await</span>?;</pre>
       </div>
-      <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" hidden>
+      <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" data-label="Claude Code" hidden>
 <pre>// Fires when Claude stops.
 {
   <span class="s">&quot;hooks&quot;</span>: {
@@ -1130,7 +1136,7 @@ reqwest::Client::new()
   }
 }</pre>
       </div>
-      <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" hidden>
+      <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" data-label="GitHub Actions" hidden>
 <pre># Put <span class="k">NOTIFI_KEY</span> in the repository's secrets.
 - name: Tell me it broke
   if: failure()
@@ -1143,7 +1149,7 @@ reqwest::Client::new()
   env:
     <span class="k">NOTIFI_KEY</span>: ${{ secrets.<span class="k">NOTIFI_KEY</span> }}</pre>
       </div>
-      <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" hidden>
+      <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" data-label="Shell hook" hidden>
 <pre># Notify for any command that took longer than a minute, and say
 # whether it worked.
 <span class="f">autoload</span> -Uz add-zsh-hook
@@ -1160,7 +1166,7 @@ _notifi_end() {
 add-zsh-hook preexec _notifi_start
 add-zsh-hook precmd  _notifi_end</pre>
       </div>
-      <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" hidden>
+      <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" data-label="systemd" hidden>
 <pre># Drop this in /etc/systemd/system/, then add one line to any unit:
 #   OnFailure=notifi-failed@%n.service
 # Every unit on the box can share it. %i is the unit that failed.
@@ -1175,7 +1181,7 @@ ExecStart=/usr/bin/curl -s https://notifi.it/send \
   -d <span class="s">&quot;title=%i failed on %H&quot;</span> \
   --data-urlencode <span class="s">&quot;message=$(systemctl status %i --lines=10 --no-pager)&quot;</span></pre>
       </div>
-      <div class="panel" id="p-kube" role="tabpanel" tabindex="0" aria-labelledby="t-kube" data-name="backup.yaml" hidden>
+      <div class="panel" id="p-kube" role="tabpanel" tabindex="0" aria-labelledby="t-kube" data-name="backup.yaml" data-label="Kubernetes" hidden>
 <pre># Put the key in a Secret, then curl at the end of any Job's command.
 apiVersion: batch/v1
 kind: CronJob
@@ -1405,8 +1411,14 @@ spec:
    style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap"></p>
 
 <script>
+// gen:termjs
+// The terminal block's behaviour, shared by the landing page and the /docs
+// recipes. One tablist and one code panel per page, so the ids stay singular.
+
 // ── language tabs ───────────────────────────────────────────
 (function () {
+  const list = document.querySelector('.tabs');
+  if (!list) return;
   const tabs = [...document.querySelectorAll('.tab')];
   const name = document.getElementById('langname');
 
@@ -1414,13 +1426,13 @@ spec:
     tabs.forEach(t => {
       const on = t === tab;
       t.setAttribute('aria-selected', String(on));
-      // Roving tabindex: the tablist is one Tab stop, not twelve, and the
+      // Roving tabindex: the tablist is one Tab stop, not thirteen, and the
       // arrow keys below move within it.
       t.tabIndex = on ? 0 : -1;
       document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
     });
     const panel = document.getElementById(tab.getAttribute('aria-controls'));
-    name.textContent = panel.dataset.name;
+    if (name) name.textContent = panel.dataset.name;
   }
 
   tabs.forEach(tab => {
@@ -1429,7 +1441,7 @@ spec:
   });
 
   // arrows, Home and End move between tabs, as a tablist should
-  document.querySelector('.tabs').addEventListener('keydown', e => {
+  list.addEventListener('keydown', e => {
     const i = tabs.indexOf(document.activeElement);
     if (i < 0) return;
     let next;
@@ -1448,6 +1460,7 @@ spec:
 // ── copy buttons ────────────────────────────────────────────
 (function () {
   const status = document.getElementById('copystatus');
+  if (!status) return;
 
   function flash(btn, text) {
     // Read the label before awaiting, or a second click inside the 1.5s window
@@ -1479,51 +1492,56 @@ spec:
     btn.addEventListener('click', () => flash(btn, btn.dataset.copy)));
 
   const codeBtn = document.getElementById('copycode');
-  codeBtn.addEventListener('click', () => {
-    const open = document.querySelector('.panel:not([hidden]) pre');
-    if (open) flash(codeBtn, open.innerText);
+  if (codeBtn) {
+    codeBtn.addEventListener('click', () => {
+      const open = document.querySelector('.panel:not([hidden]) pre');
+      if (open) flash(codeBtn, open.innerText);
+    });
+  }
+
+  window.notifiCopy = flash;
+})();
+// /gen:termjs
+
+// ── pre-filled key ────────────────────────────────────────
+// The app links here as https://notifi.it/#key=… (the key page uses
+// ?key=…#send) so a key created on the phone can be pasted straight
+// into a terminal. The head script stripped the key from the URL before
+// first paint and left it in the stash; by the time this runs the URL is
+// already clean.
+(function () {
+  const key = window.__notifiKey;
+  if (!key) return;
+  delete window.__notifiKey;
+
+  // Anything that is not a plausible key is ignored rather than shown.
+  if (!/^[A-Za-z0-9._-]{8,128}$/.test(key)) return;
+
+  // Only the shell spots hold the key itself. NOTIFI_KEY inside a
+  // process.env / os.environ lookup is a variable name and must stay a name.
+  // nk_yourkeyhere is the paste-ready placeholder the hero shows a reader who
+  // has no key yet; it is a value, so it is replaced too.
+  const slots = ['$NOTIFI_KEY', 'nk_yourkeyhere'];
+  document.querySelectorAll('.k').forEach(el => {
+    if (slots.includes(el.textContent)) el.textContent = key;
+  });
+  document.querySelectorAll('[data-copy]').forEach(el => {
+    el.dataset.copy = slots.reduce((s, slot) => s.split(slot).join(key), el.dataset.copy);
   });
 
-  // ── pre-filled key ────────────────────────────────────────
-  // The app links here as https://notifi.it/#key=… (the key page uses
-  // ?key=…#send) so a key created on the phone can be pasted straight
-  // into a terminal. The head script stripped the key from the URL before
-  // first paint and left it in the stash; by the time this runs the URL is
-  // already clean.
-  (function () {
-    const key = window.__notifiKey;
-    if (!key) return;
-    delete window.__notifiKey;
-
-    // Anything that is not a plausible key is ignored rather than shown.
-    if (!/^[A-Za-z0-9._-]{8,128}$/.test(key)) return;
-
-    // Only the shell spots hold the key itself. NOTIFI_KEY inside a
-    // process.env / os.environ lookup is a variable name and must stay a name.
-    // nk_yourkeyhere is the paste-ready placeholder the hero shows a reader who
-    // has no key yet; it is a value, so it is replaced too.
-    const slots = ['$NOTIFI_KEY', 'nk_yourkeyhere'];
-    document.querySelectorAll('.k').forEach(el => {
-      if (slots.includes(el.textContent)) el.textContent = key;
-    });
-    document.querySelectorAll('[data-copy]').forEach(el => {
-      el.dataset.copy = slots.reduce((s, slot) => s.split(slot).join(key), el.dataset.copy);
-    });
-
-    const bar = document.getElementById('keybar');
-    const slot = document.getElementById('keybar-slot');
-    document.getElementById('keyval').textContent = key;
-    bar.hidden = false;
-    // Reading a layout property flushes the collapsed state, so the class that
-    // follows has something to transition from. Deliberately not requestAnimation-
-    // Frame: rAF does not run in a background tab, and this page is usually opened
-    // from a link on the phone — the bar would have sat at zero height with the
-    // key in it until the tab was looked at.
-    void slot.offsetHeight;
-    slot.classList.add('is-open');
-    document.getElementById('copykey')
-      .addEventListener('click', e => flash(e.currentTarget, 'export NOTIFI_KEY=' + key));
-  })();
+  const bar = document.getElementById('keybar');
+  const slot = document.getElementById('keybar-slot');
+  document.getElementById('keyval').textContent = key;
+  bar.hidden = false;
+  // Reading a layout property flushes the collapsed state, so the class that
+  // follows has something to transition from. Deliberately not requestAnimation-
+  // Frame: rAF does not run in a background tab, and this page is usually opened
+  // from a link on the phone — the bar would have sat at zero height with the
+  // key in it until the tab was looked at.
+  void slot.offsetHeight;
+  slot.classList.add('is-open');
+  document.getElementById('copykey')
+    .addEventListener('click', e => notifiCopy(e.currentTarget, 'export NOTIFI_KEY=' + key));
 })();
 </script>
 

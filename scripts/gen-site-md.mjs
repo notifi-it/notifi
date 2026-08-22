@@ -202,12 +202,14 @@ function blocks(node, depth) {
       case "article":
         out.push(...blocks(child, depth));
         break;
-      case "p":
+      case "p": {
         if (cls.includes("eyebrow")) break;
+        if (inlineOf(child) === "") break;
         if (cls.includes("lede")) out.push(`> ${inlineOf(child)}`);
         else if (cls.includes("meta")) out.push(`_${inlineOf(child)}_`);
         else out.push(inlineOf(child));
         break;
+      }
       case "ul":
       case "ol": {
         const items = child.children.filter((c) => c.tag === "li");
@@ -226,8 +228,22 @@ function blocks(node, depth) {
       case "table":
         out.push(table(child));
         break;
+      case "button":
+        break;
       case "div":
-        if (cls.includes("tablewrap")) {
+        // The terminal block. The tab row and the window chrome are furniture
+        // for a reader with a pointer; the panels are the content, and all of
+        // them are written out, because only one is visible on the page and an
+        // agent reading the Markdown should get every recipe.
+        if (cls.includes("tabs") || cls.includes("term-bar")) {
+          break;
+        } else if (cls.includes("panel")) {
+          const label = child.attrs["data-label"];
+          const code = child.children.find((c) => c.tag === "pre");
+          if (!label || !code) throw new Error("a .panel needs data-label and a <pre>");
+          out.push(`### ${label}`);
+          out.push("```\n" + rawText(code).replace(/\n+$/, "") + "\n```");
+        } else if (cls.includes("term") || cls.includes("tablewrap")) {
           out.push(...blocks(child, depth));
         } else if (isCodeCard(child)) {
           const body = spaces(codeText(child))

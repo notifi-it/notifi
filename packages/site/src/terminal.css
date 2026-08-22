@@ -1,0 +1,54 @@
+/* The terminal block: the tab row, the window chrome and the code panel.
+   The landing page and the /docs recipes render the same markup from the same
+   samples, so they read the same way; this is the one copy of the styles. */
+.term{
+  margin-top:40px;
+  background:var(--surface);
+  border-radius:12px;overflow:hidden;
+}
+.term-bar{
+  display:flex;align-items:center;gap:9px;padding:9px 13px;
+  border-bottom:1px solid var(--line);
+}
+.dot3{display:flex;gap:5px}
+.dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
+.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
+.term pre{
+  margin:0;padding:16px 18px;overflow-x:auto;
+  font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--fg);
+}
+.term .p{color:var(--dim)}          /* prompt */
+.term .s{color:#7FA8E0}             /* string */
+.term .f{color:var(--muted)}        /* flag */
+.term .c{color:var(--dim)}          /* comment */
+.term .k{color:var(--brand-text)}   /* the key you swap in */
+.copy{
+  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
+  background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
+}
+.copy:hover{color:var(--fg);background:#141414}
+.copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
+.copy:active{color:var(--fg);background:#1C1C1C}
+.copy[data-state="failed"]{color:var(--brand-text)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{
+  font-family:var(--mono);font-size:13px;color:var(--muted);
+  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
+  background:transparent;cursor:pointer;
+  transition:color var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out),
+             background var(--dur-press) var(--ease-out);
+}
+.tab:hover{color:var(--fg);border-color:#6A6A6A}
+.tab:active{border-color:var(--fg)}
+.tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
+.panel[hidden]{display:none}
+
+/* Panels differ in height by hundreds of pixels, so switching language used to
+   snap the page. The incoming panel fades; the outgoing one does not, because
+   crossfading two blocks of different heights looks worse than replacing one.
+   The height itself is deliberately not animated — the tablist is arrow-key
+   navigable, and a growing container under a held arrow key is unreadable. */
+.panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
+@keyframes panel-in{from{opacity:0}to{opacity:1}}

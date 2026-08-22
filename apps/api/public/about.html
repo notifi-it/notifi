@@ -134,6 +134,14 @@
   --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --gutter:clamp(20px,5vw,40px);
   --ease-out:cubic-bezier(0.23,1,0.32,1);
+  /* Motion, mirroring the app's Theme tokens so the site and the product
+     decelerate the same way. */
+  --dur-press:.12s;
+  --dur-state:.2s;
+  --dur-reveal:.25s;
+  /* 3.45:1 on --bg, clearing the floor for a control identifiable only by its
+     border. Separate from --line and --chip, which stay decorative hairlines. */
+  --control-border:#707070;
   --max:1080px;
 }
 *{box-sizing:border-box;margin:0}

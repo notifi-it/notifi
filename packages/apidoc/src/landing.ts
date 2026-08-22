@@ -92,7 +92,7 @@ export function landingPanels(): string {
   return samples
     .map((s, i) => {
       const hidden = i === 0 ? '' : ' hidden';
-      return `      <div class="panel" id="p-${s.id}" role="tabpanel" tabindex="0" aria-labelledby="t-${s.id}" data-name="${escape(s.file)}"${hidden}>
+      return `      <div class="panel" id="p-${s.id}" role="tabpanel" tabindex="0" aria-labelledby="t-${s.id}" data-name="${escape(s.file)}" data-label="${escape(s.label)}"${hidden}>
 <pre>${highlight(s.code, s.keywords ?? [])}</pre>
       </div>`;
     })
@@ -129,4 +129,21 @@ export function landingNote(): string {
       <code>message</code>: ${codes}. <code>GET</code> works for a quick
       test; <code>POST</code> is recommended.
     </p>`;
+}
+
+export function terminal(): string {
+  const first = samples[0];
+  if (!first) throw new Error('no samples');
+  return `    <div class="tabs" role="tablist" aria-label="Examples">
+${landingTabs()}
+    </div>
+
+    <div class="term">
+      <div class="term-bar">
+        <span class="dot3"><i></i><i></i><i></i></span>
+        <span class="term-title" id="langname">${escape(first.file)}</span>
+        <button class="copy" id="copycode" aria-label="Copy the sample for the selected language">Copy</button>
+      </div>
+${landingPanels()}
+    </div>`;
 }

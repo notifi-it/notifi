@@ -23,6 +23,8 @@ const PUBLIC = join(ROOT, '..', '..', 'apps', 'api', 'public');
 const read = (...parts: string[]) => readFileSync(join(ROOT, ...parts), 'utf8');
 
 const tokens = read('src', 'tokens.css');
+const terminalCss = read('src', 'terminal.css');
+const terminalJs = read('src', 'terminal.js');
 const site = read('src', 'site.js');
 
 const PROSE = ['about', 'contact', 'faq', 'terms', 'privacy'];
@@ -75,7 +77,8 @@ function docs(): Page {
       ]),
     },
     body: docsBody(),
-    style: docsStyle(),
+    style: `${docsStyle()}\n${terminalCss}`,
+    script: terminalJs,
   };
 }
 
@@ -133,9 +136,11 @@ const LANDING_NODES: Array<Record<string, unknown>> = [
   },
 ];
 
-function splice(html: string, marker: string, body: string): string {
-  const open = `<!-- gen:${marker} -->`;
-  const close = `<!-- /gen:${marker} -->`;
+function splice(html: string, marker: string, body: string, comment = 'html'): string {
+  const wrap = (text: string) =>
+    comment === 'html' ? `<!-- ${text} -->` : comment === 'css' ? `/* ${text} */` : `// ${text}`;
+  const open = wrap(`gen:${marker}`);
+  const close = wrap(`/gen:${marker}`);
   const start = html.indexOf(open);
   const end = html.indexOf(close);
   if (start === -1 || end === -1) throw new Error(`index.html has no ${marker} markers`);
@@ -151,6 +156,8 @@ function landing(): string {
   html = splice(html, 'apinote', landingNote());
   html = splice(html, 'tabs', landingTabs());
   html = splice(html, 'panels', landingPanels());
+  html = splice(html, 'termcss', terminalCss.trimEnd(), 'css');
+  html = splice(html, 'termjs', terminalJs.trimEnd(), 'js');
   return html;
 }
 

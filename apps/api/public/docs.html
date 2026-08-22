@@ -136,6 +136,14 @@
   --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --gutter:clamp(20px,5vw,40px);
   --ease-out:cubic-bezier(0.23,1,0.32,1);
+  /* Motion, mirroring the app's Theme tokens so the site and the product
+     decelerate the same way. */
+  --dur-press:.12s;
+  --dur-state:.2s;
+  --dur-reveal:.25s;
+  /* 3.45:1 on --bg, clearing the floor for a control identifiable only by its
+     border. Separate from --line and --chip, which stay decorative hairlines. */
+  --control-border:#707070;
   --max:1080px;
 }
 *{box-sizing:border-box;margin:0}
@@ -275,6 +283,61 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .doc.api td{color:var(--muted)}
 .doc.api td:first-child{color:var(--fg);white-space:nowrap}
 .doc.api ul{margin-top:14px}
+
+/* The terminal block: the tab row, the window chrome and the code panel.
+   The landing page and the /docs recipes render the same markup from the same
+   samples, so they read the same way; this is the one copy of the styles. */
+.term{
+  margin-top:40px;
+  background:var(--surface);
+  border-radius:12px;overflow:hidden;
+}
+.term-bar{
+  display:flex;align-items:center;gap:9px;padding:9px 13px;
+  border-bottom:1px solid var(--line);
+}
+.dot3{display:flex;gap:5px}
+.dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
+.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
+.term pre{
+  margin:0;padding:16px 18px;overflow-x:auto;
+  font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--fg);
+}
+.term .p{color:var(--dim)}          /* prompt */
+.term .s{color:#7FA8E0}             /* string */
+.term .f{color:var(--muted)}        /* flag */
+.term .c{color:var(--dim)}          /* comment */
+.term .k{color:var(--brand-text)}   /* the key you swap in */
+.copy{
+  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
+  background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
+}
+.copy:hover{color:var(--fg);background:#141414}
+.copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
+.copy:active{color:var(--fg);background:#1C1C1C}
+.copy[data-state="failed"]{color:var(--brand-text)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{
+  font-family:var(--mono);font-size:13px;color:var(--muted);
+  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
+  background:transparent;cursor:pointer;
+  transition:color var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out),
+             background var(--dur-press) var(--ease-out);
+}
+.tab:hover{color:var(--fg);border-color:#6A6A6A}
+.tab:active{border-color:var(--fg)}
+.tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
+.panel[hidden]{display:none}
+
+/* Panels differ in height by hundreds of pixels, so switching language used to
+   snap the page. The incoming panel fades; the outgoing one does not, because
+   crossfading two blocks of different heights looks worse than replacing one.
+   The height itself is deliberately not animated — the tablist is arrow-key
+   navigable, and a growing container under a held arrow key is unreadable. */
+.panel:not([hidden]){animation:panel-in var(--dur-state) var(--ease-out)}
+@keyframes panel-in{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
@@ -557,174 +620,209 @@ Content-Type: application/json; charset=utf-8
   <section id="recipes">
     <h2>Recipes</h2>
     <p>
-      The same request from everywhere it tends to get sent from. Each one wants
+      The same request from everywhere it tends to get sent from — 13 of
+      them, the same block the home page carries. Each one wants
       <code>NOTIFI_KEY</code> in the environment.
     </p>
-    <h3>curl <span class="meta">send.sh</span></h3>
-    <pre data-lang="curl">curl -X POST https://notifi.it/send \
-  -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
-  -d &quot;title=Backup complete&quot; \
-  -d &quot;message=4.2 GB in 3m 11s&quot; \
-  -d &quot;link=https://console.internal/backups&quot;</pre>
-    <h3>JavaScript <span class="meta">send.js</span></h3>
-    <pre data-lang="js">await fetch(&quot;https://notifi.it/send&quot;, {
-  method: &quot;POST&quot;,
+    <div class="tabs" role="tablist" aria-label="Examples">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="p-curl" id="t-curl">curl</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-js" id="t-js">JavaScript</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-py" id="t-py">Python</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-go" id="t-go">Go</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-swift" id="t-swift">Swift</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-ruby" id="t-ruby">Ruby</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-php" id="t-php">PHP</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-rust" id="t-rust">Rust</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-hook" id="t-hook">Claude&nbsp;Code</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-gha" id="t-gha">GitHub&nbsp;Actions</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-shell" id="t-shell">Shell&nbsp;hook</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-systemd" id="t-systemd">systemd</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-kube" id="t-kube">Kubernetes</button>
+    </div>
+
+    <div class="term">
+      <div class="term-bar">
+        <span class="dot3"><i></i><i></i><i></i></span>
+        <span class="term-title" id="langname">send.sh</span>
+        <button class="copy" id="copycode" aria-label="Copy the sample for the selected language">Copy</button>
+      </div>
+      <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh" data-label="curl">
+<pre>curl -X POST https://notifi.it/send \
+  -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+  -d <span class="s">&quot;title=Backup complete&quot;</span> \
+  -d <span class="s">&quot;message=4.2 GB in 3m 11s&quot;</span> \
+  -d <span class="s">&quot;link=https://console.internal/backups&quot;</span></pre>
+      </div>
+      <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" data-label="JavaScript" hidden>
+<pre>await fetch(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
+  method: <span class="s">&quot;POST&quot;</span>,
   headers: {
-    &quot;Authorization&quot;: `Bearer ${process.env.NOTIFI_KEY}`,
-    &quot;Content-Type&quot;: &quot;application/json&quot;,
+    <span class="s">&quot;Authorization&quot;</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
+    <span class="s">&quot;Content-Type&quot;</span>: <span class="s">&quot;application/json&quot;</span>,
   },
   body: JSON.stringify({
-    title: &quot;Backup complete&quot;,
-    message: &quot;4.2 GB in 3m 11s&quot;,
+    title: <span class="s">&quot;Backup complete&quot;</span>,
+    message: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
   }),
 });</pre>
-    <h3>Python <span class="meta">send.py</span></h3>
-    <pre data-lang="py">import os, requests
+      </div>
+      <div class="panel" id="p-py" role="tabpanel" tabindex="0" aria-labelledby="t-py" data-name="send.py" data-label="Python" hidden>
+<pre><span class="f">import</span> os, requests
 
 requests.post(
-    &quot;https://notifi.it/send&quot;,
-    headers={&quot;Authorization&quot;: f&quot;Bearer {os.environ['NOTIFI_KEY']}&quot;},
+    <span class="s">&quot;https://notifi.it/send&quot;</span>,
+    headers={<span class="s">&quot;Authorization&quot;</span>: f<span class="s">&quot;Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}&quot;</span>},
     json={
-        &quot;title&quot;: &quot;Backup complete&quot;,
-        &quot;message&quot;: &quot;4.2 GB in 3m 11s&quot;,
+        <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Backup complete&quot;</span>,
+        <span class="s">&quot;message&quot;</span>: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
     },
 )</pre>
-    <h3>Go <span class="meta">send.go</span></h3>
-    <pre data-lang="go">package main
+      </div>
+      <div class="panel" id="p-go" role="tabpanel" tabindex="0" aria-labelledby="t-go" data-name="send.go" data-label="Go" hidden>
+<pre><span class="f">package</span> main
 
-import (
-	&quot;net/http&quot;
-	&quot;net/url&quot;
-	&quot;os&quot;
-	&quot;strings&quot;
+<span class="f">import</span> (
+	<span class="s">&quot;net/http&quot;</span>
+	<span class="s">&quot;net/url&quot;</span>
+	<span class="s">&quot;os&quot;</span>
+	<span class="s">&quot;strings&quot;</span>
 )
 
-func main() {
+<span class="f">func</span> main() {
 	form := url.Values{
-		&quot;title&quot;:   {&quot;Backup complete&quot;},
-		&quot;message&quot;: {&quot;4.2 GB in 3m 11s&quot;},
+		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Backup complete&quot;</span>},
+		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;4.2 GB in 3m 11s&quot;</span>},
 	}
-	req, _ := http.NewRequest(&quot;POST&quot;, &quot;https://notifi.it/send&quot;,
+	req, _ := http.NewRequest(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
 		strings.NewReader(form.Encode()))
-	req.Header.Set(&quot;Authorization&quot;, &quot;Bearer &quot;+os.Getenv(&quot;NOTIFI_KEY&quot;))
-	req.Header.Set(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;)
+	req.Header.Set(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span>+os.Getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
+	req.Header.Set(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
 	http.DefaultClient.Do(req)
 }</pre>
-    <h3>Swift <span class="meta">Send.swift</span></h3>
-    <pre data-lang="swift">import Foundation
+      </div>
+      <div class="panel" id="p-swift" role="tabpanel" tabindex="0" aria-labelledby="t-swift" data-name="Send.swift" data-label="Swift" hidden>
+<pre><span class="f">import</span> Foundation
 
-var request = URLRequest(url: URL(string: &quot;https://notifi.it/send&quot;)!)
-request.httpMethod = &quot;POST&quot;
-request.setValue(&quot;Bearer \(key)&quot;, forHTTPHeaderField: &quot;Authorization&quot;)
-request.setValue(&quot;application/json&quot;, forHTTPHeaderField: &quot;Content-Type&quot;)
-request.httpBody = try JSONEncoder().encode([
-    &quot;title&quot;: &quot;Backup complete&quot;,
-    &quot;message&quot;: &quot;4.2 GB in 3m 11s&quot;,
+<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">&quot;https://notifi.it/send&quot;</span>)!)
+request.httpMethod = <span class="s">&quot;POST&quot;</span>
+request.setValue(<span class="s">&quot;Bearer \(key)&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Authorization&quot;</span>)
+request.setValue(<span class="s">&quot;application/json&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Content-Type&quot;</span>)
+request.httpBody = <span class="f">try</span> JSONEncoder().encode([
+    <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Backup complete&quot;</span>,
+    <span class="s">&quot;message&quot;</span>: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
 ])
 
-_ = try await URLSession.shared.data(for: request)</pre>
-    <h3>Ruby <span class="meta">send.rb</span></h3>
-    <pre data-lang="ruby">require &quot;net/http&quot;
+_ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
+      </div>
+      <div class="panel" id="p-ruby" role="tabpanel" tabindex="0" aria-labelledby="t-ruby" data-name="send.rb" data-label="Ruby" hidden>
+<pre><span class="f">require</span> <span class="s">&quot;net/http&quot;</span>
 
-uri = URI(&quot;https://notifi.it/send&quot;)
+uri = URI(<span class="s">&quot;https://notifi.it/send&quot;</span>)
 req = Net::HTTP::Post.new(uri)
-req[&quot;Authorization&quot;] = &quot;Bearer #{ENV['NOTIFI_KEY']}&quot;
+req[<span class="s">&quot;Authorization&quot;</span>] = <span class="s">&quot;Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}&quot;</span>
 req.set_form_data(
-  &quot;title&quot; =&gt; &quot;Backup complete&quot;,
-  &quot;message&quot; =&gt; &quot;4.2 GB in 3m 11s&quot;
+  <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Backup complete&quot;</span>,
+  <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>
 )
 
-Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }</pre>
-    <h3>PHP <span class="meta">send.php</span></h3>
-    <pre data-lang="php">&lt;?php
-$ch = curl_init(&quot;https://notifi.it/send&quot;);
+Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
+      </div>
+      <div class="panel" id="p-php" role="tabpanel" tabindex="0" aria-labelledby="t-php" data-name="send.php" data-label="PHP" hidden>
+<pre>&lt;?php
+$ch = curl_init(<span class="s">&quot;https://notifi.it/send&quot;</span>);
 curl_setopt_array($ch, [
-    CURLOPT_POST       =&gt; true,
-    CURLOPT_HTTPHEADER =&gt; [&quot;Authorization: Bearer &quot; . getenv(&quot;NOTIFI_KEY&quot;)],
+    CURLOPT_POST       =&gt; <span class="f">true</span>,
+    CURLOPT_HTTPHEADER =&gt; [<span class="s">&quot;Authorization: Bearer &quot;</span> . getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)],
     CURLOPT_POSTFIELDS =&gt; [
-        &quot;title&quot;   =&gt; &quot;Backup complete&quot;,
-        &quot;message&quot; =&gt; &quot;4.2 GB in 3m 11s&quot;,
+        <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Backup complete&quot;</span>,
+        <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
     ],
 ]);
 curl_exec($ch);</pre>
-    <h3>Rust <span class="meta">main.rs</span></h3>
-    <pre data-lang="rust">// reqwest = { version = &quot;0.12&quot;, features = [&quot;json&quot;] }
-let key = std::env::var(&quot;NOTIFI_KEY&quot;)?;
+      </div>
+      <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" data-label="Rust" hidden>
+<pre>// reqwest = { version = <span class="s">&quot;0.12&quot;</span>, features = [<span class="s">&quot;json&quot;</span>] }
+<span class="f">let</span> key = std::env::var(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)?;
 
 reqwest::Client::new()
-    .post(&quot;https://notifi.it/send&quot;)
+    .post(<span class="s">&quot;https://notifi.it/send&quot;</span>)
     .bearer_auth(key)
     .form(&amp;[
-        (&quot;title&quot;, &quot;Backup complete&quot;),
-        (&quot;message&quot;, &quot;4.2 GB in 3m 11s&quot;),
+        (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Backup complete&quot;</span>),
+        (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>),
     ])
     .send()
-    .await?;</pre>
-    <h3>Claude Code <span class="meta">.claude/settings.json</span></h3>
-    <pre data-lang="hook">// Fires when Claude stops.
+    .<span class="f">await</span>?;</pre>
+      </div>
+      <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" data-label="Claude Code" hidden>
+<pre>// Fires when Claude stops.
 {
-  &quot;hooks&quot;: {
-    &quot;Stop&quot;: [{
-      &quot;hooks&quot;: [{
-        &quot;type&quot;: &quot;command&quot;,
-        &quot;command&quot;: &quot;curl -s https://notifi.it/send \
-                     -H \&quot;Authorization: Bearer $NOTIFI_KEY\&quot; \
-                     -d \&quot;title=Claude finished\&quot; \
-                     -d \&quot;message=$CLAUDE_PROJECT_DIR\&quot;&quot;
+  <span class="s">&quot;hooks&quot;</span>: {
+    <span class="s">&quot;Stop&quot;</span>: [{
+      <span class="s">&quot;hooks&quot;</span>: [{
+        <span class="s">&quot;type&quot;</span>: <span class="s">&quot;command&quot;</span>,
+        <span class="s">&quot;command&quot;</span>: &quot;curl -s https://notifi.it/send \
+                     -H \<span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>\&quot;</span> \
+                     -d \<span class="s">&quot;title=Claude finished\&quot;</span> \
+                     -d \<span class="s">&quot;message=$CLAUDE_PROJECT_DIR\&quot;</span>&quot;
       }]
     }]
   }
 }</pre>
-    <h3>GitHub Actions <span class="meta">.github/workflows/ci.yml</span></h3>
-    <pre data-lang="gha"># Put NOTIFI_KEY in the repository's secrets.
+      </div>
+      <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" data-label="GitHub Actions" hidden>
+<pre># Put <span class="k">NOTIFI_KEY</span> in the repository's secrets.
 - name: Tell me it broke
   if: failure()
   run: |
     curl -s https://notifi.it/send \
-      -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
-      -d &quot;title=$GITHUB_WORKFLOW failed&quot; \
-      -d &quot;message=$GITHUB_REF_NAME at $(git log -1 --format=%s)&quot; \
-      -d &quot;link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID&quot;
+      -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+      -d <span class="s">&quot;title=$GITHUB_WORKFLOW failed&quot;</span> \
+      -d <span class="s">&quot;message=$GITHUB_REF_NAME at $(git log -1 --format=%s)&quot;</span> \
+      -d <span class="s">&quot;link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID&quot;</span>
   env:
-    NOTIFI_KEY: ${{ secrets.NOTIFI_KEY }}</pre>
-    <h3>Shell hook <span class="meta">~/.zshrc</span></h3>
-    <pre data-lang="shell"># Notify for any command that took longer than a minute, and say
+    <span class="k">NOTIFI_KEY</span>: ${{ secrets.<span class="k">NOTIFI_KEY</span> }}</pre>
+      </div>
+      <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" data-label="Shell hook" hidden>
+<pre># Notify for any command that took longer than a minute, and say
 # whether it worked.
-autoload -Uz add-zsh-hook
+<span class="f">autoload</span> -Uz add-zsh-hook
 
 _notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
 _notifi_end() {
-  local code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
-  (( secs &lt; 60 )) &amp;&amp; return
+  <span class="f">local</span> code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
+  (( secs &lt; 60 )) &amp;&amp; <span class="f">return</span>
   curl -s https://notifi.it/send \
-    -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
-    -d &quot;title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s&quot; \
-    -d &quot;message=$_NOTIFI_CMD&quot; &gt;/dev/null
+    -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+    -d <span class="s">&quot;title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s&quot;</span> \
+    -d <span class="s">&quot;message=$_NOTIFI_CMD&quot;</span> &gt;/dev/null
 }
 add-zsh-hook preexec _notifi_start
 add-zsh-hook precmd  _notifi_end</pre>
-    <h3>systemd <span class="meta">notifi-failed@.service</span></h3>
-    <pre data-lang="systemd"># Drop this in /etc/systemd/system/, then add one line to any unit:
+      </div>
+      <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" data-label="systemd" hidden>
+<pre># Drop this in /etc/systemd/system/, then add one line to any unit:
 #   OnFailure=notifi-failed@%n.service
 # Every unit on the box can share it. %i is the unit that failed.
-[Unit]
+[<span class="f">Unit</span>]
 Description=Push a notification when %i fails
 
-[Service]
+[<span class="f">Service</span>]
 Type=oneshot
 EnvironmentFile=/etc/notifi.env
 ExecStart=/usr/bin/curl -s https://notifi.it/send \
-  -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
-  -d &quot;title=%i failed on %H&quot; \
-  --data-urlencode &quot;message=$(systemctl status %i --lines=10 --no-pager)&quot;</pre>
-    <h3>Kubernetes <span class="meta">backup.yaml</span></h3>
-    <pre data-lang="kube"># Put the key in a Secret, then curl at the end of any Job's command.
+  -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+  -d <span class="s">&quot;title=%i failed on %H&quot;</span> \
+  --data-urlencode <span class="s">&quot;message=$(systemctl status %i --lines=10 --no-pager)&quot;</span></pre>
+      </div>
+      <div class="panel" id="p-kube" role="tabpanel" tabindex="0" aria-labelledby="t-kube" data-name="backup.yaml" data-label="Kubernetes" hidden>
+<pre># Put the key in a Secret, then curl at the end of any Job's command.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: nightly-backup
 spec:
-  schedule: &quot;0 3 * * *&quot;
+  schedule: <span class="s">&quot;0 3 * * *&quot;</span>
   jobTemplate:
     spec:
       template:
@@ -733,17 +831,22 @@ spec:
           containers:
           - name: backup
             image: alpine/curl
-            command: [&quot;/bin/sh&quot;, &quot;-c&quot;]
+            command: [<span class="s">&quot;/bin/sh&quot;</span>, <span class="s">&quot;-c&quot;</span>]
             args:
             - |
               ./backup.sh &amp;&amp;
               curl -s https://notifi.it/send \
-                -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
-                -d &quot;title=Backup complete&quot;
+                -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+                -d <span class="s">&quot;title=Backup complete&quot;</span>
             env:
-            - name: NOTIFI_KEY
+            - name: <span class="k">NOTIFI_KEY</span>
               valueFrom: { secretKeyRef: { name: notifi, key: key } }</pre>
+      </div>
+    </div>
   </section>
+
+  <p id="copystatus" role="status" aria-live="polite"
+     style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap"></p>
 
   <section id="questions">
     <h2>Questions</h2>
@@ -945,6 +1048,96 @@ spec:
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
   frame();
+})();
+</script>
+<script>// The terminal block's behaviour, shared by the landing page and the /docs
+// recipes. One tablist and one code panel per page, so the ids stay singular.
+
+// ── language tabs ───────────────────────────────────────────
+(function () {
+  const list = document.querySelector('.tabs');
+  if (!list) return;
+  const tabs = [...document.querySelectorAll('.tab')];
+  const name = document.getElementById('langname');
+
+  function select(tab) {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      // Roving tabindex: the tablist is one Tab stop, not thirteen, and the
+      // arrow keys below move within it.
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    const panel = document.getElementById(tab.getAttribute('aria-controls'));
+    if (name) name.textContent = panel.dataset.name;
+  }
+
+  tabs.forEach(tab => {
+    tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
+    tab.addEventListener('click', () => select(tab));
+  });
+
+  // arrows, Home and End move between tabs, as a tablist should
+  list.addEventListener('keydown', e => {
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    let next;
+    if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    else return;
+    e.preventDefault();
+    const target = tabs[next];
+    target.focus();
+    select(target);
+  });
+})();
+
+// ── copy buttons ────────────────────────────────────────────
+(function () {
+  const status = document.getElementById('copystatus');
+  if (!status) return;
+
+  function flash(btn, text) {
+    // Read the label before awaiting, or a second click inside the 1.5s window
+    // captures "Copied" as the label to restore and it never goes back.
+    const was = btn.dataset.label || btn.textContent;
+    btn.dataset.label = was;
+
+    const settle = (label, state, said) => {
+      btn.textContent = label;
+      if (state) btn.dataset.state = state; else delete btn.dataset.state;
+      status.textContent = said;
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => {
+        btn.textContent = was;
+        delete btn.dataset.state;
+        status.textContent = '';
+      }, state ? 4000 : 1500);
+    };
+
+    // Rejects on an insecure origin or a denied permission, and the button
+    // would otherwise sit reading "Copy" as though nothing had been asked.
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+      .then(() => settle('Copied', null, 'Copied to the clipboard'),
+            () => settle('Select and copy', 'failed',
+                         'Could not copy. Select the text and copy it yourself.'));
+  }
+
+  document.querySelectorAll('.copy[data-copy]').forEach(btn =>
+    btn.addEventListener('click', () => flash(btn, btn.dataset.copy)));
+
+  const codeBtn = document.getElementById('copycode');
+  if (codeBtn) {
+    codeBtn.addEventListener('click', () => {
+      const open = document.querySelector('.panel:not([hidden]) pre');
+      if (open) flash(codeBtn, open.innerText);
+    });
+  }
+
+  window.notifiCopy = flash;
 })();
 </script>
 </body>
