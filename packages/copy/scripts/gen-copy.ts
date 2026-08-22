@@ -221,13 +221,13 @@ const STORE_LOCALES: Record<LanguageCode, string> = {
 };
 
 const STORE_SHARED: Record<string, string> = {
-  'name.txt': 'notifi',
   'marketing_url.txt': 'https://notifi.it',
   'privacy_url.txt': 'https://notifi.it/privacy',
   'support_url.txt': 'https://notifi.it',
 };
 
 const STORE_LIMITS: Record<string, number> = {
+  'name.txt': 30,
   'subtitle.txt': 30,
   'promotional_text.txt': 170,
   'keywords.txt': 100,
@@ -246,6 +246,7 @@ function storeOutputs(): Array<{ path: string; contents: string; label: string }
 
     const files: Record<string, string> = {
       ...STORE_SHARED,
+      'name.txt': s.name,
       'subtitle.txt': s.subtitle,
       'promotional_text.txt': s.promotionalText,
       'keywords.txt': s.keywords,

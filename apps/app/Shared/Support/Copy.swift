@@ -187,9 +187,6 @@ enum Copy {
         static var permissionOff: String { NSLocalizedString("settings.permissionOff", comment: "") }
         static var permissionProvisional: String { NSLocalizedString("settings.permissionProvisional", comment: "") }
         static var permissionEphemeral: String { NSLocalizedString("settings.permissionEphemeral", comment: "") }
-        static var delivery: String { NSLocalizedString("settings.delivery", comment: "") }
-        static var deliveryBroken: String { NSLocalizedString("settings.deliveryBroken", comment: "") }
-        static var deliveryBrokenDetail: String { NSLocalizedString("settings.deliveryBrokenDetail", comment: "") }
         static var permissionNotSet: String { NSLocalizedString("settings.permissionNotSet", comment: "") }
         static var permissionUnknown: String { NSLocalizedString("settings.permissionUnknown", comment: "") }
         static var sectionAppearance: String { NSLocalizedString("settings.sectionAppearance", comment: "") }
@@ -212,6 +209,9 @@ enum Copy {
         static var automaticUpdates: String { NSLocalizedString("settings.automaticUpdates", comment: "") }
         static var automaticUpdatesDetail: String { NSLocalizedString("settings.automaticUpdatesDetail", comment: "") }
         static var checkForUpdates: String { NSLocalizedString("settings.checkForUpdates", comment: "") }
+        static var deleteAll: String { NSLocalizedString("settings.deleteAll", comment: "") }
+        static var deleteAllTitle: String { NSLocalizedString("settings.deleteAllTitle", comment: "") }
+        static var deleteAllMessage: String { NSLocalizedString("settings.deleteAllMessage", comment: "") }
         static var support: String { NSLocalizedString("settings.support", comment: "") }
         static var feedback: String { NSLocalizedString("settings.feedback", comment: "") }
         static var privacyPolicy: String { NSLocalizedString("settings.privacyPolicy", comment: "") }

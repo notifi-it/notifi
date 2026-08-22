@@ -322,8 +322,23 @@ a test framework; say plainly what was and wasn't exercised.
 - **iPad screenshots are mandatory** (`ipadPro129`, 2048x2732) because the app
   runs on iPad. `make appstore-shots` builds and captures both sets, seeding via
   `NOTIFI_SEED_SAMPLE` / `NOTIFI_OPEN_SAMPLE_MESSAGE` (DEBUG only), no tapping.
-- **Screenshot uploads cry wolf**: "X is missing ... Tries remaining: N" once
-  per run is normal; only repeated rounds are a failure.
+- **Metadata and screenshots are separate targets**, because Apple gates them
+  differently: `make app-metadata` writes name, subtitle, keywords and
+  description, which stay editable while a version is `WAITING_FOR_REVIEW`;
+  `make app-screenshots` writes screenshots, which Apple locks the moment a
+  version is submitted ("Can't Delete Screenshot After Submit for review"). The
+  screenshots lane checks the version state first and says so, rather than
+  spending fifty retries finding out.
+- **Screenshot uploads cry wolf, but only on the upload half**: "X is missing
+  ... Tries remaining: N" once per run is normal — App Store Connect computes
+  the checksum deliver verifies against asynchronously, so the first check
+  legitimately misses. Repeated rounds are a real failure, and each retry
+  deletes the screenshots still processing before re-uploading them. A
+  *delete* that fails is never flake; it means the version is submitted.
+- Screenshots upload with `sync_screenshots`, not `overwrite_screenshots`: it
+  diffs `locale/filename/md5`, so an unchanged set costs no API calls. Keep the
+  frames byte-stable (no timestamps in the PNGs) or every run re-uploads
+  everything.
 - **Two local traps**: `git checkout -b x origin/main` uses the last *fetched*
   origin/main — fetch first. And don't pipe important logs through `tail`.
 

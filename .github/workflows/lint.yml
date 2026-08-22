@@ -34,3 +34,8 @@ jobs:
       - run: pnpm --filter @notifi/apidoc check-api
       - run: pnpm --filter @notifi/site check-site-html
       - run: node scripts/check-migrations.mjs
+      - run: node scripts/check-film.mjs
+      # check-copy generates into apps/app, so it belongs to the same class as
+      # the comment linter: the api workflow's paths do not cover the files it
+      # writes, and a PR that edits one of them directly would never run it.
+      - run: pnpm --filter @notifi/copy check-copy

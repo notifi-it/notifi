@@ -42,13 +42,14 @@ export const copy = {
   },
 
   store: {
-    subtitle: 'One HTTP request, one push',
+    name: 'notifi: Push Notifications',
+    subtitle: 'For scripts and servers',
     promotionalText:
       "One HTTP request, and the notification is on your iPhone or Mac. Encrypted with " +
       "your public key — we can't read your notifications. No accounts, no SDK.",
     keywords:
-      'curl,webhook,api,alert,cli,server,monitor,cron,script,developer,terminal,devops,' +
-      'homelab,uptime,pager',
+      'webhook,api,notify,alerts,self,hosted,cron,curl,cli,devops,homelab,ssh,docker,' +
+      'terminal,developer',
     description:
       'Push notifications for your scripts and servers.\n\n' +
       'Create a send key and send a title and a body to notifi.it in one HTTP request. ' +
@@ -321,12 +322,6 @@ export const copy = {
     permissionOff: 'Off',
     permissionProvisional: 'Provisional',
     permissionEphemeral: 'Ephemeral',
-    delivery: 'Delivery',
-    deliveryBroken: 'Not pushing',
-    deliveryBrokenDetail:
-      'Recent messages arrived without a notification behind them. Notifications '
-      + 'are not reaching this device; messages still arrive over its live '
-      + 'connection, and whenever the app opens or refreshes.',
     permissionNotSet: 'Not set',
     permissionUnknown: 'Unknown',
 
@@ -359,6 +354,9 @@ export const copy = {
     automaticUpdates: 'Automatic updates',
     automaticUpdatesDetail: 'Check for new versions in the background.',
     checkForUpdates: 'Check for updates',
+    deleteAll: 'Delete all notifications',
+    deleteAllTitle: 'Are you sure?',
+    deleteAllMessage: "This can't be undone.",
     support: 'Report a problem',
     feedback: 'Feedback',
     privacyPolicy: 'Privacy policy',

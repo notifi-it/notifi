@@ -3,6 +3,7 @@ import type { Sample } from './spec.js';
 export const samples: Sample[] = [
   {
     id: 'curl',
+    group: 'Languages',
     icon: 'siCurl',
     label: 'curl',
     file: 'send.sh',
@@ -14,6 +15,7 @@ export const samples: Sample[] = [
   },
   {
     id: 'js',
+    group: 'Languages',
     icon: 'siJavascript',
     label: 'JavaScript',
     file: 'send.js',
@@ -31,6 +33,7 @@ export const samples: Sample[] = [
   },
   {
     id: 'py',
+    group: 'Languages',
     icon: 'siPython',
     keywords: ['import'],
     label: 'Python',
@@ -48,6 +51,7 @@ requests.post(
   },
   {
     id: 'go',
+    group: 'Languages',
     icon: 'siGo',
     keywords: ['package', 'import', 'func'],
     label: 'Go',
@@ -75,6 +79,7 @@ func main() {
   },
   {
     id: 'swift',
+    group: 'Languages',
     icon: 'siSwift',
     keywords: ['import', 'var', 'try await', 'try', 'for'],
     label: 'Swift',
@@ -94,6 +99,7 @@ _ = try await URLSession.shared.data(for: request)`,
   },
   {
     id: 'ruby',
+    group: 'Languages',
     icon: 'siRuby',
     keywords: ['require', 'true'],
     label: 'Ruby',
@@ -112,6 +118,7 @@ Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }`
   },
   {
     id: 'php',
+    group: 'Languages',
     icon: 'siPhp',
     keywords: ['true'],
     label: 'PHP',
@@ -130,6 +137,7 @@ curl_exec($ch);`,
   },
   {
     id: 'rust',
+    group: 'Languages',
     icon: 'siRust',
     keywords: ['let', 'await'],
     label: 'Rust',
@@ -149,6 +157,7 @@ reqwest::Client::new()
   },
   {
     id: 'hook',
+    group: 'Automation',
     icon: 'siClaude',
     label: 'Claude Code',
     file: '.claude/settings.json',
@@ -169,6 +178,7 @@ reqwest::Client::new()
   },
   {
     id: 'gha',
+    group: 'Automation',
     icon: 'siGithubactions',
     label: 'GitHub Actions',
     file: '.github/workflows/ci.yml',
@@ -186,6 +196,7 @@ reqwest::Client::new()
   },
   {
     id: 'shell',
+    group: 'Automation',
     icon: 'siZsh',
     keywords: ['autoload', 'local', 'return'],
     label: 'Shell hook',
@@ -208,6 +219,7 @@ add-zsh-hook precmd  _notifi_end`,
   },
   {
     id: 'systemd',
+    group: 'Automation',
     icon: 'siLinux',
     keywords: ['Unit', 'Service'],
     label: 'systemd',
@@ -228,6 +240,7 @@ ExecStart=/usr/bin/curl -s https://notifi.it/send \\
   },
   {
     id: 'kube',
+    group: 'Automation',
     icon: 'siKubernetes',
     label: 'Kubernetes',
     file: 'backup.yaml',

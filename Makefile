@@ -1,7 +1,8 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
 	gen-site check-site-html gen-site-md check-site-md check-site gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-metadata app-metadata-check shots screens screens-mac
+	app-metadata app-metadata-check app-screenshots app-resubmit shots screens screens-mac \
+	film film-gif check-film
 
 dev:
 	cd apps/api && pnpm wrangler dev
@@ -79,11 +80,17 @@ check-site-md:
 check-site:
 	node scripts/check-site.mjs $(BASE)
 
-# The landing page's launch animation. Sources are the scene and engine under
-# public/gif (the authoring page runs them through a CDN Babel); this bundles
-# them with preact for the page itself. Output is committed.
-gen-film:
-	cd apps/api && node film/build.mjs
+# The landing page's launch animation. sketches/gif/gen.py is the scene;
+# build.py injects it between the gf: markers in index.html, and the injected
+# result is committed. check-film fails a build where the two disagree.
+film:
+	cd sketches/gif && python3 build.py
+
+check-film:
+	node scripts/check-film.mjs
+
+film-gif:
+	cd sketches/gif && node capture.mjs
 
 app-project:
 	cd apps/app && xcodegen generate
@@ -132,6 +139,17 @@ app-metadata-check:
 
 app-metadata:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios metadata
+
+# Screenshots are their own target because Apple locks them once a version is
+# submitted while it leaves the listing text writable -- one target for both
+# means a copy fix after submission fails on a half it did not need to touch.
+app-screenshots:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios screenshots
+
+# Puts the current version back in review with no new build, for a listing that
+# changed after it was submitted. Cancel the open submission first.
+app-resubmit:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios resubmit
 
 # Verifying a layout change: one command, one screenshot per tab, from a
 # Simulator that stays booted between runs. SKIP_BUILD=1 when no Swift changed.

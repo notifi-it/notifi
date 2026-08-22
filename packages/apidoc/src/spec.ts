@@ -25,6 +25,7 @@ export interface Sample {
   code: string;
   keywords?: string[];
   icon?: string;
+  group?: string;
 }
 
 export interface Resource {

@@ -187,5 +187,5 @@ jobs:
           gh release create "${GITHUB_REF_NAME}" \
             --title "${GITHUB_REF_NAME}" \
             --generate-notes \
-            apps/app/build/updates/notifi.dmg \
+            "apps/app/build/updates/notifi-${MARKETING_VERSION}.dmg" \
             apps/app/build/updates/appcast.xml

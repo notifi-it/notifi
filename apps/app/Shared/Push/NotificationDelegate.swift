@@ -18,8 +18,6 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate, @u
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        Task { @MainActor in AppModel.shared?.notePushArrived() }
-
         let userInfo = response.notification.request.content.userInfo
         guard let serverID = Self.serverID(from: userInfo) else {
             completionHandler()

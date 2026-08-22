@@ -81,14 +81,7 @@ export function landingRows(): string {
 }
 
 export function landingTabs(): string {
-  return samples
-    .map((s, i) => {
-      const selected = i === 0 ? 'true' : 'false';
-      const label = s.label.replace(/ /g, '&nbsp;');
-      const glyph = s.icon ? brand(s.icon) : '';
-      return `      <button class="tab" role="tab" aria-selected="${selected}" aria-controls="p-${s.id}" id="t-${s.id}">${glyph}<span>${label}</span></button>`;
-    })
-    .join('\n');
+  return tabRow('', samples);
 }
 
 export function landingPanels(): string {
@@ -141,19 +134,42 @@ export interface Group {
   code: string;
   keywords?: string[];
   icon?: string;
+  group?: string;
+}
+
+function tabButton(prefix: string, item: Group, selected: boolean): string {
+  const label = item.label.replace(/ /g, '&nbsp;');
+  const glyph = item.icon ? brand(item.icon) : '';
+  return `<button class="tab" role="tab" aria-selected="${selected}" aria-controls="${prefix}p-${item.id}" id="${prefix}t-${item.id}">${glyph}<span>${label}</span></button>`;
+}
+
+function tabRow(prefix: string, items: Group[]): string {
+  const labels = [...new Set(items.map((i) => i.group).filter(Boolean))] as string[];
+  if (labels.length === 0) {
+    return items
+      .map((item, i) => `      ${tabButton(prefix, item, i === 0)}`)
+      .join('\n');
+  }
+  let seen = 0;
+  return labels
+    .map((label) => {
+      const rows = items
+        .filter((i) => i.group === label)
+        .map((item) => `          ${tabButton(prefix, item, seen++ === 0)}`)
+        .join('\n');
+      return `      <div class="tabgroup" role="presentation">
+        <span class="tabgroup-label" aria-hidden="true">${escape(label)}</span>
+        <div class="tabgroup-items" role="presentation">
+${rows}
+        </div>
+      </div>`;
+    })
+    .join('\n');
 }
 
 export function terminalGroup(prefix: string, aria: string, items: Group[]): string {
   const first = items[0];
   if (!first) throw new Error(`no items for ${prefix}`);
-  const tabs = items
-    .map((item, i) => {
-      const selected = i === 0 ? 'true' : 'false';
-      const label = item.label.replace(/ /g, '&nbsp;');
-      const glyph = item.icon ? brand(item.icon) : '';
-      return `      <button class="tab" role="tab" aria-selected="${selected}" aria-controls="${prefix}p-${item.id}" id="${prefix}t-${item.id}">${glyph}<span>${label}</span></button>`;
-    })
-    .join('\n');
   const panels = items
     .map((item, i) => {
       const hidden = i === 0 ? '' : ' hidden';
@@ -163,7 +179,7 @@ export function terminalGroup(prefix: string, aria: string, items: Group[]): str
     })
     .join('\n');
   return `    <div class="tabs" role="tablist" aria-label="${aria}">
-${tabs}
+${tabRow(prefix, items)}
     </div>
 
     <div class="term">

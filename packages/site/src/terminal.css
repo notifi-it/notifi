@@ -1,6 +1,6 @@
 /* The terminal block: the tab row, the window chrome and the code panel.
-   The landing page and the /docs recipes render the same markup from the same
-   samples, so they read the same way; this is the one copy of the styles. */
+   The landing page and the /docs recipes and clients render the same markup
+   from the same samples; this is the one copy of the styles. */
 .term{
   margin-top:40px;
   background:var(--surface);
@@ -31,9 +31,12 @@
 .copy:active{color:var(--fg);background:#1C1C1C}
 .copy[data-state="failed"]{color:var(--brand-text)}
 
-.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tabs{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.tabgroup{display:flex;flex-direction:column;gap:7px}
+.tabgroup-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);opacity:.65}
+.tabgroup-items{display:flex;flex-wrap:wrap;gap:6px}
 .tab{
-  display:inline-flex;align-items:center;gap:7px;
   font-family:var(--mono);font-size:13px;color:var(--muted);
   padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
   background:transparent;cursor:pointer;
@@ -55,8 +58,8 @@
 @keyframes panel-in{from{opacity:0}to{opacity:1}}
 
 /* Each tab carries its own mark, from simple-icons, monochrome in currentColor
-   and held back from the text so the row still reads as words first. Filled
-   marks read heavier than the type beside them, hence the low opacity. */
+   and held back from the text so the row still reads as words first. */
+.tab{display:inline-flex;align-items:center;gap:7px}
 .tab-i{flex:0 0 auto;opacity:.62}
 .tab:hover .tab-i{opacity:.85}
 .tab[aria-selected="true"] .tab-i{opacity:.75}

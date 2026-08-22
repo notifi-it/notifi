@@ -250,12 +250,6 @@ export const fr: Translation = {
   'settings.permissionOff': 'Désactivée',
   'settings.permissionProvisional': 'Provisoire',
   'settings.permissionEphemeral': 'Éphémère',
-  'settings.delivery': 'Livraison',
-  'settings.deliveryBroken': 'Pas de push',
-  'settings.deliveryBrokenDetail':
-    "Des messages récents sont arrivés sans notification associée. Les notifications " +
-    "n'atteignent pas cet appareil ; les messages arrivent encore via sa connexion " +
-    "en direct, et à chaque ouverture ou actualisation de l'application.",
   'settings.permissionNotSet': 'Non défini',
   'settings.permissionUnknown': 'Inconnue',
 
@@ -289,6 +283,9 @@ export const fr: Translation = {
   'settings.automaticUpdates': 'Mises à jour automatiques',
   'settings.automaticUpdatesDetail': "Vérifie la présence de nouvelles versions en arrière-plan.",
   'settings.checkForUpdates': 'Rechercher des mises à jour',
+  'settings.deleteAll': 'Supprimer toutes les notifications',
+  'settings.deleteAllTitle': 'Supprimer toutes les notifications ?',
+  'settings.deleteAllMessage': 'Cette action est irréversible.',
   'settings.support': 'Signaler un problème',
   'settings.feedback': 'Avis',
   'settings.privacyPolicy': 'Politique de confidentialité',
@@ -338,13 +335,14 @@ export const fr: Translation = {
     "notifi nécessite un Mac avec puce Apple silicon ou puce T2. Ce Mac n'a pas d'Enclave " +
     "sécurisée, que notifi utilise pour protéger votre clé d'identité.",
 
-  'store.subtitle': 'Une requête HTTP, un push',
+  'store.name': 'notifi : notifications push',
+  'store.subtitle': 'Pour scripts et serveurs',
   'store.promotionalText':
     'Une requête HTTP, et la notification arrive sur votre iPhone ou Mac. Chiffré avec ' +
     'votre clé publique — nous ne pouvons pas lire vos messages. Pas de compte, pas de SDK.',
   'store.keywords':
-    'curl,webhook,api,alerte,cli,serveur,monitoring,cron,script,dev,terminal,devops,' +
-    'homelab,pager',
+    'webhook,api,avertir,alerte,auto,hébergé,cron,curl,cli,devops,homelab,ssh,docker,' +
+    'monitor',
   'store.description':
     'Notifications push pour vos scripts et serveurs.\n\n' +
     "Créez une clé d'envoi et envoyez un titre et un message à notifi.it en une seule " +

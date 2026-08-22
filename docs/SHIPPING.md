@@ -10,7 +10,7 @@ flowchart TB
     prod["production<br/>migrate notifi-prod<br/>then wrangler deploy"]
     tf["testflight job<br/>uploads to TestFlight<br/>dead end, not the store"]
     mac["release-macos job<br/>fastlane mac dmg<br/>notarizes and signs the feed"]
-    ghr["GitHub release<br/>notifi.dmg, appcast.xml<br/>Sparkle and the site read it"]
+    ghr["GitHub release<br/>notifi-&lt;version&gt;.dmg, appcast.xml<br/>Sparkle and the site read it"]
     mac --> ghr
   end
 
@@ -54,10 +54,13 @@ The tag runs [app.yml](../.github/workflows/app.yml):
 
 - iOS is archived and uploaded to TestFlight.
 - macOS is built and notarized by the fastlane `dmg` lane, then attached to a
-  GitHub release as `notifi.dmg` and `appcast.xml`. The app's `SUFeedURL` is
-  `https://notifi.it/download/appcast.xml` and the website links
-  `/download/mac`; both are Worker redirects to the latest release's assets, so
-  neither URL has to change on a release.
+  GitHub release as `notifi-<version>.dmg` and `appcast.xml`. The app's
+  `SUFeedURL` is `https://notifi.it/download/appcast.xml` and the website links
+  `/download/mac`; both are Worker redirects, so neither URL has to change on a
+  release. `appcast.xml` keeps a fixed name and redirects straight to
+  `releases/latest/download`; the DMG does not, so `/download/mac` reads the tag
+  out of the `releases/latest` redirect first and falls back to the releases
+  page if GitHub does not answer.
 
 ## The App Store submission is not the TestFlight build
 
