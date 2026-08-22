@@ -3,7 +3,6 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   docsBody,
-  docsStyle,
   landingEndpoint,
   landingNote,
   landingPanels,
@@ -78,7 +77,7 @@ function docs(): Page {
       ]),
     },
     body: docsBody(),
-    style: `${docsStyle()}\n${terminalCss}`,
+    style: `${read('pages', 'docs.css')}\n${terminalCss}`,
     script: `${terminalJs}\n${pageMdJs}`,
   };
 }
