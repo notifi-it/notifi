@@ -237,7 +237,7 @@ struct KeyDetailView: View {
         """
         curl -X POST "\(model.baseURL.absoluteString)/send" \\
           -H "Content-Type: application/json" \\
-          -d '{"key":"\(key)","title":"Deploy finished","message":"web is live"}'
+          -d '{"key":"\(key)","title":"Hello from notifi","message":"Your first notification."}'
         """
     }
 

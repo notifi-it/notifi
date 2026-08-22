@@ -37,8 +37,8 @@ best-effort.
 ```
 curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
-  -d "title=Backup complete" \
-  -d "message=4.2 GB in 3m 11s"
+  -d "title=Hello from notifi" \
+  -d "message=Your first notification."
 ```
 
 `202` with `{"ok":true}` means the server took it.

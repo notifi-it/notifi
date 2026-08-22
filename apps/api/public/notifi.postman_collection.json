@@ -49,7 +49,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"title\": \"Backup complete\",\n  \"message\": \"4.2 GB in 3m 11s\",\n  \"link\": \"https://console.internal/backups\"\n}",
+          "raw": "{\n  \"title\": \"Hello from notifi\",\n  \"message\": \"Your first notification.\",\n  \"link\": \"https://notifi.it/docs\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -79,17 +79,17 @@
           "urlencoded": [
             {
               "key": "title",
-              "value": "Backup complete",
+              "value": "Hello from notifi",
               "type": "text"
             },
             {
               "key": "message",
-              "value": "4.2 GB in 3m 11s",
+              "value": "Your first notification.",
               "type": "text"
             },
             {
               "key": "link",
-              "value": "https://console.internal/backups",
+              "value": "https://notifi.it/docs",
               "type": "text"
             }
           ]

@@ -226,8 +226,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="card">
       <p><code>curl -X POST https://notifi.it/send \<br>
       &nbsp;&nbsp;-H "Authorization: Bearer $NOTIFI_KEY" \<br>
-      &nbsp;&nbsp;-d "title=Backup complete" \<br>
-      &nbsp;&nbsp;-d "message=4.2 GB in 3m 11s"</code></p>
+      &nbsp;&nbsp;-d "title=Hello from notifi" \<br>
+      &nbsp;&nbsp;-d "message=Your first notification."</code></p>
     </div>
     <p>A successful send answers <code>202</code> with <code>{"ok":true}</code>. The key can also be passed as a <code>key</code> parameter, though the <a href="/faq#logs">note on query strings</a> below applies if you do.</p>
   </section>

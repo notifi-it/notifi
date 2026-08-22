@@ -439,8 +439,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </p>
     <pre data-lang="bash">curl -X POST https://notifi.it/send \
   -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
-  -d &quot;title=Backup complete&quot; \
-  -d &quot;message=4.2 GB in 3m 11s&quot;</pre>
+  -d &quot;title=Hello from notifi&quot; \
+  -d &quot;message=Your first notification.&quot;</pre>
     <p>
       There is no endpoint that creates a key: keys are minted on the device by a request
       signed with a private key that never leaves it. A coding agent has to ask you for one.
@@ -483,7 +483,7 @@ Authorization: Bearer nk_yourkey
 Content-Type: application/json
 Accept-Language: en-GB
 
-{&quot;title&quot;:&quot;Backup complete&quot;,&quot;message&quot;:&quot;4.2 GB in 3m 11s&quot;,&quot;link&quot;:&quot;https://console.internal/backups&quot;}</pre>
+{&quot;title&quot;:&quot;Hello from notifi&quot;,&quot;message&quot;:&quot;Your first notification.&quot;,&quot;link&quot;:&quot;https://notifi.it/docs&quot;}</pre>
   </section>
 
   <section id="parameters">
@@ -712,8 +712,8 @@ https://notifi.it/openapi.json</span></pre>
 <pre><span class="c"># No import needed.
 http -f POST https://notifi.it/send \
   </span><span class="s">&quot;Authorization:Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
-  title=<span class="s">&quot;Backup complete&quot;</span> \
-  message=<span class="s">&quot;4.2 GB in 3m 11s&quot;</span></pre>
+  title=<span class="s">&quot;Hello from notifi&quot;</span> \
+  message=<span class="s">&quot;Your first notification.&quot;</span></pre>
       </div>
       <div class="panel" id="c-p-generate" role="tabpanel" tabindex="0" aria-labelledby="c-t-generate" data-name="openapi-generator" data-label="Client generator" hidden>
 <pre><span class="c"># Any generator that reads OpenAPI 3.1.
@@ -786,9 +786,9 @@ openapi-generator-cli generate \
       <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh" data-label="curl">
 <pre>curl -X POST https://notifi.it/send \
   -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
-  -d <span class="s">&quot;title=Backup complete&quot;</span> \
-  -d <span class="s">&quot;message=4.2 GB in 3m 11s&quot;</span> \
-  -d <span class="s">&quot;link=https://console.internal/backups&quot;</span></pre>
+  -d <span class="s">&quot;title=Hello from notifi&quot;</span> \
+  -d <span class="s">&quot;message=Your first notification.&quot;</span> \
+  -d <span class="s">&quot;link=https://notifi.it/docs&quot;</span></pre>
       </div>
       <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" data-label="JavaScript" hidden>
 <pre>await fetch(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
@@ -798,8 +798,8 @@ openapi-generator-cli generate \
     <span class="s">&quot;Content-Type&quot;</span>: <span class="s">&quot;application/json&quot;</span>,
   },
   body: JSON.stringify({
-    title: <span class="s">&quot;Backup complete&quot;</span>,
-    message: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
+    title: <span class="s">&quot;Hello from notifi&quot;</span>,
+    message: <span class="s">&quot;Your first notification.&quot;</span>,
   }),
 });</pre>
       </div>
@@ -810,8 +810,8 @@ requests.post(
     <span class="s">&quot;https://notifi.it/send&quot;</span>,
     headers={<span class="s">&quot;Authorization&quot;</span>: f<span class="s">&quot;Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}&quot;</span>},
     json={
-        <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Backup complete&quot;</span>,
-        <span class="s">&quot;message&quot;</span>: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
+        <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
+        <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
     },
 )</pre>
       </div>
@@ -827,8 +827,8 @@ requests.post(
 
 <span class="f">func</span> main() {
 	form := url.Values{
-		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Backup complete&quot;</span>},
-		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;4.2 GB in 3m 11s&quot;</span>},
+		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Hello from notifi&quot;</span>},
+		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;Your first notification.&quot;</span>},
 	}
 	req, _ := http.NewRequest(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
 		strings.NewReader(form.Encode()))
@@ -845,8 +845,8 @@ request.httpMethod = <span class="s">&quot;POST&quot;</span>
 request.setValue(<span class="s">&quot;Bearer \(key)&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Authorization&quot;</span>)
 request.setValue(<span class="s">&quot;application/json&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Content-Type&quot;</span>)
 request.httpBody = <span class="f">try</span> JSONEncoder().encode([
-    <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Backup complete&quot;</span>,
-    <span class="s">&quot;message&quot;</span>: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
+    <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
+    <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
 ])
 
 _ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
@@ -858,8 +858,8 @@ uri = URI(<span class="s">&quot;https://notifi.it/send&quot;</span>)
 req = Net::HTTP::Post.new(uri)
 req[<span class="s">&quot;Authorization&quot;</span>] = <span class="s">&quot;Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}&quot;</span>
 req.set_form_data(
-  <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Backup complete&quot;</span>,
-  <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>
+  <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
+  <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
@@ -871,8 +871,8 @@ curl_setopt_array($ch, [
     CURLOPT_POST       =&gt; <span class="f">true</span>,
     CURLOPT_HTTPHEADER =&gt; [<span class="s">&quot;Authorization: Bearer &quot;</span> . getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)],
     CURLOPT_POSTFIELDS =&gt; [
-        <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Backup complete&quot;</span>,
-        <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
+        <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
+        <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
     ],
 ]);
 curl_exec($ch);</pre>
@@ -885,8 +885,8 @@ reqwest::Client::new()
     .post(<span class="s">&quot;https://notifi.it/send&quot;</span>)
     .bearer_auth(key)
     .form(&amp;[
-        (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Backup complete&quot;</span>),
-        (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>),
+        (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
+        (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
     ])
     .send()
     .<span class="f">await</span>?;</pre>
@@ -974,7 +974,7 @@ spec:
               ./backup.sh &amp;&amp;
               curl -s https://notifi.it/send \
                 -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
-                -d <span class="s">&quot;title=Backup complete&quot;</span>
+                -d <span class="s">&quot;title=Hello from notifi&quot;</span>
             env:
             - name: <span class="k">NOTIFI_KEY</span>
               valueFrom: { secretKeyRef: { name: notifi, key: key } }</pre>

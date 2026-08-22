@@ -83,7 +83,7 @@ export const params: Param[] = [
     summary: 'The notification title.',
     detail: 'A longer title is delivered cropped, with a warning in the response.',
     openapi: { type: 'string', minLength: 1, maxLength: TITLE_MAX },
-    example: 'Backup complete',
+    example: 'Hello from notifi',
   },
   {
     name: 'message',
@@ -94,7 +94,7 @@ export const params: Param[] = [
     detail:
       'The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning.',
     openapi: { type: 'string', maxLength: MESSAGE_MAX },
-    example: '4.2 GB in 3m 11s',
+    example: 'Your first notification.',
   },
   {
     name: 'link',
@@ -104,7 +104,7 @@ export const params: Param[] = [
     summary: 'URL opened when the notification is tapped.',
     detail: '',
     openapi: { type: 'string', format: 'uri', maxLength: URL_MAX },
-    example: 'https://console.internal/backups',
+    example: 'https://notifi.it/docs',
   },
   {
     name: 'image',

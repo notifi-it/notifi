@@ -317,8 +317,8 @@ export const de: Translation = {
     'gibt 202 mit einem warnings-Array zurück.',
   'settings.strictSendFailed': 'PATCH /devices/settings fehlgeschlagen. Verbindung prüfen und erneut versuchen.',
 
-  'settings.testTitle': 'Testbenachrichtigung',
-  'settings.testBody': 'Wenn du das lesen kannst, funktioniert notifi.',
+  'settings.testTitle': 'Hello from notifi',
+  'settings.testBody': 'Deine erste Benachrichtigung.',
 
   'settings.sectionSupport': 'Support',
   'settings.sectionApplication': 'Anwendung',
@@ -337,8 +337,8 @@ export const de: Translation = {
   'settings.privacyPolicy': 'Datenschutzerklärung',
   'settings.website': 'notifi.it',
 
-  'empty.sampleTitle': 'Hello World',
-  'empty.sampleMessage': 'Das kam von dem Befehl, den du gerade ausgeführt hast.',
+  'empty.sampleTitle': 'Hello from notifi',
+  'empty.sampleMessage': 'Deine erste Benachrichtigung.',
 
   'empty.title': 'Noch nichts hier',
   'empty.detail': 'Sende deine erste Benachrichtigung, und sie landet hier.',

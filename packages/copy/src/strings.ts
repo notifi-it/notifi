@@ -342,8 +342,8 @@ export const copy = {
       'returns 202 with a warnings array.',
     strictSendFailed: 'PATCH /devices/settings failed. Check your connection and try again.',
 
-    testTitle: 'Test notification',
-    testBody: 'If you can read this, notifi is working.',
+    testTitle: 'Hello from notifi',
+    testBody: 'Your first notification.',
 
     sectionSupport: 'Support',
     sectionApplication: 'Application',
@@ -364,8 +364,8 @@ export const copy = {
   },
 
   empty: {
-    sampleTitle: 'Hello World',
-    sampleMessage: 'This came from the command you just ran.',
+    sampleTitle: 'Hello from notifi',
+    sampleMessage: 'Your first notification.',
 
     title: 'Nothing yet',
     detail: 'Send your first notification and it lands here.',

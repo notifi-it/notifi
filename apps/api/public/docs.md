@@ -11,8 +11,8 @@ Install notifi on [iPhone or iPad](https://apps.apple.com/app/id1563961135) or [
 ```bash
 curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
-  -d "title=Backup complete" \
-  -d "message=4.2 GB in 3m 11s"
+  -d "title=Hello from notifi" \
+  -d "message=Your first notification."
 ```
 
 There is no endpoint that creates a key: keys are minted on the device by a request signed with a private key that never leaves it. A coding agent has to ask you for one. Keep it in the environment, not in a file that gets committed.
@@ -37,7 +37,7 @@ Authorization: Bearer nk_yourkey
 Content-Type: application/json
 Accept-Language: en-GB
 
-{"title":"Backup complete","message":"4.2 GB in 3m 11s","link":"https://console.internal/backups"}
+{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs"}
 ```
 
 ## Parameters
@@ -161,8 +161,8 @@ https://notifi.it/openapi.json
 # No import needed.
 http -f POST https://notifi.it/send \
   "Authorization:Bearer $NOTIFI_KEY" \
-  title="Backup complete" \
-  message="4.2 GB in 3m 11s"
+  title="Hello from notifi" \
+  message="Your first notification."
 ```
 
 ### Client generator
@@ -197,9 +197,9 @@ The same request from everywhere it tends to get sent from — 13 of them, the s
 ```
 curl -X POST https://notifi.it/send \
   -H "Authorization: Bearer $NOTIFI_KEY" \
-  -d "title=Backup complete" \
-  -d "message=4.2 GB in 3m 11s" \
-  -d "link=https://console.internal/backups"
+  -d "title=Hello from notifi" \
+  -d "message=Your first notification." \
+  -d "link=https://notifi.it/docs"
 ```
 
 ### JavaScript
@@ -212,8 +212,8 @@ await fetch("https://notifi.it/send", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    title: "Backup complete",
-    message: "4.2 GB in 3m 11s",
+    title: "Hello from notifi",
+    message: "Your first notification.",
   }),
 });
 ```
@@ -227,8 +227,8 @@ requests.post(
     "https://notifi.it/send",
     headers={"Authorization": f"Bearer {os.environ['NOTIFI_KEY']}"},
     json={
-        "title": "Backup complete",
-        "message": "4.2 GB in 3m 11s",
+        "title": "Hello from notifi",
+        "message": "Your first notification.",
     },
 )
 ```
@@ -247,8 +247,8 @@ import (
 
 func main() {
 	form := url.Values{
-		"title":   {"Backup complete"},
-		"message": {"4.2 GB in 3m 11s"},
+		"title":   {"Hello from notifi"},
+		"message": {"Your first notification."},
 	}
 	req, _ := http.NewRequest("POST", "https://notifi.it/send",
 		strings.NewReader(form.Encode()))
@@ -268,8 +268,8 @@ request.httpMethod = "POST"
 request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 request.httpBody = try JSONEncoder().encode([
-    "title": "Backup complete",
-    "message": "4.2 GB in 3m 11s",
+    "title": "Hello from notifi",
+    "message": "Your first notification.",
 ])
 
 _ = try await URLSession.shared.data(for: request)
@@ -284,8 +284,8 @@ uri = URI("https://notifi.it/send")
 req = Net::HTTP::Post.new(uri)
 req["Authorization"] = "Bearer #{ENV['NOTIFI_KEY']}"
 req.set_form_data(
-  "title" => "Backup complete",
-  "message" => "4.2 GB in 3m 11s"
+  "title" => "Hello from notifi",
+  "message" => "Your first notification."
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
@@ -300,8 +300,8 @@ curl_setopt_array($ch, [
     CURLOPT_POST       => true,
     CURLOPT_HTTPHEADER => ["Authorization: Bearer " . getenv("NOTIFI_KEY")],
     CURLOPT_POSTFIELDS => [
-        "title"   => "Backup complete",
-        "message" => "4.2 GB in 3m 11s",
+        "title"   => "Hello from notifi",
+        "message" => "Your first notification.",
     ],
 ]);
 curl_exec($ch);
@@ -317,8 +317,8 @@ reqwest::Client::new()
     .post("https://notifi.it/send")
     .bearer_auth(key)
     .form(&[
-        ("title", "Backup complete"),
-        ("message", "4.2 GB in 3m 11s"),
+        ("title", "Hello from notifi"),
+        ("message", "Your first notification."),
     ])
     .send()
     .await?;
@@ -421,7 +421,7 @@ spec:
               ./backup.sh &&
               curl -s https://notifi.it/send \
                 -H "Authorization: Bearer $NOTIFI_KEY" \
-                -d "title=Backup complete"
+                -d "title=Hello from notifi"
             env:
             - name: NOTIFI_KEY
               valueFrom: { secretKeyRef: { name: notifi, key: key } }

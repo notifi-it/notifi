@@ -270,8 +270,8 @@ export const fr: Translation = {
     "raccourcit ou supprime le champ et renvoie 202 avec un tableau warnings.",
   'settings.strictSendFailed': 'Échec de PATCH /devices/settings. Vérifiez votre connexion et réessayez.',
 
-  'settings.testTitle': 'Notification de test',
-  'settings.testBody': 'Si vous pouvez lire ceci, notifi fonctionne.',
+  'settings.testTitle': 'Hello from notifi',
+  'settings.testBody': 'Votre première notification.',
 
   'settings.sectionSupport': 'Assistance',
   'settings.sectionApplication': 'Application',
@@ -291,8 +291,8 @@ export const fr: Translation = {
   'settings.privacyPolicy': 'Politique de confidentialité',
   'settings.website': 'notifi.it',
 
-  'empty.sampleTitle': 'Hello World',
-  'empty.sampleMessage': 'Ceci vient de la commande que vous venez d’exécuter.',
+  'empty.sampleTitle': 'Hello from notifi',
+  'empty.sampleMessage': 'Votre première notification.',
 
   'empty.title': 'Rien pour le moment',
   'empty.detail': 'Envoyez votre première notification et elle apparaîtra ici.',
