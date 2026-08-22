@@ -215,7 +215,7 @@ There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer t
 
 ## Recipes
 
-The same request from everywhere it tends to get sent from — 13 of them, the same block the home page carries. Each one wants `NOTIFI_KEY` in the environment.
+The same request from everywhere it tends to get sent from — 15 of them, the same block the home page carries. Each one wants `NOTIFI_KEY` in the environment.
 
 ### curl
 
@@ -364,6 +364,34 @@ reqwest::Client::new()
     .await?;
 ```
 
+### Java
+
+```
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.function.BiFunction;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+BiFunction<String, String, String> field = (k, v) -> k + "=" + URLEncoder.encode(v, UTF_8);
+
+var body = String.join("&",
+    field.apply("title", "Hello from notifi"),
+    field.apply("message", "Your first notification."),
+    field.apply("link", "https://notifi.it/docs"),
+    field.apply("image", "https://notifi.it/anaglyph-bell.png"));
+
+var request = HttpRequest.newBuilder(URI.create("https://notifi.it/send"))
+    .header("Authorization", "Bearer " + System.getenv("NOTIFI_KEY"))
+    .header("Content-Type", "application/x-www-form-urlencoded")
+    .POST(HttpRequest.BodyPublishers.ofString(body))
+    .build();
+
+HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding());
+```
+
 ### Claude Code
 
 ```
@@ -417,6 +445,18 @@ _notifi_end() {
 }
 add-zsh-hook preexec _notifi_start
 add-zsh-hook precmd  _notifi_end
+```
+
+### cron
+
+```
+# crontab -e. A cron job gets no PATH, and its output goes nowhere you
+# will read, so a job that quietly stopped working stays quiet for months.
+# A literal % is a newline to cron: escape any you need as \%.
+PATH=/usr/local/bin:/usr/bin:/bin
+NOTIFI_KEY=...
+
+0 3 * * * backup.sh >/tmp/backup.log 2>&1; curl -s https://notifi.it/send -H "Authorization: Bearer $NOTIFI_KEY" -d "title=backup $([ $? = 0 ] && echo ok || echo failed) on $(hostname)" --data-urlencode "message=$(tail -c 800 /tmp/backup.log)"
 ```
 
 ### systemd
