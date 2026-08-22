@@ -28,14 +28,20 @@ function inline(text: string): string {
     codes.push(`<code>${escape(code)}</code>`);
     return `%%CODE${codes.length - 1}%%`;
   });
+  const literals: string[] = [];
+  out = out.replace(/\\([\\`*_[\]()<>&#.!-])/g, (_, ch: string) => {
+    literals.push(ch);
+    return `%%LIT${literals.length - 1}%%`;
+  });
   out = escape(out);
   out = out.replace(
-    /\[([^\]]+)\]\(([^)]+)\)/g,
+    /\[([^\]]+)\]\(((?:[^\s()]|\([^\s()]*\))+)\)/g,
     (_, label: string, href: string) => `<a href="${href}">${label}</a>`,
   );
   out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   out = out.replace(/(^|[\s(])_([^_]+)_(?=[\s.,;:)]|$)/g, '$1<em>$2</em>');
   out = out.replace(/&lt;br&gt;/g, '<br>');
+  out = out.replace(/%%LIT(\d+)%%/g, (_, i: string) => escape(literals[Number(i)] as string));
   return out.replace(/%%CODE(\d+)%%/g, (_, i: string) => codes[Number(i)] as string);
 }
 
