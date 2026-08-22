@@ -34,7 +34,7 @@ struct FeedHeader<Trailing: View>: View {
                 }
             }
             Spacer(minLength: 8)
-            HStack(spacing: 8) {
+            HStack(spacing: Theme.headerActionSpacing) {
                 trailing()
                 overflowMenu
             }

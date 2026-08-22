@@ -112,7 +112,7 @@ struct MessageDetailView: View {
 
             if let message {
                 let anyScheme = model.allowsAnyLink(keyID: message.keyID)
-                HStack(spacing: 10) {
+                HStack(spacing: Theme.headerActionSpacing) {
                     if let link = message.link, LinkPolicy.allows(link, anyScheme: anyScheme) {
                         IconButton(systemName: "globe", label: Copy.Common.openLink) {
                             open(link, keyID: message.keyID)
@@ -136,8 +136,7 @@ struct MessageDetailView: View {
             }
         }
         .geistGutter()
-        .padding(.top, 22)
-        .padding(.bottom, 6)
+        .geistPageHeader()
         .background(StaticField())
     }
 
@@ -391,7 +390,7 @@ struct MessageDetailView: View {
     }
 
     private func open(_ url: URL, keyID: Int?) {
-        guard LinkPolicy.allows(url, keyID: keyID) else { return }
+        guard LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
         #if os(iOS)
         UIApplication.shared.open(url)
         #else
@@ -400,7 +399,7 @@ struct MessageDetailView: View {
     }
 
     fileprivate func downloadImage(_ url: URL, keyID: Int?) {
-        guard LinkPolicy.allows(url, keyID: keyID) else { return }
+        guard LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
         Task {
             guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
             #if os(iOS)

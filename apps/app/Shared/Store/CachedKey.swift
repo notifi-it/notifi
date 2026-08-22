@@ -62,7 +62,8 @@ enum KeyCacheStore {
     }
 
     static func load() -> [CachedKey] {
-        guard let data = try? Data(contentsOf: fileURL),
+        guard !LocalDev.isActive,
+              let data = try? Data(contentsOf: fileURL),
               let keys = try? JSONDecoder().decode([CachedKey].self, from: data) else {
             return []
         }
@@ -70,6 +71,7 @@ enum KeyCacheStore {
     }
 
     static func save(_ keys: [CachedKey]) {
+        guard !LocalDev.isActive else { return }
         guard let data = try? JSONEncoder().encode(keys) else { return }
         #if os(iOS)
         try? data.write(to: fileURL, options: [.atomic, .completeFileProtectionUnlessOpen])

@@ -100,6 +100,33 @@ Two things the generator will not do for you:
 - **Backfills and renames.** A diff cannot infer intent, so a correlated update
   or a column rename has to be written by hand — and said so in the commit.
 
+## Running the app against a local server
+
+`make dev` starts wrangler on a random free port so parallel worktrees never
+collide; read the port off its "Ready on" line. It passes `--host` alongside
+`--port` because the signed canonical string binds host **and** port — a bare
+`wrangler dev --port N` leaves the Worker verifying `localhost:8787` and every
+signed request 401s.
+
+The Worker needs `apps/api/.dev.vars` (gitignored): `ENCRYPTION_KEY` as 64 hex
+chars, plus `APNS_TEAM_ID`/`APNS_KEY_ID`/`APNS_PRIVATE_KEY` stubs. Run
+`make migrate` once per worktree. APNs cannot deliver locally — the push
+attempt fails on the stub key every time. Arrivals still reach a running app
+over the socket, and the banner comes from the app's own unpushed announce.
+
+Point a DEBUG build at it with `NOTIFI_BASE_URL=http://localhost:<port>`.
+Setting it flips the app into local-dev isolation (`LocalDev.isActive`): the
+message store goes in-memory, and because the sync cursor lives *inside* the
+store (`SyncState`), it dies with it — the link-policy allow-list and key
+cache are simply not read or persisted. Without that isolation the Debug
+build shares the installed app's store, whose cursor sits at the production
+sequence, so history from a fresh local D1 (seq 1..n) is permanently
+invisible — sends look accepted but never appear.
+
+Seed sendable keys with `apps/api/seed-keys.mjs` (prints the secrets, writes
+`/tmp/notifi-seed.sql` to apply with `wrangler d1 execute --local`), using the
+device row the app registers on first launch.
+
 ## Building the app
 
 ```bash

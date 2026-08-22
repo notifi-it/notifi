@@ -168,7 +168,7 @@ struct MessageFeed<Empty: View>: View {
     }
 
     private func open(_ url: URL, keyID: Int?) {
-        guard LinkPolicy.allows(url, keyID: keyID) else { return }
+        guard LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
         #if os(iOS)
         UIApplication.shared.open(url)
         #else

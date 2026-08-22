@@ -3,8 +3,12 @@
 	app-metadata app-metadata-check app-screenshots app-resubmit shots screens screens-mac \
 	film film-gif check-film
 
+# Random port so parallel worktrees never collide. The signed canonical string
+# binds the host, so --host must carry the same port as --port; the pinned
+# [dev] block in wrangler.toml only covers running `wrangler dev` bare.
 dev:
-	cd apps/api && pnpm wrangler dev
+	cd apps/api && port=$$(node -e 'const s=require("net").createServer();s.listen(0,()=>{console.log(s.address().port);s.close()})') && \
+		pnpm wrangler dev --port $$port --host localhost:$$port
 
 deploy:
 	cd apps/api && pnpm wrangler deploy
