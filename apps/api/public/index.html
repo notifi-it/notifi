@@ -288,7 +288,9 @@ nav a:hover{color:var(--fg)}
 .copy:active{color:var(--fg);background:#1C1C1C}
 .copy[data-state="failed"]{color:var(--brand-text)}
 
-.tabs{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.tabs{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;margin:24px 0 14px}
+.tabs:has(.tabgroup){flex-direction:column;gap:14px}
+.tabs + .term{margin-top:0}
 .tabgroup{display:flex;flex-direction:column;gap:7px}
 .tabgroup-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--muted);opacity:.65}
@@ -511,12 +513,12 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-head .gf-l1{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}
 .gf-gif .gf-l1{--fs:2.3;color:var(--red)}
 .gf-head .gf-l2{--fs:2.0;font-weight:400;color:var(--muted)}
-.gf-term{position:absolute;left:4.17%;top:24.5%;width:38.43%;height:55%;container-type:inline-size;background:var(--surface);border-radius:2.862cqw;overflow:hidden}
+.gf-term{position:absolute;left:4.17%;top:24.5%;width:38.43%;height:55%;container-type:inline-size;background:var(--surface);border-radius:1.1cqw;overflow:hidden}
 .gf-term .gf-bar{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}
 .gf-term .gf-bar i{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}
 .gf-term .gf-title{--fs:2.602;position:absolute;left:15.092cqw;top:50%;transform:translateY(-50%);font-family:var(--mono);color:var(--dim);opacity:0}
 .gf-term .gf-tabs{display:flex;gap:1.171cqw;padding:0 2.082cqw 1.821cqw}
-.gf-term .gf-tabs button{--fs:2.602;flex:1;text-align:center;font-family:var(--mono);color:var(--dim);background:#222224;border-radius:2.342cqw;padding:0.989cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gf-term .gf-tabs button{--fs:2.602;flex:1;text-align:center;font-family:var(--mono);color:var(--dim);background:#222224;border-radius:0.85cqw;padding:0.989cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @keyframes gf-blink{0%,49%{opacity:1}50%,100%{opacity:.15}}
 .gf-term .gf-tabs button{border:0;cursor:pointer;font-family:var(--mono);line-height:inherit;-webkit-appearance:none;appearance:none}
 .gf-term .gf-tabs button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
@@ -1152,7 +1154,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p class="meta" style="margin-top:22px">
       60 sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
       <code>message</code>: <code>400</code> invalid parameters · <code>401</code> unknown or revoked key · <code>429</code> rate limited. <code>GET</code> works for a quick
-      test; <code>POST</code> is recommended.
+      test, but puts the key in edge logs and shell history, so rotate it afterwards;
+      <code>POST</code> with an <code>Authorization</code> header is recommended.
       The full reference is at <a href="/docs">notifi.it/docs</a>.
     </p>
 <!-- /gen:apinote -->

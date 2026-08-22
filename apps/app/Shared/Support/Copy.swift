@@ -125,10 +125,8 @@ enum Copy {
         static var fieldSent: String { NSLocalizedString("keyDetail.fieldSent", comment: "") }
         static var fieldCreated: String { NSLocalizedString("keyDetail.fieldCreated", comment: "") }
         static var fieldLastUsed: String { NSLocalizedString("keyDetail.fieldLastUsed", comment: "") }
-        static var sectionLinks: String { NSLocalizedString("keyDetail.sectionLinks", comment: "") }
         static var openAnyLink: String { NSLocalizedString("keyDetail.openAnyLink", comment: "") }
         static var openAnyLinkDetail: String { NSLocalizedString("keyDetail.openAnyLinkDetail", comment: "") }
-        static var sectionAlerts: String { NSLocalizedString("keyDetail.sectionAlerts", comment: "") }
         static var criticalAlerts: String { NSLocalizedString("keyDetail.criticalAlerts", comment: "") }
         static var revokedNotice: String { NSLocalizedString("keyDetail.revokedNotice", comment: "") }
         static var sectionDanger: String { NSLocalizedString("keyDetail.sectionDanger", comment: "") }

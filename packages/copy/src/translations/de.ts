@@ -202,7 +202,7 @@ export const de: Translation = {
   'keyDetail.copyKey': 'Schlüssel kopieren',
   'keyDetail.shareKey': 'Schlüssel teilen',
   'keyDetail.copyCurl': 'Curl kopieren',
-  'keyDetail.examplesLink': 'Weitere Sendearten',
+  'keyDetail.examplesLink': 'Docs',
   'keyDetail.defaultKeyDetail':
     'notifi behält diesen auf deinem Gerät, sodass du ihn jederzeit erneut kopieren ' +
     'oder unten neu erzeugen kannst.',
@@ -214,13 +214,11 @@ export const de: Translation = {
   'keyDetail.fieldCreated': 'Erstellt',
   'keyDetail.fieldLastUsed': 'Zuletzt genutzt',
 
-  'keyDetail.sectionLinks': 'Links',
   'keyDetail.openAnyLink': 'Beliebige Links öffnen',
   'keyDetail.openAnyLinkDetail':
     'Aus, es öffnen nur https-Links. An, es öffnen auch andere Schemata, einschließlich solcher, die ' +
     'andere Apps auf diesem Gerät starten.',
 
-  'keyDetail.sectionAlerts': 'Benachrichtigungen',
   'keyDetail.criticalAlerts': 'Kritische Benachrichtigungen',
 
   'keyDetail.revokedNotice': 'Dieser Schlüssel ist widerrufen und akzeptiert keine Sendungen mehr.',

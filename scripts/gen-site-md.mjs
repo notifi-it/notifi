@@ -230,6 +230,17 @@ function blocks(node, depth) {
       case "table":
         out.push(table(child));
         break;
+      case "figure": {
+        // A screenshot and its caption. Markdown keeps both: the image, so an
+        // agent can fetch it, and the caption, which carries the sentence the
+        // picture is there to make.
+        const img = child.children.find((c) => c.tag === "img");
+        if (!img) throw new Error("a <figure> needs an <img>");
+        const caption = child.children.find((c) => c.tag === "figcaption");
+        out.push(`![${img.attrs.alt ?? ""}](${img.attrs.src})`);
+        if (caption) out.push(`_${inlineOf(caption)}_`);
+        break;
+      }
       case "button":
         break;
       case "div":

@@ -152,7 +152,7 @@ export const it: Translation = {
   'keyDetail.copyKey': 'Copia chiave',
   'keyDetail.shareKey': 'Condividi chiave',
   'keyDetail.copyCurl': 'Copia curl',
-  'keyDetail.examplesLink': 'Altri modi per inviare',
+  'keyDetail.examplesLink': 'Docs',
   'keyDetail.defaultKeyDetail':
     'notifi conserva questa chiave sul tuo dispositivo, così puoi copiarla di nuovo quando ' +
     'ti serve, oppure rigenerarla qui sotto.',
@@ -164,13 +164,11 @@ export const it: Translation = {
   'keyDetail.fieldCreated': 'Creata',
   'keyDetail.fieldLastUsed': 'Ultimo utilizzo',
 
-  'keyDetail.sectionLinks': 'Link',
   'keyDetail.openAnyLink': 'Apri qualsiasi link',
   'keyDetail.openAnyLinkDetail':
     'Disattivato, si aprono solo i link https. Attivato, si aprono anche altri schemi, inclusi quelli che ' +
     'avviano altre app su questo dispositivo.',
 
-  'keyDetail.sectionAlerts': 'Avvisi',
   'keyDetail.criticalAlerts': 'Avvisi critici',
 
   'keyDetail.revokedNotice': 'Questa chiave è revocata e non accetta più invii.',

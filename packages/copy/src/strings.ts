@@ -223,7 +223,7 @@ export const copy = {
     copyKey: 'Copy key',
     shareKey: 'Share key',
     copyCurl: 'Copy curl',
-    examplesLink: 'More ways to send',
+    examplesLink: 'Docs',
     defaultKeyDetail:
       'notifi keeps this one on your device, so you can copy it again whenever you ' +
       'need it, or regenerate it below.',
@@ -235,13 +235,11 @@ export const copy = {
     fieldCreated: 'Created',
     fieldLastUsed: 'Last used',
 
-    sectionLinks: 'Links',
     openAnyLink: 'Open any link',
     openAnyLinkDetail:
       'Off, only https links open. On, other schemes open too, including ones that ' +
       'launch other apps on this device.',
 
-    sectionAlerts: 'Alerts',
     criticalAlerts: 'Critical alerts',
 
     revokedNotice: 'This key is revoked and no longer accepts sends.',

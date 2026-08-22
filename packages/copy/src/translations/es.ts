@@ -152,7 +152,7 @@ export const es: Translation = {
   'keyDetail.copyKey': 'Copiar clave',
   'keyDetail.shareKey': 'Compartir clave',
   'keyDetail.copyCurl': 'Copiar curl',
-  'keyDetail.examplesLink': 'Más formas de enviar',
+  'keyDetail.examplesLink': 'Docs',
   'keyDetail.defaultKeyDetail':
     'notifi guarda esta en tu dispositivo, así que puedes volver a copiarla cuando la necesites, ' +
     'o regenerarla más abajo.',
@@ -164,13 +164,11 @@ export const es: Translation = {
   'keyDetail.fieldCreated': 'Creada',
   'keyDetail.fieldLastUsed': 'Último uso',
 
-  'keyDetail.sectionLinks': 'Enlaces',
   'keyDetail.openAnyLink': 'Abrir cualquier enlace',
   'keyDetail.openAnyLinkDetail':
     'Desactivado, solo se abren enlaces https. Activado, también se abren otros esquemas, incluidos los que ' +
     'lanzan otras apps en este dispositivo.',
 
-  'keyDetail.sectionAlerts': 'Alertas',
   'keyDetail.criticalAlerts': 'Alertas críticas',
 
   'keyDetail.revokedNotice': 'Esta clave está revocada y ya no acepta envíos.',

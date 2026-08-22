@@ -4057,31 +4057,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "More ways to send"
+            "value": "Docs"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Más formas de enviar"
+            "value": "Docs"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Weitere Sendearten"
+            "value": "Docs"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "D'autres façons d'envoyer"
+            "value": "Docs"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Altri modi per inviare"
+            "value": "Docs"
           }
         }
       }
@@ -4996,41 +4996,6 @@
         }
       }
     },
-    "keyDetail.sectionAlerts": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alerts"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alertas"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benachrichtigungen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alertes"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Avvisi"
-          }
-        }
-      }
-    },
     "keyDetail.sectionDanger": {
       "extractionState": "manual",
       "localizations": {
@@ -5062,41 +5027,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zona pericolosa"
-          }
-        }
-      }
-    },
-    "keyDetail.sectionLinks": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Links"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enlaces"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Links"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Liens"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Link"
           }
         }
       }

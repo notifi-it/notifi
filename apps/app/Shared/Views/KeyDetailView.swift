@@ -3,6 +3,7 @@ import SwiftUI
 struct KeyDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     let keyID: Int
 
     @State private var showingRevokeConfirm = false
@@ -13,6 +14,7 @@ struct KeyDetailView: View {
     @State private var copied = false
     @State private var copiedCurl = false
     @State private var isUpdatingCritical = false
+    @State private var showingInfo = false
 
     private var key: CachedKey? { model.sync?.keys.first { $0.id == keyID } }
 
@@ -45,13 +47,28 @@ struct KeyDetailView: View {
         .background(StaticField())
         .scrollContentBackground(.hidden)
         .safeAreaInset(edge: .top) {
-            GeistBackBar(label: Copy.Tabs.keys, dismiss: { dismiss() }, trailing: nil)
+            GeistBackBar(label: Copy.Tabs.keys, dismiss: { dismiss() }, trailing: AnyView(
+                HStack(spacing: 7) {
+                    if let key {
+                        IconButton(systemImage: "book",
+                                   label: Copy.KeyDetail.examplesLink,
+                                   glass: true) { openURL(examplesURL(for: key)) }
+                    }
+                    IconButton(systemImage: "info.circle",
+                               label: Copy.KeyDetail.shownOnceDetail,
+                               glass: true) { showingInfo = true }
+                }
+            ))
                 .geistGutter()
                 .background(StaticField())
         }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
+        .alert(Copy.Keys.aboutKeys, isPresented: $showingInfo) {
+        } message: {
+            Text(Copy.KeyDetail.shownOnceDetail)
+        }
         .alert(
             key.map { Copy.KeyDetail.revokeTitle($0.name) } ?? Copy.KeyDetail.revokeTitleFallback,
             isPresented: $showingRevokeConfirm
@@ -90,12 +107,6 @@ struct KeyDetailView: View {
             }
             .padding(.top, 6)
 
-            if !key.isDefault {
-                Text(Copy.KeyDetail.shownOnceDetail)
-                    .geistConsequence()
-                    .padding(.top, 10)
-            }
-
             Text(key.maskedValue)
                 .font(.inco(.subheadline, weight: .regular))
                 .foregroundStyle(Theme.muted)
@@ -122,23 +133,6 @@ struct KeyDetailView: View {
                     .padding(.top, 10)
             }
 
-            Link(destination: examplesURL(for: key)) {
-                HStack(spacing: 5) {
-                    Text(Copy.KeyDetail.examplesLink)
-                        .font(Theme.metaSmall)
-                    Image("akar-link-chain")
-                        .renderingMode(.template)
-                        .resizable()
-                        .frame(width: 11, height: 11)
-                        .accessibilityHidden(true)
-                }
-                .foregroundStyle(Theme.muted)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.geist)
-            .geistHitArea(expandedBy: 15)
-            .padding(.top, 14)
-
             SectionLabel(text: Copy.KeyDetail.sectionUsage)
             FieldRow(Copy.KeyDetail.fieldSent, "\(key.sentCount)")
             Hairline()
@@ -149,7 +143,7 @@ struct KeyDetailView: View {
             } ?? Copy.Common.never)
             Hairline()
 
-            SectionLabel(text: Copy.KeyDetail.sectionLinks)
+            SectionLabel(text: Copy.Settings.title)
 
             ToggleRow(
                 title: Copy.KeyDetail.openAnyLink,
@@ -162,7 +156,6 @@ struct KeyDetailView: View {
             Hairline()
 
             if !key.isRevoked {
-                SectionLabel(text: Copy.KeyDetail.sectionAlerts)
                 ToggleRow(
                     title: Copy.KeyDetail.criticalAlerts,
                     detail: criticalDetail,

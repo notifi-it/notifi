@@ -6,7 +6,7 @@ _[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi
 
 ## Quickstart
 
-Install notifi on [iPhone or iPad](https://apps.apple.com/app/id1563961135) or [on the Mac](https://notifi.it/download/mac), allow notifications, open the Keys tab and copy the `Default` key. It starts with `nk_` and delivers only to the device that made it.
+Install notifi on [iPhone or iPad](https://apps.apple.com/app/id1563961135) or [on the Mac](https://notifi.it/download/mac), allow notifications, open the Keys tab and copy the `Default` key. It starts with `nk_`.
 
 ```bash
 curl -X POST https://notifi.it/send \
@@ -17,20 +17,18 @@ curl -X POST https://notifi.it/send \
   -d "image=https://notifi.it/sad-logo.png"
 ```
 
-There is no endpoint that creates a key: keys are minted on the device by a request signed with a private key that never leaves it. A coding agent has to ask you for one. Keep it in the environment, not in a file that gets committed.
-
 ## Authentication
 
-Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between.
+Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between: use it only for a quick test, and rotate the key afterwards.
 
 | Method | Sent as | Notes |
 | --- | --- | --- |
 | Bearer token | `Authorization: Bearer nk_yourkey` | The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history. |
-| Parameter | `key=nk_yourkey` | The send key as a parameter. Convenient for a one-off request, but it appears in edge logs, in shell history and in any proxy in between. |
+| Parameter | `key=nk_yourkey` | The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option: use it only for a quick test, and rotate the key afterwards. |
 
 ## Request
 
-`POST https://notifi.it/send`, JSON, form-encoded or multipart. `GET` takes the same parameters in the query string and is there for a quick test. Query parameters win over body fields when both are present.
+`POST https://notifi.it/send`, JSON, form-encoded or multipart. `GET` takes the same parameters in the query string and is there for a quick test: a key sent that way lands in edge logs and shell history, so rotate it afterwards. Query parameters win over body fields when both are present.
 
 ```http
 POST /send HTTP/1.1
@@ -53,7 +51,7 @@ Accept-Language: en-GB
 | `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning. |
 | `link` | string (uri) | optional | `≤ 2,048 chars` | URL opened when the notification is tapped. |
 | `image` | string (uri) | optional | `≤ 2,048 chars` | https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives. |
-| `occurred_at` | integer | optional | `unix ms` | When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to arrival time. |
+| `occurred_at` | integer | optional | `unix ms` | When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request. |
 | `is_critical` | boolean | optional | — | Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array. |
 
 ## Response
@@ -93,7 +91,7 @@ Content-Type: application/json; charset=utf-8
 HTTP/1.1 422 Unprocessable Content
 Content-Type: application/json; charset=utf-8
 
-{"error":{"code":"invalid_content","message":"This device refuses notifications it cannot show as written."}}
+{"error":{"code":"invalid_content","message":"Not sent. This device is set to refuse a notification it cannot deliver as written."}}
 ```
 
 ### 429
@@ -106,7 +104,30 @@ Retry-After: 42
 {"error":{"code":"rate_limited","message":"Too many notifications. Try again shortly."}}
 ```
 
-A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one.
+A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one. The status is still `202` — the notification was sent, in the altered form each warning describes.
+
+```http
+HTTP/1.1 202 Accepted
+Content-Type: application/json; charset=utf-8
+
+{"ok":true,"warnings":["Sent with a shortened title: it was over 200 characters.","Sent as a normal notification: critical alerts are switched off for this key."]}
+```
+
+### Over-length text is cropped
+
+A title over 200 characters or a body over 16000 is delivered cropped, with a warning. The device can refuse instead: **Reject invalid sends**, in the app's Settings, makes a send that would have been cropped or stripped answer `422 invalid_content` and store nothing. It is off by default, so cropping is what a send meets unless the person holding the device turned it on.
+
+![The Settings screen, showing the Reject invalid sends switch turned off.](/shots/settings-reject-invalid-sends.png)
+
+_Settings → Permissions → Reject invalid sends. Off, the default: sends are cropped, not refused._
+
+### Critical alerts are granted per key
+
+`is_critical=1` asks for an alert that breaks through Focus and silent mode. It is not enough on its own: the key it was sent with must have **Critical alerts** switched on, on that device, in that key's screen under the Keys tab. Without it the notification is delivered as an ordinary one and the response carries a warning saying so. A sender cannot turn this on — only the person holding the device can.
+
+![A key's screen in the app, showing the Critical alerts switch turned on.](/shots/key-critical-alerts.png)
+
+_Keys → a key → Settings → Critical alerts. Each key carries its own permission._
 
 ## Errors
 

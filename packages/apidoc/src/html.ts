@@ -5,9 +5,11 @@ import {
   ENDPOINT,
   IMAGE_MAX_MB,
   KEYS_PER_DEVICE,
+  MESSAGE_MAX,
   ORIGIN,
   REQUESTS_PER_MINUTE,
   SENDS_PER_HOUR,
+  TITLE_MAX,
   errors,
   limits,
   params,
@@ -15,6 +17,7 @@ import {
 } from './spec.js';
 import { samples } from './samples.js';
 import { terminalGroup } from './landing.js';
+import { readFileSync } from 'node:fs';
 import { icon } from './icons.js';
 import type { Group } from './landing.js';
 
@@ -24,6 +27,17 @@ export function escape(text: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function figure(src: string, alt: string, caption: string): string {
+  const file = new URL(`../../../apps/api/public${src}`, import.meta.url);
+  const header = readFileSync(file).subarray(16, 24);
+  const width = header.readUInt32BE(0);
+  const height = header.readUInt32BE(4);
+  return `    <figure>
+      <img src="${src}" width="${width}" height="${height}" alt="${escape(alt)}">
+      <figcaption>${escape(caption)}</figcaption>
+    </figure>`;
 }
 
 function pre(code: string, lang: string): string {
@@ -41,6 +55,11 @@ const QUICKSTART = `curl -X POST ${ORIGIN}${ENDPOINT} \\
   -d "message=Your first notification." \\
   -d "link=https://notifi.it/docs" \\
   -d "image=https://notifi.it/sad-logo.png"`;
+
+const WARNINGS_RESPONSE = `HTTP/1.1 202 Accepted
+Content-Type: application/json; charset=utf-8
+
+{"ok":true,"warnings":["Sent with a shortened title: it was over ${TITLE_MAX} characters.","Sent as a normal notification: critical alerts are switched off for this key."]}`;
 
 const RAW_REQUEST = `POST /send HTTP/1.1
 Host: notifi.it
@@ -202,15 +221,9 @@ export function docsBody(): string {
     <p>
       Install notifi on <a href="https://apps.apple.com/app/id1563961135">iPhone or iPad</a>
       or <a href="/download/mac">on the Mac</a>, allow notifications, open the Keys tab and
-      copy the <code>Default</code> key. It starts with <code>nk_</code> and delivers only to
-      the device that made it.
+      copy the <code>Default</code> key. It starts with <code>nk_</code>.
     </p>
     ${pre(QUICKSTART, 'bash')}
-    <p>
-      There is no endpoint that creates a key: keys are minted on the device by a request
-      signed with a private key that never leaves it. A coding agent has to ask you for one.
-      Keep it in the environment, not in a file that gets committed.
-    </p>
   </section>
 
   <section id="auth">
@@ -240,7 +253,8 @@ export function docsBody(): string {
     <p>
       <code>POST ${ORIGIN}${ENDPOINT}</code>, JSON, form-encoded or multipart.
       <code>GET</code> takes the same parameters in the query string and is there for a quick
-      test. Query parameters win over body fields when both are present.
+      test: a key sent that way lands in edge logs and shell history, so rotate it afterwards.
+      Query parameters win over body fields when both are present.
     </p>
     ${pre(RAW_REQUEST, 'http')}
   </section>
@@ -275,8 +289,38 @@ ${terminalGroup('r-', 'Responses', RESPONSES)}
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
       differently from what was asked: a cropped title or body, a dropped image, or a critical
-      alert downgraded to an ordinary one.
+      alert downgraded to an ordinary one. The status is still <code>202</code> — the
+      notification was sent, in the altered form each warning describes.
     </p>
+${pre(WARNINGS_RESPONSE, 'http')}
+
+    <h3>Over-length text is cropped</h3>
+    <p>
+      A title over ${TITLE_MAX} characters or a body over ${MESSAGE_MAX} is delivered cropped,
+      with a warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
+      the app's Settings, makes a send that would have been cropped or stripped answer
+      <code>422 invalid_content</code> and store nothing. It is off by default, so cropping is
+      what a send meets unless the person holding the device turned it on.
+    </p>
+${figure(
+  '/shots/settings-reject-invalid-sends.png',
+  'The Settings screen, showing the Reject invalid sends switch turned off.',
+  'Settings → Permissions → Reject invalid sends. Off, the default: sends are cropped, not refused.',
+)}
+
+    <h3>Critical alerts are granted per key</h3>
+    <p>
+      <code>is_critical=1</code> asks for an alert that breaks through Focus and silent mode.
+      It is not enough on its own: the key it was sent with must have <strong>Critical
+      alerts</strong> switched on, on that device, in that key's screen under the Keys tab.
+      Without it the notification is delivered as an ordinary one and the response carries a
+      warning saying so. A sender cannot turn this on — only the person holding the device can.
+    </p>
+${figure(
+  '/shots/key-critical-alerts.png',
+  "A key's screen in the app, showing the Critical alerts switch turned on.",
+  'Keys → a key → Settings → Critical alerts. Each key carries its own permission.',
+)}
   </section>
 
   <section id="errors">

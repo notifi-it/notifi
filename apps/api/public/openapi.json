@@ -40,7 +40,7 @@
         ],
         "operationId": "sendNotificationViaQuery",
         "summary": "Send a notification with query parameters",
-        "description": "The same operation as POST /send, for a quick test from a browser or a shell. A key in a query string ends up in edge logs and shell history, so prefer POST with an Authorization header.",
+        "description": "The same operation as POST /send, for a quick test from a browser or a shell. A key in a query string ends up in edge logs and shell history, so prefer POST with an Authorization header, and rotate any key you have sent this way.",
         "security": [
           {
             "sendKey": []
@@ -157,7 +157,7 @@
         "type": "apiKey",
         "in": "query",
         "name": "key",
-        "description": "The send key as a parameter. Convenient for a one-off request, but it appears in edge logs, in shell history and in any proxy in between."
+        "description": "The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option: use it only for a quick test, and rotate the key afterwards."
       }
     },
     "parameters": {
@@ -272,7 +272,7 @@
           "occurred_at": {
             "type": "integer",
             "format": "int64",
-            "description": "When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to arrival time."
+            "description": "When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request."
           },
           "is_critical": {
             "type": "boolean",

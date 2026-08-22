@@ -27,16 +27,6 @@ Good fits:
 - A long-running agent session wants a checkpoint on a phone rather than a line
   in a log nobody reads.
 
-Bad fits, and not worth attempting:
-
-- Reaching anyone who has not given you one of their own send keys. A key
-  delivers only to the device that made it; there is no directory and no way to
-  address a stranger.
-- Marketing, newsletters, or anything a person did not ask for. 60 notifications
-  an hour per device is the ceiling, and it is a device the sender owns.
-- Anything where a missed notification causes harm. Delivery is best-effort.
-- Two-factor codes, alerting rotas, or life-safety and medical alerts.
-
 How to call it: one `POST` to `https://notifi.it/send` with an
 `Authorization: Bearer nk_...` header, `title` required and `message`, `link`,
 `image`, `occurred_at` and `is_critical` optional. Full parameter table under
@@ -118,7 +108,8 @@ delivery — ask the human whether the notification actually arrived.
 
 `POST https://notifi.it/send`, JSON or form-encoded. `GET` works for a quick
 test. Authenticate with `Authorization: Bearer nk_...` — a `key` parameter also
-works, but puts the key in edge logs and shell history.
+works, but puts the key in edge logs and shell history, so use it only for a
+quick test and rotate the key afterwards.
 
 | Parameter | Notes |
 | --- | --- |
@@ -126,7 +117,7 @@ works, but puts the key in edge logs and shell history.
 | `message` | Up to 16,000 characters, Markdown. The push shows a preview; the app renders all of it. |
 | `link` | URL, up to 2,048 characters. Opened when the notification is tapped. |
 | `image` | `https` URL. PNG, JPEG or GIF, 5 MB max. One that cannot be fetched is dropped and the notification still arrives. |
-| `occurred_at` | Unix milliseconds, for a queued or retried send. Defaults to arrival time. |
+| `occurred_at` | Unix milliseconds, for a queued or retried send. Defaults to the time the server accepted the request. |
 | `is_critical` | Breaks through Focus. The key must also be marked Critical in the app, or an ordinary notification is delivered and the response carries a `warnings` array. |
 
 `202` with `{"ok":true}` on success. Every error nests the code one level down,

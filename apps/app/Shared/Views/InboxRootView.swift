@@ -39,7 +39,7 @@ struct InboxRootView: View {
                             }
                     }
                 case .keys:
-                    NavigationStack { KeysView() }
+                    NavigationStack(path: $model.keysPath) { KeysView() }
                 case .settings:
                     NavigationStack { SettingsView() }
                 }
@@ -60,6 +60,10 @@ struct InboxRootView: View {
         if SampleData.opensSampleMessage {
             try? await Task.sleep(for: .milliseconds(400))
             model.path.append(SampleData.idFloor)
+        }
+        if let index = SampleData.launchKeyIndex, index < SampleData.keys.count {
+            try? await Task.sleep(for: .milliseconds(400))
+            model.keysPath = [SampleData.keys[index]]
         }
         SampleData.screenDidAppear()
         #endif
@@ -92,7 +96,7 @@ struct InboxRootView: View {
             }
 
             Tab(value: AppTab.keys) {
-                NavigationStack { KeysView() }
+                NavigationStack(path: $model.keysPath) { KeysView() }
             } label: {
                 Label(Copy.Tabs.keys, image: "akar-key").labelStyle(.iconOnly)
             }
@@ -132,7 +136,7 @@ struct InboxRootView: View {
                 }
                 .tag(AppTab.inbox)
 
-                NavigationStack {
+                NavigationStack(path: $model.keysPath) {
                     KeysView()
                 }
                 .tabItem { Label(Copy.Tabs.keys, image: "akar-key").labelStyle(.iconOnly) }
