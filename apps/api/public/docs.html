@@ -223,7 +223,7 @@ nav a:hover{color:var(--fg)}
 .lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
 .lockup img{display:block;height:var(--word,20px);width:auto}
 
-.doc{padding:clamp(44px,7vw,80px) 0 clamp(50px,8vw,90px)}
+.doc{padding-block:clamp(44px,7vw,80px) clamp(50px,8vw,90px)}
 .doc h1{margin-bottom:16px}
 .doc .lede{margin-bottom:12px}
 .doc section{margin-top:clamp(38px,5vw,58px)}
@@ -273,8 +273,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .doc.api .linkish[data-state="failed"]{color:var(--brand-text)}
 /* The contents. A line of anchors at the top is gone on the first scroll, so
    at a width that has room for it the same links become a rail that stays. */
-.doc.api .toc p{margin:0}
-.doc.api .toc a + a::before{content:"·";color:var(--dim);margin:0 8px}
+.doc.api .toc{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.doc.api .toc p{margin:0;line-height:2}
+/* The separator trails its link, so a wrap never starts a line with one. */
+.doc.api .toc a:not(:last-child)::after{content:"·";color:var(--dim);margin:0 9px}
 @media(min-width:1120px){
   .doc.api{
     display:grid;grid-template-columns:158px minmax(0,1fr);column-gap:44px;
@@ -283,13 +285,14 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   .doc.api > *{grid-column:2;min-width:0}
   /* span 100, not 1 / -1: every row here is implicit, so -1 resolves to the
      first line and the rail would sit in row one and stretch it. */
-  .doc.api > .toc{grid-column:1;grid-row:1 / span 100;align-self:stretch}
+  .doc.api > .toc{grid-column:1;grid-row:1 / span 100;align-self:stretch;
+    margin-top:0;padding-top:0;border-top:0}
   .doc.api .toc p{
     position:sticky;top:88px;
     display:flex;flex-direction:column;gap:9px;
     max-height:calc(100vh - 120px);overflow-y:auto;
   }
-  .doc.api .toc a + a::before{content:none;margin:0}
+  .doc.api .toc a:not(:last-child)::after{content:none;margin:0}
 }
 .doc.api h3 .meta{font-weight:400;color:var(--dim);margin-left:8px}
 .doc.api section{scroll-margin-top:76px}
