@@ -263,12 +263,12 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .trail i{{width:calc(1cqw * var(--d));height:calc(1cqw * var(--d));border-radius:50%;background:var(--dim);opacity:0}}
 .clip{{position:absolute;overflow:hidden;border-radius:.6cqw;opacity:0}}
 .cardpos{{position:absolute;transform:translate(-50%,-50%)}}
-.scard{{background:var(--surface);border:1px solid var(--line);border-radius:.95cqw;padding:.8cqw 1cqw;display:flex;gap:.75cqw;align-items:center;overflow:hidden;box-shadow:0 .8cqw 2.4cqw rgba(0,0,0,.4);opacity:0;animation-duration:var(--T);animation-iteration-count:infinite}}
+.scard{{font-family:var(--ui);background:var(--surface);border:1px solid var(--line);border-radius:.95cqw;padding:.8cqw 1cqw;display:flex;gap:.75cqw;align-items:center;overflow:hidden;box-shadow:0 .8cqw 2.4cqw rgba(0,0,0,.4);opacity:0;animation-duration:var(--T);animation-iteration-count:infinite}}
 .bell{{position:relative;width:calc(1cqw * var(--k,1) * 1.95);height:calc(1cqw * var(--k,1) * 1.95);flex:none}}
 .bell i{{position:absolute;inset:0;background:var(--fg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;transform-origin:50% 0}}
 .bell .bb{{-webkit-mask-image:url({BODY});mask-image:url({BODY})}}
 .bell .bc{{-webkit-mask-image:url({CLAP});mask-image:url({CLAP})}}
-.scard .t{{--fs:1.05;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
+.scard .t{{--fs:1.05;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
 .scard .b{{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
 {NL.join(geo)}
 {NL.join(anim)}
