@@ -30,7 +30,7 @@ struct NotifiApp: App {
     static func makeContainer() -> ModelContainer {
         do {
             #if DEBUG
-            if SampleData.isEnabled {
+            if SampleData.isEnabled || LocalDev.isActive {
                 let config = ModelConfiguration(isStoredInMemoryOnly: true)
                 return try ModelContainer(for: Message.self, configurations: config)
             }

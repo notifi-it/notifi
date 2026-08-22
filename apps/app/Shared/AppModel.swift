@@ -147,12 +147,9 @@ final class AppModel {
     }
 
     var baseURL: URL {
-        #if DEBUG
-        if let raw = ProcessInfo.processInfo.environment["NOTIFI_BASE_URL"],
-           let url = URL(string: raw), url.host != nil {
+        if let url = LocalDev.baseURL {
             return url
         }
-        #endif
         if let raw = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String,
            let url = URL(string: raw), url.host != nil {
             return url

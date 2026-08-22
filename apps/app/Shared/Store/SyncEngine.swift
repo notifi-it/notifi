@@ -38,7 +38,7 @@ final class SyncEngine {
     }
 
     private func migrateToDeviceSeqIfNeeded() {
-        let defaults = UserDefaults.standard
+        let defaults = LocalDev.defaults
         guard !defaults.bool(forKey: Self.seqMigrationKey) else { return }
 
         if let existing = try? context.fetch(FetchDescriptor<Message>()) {
@@ -61,8 +61,8 @@ final class SyncEngine {
     }
 
     private var bookmark: Int {
-        get { UserDefaults.standard.integer(forKey: bookmarkKey) }
-        set { UserDefaults.standard.set(newValue, forKey: bookmarkKey) }
+        get { LocalDev.defaults.integer(forKey: bookmarkKey) }
+        set { LocalDev.defaults.set(newValue, forKey: bookmarkKey) }
     }
 
     func sync() async {
@@ -265,21 +265,21 @@ final class SyncEngine {
 
     private func unreadableOrGiveUp(_ serverID: Int, reason: String) -> IngestResult {
         let key = "\(failureKeyPrefix)\(serverID)"
-        let firstSeen = UserDefaults.standard.object(forKey: key) as? Double
+        let firstSeen = LocalDev.defaults.object(forKey: key) as? Double
         guard let firstSeen else {
-            UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key)
+            LocalDev.defaults.set(Date().timeIntervalSince1970, forKey: key)
             return .unreadable
         }
         if Date().timeIntervalSince1970 - firstSeen > Self.unreadableGraceSeconds {
             log.error("giving up on message \(serverID) after grace period: \(reason, privacy: .public)")
-            UserDefaults.standard.removeObject(forKey: key)
+            LocalDev.defaults.removeObject(forKey: key)
             return .discarded
         }
         return .unreadable
     }
 
     private func clearFailure(_ serverID: Int) {
-        UserDefaults.standard.removeObject(forKey: "\(failureKeyPrefix)\(serverID)")
+        LocalDev.defaults.removeObject(forKey: "\(failureKeyPrefix)\(serverID)")
     }
 
     func refreshKeys() async {

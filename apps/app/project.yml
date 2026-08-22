@@ -134,6 +134,7 @@ targets:
       # app's UserDefaults, which the extension does not share, so they must not
       # be called from here.
       - path: Shared/Support/LinkPolicy.swift
+      - path: Shared/Support/LocalDev.swift
       - path: Shared/Push/NotificationCategories.swift
       - path: Support/Privacy/NotificationService/PrivacyInfo.xcprivacy
     settings:
@@ -163,6 +164,7 @@ targets:
       # app's UserDefaults, which the extension does not share, so they must not
       # be called from here.
       - path: Shared/Support/LinkPolicy.swift
+      - path: Shared/Support/LocalDev.swift
       - path: Shared/Push/NotificationCategories.swift
       - path: Support/Privacy/NotificationService/PrivacyInfo.xcprivacy
     settings:
