@@ -177,11 +177,8 @@ struct MessageDetailView: View {
                 .grainReveal(trigger: message.id, duration: 0.45)
 
             metaLine(for: message)
-                .padding(.top, 14)
+                .padding(.top, 9)
                 .frame(maxWidth: .infinity)
-
-            Hairline()
-                .padding(.top, 22)
 
             if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                 Group {
@@ -204,10 +201,6 @@ struct MessageDetailView: View {
                              critical: message.isCritical)
                     .padding(.top, 16)
             }
-
-            sourceFooter(for: message, bodyLinks: annotated?.links ?? [],
-                         anyScheme: anyScheme)
-
         }
         .padding(.bottom, 40)
     }
@@ -224,21 +217,23 @@ struct MessageDetailView: View {
     }
 
     private func quietLine(_ name: String?, age: String, stamp: String) -> some View {
-        HStack(spacing: 6) {
-            if let name {
-                keyGlyph(11, Theme.dim)
-                Text(name)
+        VStack(spacing: 5) {
+            HStack(spacing: 6) {
+                if let name {
+                    keyGlyph(11, Theme.dim)
+                    Text(name)
+                        .font(.karla(size: 13, weight: .semibold))
+                        .foregroundStyle(Theme.muted)
+                    Text("·").foregroundStyle(Theme.chip)
+                }
+                Text(age)
                     .font(.karla(size: 13, weight: .semibold))
                     .foregroundStyle(Theme.muted)
-                Text("·").foregroundStyle(Theme.chip)
             }
-            Text(age)
-                .font(.karla(size: 13, weight: .semibold))
-                .foregroundStyle(Theme.muted)
-            Text("·").foregroundStyle(Theme.chip)
             Text(stamp)
-                .font(.karla(size: 13))
-                .foregroundStyle(Theme.muted)
+                .font(.system(size: 11, weight: .regular, design: .monospaced))
+                .tracking(1.4)
+                .foregroundStyle(Theme.dim)
         }
         .lineLimit(1)
         .monospacedDigit()
@@ -298,71 +293,6 @@ struct MessageDetailView: View {
         .contextMenu {
             Button(Copy.Message.imageLoadWarning(url.host() ?? Copy.Message.imageHost)) {}
                 .disabled(true)
-        }
-    }
-
-    @ViewBuilder
-    private func sourceFooter(for message: Message, bodyLinks: [URL],
-                              anyScheme: Bool) -> some View {
-        var rows: [(mark: String, url: URL, isImage: Bool)] {
-            var out: [(String, URL, Bool)] = []
-            for (index, url) in bodyLinks.enumerated() {
-                out.append((BodyLinks.mark(index), url, false))
-            }
-            if let link = message.link, !bodyLinks.contains(link) {
-                out.append((BodyLinks.mark(out.count), link, false))
-            }
-            if let image = message.imageURL {
-                out.append(("img↓", image, true))
-            }
-            return out
-        }
-        let listed = rows
-        if !listed.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    Text(Copy.Message.sourceHeader.uppercased())
-                        .font(.inco(size: 10, weight: .semibold, relativeTo: .caption2))
-                        .tracking(1.4)
-                        .foregroundStyle(Theme.dim)
-                        .fixedSize()
-                    Hairline()
-                }
-                ForEach(listed, id: \.url.absoluteString) { row in
-                    Button {
-                        if row.isImage {
-                            revealedImage = true
-                            viewingImage = ViewedImage(url: row.url)
-                        } else {
-                            open(row.url, keyID: message.keyID)
-                        }
-                    } label: {
-                        HStack(alignment: .top, spacing: 8) {
-                            Text(row.mark)
-                                .font(.inco(size: 11.5, relativeTo: .caption2))
-                                .foregroundStyle(Theme.dim)
-                                .fixedSize()
-                            Text(row.url.absoluteString)
-                                .font(.inco(size: 11.5, relativeTo: .caption2))
-                                .foregroundStyle(Theme.muted)
-                                .lineSpacing(5.5)
-                                .multilineTextAlignment(.leading)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Text("↗")
-                                .font(.inco(size: 11.5, weight: .semibold,
-                                            relativeTo: .caption2))
-                                .foregroundStyle(Theme.fg)
-                                .fixedSize()
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.geist)
-                    .disabled(!row.isImage
-                              && !LinkPolicy.allows(row.url, anyScheme: anyScheme))
-                }
-            }
-            .padding(.top, 24)
         }
     }
 
