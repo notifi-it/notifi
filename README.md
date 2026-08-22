@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="apps/api/public/wordmark.svg" alt="notifi" width="260">
+  <img src="apps/api/public/anaglyph-bell.png" alt="notifi" width="140">
 </p>
 
 <p align="center"><b>Push notifications for your scripts, servers and side projects.</b></p>
