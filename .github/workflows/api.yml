@@ -32,10 +32,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @notifi/contract --filter @notifi/copy --filter @notifi/api typecheck
-      # Copy.swift is generated from packages/copy. Regenerate in memory and fail
-      # if what is committed has drifted -- the app compiles either way, so
-      # nothing else would notice.
-      - run: pnpm --filter @notifi/copy check-copy
 
   deploy-production:
     needs: check

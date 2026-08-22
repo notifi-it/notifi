@@ -35,14 +35,15 @@ export const de: Translation = {
     'Nicht gesendet. Dieses Gerät ist so eingestellt, dass es eine nicht wie geschrieben zustellbare Nachricht ablehnt.',
 
 
-  'store.subtitle': 'Eine Anfrage, ein Push',
+  'store.name': 'notifi: Benachrichtigungen',
+  'store.subtitle': 'Für Skripte und Server',
   'store.promotionalText':
     'Eine HTTP-Anfrage, und sie landet auf deinem iPhone oder Mac. Mit deinem ' +
     'öffentlichen Schlüssel verschlüsselt — wir können sie nicht lesen. ' +
     'Kein Account, kein SDK.',
   'store.keywords':
-    'curl,webhook,api,alarm,cli,server,überwachung,cron,skript,entwickler,terminal,' +
-    'devops,homelab,pager',
+    'webhook,api,push,alarm,selbst,gehostet,cron,curl,cli,devops,homelab,ssh,docker,' +
+    'überwachung',
   'store.description':
     'Push-Benachrichtigungen für deine Skripte und Server.\n\n' +
     'Erstelle einen Sendeschlüssel und schicke einen Titel und eine Nachricht in einer ' +
