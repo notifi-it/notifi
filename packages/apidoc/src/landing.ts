@@ -35,6 +35,7 @@ export function highlight(code: string, keywords: string[] = []): string {
   return pieces
     .map((piece, i) => {
       if (i % 2 === 1) return `<span class="s">${markKeys(piece)}</span>`;
+      if (/^\s*#/.test(piece)) return `<span class="c">${markKeys(piece)}</span>`;
       let out = markKeywords(piece, remaining);
       for (const word of remaining.slice()) {
         if (out.includes(`<span class="f">${word}</span>`)) {
@@ -131,19 +132,46 @@ export function landingNote(): string {
     </p>`;
 }
 
-export function terminal(): string {
-  const first = samples[0];
-  if (!first) throw new Error('no samples');
-  return `    <div class="tabs" role="tablist" aria-label="Examples">
-${landingTabs()}
+export interface Group {
+  id: string;
+  label: string;
+  file: string;
+  code: string;
+  keywords?: string[];
+}
+
+export function terminalGroup(prefix: string, aria: string, items: Group[]): string {
+  const first = items[0];
+  if (!first) throw new Error(`no items for ${prefix}`);
+  const tabs = items
+    .map((item, i) => {
+      const selected = i === 0 ? 'true' : 'false';
+      const label = item.label.replace(/ /g, '&nbsp;');
+      return `      <button class="tab" role="tab" aria-selected="${selected}" aria-controls="${prefix}p-${item.id}" id="${prefix}t-${item.id}">${label}</button>`;
+    })
+    .join('\n');
+  const panels = items
+    .map((item, i) => {
+      const hidden = i === 0 ? '' : ' hidden';
+      return `      <div class="panel" id="${prefix}p-${item.id}" role="tabpanel" tabindex="0" aria-labelledby="${prefix}t-${item.id}" data-name="${escape(item.file)}" data-label="${escape(item.label)}"${hidden}>
+<pre>${highlight(item.code, item.keywords ?? [])}</pre>
+      </div>`;
+    })
+    .join('\n');
+  return `    <div class="tabs" role="tablist" aria-label="${aria}">
+${tabs}
     </div>
 
     <div class="term">
       <div class="term-bar">
         <span class="dot3"><i></i><i></i><i></i></span>
-        <span class="term-title" id="langname">${escape(first.file)}</span>
-        <button class="copy" id="copycode" aria-label="Copy the sample for the selected language">Copy</button>
+        <span class="term-title">${escape(first.file)}</span>
+        <button class="copy" data-copy-panel aria-label="Copy the ${aria.toLowerCase()} shown">Copy</button>
       </div>
-${landingPanels()}
+${panels}
     </div>`;
+}
+
+export function terminal(): string {
+  return terminalGroup('', 'Examples', samples);
 }

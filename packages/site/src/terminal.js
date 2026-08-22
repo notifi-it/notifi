@@ -1,12 +1,12 @@
 // The terminal block's behaviour, shared by the landing page and the /docs
-// recipes. One tablist and one code panel per page, so the ids stay singular.
+// recipes and client list. Everything is scoped to one .tabs element and the
+// .term that follows it, so a page can carry more than one group.
 
 // ── language tabs ───────────────────────────────────────────
-(function () {
-  const list = document.querySelector('.tabs');
-  if (!list) return;
-  const tabs = [...document.querySelectorAll('.tab')];
-  const name = document.getElementById('langname');
+document.querySelectorAll('.tabs').forEach(list => {
+  const tabs = [...list.querySelectorAll('.tab')];
+  const term = list.nextElementSibling;
+  const name = term && term.querySelector('.term-title');
 
   function select(tab) {
     tabs.forEach(t => {
@@ -41,7 +41,7 @@
     target.focus();
     select(target);
   });
-})();
+});
 
 // ── copy buttons ────────────────────────────────────────────
 (function () {
@@ -77,13 +77,12 @@
   document.querySelectorAll('.copy[data-copy]').forEach(btn =>
     btn.addEventListener('click', () => flash(btn, btn.dataset.copy)));
 
-  const codeBtn = document.getElementById('copycode');
-  if (codeBtn) {
-    codeBtn.addEventListener('click', () => {
-      const open = document.querySelector('.panel:not([hidden]) pre');
-      if (open) flash(codeBtn, open.innerText);
-    });
-  }
+  // Copies whichever panel of its own group is showing.
+  document.querySelectorAll('.copy[data-copy-panel]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const open = btn.closest('.term').querySelector('.panel:not([hidden]) pre');
+      if (open) flash(btn, open.innerText);
+    }));
 
   window.notifiCopy = flash;
 })();

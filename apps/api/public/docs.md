@@ -102,42 +102,45 @@ The collection and the OpenAPI document are generated from the same source as th
 
 ### Postman
 
-Import → Link, and paste the collection URL. Postman keeps it in sync from there.
-
-```bash
+```
+# Import → Link, then paste this. Postman keeps it in sync from there.
 https://notifi.it/notifi.postman_collection.json
 ```
 
 ### Bruno
 
-Drop the .bru file into a collection folder, or use Import → Postman Collection with the URL above.
-
-```bash
+```
+# Drop the .bru straight into a collection folder,
+# or use Import → Postman Collection with the URL above.
 curl -O https://notifi.it/notifi.bru
 ```
 
 ### Insomnia
 
-Import from URL accepts either the OpenAPI document or the Postman collection.
-
-```bash
+```
+# Import From → URL takes either the OpenAPI document
+# or the Postman collection.
 https://notifi.it/openapi.json
 ```
 
 ### HTTPie
 
-No import needed.
-
-```bash
-http -f POST https://notifi.it/send "Authorization:Bearer $NOTIFI_KEY" title="Backup complete"
+```
+# No import needed.
+http -f POST https://notifi.it/send \
+  "Authorization:Bearer $NOTIFI_KEY" \
+  title="Backup complete" \
+  message="4.2 GB in 3m 11s"
 ```
 
-### Generated clients
+### Client generator
 
-Any generator that reads OpenAPI 3.1.
-
-```bash
-openapi-generator-cli generate -i https://notifi.it/openapi.json -g typescript-fetch -o ./notifi
+```
+# Any generator that reads OpenAPI 3.1.
+openapi-generator-cli generate \
+  -i https://notifi.it/openapi.json \
+  -g typescript-fetch \
+  -o ./notifi
 ```
 
 ## Machine-readable

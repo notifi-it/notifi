@@ -11,4 +11,5 @@ export {
   landingNote,
   highlight,
   terminal,
+  terminalGroup,
 } from './landing.js';

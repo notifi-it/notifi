@@ -12,7 +12,8 @@ import {
   resources,
 } from './spec.js';
 import { samples } from './samples.js';
-import { terminal } from './landing.js';
+import { terminal, terminalGroup } from './landing.js';
+import type { Group } from './landing.js';
 
 export function escape(text: string): string {
   return text
@@ -54,32 +55,50 @@ Content-Type: application/json; charset=utf-8
 
 {"error":{"code":"unknown_key","message":"Unknown or revoked key."}}`;
 
-const CLIENTS: Array<[string, string, string]> = [
-  [
-    'Postman',
-    'Import → Link, and paste the collection URL. Postman keeps it in sync from there.',
-    `${ORIGIN}/notifi.postman_collection.json`,
-  ],
-  [
-    'Bruno',
-    'Drop the .bru file into a collection folder, or use Import → Postman Collection with the URL above.',
-    `curl -O ${ORIGIN}/notifi.bru`,
-  ],
-  [
-    'Insomnia',
-    'Import from URL accepts either the OpenAPI document or the Postman collection.',
-    `${ORIGIN}/openapi.json`,
-  ],
-  [
-    'HTTPie',
-    'No import needed.',
-    `http -f POST ${ORIGIN}${ENDPOINT} "Authorization:Bearer $NOTIFI_KEY" title="Backup complete"`,
-  ],
-  [
-    'Generated clients',
-    'Any generator that reads OpenAPI 3.1.',
-    `openapi-generator-cli generate -i ${ORIGIN}/openapi.json -g typescript-fetch -o ./notifi`,
-  ],
+const CLIENTS: Group[] = [
+  {
+    id: 'postman',
+    label: 'Postman',
+    file: 'postman',
+    code: `# Import → Link, then paste this. Postman keeps it in sync from there.
+${ORIGIN}/notifi.postman_collection.json`,
+  },
+  {
+    id: 'bruno',
+    label: 'Bruno',
+    file: 'bruno',
+    code: `# Drop the .bru straight into a collection folder,
+# or use Import → Postman Collection with the URL above.
+curl -O ${ORIGIN}/notifi.bru`,
+  },
+  {
+    id: 'insomnia',
+    label: 'Insomnia',
+    file: 'insomnia',
+    code: `# Import From → URL takes either the OpenAPI document
+# or the Postman collection.
+${ORIGIN}/openapi.json`,
+  },
+  {
+    id: 'httpie',
+    label: 'HTTPie',
+    file: 'httpie',
+    code: `# No import needed.
+http -f POST ${ORIGIN}${ENDPOINT} \\
+  "Authorization:Bearer $NOTIFI_KEY" \\
+  title="Backup complete" \\
+  message="4.2 GB in 3m 11s"`,
+  },
+  {
+    id: 'generate',
+    label: 'Client generator',
+    file: 'openapi-generator',
+    code: `# Any generator that reads OpenAPI 3.1.
+openapi-generator-cli generate \\
+  -i ${ORIGIN}/openapi.json \\
+  -g typescript-fetch \\
+  -o ./notifi`,
+  },
 ];
 
 const SECTIONS: Array<[string, string]> = [
@@ -252,14 +271,10 @@ ${limits.map((l) => `      <li>${escape(l)}</li>`).join('\n')}
   <section id="clients">
     <h2>Clients and import</h2>
     <p>
-      The collection and the OpenAPI document are generated from the same source as this page.
-      Set <code>NOTIFI_KEY</code> and send.
+      The collection and the OpenAPI document are generated from the same source
+      as this page. Set <code>NOTIFI_KEY</code> and send.
     </p>
-${CLIENTS.map(
-  ([name, note, line]) => `    <h3>${name}</h3>
-    <p>${escape(note)}</p>
-    ${pre(line, 'bash')}`,
-).join('\n')}
+${terminalGroup('c-', 'Clients', CLIENTS)}
   </section>
 
   <section id="machine">

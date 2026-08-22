@@ -1007,8 +1007,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="term">
       <div class="term-bar">
         <span class="dot3"><i></i><i></i><i></i></span>
-        <span class="term-title" id="langname">send.sh</span>
-        <button class="copy" id="copycode" aria-label="Copy the sample for the selected language">Copy</button>
+        <span class="term-title">send.sh</span>
+        <button class="copy" data-copy-panel aria-label="Copy the sample for the selected language">Copy</button>
       </div>
 
 <!-- gen:panels -->
@@ -1137,12 +1137,12 @@ reqwest::Client::new()
 }</pre>
       </div>
       <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" data-label="GitHub Actions" hidden>
-<pre># Put <span class="k">NOTIFI_KEY</span> in the repository's secrets.
+<pre><span class="c"># Put <span class="k">NOTIFI_KEY</span> in the repository's secrets.
 - name: Tell me it broke
   if: failure()
   run: |
     curl -s https://notifi.it/send \
-      -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+      -H </span><span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
       -d <span class="s">&quot;title=$GITHUB_WORKFLOW failed&quot;</span> \
       -d <span class="s">&quot;message=$GITHUB_REF_NAME at $(git log -1 --format=%s)&quot;</span> \
       -d <span class="s">&quot;link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID&quot;</span>
@@ -1150,16 +1150,16 @@ reqwest::Client::new()
     <span class="k">NOTIFI_KEY</span>: ${{ secrets.<span class="k">NOTIFI_KEY</span> }}</pre>
       </div>
       <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" data-label="Shell hook" hidden>
-<pre># Notify for any command that took longer than a minute, and say
+<pre><span class="c"># Notify for any command that took longer than a minute, and say
 # whether it worked.
-<span class="f">autoload</span> -Uz add-zsh-hook
+autoload -Uz add-zsh-hook
 
 _notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
 _notifi_end() {
-  <span class="f">local</span> code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
-  (( secs &lt; 60 )) &amp;&amp; <span class="f">return</span>
+  local code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
+  (( secs &lt; 60 )) &amp;&amp; return
   curl -s https://notifi.it/send \
-    -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+    -H </span><span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
     -d <span class="s">&quot;title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s&quot;</span> \
     -d <span class="s">&quot;message=$_NOTIFI_CMD&quot;</span> &gt;/dev/null
 }
@@ -1167,28 +1167,28 @@ add-zsh-hook preexec _notifi_start
 add-zsh-hook precmd  _notifi_end</pre>
       </div>
       <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" data-label="systemd" hidden>
-<pre># Drop this in /etc/systemd/system/, then add one line to any unit:
+<pre><span class="c"># Drop this in /etc/systemd/system/, then add one line to any unit:
 #   OnFailure=notifi-failed@%n.service
 # Every unit on the box can share it. %i is the unit that failed.
-[<span class="f">Unit</span>]
+[Unit]
 Description=Push a notification when %i fails
 
-[<span class="f">Service</span>]
+[Service]
 Type=oneshot
 EnvironmentFile=/etc/notifi.env
 ExecStart=/usr/bin/curl -s https://notifi.it/send \
-  -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+  -H </span><span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
   -d <span class="s">&quot;title=%i failed on %H&quot;</span> \
   --data-urlencode <span class="s">&quot;message=$(systemctl status %i --lines=10 --no-pager)&quot;</span></pre>
       </div>
       <div class="panel" id="p-kube" role="tabpanel" tabindex="0" aria-labelledby="t-kube" data-name="backup.yaml" data-label="Kubernetes" hidden>
-<pre># Put the key in a Secret, then curl at the end of any Job's command.
+<pre><span class="c"># Put the key in a Secret, then curl at the end of any Job's command.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: nightly-backup
 spec:
-  schedule: <span class="s">&quot;0 3 * * *&quot;</span>
+  schedule: </span><span class="s">&quot;0 3 * * *&quot;</span>
   jobTemplate:
     spec:
       template:
@@ -1413,14 +1413,14 @@ spec:
 <script>
 // gen:termjs
 // The terminal block's behaviour, shared by the landing page and the /docs
-// recipes. One tablist and one code panel per page, so the ids stay singular.
+// recipes and client list. Everything is scoped to one .tabs element and the
+// .term that follows it, so a page can carry more than one group.
 
 // ── language tabs ───────────────────────────────────────────
-(function () {
-  const list = document.querySelector('.tabs');
-  if (!list) return;
-  const tabs = [...document.querySelectorAll('.tab')];
-  const name = document.getElementById('langname');
+document.querySelectorAll('.tabs').forEach(list => {
+  const tabs = [...list.querySelectorAll('.tab')];
+  const term = list.nextElementSibling;
+  const name = term && term.querySelector('.term-title');
 
   function select(tab) {
     tabs.forEach(t => {
@@ -1455,7 +1455,7 @@ spec:
     target.focus();
     select(target);
   });
-})();
+});
 
 // ── copy buttons ────────────────────────────────────────────
 (function () {
@@ -1491,13 +1491,12 @@ spec:
   document.querySelectorAll('.copy[data-copy]').forEach(btn =>
     btn.addEventListener('click', () => flash(btn, btn.dataset.copy)));
 
-  const codeBtn = document.getElementById('copycode');
-  if (codeBtn) {
-    codeBtn.addEventListener('click', () => {
-      const open = document.querySelector('.panel:not([hidden]) pre');
-      if (open) flash(codeBtn, open.innerText);
-    });
-  }
+  // Copies whichever panel of its own group is showing.
+  document.querySelectorAll('.copy[data-copy-panel]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const open = btn.closest('.term').querySelector('.panel:not([hidden]) pre');
+      if (open) flash(btn, open.innerText);
+    }));
 
   window.notifiCopy = flash;
 })();
