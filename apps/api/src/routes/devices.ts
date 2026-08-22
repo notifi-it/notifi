@@ -43,8 +43,12 @@ devices.post('/devices', async (c) => {
     );
   }
 
-  const tokenHmac = await tokenHmacHex(c.env, parsed.apns_token);
-  const apnsEnc = await encryptField(c.env, parsed.apns_token);
+  const tokenHmac = parsed.apns_token
+    ? await tokenHmacHex(c.env, parsed.apns_token)
+    : `none:${parsed.public_key}`;
+  const apnsEnc = parsed.apns_token
+    ? await encryptField(c.env, parsed.apns_token)
+    : '';
   const platformEnc = await encryptPadded(c.env, parsed.platform);
   const versionEnc = await encryptPadded(c.env, parsed.app_version);
 

@@ -115,6 +115,7 @@ final class AppModel {
     private var context: ModelContext?
     private var pendingToken: String?
     private var registrationChain: Task<Void, Never>?
+    private var hasRegistered = false
     private var lastRegisteredToken: String?
     private let log = Logger(subsystem: "it.notifi.notifi", category: "app")
 
@@ -334,9 +335,8 @@ final class AppModel {
     private func registerDevice(token: String?) async {
         guard let api, let identity else { return }
         if let token { UserDefaults.standard.set(token, forKey: Self.realTokenKey) }
-        let knownReal = token ?? UserDefaults.standard.string(forKey: Self.realTokenKey)
-        let apnsToken = knownReal ?? Self.syntheticToken(for: identity)
-        guard apnsToken != lastRegisteredToken else { return }
+        let apnsToken = token ?? UserDefaults.standard.string(forKey: Self.realTokenKey)
+        guard !hasRegistered || apnsToken != lastRegisteredToken else { return }
         let body = RegisterDeviceBody(
             publicKey: identity.publicKeyX963.base64EncodedString(),
             encryptionPublicKey: identity.encryptionPublicKeyX963.base64EncodedString(),
@@ -347,14 +347,11 @@ final class AppModel {
         do {
             let response = try await api.registerDevice(body)
             if let strict = response.strictSend { strictSend = strict == 1 }
+            hasRegistered = true
             lastRegisteredToken = apnsToken
         } catch {
             log.error("device registration failed: \(String(describing: error), privacy: .private)")
         }
-    }
-
-    private static func syntheticToken(for identity: DeviceIdentity) -> String {
-        SHA256.hash(data: identity.publicKeyX963).map { String(format: "%02x", $0) }.joined()
     }
 
     func handleForegroundPush() {
