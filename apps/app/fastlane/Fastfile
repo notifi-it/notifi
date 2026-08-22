@@ -526,13 +526,14 @@ platform :mac do
     # generate_appcast signs each entry with the EdDSA key held in the login
     # Keychain under the "notifi" account -- deliberately not the default
     # account, which holds a different app's key.
-    # The asset is named notifi.dmg, not notifi-<version>.dmg, so that
-    # /releases/latest/download/notifi.dmg is a stable link the website can use.
-    # Per-version URLs stay unique because the tag is in the path, and Sparkle
-    # reads the version out of the app bundle, not the filename.
+    # generate_appcast writes one entry per DMG it finds in the directory and
+    # takes the enclosure filename from the file, so the directory is emptied
+    # first: a versioned name no longer overwrites the previous run's, and a
+    # second local build would otherwise publish an appcast describing both.
     updates = File.expand_path("../build/updates", __dir__)
+    sh("rm", "-rf", updates)
     sh("mkdir", "-p", updates)
-    sh("cp", dmg, "#{updates}/notifi.dmg")
+    sh("cp", dmg, updates)
 
     prefix = "https://github.com/notifi-it/notifi/releases/download/v#{version}/"
     if ENV["SPARKLE_ED_PRIVATE_KEY"]
@@ -560,7 +561,7 @@ platform :mac do
 
     # The lane stops at the artifacts. Publishing is one `gh release create` in
     # the release-macos job, which is also the thing that has a token.
-    UI.success("==> #{updates}/notifi.dmg")
+    UI.success("==> #{updates}/#{File.basename(dmg)}")
     UI.success("==> #{appcast}")
   end
 
