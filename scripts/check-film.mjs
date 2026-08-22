@@ -7,11 +7,19 @@ const BUILD = 'sketches/gif/build.py';
 const committed = readFileSync(INDEX, 'utf8');
 
 let regenerated;
+let failure = null;
 try {
   execFileSync('python3', ['build.py'], { cwd: 'sketches/gif', stdio: 'pipe' });
   regenerated = readFileSync(INDEX, 'utf8');
+} catch (err) {
+  failure = err;
 } finally {
   writeFileSync(INDEX, committed);
+}
+
+if (failure) {
+  process.stderr.write(failure.stderr?.toString() || `${failure.message}\n`);
+  process.exit(1);
 }
 
 if (regenerated !== committed) {

@@ -3,9 +3,10 @@ import { spawn, execFileSync } from 'node:child_process'
 import { mkdtempSync, rmSync, mkdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import http from 'node:http'
 
-const HERE = path.dirname(new URL(import.meta.url).pathname)
+const HERE = path.dirname(fileURLToPath(import.meta.url))
 const PUBLIC = path.resolve(HERE, '../../apps/api/public')
 const OUT = path.join(HERE, 'out')
 const FPS = 20

@@ -39,9 +39,9 @@ gen-copy:
 check-copy:
 	pnpm --filter @notifi/copy check-copy
 
-# The landing page's launch animation. Sources are the scene and engine under
-# public/gif (the authoring page runs them through a CDN Babel); this bundles
-# them with preact for the page itself. Output is committed.
+# The landing page's launch animation. sketches/gif/gen.py is the scene;
+# build.py injects it between the gf: markers in index.html, and the injected
+# result is committed. check-film fails a build where the two disagree.
 film:
 	cd sketches/gif && python3 build.py
 
