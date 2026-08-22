@@ -124,6 +124,7 @@ export function landingNote(): string {
       ${SENDS_PER_HOUR} sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
       <code>message</code>: ${codes}. <code>GET</code> works for a quick
       test; <code>POST</code> is recommended.
+      The full reference is at <a href="/docs">notifi.it/docs</a>.
     </p>`;
 }
 
