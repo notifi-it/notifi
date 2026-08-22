@@ -508,12 +508,6 @@ private struct ImageBlock: View {
 }
 
 enum BodyLinks {
-    private static let superscripts = ["¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"]
-
-    static func mark(_ index: Int) -> String {
-        index < superscripts.count ? superscripts[index] : "⁺"
-    }
-
     static func annotate(_ source: String) -> (body: String, links: [URL]) {
         guard let regex = try? NSRegularExpression(
             pattern: #"\[([^\]]+)\]\(([^)\s]+)\)"#) else { return (source, []) }
@@ -529,7 +523,7 @@ enum BodyLinks {
                   let url = URL(string: String(source[urlRange])) else { continue }
             out += source[cursor..<whole.upperBound]
             let host = url.host() ?? url.absoluteString
-            out += " \(host) \(mark(links.count))"
+            out += " \(host)"
             links.append(url)
             cursor = whole.upperBound
         }
