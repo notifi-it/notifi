@@ -11,9 +11,9 @@ DEV=[('left:64.25%;top:6.22%;width:18.5%;aspect-ratio:428/900'),
      ('left:51.75%;top:18.96%;width:43.5%;aspect-ratio:1640/1040')]
 TRAIL=[f'left:43.52%;width:19.91%;top:{DOTY}%',f'left:43.52%;width:8.79%;top:{DOTY}%',f'left:43.52%;width:7.41%;top:{DOTY}%']
 
-SIG='<svg viewBox="0 0 25 18" class="ic" style="width:{w}cqw"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg>'
-WIFI='<svg viewBox="0 0 25 18" class="ic st" style="width:{w}cqw"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="fl"/></svg>'
-BATT='<svg viewBox="0 0 30 14" class="ic" style="width:{w}cqw"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg>'
+SIG='<svg viewBox="0 0 25 18" class="ic" style="--w:{w}"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg>'
+WIFI='<svg viewBox="0 0 25 18" class="ic st" style="--w:{w}"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="fl"/></svg>'
+BATT='<svg viewBox="0 0 30 14" class="ic" style="--w:{w}"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg>'
 def lock(st,dfs,tfs,date,time):
     return (f'<div class="lock" style="{st}">'
             f'<div class="ldate" data-clock="date" style="--fs:{dfs}">{date}</div>'
@@ -140,14 +140,43 @@ for p,P in enumerate(PASSES):
     else:
         lns="".join(f'<div class="l{p}_{i}">{t}</div>' for i,t in enumerate(P['lines']))
         bh.append(f'<div class="body bg{p}">{lns}<div class="resp r{p}"><span class="r">{{"ok":true}}</span></div></div>')
-    dh.append(f'<div class="dev dv{p}" style="{DEV[p]}">{SVG[p]}{P["sb"]}</div>')
-    card=(f'<div class="cardpos" style="{P["cardpos"]}"><div class="scard sc{p}">{BELLM}'
+    dh.append(f'<div class="dev dv{p}">{SVG[p]}{P["sb"]}</div>')
+    card=(f'<div class="cardpos cp{p}"><div class="scard sc{p}">{BELLM}'
           f'<div style="min-width:0"><div class="t">{P["card"][0]}</div><div class="b">{P["card"][1]}</div></div></div></div>')
-    ch.append(f'<div class="clip cl{p}" style="{P["clip"]}">{card}</div>' if P['clip'] else card)
-    dots="".join(f'<i class="dt{p}_{k}" style="width:{0.30+k*0.09:.2f}cqw;height:{0.30+k*0.09:.2f}cqw"></i>' for k in range(5))
-    th.append(f'<div class="trail" style="{TRAIL[p]}">{dots}</div>')
+    ch.append(f'<div class="clip cl{p}">{card}</div>' if P['clip'] else card)
+    dots="".join(f'<i class="dt{p}_{k}" style="--d:{0.30+k*0.09:.2f}"></i>' for k in range(5))
+    th.append(f'<div class="trail tr{p}">{dots}</div>')
     hh.append(f'<div class="head hd{p}"><div class="l1">{P["head"][0]}</div><div class="l2">{P["head"][1]}</div></div>')
     tih.append(f'<span class="title ti{p}">{P["title"]}</span>')
+geo=[]
+for p,P in enumerate(PASSES):
+    geo.append(f".dv{p}{{{DEV[p]}}}")
+    geo.append(f".cp{p}{{{P['cardpos']}}}")
+    geo.append(f".tr{p}{{{TRAIL[p]}}}")
+    if P['clip']: geo.append(f".cl{p}{{{P['clip']}}}")
+VERT_DEV=['left:19%;top:51.25%;width:62%;aspect-ratio:428/900',
+          'left:4%;top:56.25%;width:92%;aspect-ratio:1292/916',
+          'left:2%;top:57.5%;width:96%;aspect-ratio:1640/1040']
+VERT_CARD=['left:50%;top:84.5%;width:50%','left:50%;top:73.7%;width:41%','left:50%;top:50%;width:92%']
+VERT_TRAIL=['left:50%;width:6%;top:48%;height:3.2%','left:50%;width:6%;top:52.4%;height:3.2%','left:50%;width:6%;top:53.6%;height:3.2%']
+VERT_CLIP=['','','left:48%;top:59.4%;width:46%;height:9%']
+VERT_FS=[('.term',2.39),('.dv0',3.35),('.cp0',3.35),('.dv1',2.26),('.cp1',2.26),('.dv2',2.21),('.cp2',2.21)]
+vgeo=[".stage{aspect-ratio:10/16}",
+      ".head{left:4%;top:3.75%;width:92%}",
+      ".head .l1{--fs:3.6}.head .l2{--fs:3.0}",
+      ".term{left:4%;top:16.25%;width:92%;height:31.25%}",
+      ".trail{flex-direction:column;align-items:center;transform:translateX(-50%)}"]
+for sel,k in VERT_FS:
+    vgeo.append(f"{sel} *{{font-size:calc(1cqw * var(--fs,1.5) * {k})}}")
+    vgeo.append(f"{sel}{{--k:{k}}}")
+vgeo.append(".trail{--k:2.6}")
+for p in range(3):
+    vgeo.append(f".dv{p}{{{VERT_DEV[p]}}}")
+    vgeo.append(f".cp{p}{{{VERT_CARD[p]}}}")
+    vgeo.append(f".tr{p}{{{VERT_TRAIL[p]}}}")
+    if VERT_CLIP[p]: vgeo.append(f".cl{p}{{{VERT_CLIP[p]}}}")
+NLV=chr(10)
+VERTICAL="@media(max-width:760px){"+NLV+NLV.join(vgeo)+NLV+"}"
 anim=[]
 for p in range(3):
     anim.append(f".hd{p},.bg{p},.dv{p},.ti{p},.cl{p}{{animation-name:vis{p}}}")
@@ -220,31 +249,33 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .scr{{fill:var(--surface);stroke:none}}
 .dot{{fill:var(--stroke2);stroke:none}}
 .sbar{{position:absolute;display:flex;align-items:center;justify-content:space-between;font-family:var(--ui);font-weight:600;color:var(--fg)}}
-.sbar .icons{{display:flex;align-items:center;gap:.42cqw}}
+.sbar .icons{{display:flex;align-items:center;gap:calc(1cqw * var(--k,1) * .42)}}
 .lock{{position:absolute;text-align:center;font-family:var(--ui);color:var(--fg)}}
 .lock .ldate{{font-weight:600;opacity:.9;letter-spacing:.01em}}
 .lock .ltime{{font-weight:600;line-height:1.02;letter-spacing:-.02em;margin-top:.25em}}
-.sbar.ph .icons{{gap:.34cqw;margin-right:.32cqw}}
-.sbar.mb .icons{{gap:.62cqw}}
+.sbar.ph .icons{{gap:calc(1cqw * var(--k,1) * .34);margin-right:calc(1cqw * var(--k,1) * .32)}}
+.sbar.mb .icons{{gap:calc(1cqw * var(--k,1) * .62)}}
 .sbar.ph>span:first-child{{flex:0 0 28.3%;text-align:center}}
-.sbar svg.ic{{display:block;height:auto;fill:currentColor;overflow:visible}}
+.sbar svg.ic{{display:block;width:calc(1cqw * var(--k,1) * var(--w));height:auto;fill:currentColor;overflow:visible}}
 .sbar svg.st path{{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}}
 .sbar svg.st circle.fl{{fill:currentColor;stroke:none}}
 .sbar .dt{{--fs:.68;font-weight:400;color:var(--muted);margin-left:.2cqw}}
-.mbell{{width:.90cqw;height:.90cqw;transform:translateY(.09cqw);background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
-.sbar svg.amark{{width:1.10cqw;height:1.10cqw;display:block;fill:var(--fg);opacity:.85;flex:none}}
+.mbell{{width:calc(1cqw * var(--k,1) * .90);height:calc(1cqw * var(--k,1) * .90);transform:translateY(calc(1cqw * var(--k,1) * .09));background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
+.sbar svg.amark{{width:calc(1cqw * var(--k,1) * 1.10);height:calc(1cqw * var(--k,1) * 1.10);display:block;fill:var(--fg);opacity:.85;flex:none}}
 .trail{{position:absolute;display:flex;align-items:center;justify-content:space-between;transform:translateY(-50%)}}
-.trail i{{border-radius:50%;background:var(--dim);opacity:0}}
+.trail i{{width:calc(1cqw * var(--k,1) * var(--d));height:calc(1cqw * var(--k,1) * var(--d));border-radius:50%;background:var(--dim);opacity:0}}
 .clip{{position:absolute;overflow:hidden;border-radius:.6cqw;opacity:0}}
 .cardpos{{position:absolute;transform:translate(-50%,-50%)}}
 .scard{{background:var(--surface);border:1px solid var(--line);border-radius:.95cqw;padding:.8cqw 1cqw;display:flex;gap:.75cqw;align-items:center;overflow:hidden;box-shadow:0 .8cqw 2.4cqw rgba(0,0,0,.4);opacity:0;animation-duration:var(--T);animation-iteration-count:infinite}}
-.bell{{position:relative;width:1.95cqw;height:1.95cqw;flex:none}}
+.bell{{position:relative;width:calc(1cqw * var(--k,1) * 1.95);height:calc(1cqw * var(--k,1) * 1.95);flex:none}}
 .bell i{{position:absolute;inset:0;background:var(--fg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;transform-origin:50% 0}}
 .bell .bb{{-webkit-mask-image:url({BODY});mask-image:url({BODY})}}
 .bell .bc{{-webkit-mask-image:url({CLAP});mask-image:url({CLAP})}}
 .scard .t{{--fs:1.05;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
 .scard .b{{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
+{NL.join(geo)}
 {NL.join(anim)}
+{VERTICAL}
 {NL.join(kf)}
 </style>
 </head>
