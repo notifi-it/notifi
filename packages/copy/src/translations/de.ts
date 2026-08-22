@@ -297,12 +297,6 @@ export const de: Translation = {
   'settings.permissionOff': 'Aus',
   'settings.permissionProvisional': 'Vorläufig',
   'settings.permissionEphemeral': 'Flüchtig',
-  'settings.delivery': 'Zustellung',
-  'settings.deliveryBroken': 'Kein Push',
-  'settings.deliveryBrokenDetail':
-    'Letzte Nachrichten kamen ohne Benachrichtigung dahinter an. Benachrichtigungen '
-    + 'erreichen dieses Gerät nicht; Nachrichten kommen weiterhin über die Live-'
-    + 'Verbindung an sowie sobald die App geöffnet oder aktualisiert wird.',
   'settings.permissionNotSet': 'Nicht festgelegt',
   'settings.permissionUnknown': 'Unbekannt',
 

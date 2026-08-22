@@ -322,12 +322,6 @@ export const copy = {
     permissionOff: 'Off',
     permissionProvisional: 'Provisional',
     permissionEphemeral: 'Ephemeral',
-    delivery: 'Delivery',
-    deliveryBroken: 'Not pushing',
-    deliveryBrokenDetail:
-      'Recent messages arrived without a notification behind them. Notifications '
-      + 'are not reaching this device; messages still arrive over its live '
-      + 'connection, and whenever the app opens or refreshes.',
     permissionNotSet: 'Not set',
     permissionUnknown: 'Unknown',
 

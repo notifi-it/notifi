@@ -247,12 +247,6 @@ export const es: Translation = {
   'settings.permissionOff': 'Desactivado',
   'settings.permissionProvisional': 'Provisional',
   'settings.permissionEphemeral': 'Efímero',
-  'settings.delivery': 'Entrega',
-  'settings.deliveryBroken': 'Sin envío',
-  'settings.deliveryBrokenDetail':
-    'Han llegado mensajes recientes sin una notificación detrás. Las notificaciones '
-    + 'no están llegando a este dispositivo; los mensajes siguen llegando por su conexión '
-    + 'en vivo, y siempre que la app se abre o se actualiza.',
   'settings.permissionNotSet': 'Sin definir',
   'settings.permissionUnknown': 'Desconocido',
 
