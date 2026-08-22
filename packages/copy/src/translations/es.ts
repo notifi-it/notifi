@@ -265,8 +265,8 @@ export const es: Translation = {
     'devuelve 202 con un array de avisos.',
   'settings.strictSendFailed': 'PATCH /devices/settings falló. Comprueba tu conexión e inténtalo de nuevo.',
 
-  'settings.testTitle': 'Notificación de prueba',
-  'settings.testBody': 'Si puedes leer esto, notifi está funcionando.',
+  'settings.testTitle': 'Hello from notifi',
+  'settings.testBody': 'Tu primera notificación.',
 
   'settings.sectionSupport': 'Ayuda',
   'settings.sectionApplication': 'Aplicación',
@@ -285,8 +285,8 @@ export const es: Translation = {
   'settings.privacyPolicy': 'Política de privacidad',
   'settings.website': 'notifi.it',
 
-  'empty.sampleTitle': 'Hola Mundo',
-  'empty.sampleMessage': 'Esto vino del comando que acabas de ejecutar.',
+  'empty.sampleTitle': 'Hello from notifi',
+  'empty.sampleMessage': 'Tu primera notificación.',
 
   'empty.title': 'Nada por aquí',
   'empty.detail': 'Envía tu primera notificación y aparecerá aquí.',

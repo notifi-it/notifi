@@ -51,8 +51,10 @@ function required(param: { required: boolean; name: string }): string {
 
 const QUICKSTART = `curl -X POST ${ORIGIN}${ENDPOINT} \\
   -H "Authorization: Bearer $NOTIFI_KEY" \\
-  -d "title=Backup complete" \\
-  -d "message=4.2 GB in 3m 11s"`;
+  -d "title=Hello from notifi" \\
+  -d "message=Your first notification." \\
+  -d "link=https://notifi.it/docs" \\
+  -d "image=https://notifi.it/sad-logo.png"`;
 
 const WARNINGS_RESPONSE = `HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
@@ -65,7 +67,7 @@ Authorization: Bearer nk_yourkey
 Content-Type: application/json
 Accept-Language: en-GB
 
-{"title":"Backup complete","message":"4.2 GB in 3m 11s","link":"https://console.internal/backups"}`;
+{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs","image":"https://notifi.it/sad-logo.png"}`;
 
 function responseBody(status: number, reason: string, body: string, retry = false): string {
   const head = [
@@ -133,8 +135,10 @@ ${ORIGIN}/openapi.json`,
     code: `# No import needed.
 http -f POST ${ORIGIN}${ENDPOINT} \\
   "Authorization:Bearer $NOTIFI_KEY" \\
-  title="Backup complete" \\
-  message="4.2 GB in 3m 11s"`,
+  title="Hello from notifi" \\
+  message="Your first notification." \\
+  link="https://notifi.it/docs" \\
+  image="https://notifi.it/sad-logo.png"`,
   },
   {
     id: 'generate',

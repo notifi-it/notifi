@@ -9,9 +9,10 @@ export const samples: Sample[] = [
     file: 'send.sh',
     code: `curl -X POST https://notifi.it/send \\
   -H "Authorization: Bearer $NOTIFI_KEY" \\
-  -d "title=Backup complete" \\
-  -d "message=4.2 GB in 3m 11s" \\
-  -d "link=https://console.internal/backups"`,
+  -d "title=Hello from notifi" \\
+  -d "message=Your first notification." \\
+  -d "link=https://notifi.it/docs" \\
+  -d "image=https://notifi.it/sad-logo.png"`,
   },
   {
     id: 'js',
@@ -26,8 +27,10 @@ export const samples: Sample[] = [
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    title: "Backup complete",
-    message: "4.2 GB in 3m 11s",
+    title: "Hello from notifi",
+    message: "Your first notification.",
+    link: "https://notifi.it/docs",
+    image: "https://notifi.it/sad-logo.png",
   }),
 });`,
   },
@@ -44,8 +47,10 @@ requests.post(
     "https://notifi.it/send",
     headers={"Authorization": f"Bearer {os.environ['NOTIFI_KEY']}"},
     json={
-        "title": "Backup complete",
-        "message": "4.2 GB in 3m 11s",
+        "title": "Hello from notifi",
+        "message": "Your first notification.",
+        "link": "https://notifi.it/docs",
+        "image": "https://notifi.it/sad-logo.png",
     },
 )`,
   },
@@ -67,8 +72,10 @@ import (
 
 func main() {
 	form := url.Values{
-		"title":   {"Backup complete"},
-		"message": {"4.2 GB in 3m 11s"},
+		"title":   {"Hello from notifi"},
+		"message": {"Your first notification."},
+		"link":    {"https://notifi.it/docs"},
+		"image":   {"https://notifi.it/sad-logo.png"},
 	}
 	req, _ := http.NewRequest("POST", "https://notifi.it/send",
 		strings.NewReader(form.Encode()))
@@ -91,8 +98,10 @@ request.httpMethod = "POST"
 request.setValue("Bearer \\(key)", forHTTPHeaderField: "Authorization")
 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 request.httpBody = try JSONEncoder().encode([
-    "title": "Backup complete",
-    "message": "4.2 GB in 3m 11s",
+    "title": "Hello from notifi",
+    "message": "Your first notification.",
+    "link": "https://notifi.it/docs",
+    "image": "https://notifi.it/sad-logo.png",
 ])
 
 _ = try await URLSession.shared.data(for: request)`,
@@ -110,8 +119,10 @@ uri = URI("https://notifi.it/send")
 req = Net::HTTP::Post.new(uri)
 req["Authorization"] = "Bearer #{ENV['NOTIFI_KEY']}"
 req.set_form_data(
-  "title" => "Backup complete",
-  "message" => "4.2 GB in 3m 11s"
+  "title" => "Hello from notifi",
+  "message" => "Your first notification.",
+  "link" => "https://notifi.it/docs",
+  "image" => "https://notifi.it/sad-logo.png"
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }`,
@@ -129,8 +140,10 @@ curl_setopt_array($ch, [
     CURLOPT_POST       => true,
     CURLOPT_HTTPHEADER => ["Authorization: Bearer " . getenv("NOTIFI_KEY")],
     CURLOPT_POSTFIELDS => [
-        "title"   => "Backup complete",
-        "message" => "4.2 GB in 3m 11s",
+        "title"   => "Hello from notifi",
+        "message" => "Your first notification.",
+        "link"    => "https://notifi.it/docs",
+        "image"   => "https://notifi.it/sad-logo.png",
     ],
 ]);
 curl_exec($ch);`,
@@ -149,8 +162,10 @@ reqwest::Client::new()
     .post("https://notifi.it/send")
     .bearer_auth(key)
     .form(&[
-        ("title", "Backup complete"),
-        ("message", "4.2 GB in 3m 11s"),
+        ("title", "Hello from notifi"),
+        ("message", "Your first notification."),
+        ("link", "https://notifi.it/docs"),
+        ("image", "https://notifi.it/sad-logo.png"),
     ])
     .send()
     .await?;`,

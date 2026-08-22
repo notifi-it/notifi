@@ -2387,31 +2387,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This came from the command you just ran."
+            "value": "Your first notification."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esto vino del comando que acabas de ejecutar."
+            "value": "Tu primera notificación."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das kam von dem Befehl, den du gerade ausgeführt hast."
+            "value": "Deine erste Benachrichtigung."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ceci vient de la commande que vous venez d’exécuter."
+            "value": "Votre première notification."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Questo arriva dal comando che hai appena eseguito."
+            "value": "La tua prima notifica."
           }
         }
       }
@@ -2422,31 +2422,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hello World"
+            "value": "Hello from notifi"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hola Mundo"
+            "value": "Hello from notifi"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hello World"
+            "value": "Hello from notifi"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hello World"
+            "value": "Hello from notifi"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hello World"
+            "value": "Hello from notifi"
           }
         }
       }
@@ -7782,31 +7782,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "If you can read this, notifi is working."
+            "value": "Your first notification."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Si puedes leer esto, notifi está funcionando."
+            "value": "Tu primera notificación."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wenn du das lesen kannst, funktioniert notifi."
+            "value": "Deine erste Benachrichtigung."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Si vous pouvez lire ceci, notifi fonctionne."
+            "value": "Votre première notification."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se riesci a leggere questo, notifi funziona."
+            "value": "La tua prima notifica."
           }
         }
       }
@@ -7817,31 +7817,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Test notification"
+            "value": "Hello from notifi"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notificación de prueba"
+            "value": "Hello from notifi"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Testbenachrichtigung"
+            "value": "Hello from notifi"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notification de test"
+            "value": "Hello from notifi"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notifica di prova"
+            "value": "Hello from notifi"
           }
         }
       }

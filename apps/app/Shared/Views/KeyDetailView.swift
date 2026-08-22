@@ -226,11 +226,18 @@ struct KeyDetailView: View {
         }
     }
 
+    private static var samplePayload: String {
+        "\"title\":\"\(Copy.Empty.sampleTitle)\","
+            + "\"message\":\"\(Copy.Empty.sampleMessage)\","
+            + "\"link\":\"\(AppModel.sampleLink)\","
+            + "\"image\":\"\(AppModel.sampleImage)\""
+    }
+
     private func sendCommand(key: String) -> String {
         """
         curl -X POST "\(model.baseURL.absoluteString)/send" \\
           -H "Content-Type: application/json" \\
-          -d '{"key":"\(key)","title":"Deploy finished","message":"web is live"}'
+          -d '{"key":"\(key)",\(Self.samplePayload)}'
         """
     }
 

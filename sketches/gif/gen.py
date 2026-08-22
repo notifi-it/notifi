@@ -2,6 +2,7 @@ O=[0.0,100/3,200/3]
 def g(p,x): return round(O[p]+x,3)
 KARLA,RECUR=('/fonts/karla.woff2','/fonts/recursive-mono.woff2')
 BODY,CLAP,BELL=('/bell-body.svg','/bell-clapper.svg','/bell.svg')
+SAD='/sad-logo.png'
 
 # ---- original composition (film.js): terminal centred, devices centred, dots on the 50% midline
 TERM='left:4.17%;top:24.5%;width:38.43%;height:55%'
@@ -47,11 +48,13 @@ PASSES=[
  dict(title='claude — ~/notifi',head=('Get a push notification to your device','from anything that can make an HTTP request.'),
   claude=True,lines=[],
   card=('notifi','No mistakes made.'),cardpos='left:73.5%;top:42.2%;width:15%',sb=PH_SB+PH_LOCK,clip=None),
- dict(title='deploy.sh — -zsh',head=('One key per device.','Each iPhone, iPad or Mac gets its own address.'),
-  lines=['<span class="c"># a deploy script sends one curl when it finishes</span>','<span class="c">$</span> curl notifi.it/send \\',
-         '    -d key=<span class="k">nk_live_8f3a</span> \\','    -d title=<span class="s">"Deploy finished"</span> \\',
-         '    -d message=<span class="s">"prod – 2m 41s"</span>'],
-  card=('Deploy finished','prod – 2m 41s'),cardpos='left:73.5%;top:45.5%;width:18%',sb=PD_SB+PD_LOCK,clip=None),
+ dict(title='run.sh — -zsh',head=('One key per device.','Each iPhone, iPad or Mac gets its own address.'),
+  lines=['<span class="c">$</span> curl notifi.it/send \\',
+         '    -d key=<span class="k">nk_live_8f3a</span> \\','    -d title=<span class="s">"Hello from notifi"</span> \\',
+         '    -d message=<span class="s">"Your first notification."</span> \\',
+         '    -d link=<span class="s">https://notifi.it/docs</span> \\',
+         '    -d image=<span class="s">https://notifi.it/sad-logo.png</span>'],
+  card=('Hello from notifi','Your first notification.'),thumb=SAD,cardpos='left:73.5%;top:45.5%;width:22%',sb=PD_SB+PD_LOCK,clip=None),
  dict(title='ci.yml — -zsh',head=('No signup, no SDK.','Install the app, copy your key, start sending.'),
   lines=['<span class="c"># a CI step fires only when the build fails</span>','<span class="s">- name:</span> notify',
          '  <span class="s">run:</span> <span class="c">|</span>','    curl notifi.it/send -d key=<span class="k">$NOTIFI_KEY</span> \\',
@@ -82,7 +85,11 @@ SVG=["""<svg viewBox="0 0 428 900">
       <path class="o" d="M 0 1000 L 730 1000 C 752 1026 888 1026 910 1000 L 1640 1000 L 1640 1016 Q 1640 1040 1604 1040 L 36 1040 Q 0 1040 0 1016 Z"/>
     </svg>"""]
 
-LN=[(2,5),(5,8),(8,10.5),(10.5,13),(13,15.5)];OPA=[.35,.5,.65,.8,1]
+LN0,LN1=2.0,15.5
+def lnspans(n):
+    step=(LN1-LN0)/n
+    return [(round(LN0+i*step,3),round(LN0+(i+1)*step,3)) for i in range(n)]
+OPA=[.35,.5,.65,.8,1]
 RS,RL=19.6,12.6   # ring window; longer hold after it before the pass fades
 # ring tracks lifted from film.js (RING_BODY/RING_CLAP)
 BF=[0,4.26,12.96,21.66,30.37,39.07,47.78,56.48,65.18,73.89,82.59,91.30,100]
@@ -102,7 +109,7 @@ for p in range(3):
             kf.append(f"@keyframes car{p}_{i}{{0%,{g(p,a)}%{{opacity:0}} {g(p,a+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
         kf.append(f"@keyframes reply{p}{{0%,{g(p,15.2)}%{{opacity:0}} {g(p,16.2)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     else:
-        for i,(s,e) in enumerate(LN):
+        for i,(s,e) in enumerate(lnspans(len(PASSES[p]['lines']))):
             kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps(30,end)}} {g(p,e)}%,100%{{width:100%}}}}")
     if not PASSES[p].get('claude'):
         kf.append(f"@keyframes rs{p}{{0%,{g(p,16.5)}%{{opacity:0}} {g(p,17.5)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
@@ -136,13 +143,14 @@ for p,P in enumerate(PASSES):
                       f'<span class="ctype tp{p}_{i}">{ln}</span>'
                       f'<i class="ccar cr{p}_{i}"></i></div>' for i,ln in enumerate(CPROMPT))
                   + f'<div class="crule"></div>'
-                  + f'<div class="creply rp{p}"><span class="cdot">&#9679;</span> {CREPLY}</div></div>')
+                  + f'<div class="creply rp{p}"><i class="cdot"></i>{CREPLY}</div></div>')
     else:
         lns="".join(f'<div class="l{p}_{i}">{t}</div>' for i,t in enumerate(P['lines']))
         bh.append(f'<div class="body bg{p}">{lns}<div class="resp r{p}"><span class="r">{{"ok":true}}</span></div></div>')
     dh.append(f'<div class="dev dv{p}">{SVG[p]}{P["sb"]}</div>')
+    thumb=f'<img class="thumb" src="{P["thumb"]}" alt="">' if P.get('thumb') else ''
     card=(f'<div class="cardpos cp{p}"><div class="scard sc{p}">{BELLM}'
-          f'<div style="min-width:0"><div class="t">{P["card"][0]}</div><div class="b">{P["card"][1]}</div></div></div></div>')
+          f'<div style="min-width:0"><div class="t">{P["card"][0]}</div><div class="b">{P["card"][1]}</div></div>{thumb}</div></div>')
     ch.append(f'<div class="clip cl{p}">{card}</div>' if P['clip'] else card)
     dots="".join(f'<i class="dt{p}_{k}" style="--d:{0.30+k*0.09:.2f}"></i>' for k in range(5))
     th.append(f'<div class="trail tr{p}">{dots}</div>')
@@ -158,7 +166,7 @@ VERT_DEV=['left:19%;top:55%;width:62%;aspect-ratio:428/900',
           'left:4%;top:56%;width:92%;aspect-ratio:1292/916',
           'left:2%;top:57%;width:96%;aspect-ratio:1640/1040']
 VERT_CARD=['left:50%;top:88.4%;width:50%','left:50%;top:73.5%;width:41%','left:50%;top:50%;width:92%']
-VERT_CLIP=['','','left:48%;top:58.9%;width:46%;height:9%']
+VERT_CLIP=['','','left:48%;top:59.9%;width:46%;height:9%']
 VERT_FS=[('.cp0',3.35),('.cp1',2.26),('.cp2',2.21)]
 vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
@@ -191,11 +199,12 @@ for p in range(3):
             anim.append(f".cr{p}_{i}{{animation-name:car{p}_{i}}}")
         anim.append(f".rp{p}{{animation-name:reply{p}}}")
     else:
-        for i in range(5): anim.append(f".l{p}_{i}{{animation-name:ln{p}_{i}}}")
+        for i in range(len(PASSES[p]['lines'])): anim.append(f".l{p}_{i}{{animation-name:ln{p}_{i}}}")
         anim.append(f".r{p}{{animation-name:rs{p}}}")
     for k in range(5): anim.append(f".dt{p}_{k}{{animation-name:d{p}_{k}}}")
     anim.append(f".sc{p}{{animation-name:sp{p}}}")
     anim.append(f".sc{p} .bb{{animation-name:rb{p}}}.sc{p} .bc{{animation-name:rc{p}}}")
+LSEL="".join(f".l{p}_{i}," for p,P in enumerate(PASSES) for i in range(len(P["lines"])))
 NL=chr(10)
 html=f"""<!doctype html>
 <html lang="en">
@@ -213,7 +222,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .stage{{position:relative;width:min(96vw,1600px);aspect-ratio:2160/960;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;container-type:inline-size}}
 .stage *{{font-size:calc(1cqw * var(--fs,1.5))}}
 .hd0,.hd1,.hd2,.bg0,.bg1,.bg2,.dv0,.dv1,.dv2,.ti0,.ti1,.ti2,.r0,.r1,.r2,.sc0,.sc1,.sc2,.cl2,
-.l0_0,.l0_1,.l0_2,.l0_3,.l0_4,.l1_0,.l1_1,.l1_2,.l1_3,.l1_4,.l2_0,.l2_1,.l2_2,.l2_3,.l2_4,
+{LSEL}
 .tp0_0,.tp0_1,.tp0_2,.cr0_0,.cr0_1,.cr0_2,.rp0,.trail i,.tabs button,.bell i{{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}}
 .head{{position:absolute;left:4.17%;top:9.2%;line-height:1.35;letter-spacing:-.01em;opacity:0}}
 .head .l1{{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}}
@@ -246,7 +255,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .ccar{{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}}
 .cinput+.cinput{{margin-top:-0.260cqw}}
 .creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
-.cdot{{color:#D97757;--fs:2.342}}
+.cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}}
 .c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.r{{color:var(--dim)}}
 .dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
@@ -265,7 +274,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .sbar svg.st path{{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}}
 .sbar svg.st circle.fl{{fill:currentColor;stroke:none}}
 .sbar .dt{{--fs:1.563;font-weight:400;color:var(--muted);margin-left:0.460cqw}}
-.mbell{{width:2.069cqw;height:2.069cqw;transform:translateY(0.207cqw);background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
+.mbell{{width:1.85cqw;height:1.85cqw;transform:translateY(-0.02cqw);background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
 .sbar svg.amark{{width:2.529cqw;height:2.529cqw;display:block;fill:var(--fg);opacity:.85;flex:none}}
 .trail{{position:absolute;display:flex;align-items:center;justify-content:space-between;transform:translateY(-50%)}}
 .trail i{{width:calc(1cqw * var(--d));height:calc(1cqw * var(--d));border-radius:50%;background:var(--dim);opacity:0}}
@@ -278,6 +287,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .bell .bc{{-webkit-mask-image:url({CLAP});mask-image:url({CLAP})}}
 .scard .t{{--fs:1.05;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
 .scard .b{{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
+.scard .thumb{{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-left:auto;background:var(--chip)}}
 {NL.join(geo)}
 {NL.join(anim)}
 {VERTICAL}
@@ -291,7 +301,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
   {NL.join(hh)}
   <div class="term">
     <div class="bar"><i></i><i></i><i></i>{"".join(tih)}</div>
-    <div class="tabs"><button type="button" class="tabA" data-pass="0" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="tabB" data-pass="1" aria-label="Play the deploy.sh scene">~/deploy.sh</button><button type="button" class="tabC" data-pass="2" aria-label="Play the ci.yml scene">workflows/ci.yml</button></div>
+    <div class="tabs"><button type="button" class="tabA" data-pass="0" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="tabB" data-pass="1" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="tabC" data-pass="2" aria-label="Play the ci.yml scene">workflows/ci.yml</button></div>
     <div class="bodywrap">
       {NL.join(bh)}
     </div>

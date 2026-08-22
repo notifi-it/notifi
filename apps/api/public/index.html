@@ -507,7 +507,7 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-stage{position:relative;width:min(96vw,1600px);aspect-ratio:2160/960;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;container-type:inline-size}
 .gf-stage *{font-size:calc(1cqw * var(--fs,1.5))}
 .gf-hd0,.gf-hd1,.gf-hd2,.gf-bg0,.gf-bg1,.gf-bg2,.gf-dv0,.gf-dv1,.gf-dv2,.gf-ti0,.gf-ti1,.gf-ti2,.gf-r0,.gf-r1,.gf-r2,.gf-sc0,.gf-sc1,.gf-sc2,.gf-cl2,
-.gf-l0_0,.gf-l0_1,.gf-l0_2,.gf-l0_3,.gf-l0_4,.gf-l1_0,.gf-l1_1,.gf-l1_2,.gf-l1_3,.gf-l1_4,.gf-l2_0,.gf-l2_1,.gf-l2_2,.gf-l2_3,.gf-l2_4,
+.gf-l1_0,.gf-l1_1,.gf-l1_2,.gf-l1_3,.gf-l1_4,.gf-l1_5,.gf-l2_0,.gf-l2_1,.gf-l2_2,.gf-l2_3,.gf-l2_4,
 .gf-tp0_0,.gf-tp0_1,.gf-tp0_2,.gf-cr0_0,.gf-cr0_1,.gf-cr0_2,.gf-rp0,.gf-trail i,.gf-tabs button,.gf-bell i{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}
 .gf-head{position:absolute;left:4.17%;top:9.2%;line-height:1.35;letter-spacing:-.01em;opacity:0}
 .gf-head .gf-l1{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}
@@ -540,7 +540,7 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-ccar{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}
 .gf-cinput+.gf-cinput{margin-top:-0.260cqw}
 .gf-creply{margin-top:2.342cqw;opacity:0;white-space:normal}
-.gf-cdot{color:#D97757;--fs:2.342}
+.gf-cdot{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}
 .gf-c{color:var(--dim)}.gf-k{color:var(--red)}.gf-s{color:var(--blue)}.gf-r{color:var(--dim)}
 .gf-dev{position:absolute;opacity:0;container-type:inline-size}
 .gf-dev svg{display:block;width:100%;height:100%;overflow:visible}
@@ -559,7 +559,7 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-sbar svg.gf-st path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .gf-sbar svg.gf-st circle.gf-fl{fill:currentColor;stroke:none}
 .gf-sbar .gf-dt{--fs:1.563;font-weight:400;color:var(--muted);margin-left:0.460cqw}
-.gf-mbell{width:2.069cqw;height:2.069cqw;transform:translateY(0.207cqw);background:var(--fg);-webkit-mask:url(/bell.svg) center/contain no-repeat;mask:url(/bell.svg) center/contain no-repeat}
+.gf-mbell{width:1.85cqw;height:1.85cqw;transform:translateY(-0.02cqw);background:var(--fg);-webkit-mask:url(/bell.svg) center/contain no-repeat;mask:url(/bell.svg) center/contain no-repeat}
 .gf-sbar svg.gf-amark{width:2.529cqw;height:2.529cqw;display:block;fill:var(--fg);opacity:.85;flex:none}
 .gf-trail{position:absolute;display:flex;align-items:center;justify-content:space-between;transform:translateY(-50%)}
 .gf-trail i{width:calc(1cqw * var(--d));height:calc(1cqw * var(--d));border-radius:50%;background:var(--dim);opacity:0}
@@ -572,11 +572,12 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-bell .gf-bc{-webkit-mask-image:url(/bell-clapper.svg);mask-image:url(/bell-clapper.svg)}
 .gf-scard .gf-t{--fs:1.05;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
 .gf-scard .gf-b{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+.gf-scard .gf-thumb{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-left:auto;background:var(--chip)}
 .gf-dv0{left:64.25%;top:6.22%;width:18.5%;aspect-ratio:428/900}
 .gf-cp0{left:73.5%;top:42.2%;width:15%}
 .gf-tr0{left:43.52%;width:19.91%;top:50.0%}
 .gf-dv1{left:53.15%;top:17.55%;width:40.7%;aspect-ratio:1292/916}
-.gf-cp1{left:73.5%;top:45.5%;width:18%}
+.gf-cp1{left:73.5%;top:45.5%;width:22%}
 .gf-tr1{left:43.52%;width:8.79%;top:50.0%}
 .gf-dv2{left:51.75%;top:18.96%;width:43.5%;aspect-ratio:1640/1040}
 .gf-cp2{left:76%;top:19.5%;width:43.15%}
@@ -603,6 +604,7 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-l1_2{animation-name:gf-ln1_2}
 .gf-l1_3{animation-name:gf-ln1_3}
 .gf-l1_4{animation-name:gf-ln1_4}
+.gf-l1_5{animation-name:gf-ln1_5}
 .gf-r1{animation-name:gf-rs1}
 .gf-dt1_0{animation-name:gf-d1_0}
 .gf-dt1_1{animation-name:gf-d1_1}
@@ -643,7 +645,7 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-cp1{left:50%;top:73.5%;width:41%}
 .gf-dv2{left:2%;top:57%;width:96%;aspect-ratio:1640/1040}
 .gf-cp2{left:50%;top:50%;width:92%}
-.gf-cl2{left:48%;top:58.9%;width:46%;height:9%}
+.gf-cl2{left:48%;top:59.9%;width:46%;height:9%}
 }
 @media(prefers-reduced-motion:reduce){
 .gf-stage *{animation:none}
@@ -671,11 +673,12 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 @keyframes gf-rb0{0%,19.6%{transform:rotate(0deg)} 19.6%{transform:rotate(0deg)} 20.137%{transform:rotate(-20deg)} 21.233%{transform:rotate(18deg)} 22.329%{transform:rotate(-16deg)} 23.427%{transform:rotate(14deg)} 24.523%{transform:rotate(-13deg)} 25.62%{transform:rotate(12deg)} 26.716%{transform:rotate(-10deg)} 27.813%{transform:rotate(8deg)} 28.91%{transform:rotate(-6deg)} 30.006%{transform:rotate(4deg)} 31.104%{transform:rotate(-2deg)} 32.2%{transform:rotate(0deg)} 32.2%,100%{transform:rotate(0deg)}}
 @keyframes gf-rc0{0%,19.6%{transform:rotate(0deg)} 19.6%{transform:rotate(0deg)} 19.912%{transform:rotate(0deg)} 20.485%{transform:rotate(-30deg)} 21.656%{transform:rotate(27deg)} 22.828%{transform:rotate(-24deg)} 24.0%{transform:rotate(20deg)} 25.17%{transform:rotate(-18deg)} 26.342%{transform:rotate(15deg)} 27.514%{transform:rotate(-12deg)} 28.686%{transform:rotate(9deg)} 29.856%{transform:rotate(-6deg)} 31.028%{transform:rotate(3deg)} 32.2%{transform:rotate(0deg)} 32.2%,100%{transform:rotate(0deg)}}
 @keyframes gf-vis1{0%,33.833%{opacity:0} 35.333%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
-@keyframes gf-ln1_0{0%,35.333%{width:0;animation-timing-function:steps(30,end)} 38.333%,100%{width:100%}}
-@keyframes gf-ln1_1{0%,38.333%{width:0;animation-timing-function:steps(30,end)} 41.333%,100%{width:100%}}
-@keyframes gf-ln1_2{0%,41.333%{width:0;animation-timing-function:steps(30,end)} 43.833%,100%{width:100%}}
-@keyframes gf-ln1_3{0%,43.833%{width:0;animation-timing-function:steps(30,end)} 46.333%,100%{width:100%}}
-@keyframes gf-ln1_4{0%,46.333%{width:0;animation-timing-function:steps(30,end)} 48.833%,100%{width:100%}}
+@keyframes gf-ln1_0{0%,35.333%{width:0;animation-timing-function:steps(30,end)} 37.583%,100%{width:100%}}
+@keyframes gf-ln1_1{0%,37.583%{width:0;animation-timing-function:steps(30,end)} 39.833%,100%{width:100%}}
+@keyframes gf-ln1_2{0%,39.833%{width:0;animation-timing-function:steps(30,end)} 42.083%,100%{width:100%}}
+@keyframes gf-ln1_3{0%,42.083%{width:0;animation-timing-function:steps(30,end)} 44.333%,100%{width:100%}}
+@keyframes gf-ln1_4{0%,44.333%{width:0;animation-timing-function:steps(30,end)} 46.583%,100%{width:100%}}
+@keyframes gf-ln1_5{0%,46.583%{width:0;animation-timing-function:steps(30,end)} 48.833%,100%{width:100%}}
 @keyframes gf-rs1{0%,49.833%{opacity:0} 50.833%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
 @keyframes gf-d1_0{0%,49.833%{opacity:0} 50.833%,54.833%{opacity:0.35} 56.333%,100%{opacity:0}}
 @keyframes gf-d1_1{0%,50.433%{opacity:0} 51.433%,55.083%{opacity:0.5} 56.583%,100%{opacity:0}}
@@ -686,11 +689,11 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 @keyframes gf-rb1{0%,52.933%{transform:rotate(0deg)} 52.933%{transform:rotate(0deg)} 53.47%{transform:rotate(-20deg)} 54.566%{transform:rotate(18deg)} 55.662%{transform:rotate(-16deg)} 56.76%{transform:rotate(14deg)} 57.856%{transform:rotate(-13deg)} 58.954%{transform:rotate(12deg)} 60.05%{transform:rotate(-10deg)} 61.146%{transform:rotate(8deg)} 62.243%{transform:rotate(-6deg)} 63.34%{transform:rotate(4deg)} 64.437%{transform:rotate(-2deg)} 65.533%{transform:rotate(0deg)} 65.533%,100%{transform:rotate(0deg)}}
 @keyframes gf-rc1{0%,52.933%{transform:rotate(0deg)} 52.933%{transform:rotate(0deg)} 53.246%{transform:rotate(0deg)} 53.818%{transform:rotate(-30deg)} 54.99%{transform:rotate(27deg)} 56.161%{transform:rotate(-24deg)} 57.333%{transform:rotate(20deg)} 58.504%{transform:rotate(-18deg)} 59.676%{transform:rotate(15deg)} 60.847%{transform:rotate(-12deg)} 62.019%{transform:rotate(9deg)} 63.19%{transform:rotate(-6deg)} 64.362%{transform:rotate(3deg)} 65.533%{transform:rotate(0deg)} 65.533%,100%{transform:rotate(0deg)}}
 @keyframes gf-vis2{0%,67.167%{opacity:0} 68.667%,98.867%{opacity:1} 99.967%,100%{opacity:0}}
-@keyframes gf-ln2_0{0%,68.667%{width:0;animation-timing-function:steps(30,end)} 71.667%,100%{width:100%}}
-@keyframes gf-ln2_1{0%,71.667%{width:0;animation-timing-function:steps(30,end)} 74.667%,100%{width:100%}}
-@keyframes gf-ln2_2{0%,74.667%{width:0;animation-timing-function:steps(30,end)} 77.167%,100%{width:100%}}
-@keyframes gf-ln2_3{0%,77.167%{width:0;animation-timing-function:steps(30,end)} 79.667%,100%{width:100%}}
-@keyframes gf-ln2_4{0%,79.667%{width:0;animation-timing-function:steps(30,end)} 82.167%,100%{width:100%}}
+@keyframes gf-ln2_0{0%,68.667%{width:0;animation-timing-function:steps(30,end)} 71.367%,100%{width:100%}}
+@keyframes gf-ln2_1{0%,71.367%{width:0;animation-timing-function:steps(30,end)} 74.067%,100%{width:100%}}
+@keyframes gf-ln2_2{0%,74.067%{width:0;animation-timing-function:steps(30,end)} 76.767%,100%{width:100%}}
+@keyframes gf-ln2_3{0%,76.767%{width:0;animation-timing-function:steps(30,end)} 79.467%,100%{width:100%}}
+@keyframes gf-ln2_4{0%,79.467%{width:0;animation-timing-function:steps(30,end)} 82.167%,100%{width:100%}}
 @keyframes gf-rs2{0%,83.167%{opacity:0} 84.167%,98.867%{opacity:1} 99.967%,100%{opacity:0}}
 @keyframes gf-d2_0{0%,83.167%{opacity:0} 84.167%,88.167%{opacity:0.35} 89.667%,100%{opacity:0}}
 @keyframes gf-d2_1{0%,83.767%{opacity:0} 84.767%,88.417%{opacity:0.5} 89.917%,100%{opacity:0}}
@@ -995,8 +998,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="gf-head gf-hd1"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own address.</div></div>
       <div class="gf-head gf-hd2"><div class="gf-l1">No signup, no SDK.</div><div class="gf-l2">Install the app, copy your key, start sending.</div></div>
         <div class="gf-term">
-          <div class="gf-bar"><i></i><i></i><i></i><span class="gf-title gf-ti0">claude — ~/notifi</span><span class="gf-title gf-ti1">deploy.sh — -zsh</span><span class="gf-title gf-ti2">ci.yml — -zsh</span></div>
-          <div class="gf-tabs"><button type="button" class="gf-gf-tabA" data-pass="0" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="gf-gf-tabB" data-pass="1" aria-label="Play the deploy.sh scene">~/deploy.sh</button><button type="button" class="gf-gf-tabC" data-pass="2" aria-label="Play the ci.yml scene">workflows/ci.yml</button></div>
+          <div class="gf-bar"><i></i><i></i><i></i><span class="gf-title gf-ti0">claude — ~/notifi</span><span class="gf-title gf-ti1">run.sh — -zsh</span><span class="gf-title gf-ti2">ci.yml — -zsh</span></div>
+          <div class="gf-tabs"><button type="button" class="gf-gf-tabA" data-pass="0" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="gf-gf-tabB" data-pass="1" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="gf-gf-tabC" data-pass="2" aria-label="Play the ci.yml scene">workflows/ci.yml</button></div>
           <div class="gf-bodywrap">
             <div class="gf-body gf-cbody gf-bg0"><div class="gf-cbanner"><svg class="gf-mascot" viewBox="0 0 52 40" aria-hidden="true">
             <rect x="2" y="0" width="48" height="27" rx="3" fill="#D97757"/>
@@ -1006,8 +1009,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             <rect x="15" y="32" width="5" height="5" rx="1" fill="#D97757"/>
             <rect x="32" y="32" width="5" height="5" rx="1" fill="#D97757"/>
             <rect x="40" y="32" width="5" height="5" rx="1" fill="#D97757"/>
-          </svg><div class="gf-cmeta"><div><b>Claude Code</b> <span class="gf-c">v2.1.238</span></div><div class="gf-c">Fable 8</div></div></div><div class="gf-crule"></div><div class="gf-cinput"><span class="gf-cchev">&#10095;</span><span class="gf-ctype gf-tp0_0">Build a way to send notifications over HTTP</span><i class="gf-ccar gf-cr0_0"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp0_1">to my iOS device and my macOS device.</span><i class="gf-ccar gf-cr0_1"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp0_2">Make no mistakes.</span><i class="gf-ccar gf-cr0_2"></i></div><div class="gf-crule"></div><div class="gf-creply gf-rp0"><span class="gf-cdot">&#9679;</span> It already exists. Check your phone.</div></div>
-      <div class="gf-body gf-bg1"><div class="gf-l1_0"><span class="gf-c"># a deploy script sends one curl when it finishes</span></div><div class="gf-l1_1"><span class="gf-c">$</span> curl notifi.it/send \</div><div class="gf-l1_2">    -d key=<span class="gf-k">nk_live_8f3a</span> \</div><div class="gf-l1_3">    -d title=<span class="gf-s">"Deploy finished"</span> \</div><div class="gf-l1_4">    -d message=<span class="gf-s">"prod – 2m 41s"</span></div><div class="gf-resp gf-r1"><span class="gf-r">{"ok":true}</span></div></div>
+          </svg><div class="gf-cmeta"><div><b>Claude Code</b> <span class="gf-c">v2.1.238</span></div><div class="gf-c">Fable 8</div></div></div><div class="gf-crule"></div><div class="gf-cinput"><span class="gf-cchev">&#10095;</span><span class="gf-ctype gf-tp0_0">Build a way to send notifications over HTTP</span><i class="gf-ccar gf-cr0_0"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp0_1">to my iOS device and my macOS device.</span><i class="gf-ccar gf-cr0_1"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp0_2">Make no mistakes.</span><i class="gf-ccar gf-cr0_2"></i></div><div class="gf-crule"></div><div class="gf-creply gf-rp0"><i class="gf-cdot"></i>It already exists. Check your phone.</div></div>
+      <div class="gf-body gf-bg1"><div class="gf-l1_0"><span class="gf-c">$</span> curl notifi.it/send \</div><div class="gf-l1_1">    -d key=<span class="gf-k">nk_live_8f3a</span> \</div><div class="gf-l1_2">    -d title=<span class="gf-s">"Hello from notifi"</span> \</div><div class="gf-l1_3">    -d message=<span class="gf-s">"Your first notification."</span> \</div><div class="gf-l1_4">    -d link=<span class="gf-s">https://notifi.it/docs</span> \</div><div class="gf-l1_5">    -d image=<span class="gf-s">https://notifi.it/sad-logo.png</span></div><div class="gf-resp gf-r1"><span class="gf-r">{"ok":true}</span></div></div>
       <div class="gf-body gf-bg2"><div class="gf-l2_0"><span class="gf-c"># a CI step fires only when the build fails</span></div><div class="gf-l2_1"><span class="gf-s">- name:</span> notify</div><div class="gf-l2_2">  <span class="gf-s">run:</span> <span class="gf-c">|</span></div><div class="gf-l2_3">    curl notifi.it/send -d key=<span class="gf-k">$NOTIFI_KEY</span> \</div><div class="gf-l2_4">      -d title=<span class="gf-s">"Build failed"</span> -d link=<span class="gf-s">$RUN_URL</span></div><div class="gf-resp gf-r2"><span class="gf-r">{"ok":true}</span></div></div>
           </div>
         </div>
@@ -1037,7 +1040,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             <path class="gf-o" d="M 0 1000 L 730 1000 C 752 1026 888 1026 910 1000 L 1640 1000 L 1640 1016 Q 1640 1040 1604 1040 L 36 1040 Q 0 1040 0 1016 Z"/>
           </svg><div class="gf-sbar gf-mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs:1.563"><svg class="gf-amark" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg><span class="gf-icons"><span class="gf-mbell"></span><svg viewBox="0 0 30 14" class="gf-ic" style="--w:3.218"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg><span class="gf-dt" data-clock="menubar">Tue 11 Aug 10:24</span></span></div></div>
         <div class="gf-cardpos gf-cp0"><div class="gf-scard gf-sc0"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">notifi</div><div class="gf-b">No mistakes made.</div></div></div></div>
-      <div class="gf-cardpos gf-cp1"><div class="gf-scard gf-sc1"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Deploy finished</div><div class="gf-b">prod – 2m 41s</div></div></div></div>
+      <div class="gf-cardpos gf-cp1"><div class="gf-scard gf-sc1"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Hello from notifi</div><div class="gf-b">Your first notification.</div></div><img class="gf-thumb" src="/sad-logo.png" alt=""></div></div>
       <div class="gf-clip gf-cl2"><div class="gf-cardpos gf-cp2"><div class="gf-scard gf-sc2"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Build failed</div><div class="gf-b">tests (3.11) exited 1</div></div></div></div></div>
       <script>
       (function () {
@@ -1228,9 +1231,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh" data-label="curl">
 <pre>curl -X POST https://notifi.it/send \
   -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
-  -d <span class="s">&quot;title=Backup complete&quot;</span> \
-  -d <span class="s">&quot;message=4.2 GB in 3m 11s&quot;</span> \
-  -d <span class="s">&quot;link=https://console.internal/backups&quot;</span></pre>
+  -d <span class="s">&quot;title=Hello from notifi&quot;</span> \
+  -d <span class="s">&quot;message=Your first notification.&quot;</span> \
+  -d <span class="s">&quot;link=https://notifi.it/docs&quot;</span> \
+  -d <span class="s">&quot;image=https://notifi.it/sad-logo.png&quot;</span></pre>
       </div>
       <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" data-label="JavaScript" hidden>
 <pre>await fetch(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
@@ -1240,8 +1244,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <span class="s">&quot;Content-Type&quot;</span>: <span class="s">&quot;application/json&quot;</span>,
   },
   body: JSON.stringify({
-    title: <span class="s">&quot;Backup complete&quot;</span>,
-    message: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
+    title: <span class="s">&quot;Hello from notifi&quot;</span>,
+    message: <span class="s">&quot;Your first notification.&quot;</span>,
+    link: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
+    image: <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>,
   }),
 });</pre>
       </div>
@@ -1252,8 +1258,10 @@ requests.post(
     <span class="s">&quot;https://notifi.it/send&quot;</span>,
     headers={<span class="s">&quot;Authorization&quot;</span>: f<span class="s">&quot;Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}&quot;</span>},
     json={
-        <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Backup complete&quot;</span>,
-        <span class="s">&quot;message&quot;</span>: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
+        <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
+        <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
+        <span class="s">&quot;link&quot;</span>: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
+        <span class="s">&quot;image&quot;</span>: <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>,
     },
 )</pre>
       </div>
@@ -1269,8 +1277,10 @@ requests.post(
 
 <span class="f">func</span> main() {
 	form := url.Values{
-		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Backup complete&quot;</span>},
-		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;4.2 GB in 3m 11s&quot;</span>},
+		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Hello from notifi&quot;</span>},
+		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;Your first notification.&quot;</span>},
+		<span class="s">&quot;link&quot;</span>:    {<span class="s">&quot;https://notifi.it/docs&quot;</span>},
+		<span class="s">&quot;image&quot;</span>:   {<span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>},
 	}
 	req, _ := http.NewRequest(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
 		strings.NewReader(form.Encode()))
@@ -1287,8 +1297,10 @@ request.httpMethod = <span class="s">&quot;POST&quot;</span>
 request.setValue(<span class="s">&quot;Bearer \(key)&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Authorization&quot;</span>)
 request.setValue(<span class="s">&quot;application/json&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Content-Type&quot;</span>)
 request.httpBody = <span class="f">try</span> JSONEncoder().encode([
-    <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Backup complete&quot;</span>,
-    <span class="s">&quot;message&quot;</span>: <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
+    <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
+    <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
+    <span class="s">&quot;link&quot;</span>: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
+    <span class="s">&quot;image&quot;</span>: <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>,
 ])
 
 _ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
@@ -1300,8 +1312,10 @@ uri = URI(<span class="s">&quot;https://notifi.it/send&quot;</span>)
 req = Net::HTTP::Post.new(uri)
 req[<span class="s">&quot;Authorization&quot;</span>] = <span class="s">&quot;Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}&quot;</span>
 req.set_form_data(
-  <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Backup complete&quot;</span>,
-  <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>
+  <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
+  <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
+  <span class="s">&quot;link&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/docs&quot;</span>,
+  <span class="s">&quot;image&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
@@ -1313,8 +1327,10 @@ curl_setopt_array($ch, [
     CURLOPT_POST       =&gt; <span class="f">true</span>,
     CURLOPT_HTTPHEADER =&gt; [<span class="s">&quot;Authorization: Bearer &quot;</span> . getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)],
     CURLOPT_POSTFIELDS =&gt; [
-        <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Backup complete&quot;</span>,
-        <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>,
+        <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
+        <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
+        <span class="s">&quot;link&quot;</span>    =&gt; <span class="s">&quot;https://notifi.it/docs&quot;</span>,
+        <span class="s">&quot;image&quot;</span>   =&gt; <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>,
     ],
 ]);
 curl_exec($ch);</pre>
@@ -1327,8 +1343,10 @@ reqwest::Client::new()
     .post(<span class="s">&quot;https://notifi.it/send&quot;</span>)
     .bearer_auth(key)
     .form(&amp;[
-        (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Backup complete&quot;</span>),
-        (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;4.2 GB in 3m 11s&quot;</span>),
+        (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
+        (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
+        (<span class="s">&quot;link&quot;</span>, <span class="s">&quot;https://notifi.it/docs&quot;</span>),
+        (<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/sad-logo.png&quot;</span>),
     ])
     .send()
     .<span class="f">await</span>?;</pre>

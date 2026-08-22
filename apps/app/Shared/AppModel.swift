@@ -471,12 +471,21 @@ final class AppModel {
         #endif
     }
 
+    static let sampleLink = "https://notifi.it/docs"
+    static let sampleImage = "https://notifi.it/sad-logo.png"
+
     func sendTestNotification(
         title: String = Copy.Settings.testTitle,
         message: String = Copy.Settings.testBody
     ) async throws {
         guard let api, let key = defaultKeyValue else { throw NotifiError.identityMissing }
-        _ = try await api.send(key: key, title: title, message: message)
+        _ = try await api.send(
+            key: key,
+            title: title,
+            message: message,
+            link: Self.sampleLink,
+            image: Self.sampleImage
+        )
     }
 
     static var platformName: String {
