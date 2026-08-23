@@ -308,7 +308,7 @@ private struct MessageRow: View {
                 if let preview {
                     Text(preview)
                         .font(Theme.metaSmall)
-                        .foregroundStyle(isHovered ? Theme.muted : Theme.dim)
+                        .foregroundStyle(isHovered ? Theme.dim : Theme.mark)
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
@@ -320,6 +320,7 @@ private struct MessageRow: View {
             slot(present: message.imageURL != nil, systemName: "photo")
         }
         .padding(.horizontal, 18)
+        .padding(.vertical, 13)
         .frame(minHeight: 44)
         #if os(macOS)
         .background {
