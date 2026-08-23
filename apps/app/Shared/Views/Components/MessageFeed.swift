@@ -260,15 +260,20 @@ private struct MonoLine: View {
     @State private var cell: CGFloat = 0
     @State private var available: CGFloat = 0
 
-    private var shown: String {
-        guard cell > 0, available > 0 else { return text }
+    private var head: String? {
+        guard cell > 0, available > 0 else { return nil }
         let cells = Int(available / cell)
-        guard cells > Self.ellipsis.count, text.count > cells else { return text }
-        return String(text.prefix(cells - Self.ellipsis.count)) + Self.ellipsis
+        guard cells > Self.ellipsis.count, text.count > cells else { return nil }
+        return String(text.prefix(cells - Self.ellipsis.count))
+    }
+
+    private var line: Text {
+        guard let head else { return Text(text) }
+        return Text(head) + Text(Self.ellipsis).tracking(-cell * 0.34)
     }
 
     var body: some View {
-        Text(shown)
+        line
             .font(font)
             .lineLimit(1)
             .truncationMode(.tail)
