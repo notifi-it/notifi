@@ -85,6 +85,50 @@ struct SettingsView: View {
                     .geistGutter()
                 }
 
+                #if os(macOS)
+                SectionLabel(text: Copy.Settings.sectionIOSApp)
+                    .geistGroupGutter()
+
+                GeistGroup {
+                    Text(Copy.Settings.iosAppDetail)
+                        .geistConsequence()
+                        .padding(.top, 14)
+                        .geistGutter()
+
+                    Link(destination: URL(string: "https://apps.apple.com/app/id1563961135")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.iosApp)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                }
+                #else
+                SectionLabel(text: Copy.Settings.sectionMacApp)
+                    .geistGroupGutter()
+
+                GeistGroup {
+                    Text(Copy.Settings.macAppDetail)
+                        .geistConsequence()
+                        .padding(.top, 14)
+                        .geistGutter()
+
+                    Link(destination: URL(string: "https://notifi.it/#download")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.macApp)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                }
+                #endif
+
                 SectionLabel(text: Copy.Settings.sectionSupport)
                     .geistGroupGutter()
 

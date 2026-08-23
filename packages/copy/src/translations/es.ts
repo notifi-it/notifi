@@ -268,6 +268,20 @@ export const es: Translation = {
   'settings.testTitle': 'Hello from notifi',
   'settings.testBody': 'Tu primera notificación.',
 
+  'settings.sectionMacApp': 'notifi para Mac',
+  'settings.macApp': 'Descargar para Mac',
+  'settings.macAppDetail':
+    'La misma bandeja de entrada, en la barra de menús con macOS 14 o posterior. Una descarga ' +
+    'directa que se mantiene actualizada. Cada clave entrega al dispositivo que la creó, así que ' +
+    'una clave creada en el Mac hace llegar allí las notificaciones además de aquí.',
+
+  'settings.sectionIOSApp': 'notifi para iPhone',
+  'settings.iosApp': 'Consíguela en el App Store',
+  'settings.iosAppDetail':
+    'La misma bandeja de entrada, en tu iPhone y iPad con iOS 17 o posterior. Cada clave entrega ' +
+    'al dispositivo que la creó, así que una clave creada en el teléfono hace llegar allí las ' +
+    'notificaciones además de aquí.',
+
   'settings.sectionSupport': 'Ayuda',
   'settings.sectionApplication': 'Aplicación',
   'settings.sectionAbout': 'Acerca de',

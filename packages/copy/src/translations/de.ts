@@ -315,6 +315,20 @@ export const de: Translation = {
   'settings.testTitle': 'Hello from notifi',
   'settings.testBody': 'Deine erste Benachrichtigung.',
 
+  'settings.sectionMacApp': 'notifi für den Mac',
+  'settings.macApp': 'Für den Mac laden',
+  'settings.macAppDetail':
+    'Derselbe Posteingang, in deiner Menüleiste ab macOS 14. Ein Direkt-Download, der sich ' +
+    'selbst aktuell hält. Jeder Schlüssel stellt an das Gerät zu, das ihn erstellt hat: Ein auf ' +
+    'dem Mac erstellter Schlüssel bringt Benachrichtigungen also dorthin und nicht nur hierher.',
+
+  'settings.sectionIOSApp': 'notifi für das iPhone',
+  'settings.iosApp': 'Im App Store laden',
+  'settings.iosAppDetail':
+    'Derselbe Posteingang, auf deinem iPhone und iPad ab iOS 17. Jeder Schlüssel stellt an das ' +
+    'Gerät zu, das ihn erstellt hat: Ein auf dem iPhone erstellter Schlüssel bringt ' +
+    'Benachrichtigungen also dorthin und nicht nur hierher.',
+
   'settings.sectionSupport': 'Support',
   'settings.sectionApplication': 'Anwendung',
   'settings.sectionAbout': 'Über',

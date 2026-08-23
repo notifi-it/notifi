@@ -7006,6 +7006,76 @@
         }
       }
     },
+    "settings.iosApp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get it on the App Store"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consíguela en el App Store"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im App Store laden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharger dans l'App Store"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarica su App Store"
+          }
+        }
+      }
+    },
+    "settings.iosAppDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The same inbox, on your iPhone and iPad with iOS 17 or later. Each key delivers to the device that made it, so a key made on the phone lands notifications there as well as here."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La misma bandeja de entrada, en tu iPhone y iPad con iOS 17 o posterior. Cada clave entrega al dispositivo que la creó, así que una clave creada en el teléfono hace llegar allí las notificaciones además de aquí."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Derselbe Posteingang, auf deinem iPhone und iPad ab iOS 17. Jeder Schlüssel stellt an das Gerät zu, das ihn erstellt hat: Ein auf dem iPhone erstellter Schlüssel bringt Benachrichtigungen also dorthin und nicht nur hierher."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La même boîte de réception, sur votre iPhone et votre iPad sous iOS 17 ou version ultérieure. Chaque clé livre à l'appareil qui l'a créée : une clé créée sur le téléphone y fait donc arriver les notifications, en plus d'ici."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La stessa casella, su iPhone e iPad con iOS 17 o successivo. Ogni chiave consegna al dispositivo che l'ha creata, quindi una chiave creata sul telefono fa arrivare lì le notifiche, oltre che qui."
+          }
+        }
+      }
+    },
     "settings.loadImages": {
       "extractionState": "manual",
       "localizations": {
@@ -7072,6 +7142,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recupera ogni immagine all'arrivo del messaggio, il che comunica al suo host il tuo indirizzo IP. Disattivato, le immagini si caricano solo quando vengono toccate."
+          }
+        }
+      }
+    },
+    "settings.macApp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download for Mac"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descargar para Mac"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für den Mac laden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharger pour Mac"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarica per Mac"
+          }
+        }
+      }
+    },
+    "settings.macAppDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The same inbox, in your menu bar on macOS 14 or later. A direct download that keeps itself up to date. Each key delivers to the device that made it, so a key made on the Mac lands notifications there as well as here."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La misma bandeja de entrada, en la barra de menús con macOS 14 o posterior. Una descarga directa que se mantiene actualizada. Cada clave entrega al dispositivo que la creó, así que una clave creada en el Mac hace llegar allí las notificaciones además de aquí."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Derselbe Posteingang, in deiner Menüleiste ab macOS 14. Ein Direkt-Download, der sich selbst aktuell hält. Jeder Schlüssel stellt an das Gerät zu, das ihn erstellt hat: Ein auf dem Mac erstellter Schlüssel bringt Benachrichtigungen also dorthin und nicht nur hierher."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La même boîte de réception, dans votre barre des menus sous macOS 14 ou version ultérieure. Un téléchargement direct qui se met à jour tout seul. Chaque clé livre à l'appareil qui l'a créée : une clé créée sur le Mac y fait donc arriver les notifications, en plus d'ici."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La stessa casella, nella barra dei menu con macOS 14 o successivo. Un download diretto che si mantiene aggiornato. Ogni chiave consegna al dispositivo che l'ha creata, quindi una chiave creata sul Mac fa arrivare lì le notifiche, oltre che qui."
           }
         }
       }
@@ -7562,6 +7702,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "Applicazione"
+          }
+        }
+      }
+    },
+    "settings.sectionIOSApp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi for iPhone"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi para iPhone"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi für das iPhone"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi pour iPhone"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi per iPhone"
+          }
+        }
+      }
+    },
+    "settings.sectionMacApp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi for Mac"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi para Mac"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi für den Mac"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi pour Mac"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi per Mac"
           }
         }
       }
