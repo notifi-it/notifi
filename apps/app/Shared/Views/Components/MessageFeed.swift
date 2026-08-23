@@ -53,7 +53,6 @@ struct MessageFeed<Empty: View>: View {
 
     var body: some View {
         feed
-        .modifier(TrackingRoll())
         .listStyle(.plain)
         .environment(\.defaultMinListRowHeight, 0)
         .scrollContentBackground(.hidden)
@@ -186,54 +185,6 @@ struct MessageFeed<Empty: View>: View {
     }
 }
 
-private struct TrackingRoll: ViewModifier {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    @State private var slip: CGFloat = 0
-    @State private var flicker: Double = 0
-    @State private var lastOffset: CGFloat?
-    @State private var lastSample = Date()
-
-    private let floor: CGFloat = 900
-    private let span: CGFloat = 3_500
-
-    func body(content: Content) -> some View {
-        if #available(iOS 18.0, macOS 15.0, *), !reduceMotion {
-            content
-                .offset(x: slip)
-                .brightness(flicker)
-                .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y } action: { _, new in
-                    react(to: new)
-                }
-        } else {
-            content
-        }
-    }
-
-    private func react(to offset: CGFloat) {
-        let now = Date()
-        let elapsed = max(now.timeIntervalSince(lastSample), 1.0 / 120.0)
-        lastSample = now
-
-        let previous = lastOffset ?? offset
-        lastOffset = offset
-        let velocity = abs(offset - previous) / elapsed
-
-        let strength = min(max((velocity - floor) / span, 0), 1)
-        guard strength > 0 else {
-            guard slip != 0 || flicker != 0 else { return }
-            withAnimation(.easeOut(duration: 0.2)) {
-                slip = 0
-                flicker = 0
-            }
-            return
-        }
-
-        slip = .random(in: -2.5...2.5) * strength
-        flicker = .random(in: -0.02...0.04) * strength
-    }
-}
-
 extension View {
     func plainRow(insets: EdgeInsets = EdgeInsets(),
                   background: Color = .clear) -> some View {
@@ -325,9 +276,6 @@ private struct MessageRow: View {
             content
             if showsRule && Self.drawsRules { rule }
         }
-        #if os(macOS)
-        .grainReveal(trigger: message.id, duration: 0.5, once: true, strength: 1.2)
-        #endif
         .accessibilityElement(children: .combine)
         .accessibilityLabel(spokenDescription)
     }
