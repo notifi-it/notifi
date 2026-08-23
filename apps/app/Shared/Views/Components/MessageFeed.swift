@@ -251,6 +251,60 @@ private struct BandHeader: View {
     }
 }
 
+private struct MonoLine: View {
+    let text: String
+    let font: Font
+
+    static let ellipsis = "..."
+
+    @State private var cell: CGFloat = 0
+    @State private var available: CGFloat = 0
+
+    private var head: String? {
+        guard cell > 0, available > 0 else { return nil }
+        let cells = Int(available / cell)
+        guard cells > Self.ellipsis.count, text.count > cells else { return nil }
+        let cut = text.prefix(cells - Self.ellipsis.count)
+        return String(cut.reversed().drop { $0 == "." || $0.isWhitespace }.reversed())
+    }
+
+    private var line: Text {
+        guard let head else { return Text(text) }
+        return Text(head) + Text(Self.ellipsis).tracking(-cell * 0.34)
+    }
+
+    var body: some View {
+        line
+            .font(font)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                GeometryReader { proxy in
+                    Color.clear
+                        .onChange(of: proxy.size.width, initial: true) { _, width in
+                            available = width
+                        }
+                }
+            }
+            .background(alignment: .leading) {
+                Text(verbatim: "0")
+                    .font(font)
+                    .hidden()
+                    .accessibilityHidden(true)
+                    .background {
+                        GeometryReader { proxy in
+                            Color.clear
+                                .onChange(of: proxy.size.width, initial: true) { _, width in
+                                    cell = width
+                                }
+                        }
+                    }
+            }
+            .accessibilityLabel(text)
+    }
+}
+
 private struct MessageRow: View {
     let message: Message
     let now: Date
@@ -271,6 +325,12 @@ private struct MessageRow: View {
 
     private var isEscalated: Bool { !message.isRead || message.isCritical }
 
+    private var preview: String? {
+        guard let body = message.body else { return nil }
+        let line = MarkdownPreview.text(body).trimmingCharacters(in: .whitespaces)
+        return line.isEmpty ? nil : line
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             content
@@ -281,7 +341,7 @@ private struct MessageRow: View {
     }
 
     private var content: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(Self.clock.string(from: basis))
                 .font(.inco(size: 12, weight: isEscalated ? .semibold : .regular))
                 .monospacedDigit()
@@ -290,13 +350,18 @@ private struct MessageRow: View {
                 .lineLimit(1)
                 .fixedSize()
 
-            Text(message.title)
-                .font(.inco(size: 13.5, weight: isEscalated ? .bold : .regular,
-                            relativeTo: .footnote))
-                .foregroundStyle(message.isCritical ? Theme.brandText
-                                 : message.isRead && !isHovered ? Theme.read : Theme.fg)
-                .lineLimit(1)
-                .truncationMode(.tail)
+            VStack(alignment: .leading, spacing: 5) {
+                MonoLine(text: message.title,
+                         font: .inco(size: 13.5, weight: isEscalated ? .bold : .regular,
+                                     relativeTo: .footnote))
+                    .foregroundStyle(message.isCritical ? Theme.brandText
+                                     : message.isRead && !isHovered ? Theme.read : Theme.fg)
+
+                if let preview {
+                    MonoLine(text: preview, font: Theme.metaSmall)
+                        .foregroundStyle(isHovered ? Theme.dim : Theme.mark)
+                }
+            }
 
             Spacer(minLength: 0)
 
@@ -304,6 +369,7 @@ private struct MessageRow: View {
             slot(present: message.imageURL != nil, systemName: "photo")
         }
         .padding(.horizontal, 18)
+        .padding(.vertical, 13)
         .frame(minHeight: 44)
         #if os(macOS)
         .background {
@@ -345,6 +411,7 @@ private struct MessageRow: View {
         if !message.isRead { parts.append(Copy.Inbox.unread) }
         if message.isCritical { parts.append(Copy.Inbox.critical) }
         parts.append(message.title)
+        if let preview { parts.append(preview) }
         if let link = message.link, let host = link.host() {
             parts.append(Copy.Inbox.linkTo(host))
         }
