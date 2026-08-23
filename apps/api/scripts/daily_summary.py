@@ -188,14 +188,14 @@ def compose_notification():
         f"- Sends **{day['sends']}** from {senders(day['senders'])}",
         f"- Downloads **{downloads_yesterday}**",
         f"- Devices **+{devices['day']}**",
-        f"- Site **{site_yday_u}** visitors · {site_yday_v} views",
+        f"- Site **{site_yday_u}** visitors · {site_yday_v} page loads incl. bots",
         "",
         "**This week**",
         sends_week,
         f"- Downloads **{downloads_week}**"
         f" ({week_on_week(downloads_week, downloads_prior)} vs prior 7d)",
         f"- Site **{site_wk_u}** visitors ({week_on_week(site_wk_u, site_prior_u)} vs prior 7d)"
-        f" · {site_wk_v} views",
+        f" · {site_wk_v} page loads incl. bots",
         f"- Devices **+{devices['week']}** · {devices['total']} total",
         f"- Active keys **{active_keys['n']}**",
         f"- Reviews **+{reviews['week']}** · {reviews['total']} total",
