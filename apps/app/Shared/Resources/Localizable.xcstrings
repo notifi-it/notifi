@@ -2591,41 +2591,6 @@
         }
       }
     },
-    "empty.sentDetail": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "It arrives here and on your lock screen. Make more keys under Keys to keep sources apart."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Llega aquí y a tu pantalla de bloqueo. Crea más claves en Claves para mantener las fuentes separadas."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sie kommt hier und auf deinem Sperrbildschirm an. Erstelle unter Schlüssel weitere, um Quellen zu trennen."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Elle arrive ici et sur votre écran verrouillé. Créez d’autres clés dans Clés pour distinguer les sources."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arriva qui e sulla schermata di blocco. Crea altre chiavi in Chiavi per tenere separate le fonti."
-          }
-        }
-      }
-    },
     "empty.stepAllow": {
       "extractionState": "manual",
       "localizations": {

@@ -376,8 +376,6 @@ export const copy = {
     sendTest: 'Send a test',
     sending: 'Sending…',
     sent: 'Sent. It arrives here and on your lock screen in a moment.',
-    sentDetail:
-      'It arrives here and on your lock screen. Make more keys under Keys to keep sources apart.',
     sendFailed: "Couldn't send. Check your connection and try again.",
 
     makingKey: 'Making your key…',

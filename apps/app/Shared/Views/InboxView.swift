@@ -135,9 +135,9 @@ struct InboxView: View {
 
     private var hasHeaderControls: Bool {
         #if os(macOS)
-        !messages.isEmpty && (showingSearch || activeKeyName != nil)
+        !messages.isEmpty && showingSearch
         #else
-        !messages.isEmpty && activeKeyName != nil
+        false
         #endif
     }
 
@@ -147,17 +147,8 @@ struct InboxView: View {
                 #if os(macOS)
                 if !messages.isEmpty { searchToggle }
                 #endif
-            }
-            .padding(.bottom, hasHeaderControls ? 14 : 0)
-
-            if !messages.isEmpty {
-                #if os(macOS)
-                if showingSearch {
-                    SearchField(text: $searchText, focused: $searchFocused)
-                }
-                #endif
-
-                if let activeKeyName {
+            } accessory: {
+                if !messages.isEmpty, let activeKeyName {
                     HStack(spacing: 8) {
                         Chip(text: activeKeyName, color: Theme.fg,
                              border: Theme.muted.opacity(0.5))
@@ -166,11 +157,16 @@ struct InboxView: View {
                             .foregroundStyle(Theme.dim)
                             .buttonStyle(.geist)
                             .geistHitArea(expandedBy: 16)
-                        Spacer(minLength: 0)
                     }
-                    .padding(.top, 10)
                 }
             }
+            .padding(.bottom, hasHeaderControls ? 14 : 0)
+
+            #if os(macOS)
+            if !messages.isEmpty, showingSearch {
+                SearchField(text: $searchText, focused: $searchFocused)
+            }
+            #endif
         }
     }
 

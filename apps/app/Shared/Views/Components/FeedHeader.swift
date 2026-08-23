@@ -2,7 +2,7 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-struct FeedHeader<Trailing: View>: View {
+struct FeedHeader<Trailing: View, Accessory: View>: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
     @Query(sort: \Message.createdAt, order: .reverse) private var messages: [Message]
@@ -10,6 +10,7 @@ struct FeedHeader<Trailing: View>: View {
     var subtitle: Text? = nil
     @Binding var filterKeyID: Int?
     @ViewBuilder var trailing: () -> Trailing
+    @ViewBuilder var accessory: () -> Accessory
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -31,6 +32,7 @@ struct FeedHeader<Trailing: View>: View {
                         .font(Theme.meta)
                         .hidden()
                         .accessibilityHidden(true)
+                        .overlay(alignment: .topLeading) { accessory().fixedSize() }
                 }
             }
             Spacer(minLength: 8)
@@ -110,8 +112,14 @@ struct FeedHeader<Trailing: View>: View {
     }
 }
 
-extension FeedHeader where Trailing == EmptyView {
+extension FeedHeader where Trailing == EmptyView, Accessory == EmptyView {
     init(subtitle: Text? = nil, filterKeyID: Binding<Int?>) {
-        self.init(subtitle: subtitle, filterKeyID: filterKeyID) { EmptyView() }
+        self.init(subtitle: subtitle, filterKeyID: filterKeyID, trailing: { EmptyView() }, accessory: { EmptyView() })
+    }
+}
+
+extension FeedHeader where Accessory == EmptyView {
+    init(subtitle: Text? = nil, filterKeyID: Binding<Int?>, @ViewBuilder trailing: @escaping () -> Trailing) {
+        self.init(subtitle: subtitle, filterKeyID: filterKeyID, trailing: trailing, accessory: { EmptyView() })
     }
 }

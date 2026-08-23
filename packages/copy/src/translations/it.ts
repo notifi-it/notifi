@@ -302,8 +302,6 @@ export const it: Translation = {
   'empty.sendTest': 'Invia una prova',
   'empty.sending': 'Invio…',
   'empty.sent': 'Inviata. Arriverà qui e sulla schermata di blocco tra un momento.',
-  'empty.sentDetail':
-    'Arriva qui e sulla schermata di blocco. Crea altre chiavi in Chiavi per tenere separate le fonti.',
   'empty.sendFailed': 'Impossibile inviare. Controlla la connessione e riprova.',
 
   'empty.makingKey': 'Creazione della chiave…',

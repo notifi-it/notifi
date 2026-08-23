@@ -306,9 +306,6 @@ export const fr: Translation = {
   'empty.sendTest': 'Envoyer un test',
   'empty.sending': 'Envoi…',
   'empty.sent': 'Envoyée. Elle arrive ici et sur votre écran verrouillé dans un instant.',
-  'empty.sentDetail':
-    'Elle arrive ici et sur votre écran verrouillé. Créez d’autres clés dans Clés pour ' +
-    'distinguer les sources.',
   'empty.sendFailed': "Échec de l'envoi. Vérifiez votre connexion et réessayez.",
 
   'empty.makingKey': 'Création de votre clé…',
