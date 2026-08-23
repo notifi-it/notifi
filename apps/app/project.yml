@@ -129,6 +129,7 @@ targets:
       - path: Shared/Support/Copy.swift
       - path: Shared/Support/NotifiError.swift
       - path: Shared/Support/RemoteImages.swift
+      - path: Shared/Support/MarkdownPreview.swift
       # LinkPolicy is compiled in for its https rule alone -- the extension
       # decides which category a push carries. Its allow-list accessors read the
       # app's UserDefaults, which the extension does not share, so they must not
@@ -158,6 +159,7 @@ targets:
       - path: Shared/Support/Copy.swift
       - path: Shared/Support/NotifiError.swift
       - path: Shared/Support/RemoteImages.swift
+      - path: Shared/Support/MarkdownPreview.swift
       # LinkPolicy is compiled in for its https rule alone -- the extension
       # decides which category a push carries. Its allow-list accessors read the
       # app's UserDefaults, which the extension does not share, so they must not
