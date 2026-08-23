@@ -264,7 +264,8 @@ private struct MonoLine: View {
         guard cell > 0, available > 0 else { return nil }
         let cells = Int(available / cell)
         guard cells > Self.ellipsis.count, text.count > cells else { return nil }
-        return String(text.prefix(cells - Self.ellipsis.count))
+        let cut = text.prefix(cells - Self.ellipsis.count)
+        return String(cut.reversed().drop { $0 == "." || $0.isWhitespace }.reversed())
     }
 
     private var line: Text {
