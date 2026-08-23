@@ -72,7 +72,7 @@ struct SettingsView: View {
                 }
                 .animation(Theme.state, value: strictSendFailed)
 
-                SectionLabel(text: Copy.Settings.sectionAppearance)
+                SectionLabel(text: Copy.Settings.sectionApplication)
                     .geistGroupGutter()
 
                 GeistGroup {
@@ -83,84 +83,8 @@ struct SettingsView: View {
                         selection: $model.appearance
                     )
                     .geistGutter()
-                }
-
-                #if os(macOS)
-                SectionLabel(text: Copy.Settings.sectionIOSApp)
-                    .geistGroupGutter()
-
-                GeistGroup {
-                    Text(Copy.Settings.iosAppDetail)
-                        .geistConsequence()
-                        .padding(.top, 14)
-                        .geistGutter()
-
-                    Link(destination: URL(string: "https://apps.apple.com/app/id1563961135")!) {
-                        DisclosureRow {
-                            Text(Copy.Settings.iosApp)
-                                .font(Theme.body)
-                                .foregroundStyle(Theme.fg)
-                        }
-                        .padding(.vertical, Theme.rowPadV)
-                    }
-                    .buttonStyle(.geistRow)
-                    .geistGutter()
-                }
-                #else
-                SectionLabel(text: Copy.Settings.sectionMacApp)
-                    .geistGroupGutter()
-
-                GeistGroup {
-                    Text(Copy.Settings.macAppDetail)
-                        .geistConsequence()
-                        .padding(.top, 14)
-                        .geistGutter()
-
-                    Link(destination: URL(string: "https://notifi.it/#download")!) {
-                        DisclosureRow {
-                            Text(Copy.Settings.macApp)
-                                .font(Theme.body)
-                                .foregroundStyle(Theme.fg)
-                        }
-                        .padding(.vertical, Theme.rowPadV)
-                    }
-                    .buttonStyle(.geistRow)
-                    .geistGutter()
-                }
-                #endif
-
-                SectionLabel(text: Copy.Settings.sectionSupport)
-                    .geistGroupGutter()
-
-                GeistGroup {
-                    Link(destination: URL(string: "mailto:report@notifi.it")!) {
-                        DisclosureRow {
-                            Text(Copy.Settings.support)
-                                .font(Theme.body)
-                                .foregroundStyle(Theme.fg)
-                        }
-                        .padding(.vertical, Theme.rowPadV)
-                    }
-                    .buttonStyle(.geistRow)
-                    .geistGutter()
                     RowRule()
 
-                    Link(destination: URL(string: "https://apps.apple.com/app/id1563961135?action=write-review")!) {
-                        DisclosureRow {
-                            Text(Copy.Settings.feedback)
-                                .font(Theme.body)
-                                .foregroundStyle(Theme.fg)
-                        }
-                        .padding(.vertical, Theme.rowPadV)
-                    }
-                    .buttonStyle(.geistRow)
-                    .geistGutter()
-                }
-
-                SectionLabel(text: Copy.Settings.sectionApplication)
-                    .geistGroupGutter()
-
-                GeistGroup {
                     #if os(macOS)
                     ToggleRow(
                         title: Copy.Settings.openAtLogin,
@@ -201,6 +125,20 @@ struct SettingsView: View {
                     #endif
 
                     Button {
+                        model.openSystemNotificationSettings()
+                    } label: {
+                        DisclosureRow {
+                            Text(Copy.Settings.openSystemSettings)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                    RowRule()
+
+                    Button {
                         confirmingDeleteAll = true
                     } label: {
                         DisclosureRow {
@@ -218,15 +156,10 @@ struct SettingsView: View {
                     .geistGroupGutter()
 
                 GeistGroup {
-                    FieldRow(Copy.Settings.version, AppModel.appVersion)
-                        .geistGutter()
-                    RowRule()
-
-                    Button {
-                        model.openSystemNotificationSettings()
-                    } label: {
+                    #if os(macOS)
+                    Link(destination: URL(string: "https://apps.apple.com/app/id1563961135")!) {
                         DisclosureRow {
-                            Text(Copy.Settings.openSystemSettings)
+                            Text(Copy.Settings.iosApp)
                                 .font(Theme.body)
                                 .foregroundStyle(Theme.fg)
                         }
@@ -235,6 +168,19 @@ struct SettingsView: View {
                     .buttonStyle(.geistRow)
                     .geistGutter()
                     RowRule()
+                    #else
+                    Link(destination: URL(string: "https://notifi.it/#download")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.macApp)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                    RowRule()
+                    #endif
 
                     Link(destination: URL(string: "https://notifi.it/privacy")!) {
                         DisclosureRow {
@@ -251,6 +197,38 @@ struct SettingsView: View {
                     Link(destination: URL(string: "https://notifi.it")!) {
                         DisclosureRow {
                             Text(Copy.Settings.website)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                    RowRule()
+
+                    FieldRow(Copy.Settings.version, AppModel.appVersion)
+                        .geistGutter()
+                }
+
+                SectionLabel(text: Copy.Settings.sectionSupport)
+                    .geistGroupGutter()
+
+                GeistGroup {
+                    Link(destination: URL(string: "mailto:report@notifi.it")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.support)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                    RowRule()
+
+                    Link(destination: URL(string: "https://apps.apple.com/app/id1563961135?action=write-review")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.feedback)
                                 .font(Theme.body)
                                 .foregroundStyle(Theme.fg)
                         }

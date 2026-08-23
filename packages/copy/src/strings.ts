@@ -321,7 +321,6 @@ export const copy = {
     permissionNotSet: 'Not set',
     permissionUnknown: 'Unknown',
 
-    sectionAppearance: 'Appearance',
     theme: 'Theme',
     themeDark: 'Dark',
     themeLight: 'Light',
@@ -341,18 +340,8 @@ export const copy = {
     testTitle: 'Hello from notifi',
     testBody: 'Your first notification.',
 
-    sectionMacApp: 'notifi for Mac',
-    macApp: 'Download for Mac',
-    macAppDetail:
-      'The same inbox, in your menu bar on macOS 14 or later. A direct download that keeps ' +
-      'itself up to date. Each key delivers to the device that made it, so a key made on the ' +
-      'Mac lands notifications there as well as here.',
-
-    sectionIOSApp: 'notifi for iPhone',
-    iosApp: 'Get it on the App Store',
-    iosAppDetail:
-      'The same inbox, on your iPhone and iPad with iOS 17 or later. Each key delivers to the ' +
-      'device that made it, so a key made on the phone lands notifications there as well as here.',
+    macApp: 'Download notifi for Mac',
+    iosApp: 'Download notifi for iOS',
 
     sectionSupport: 'Support',
     sectionApplication: 'Application',

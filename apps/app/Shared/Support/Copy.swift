@@ -187,7 +187,6 @@ enum Copy {
         static var permissionEphemeral: String { NSLocalizedString("settings.permissionEphemeral", comment: "") }
         static var permissionNotSet: String { NSLocalizedString("settings.permissionNotSet", comment: "") }
         static var permissionUnknown: String { NSLocalizedString("settings.permissionUnknown", comment: "") }
-        static var sectionAppearance: String { NSLocalizedString("settings.sectionAppearance", comment: "") }
         static var theme: String { NSLocalizedString("settings.theme", comment: "") }
         static var themeDark: String { NSLocalizedString("settings.themeDark", comment: "") }
         static var themeLight: String { NSLocalizedString("settings.themeLight", comment: "") }
@@ -198,12 +197,8 @@ enum Copy {
         static var strictSendFailed: String { NSLocalizedString("settings.strictSendFailed", comment: "") }
         static var testTitle: String { NSLocalizedString("settings.testTitle", comment: "") }
         static var testBody: String { NSLocalizedString("settings.testBody", comment: "") }
-        static var sectionMacApp: String { NSLocalizedString("settings.sectionMacApp", comment: "") }
         static var macApp: String { NSLocalizedString("settings.macApp", comment: "") }
-        static var macAppDetail: String { NSLocalizedString("settings.macAppDetail", comment: "") }
-        static var sectionIOSApp: String { NSLocalizedString("settings.sectionIOSApp", comment: "") }
         static var iosApp: String { NSLocalizedString("settings.iosApp", comment: "") }
-        static var iosAppDetail: String { NSLocalizedString("settings.iosAppDetail", comment: "") }
         static var sectionSupport: String { NSLocalizedString("settings.sectionSupport", comment: "") }
         static var sectionApplication: String { NSLocalizedString("settings.sectionApplication", comment: "") }
         static var sectionAbout: String { NSLocalizedString("settings.sectionAbout", comment: "") }
