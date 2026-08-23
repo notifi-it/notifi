@@ -15,6 +15,7 @@ NOTIFI_SEND = "https://notifi.it/send"
 D1_QUERY = (
     "https://api.cloudflare.com/client/v4/accounts/{account}/d1/database/{database}/query"
 )
+CF_GRAPHQL = "https://api.cloudflare.com/client/v4/graphql"
 FIRST_INSTALL = {"1", "1F"}
 WEEK = 604800
 SESSION = requests.Session()
@@ -83,6 +84,42 @@ def senders(count):
     return f"{count} device" + ("" if count == 1 else "s")
 
 
+def site_traffic():
+    query = (
+        '{ viewer { zones(filter: {zoneTag: "%s"})'
+        " { httpRequests1dGroups(limit: 15, filter: {date_gt: \"%s\"}, orderBy: [date_ASC])"
+        " { dimensions { date } sum { pageViews } uniq { uniques } } } } }"
+    ) % (
+        os.environ["CF_ZONE_ID"],
+        (datetime.now(timezone.utc) - timedelta(days=15)).strftime("%Y-%m-%d"),
+    )
+    res = SESSION.post(
+        CF_GRAPHQL,
+        headers={"Authorization": f"Bearer {os.environ['CLOUDFLARE_API_TOKEN']}"},
+        json={"query": query},
+        timeout=30,
+    )
+    res.raise_for_status()
+    body = res.json()
+    if body.get("errors"):
+        raise SystemExit(f"zone analytics failed: {body['errors'][0]['message']}")
+    days = {
+        g["dimensions"]["date"]: (g["uniq"]["uniques"], g["sum"]["pageViews"])
+        for g in body["data"]["viewer"]["zones"][0]["httpRequests1dGroups"]
+    }
+
+    def window(start, end):
+        u = v = 0
+        for n in range(start, end):
+            day = (datetime.now(timezone.utc) - timedelta(days=n)).strftime("%Y-%m-%d")
+            du, dv = days.get(day, (0, 0))
+            u += du
+            v += dv
+        return u, v
+
+    return window(1, 2), window(1, 8), window(8, 15)
+
+
 def week_on_week(now, before, percent_floor=10):
     if before >= percent_floor:
         return f"{'+' if now >= before else ''}{round((now - before) / before * 100)}%"
@@ -122,9 +159,14 @@ def compose_notification():
     )
     reviews = query_production_d1(
         "SELECT COUNT(*) AS total,"
-        " SUM(CASE WHEN fetched_at >= unixepoch()-604800 THEN 1 ELSE 0 END) AS week"
+        " SUM(CASE WHEN substr(updated_at,1,10) >= date('now','-7 days') THEN 1 ELSE 0 END) AS week"
         " FROM app_reviews"
     )
+    active_keys = query_production_d1(
+        "SELECT COUNT(*) AS n FROM keys"
+        " WHERE revoked_at IS NULL AND last_used_at >= unixepoch()-604800"
+    )
+    (site_yday_u, site_yday_v), (site_wk_u, site_wk_v), (site_prior_u, _) = site_traffic()
 
     comparable = (
         history["oldest"] is not None and history["oldest"] <= int(time.time()) - 2 * WEEK
@@ -146,12 +188,16 @@ def compose_notification():
         f"- Sends **{day['sends']}** from {senders(day['senders'])}",
         f"- Downloads **{downloads_yesterday}**",
         f"- Devices **+{devices['day']}**",
+        f"- Site **{site_yday_u}** visitors · {site_yday_v} views",
         "",
         "**This week**",
         sends_week,
         f"- Downloads **{downloads_week}**"
         f" ({week_on_week(downloads_week, downloads_prior)} vs prior 7d)",
+        f"- Site **{site_wk_u}** visitors ({week_on_week(site_wk_u, site_prior_u)} vs prior 7d)"
+        f" · {site_wk_v} views",
         f"- Devices **+{devices['week']}** · {devices['total']} total",
+        f"- Active keys **{active_keys['n']}**",
         f"- Reviews **+{reviews['week']}** · {reviews['total']} total",
     ]
     if countries:

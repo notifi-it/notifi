@@ -35,6 +35,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+          CF_ZONE_ID: fc704965663c004c389f89eece06176a
           NOTIFI_SEND_KEY: ${{ secrets.NOTIFI_SEND_KEY }}
         run: |
           ASC_PRIVATE_KEY="$(echo "$ASC_SALES_KEY_P8" | base64 --decode)" \
