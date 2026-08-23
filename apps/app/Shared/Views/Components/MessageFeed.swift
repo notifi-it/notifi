@@ -251,6 +251,54 @@ private struct BandHeader: View {
     }
 }
 
+private struct MonoLine: View {
+    let text: String
+    let font: Font
+
+    static let ellipsis = "..."
+
+    @State private var cell: CGFloat = 0
+    @State private var available: CGFloat = 0
+
+    private var shown: String {
+        guard cell > 0, available > 0 else { return text }
+        let cells = Int(available / cell)
+        guard cells > Self.ellipsis.count, text.count > cells else { return text }
+        return String(text.prefix(cells - Self.ellipsis.count)) + Self.ellipsis
+    }
+
+    var body: some View {
+        Text(shown)
+            .font(font)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                GeometryReader { proxy in
+                    Color.clear
+                        .onChange(of: proxy.size.width, initial: true) { _, width in
+                            available = width
+                        }
+                }
+            }
+            .background(alignment: .leading) {
+                Text(verbatim: "0")
+                    .font(font)
+                    .hidden()
+                    .accessibilityHidden(true)
+                    .background {
+                        GeometryReader { proxy in
+                            Color.clear
+                                .onChange(of: proxy.size.width, initial: true) { _, width in
+                                    cell = width
+                                }
+                        }
+                    }
+            }
+            .accessibilityLabel(text)
+    }
+}
+
 private struct MessageRow: View {
     let message: Message
     let now: Date
@@ -297,20 +345,15 @@ private struct MessageRow: View {
                 .fixedSize()
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(message.title)
-                    .font(.inco(size: 13.5, weight: isEscalated ? .bold : .regular,
-                                relativeTo: .footnote))
+                MonoLine(text: message.title,
+                         font: .inco(size: 13.5, weight: isEscalated ? .bold : .regular,
+                                     relativeTo: .footnote))
                     .foregroundStyle(message.isCritical ? Theme.brandText
                                      : message.isRead && !isHovered ? Theme.read : Theme.fg)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
 
                 if let preview {
-                    Text(preview)
-                        .font(Theme.metaSmall)
+                    MonoLine(text: preview, font: Theme.metaSmall)
                         .foregroundStyle(isHovered ? Theme.dim : Theme.mark)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
                 }
             }
 
