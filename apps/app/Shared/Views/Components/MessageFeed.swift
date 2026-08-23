@@ -271,6 +271,12 @@ private struct MessageRow: View {
 
     private var isEscalated: Bool { !message.isRead || message.isCritical }
 
+    private var preview: String? {
+        guard let body = message.body else { return nil }
+        let line = MarkdownPreview.text(body).trimmingCharacters(in: .whitespaces)
+        return line.isEmpty ? nil : line
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             content
@@ -281,7 +287,7 @@ private struct MessageRow: View {
     }
 
     private var content: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(Self.clock.string(from: basis))
                 .font(.inco(size: 12, weight: isEscalated ? .semibold : .regular))
                 .monospacedDigit()
@@ -290,13 +296,23 @@ private struct MessageRow: View {
                 .lineLimit(1)
                 .fixedSize()
 
-            Text(message.title)
-                .font(.inco(size: 13.5, weight: isEscalated ? .bold : .regular,
-                            relativeTo: .footnote))
-                .foregroundStyle(message.isCritical ? Theme.brandText
-                                 : message.isRead && !isHovered ? Theme.read : Theme.fg)
-                .lineLimit(1)
-                .truncationMode(.tail)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(message.title)
+                    .font(.inco(size: 13.5, weight: isEscalated ? .bold : .regular,
+                                relativeTo: .footnote))
+                    .foregroundStyle(message.isCritical ? Theme.brandText
+                                     : message.isRead && !isHovered ? Theme.read : Theme.fg)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+
+                if let preview {
+                    Text(preview)
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(isHovered ? Theme.muted : Theme.dim)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+            }
 
             Spacer(minLength: 0)
 
@@ -345,6 +361,7 @@ private struct MessageRow: View {
         if !message.isRead { parts.append(Copy.Inbox.unread) }
         if message.isCritical { parts.append(Copy.Inbox.critical) }
         parts.append(message.title)
+        if let preview { parts.append(preview) }
         if let link = message.link, let host = link.host() {
             parts.append(Copy.Inbox.linkTo(host))
         }
