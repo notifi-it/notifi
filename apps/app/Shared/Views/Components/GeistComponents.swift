@@ -70,6 +70,8 @@ struct Chip: View {
     var color: Color = Theme.muted
     var border: Color = Theme.chip
     var trailingGlyph: String?
+    var trailingSymbol: String?
+    var trailingSymbolColor: Color = Theme.dim
 
     var body: some View {
         HStack(spacing: 5) {
@@ -78,6 +80,11 @@ struct Chip: View {
                 .truncationMode(.middle)
             if let trailingGlyph {
                 Text(trailingGlyph)
+            }
+            if let trailingSymbol {
+                Image(systemName: trailingSymbol)
+                    .imageScale(.small)
+                    .foregroundStyle(trailingSymbolColor)
             }
         }
         .font(Theme.label)
@@ -492,16 +499,15 @@ struct GeistHeader<Trailing: View>: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .frame(height: Theme.headerBarHeight, alignment: .leading)
-                if let subtitle {
-                    Text(subtitle)
-                        .font(Theme.meta)
-                        .foregroundStyle(Theme.muted)
-                } else {
-                    Text(verbatim: " ")
-                        .font(Theme.meta)
-                        .hidden()
-                        .accessibilityHidden(true)
+                ZStack(alignment: .leading) {
+                    Color.clear.frame(width: 0, height: Theme.headerSubtitleHeight)
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(Theme.meta)
+                            .foregroundStyle(Theme.muted)
+                    }
                 }
+                .frame(height: Theme.headerSubtitleHeight, alignment: .leading)
             }
             Spacer(minLength: 8)
             HStack(spacing: Theme.headerActionSpacing) {

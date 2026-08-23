@@ -135,9 +135,9 @@ struct InboxView: View {
 
     private var hasHeaderControls: Bool {
         #if os(macOS)
-        !messages.isEmpty && (showingSearch || activeKeyName != nil)
+        !messages.isEmpty && showingSearch
         #else
-        !messages.isEmpty && activeKeyName != nil
+        false
         #endif
     }
 
@@ -147,30 +147,25 @@ struct InboxView: View {
                 #if os(macOS)
                 if !messages.isEmpty { searchToggle }
                 #endif
+            } accessory: {
+                if !messages.isEmpty, let activeKeyName {
+                    Button { filterKeyID = nil } label: {
+                        Chip(text: activeKeyName, color: Theme.fg,
+                             border: Theme.muted.opacity(0.5),
+                             trailingSymbol: "xmark")
+                    }
+                    .buttonStyle(.geist)
+                    .geistHitArea(expandedBy: 12)
+                    .accessibilityLabel(Copy.Common.clear)
+                }
             }
             .padding(.bottom, hasHeaderControls ? 14 : 0)
 
-            if !messages.isEmpty {
-                #if os(macOS)
-                if showingSearch {
-                    SearchField(text: $searchText, focused: $searchFocused)
-                }
-                #endif
-
-                if let activeKeyName {
-                    HStack(spacing: 8) {
-                        Chip(text: activeKeyName, color: Theme.fg,
-                             border: Theme.muted.opacity(0.5))
-                        Button(Copy.Common.clear) { filterKeyID = nil }
-                            .font(Theme.label)
-                            .foregroundStyle(Theme.dim)
-                            .buttonStyle(.geist)
-                            .geistHitArea(expandedBy: 16)
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.top, 10)
-                }
+            #if os(macOS)
+            if !messages.isEmpty, showingSearch {
+                SearchField(text: $searchText, focused: $searchFocused)
             }
+            #endif
         }
     }
 

@@ -349,8 +349,6 @@ export const de: Translation = {
   'empty.sendTest': 'Test senden',
   'empty.sending': 'Wird gesendet…',
   'empty.sent': 'Gesendet. Sie kommt gleich hier und auf deinem Sperrbildschirm an.',
-  'empty.sentDetail':
-    'Sie kommt hier und auf deinem Sperrbildschirm an. Erstelle unter Schlüssel weitere, um Quellen zu trennen.',
   'empty.sendFailed': 'Senden fehlgeschlagen. Verbindung prüfen und erneut versuchen.',
 
   'empty.makingKey': 'Dein Schlüssel wird erstellt…',

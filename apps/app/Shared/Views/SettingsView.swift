@@ -17,7 +17,7 @@ struct SettingsView: View {
         } content: {
             VStack(alignment: .leading, spacing: 0) {
                 SectionLabel(text: Copy.Settings.sectionPermissions, isFirst: true)
-                    .geistGroupGutter()
+                    .geistGutter()
 
                 GeistGroup {
                     if model.notificationStatus != .authorized {
@@ -73,7 +73,7 @@ struct SettingsView: View {
                 .animation(Theme.state, value: strictSendFailed)
 
                 SectionLabel(text: Copy.Settings.sectionApplication)
-                    .geistGroupGutter()
+                    .geistGutter()
 
                 GeistGroup {
                     SegmentedRow(
@@ -153,7 +153,7 @@ struct SettingsView: View {
                 }
 
                 SectionLabel(text: Copy.Settings.sectionAbout)
-                    .geistGroupGutter()
+                    .geistGutter()
 
                 GeistGroup {
                     #if os(macOS)
@@ -211,7 +211,7 @@ struct SettingsView: View {
                 }
 
                 SectionLabel(text: Copy.Settings.sectionSupport)
-                    .geistGroupGutter()
+                    .geistGutter()
 
                 GeistGroup {
                     Link(destination: URL(string: "mailto:report@notifi.it")!) {

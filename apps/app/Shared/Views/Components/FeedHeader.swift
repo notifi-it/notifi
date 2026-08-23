@@ -2,7 +2,7 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-struct FeedHeader<Trailing: View>: View {
+struct FeedHeader<Trailing: View, Accessory: View>: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
     @Query(sort: \Message.createdAt, order: .reverse) private var messages: [Message]
@@ -10,6 +10,7 @@ struct FeedHeader<Trailing: View>: View {
     var subtitle: Text? = nil
     @Binding var filterKeyID: Int?
     @ViewBuilder var trailing: () -> Trailing
+    @ViewBuilder var accessory: () -> Accessory
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -21,17 +22,18 @@ struct FeedHeader<Trailing: View>: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .frame(height: Theme.headerBarHeight, alignment: .leading)
-                if let subtitle {
-                    subtitle
-                        .font(Theme.meta)
-                        .foregroundColor(Theme.muted)
-                        .lineLimit(1)
-                } else {
-                    Text(verbatim: " ")
-                        .font(Theme.meta)
-                        .hidden()
-                        .accessibilityHidden(true)
+                ZStack(alignment: .leading) {
+                    Color.clear.frame(width: 0, height: Theme.headerSubtitleHeight)
+                    if let subtitle {
+                        subtitle
+                            .font(Theme.meta)
+                            .foregroundColor(Theme.muted)
+                            .lineLimit(1)
+                    } else {
+                        accessory().fixedSize()
+                    }
                 }
+                .frame(height: Theme.headerSubtitleHeight, alignment: .leading)
             }
             Spacer(minLength: 8)
             HStack(spacing: Theme.headerActionSpacing) {
@@ -110,8 +112,14 @@ struct FeedHeader<Trailing: View>: View {
     }
 }
 
-extension FeedHeader where Trailing == EmptyView {
+extension FeedHeader where Trailing == EmptyView, Accessory == EmptyView {
     init(subtitle: Text? = nil, filterKeyID: Binding<Int?>) {
-        self.init(subtitle: subtitle, filterKeyID: filterKeyID) { EmptyView() }
+        self.init(subtitle: subtitle, filterKeyID: filterKeyID, trailing: { EmptyView() }, accessory: { EmptyView() })
+    }
+}
+
+extension FeedHeader where Accessory == EmptyView {
+    init(subtitle: Text? = nil, filterKeyID: Binding<Int?>, @ViewBuilder trailing: @escaping () -> Trailing) {
+        self.init(subtitle: subtitle, filterKeyID: filterKeyID, trailing: trailing, accessory: { EmptyView() })
     }
 }

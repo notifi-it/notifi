@@ -228,7 +228,6 @@ enum Copy {
         static var sendTest: String { NSLocalizedString("empty.sendTest", comment: "") }
         static var sending: String { NSLocalizedString("empty.sending", comment: "") }
         static var sent: String { NSLocalizedString("empty.sent", comment: "") }
-        static var sentDetail: String { NSLocalizedString("empty.sentDetail", comment: "") }
         static var sendFailed: String { NSLocalizedString("empty.sendFailed", comment: "") }
         static var makingKey: String { NSLocalizedString("empty.makingKey", comment: "") }
         static var makeKeyFailed: String { NSLocalizedString("empty.makeKeyFailed", comment: "") }

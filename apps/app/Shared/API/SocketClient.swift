@@ -58,6 +58,7 @@ final class SocketClient {
     private static let silenceLimit: TimeInterval = 100
 
     private func connectAndListen() async {
+        var sawFrame = false
         do {
             let request = try api.socketRequest()
             let socket = URLSession.shared.webSocketTask(with: request)
@@ -65,8 +66,7 @@ final class SocketClient {
             socket.resume()
 
             await onWake(nil)
-            attempt = 0
-            enter(.connected)
+            try? await socket.send(.string("ping"))
 
             var lastInbound = Date()
             let heartbeat = Task { [weak self] in
@@ -86,6 +86,11 @@ final class SocketClient {
             while !Task.isCancelled {
                 let frame = try await socket.receive()
                 lastInbound = Date()
+                if !sawFrame {
+                    sawFrame = true
+                    attempt = 0
+                    enter(.connected)
+                }
                 if case .string("pong") = frame { continue }
                 var unpushed: Int?
                 if case .string(let text) = frame,
@@ -100,7 +105,7 @@ final class SocketClient {
         }
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
-        if !Task.isCancelled { enter(.failed) }
+        if !Task.isCancelled, !sawFrame { enter(.failed) }
     }
 
     private func backOff() async {

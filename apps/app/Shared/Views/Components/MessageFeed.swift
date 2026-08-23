@@ -30,7 +30,7 @@ struct MessageFeed<Empty: View>: View {
                 BandHeader(title: DayBand.title(for: band.day, now: now),
                            count: band.messages.count,
                            isFirst: band.id == banded.first?.id)
-                    .padding(.horizontal, 18)
+                    .geistGutter()
                     .plainRow()
 
                 ForEach(Array(band.messages.enumerated()),
@@ -59,7 +59,7 @@ struct MessageFeed<Empty: View>: View {
         #if os(macOS)
         .contentMargins(.bottom, Theme.bottomPlate, for: .scrollContent)
         #endif
-        .contentMargins(.top, Theme.contentTop, for: .scrollContent)
+        .contentMargins(.top, Theme.listContentTop, for: .scrollContent)
         .geistTopFade()
         .background(Color.clear)
         .scrollDismissesKeyboard(.immediately)
