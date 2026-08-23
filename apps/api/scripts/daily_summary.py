@@ -120,6 +120,44 @@ def site_traffic():
     return window(1, 2), window(1, 8), window(8, 15)
 
 
+def measured_humans():
+    def clause(alias, start, end):
+        return (
+            '%s: rumPageloadEventsAdaptiveGroups(limit: 1, filter:'
+            ' {siteTag: "%s", date_geq: "%s", date_leq: "%s"})'
+            " { sum { visits } }"
+        ) % (
+            alias,
+            os.environ["CF_RUM_SITE_TAG"],
+            (datetime.now(timezone.utc) - timedelta(days=start)).strftime("%Y-%m-%d"),
+            (datetime.now(timezone.utc) - timedelta(days=end)).strftime("%Y-%m-%d"),
+        )
+
+    query = '{ viewer { accounts(filter: {accountTag: "%s"}) { %s %s %s } } }' % (
+        os.environ["CLOUDFLARE_ACCOUNT_ID"],
+        clause("yesterday", 1, 1),
+        clause("week", 7, 1),
+        clause("prior", 14, 8),
+    )
+    res = SESSION.post(
+        CF_GRAPHQL,
+        headers={"Authorization": f"Bearer {os.environ['CLOUDFLARE_API_TOKEN']}"},
+        json={"query": query},
+        timeout=30,
+    )
+    res.raise_for_status()
+    body = res.json()
+    if body.get("errors"):
+        raise SystemExit(f"web analytics failed: {body['errors'][0]['message']}")
+    account = body["data"]["viewer"]["accounts"][0]
+
+    def visits(alias):
+        groups = account[alias]
+        return groups[0]["sum"]["visits"] if groups else 0
+
+    return visits("yesterday"), visits("week"), visits("prior")
+
+
 def week_on_week(now, before, percent_floor=10):
     if before >= percent_floor:
         return f"{'+' if now >= before else ''}{round((now - before) / before * 100)}%"
@@ -167,6 +205,7 @@ def compose_notification():
         " WHERE revoked_at IS NULL AND last_used_at >= unixepoch()-604800"
     )
     (site_yday_u, site_yday_v), (site_wk_u, site_wk_v), (site_prior_u, _) = site_traffic()
+    humans_yday, humans_wk, humans_prior = measured_humans()
 
     comparable = (
         history["oldest"] is not None and history["oldest"] <= int(time.time()) - 2 * WEEK
@@ -188,14 +227,14 @@ def compose_notification():
         f"- Sends **{day['sends']}** from {senders(day['senders'])}",
         f"- Downloads **{downloads_yesterday}**",
         f"- Devices **+{devices['day']}**",
-        f"- Site **{site_yday_u}** visitors · {site_yday_v} page loads incl. bots",
+        f"- Site **{humans_yday}** measured humans · {site_yday_u} IPs · {site_yday_v} loads",
         "",
         "**This week**",
         sends_week,
         f"- Downloads **{downloads_week}**"
         f" ({week_on_week(downloads_week, downloads_prior)} vs prior 7d)",
-        f"- Site **{site_wk_u}** visitors ({week_on_week(site_wk_u, site_prior_u)} vs prior 7d)"
-        f" · {site_wk_v} page loads incl. bots",
+        f"- Site **{humans_wk}** measured humans ({week_on_week(humans_wk, humans_prior)} vs prior 7d)"
+        f" · {site_wk_u} IPs · {site_wk_v} loads",
         f"- Devices **+{devices['week']}** · {devices['total']} total",
         f"- Active keys **{active_keys['n']}**",
         f"- Reviews **+{reviews['week']}** · {reviews['total']} total",
