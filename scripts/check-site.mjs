@@ -15,7 +15,7 @@ if (/^https:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(base)) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 }
 
-const PAGES = ["/", "/about", "/contact", "/docs", "/faq", "/privacy", "/terms"];
+const PAGES = ["/", "/docs", "/faq", "/privacy", "/terms"];
 const MARKDOWN = "text/markdown";
 
 let failures = 0;

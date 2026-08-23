@@ -324,24 +324,6 @@ nav a:hover{color:var(--fg)}
 .tab[aria-selected="true"] .tab-i{opacity:.75}
 /* /gen:termcss */
 
-/* The key bar is filled in from the URL fragment after the page has painted, so
-   it cannot be rendered up front — it arrives above the tabs and pushes the
-   whole code block down. Uncollapsing a grid row animates that height without
-   anyone having to measure it. `hidden` still does the real hiding, so a visitor
-   without a key gets no empty landmark; the class only runs the reveal.
-
-   minmax(0,…) rather than a bare 0fr: an fr track keeps an automatic minimum
-   sized to its content, so 0fr alone left the terminal's title bar standing at
-   42px instead of collapsing. */
-#keybar-slot{
-  display:grid;grid-template-rows:minmax(0,0fr);opacity:0;
-  transition:grid-template-rows var(--dur-reveal) var(--ease-out),
-             opacity var(--dur-state) var(--ease-out),
-             margin-bottom var(--dur-reveal) var(--ease-out);
-}
-#keybar-slot>*{min-height:0;overflow:hidden}
-#keybar-slot.is-open{grid-template-rows:minmax(0,1fr);opacity:1;margin-bottom:22px}
-
 /* ── generic section ────────────────────────────────────────── */
 section{padding:clamp(48px,7vw,86px) 0}
 .section-alt{border-top:1px solid var(--line)}
@@ -746,8 +728,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .btn:active{transform:none}
-  /* The row snaps to its height; only the fade is left to carry the arrival. */
-  #keybar-slot{transition:opacity var(--dur-state) var(--ease-out)}
 }
 </style>
 
@@ -775,7 +755,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           "@type": "ContactPoint",
           "contactType": "customer support",
           "email": "hello@notifi.it",
-          "url": "https://notifi.it/contact",
           "availableLanguage": [
             "en"
           ]
@@ -995,7 +974,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <!-- gf:html:start -->
       <div class="gf-stage">
         <div class="gf-head gf-hd0"><div class="gf-l1">Get a push notification to your device</div><div class="gf-l2">from anything that can make an HTTP request.</div></div>
-      <div class="gf-head gf-hd1"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own address.</div></div>
+      <div class="gf-head gf-hd1"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own key.</div></div>
       <div class="gf-head gf-hd2"><div class="gf-l1">No signup, no SDK.</div><div class="gf-l2">Install the app, copy your key, start sending.</div></div>
         <div class="gf-term">
           <div class="gf-bar"><i></i><i></i><i></i><span class="gf-title gf-ti0">claude — ~/notifi</span><span class="gf-title gf-ti1">run.sh — -zsh</span><span class="gf-title gf-ti2">ci.yml — -zsh</span></div>
@@ -1172,20 +1151,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p class="lede" style="margin-top:14px;margin-bottom:26px">
       Copy one and put your key in it. Anything that can make an HTTP request can send.
     </p>
-
-    <!-- Filled in only when the page is opened with a key in the URL fragment
-         (#key=…). The fragment never leaves the browser, so the key is never
-         sent to the server or written to any edge log. -->
-    <div id="keybar-slot">
-      <div class="term" id="keybar" hidden>
-        <div class="term-bar">
-          <span class="dot3"><i></i><i></i><i></i></span>
-          <span class="term-title">your key</span>
-          <button class="copy" id="copykey" aria-label="Copy the export line for your key">Copy</button>
-        </div>
-<pre><span class="p">$</span> export NOTIFI_KEY=<span class="k" id="keyval"></span></pre>
-      </div>
-    </div>
 
     <!-- Seven, and they fit on one line. Twelve wrapped to three rows of chips,
          which is a lot of furniture above a block only one of them can fill —
@@ -1657,13 +1622,12 @@ spec:
   <!-- The sticky header already carries the navigation, so the footer holds
        only what is not up there — and never a link to the page you are on. -->
   <div class="wrap foot">
-    <a href="/about">About</a>
     <a href="/docs">Docs</a>
     <a href="/faq">FAQ</a>
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
     <a href="/llms.txt">llms.txt</a>
-    <a href="/contact">Contact</a>
+    <a href="mailto:hello@notifi.it">hello@notifi.it</a>
     <a href="https://github.com/notifi-it/notifi">GitHub</a>
     <a href="https://x.com/notifiit" rel="me">X</a>
     <a href="https://instagram.com/notifidotit" rel="me">Instagram</a>
@@ -1795,20 +1759,6 @@ document.querySelectorAll('.tabs').forEach(list => {
   document.querySelectorAll('[data-copy]').forEach(el => {
     el.dataset.copy = slots.reduce((s, slot) => s.split(slot).join(key), el.dataset.copy);
   });
-
-  const bar = document.getElementById('keybar');
-  const slot = document.getElementById('keybar-slot');
-  document.getElementById('keyval').textContent = key;
-  bar.hidden = false;
-  // Reading a layout property flushes the collapsed state, so the class that
-  // follows has something to transition from. Deliberately not requestAnimation-
-  // Frame: rAF does not run in a background tab, and this page is usually opened
-  // from a link on the phone — the bar would have sat at zero height with the
-  // key in it until the tab was looked at.
-  void slot.offsetHeight;
-  slot.classList.add('is-open');
-  document.getElementById('copykey')
-    .addEventListener('click', e => notifiCopy(e.currentTarget, 'export NOTIFI_KEY=' + key));
 })();
 </script>
 

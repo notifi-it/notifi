@@ -27,12 +27,12 @@ export const it: Translation = {
   'api.criticalNotAllowed':
     'Inviata come notifica normale: gli avvisi critici sono disattivati per questa chiave.',
   'api.titleCropped': 'Inviata con un titolo abbreviato: superava {max} caratteri.',
-  'api.messageCropped': 'Inviata con un messaggio abbreviato: superava {max} caratteri.',
+  'api.messageCropped': 'Inviata con una notifica abbreviata: superava {max} caratteri.',
   'api.imageRejected': "Inviata senza l'immagine: non è un indirizzo che recuperiamo.",
   'api.imageUnreachable':
     "Inviata senza l'immagine: non ha risposto con un PNG, JPEG o GIF sotto i 5 MB.",
   'api.strictContentRejected':
-    'Non inviata. Questo dispositivo è impostato per rifiutare un messaggio che non può consegnare così com\'è scritto.',
+    'Non inviata. Questo dispositivo è impostato per rifiutare una notifica che non può consegnare così com\'è scritta.',
 
 
   'push.fallbackTitle': 'notifi',
@@ -82,7 +82,7 @@ export const it: Translation = {
   'inbox.refresh': 'Aggiorna',
   'inbox.more': 'Altro',
   'inbox.copyTitle': 'Copia titolo',
-  'inbox.copyMessage': 'Copia messaggio',
+  'inbox.copyMessage': 'Copia notifica',
   'inbox.copyLink': 'Copia link',
   'inbox.seedSampleData': 'Genera dati di esempio',
   'inbox.clearSampleData': 'Cancella dati di esempio',
@@ -102,7 +102,7 @@ export const it: Translation = {
   'search.matches': { one: '1 risultato', other: '{n} risultati' },
   'search.recent': 'Recenti',
 
-  'message.notFound': 'Messaggio non trovato',
+  'message.notFound': 'Notifica non trovata',
   'message.notFoundDetail': 'Potrebbe essere stato eliminato su questo dispositivo.',
   'message.downloadImage': 'Scarica immagine',
   'message.keyFallbackName': 'Chiave {id}',
@@ -124,7 +124,7 @@ export const it: Translation = {
   'keys.sectionActive': 'Attive',
   'keys.sectionRevoked': 'Revocate',
   'keys.intro':
-    'Le chiavi identificano chi ha inviato un messaggio. Usa una chiave diversa per ogni script. ' +
+    'Le chiavi identificano chi ha inviato una notifica. Usa una chiave diversa per ogni script. ' +
     'La chiave predefinita è stata creata quando questo dispositivo è stato configurato.',
   'keys.aboutKeys': 'Informazioni sulle chiavi',
   'keys.sent': { one: '1 inviata', other: '{n} inviate' },
@@ -255,12 +255,12 @@ export const it: Translation = {
 
   'settings.loadImages': 'Carica le immagini automaticamente',
   'settings.loadImagesDetail':
-    'Recupera ogni immagine all\'arrivo del messaggio, il che comunica al suo host il tuo indirizzo IP. ' +
+    'Recupera ogni immagine all\'arrivo della notifica, il che comunica al suo host il tuo indirizzo IP. ' +
     'Disattivato, le immagini si caricano solo quando vengono toccate.',
 
   'settings.strictSend': 'Rifiuta invii non validi',
   'settings.strictSendDetail':
-    'Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un messaggio supera la ' +
+    'Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un corpo supera la ' +
     'lunghezza consentita o l\'URL di un\'immagine non supera la convalida. Disattivato, /send abbrevia o ' +
     'scarta il campo e restituisce 202 con un array di warnings.',
   'settings.strictSendFailed': 'PATCH /devices/settings non riuscito. Controlla la connessione e riprova.',
@@ -321,7 +321,7 @@ export const it: Translation = {
   'identity.title': 'Impossibile sbloccare notifi',
   'identity.detail':
     'notifi non è riuscito a leggere la sua chiave di identità dal portachiavi. Di solito si risolve una volta che il ' +
-    'dispositivo è stato sbloccato. I tuoi messaggi e le chiavi di invio non sono interessati.',
+    'dispositivo è stato sbloccato. Le tue notifiche e le chiavi di invio non sono interessate.',
 
   'unsupported.title': 'Mac non supportato',
   'unsupported.detail':
@@ -330,7 +330,7 @@ export const it: Translation = {
 
   'restore.title': 'Sembra un dispositivo nuovo',
   'restore.detail':
-    'I tuoi vecchi messaggi sono stati ripristinati da un backup, ma le tue chiavi no. Le chiavi sono legate al ' +
+    'Le tue vecchie notifiche sono state ripristinate da un backup, ma le tue chiavi no. Le chiavi sono legate al ' +
     'dispositivo su cui sono state create e non possono essere spostate. Qualsiasi invio ancora effettuato verso le tue vecchie chiavi ' +
     'verrà ora rifiutato. Crea nuove chiavi per continuare a ricevere notifiche.',
 
@@ -346,23 +346,23 @@ export const it: Translation = {
   'store.subtitle': 'Per script e server',
   'store.promotionalText':
     'Una richiesta HTTP e la notifica arriva sul tuo iPhone o Mac. Cifrato con la tua chiave ' +
-    'pubblica: non possiamo leggere i tuoi messaggi. Niente account, niente SDK.',
+    'pubblica: non possiamo leggere le tue notifiche. Niente account, niente SDK.',
   'store.keywords':
     'webhook,api,avvisare,allerta,auto,ospitato,cron,curl,cli,devops,homelab,ssh,docker,' +
     'monitor',
   'store.description':
     'Notifiche push per i tuoi script e server.\n\n' +
-    'Crea una chiave di invio e manda un titolo e un messaggio a notifi.it in un\'unica richiesta ' +
+    'Crea una chiave di invio e manda un titolo e un corpo a notifi.it in un\'unica richiesta ' +
     'HTTP. La notifica arriva sul tuo iPhone o Mac. Qualsiasi cosa possa fare una richiesta HTTP ' +
     'può inviarne una, ad esempio uno script di shell, un cron job, una pipeline CI.\n\n' +
     'https://notifi.it/send?title=hello+world\n\n' +
-    'COSA CONTIENE UN MESSAGGIO\n' +
+    'COSA CONTIENE UNA NOTIFICA\n' +
     'Un titolo, un corpo, un\'immagine e un link. Il corpo è Markdown: titoli, elenchi, ' +
     'citazioni, link e blocchi di codice vengono visualizzati sul dispositivo.\n\n' +
     'CIFRATO\n' +
-    'Il tuo dispositivo detiene l\'unica chiave privata. Il contenuto dei messaggi è cifrato con ' +
-    'la tua chiave pubblica all\'ingresso, così non possiamo leggere i tuoi messaggi. Ogni ' +
-    'messaggio viene eliminato dal server una volta che il tuo dispositivo lo conferma.\n\n' +
+    'Il tuo dispositivo detiene l\'unica chiave privata. Il contenuto delle notifiche è cifrato con ' +
+    'la tua chiave pubblica all\'ingresso, così non possiamo leggere le tue notifiche. Ogni ' +
+    'notifica viene eliminata dal server una volta che il tuo dispositivo la conferma.\n\n' +
     'NIENTE ACCOUNT\n' +
     'Niente registrazione, niente accesso, nessun collegamento del dispositivo. L\'app genera una ' +
     'chiave di invio al primo avvio. Le chiavi possono essere rinominate, sospese e revocate per ' +
@@ -381,7 +381,7 @@ export const it: Translation = {
   'store.shotMessageBody':
     'Un titolo, un corpo, un\'immagine e un link. Titoli, elenchi, citazioni e blocchi di codice ' +
     'sono renderizzati sul dispositivo. Cifrato con la tua chiave pubblica, quindi non possiamo ' +
-    'leggere i tuoi messaggi.',
+    'leggere le tue notifiche.',
   'store.shotKeysTitle': 'Una chiave\nper fonte.',
   'store.shotKeysBody':
     'Dai al bot di deploy una chiave e al campanello un\'altra. Revocane una e le altre ' +

@@ -27,12 +27,12 @@ export const de: Translation = {
   'api.criticalNotAllowed':
     'Als normale Benachrichtigung gesendet: Kritische Benachrichtigungen sind für diesen Schlüssel deaktiviert.',
   'api.titleCropped': 'Mit gekürztem Titel gesendet: Er war länger als {max} Zeichen.',
-  'api.messageCropped': 'Mit gekürzter Nachricht gesendet: Sie war länger als {max} Zeichen.',
+  'api.messageCropped': 'Mit gekürzter Benachrichtigung gesendet: Sie war länger als {max} Zeichen.',
   'api.imageRejected': 'Ohne Bild gesendet: Diese Adresse rufen wir nicht ab.',
   'api.imageUnreachable':
     'Ohne Bild gesendet: Es kam keine Antwort als PNG, JPEG oder GIF unter 5 MB.',
   'api.strictContentRejected':
-    'Nicht gesendet. Dieses Gerät ist so eingestellt, dass es eine nicht wie geschrieben zustellbare Nachricht ablehnt.',
+    'Nicht gesendet. Dieses Gerät ist so eingestellt, dass es eine nicht wie geschrieben zustellbare Benachrichtigung ablehnt.',
 
 
   'store.name': 'notifi: Benachrichtigungen',
@@ -46,18 +46,18 @@ export const de: Translation = {
     'überwachung',
   'store.description':
     'Push-Benachrichtigungen für deine Skripte und Server.\n\n' +
-    'Erstelle einen Sendeschlüssel und schicke einen Titel und eine Nachricht in einer ' +
+    'Erstelle einen Sendeschlüssel und schicke einen Titel und einen Text in einer ' +
     'HTTP-Anfrage an notifi.it. Die Benachrichtigung landet auf deinem iPhone oder Mac. ' +
     'Alles, was eine HTTP-Anfrage stellen kann, kann eine senden, z. B. ein Shell-Skript, ' +
     'ein Cron-Job, eine CI-Pipeline.\n\n' +
     'https://notifi.it/send?title=hello+world\n\n' +
-    'WAS EINE NACHRICHT ENTHÄLT\n' +
+    'WAS EINE BENACHRICHTIGUNG ENTHÄLT\n' +
     'Einen Titel, einen Text, ein Bild und einen Link. Der Text ist Markdown: Überschriften, ' +
     'Listen, Zitate, Links und Codeblöcke werden auf dem Gerät dargestellt.\n\n' +
     'VERSCHLÜSSELT\n' +
-    'Nur dein Gerät besitzt den privaten Schlüssel. Der Nachrichteninhalt wird beim ' +
+    'Nur dein Gerät besitzt den privaten Schlüssel. Der Inhalt der Benachrichtigungen wird beim ' +
     'Empfang mit deinem öffentlichen Schlüssel verschlüsselt, sodass wir deine ' +
-    'Nachrichten nicht lesen können. Jede Nachricht wird vom Server gelöscht, sobald ' +
+    'Benachrichtigungen nicht lesen können. Jede Benachrichtigung wird vom Server gelöscht, sobald ' +
     'dein Gerät sie bestätigt hat.\n\n' +
     'KEINE ACCOUNTS\n' +
     'Keine Anmeldung, kein Login, keine Geräteverknüpfung. Die App erstellt beim ersten ' +
@@ -78,7 +78,7 @@ export const de: Translation = {
   'store.shotMessageBody':
     'Ein Titel, ein Text, ein Bild und ein Link. Überschriften, Listen, Zitate und ' +
     'Code-Blöcke werden auf dem Gerät gerendert. Mit deinem öffentlichen Schlüssel ' +
-    'verschlüsselt, sodass wir deine Nachrichten nicht lesen können.',
+    'verschlüsselt, sodass wir deine Benachrichtigungen nicht lesen können.',
   'store.shotKeysTitle': 'Ein Schlüssel\npro Quelle.',
   'store.shotKeysBody':
     'Gib dem Deploy-Bot einen Schlüssel und der Türklingel einen anderen. Widerrufe ' +
@@ -132,7 +132,7 @@ export const de: Translation = {
   'inbox.refresh': 'Aktualisieren',
   'inbox.more': 'Mehr',
   'inbox.copyTitle': 'Titel kopieren',
-  'inbox.copyMessage': 'Nachricht kopieren',
+  'inbox.copyMessage': 'Benachrichtigung kopieren',
   'inbox.copyLink': 'Link kopieren',
   'inbox.seedSampleData': 'Beispieldaten erzeugen',
   'inbox.clearSampleData': 'Beispieldaten löschen',
@@ -152,7 +152,7 @@ export const de: Translation = {
   'search.matches': { one: '1 Treffer', other: '{n} Treffer' },
   'search.recent': 'Zuletzt',
 
-  'message.notFound': 'Nachricht nicht gefunden',
+  'message.notFound': 'Benachrichtigung nicht gefunden',
   'message.notFoundDetail': 'Sie wurde möglicherweise auf diesem Gerät gelöscht.',
   'message.downloadImage': 'Bild herunterladen',
   'message.keyFallbackName': 'Schlüssel {id}',
@@ -174,7 +174,7 @@ export const de: Translation = {
   'keys.sectionActive': 'Aktiv',
   'keys.sectionRevoked': 'Widerrufen',
   'keys.intro':
-    'Schlüssel zeigen, wer eine Nachricht gesendet hat. Verwende für jedes Skript einen eigenen Schlüssel. ' +
+    'Schlüssel zeigen, wer eine Benachrichtigung gesendet hat. Verwende für jedes Skript einen eigenen Schlüssel. ' +
     'Der Standardschlüssel wurde bei der Einrichtung dieses Geräts erstellt.',
   'keys.aboutKeys': 'Über Schlüssel',
   'keys.sent': { one: '1 gesendet', other: '{n} gesendet' },
@@ -305,12 +305,12 @@ export const de: Translation = {
 
   'settings.loadImages': 'Bilder automatisch laden',
   'settings.loadImagesDetail':
-    'Ruft jedes Bild ab, sobald die Nachricht ankommt, was dem Host deine IP-Adresse verrät. ' +
+    'Ruft jedes Bild ab, sobald die Benachrichtigung ankommt, was dem Host deine IP-Adresse verrät. ' +
     'Aus, Bilder laden erst bei Antippen.',
 
   'settings.strictSend': 'Ungültige Sendungen ablehnen',
   'settings.strictSendDetail':
-    'Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder eine Nachricht zu lang ist ' +
+    'Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist ' +
     'oder eine Bild-URL die Validierung nicht besteht. Aus, /send kürzt oder verwirft das Feld und ' +
     'gibt 202 mit einem warnings-Array zurück.',
   'settings.strictSendFailed': 'PATCH /devices/settings fehlgeschlagen. Verbindung prüfen und erneut versuchen.',
@@ -371,7 +371,7 @@ export const de: Translation = {
   'identity.title': 'notifi kann nicht entsperrt werden',
   'identity.detail':
     'notifi konnte seinen Identitätsschlüssel nicht aus dem Schlüsselbund lesen. Das behebt sich meist von selbst, sobald das ' +
-    'Gerät entsperrt wurde. Deine Nachrichten und Sendeschlüssel sind davon nicht betroffen.',
+    'Gerät entsperrt wurde. Deine Benachrichtigungen und Sendeschlüssel sind davon nicht betroffen.',
 
   'unsupported.title': 'Nicht unterstützter Mac',
   'unsupported.detail':
@@ -380,7 +380,7 @@ export const de: Translation = {
 
   'restore.title': 'Das sieht nach einem neuen Gerät aus',
   'restore.detail':
-    'Deine alten Nachrichten wurden aus einem Backup wiederhergestellt, deine Schlüssel jedoch nicht. Schlüssel sind an das ' +
+    'Deine alten Benachrichtigungen wurden aus einem Backup wiederhergestellt, deine Schlüssel jedoch nicht. Schlüssel sind an das ' +
     'Gerät gebunden, auf dem sie erstellt wurden, und können nicht übertragen werden. Alles, was noch an deine alten Schlüssel sendet, ' +
     'wird jetzt abgelehnt. Erstelle neue Schlüssel, um weiter Benachrichtigungen zu erhalten.',
 

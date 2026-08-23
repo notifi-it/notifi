@@ -12,7 +12,7 @@ curl "https://notifi.it/send?key=nk_…&title=hello+world"
 ```
 
 No accounts. No sign-in. No device linking. The device holds the only private key,
-notification content is sealed to that key at ingest so the server cannot read it, and
+notification content is encrypted with that key at ingest so the server cannot read it, and
 each notification is deleted once the device acknowledges it. It is a relay, not a
 mailbox.
 
@@ -36,8 +36,8 @@ zero-dependency SwiftUI client for iOS 17+ and macOS 14+.
 - **[Postman collection](https://notifi.it/notifi.postman_collection.json)** —
   v2.1, which Bruno, Insomnia and Hoppscotch import as well; the
   **[.bru file](https://notifi.it/notifi.bru)** is there for Bruno directly.
-- **[FAQ](https://notifi.it/faq)**, **[about](https://notifi.it/about)**,
-  **[contact](https://notifi.it/contact)**, **[privacy](https://notifi.it/privacy)**
+- **[FAQ](https://notifi.it/faq)**,
+  **[privacy](https://notifi.it/privacy)**
   and **[terms](https://notifi.it/terms)**.
 
 Every page of notifi.it is also served as Markdown: send `Accept: text/markdown`

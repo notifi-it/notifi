@@ -27,12 +27,12 @@ export const fr: Translation = {
   'api.criticalNotAllowed':
     'Envoyée comme notification normale : les alertes critiques sont désactivées pour cette clé.',
   'api.titleCropped': 'Envoyé avec un titre raccourci : il dépassait {max} caractères.',
-  'api.messageCropped': 'Envoyé avec un message raccourci : il dépassait {max} caractères.',
+  'api.messageCropped': 'Envoyé avec une notification raccourcie : elle dépassait {max} caractères.',
   'api.imageRejected': "Envoyé sans l'image : cette adresse ne sera pas récupérée.",
   'api.imageUnreachable':
     "Envoyé sans l'image : elle n'a pas répondu avec un PNG, JPEG ou GIF de moins de 5 Mo.",
   'api.strictContentRejected':
-    "Non envoyé. Cet appareil est configuré pour refuser un message qu'il ne peut pas livrer tel quel.",
+    "Non envoyé. Cet appareil est configuré pour refuser une notification qu'il ne peut pas livrer telle quelle.",
 
 
   'push.fallbackTitle': 'notifi',
@@ -83,7 +83,7 @@ export const fr: Translation = {
   'inbox.refresh': 'Actualiser',
   'inbox.more': 'Plus',
   'inbox.copyTitle': 'Copier le titre',
-  'inbox.copyMessage': 'Copier le message',
+  'inbox.copyMessage': 'Copier la notification',
   'inbox.copyLink': 'Copier le lien',
   'inbox.seedSampleData': "Générer des données d'exemple",
   'inbox.clearSampleData': "Effacer les données d'exemple",
@@ -103,8 +103,8 @@ export const fr: Translation = {
   'search.matches': { one: '1 résultat', other: '{n} résultats' },
   'search.recent': 'Récents',
 
-  'message.notFound': 'Message introuvable',
-  'message.notFoundDetail': 'Il a peut-être été supprimé sur cet appareil.',
+  'message.notFound': 'Notification introuvable',
+  'message.notFoundDetail': 'Elle a peut-être été supprimée sur cet appareil.',
   'message.downloadImage': "Télécharger l'image",
   'message.keyFallbackName': 'Clé {id}',
   'message.sentWithKey': 'Envoyé avec la clé {name}',
@@ -125,7 +125,7 @@ export const fr: Translation = {
   'keys.sectionActive': 'Actives',
   'keys.sectionRevoked': 'Révoquées',
   'keys.intro':
-    'Les clés identifient qui a envoyé un message. Utilisez une clé différente pour chaque script. ' +
+    'Les clés identifient qui a envoyé une notification. Utilisez une clé différente pour chaque script. ' +
     'La clé par défaut a été créée lors de la configuration de cet appareil.',
   'keys.aboutKeys': 'À propos des clés',
   'keys.sent': { one: '1 envoi', other: '{n} envois' },
@@ -258,12 +258,12 @@ export const fr: Translation = {
 
   'settings.loadImages': 'Charger les images automatiquement',
   'settings.loadImagesDetail':
-    "Récupère chaque image dès l'arrivée du message, ce qui révèle votre adresse IP à son " +
+    "Récupère chaque image dès l'arrivée de la notification, ce qui révèle votre adresse IP à son " +
     "hôte. Désactivé, les images ne se chargent qu'au toucher.",
 
   'settings.strictSend': 'Rejeter les envois invalides',
   'settings.strictSendDetail':
-    "Renvoie 422 invalid_content et ne stocke rien lorsqu'un titre ou un message dépasse la " +
+    "Renvoie 422 invalid_content et ne stocke rien lorsqu'un titre ou un corps dépasse la " +
     "longueur autorisée ou qu'une URL d'image échoue à la validation. Désactivé, /send " +
     "raccourcit ou supprime le champ et renvoie 202 avec un tableau warnings.",
   'settings.strictSendFailed': 'Échec de PATCH /devices/settings. Vérifiez votre connexion et réessayez.',
@@ -326,7 +326,7 @@ export const fr: Translation = {
   'identity.title': 'Impossible de déverrouiller notifi',
   'identity.detail':
     "notifi n'a pas pu lire sa clé d'identité dans le trousseau. Cela se résout généralement " +
-    "une fois l'appareil déverrouillé. Vos messages et clés d'envoi ne sont pas affectés.",
+    "une fois l'appareil déverrouillé. Vos notifications et clés d'envoi ne sont pas affectées.",
 
   'unsupported.title': 'Mac non pris en charge',
   'unsupported.detail':
@@ -337,24 +337,24 @@ export const fr: Translation = {
   'store.subtitle': 'Pour scripts et serveurs',
   'store.promotionalText':
     'Une requête HTTP, et la notification arrive sur votre iPhone ou Mac. Chiffré avec ' +
-    'votre clé publique — nous ne pouvons pas lire vos messages. Pas de compte, pas de SDK.',
+    'votre clé publique — nous ne pouvons pas la lire. Pas de compte, pas de SDK.',
   'store.keywords':
     'webhook,api,avertir,alerte,auto,hébergé,cron,curl,cli,devops,homelab,ssh,docker,' +
     'monitor',
   'store.description':
     'Notifications push pour vos scripts et serveurs.\n\n' +
-    "Créez une clé d'envoi et envoyez un titre et un message à notifi.it en une seule " +
+    "Créez une clé d'envoi et envoyez un titre et un corps à notifi.it en une seule " +
     'requête HTTP. La notification arrive sur votre iPhone ou Mac. Tout ce qui peut faire ' +
     'une requête HTTP peut en envoyer une, par exemple un script shell, une tâche cron, un ' +
     'pipeline CI.\n\n' +
     'https://notifi.it/send?title=hello+world\n\n' +
-    "CE QUE CONTIENT UN MESSAGE\n" +
+    "CE QUE CONTIENT UNE NOTIFICATION\n" +
     'Un titre, un corps, une image et un lien. Le corps est en Markdown : titres, listes, ' +
     "citations, liens et blocs de code sont rendus sur l'appareil.\n\n" +
     'CHIFFRÉ\n' +
-    'Votre appareil détient la seule clé privée. Le contenu des messages est chiffré avec ' +
-    "votre clé publique à l'ingestion, si bien que nous ne pouvons pas lire vos messages. " +
-    "Chaque message est supprimé du serveur une fois que votre appareil l'a confirmé.\n\n" +
+    'Votre appareil détient la seule clé privée. Le contenu des notifications est chiffré avec ' +
+    "votre clé publique à l'ingestion, si bien que nous ne pouvons pas lire vos notifications. " +
+    "Chaque notification est supprimée du serveur une fois que votre appareil l'a confirmée.\n\n" +
     'PAS DE COMPTE\n' +
     "Pas d'inscription, pas de connexion, pas de liaison d'appareil. L'application génère " +
     "une clé d'envoi au premier lancement. Les clés peuvent être renommées, suspendues et " +
@@ -373,7 +373,7 @@ export const fr: Translation = {
   'store.shotMessageBody':
     'Un titre, un corps, une image et un lien. Titres, listes, citations et blocs de code ' +
     'sont rendus sur l\'appareil. Chiffré avec votre clé publique, nous ne pouvons donc pas ' +
-    'lire vos messages.',
+    'lire vos notifications.',
   'store.shotKeysTitle': 'Une clé\npar source.',
   'store.shotKeysBody':
     "Donnez une clé au bot de déploiement et une autre à la sonnette. Révoquez-en une, les " +
@@ -382,7 +382,7 @@ export const fr: Translation = {
 
   'restore.title': 'Cela ressemble à un nouvel appareil',
   'restore.detail':
-    'Vos anciens messages ont été restaurés depuis une sauvegarde, mais pas vos clés. Les ' +
+    'Vos anciennes notifications ont été restaurées depuis une sauvegarde, mais pas vos clés. Les ' +
     "clés sont liées à l'appareil sur lequel elles ont été créées et ne peuvent pas être " +
     "déplacées. Tout ce qui envoie encore vers vos anciennes clés sera désormais rejeté. " +
     'Créez de nouvelles clés pour continuer à recevoir des notifications.',

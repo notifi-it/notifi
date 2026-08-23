@@ -509,7 +509,7 @@ spec:
 
 ## Questions
 
-The [FAQ](https://notifi.it/faq) covers cost, limits, what the server can read and what happens when you delete the app. Anything else goes to [contact](https://notifi.it/contact).
+The [FAQ](https://notifi.it/faq) covers cost, limits, what the server can read and what happens when you delete the app. Anything else goes to [hello@notifi.it](mailto:hello@notifi.it).
 
 ---
 
@@ -518,12 +518,11 @@ This page as HTML: https://notifi.it/docs
 ## More from notifi
 
 - [Home](https://notifi.it/)
-- [About](https://notifi.it/about)
 - [FAQ](https://notifi.it/faq)
 - [Privacy](https://notifi.it/privacy)
 - [Terms](https://notifi.it/terms)
 - [llms.txt](https://notifi.it/llms.txt)
-- [Contact](https://notifi.it/contact)
+- [hello@notifi.it](mailto:hello@notifi.it)
 - [GitHub](https://github.com/notifi-it/notifi)
 - [X](https://x.com/notifiit)
 - [Instagram](https://instagram.com/notifidotit)

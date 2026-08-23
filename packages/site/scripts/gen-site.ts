@@ -27,7 +27,7 @@ const terminalJs = read('src', 'terminal.js');
 const pageMdJs = read('src', 'pagemd.js');
 const site = read('src', 'site.js');
 
-const PROSE = ['about', 'contact', 'faq', 'terms', 'privacy'];
+const PROSE = ['faq', 'terms', 'privacy'];
 
 function prose(name: string): Page {
   const parsed = front(read('pages', `${name}.md`));

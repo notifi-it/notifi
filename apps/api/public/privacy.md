@@ -102,12 +102,11 @@ This page as HTML: https://notifi.it/privacy
 ## More from notifi
 
 - [Home](https://notifi.it/)
-- [About](https://notifi.it/about)
 - [Docs](https://notifi.it/docs)
 - [FAQ](https://notifi.it/faq)
 - [Terms](https://notifi.it/terms)
 - [llms.txt](https://notifi.it/llms.txt)
-- [Contact](https://notifi.it/contact)
+- [hello@notifi.it](mailto:hello@notifi.it)
 - [GitHub](https://github.com/notifi-it/notifi)
 - [X](https://x.com/notifiit)
 - [Instagram](https://instagram.com/notifidotit)

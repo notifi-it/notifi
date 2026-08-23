@@ -1,4 +1,4 @@
-import { AUTHOR, GITHUB, ORIGIN, OG_IMAGE, OG_IMAGE_ALT, SOCIAL, THEME_COLOR } from './constants.js';
+import { AUTHOR, EMAIL, GITHUB, ORIGIN, OG_IMAGE, OG_IMAGE_ALT, SOCIAL, THEME_COLOR } from './constants.js';
 
 export interface Link {
   href: string;
@@ -15,13 +15,12 @@ export const NAV: Link[] = [
 
 export const FOOTER: Link[] = [
   { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
   { href: '/docs', label: 'Docs' },
   { href: '/faq', label: 'FAQ' },
   { href: '/privacy', label: 'Privacy' },
   { href: '/terms', label: 'Terms' },
   { href: '/llms.txt', label: 'llms.txt' },
-  { href: '/contact', label: 'Contact' },
+  { href: `mailto:${EMAIL}`, label: EMAIL },
   { href: GITHUB, label: 'GitHub' },
   ...SOCIAL.map((s) => ({ href: s.url, label: s.name, rel: 'me' })),
 ];

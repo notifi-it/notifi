@@ -9,12 +9,10 @@ const MARKDOWN = 'text/markdown';
 const JSON_TYPE = 'application/json';
 const MARKDOWN_TYPE = 'text/markdown; charset=utf-8';
 
-export const PAGES = ['/', '/about', '/contact', '/docs', '/faq', '/privacy', '/terms'];
+export const PAGES = ['/', '/docs', '/faq', '/privacy', '/terms'];
 
 export const PAGE_MARKDOWN = [
   '/index.md',
-  '/about.md',
-  '/contact.md',
   '/docs.md',
   '/faq.md',
   '/privacy.md',

@@ -27,12 +27,12 @@ export const es: Translation = {
   'api.criticalNotAllowed':
     'Enviado como notificación normal: las alertas críticas están desactivadas para esta clave.',
   'api.titleCropped': 'Enviado con un título acortado: superaba los {max} caracteres.',
-  'api.messageCropped': 'Enviado con un mensaje acortado: superaba los {max} caracteres.',
+  'api.messageCropped': 'Enviado con una notificación acortada: superaba los {max} caracteres.',
   'api.imageRejected': 'Enviado sin la imagen: esa no es una dirección que vayamos a obtener.',
   'api.imageUnreachable':
     'Enviado sin la imagen: no respondió con un PNG, JPEG o GIF de menos de 5 MB.',
   'api.strictContentRejected':
-    'No enviado. Este dispositivo está configurado para rechazar un mensaje que no puede entregar tal como está escrito.',
+    'No enviado. Este dispositivo está configurado para rechazar una notificación que no puede entregar tal como está escrita.',
 
 
   'push.fallbackTitle': 'notifi',
@@ -82,7 +82,7 @@ export const es: Translation = {
   'inbox.refresh': 'Actualizar',
   'inbox.more': 'Más',
   'inbox.copyTitle': 'Copiar título',
-  'inbox.copyMessage': 'Copiar mensaje',
+  'inbox.copyMessage': 'Copiar notificación',
   'inbox.copyLink': 'Copiar enlace',
   'inbox.seedSampleData': 'Generar datos de ejemplo',
   'inbox.clearSampleData': 'Borrar datos de ejemplo',
@@ -102,7 +102,7 @@ export const es: Translation = {
   'search.matches': { one: '1 coincidencia', other: '{n} coincidencias' },
   'search.recent': 'Recientes',
 
-  'message.notFound': 'Mensaje no encontrado',
+  'message.notFound': 'Notificación no encontrada',
   'message.notFoundDetail': 'Puede que se haya eliminado en este dispositivo.',
   'message.downloadImage': 'Descargar imagen',
   'message.keyFallbackName': 'Clave {id}',
@@ -124,7 +124,7 @@ export const es: Translation = {
   'keys.sectionActive': 'Activas',
   'keys.sectionRevoked': 'Revocadas',
   'keys.intro':
-    'Las claves identifican quién envió un mensaje. Usa una clave distinta para cada script. ' +
+    'Las claves identifican quién envió una notificación. Usa una clave distinta para cada script. ' +
     'La clave predeterminada se creó al configurar este dispositivo.',
   'keys.aboutKeys': 'Acerca de las claves',
   'keys.sent': { one: '1 enviada', other: '{n} enviadas' },
@@ -255,12 +255,12 @@ export const es: Translation = {
 
   'settings.loadImages': 'Cargar imágenes automáticamente',
   'settings.loadImagesDetail':
-    'Obtiene cada imagen al llegar el mensaje, lo que informa tu dirección IP a su host. ' +
+    'Obtiene cada imagen al llegar la notificación, lo que informa tu dirección IP a su host. ' +
     'Desactivado, las imágenes solo se cargan al pulsarlas.',
 
   'settings.strictSend': 'Rechazar envíos no válidos',
   'settings.strictSendDetail':
-    'Devuelve 422 invalid_content y no guarda nada cuando un título o mensaje supera la ' +
+    'Devuelve 422 invalid_content y no guarda nada cuando un título o cuerpo supera la ' +
     'longitud o una URL de imagen no pasa la validación. Desactivado, /send recorta o descarta el campo y ' +
     'devuelve 202 con un array de avisos.',
   'settings.strictSendFailed': 'PATCH /devices/settings falló. Comprueba tu conexión e inténtalo de nuevo.',
@@ -321,7 +321,7 @@ export const es: Translation = {
   'identity.title': 'No se puede desbloquear notifi',
   'identity.detail':
     'notifi no pudo leer su clave de identidad del llavero. Esto suele resolverse una vez que el ' +
-    'dispositivo se ha desbloqueado. Tus mensajes y claves de envío no se ven afectados.',
+    'dispositivo se ha desbloqueado. Tus notificaciones y claves de envío no se ven afectadas.',
 
   'unsupported.title': 'Mac no compatible',
   'unsupported.detail':
@@ -330,7 +330,7 @@ export const es: Translation = {
 
   'restore.title': 'Esto parece un dispositivo nuevo',
   'restore.detail':
-    'Tus mensajes antiguos se restauraron desde una copia de seguridad, pero tus claves no. Las claves están ligadas al ' +
+    'Tus notificaciones antiguas se restauraron desde una copia de seguridad, pero tus claves no. Las claves están ligadas al ' +
     'dispositivo en el que se crearon y no se pueden trasladar. Cualquier envío que siga dirigido a tus claves antiguas ' +
     'será rechazado. Crea claves nuevas para seguir recibiendo notificaciones.',
 
@@ -346,22 +346,22 @@ export const es: Translation = {
   'store.subtitle': 'Para scripts y servidores',
   'store.promotionalText':
     'Una solicitud HTTP y la notificación llega a tu iPhone o Mac. Cifrado con tu clave pública: ' +
-    'no podemos leer tus mensajes. Sin cuentas, sin SDK.',
+    'no podemos leer tus notificaciones. Sin cuentas, sin SDK.',
   'store.keywords':
     'webhook,api,avisar,alerta,auto,alojado,cron,curl,cli,devops,homelab,ssh,docker,' +
     'monitor',
   'store.description':
     'Notificaciones push para tus scripts y servidores.\n\n' +
-    'Crea una clave de envío y manda un título y un mensaje a notifi.it en una solicitud HTTP. ' +
+    'Crea una clave de envío y manda un título y un cuerpo a notifi.it en una solicitud HTTP. ' +
     'La notificación llega a tu iPhone o Mac. Cualquier cosa que pueda hacer una solicitud HTTP ' +
     'puede enviar una, por ejemplo un script de shell, una tarea cron o un pipeline de CI.\n\n' +
     'https://notifi.it/send?title=hello+world\n\n' +
-    'QUÉ LLEVA UN MENSAJE\n' +
+    'QUÉ LLEVA UNA NOTIFICACIÓN\n' +
     'Un título, un cuerpo, una imagen y un enlace. El cuerpo es Markdown: encabezados, listas, ' +
     'citas, enlaces y bloques de código se muestran en el dispositivo.\n\n' +
     'CIFRADO\n' +
-    'Tu dispositivo guarda la única clave privada. El contenido del mensaje se cifra con tu clave ' +
-    'pública al ingresar, así que no podemos leer tus mensajes. Cada mensaje se elimina del ' +
+    'Tu dispositivo guarda la única clave privada. El contenido de las notificaciones se cifra con tu clave ' +
+    'pública al ingresar, así que no podemos leer tus notificaciones. Cada una se elimina del ' +
     'servidor en cuanto tu dispositivo lo confirma.\n\n' +
     'SIN CUENTAS\n' +
     'Sin registro, sin inicio de sesión, sin vincular dispositivos. La app crea una clave de envío ' +
@@ -379,7 +379,7 @@ export const es: Translation = {
   'store.shotMessageTitle': 'Imágenes, enlaces,\nMarkdown.',
   'store.shotMessageBody':
     'Un título, un cuerpo, una imagen y un enlace. Encabezados, listas, citas y bloques de código ' +
-    'se muestran en el dispositivo. Cifrado con tu clave pública, así que no podemos leer tus mensajes.',
+    'se muestran en el dispositivo. Cifrado con tu clave pública, así que no podemos leer tus notificaciones.',
   'store.shotKeysTitle': 'Una clave\npor fuente.',
   'store.shotKeysBody':
     'Dale al bot de despliegue una clave y al timbre otra. Revoca una y las demás siguen ' +
