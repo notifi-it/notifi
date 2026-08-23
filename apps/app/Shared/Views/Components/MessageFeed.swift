@@ -349,7 +349,7 @@ private struct MessageRow: View {
                 .lineLimit(1)
                 .fixedSize()
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 5) {
                 MonoLine(text: message.title,
                          font: .inco(size: 13.5, weight: isEscalated ? .bold : .regular,
                                      relativeTo: .footnote))
