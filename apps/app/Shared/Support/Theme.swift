@@ -105,8 +105,11 @@ enum Theme {
 
     #if os(macOS)
     static let contentTop: CGFloat = firstBlockTop
+    static let listContentTop: CGFloat = contentTop
     #else
     static let contentTop: CGFloat = topFade + firstBlockTop
+    static let listIntrinsicTopInset: CGFloat = 3
+    static let listContentTop: CGFloat = contentTop - listIntrinsicTopInset
     #endif
 
     static let press = Animation.easeOut(duration: 0.12)
@@ -138,10 +141,6 @@ enum Theme {
 
 extension View {
     func geistGutter() -> some View { padding(.horizontal, Theme.gutter) }
-
-    func geistGroupGutter() -> some View {
-        padding(.horizontal, Theme.groupInset + Theme.gutter)
-    }
 
     func geistBannerTransition() -> some View {
         transition(Theme.reduceMotion
