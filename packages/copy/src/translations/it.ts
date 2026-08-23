@@ -248,7 +248,6 @@ export const it: Translation = {
   'settings.permissionNotSet': 'Non impostata',
   'settings.permissionUnknown': 'Sconosciuta',
 
-  'settings.sectionAppearance': 'Aspetto',
   'settings.theme': 'Tema',
   'settings.themeDark': 'Scuro',
   'settings.themeLight': 'Chiaro',
@@ -268,19 +267,9 @@ export const it: Translation = {
   'settings.testTitle': 'Hello from notifi',
   'settings.testBody': 'La tua prima notifica.',
 
-  'settings.sectionMacApp': 'notifi per Mac',
   'settings.macApp': 'Scarica per Mac',
-  'settings.macAppDetail':
-    'La stessa casella, nella barra dei menu con macOS 14 o successivo. Un download diretto che ' +
-    'si mantiene aggiornato. Ogni chiave consegna al dispositivo che l\'ha creata, quindi una ' +
-    'chiave creata sul Mac fa arrivare lì le notifiche, oltre che qui.',
 
-  'settings.sectionIOSApp': 'notifi per iPhone',
   'settings.iosApp': 'Scarica su App Store',
-  'settings.iosAppDetail':
-    'La stessa casella, su iPhone e iPad con iOS 17 o successivo. Ogni chiave consegna al ' +
-    'dispositivo che l\'ha creata, quindi una chiave creata sul telefono fa arrivare lì le ' +
-    'notifiche, oltre che qui.',
 
   'settings.sectionSupport': 'Assistenza',
   'settings.sectionApplication': 'Applicazione',
