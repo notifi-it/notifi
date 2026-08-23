@@ -149,15 +149,14 @@ struct InboxView: View {
                 #endif
             } accessory: {
                 if !messages.isEmpty, let activeKeyName {
-                    HStack(spacing: 8) {
+                    Button { filterKeyID = nil } label: {
                         Chip(text: activeKeyName, color: Theme.fg,
-                             border: Theme.muted.opacity(0.5))
-                        Button(Copy.Common.clear) { filterKeyID = nil }
-                            .font(Theme.label)
-                            .foregroundStyle(Theme.dim)
-                            .buttonStyle(.geist)
-                            .geistHitArea(expandedBy: 16)
+                             border: Theme.muted.opacity(0.5),
+                             trailingSymbol: "xmark")
                     }
+                    .buttonStyle(.geist)
+                    .geistHitArea(expandedBy: 12)
+                    .accessibilityLabel(Copy.Common.clear)
                 }
             }
             .padding(.bottom, hasHeaderControls ? 14 : 0)

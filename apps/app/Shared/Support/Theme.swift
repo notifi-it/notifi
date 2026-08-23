@@ -85,6 +85,7 @@ enum Theme {
     #endif
 
     static let headerBarHeight: CGFloat = 30
+    static let headerSubtitleHeight: CGFloat = 22
     static let headerActionSpacing: CGFloat = 8
 
     static let headerBarGap: CGFloat = 20

@@ -22,18 +22,18 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .frame(height: Theme.headerBarHeight, alignment: .leading)
-                if let subtitle {
-                    subtitle
-                        .font(Theme.meta)
-                        .foregroundColor(Theme.muted)
-                        .lineLimit(1)
-                } else {
-                    Text(verbatim: " ")
-                        .font(Theme.meta)
-                        .hidden()
-                        .accessibilityHidden(true)
-                        .overlay(alignment: .topLeading) { accessory().fixedSize() }
+                ZStack(alignment: .leading) {
+                    Color.clear.frame(width: 0, height: Theme.headerSubtitleHeight)
+                    if let subtitle {
+                        subtitle
+                            .font(Theme.meta)
+                            .foregroundColor(Theme.muted)
+                            .lineLimit(1)
+                    } else {
+                        accessory().fixedSize()
+                    }
                 }
+                .frame(height: Theme.headerSubtitleHeight, alignment: .leading)
             }
             Spacer(minLength: 8)
             HStack(spacing: Theme.headerActionSpacing) {
