@@ -362,9 +362,7 @@ export const fr: Translation = {
     'ALERTES URGENTES\n' +
     'Marquez une clé comme urgente et ses notifications franchissent Focus et arrivent sur ' +
     "l'écran verrouillé.\n",
-  'store.releaseNotes':
-    "L'écran Notifications s'appelle désormais Inbox, et le compteur au-dessus de la liste a disparu.\n\n" +
-    "Sur iPad, l'app occupe toute la largeur de l'écran au lieu d'une colonne à la largeur d'un téléphone, et la liste défile sous la barre d'onglets jusqu'au bord inférieur. L'icône de clé dans la barre d'onglets n'est plus rognée.\n",
+  'store.releaseNotes': 'Bug fixes and performance improvements.\n',
   'store.shotInboxTitle': 'Une requête.\nDroit dans votre poche.',
   'store.shotInboxBody':
     'Notifications push pour vos scripts et serveurs. Une requête HTTP vers notifi.it et ' +

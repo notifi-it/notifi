@@ -369,9 +369,7 @@ export const es: Translation = {
     'ALERTAS URGENTES\n' +
     'Marca una clave como urgente y sus notificaciones atraviesan el modo Enfoque y aparecen en la ' +
     'pantalla de bloqueo.\n',
-  'store.releaseNotes':
-    'La pantalla Notificaciones ahora se llama Inbox y el recuento sobre la lista ha desaparecido.\n\n' +
-    'En iPad la app usa todo el ancho de la pantalla en lugar de una columna con ancho de teléfono, y la lista se desplaza bajo la barra de pestañas hasta el borde inferior. El icono de la llave en la barra de pestañas ya no aparece recortado.\n',
+  'store.releaseNotes': 'Bug fixes and performance improvements.\n',
   'store.shotInboxTitle': 'Una solicitud.\nDirecto a tu bolsillo.',
   'store.shotInboxBody':
     'Notificaciones push para tus scripts y servidores. Una solicitud HTTP a notifi.it y llega un ' +

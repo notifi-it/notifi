@@ -66,10 +66,7 @@ export const de: Translation = {
     'DRINGENDE BENACHRICHTIGUNGEN\n' +
     'Markiere einen Schlüssel als dringend, und seine Benachrichtigungen durchbrechen ' +
     'den Fokus und landen auf dem Sperrbildschirm.\n',
-  'store.releaseNotes':
-    'Der Bildschirm Benachrichtigungen heißt jetzt Inbox, und die Zählung über der Liste ist verschwunden.\n\n' +
-    'Auf dem iPad nutzt die App die volle Breite des Bildschirms statt einer Spalte in Telefonbreite, und die Liste scrollt unter der Tab-Leiste bis zum unteren Rand. Das Schlüsselsymbol in der Tab-Leiste wird dort nicht mehr abgeschnitten.\n',
-
+  'store.releaseNotes': 'Bug fixes and performance improvements.\n',
   'store.shotInboxTitle': 'Eine Anfrage.\nDirekt in deine Tasche.',
   'store.shotInboxBody':
     'Push-Benachrichtigungen für deine Skripte und Server. Eine HTTP-Anfrage an notifi.it, ' +
