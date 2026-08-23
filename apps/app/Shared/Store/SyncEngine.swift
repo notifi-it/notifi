@@ -130,7 +130,7 @@ final class SyncEngine {
             for arrival in wanted where !announced.contains(arrival.serverID) {
                 let content = UNMutableNotificationContent()
                 content.title = arrival.content.title
-                if let message = arrival.content.message { content.body = message }
+                if let message = arrival.content.message { content.body = MarkdownPreview.text(message) }
                 content.sound = .default
                 if arrival.content.isCritical ?? false {
                     content.interruptionLevel = .timeSensitive

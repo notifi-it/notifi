@@ -57,7 +57,7 @@ final class NotificationService: UNNotificationServiceExtension {
         else { delivery.finish(); return }
 
         best.title = content.title
-        if let message = content.message { best.body = message }
+        if let message = content.message { best.body = MarkdownPreview.text(message) }
         best.categoryIdentifier = Self.category(for: content)
 
         guard RemoteImages.isEnabled,
