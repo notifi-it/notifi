@@ -79,6 +79,10 @@ def query_production_d1(sql):
     return body["result"][0]["results"][0]
 
 
+def senders(count):
+    return f"{count} device" + ("" if count == 1 else "s")
+
+
 def week_on_week(now, before, percent_floor=10):
     if before >= percent_floor:
         return f"{'+' if now >= before else ''}{round((now - before) / before * 100)}%"
@@ -93,38 +97,71 @@ def compose_notification():
         for n in range(1, 15)
     ]
 
-    yesterday, countries = reports[0]
-    this_week = sum(n for n, _ in reports[:7])
-    prior_week = sum(n for n, _ in reports[7:])
+    downloads_yesterday, countries = reports[0]
+    downloads_week = sum(n for n, _ in reports[:7])
+    downloads_prior = sum(n for n, _ in reports[7:])
 
-    stats = query_production_d1(
-        "SELECT (SELECT COUNT(*) FROM devices) AS devices,"
-        " (SELECT COUNT(*) FROM devices WHERE created_at >= unixepoch()-604800) AS devices_wk,"
-        " (SELECT COUNT(*) FROM app_reviews) AS reviews"
+    day = query_production_d1(
+        "SELECT COUNT(*) AS sends, COUNT(DISTINCT device_id) AS senders"
+        " FROM messages WHERE created_at >= unixepoch()-86400"
     )
-    sends = query_production_d1(
-        "SELECT SUM(CASE WHEN created_at >= unixepoch()-604800 THEN 1 ELSE 0 END) AS wk,"
-        " SUM(CASE WHEN created_at >= unixepoch()-1209600 AND created_at < unixepoch()-604800 THEN 1 ELSE 0 END) AS prior,"
-        " MIN(created_at) AS oldest FROM messages"
+    week = query_production_d1(
+        "SELECT COUNT(*) AS sends, COUNT(DISTINCT device_id) AS senders"
+        " FROM messages WHERE created_at >= unixepoch()-604800"
+    )
+    prior = query_production_d1(
+        "SELECT COUNT(*) AS sends FROM messages"
+        " WHERE created_at >= unixepoch()-1209600 AND created_at < unixepoch()-604800"
+    )
+    history = query_production_d1("SELECT MIN(created_at) AS oldest FROM messages")
+    devices = query_production_d1(
+        "SELECT COUNT(*) AS total,"
+        " SUM(CASE WHEN created_at >= unixepoch()-86400 THEN 1 ELSE 0 END) AS day,"
+        " SUM(CASE WHEN created_at >= unixepoch()-604800 THEN 1 ELSE 0 END) AS week"
+        " FROM devices"
+    )
+    reviews = query_production_d1(
+        "SELECT COUNT(*) AS total,"
+        " SUM(CASE WHEN fetched_at >= unixepoch()-604800 THEN 1 ELSE 0 END) AS week"
+        " FROM app_reviews"
     )
 
-    comparable = sends["oldest"] is not None and sends["oldest"] <= int(time.time()) - 2 * WEEK
-    plural = "" if yesterday == 1 else "s"
+    comparable = (
+        history["oldest"] is not None and history["oldest"] <= int(time.time()) - 2 * WEEK
+    )
+    sends_week = (
+        f"- Sends **{week['sends']}** from {senders(week['senders'])}"
+        f" ({week_on_week(week['sends'], prior['sends'])} vs prior 7d)"
+        if comparable
+        else f"- Sends **{week['sends']}** from {senders(week['senders'])}"
+        " · _no prior week to compare yet_"
+    )
+    plural = "" if downloads_yesterday == 1 else "s"
 
     lines = [
-        f"**{yesterday}** download{plural} yesterday · **{this_week}** this week "
-        f"({week_on_week(this_week, prior_week)} vs prior 7d).",
+        f"**{downloads_yesterday}** download{plural} and "
+        f"**{day['sends']}** send{'' if day['sends'] == 1 else 's'} yesterday.",
         "",
-        f"- Sends **{sends['wk']}** this week ({week_on_week(sends['wk'], sends['prior'])} vs prior 7d)"
-        if comparable
-        else f"- Sends **{sends['wk']}** this week · _no prior week to compare yet_",
-        f"- Devices **{stats['devices']}** · +{stats['devices_wk']} this week",
-        f"- Reviews **{stats['reviews']}**",
+        "**Yesterday**",
+        f"- Sends **{day['sends']}** from {senders(day['senders'])}",
+        f"- Downloads **{downloads_yesterday}**",
+        f"- Devices **+{devices['day']}**",
+        "",
+        "**This week**",
+        sends_week,
+        f"- Downloads **{downloads_week}**"
+        f" ({week_on_week(downloads_week, downloads_prior)} vs prior 7d)",
+        f"- Devices **+{devices['week']}** · {devices['total']} total",
+        f"- Reviews **+{reviews['week']}** · {reviews['total']} total",
     ]
     if countries:
         lines.append("- From " + " · ".join(f"{c} {n}" for c, n in countries.most_common(4)))
 
-    return f"notifi · {yesterday} download{plural} yesterday", "\n".join(lines)
+    title = (
+        f"notifi · {downloads_yesterday} download{plural}, "
+        f"{day['sends']} send{'' if day['sends'] == 1 else 's'}"
+    )
+    return title, "\n".join(lines)
 
 
 def send_daily_summary():
