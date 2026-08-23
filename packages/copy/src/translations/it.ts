@@ -370,9 +370,7 @@ export const it: Translation = {
     'AVVISI URGENTI\n' +
     'Contrassegna una chiave come urgente e le sue notifiche superano Focus e arrivano sulla ' +
     'schermata di blocco.\n',
-  'store.releaseNotes':
-    "La schermata Notifiche ora si chiama Inbox e il conteggio sopra l'elenco è sparito.\n\n" +
-    "Su iPad l'app usa tutta la larghezza dello schermo invece di una colonna larga quanto un telefono, e l'elenco scorre sotto la barra delle schede fino al bordo inferiore. L'icona della chiave nella barra delle schede non è più tagliata.\n",
+  'store.releaseNotes': 'Bug fixes and performance improvements.\n',
   'store.shotInboxTitle': 'Una richiesta.\nDritta in tasca.',
   'store.shotInboxBody':
     'Notifiche push per i tuoi script e server. Una richiesta HTTP a notifi.it e arriva un ' +

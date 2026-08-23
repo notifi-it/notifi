@@ -69,9 +69,7 @@ export const copy = {
       'URGENT ALERTS\n' +
       'Mark a key as urgent and its notifications break through Focus and land on the lock ' +
       'screen.\n',
-    releaseNotes:
-      'The Notifications screen is called the Inbox now, and the count above the list is gone.\n\n' +
-      'On iPad the app uses the full width of the screen rather than a phone-width column, and the list scrolls under the tab bar to the bottom edge. The key icon in the tab bar is no longer clipped there.\n',
+    releaseNotes: 'Bug fixes and performance improvements.\n',
 
     shotInboxTitle: 'One request.\nStraight to your pocket.',
     shotInboxBody:
