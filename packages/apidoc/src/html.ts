@@ -394,7 +394,7 @@ ${terminalGroup('', 'Examples', samples)}
     <h2>Questions</h2>
     <p>
       The <a href="/faq">FAQ</a> covers cost, limits, what the server can read and what happens
-      when you delete the app. Anything else goes to <a href="/contact">contact</a>.
+      when you delete the app. Anything else goes to <a href="mailto:hello@notifi.it">hello@notifi.it</a>.
     </p>
   </section>
 

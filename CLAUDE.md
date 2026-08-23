@@ -65,6 +65,37 @@ Copy keys keep their existing names (`inbox.copyMessage`, the `message.*`
 namespace). They are internal, they key the xcstrings catalogue, and renaming
 them churns every Swift call site for no reader's benefit.
 
+### Vocabulary
+
+The product has one word for each of its nouns. If a sentence introduces a
+metaphor for something the product already has a word for, use the product's
+word — "each device gets its own address" shipped on the landing page and the
+product has no addresses.
+
+- **key** (or **send key**) — the thing a sender holds. Never "address",
+  "token" or "credential" as the name for it. Prose may still *explain* a key
+  in those terms ("a key is a credential" on the contact page is an
+  explanation, not a rename), and "bearer token" stays where it names the
+  `Authorization: Bearer` mechanism itself.
+- **device** — the thing that receives, when generic; "iPhone, iPad or Mac"
+  when listing. "Phone" is allowed where it really means the phone ("Your
+  phone holds the only key", "pages your phone").
+- **notification** — the thing delivered (rule above, with its two
+  exceptions).
+- **send** — the verb, and `/send` the endpoint. Not "dispatch", "push a
+  message" or "deliver to an address".
+- **alert** — only inside Apple's feature names (Critical Alerts, Time
+  Sensitive) and the life-safety disclaimer ("emergency alerting system").
+  Anywhere else the word is notification.
+- **revoke** — the verb for ending a key, matching the app's "Revoke key"
+  button. A key is revoked; a notification is deleted. Never cross the two.
+- **collect** — what a device does to its stored notifications; an
+  undelivered one is "uncollected". The privacy policy leans on this pair.
+- **pager** and **relay** — the two sanctioned metaphors, used as-is: "a
+  pager for your own systems", "a relay, not a mailbox". Don't coin others.
+- **encrypted** — the copy's word. "Seal" is the code's name (`seal.ts`) and
+  stays internal.
+
 ## Every page in apps/api/public is generated
 
 **Nothing in `apps/api/public` is edited by hand.** `packages/site` assembles

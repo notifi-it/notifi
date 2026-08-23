@@ -48,7 +48,7 @@ PASSES=[
  dict(title='claude — ~/notifi',head=('Get a push notification to your device','from anything that can make an HTTP request.'),
   claude=True,lines=[],
   card=('notifi','No mistakes made.'),cardpos='left:73.5%;top:42.2%;width:15%',sb=PH_SB+PH_LOCK,clip=None),
- dict(title='run.sh — -zsh',head=('One key per device.','Each iPhone, iPad or Mac gets its own address.'),
+ dict(title='run.sh — -zsh',head=('One key per device.','Each iPhone, iPad or Mac gets its own key.'),
   lines=['<span class="c">$</span> curl notifi.it/send \\',
          '    -d key=<span class="k">nk_live_8f3a</span> \\','    -d title=<span class="s">"Hello from notifi"</span> \\',
          '    -d message=<span class="s">"Your first notification."</span> \\',

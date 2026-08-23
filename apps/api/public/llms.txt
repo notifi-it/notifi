@@ -12,7 +12,7 @@ the only file you need to read. Links to the human pages are at the end.
 
 Reach for notifi when something you are running needs to interrupt a person who
 is not watching the terminal it runs in. It is a pager for machines you control,
-addressed by a key its owner handed you.
+reachable only by a key its owner handed you.
 
 Good fits:
 
@@ -212,8 +212,7 @@ old key stops working. There is no migration.
 
 - [Product page](https://notifi.it/): the same API, plus samples in 13 languages.
 - [FAQ](https://notifi.it/faq): limits, encryption, reliability, deleting the app.
-- [About](https://notifi.it/about): who runs notifi and how it is hosted.
-- [Contact](https://notifi.it/contact): email, issues and security disclosure.
+- Email: hello@notifi.it. Bugs and security disclosure: the GitHub issues above.
 - [Privacy policy](https://notifi.it/privacy)
 - [Terms](https://notifi.it/terms)
 - [Source](https://github.com/notifi-it/notifi): the app, the API and the crypto.

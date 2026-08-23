@@ -32,6 +32,9 @@ check-migrations:
 lint:
 	node scripts/lint-comments.mjs
 
+emdashes:
+	node scripts/find-emdashes.mjs
+
 gen-vectors:
 	pnpm --filter @notifi/contract gen-vectors
 

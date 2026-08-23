@@ -14,7 +14,7 @@ ogDescription: What it costs, what the limits are, what the server can read, and
 
 ### What is notifi?
 
-A push-notification relay. You create a send key in the app, send an HTTP request to `notifi.it/send` with a title and a body, and the alert lands on your iPhone and Mac. There is no SDK to install and nothing to sign up for.
+A push-notification relay. You create a send key in the app, send an HTTP request to `notifi.it/send` with a title and a body, and the notification lands on your iPhone and Mac. There is no SDK to install and nothing to sign up for.
 
 ### What does it cost?
 
@@ -97,11 +97,11 @@ From this site, as a notarized DMG. It is not on the App Store, and it updates i
 
 ### Can I send to more than one device?
 
-Yes, by creating a key on each. A key delivers only to the device that created it, so which key a script holds decides where its alerts land.
+Yes, by creating a key on each. A key delivers only to the device that created it, so which key a script holds decides where its notifications land.
 
 ### How do I revoke a key?
 
-Delete it in the app. The next send with it is refused. A key is shown once when it is created and is never stored, so it cannot be shown again — if you lose it, make a new one.
+Revoke it in the app. The next send with it is refused. A key is shown once when it is created and is never stored, so it cannot be shown again — if you lose it, make a new one.
 
 ## Urgent alerts
 

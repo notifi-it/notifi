@@ -1,14 +1,14 @@
 Notificaciones push para tus scripts y servidores.
 
-Crea una clave de envío y manda un título y un mensaje a notifi.it en una solicitud HTTP. La notificación llega a tu iPhone o Mac. Cualquier cosa que pueda hacer una solicitud HTTP puede enviar una, por ejemplo un script de shell, una tarea cron o un pipeline de CI.
+Crea una clave de envío y manda un título y un cuerpo a notifi.it en una solicitud HTTP. La notificación llega a tu iPhone o Mac. Cualquier cosa que pueda hacer una solicitud HTTP puede enviar una, por ejemplo un script de shell, una tarea cron o un pipeline de CI.
 
 https://notifi.it/send?title=hello+world
 
-QUÉ LLEVA UN MENSAJE
+QUÉ LLEVA UNA NOTIFICACIÓN
 Un título, un cuerpo, una imagen y un enlace. El cuerpo es Markdown: encabezados, listas, citas, enlaces y bloques de código se muestran en el dispositivo.
 
 CIFRADO
-Tu dispositivo guarda la única clave privada. El contenido del mensaje se cifra con tu clave pública al ingresar, así que no podemos leer tus mensajes. Cada mensaje se elimina del servidor en cuanto tu dispositivo lo confirma.
+Tu dispositivo guarda la única clave privada. El contenido de las notificaciones se cifra con tu clave pública al ingresar, así que no podemos leer tus notificaciones. Cada una se elimina del servidor en cuanto tu dispositivo lo confirma.
 
 SIN CUENTAS
 Sin registro, sin inicio de sesión, sin vincular dispositivos. La app crea una clave de envío en el primer inicio. Las claves se pueden renombrar, pausar y revocar por fuente.

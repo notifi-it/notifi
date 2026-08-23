@@ -97,7 +97,7 @@ export function openapi(): Record<string, unknown> {
         name: 'MIT',
         url: 'https://github.com/notifi-it/notifi/blob/main/LICENSE',
       },
-      contact: { name: 'notifi', url: `${ORIGIN}/contact`, email: 'hello@notifi.it' },
+      contact: { name: 'notifi', url: ORIGIN, email: 'hello@notifi.it' },
     },
     externalDocs: { description: 'notifi API documentation', url: `${ORIGIN}/docs` },
     servers: [{ url: ORIGIN, description: 'Production' }],

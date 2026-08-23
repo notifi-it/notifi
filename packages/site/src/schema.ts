@@ -26,7 +26,6 @@ export function organization(): Record<string, unknown> {
         '@type': 'ContactPoint',
         contactType: 'customer support',
         email: EMAIL,
-        url: `${ORIGIN}/contact`,
         availableLanguage: ['en'],
       },
       {

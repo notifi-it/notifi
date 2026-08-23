@@ -79,13 +79,12 @@ This page as HTML: https://notifi.it/
 
 ## More from notifi
 
-- [About](https://notifi.it/about)
 - [Docs](https://notifi.it/docs)
 - [FAQ](https://notifi.it/faq)
 - [Privacy](https://notifi.it/privacy)
 - [Terms](https://notifi.it/terms)
+- Email: hello@notifi.it
 - [llms.txt](https://notifi.it/llms.txt)
-- [Contact](https://notifi.it/contact)
 - [GitHub](https://github.com/notifi-it/notifi)
 - [X](https://x.com/notifiit)
 - [Instagram](https://instagram.com/notifidotit)

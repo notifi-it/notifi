@@ -11,14 +11,6 @@
     <loc>https://notifi.it/docs</loc>
     <lastmod>2026-08-21</lastmod>
   </url>
-  <url>
-    <loc>https://notifi.it/about</loc>
-    <lastmod>2026-08-21</lastmod>
-  </url>
-  <url>
-    <loc>https://notifi.it/contact</loc>
-    <lastmod>2026-08-21</lastmod>
-  </url>
   <!-- Served from privacy.html; the assets binding 307s the .html form to this
        one, so this is the URL that should be indexed. -->
   <url>

@@ -11,7 +11,7 @@
     "inboxTitle": "Una solicitud.\nDirecto a tu bolsillo.",
     "inboxBody": "Notificaciones push para tus scripts y servidores. Una solicitud HTTP a notifi.it y llega un momento después. Sin cuenta, sin SDK.",
     "messageTitle": "Imágenes, enlaces,\nMarkdown.",
-    "messageBody": "Un título, un cuerpo, una imagen y un enlace. Encabezados, listas, citas y bloques de código se muestran en el dispositivo. Cifrado con tu clave pública, así que no podemos leer tus mensajes.",
+    "messageBody": "Un título, un cuerpo, una imagen y un enlace. Encabezados, listas, citas y bloques de código se muestran en el dispositivo. Cifrado con tu clave pública, así que no podemos leer tus notificaciones.",
     "keysTitle": "Una clave\npor fuente.",
     "keysBody": "Dale al bot de despliegue una clave y al timbre otra. Revoca una y las demás siguen funcionando. Cada clave lleva su propio contador de envíos, y no hace falta crear una cuenta."
   },
@@ -19,7 +19,7 @@
     "inboxTitle": "Eine Anfrage.\nDirekt in deine Tasche.",
     "inboxBody": "Push-Benachrichtigungen für deine Skripte und Server. Eine HTTP-Anfrage an notifi.it, und sie kommt einen Moment später an. Kein Account, kein SDK.",
     "messageTitle": "Bilder, Links,\nMarkdown.",
-    "messageBody": "Ein Titel, ein Text, ein Bild und ein Link. Überschriften, Listen, Zitate und Code-Blöcke werden auf dem Gerät gerendert. Mit deinem öffentlichen Schlüssel verschlüsselt, sodass wir deine Nachrichten nicht lesen können.",
+    "messageBody": "Ein Titel, ein Text, ein Bild und ein Link. Überschriften, Listen, Zitate und Code-Blöcke werden auf dem Gerät gerendert. Mit deinem öffentlichen Schlüssel verschlüsselt, sodass wir deine Benachrichtigungen nicht lesen können.",
     "keysTitle": "Ein Schlüssel\npro Quelle.",
     "keysBody": "Gib dem Deploy-Bot einen Schlüssel und der Türklingel einen anderen. Widerrufe einen, und der Rest funktioniert weiter. Jeder Schlüssel führt seine eigene Sendeanzahl, und es ist kein Account nötig."
   },
@@ -27,7 +27,7 @@
     "inboxTitle": "Une requête.\nDroit dans votre poche.",
     "inboxBody": "Notifications push pour vos scripts et serveurs. Une requête HTTP vers notifi.it et elle arrive un instant plus tard. Pas de compte, pas de SDK.",
     "messageTitle": "Images, liens,\nMarkdown.",
-    "messageBody": "Un titre, un corps, une image et un lien. Titres, listes, citations et blocs de code sont rendus sur l'appareil. Chiffré avec votre clé publique, nous ne pouvons donc pas lire vos messages.",
+    "messageBody": "Un titre, un corps, une image et un lien. Titres, listes, citations et blocs de code sont rendus sur l'appareil. Chiffré avec votre clé publique, nous ne pouvons donc pas lire vos notifications.",
     "keysTitle": "Une clé\npar source.",
     "keysBody": "Donnez une clé au bot de déploiement et une autre à la sonnette. Révoquez-en une, les autres continuent de fonctionner. Chaque clé porte son propre nombre d'envois, sans aucun compte à créer au préalable."
   },
@@ -35,7 +35,7 @@
     "inboxTitle": "Una richiesta.\nDritta in tasca.",
     "inboxBody": "Notifiche push per i tuoi script e server. Una richiesta HTTP a notifi.it e arriva un momento dopo. Niente account, niente SDK.",
     "messageTitle": "Immagini, link,\nMarkdown.",
-    "messageBody": "Un titolo, un corpo, un'immagine e un link. Titoli, elenchi, citazioni e blocchi di codice sono renderizzati sul dispositivo. Cifrato con la tua chiave pubblica, quindi non possiamo leggere i tuoi messaggi.",
+    "messageBody": "Un titolo, un corpo, un'immagine e un link. Titoli, elenchi, citazioni e blocchi di codice sono renderizzati sul dispositivo. Cifrato con la tua chiave pubblica, quindi non possiamo leggere le tue notifiche.",
     "keysTitle": "Una chiave\nper fonte.",
     "keysBody": "Dai al bot di deploy una chiave e al campanello un'altra. Revocane una e le altre continuano a funzionare. Ogni chiave ha il proprio conteggio di invii, senza alcun account da creare prima."
   }

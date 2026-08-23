@@ -2813,25 +2813,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "notifi no pudo leer su clave de identidad del llavero. Esto suele resolverse una vez que el dispositivo se ha desbloqueado. Tus mensajes y claves de envío no se ven afectados."
+            "value": "notifi no pudo leer su clave de identidad del llavero. Esto suele resolverse una vez que el dispositivo se ha desbloqueado. Tus notificaciones y claves de envío no se ven afectadas."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "notifi konnte seinen Identitätsschlüssel nicht aus dem Schlüsselbund lesen. Das behebt sich meist von selbst, sobald das Gerät entsperrt wurde. Deine Nachrichten und Sendeschlüssel sind davon nicht betroffen."
+            "value": "notifi konnte seinen Identitätsschlüssel nicht aus dem Schlüsselbund lesen. Das behebt sich meist von selbst, sobald das Gerät entsperrt wurde. Deine Benachrichtigungen und Sendeschlüssel sind davon nicht betroffen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "notifi n'a pas pu lire sa clé d'identité dans le trousseau. Cela se résout généralement une fois l'appareil déverrouillé. Vos messages et clés d'envoi ne sont pas affectés."
+            "value": "notifi n'a pas pu lire sa clé d'identité dans le trousseau. Cela se résout généralement une fois l'appareil déverrouillé. Vos notifications et clés d'envoi ne sont pas affectées."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "notifi non è riuscito a leggere la sua chiave di identità dal portachiavi. Di solito si risolve una volta che il dispositivo è stato sbloccato. I tuoi messaggi e le chiavi di invio non sono interessati."
+            "value": "notifi non è riuscito a leggere la sua chiave di identità dal portachiavi. Di solito si risolve una volta che il dispositivo è stato sbloccato. Le tue notifiche e le chiavi di invio non sono interessate."
           }
         }
       }
@@ -3128,25 +3128,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiar mensaje"
+            "value": "Copiar notificación"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nachricht kopieren"
+            "value": "Benachrichtigung kopieren"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copier le message"
+            "value": "Copier la notification"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copia messaggio"
+            "value": "Copia notifica"
           }
         }
       }
@@ -5323,25 +5323,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las claves identifican quién envió un mensaje. Usa una clave distinta para cada script. La clave predeterminada se creó al configurar este dispositivo."
+            "value": "Las claves identifican quién envió una notificación. Usa una clave distinta para cada script. La clave predeterminada se creó al configurar este dispositivo."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schlüssel zeigen, wer eine Nachricht gesendet hat. Verwende für jedes Skript einen eigenen Schlüssel. Der Standardschlüssel wurde bei der Einrichtung dieses Geräts erstellt."
+            "value": "Schlüssel zeigen, wer eine Benachrichtigung gesendet hat. Verwende für jedes Skript einen eigenen Schlüssel. Der Standardschlüssel wurde bei der Einrichtung dieses Geräts erstellt."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les clés identifient qui a envoyé un message. Utilisez une clé différente pour chaque script. La clé par défaut a été créée lors de la configuration de cet appareil."
+            "value": "Les clés identifient qui a envoyé une notification. Utilisez une clé différente pour chaque script. La clé par défaut a été créée lors de la configuration de cet appareil."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le chiavi identificano chi ha inviato un messaggio. Usa una chiave diversa per ogni script. La chiave predefinita è stata creata quando questo dispositivo è stato configurato."
+            "value": "Le chiavi identificano chi ha inviato una notifica. Usa una chiave diversa per ogni script. La chiave predefinita è stata creata quando questo dispositivo è stato configurato."
           }
         }
       }
@@ -6118,25 +6118,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mensaje no encontrado"
+            "value": "Notificación no encontrada"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nachricht nicht gefunden"
+            "value": "Benachrichtigung nicht gefunden"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Message introuvable"
+            "value": "Notification introuvable"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Messaggio non trovato"
+            "value": "Notifica non trovata"
           }
         }
       }
@@ -6165,7 +6165,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il a peut-être été supprimé sur cet appareil."
+            "value": "Elle a peut-être été supprimée sur cet appareil."
           }
         },
         "it": {
@@ -6538,25 +6538,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tus mensajes antiguos se restauraron desde una copia de seguridad, pero tus claves no. Las claves están ligadas al dispositivo en el que se crearon y no se pueden trasladar. Cualquier envío que siga dirigido a tus claves antiguas será rechazado. Crea claves nuevas para seguir recibiendo notificaciones."
+            "value": "Tus notificaciones antiguas se restauraron desde una copia de seguridad, pero tus claves no. Las claves están ligadas al dispositivo en el que se crearon y no se pueden trasladar. Cualquier envío que siga dirigido a tus claves antiguas será rechazado. Crea claves nuevas para seguir recibiendo notificaciones."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deine alten Nachrichten wurden aus einem Backup wiederhergestellt, deine Schlüssel jedoch nicht. Schlüssel sind an das Gerät gebunden, auf dem sie erstellt wurden, und können nicht übertragen werden. Alles, was noch an deine alten Schlüssel sendet, wird jetzt abgelehnt. Erstelle neue Schlüssel, um weiter Benachrichtigungen zu erhalten."
+            "value": "Deine alten Benachrichtigungen wurden aus einem Backup wiederhergestellt, deine Schlüssel jedoch nicht. Schlüssel sind an das Gerät gebunden, auf dem sie erstellt wurden, und können nicht übertragen werden. Alles, was noch an deine alten Schlüssel sendet, wird jetzt abgelehnt. Erstelle neue Schlüssel, um weiter Benachrichtigungen zu erhalten."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vos anciens messages ont été restaurés depuis une sauvegarde, mais pas vos clés. Les clés sont liées à l'appareil sur lequel elles ont été créées et ne peuvent pas être déplacées. Tout ce qui envoie encore vers vos anciennes clés sera désormais rejeté. Créez de nouvelles clés pour continuer à recevoir des notifications."
+            "value": "Vos anciennes notifications ont été restaurées depuis une sauvegarde, mais pas vos clés. Les clés sont liées à l'appareil sur lequel elles ont été créées et ne peuvent pas être déplacées. Tout ce qui envoie encore vers vos anciennes clés sera désormais rejeté. Créez de nouvelles clés pour continuer à recevoir des notifications."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "I tuoi vecchi messaggi sono stati ripristinati da un backup, ma le tue chiavi no. Le chiavi sono legate al dispositivo su cui sono state create e non possono essere spostate. Qualsiasi invio ancora effettuato verso le tue vecchie chiavi verrà ora rifiutato. Crea nuove chiavi per continuare a ricevere notifiche."
+            "value": "Le tue vecchie notifiche sono state ripristinate da un backup, ma le tue chiavi no. Le chiavi sono legate al dispositivo su cui sono state create e non possono essere spostate. Qualsiasi invio ancora effettuato verso le tue vecchie chiavi verrà ora rifiutato. Crea nuove chiavi per continuare a ricevere notifiche."
           }
         }
       }
@@ -7123,25 +7123,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obtiene cada imagen al llegar el mensaje, lo que informa tu dirección IP a su host. Desactivado, las imágenes solo se cargan al pulsarlas."
+            "value": "Obtiene cada imagen al llegar la notificación, lo que informa tu dirección IP a su host. Desactivado, las imágenes solo se cargan al pulsarlas."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ruft jedes Bild ab, sobald die Nachricht ankommt, was dem Host deine IP-Adresse verrät. Aus, Bilder laden erst bei Antippen."
+            "value": "Ruft jedes Bild ab, sobald die Benachrichtigung ankommt, was dem Host deine IP-Adresse verrät. Aus, Bilder laden erst bei Antippen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récupère chaque image dès l'arrivée du message, ce qui révèle votre adresse IP à son hôte. Désactivé, les images ne se chargent qu'au toucher."
+            "value": "Récupère chaque image dès l'arrivée de la notification, ce qui révèle votre adresse IP à son hôte. Désactivé, les images ne se chargent qu'au toucher."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recupera ogni immagine all'arrivo del messaggio, il che comunica al suo host il tuo indirizzo IP. Disattivato, le immagini si caricano solo quando vengono toccate."
+            "value": "Recupera ogni immagine all'arrivo della notifica, il che comunica al suo host il tuo indirizzo IP. Disattivato, le immagini si caricano solo quando vengono toccate."
           }
         }
       }
@@ -7893,25 +7893,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Devuelve 422 invalid_content y no guarda nada cuando un título o mensaje supera la longitud o una URL de imagen no pasa la validación. Desactivado, /send recorta o descarta el campo y devuelve 202 con un array de avisos."
+            "value": "Devuelve 422 invalid_content y no guarda nada cuando un título o cuerpo supera la longitud o una URL de imagen no pasa la validación. Desactivado, /send recorta o descarta el campo y devuelve 202 con un array de avisos."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder eine Nachricht zu lang ist oder eine Bild-URL die Validierung nicht besteht. Aus, /send kürzt oder verwirft das Feld und gibt 202 mit einem warnings-Array zurück."
+            "value": "Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist oder eine Bild-URL die Validierung nicht besteht. Aus, /send kürzt oder verwirft das Feld und gibt 202 mit einem warnings-Array zurück."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Renvoie 422 invalid_content et ne stocke rien lorsqu'un titre ou un message dépasse la longueur autorisée ou qu'une URL d'image échoue à la validation. Désactivé, /send raccourcit ou supprime le champ et renvoie 202 avec un tableau warnings."
+            "value": "Renvoie 422 invalid_content et ne stocke rien lorsqu'un titre ou un corps dépasse la longueur autorisée ou qu'une URL d'image échoue à la validation. Désactivé, /send raccourcit ou supprime le champ et renvoie 202 avec un tableau warnings."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un messaggio supera la lunghezza consentita o l'URL di un'immagine non supera la convalida. Disattivato, /send abbrevia o scarta il campo e restituisce 202 con un array di warnings."
+            "value": "Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un corpo supera la lunghezza consentita o l'URL di un'immagine non supera la convalida. Disattivato, /send abbrevia o scarta il campo e restituisce 202 con un array di warnings."
           }
         }
       }
