@@ -28,7 +28,7 @@ best-effort.
 ## Why not just use ...
 
 - Quicker to set up than an **SMTP relay**
-- Your important notifications in one place, without cluttering your **inbox**
+- Your important notifications in one place, without cluttering your **email inbox**
 - Lighter than running **Slack**
 - No bot to register, unlike **Telegram**
 - Custom formatting, unlike **SMS**
