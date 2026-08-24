@@ -25,7 +25,7 @@ own send keys, for marketing, and for anything where a missed notification
 causes harm: a key delivers only to the device that made it, and delivery is
 best-effort.
 
-## How it compares
+## Why not just use ...
 
 - Quicker to set up than an **SMTP relay**
 - Your important notifications in one place, without cluttering your **inbox**
