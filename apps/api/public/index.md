@@ -25,6 +25,16 @@ own send keys, for marketing, and for anything where a missed notification
 causes harm: a key delivers only to the device that made it, and delivery is
 best-effort.
 
+## How it compares
+
+- Quicker to set up than an **SMTP relay**
+- Your important notifications in one place, without cluttering your **inbox**
+- Lighter than running **Slack**
+- No bot to register, unlike **Telegram**
+- Custom formatting, unlike **SMS**
+- Encrypted, unlike **Ntfy**
+- Free, unlike **Pushover**
+
 ## Start
 
 1. Install the app: [iPhone and iPad](https://apps.apple.com/app/id1563961135)

@@ -77,6 +77,9 @@
 :root{
   --bg:#1C1C1E;
   --fg:#EDEDED;
+  /* The section labels: a white pulled back from --fg so a row of small caps
+     across the page does not read as loud as the prose under it. */
+  --fg-soft:#CFCFCF;
   --muted:#A1A1A1;
   /* 4.75:1 on --bg and 4.6:1 on --surface. It was #6E6E6E, which measured
      4.26:1 on --surface, below the 4.5:1 floor for text under 18px, and
@@ -110,7 +113,6 @@
    on top of whatever an in-page anchor just jumped to. */
 html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
 body{
-  counter-reset:sec;
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
@@ -132,6 +134,13 @@ body{
 body>*:not(#static):not(header){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
+/* Content links, decided once rather than per section: the text keeps the
+   colour of the sentence it sits in and the red underline marks it. */
+.src,.reviews-meta a{
+  text-decoration:underline;
+  text-decoration-color:var(--brand-text);text-underline-offset:3px;
+}
+.src:hover,.reviews-meta a:hover{color:var(--brand-text)}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
 
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
@@ -143,21 +152,15 @@ h1{font-size:clamp(34px,6.4vw,60px)}
 h2{font-size:clamp(24px,3.6vw,34px)}
 h3{font-size:17px;letter-spacing:-.02em}
 p{max-width:62ch}
-.lede{font-size:clamp(17px,2.1vw,20px);color:var(--muted);line-height:1.55}
+.lede{font-family:var(--mono);font-size:clamp(15px,1.85vw,17px);color:var(--muted);line-height:1.6}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 .eyebrow{
   font-family:var(--mono);font-size:11px;font-weight:600;
   letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
 }
-.section-head{display:flex;align-items:center;gap:14px;margin-bottom:26px;counter-increment:sec}
+.section-head{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.section-head .eyebrow{color:var(--fg-soft)}
 .section-head .rule{flex:1}
-/* Section number, as an instrument readout rather than an ordered list — the
-   sections are already navigable by name in the header, so this is orientation,
-   not structure. Generated content, so it stays out of the accessible name. */
-.section-head .eyebrow::before{
-  content:counter(sec,decimal-leading-zero);
-  color:var(--fg);margin-right:.7em;
-}
 /* The count on the far side of the rule. Set by script from the number of
    sections actually on the page; hidden until then, so a stale hard-coded
    total can never be shown. */
@@ -167,15 +170,21 @@ p{max-width:62ch}
   letter-spacing:.18em;color:var(--line);
 }
 
-/* The dot after the headline. `steps(2)` so it snaps on and off the way a
-   terminal caret does; a fade would read as a pulsing decoration. */
+/* The dot after the headline crossfades between the text's white and the brand
+   red. The cycle is deliberately uneven — it holds at each end and takes longer
+   to come back to red than to leave it — so it reads as something settling
+   rather than as a blinking cursor. */
 .caret{
   display:inline-block;width:.17em;height:.17em;border-radius:50%;
-  background:var(--brand);vertical-align:baseline;
+  background-color:var(--brand);vertical-align:baseline;
   margin-left:.14em;
-  animation:blink 1.06s steps(2,jump-none) infinite;
+  animation:caret-fade 3.4s ease-in-out infinite;
 }
-@keyframes blink{50%{opacity:0}}
+@keyframes caret-fade{
+  0%,14%{background-color:var(--brand)}
+  38%,56%{background-color:var(--fg)}
+  100%{background-color:var(--brand)}
+}
 
 /* Scroll reveal: the text resolves out of the static, letter by letter.
    The arrival is faded rather than snapped. Each letter carries its own long
@@ -323,23 +332,28 @@ nav a:hover{color:var(--fg)}
 .tab:hover .tab-i{opacity:.85}
 .tab[aria-selected="true"] .tab-i{opacity:.75}
 /* /gen:termcss */
+/* The language and automation marks fade to red on hover and while selected.
+   The selected tab sits on a white ground, so it takes the deeper red of the
+   two rather than the one lifted for the dark ground. */
+.tab-i{transition:color .22s var(--ease-out),opacity .22s var(--ease-out)}
+.tab:hover .tab-i{opacity:.82;color:var(--brand-text)}
+.tab[aria-selected="true"] .tab-i{opacity:1;color:var(--brand)}
+
+/* The Homebrew line under the download buttons: the shared terminal, sized
+   to the reading measure rather than the column. */
+.term-brew{margin-top:22px;max-width:62ch}
 
 /* ── generic section ────────────────────────────────────────── */
 section{padding:clamp(48px,7vw,86px) 0}
 .section-alt{border-top:1px solid var(--line)}
 
 /* ── feature rows: hairline list, no cards ──────────────────── */
-.rows{border-top:1px solid var(--line)}
 .row{
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);
-  gap:8px 40px;padding:22px 0;border-bottom:1px solid var(--line);
-  align-items:start;
+  padding:11px 0;border-bottom:1px solid var(--line);
+  max-width:62ch;
 }
-.row h3{margin:0}
-.row p{color:var(--muted);margin:0}
-.row .src{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
-.row .src:hover{text-decoration-color:var(--fg)}
-@media(max-width:720px){.row{grid-template-columns:1fr;gap:6px}}
+.row p{font-family:var(--mono);font-size:14px;line-height:1.5;color:var(--muted);margin:0}
+.row .ico{width:16px;height:16px;float:left;margin:2px 10px 0 0;color:var(--dim)}
 
 /* ── the brand mark ─────────────────────────────────────────── */
 .bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
@@ -355,7 +369,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .bell::before{-webkit-mask-image:url(/bell-body.svg);mask-image:url(/bell-body.svg)}
 .bell::after{-webkit-mask-image:url(/bell-clapper.svg);mask-image:url(/bell-clapper.svg)}
 /* No badge disc on the site's mark. The page already has one red thing that
-   blinks — the dot after the headline — and two of them competing in the same
+   moves — the dot after the headline — and two of them competing in the same
    viewport read as an error state rather than as the brand. bell.svg carries no
    badge of its own, so removing this overlay is the whole change; the fractions
    that used to be here are still printed by generate-marks.sh for the app,
@@ -410,16 +424,23 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 
 /* ── uses: four hairline lists, no bullets, no boxes ────────── */
 .uses{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,2.4vw,30px)}
+.uses-2{grid-template-columns:repeat(2,1fr)}
 /* Four columns rather than five, so every heading fits on two lines and the
    reserved height came down with it. It is still reserved rather than
    auto — the first list item has to start on the same baseline across all
    four, or the hairlines under the headings stop reading as one rule. */
 .use-col .eyebrow{padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:4px;min-height:calc(2.2em + 10px)}
 .use-col ul{list-style:none;margin:0;padding:0}
+.use-col li b{color:var(--fg);font-weight:500}
 .use-col li{
-  color:var(--muted);font-size:15px;line-height:1.45;
+  font-family:var(--mono);color:var(--muted);font-size:14px;line-height:1.5;
   padding:11px 0;border-bottom:1px solid var(--line);
 }
+.use-col li .ico{width:16px;height:16px;float:left;margin:2px 10px 0 0;color:var(--dim)}
+/* The 26px under the head rule is the section's own spacing. An item that adds
+   its top padding on top of it starts the first line lower than a section whose
+   content is a paragraph, which is what made the six sections disagree. */
+.use-col ul li:first-child,.rows .row:first-child{padding-top:0}
 @media(max-width:920px){.uses{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.uses{grid-template-columns:1fr}}
 
@@ -456,8 +477,6 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 }
 .rating .count{font-family:var(--mono);font-size:13px;color:var(--dim)}
 .reviews-meta{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:18px}
-.reviews-meta a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
-.reviews-meta a:hover{text-decoration-color:var(--fg)}
 @media(max-width:920px){.reviews{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.reviews{grid-template-columns:1fr}}
 
@@ -697,6 +716,16 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
    scene stacks instead: the film carries a portrait layout of its own below
    this width, and the figure has to stop imposing a landscape box on it. */
 @media(max-width:760px){.app-film{aspect-ratio:10/16;margin:24px calc(50% - 50vw)}}
+/* The portrait layout stands the phone taller than the stage, so its frame met
+   the bottom edge as a cut rather than an end. The fade lands below the
+   notification card and finishes before the crop; the iPad and Mac scenes fit
+   the stage and keep their frames. */
+@media(max-width:760px){
+  .app-film .gf-dv0{
+    -webkit-mask-image:linear-gradient(to bottom,#000 44%,transparent 55%);
+    mask-image:linear-gradient(to bottom,#000 44%,transparent 55%);
+  }
+}
 
 
 
@@ -847,6 +876,37 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>
     </symbol>
 
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="M2 8l7.5 6a4 4 0 0 0 5 0L22 8"/>
+    </symbol>
+
+    <symbol id="i-split" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="20" height="18" rx="2"/>
+      <path d="M9 3v18"/><path d="M22 12H9"/>
+    </symbol>
+
+    <symbol id="i-air" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 8h7a3 3 0 1 0-3-3"/>
+      <path d="M4 16h11a3 3 0 1 1-3 3"/>
+      <path d="M2 12h17a3 3 0 1 0-3-3"/>
+    </symbol>
+
+    <symbol id="i-format" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4.33 16.05 16.57 3.81a2.55 2.55 0 0 1 3.62 3.62L7.95 19.67c-.28.28-.63.47-1.02.55L3 21l.79-3.93c.07-.39.26-.74.54-1.02Z"/>
+    </symbol>
+
+    <symbol id="i-money" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="5" width="20" height="14" rx="2"/>
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M2 9a4 4 0 0 0 4-4"/><path d="M18 19a4 4 0 0 1 4-4"/>
+    </symbol>
+
     <symbol id="i-erase" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
       <path d="M5 7h14"/><path d="M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/>
@@ -967,7 +1027,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">The app</p><hr class="rule">
     </div>
-    <h2>One inbox,<br>on every Apple device you own.</h2>
 
     <figure class="app-film" id="film"
             aria-label="A coding agent, a deploy script and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac.">
@@ -1065,7 +1124,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">API</p><hr class="rule">
     </div>
-    <h2>One endpoint.</h2>
 <!-- gen:endpoint -->
     <p class="lede" style="margin-top:14px;margin-bottom:8px">
       <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
@@ -1147,9 +1205,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="section-head">
       <p class="eyebrow">Send</p><hr class="rule">
     </div>
-    <h2>The same one request,<br>from wherever you run.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:26px">
-      Copy one and put your key in it. Anything that can make an HTTP request can send.
+      Copy a snippet below and put your key in it. Anything that can make an HTTP request can send.
     </p>
 
     <!-- Seven, and they fit on one line. Twelve wrapped to three rows of chips,
@@ -1451,7 +1508,6 @@ spec:
     <div class="section-head">
       <p class="eyebrow">Uses</p><hr class="rule">
     </div>
-    <h2 style="margin-bottom:34px">Anything that finishes,<br>fails, or changes.</h2>
 
     <!-- Three examples a column, not five. The list is here to make a reader
          recognise their own case, and that happens on the first line or two;
@@ -1460,18 +1516,18 @@ spec:
       <div class="use-col">
         <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>Agents</p>
         <ul>
-          <li>A Claude Code run finished</li>
           <li>An agent stopped and needs a decision</li>
-          <li>A watched price dropped below your number</li>
+          <li>An Nvidia GPU dropped below $500</li>
+          <li>Training loss went NaN</li>
         </ul>
       </div>
 
       <div class="use-col">
         <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Builds and deploys</p>
         <ul>
-          <li>A deploy failed, with the failing step</li>
-          <li>A release went out, with the tag</li>
-          <li>A flaky test failed again on main</li>
+          <li>A deploy failed</li>
+          <li>App Review approved the build</li>
+          <li>A build has been queued for 20 minutes</li>
         </ul>
       </div>
 
@@ -1480,21 +1536,48 @@ spec:
         <ul>
           <li>A disk crossed 90%</li>
           <li>A health check has been down five minutes</li>
-          <li>A training run finished, with the final loss</li>
+          <li>A nightly backup did not run</li>
         </ul>
       </div>
 
       <div class="use-col">
         <p class="eyebrow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-home"/></svg>Home and hardware</p>
         <ul>
-          <li>A leak sensor under the sink went wet</li>
+          <li>A humidity sensor went over 70%</li>
           <li>The UPS switched to battery</li>
-          <li>The car finished charging overnight</li>
+          <li>The car finished charging</li>
         </ul>
       </div>
 
     </div>
 
+  </div>
+</section>
+
+<!-- ══ instead of ════════════════════════════════════════════ -->
+<section class="section-alt" id="instead">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Why not just use ...</p><hr class="rule">
+    </div>
+
+    <div class="uses uses-2">
+      <div class="use-col">
+        <ul>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-mail"/></svg>Quicker to set up than an <b>SMTP relay</b></li>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-split"/></svg>Your important notifications in one place, without cluttering your <b>inbox</b></li>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-air"/></svg>Lighter than running <b>Slack</b></li>
+        </ul>
+      </div>
+      <div class="use-col">
+        <ul>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>No bot to register, unlike <b>Telegram</b></li>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-format"/></svg>Custom formatting, unlike <b>SMS</b></li>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Encrypted, unlike <b>Ntfy</b></li>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-money"/></svg>Free, unlike <b>Pushover</b></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1504,16 +1587,14 @@ spec:
     <div class="section-head">
       <p class="eyebrow">How it works</p><hr class="rule">
     </div>
-    <h2 style="margin-bottom:26px">Your phone holds the only key.</h2>
-
     <div class="rows">
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>No account</h3>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>
         <p>No signup, no email, no password. The app generates a keypair on first
            launch and that keypair is your identity.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Neither we nor Apple can read your notifications</h3>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>
         <div>
           <p>Notifications are
              <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">encrypted</a>
@@ -1527,27 +1608,27 @@ spec:
         </div>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-erase"/></svg>Nothing kept after delivery</h3>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-erase"/></svg>
         <p>The server deletes a notification as soon as your device confirms it has collected
            it. Your history lives on your device, not in our database.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>Critical alerts</h3>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>
         <p>Send with <code>is_critical=1</code> on a key you have marked critical, and the
            notification breaks through Focus and lands on the lock screen.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>One key per script, revocable</h3>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>
         <p>CI gets a key, the backup job gets a key, the scraper gets a key. If one
            leaks, revoke it and the rest keep working.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>Send from anywhere</h3>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>
         <p>Plain HTTP and no SDK, so anything that can make an HTTP request can send: a
            Linux box, a CI runner, a router, a home hub, another phone.</p>
       </div>
       <div class="row">
-        <h3><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>Open source</h3>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-branch"/></svg>
         <p>The app, the API and the crypto are on
            <a href="https://github.com/notifi-it/notifi" class="src">GitHub</a>.</p>
       </div>
@@ -1562,7 +1643,6 @@ spec:
     <div class="section-head">
       <p class="eyebrow">Download</p><hr class="rule">
     </div>
-    <h2>Get notifi on iPhone and Mac.</h2>
     <p class="lede" style="margin-top:14px;margin-bottom:28px">
       On the Mac it lives in the menu bar. Each key delivers to one device, so a script
       pages your phone, your Mac, or both if you give it two keys.
@@ -1581,7 +1661,16 @@ spec:
         <span class="lbl"><b>Download&nbsp;the&nbsp;Mac&nbsp;app&nbsp;(.dmg)</b><span>Apple silicon or T2 · macOS 14+</span></span>
       </a>
       <p class="meta">Both apps are free, with no account to create.</p>
-      <p class="meta">The Mac build updates itself. Homebrew works too: <code>brew install --cask notifi-it/tap/notifi</code></p>
+      <p class="meta">The Mac build updates itself. <a href="https://brew.sh" class="src">Homebrew</a> works too:</p>
+    </div>
+
+    <div class="term term-brew">
+      <div class="term-bar">
+        <span class="dot3"><i></i><i></i><i></i></span>
+        <span class="term-title">Homebrew</span>
+        <button class="copy" aria-label="Copy the Homebrew install command" data-copy="brew install --cask notifi-it/tap/notifi">Copy</button>
+      </div>
+<pre><span class="p">$</span> brew install --cask <span class="s">notifi-it/tap/notifi</span></pre>
     </div>
 
   </div>
@@ -1596,7 +1685,6 @@ spec:
     <div class="section-head">
       <p class="eyebrow">Reviews</p><hr class="rule">
     </div>
-    <h2 style="margin-bottom:10px">What people write on the App Store.</h2>
     <div class="rating" id="reviews-rating"></div>
     <p class="lede" style="margin-bottom:28px;font-style:italic">
       Unfortunately, we didn't realize we had any users when we took down the servers.
