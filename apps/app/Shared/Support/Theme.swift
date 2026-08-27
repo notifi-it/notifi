@@ -297,6 +297,159 @@ extension View {
             }
         }
     }
+
+    func grainGlyph(active: Bool = true, cell: CGFloat = 3, shiftScale: CGFloat = 1) -> some View {
+        modifier(GrainGlyph(active: active, cell: cell, shiftScale: shiftScale))
+    }
+
+    func grainBurst(on active: Bool, cell: CGFloat = 3, shiftScale: CGFloat = 1, duration: TimeInterval = 0.65) -> some View {
+        modifier(GrainBurst(active: active, cell: cell, shiftScale: shiftScale, duration: duration))
+    }
+}
+
+struct GrainGlyph: ViewModifier {
+    var active: Bool
+    var cell: CGFloat
+    var shiftScale: CGFloat
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if active && !reduceMotion {
+            TimelineView(.animation) { context in
+                let time = context.date.timeIntervalSinceReferenceDate
+                let shift = Self.chromaShift(at: time) * shiftScale
+                GrainFrame(shift: shift, time: time, cell: cell, strength: 1) { content }
+                    .opacity(Self.glow(at: time))
+            }
+        } else {
+            content
+        }
+    }
+
+    private static func chromaShift(at time: TimeInterval) -> CGFloat {
+        var generator = SeededGenerator(seed: (time * 11).rounded(.down))
+        guard Double.random(in: 0...1, using: &generator) < 0.22 else { return 0 }
+        return CGFloat(Double.random(in: 0.8...3.2, using: &generator))
+    }
+
+    private static func glow(at time: TimeInterval) -> Double {
+        var episode = SeededGenerator(seed: (time * 1.7).rounded(.down))
+        guard Double.random(in: 0...1, using: &episode) < 0.13 else { return 1 }
+        var pulse = SeededGenerator(seed: (time * 18).rounded(.down))
+        guard Double.random(in: 0...1, using: &pulse) < 0.4 else { return 1 }
+        return Double.random(in: 0.35...0.62, using: &pulse)
+    }
+}
+
+struct GrainBurst: ViewModifier {
+    var active: Bool
+    var cell: CGFloat
+    var shiftScale: CGFloat
+    var duration: TimeInterval
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var burstEnds: Date?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        Group {
+            if let burstEnds {
+                TimelineView(.animation) { context in
+                    let remaining = burstEnds.timeIntervalSince(context.date)
+                    let intensity = pow(max(0, min(1, remaining / duration)), 2)
+                    let time = context.date.timeIntervalSinceReferenceDate
+                    let shift = Self.chromaShift(at: time, intensity: intensity) * shiftScale
+                    GrainFrame(shift: shift, time: time, cell: cell, strength: intensity) { content }
+                        .opacity(Self.glow(at: time, intensity: intensity))
+                }
+                .task(id: burstEnds) {
+                    try? await Task.sleep(for: .seconds(max(0, burstEnds.timeIntervalSinceNow)))
+                    self.burstEnds = nil
+                }
+            } else {
+                content
+            }
+        }
+        .onChange(of: active) { _, hovering in
+            guard hovering, !reduceMotion else { return }
+            burstEnds = Date(timeIntervalSinceNow: duration)
+        }
+    }
+
+    private static func chromaShift(at time: TimeInterval, intensity: Double) -> CGFloat {
+        guard intensity > 0 else { return 0 }
+        var generator = SeededGenerator(seed: (time * 11).rounded(.down))
+        guard Double.random(in: 0...1, using: &generator) < 0.15 + 0.85 * intensity else { return 0 }
+        return CGFloat(Double.random(in: 0.8...3.2, using: &generator) * intensity)
+    }
+
+    private static func glow(at time: TimeInterval, intensity: Double) -> Double {
+        guard intensity > 0 else { return 1 }
+        var pulse = SeededGenerator(seed: (time * 18).rounded(.down))
+        guard Double.random(in: 0...1, using: &pulse) < 0.45 * intensity else { return 1 }
+        return 1 - Double.random(in: 0.38...0.65, using: &pulse) * intensity
+    }
+}
+
+private struct GrainFrame<Glyph: View>: View {
+    let shift: CGFloat
+    let time: TimeInterval
+    let cell: CGFloat
+    let strength: Double
+    @ViewBuilder let glyph: Glyph
+
+    var body: some View {
+        ZStack {
+            if shift > 0 {
+                glyph
+                    .overlay { Theme.chromaWarm }
+                    .mask(glyph)
+                    .offset(x: -shift)
+                glyph
+                    .overlay { Theme.chromaCool }
+                    .mask(glyph)
+                    .offset(x: shift)
+            }
+
+            glyph
+                .overlay { grain }
+                .mask(glyph)
+        }
+    }
+
+    private var grain: some View {
+        Canvas { canvasContext, size in
+            var generator = SeededGenerator(seed: time)
+            let columns = Int(size.width / cell) + 1
+            let rows = Int(size.height / cell) + 1
+            for row in 0..<rows {
+                for column in 0..<columns {
+                    guard Double.random(in: 0...1, using: &generator) < 0.5 else { continue }
+                    let rect = CGRect(x: CGFloat(column) * cell, y: CGFloat(row) * cell, width: cell, height: cell)
+                    let brightness = Double.random(in: 0...1, using: &generator)
+                    canvasContext.fill(Path(rect), with: .color(.white.opacity(brightness * 0.35 * strength)))
+                }
+            }
+        }
+        .blendMode(.overlay)
+    }
+}
+
+private struct SeededGenerator: RandomNumberGenerator {
+    private var state: UInt64
+
+    init(seed: TimeInterval) {
+        state = UInt64(bitPattern: Int64(seed * 1000)) &* 2862933555777941757 &+ 1
+    }
+
+    mutating func next() -> UInt64 {
+        state ^= state << 13
+        state ^= state >> 7
+        state ^= state << 17
+        return state
+    }
 }
 
 struct Hairline: View {
