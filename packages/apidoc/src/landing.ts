@@ -104,8 +104,6 @@ const NOTE_LABELS: Record<string, string> = {
 };
 
 export function landingEndpoint(): string {
-  // no-reveal: this line is the endpoint itself, reference a reader jumps to
-  // rather than prose they scroll into, so it opts out of the scroll reveal.
   return `    <p class="lede no-reveal" style="margin-top:14px;margin-bottom:8px">
       <code>GET</code> or <code>POST</code> <code>${ORIGIN}${ENDPOINT}</code>
     </p>
