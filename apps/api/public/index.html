@@ -20,7 +20,7 @@
 </script>
 <!-- Kept under ~60 characters: a result page truncates past that, and the
      differentiator sits at the end where it would be the part cut. -->
-<title>notifi: push notifications to iPhone and Mac from one request</title>
+<title>notifi: Push notifications</title>
 <meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, no SDK, open source, and the notification is sealed so neither we nor Apple can read it.">
 <meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -984,8 +984,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p class="lede">
       notifi is free.
       Install the app, grab your key, and send an HTTP request to
-      <code>notifi.it/send</code>. The notification shows up on your iPhone or Mac,
-      encrypted with your public key, so neither we nor Apple can read it.
+      <code>notifi.it/send</code>.
     </p>
 
     <div class="cta">
@@ -1125,7 +1124,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <p class="eyebrow">API</p><hr class="rule">
     </div>
 <!-- gen:endpoint -->
-    <p class="lede" style="margin-top:14px;margin-bottom:8px">
+    <!-- no-reveal: this line is the endpoint itself, reference a reader jumps
+         to rather than prose they scroll into, so it stays at full contrast. -->
+    <p class="lede no-reveal" style="margin-top:14px;margin-bottom:8px">
       <code>GET</code> or <code>POST</code> <code>https://notifi.it/send</code>
     </p>
     <p class="meta" style="margin-bottom:26px">
@@ -1206,7 +1207,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <p class="eyebrow">Send</p><hr class="rule">
     </div>
     <p class="lede" style="margin-top:14px;margin-bottom:26px">
-      Copy a snippet below and put your key in it. Anything that can make an HTTP request can send.
+      Copy a snippet below and put your key in it. Anything that can make an HTTP request can send a notification to your device.
     </p>
 
     <!-- Seven, and they fit on one line. Twelve wrapped to three rows of chips,
@@ -1950,7 +1951,7 @@ document.querySelectorAll('.tabs').forEach(list => {
 (function(){
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  var targets = document.querySelectorAll("h2, .lede");
+  var targets = document.querySelectorAll("h2, .lede:not(.no-reveal)");
   if (!targets.length) return;
 
   var items = [];
