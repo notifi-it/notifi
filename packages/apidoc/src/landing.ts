@@ -104,7 +104,7 @@ const NOTE_LABELS: Record<string, string> = {
 };
 
 export function landingEndpoint(): string {
-  return `    <p class="lede" style="margin-top:14px;margin-bottom:8px">
+  return `    <p class="lede no-reveal" style="margin-top:14px;margin-bottom:8px">
       <code>GET</code> or <code>POST</code> <code>${ORIGIN}${ENDPOINT}</code>
     </p>
     <p class="meta" style="margin-bottom:26px">

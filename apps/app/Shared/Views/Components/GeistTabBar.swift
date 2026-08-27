@@ -90,16 +90,54 @@ private struct TabButton: View {
                         .clapperSwing(trigger: shake)
                 }
             }
+                .grainBurst(on: hovering, cell: 2, shiftScale: 0.7)
                 .padding(.vertical, 4)
                 .foregroundStyle(tint)
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .onHover { hovering = $0 }
+        .overlay {
+            HoverZone { hovering = $0 }
+                .frame(width: 28, height: 28)
+        }
         .help(title)
         .accessibilityLabel(title)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    }
+}
+
+private struct HoverZone: NSViewRepresentable {
+    let onChange: (Bool) -> Void
+
+    func makeNSView(context: Context) -> TrackingView {
+        let view = TrackingView()
+        view.onChange = onChange
+        return view
+    }
+
+    func updateNSView(_ view: TrackingView, context: Context) {
+        view.onChange = onChange
+    }
+
+    final class TrackingView: NSView {
+        var onChange: ((Bool) -> Void)?
+
+        override func updateTrackingAreas() {
+            super.updateTrackingAreas()
+            trackingAreas.forEach(removeTrackingArea)
+            addTrackingArea(NSTrackingArea(
+                rect: bounds,
+                options: [.mouseEnteredAndExited, .activeAlways],
+                owner: self
+            ))
+        }
+
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+        override func mouseEntered(with event: NSEvent) { onChange?(true) }
+
+        override func mouseExited(with event: NSEvent) { onChange?(false) }
     }
 }
 #endif

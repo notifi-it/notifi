@@ -48,8 +48,11 @@ def first_installs_on(token, day):
         },
         timeout=30,
     )
+    # 404 means the report is not published (yet), which is not the same as a
+    # day of zero sales. Conflating the two is how the summary reported 0
+    # downloads every morning: the run fired before Apple published the day.
     if res.status_code == 404:
-        return 0, Counter()
+        return None, Counter()
     res.raise_for_status()
 
     tsv = gzip.decompress(res.content).decode()
@@ -167,14 +170,19 @@ def week_on_week(now, before, percent_floor=10):
 def compose_notification():
     token = app_store_connect_token()
     today = datetime.now(timezone.utc)
+    # Apple publishes a day's sales report in the early US-Pacific morning,
+    # after this workflow's 08:00 UTC run, and may revise it shortly after.
+    # Two days back is the newest date that is reliably published and stable,
+    # so the headline covers that day and the weekly windows shift with it.
+    report_day = today - timedelta(days=2)
     reports = [
         first_installs_on(token, (today - timedelta(days=n)).strftime("%Y-%m-%d"))
-        for n in range(1, 15)
+        for n in range(2, 16)
     ]
 
-    downloads_yesterday, countries = reports[0]
-    downloads_week = sum(n for n, _ in reports[:7])
-    downloads_prior = sum(n for n, _ in reports[7:])
+    downloads_latest, countries = reports[0]
+    downloads_week = sum(n for n, _ in reports[:7] if n is not None)
+    downloads_prior = sum(n for n, _ in reports[7:] if n is not None)
 
     day = query_production_d1(
         "SELECT COUNT(*) AS sends, COUNT(DISTINCT device_id) AS senders"
@@ -217,15 +225,24 @@ def compose_notification():
         else f"- Sends **{week['sends']}** from {senders(week['senders'])}"
         " · _no prior week to compare yet_"
     )
-    plural = "" if downloads_yesterday == 1 else "s"
+    weekday = report_day.strftime("%A")
+    if downloads_latest is None:
+        downloads_headline = f"Downloads unreported for {weekday}"
+        downloads_line = f"- Downloads ({weekday}) **unreported** — Apple has not published it"
+        downloads_title = "downloads unreported"
+    else:
+        plural = "" if downloads_latest == 1 else "s"
+        downloads_headline = f"**{downloads_latest}** download{plural} on {weekday}"
+        downloads_line = f"- Downloads ({weekday}) **{downloads_latest}**"
+        downloads_title = f"{downloads_latest} download{plural}"
 
     lines = [
-        f"**{downloads_yesterday}** download{plural} and "
+        f"{downloads_headline} and "
         f"**{day['sends']}** send{'' if day['sends'] == 1 else 's'} yesterday.",
         "",
         "**Yesterday**",
         f"- Sends **{day['sends']}** from {senders(day['senders'])}",
-        f"- Downloads **{downloads_yesterday}**",
+        downloads_line,
         f"- Devices **+{devices['day']}**",
         f"- Site **{humans_yday}** measured humans · {site_yday_u} IPs · {site_yday_v} loads",
         "",
@@ -243,7 +260,7 @@ def compose_notification():
         lines.append("- From " + " · ".join(f"{c} {n}" for c, n in countries.most_common(4)))
 
     title = (
-        f"notifi · {downloads_yesterday} download{plural}, "
+        f"notifi · {downloads_title}, "
         f"{day['sends']} send{'' if day['sends'] == 1 else 's'}"
     )
     return title, "\n".join(lines)
