@@ -247,13 +247,11 @@ def favicon_ink(colour):
         outline.replace(BRAND, colour).replace("<path", '<path class="ink"', 1),
     ))
 
-DARK_TAB = '  <style>@media (prefers-color-scheme: dark) {\n' \
-           '    .ink { fill: #EDEDED; stroke: #EDEDED }\n' \
-           '  }</style>'
-svg("%s/favicon.svg" % web, 32, 32, logo_box,
-    "%s\n%s" % (DARK_TAB, favicon_ink("#1A1A1A")))
+svg("%s/favicon.svg" % web, 32, 32, logo_box, favicon_ink("#EDEDED"),
+    note="\n\n       White ink in both tab themes, matching the site's own dark ground;\n"
+         "       the bell is never drawn black anywhere else either.")
 
-svg("%s/favicon-flat.svg" % TMP, 32, 32, logo_box, mark(logo_box, "#1A1A1A", "#BC2122"))
+svg("%s/favicon-flat.svg" % TMP, 32, 32, logo_box, mark(logo_box, "#EDEDED", "#BC2122"))
 
 plate = ('  <rect width="32" height="32" rx="7" fill="#1C1C1E"/>\n'
          '  <g transform="translate(16 16) scale(0.78) translate(-16 -16)">\n'

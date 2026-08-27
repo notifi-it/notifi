@@ -163,3 +163,119 @@
   window.addEventListener("resize", onScroll);
   frame();
 })();
+
+// GrainyBell at link scale — the 404 glyph's decay on the pages' content
+// links, with the odds of 404.js and the app unchanged: while hovered, an
+// 18Hz tick re-rolls a 22% chance of misconvergence every other frame,
+// cycles six grain tiles at 12fps, and dips the brightness inside rare
+// episodes. At rest a link keeps a single tell — one brief split every few
+// seconds — so the instability is part of what marks it as live.
+//
+// Links are only rebuilt into the layered form when it cannot cost them
+// anything: plain text, short enough never to need a mid-link wrap (the
+// layers require inline-block, which wraps as a unit), and on one line at
+// build time. Everything else keeps the plain underline. The 404's own
+// links stay quiet on purpose — that page's glyph is the effect.
+(function(){
+  if (document.body.classList.contains("notfound")) return;
+  var links = [].filter.call(document.querySelectorAll(".doc a"), function(a){
+    var text = a.textContent.trim();
+    return a.children.length === 0 &&
+           text.length > 0 && text.length <= 25 &&
+           a.getClientRects().length === 1;
+  });
+  if (!links.length) return;
+
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  // The grain tile: opaque greys either side of mid so hard-light has
+  // something to darken with, at a cell fine enough for 16px glyphs.
+  var SIZE = 60;
+  var dpr = Math.min(window.devicePixelRatio || 1, 3);
+  function tile(){
+    var t = document.createElement("canvas");
+    t.width = t.height = SIZE * dpr;
+    var tc = t.getContext("2d");
+    var img = tc.createImageData(t.width, t.height);
+    var d = img.data;
+    var cell = Math.max(1, Math.round(1.5 * dpr));
+    for (var y = 0; y < t.height; y += cell){
+      for (var x = 0; x < t.width; x += cell){
+        var v = 128 + (Math.random() - 0.5) * 2 * 34;
+        for (var dy = 0; dy < cell && y + dy < t.height; dy++){
+          for (var dx = 0; dx < cell && x + dx < t.width; dx++){
+            var o = ((y + dy) * t.width + (x + dx)) * 4;
+            d[o] = d[o+1] = d[o+2] = v; d[o+3] = 255;
+          }
+        }
+      }
+    }
+    tc.putImageData(img, 0, 0);
+    return "url(" + t.toDataURL("image/png") + ")";
+  }
+  var frames = [];
+  for (var i = 0; i < 6; i++) frames.push(tile());
+
+  for (var k = 0; k < links.length; k++) build(links[k]);
+
+  function build(a){
+    var text = a.textContent;
+    a.textContent = "";
+    var layers = ["gghost gwarm", "gghost gcool", "gsolid"];
+    for (var i = 0; i < layers.length; i++){
+      var s = document.createElement("span");
+      s.className = layers[i];
+      s.textContent = text;
+      if (layers[i] !== "gsolid") s.setAttribute("aria-hidden", "true");
+      a.appendChild(s);
+    }
+    a.classList.add("glitch");
+    a.style.setProperty("--ggrain", frames[0]);
+
+    var timer = null, n = 0, episode = false;
+
+    // The iOS bell's shift range in absolute pixels: the 404's em range is
+    // sub-pixel at text sizes, and a fringe that cannot reach a pixel
+    // simply is not there.
+    function split(){
+      a.style.setProperty("--gshift", (0.8 + Math.random() * 1.4).toFixed(2) + "px");
+      a.style.setProperty("--gchroma", "1");
+    }
+    function tick(){
+      n++;
+      a.style.setProperty("--ggrain", frames[((n / 1.5) | 0) % frames.length]);
+      if (n % 11 === 0) episode = Math.random() < 0.13;
+      var dim = episode && Math.random() < 0.4;
+      a.style.setProperty("--glow", dim ? (0.35 + Math.random() * 0.27).toFixed(2) : "1");
+      if (n % 2 === 0){
+        if (Math.random() < 0.22) split();
+        else a.style.setProperty("--gchroma", "0");
+      }
+    }
+    function start(){
+      if (still.matches || timer) return;
+      n = 0; episode = false;
+      split();
+      timer = setInterval(tick, 1000 / 18);
+    }
+    function stop(){
+      if (timer){ clearInterval(timer); timer = null; }
+      a.style.setProperty("--gchroma", "0");
+      a.style.setProperty("--glow", "1");
+    }
+    a.addEventListener("mouseenter", start);
+    a.addEventListener("mouseleave", stop);
+    a.addEventListener("focus", start);
+    a.addEventListener("blur", stop);
+
+    (function tell(){
+      setTimeout(function(){
+        if (!timer && !still.matches && !document.hidden){
+          split();
+          setTimeout(function(){ if (!timer) a.style.setProperty("--gchroma", "0"); }, 90);
+        }
+        tell();
+      }, 2500 + Math.random() * 3000);
+    })();
+  }
+})();
