@@ -257,20 +257,27 @@ private struct MonoLine: View {
 
     static let ellipsis = "..."
 
+    private static let tracking: CGFloat = -0.34
+    private static let ruler = String(repeating: "0", count: 40)
+
     @State private var cell: CGFloat = 0
     @State private var available: CGFloat = 0
 
+    private static var reserved: Int {
+        Int((CGFloat(ellipsis.count) * (1 + tracking)).rounded(.up))
+    }
+
     private var head: String? {
         guard cell > 0, available > 0 else { return nil }
-        let cells = Int(available / cell)
-        guard cells > Self.ellipsis.count, text.count > cells else { return nil }
-        let cut = text.prefix(cells - Self.ellipsis.count)
+        let cells = Int((available + cell * 0.02) / cell)
+        guard cells > Self.reserved, text.count > cells else { return nil }
+        let cut = text.prefix(cells - Self.reserved)
         return String(cut.reversed().drop { $0 == "." || $0.isWhitespace }.reversed())
     }
 
     private var line: Text {
         guard let head else { return Text(text) }
-        return Text(head) + Text(Self.ellipsis).tracking(-cell * 0.34)
+        return Text(head) + Text(Self.ellipsis).tracking(cell * Self.tracking)
     }
 
     var body: some View {
@@ -288,15 +295,17 @@ private struct MonoLine: View {
                 }
             }
             .background(alignment: .leading) {
-                Text(verbatim: "0")
+                Text(verbatim: Self.ruler)
                     .font(font)
+                    .lineLimit(1)
+                    .fixedSize()
                     .hidden()
                     .accessibilityHidden(true)
                     .background {
                         GeometryReader { proxy in
                             Color.clear
                                 .onChange(of: proxy.size.width, initial: true) { _, width in
-                                    cell = width
+                                    cell = width / CGFloat(Self.ruler.count)
                                 }
                         }
                     }
