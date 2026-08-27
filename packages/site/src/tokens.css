@@ -23,6 +23,11 @@
   --surface:#262628;
   --brand:#C82A2A;
   --brand-text:#DB4A4B;
+  /* Theme.chromaWarm and Theme.chromaCool, dark values, from the app's
+     Theme.swift. Everything on the site that misconverges — the 404 glyph,
+     the content links — fringes in these two colours. */
+  --chroma-warm:#E03234;
+  --chroma-cool:#36C4D8;
   --mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --gutter:clamp(20px,5vw,40px);
@@ -131,6 +136,30 @@ nav a:hover{color:var(--fg)}
 .doc strong{color:var(--fg);font-weight:500}
 .doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
 .doc a:hover{text-decoration-color:var(--fg)}
+
+/* GrainyBell at link scale: the 404 glyph's decay on the content links, built
+   by the link-glitch block in site.js (which also says which links are left
+   unbuilt, and why). Two ghost copies behind a solid copy that carries the
+   grain clipped into its own glyphs, and the dropout on the whole assembly.
+   The underline moves onto the solid copy because text-decoration does not
+   propagate into an inline-block child. */
+a.glitch{position:relative;display:inline-block;text-decoration:none;opacity:var(--glow,1)}
+a.glitch .gghost{position:absolute;inset:0;opacity:var(--gchroma,0);pointer-events:none}
+a.glitch .gwarm{color:var(--chroma-warm);transform:translateX(calc(var(--gshift,0px) * -1))}
+a.glitch .gcool{color:var(--chroma-cool);transform:translateX(var(--gshift,0px))}
+/* hard-light, not overlay, for the 404's reason: these links sit at --fg, and
+   against a tone this close to white every overlay grain pixel screens, so
+   the texture disappears. */
+a.glitch .gsolid{
+  position:relative;display:inline-block;
+  background-image:var(--ggrain,none),linear-gradient(currentColor,currentColor);
+  background-size:60px 60px,auto;
+  background-blend-mode:hard-light,normal;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px;
+}
+a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
 
 .card{
   border:1px solid var(--line);border-radius:10px;background:var(--surface);

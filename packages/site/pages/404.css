@@ -1,13 +1,9 @@
 /* The 404 page only. Appended after the shared tokens, so nothing here
    has to out-specify them by accident. */
 :root{
-  /* Theme.chromaWarm and Theme.chromaCool, dark values, from the app's
-     Theme.swift. The 404 glyph degrades the same way the app's empty-state
-     bell does, so it fringes in the same two colours. */
-  --chroma-warm:#E03234;
-  --chroma-cool:#36C4D8;
   /* Replaced by the script with a noise tile. `none` is a real background
-     layer, so the glyph still paints its base tone with no JS. */
+     layer, so the glyph still paints its base tone with no JS. The chroma
+     pair the glyph fringes in lives in the shared tokens. */
   --noise:none;
 }
 
