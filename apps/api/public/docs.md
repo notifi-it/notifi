@@ -2,7 +2,7 @@
 
 > One endpoint, seven parameters, no SDK. Everything on this page is generated from the same file that generates [`/openapi.json`](https://notifi.it/openapi.json) and the client collections, so the three cannot disagree.
 
-_[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi.it/docs#auth) [Request](https://notifi.it/docs#request) [Parameters](https://notifi.it/docs#parameters) [Response](https://notifi.it/docs#response) [Errors](https://notifi.it/docs#errors) [Rate limits](https://notifi.it/docs#limits) [Clients and import](https://notifi.it/docs#clients) [Machine-readable](https://notifi.it/docs#machine) [Recipes](https://notifi.it/docs#recipes)_
+_[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi.it/docs#auth) [Request](https://notifi.it/docs#request) [Parameters](https://notifi.it/docs#parameters) [Response](https://notifi.it/docs#response) [Errors](https://notifi.it/docs#errors) [Rate limits](https://notifi.it/docs#limits) [Clients and import](https://notifi.it/docs#clients) [For the bots](https://notifi.it/docs#machine) [Recipes](https://notifi.it/docs#recipes)_
 
 ## Quickstart
 
@@ -48,8 +48,8 @@ Accept-Language: en-GB
 | --- | --- | --- | --- | --- |
 | `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on. |
 | `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
-| `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning. |
-| `link` | string (uri) | optional | `≤ 2,048 chars` | URL opened when the notification is tapped. https always opens. Another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden. |
+| `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. A longer body is delivered cropped, with a warning. |
+| `link` | string (uri) | optional | `≤ 2,048 chars` | A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden. |
 | `image` | string (uri) | optional | `≤ 2,048 chars` | https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives. |
 | `occurred_at` | integer | optional | `unix ms` | When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request. |
 | `is_critical` | boolean | optional | — | Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array. |
@@ -113,9 +113,9 @@ Content-Type: application/json; charset=utf-8
 {"ok":true,"warnings":["Sent with a shortened title: it was over 200 characters.","Sent as a normal notification: critical alerts are switched off for this key."]}
 ```
 
-### Over-length text is cropped
+### Over-length text is cropped, invalid images dropped
 
-A title over 200 characters or a body over 16000 is delivered cropped, with a warning. The device can refuse instead: **Reject invalid sends**, in the app's Settings, makes a send that would have been cropped or stripped answer `422 invalid_content` and store nothing. It is off by default, so cropping is what a send meets unless the person holding the device turned it on.
+A title over 200 characters or a body over 16000 is delivered cropped, with a warning. An image that cannot be fetched, is not a PNG, JPEG or GIF, or is over 5 MB is dropped the same way: the notification arrives without it, with a warning. The device can refuse instead: **Reject invalid sends**, in the app's Settings, makes a send that would have been cropped or stripped answer `422 invalid_content` and store nothing. It is off by default, so cropping is what a send meets unless the person holding the device turned it on.
 
 ![The Settings screen, showing the Reject invalid sends switch turned off.](/shots/settings-reject-invalid-sends.png)
 
@@ -128,6 +128,14 @@ _Settings → Permissions → Reject invalid sends. Off, the default: sends are 
 ![A key's screen in the app, showing the Critical alerts switch turned on.](/shots/key-critical-alerts.png)
 
 _Keys → a key → Settings → Critical alerts. Each key carries its own permission._
+
+### A link does not have to be https
+
+`link` accepts any URL scheme, so it can point at a website or deep-link into another app on the device. The app opens only `https` links until **Open any link** is switched on for the key, in that key's screen under the Keys tab. A sender cannot turn it on — only the person holding the device can.
+
+![A key's screen in the app, showing the Open any link switch.](/shots/key-open-any-link.png)
+
+_Keys → a key → Settings → Open any link. Off, only https links open._
 
 ## Errors
 
@@ -200,7 +208,7 @@ openapi-generator-cli generate \
   -o ./notifi
 ```
 
-## Machine-readable
+## For the bots
 
 - [`/llms.txt`](https://notifi.it/llms.txt) — The full reference as plain text, written for coding agents.
 - [`/openapi.json`](https://notifi.it/openapi.json) — OpenAPI 3.1 for /send.
@@ -509,7 +517,7 @@ spec:
 
 ## Questions
 
-The [FAQ](https://notifi.it/faq) covers cost, limits, what the server can read and what happens when you delete the app. Anything else goes to [hello@notifi.it](mailto:hello@notifi.it).
+The [FAQ](https://notifi.it/faq) covers cost, limits, what the server can read and what happens when you delete the app. If yours isn't there, write to [hello@notifi.it](mailto:hello@notifi.it).
 
 ---
 

@@ -3,7 +3,7 @@
   "info": {
     "title": "notifi",
     "summary": "Push notifications to an iPhone, iPad or Mac from one HTTP request.",
-    "description": "notifi delivers a push notification to the device that created the send key you authenticate with. There is no account and no SDK: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.\n\nSend keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.\n\nWhen to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.",
+    "description": "notifi delivers a push notification to the device that created the send key you authenticate with. There is no account: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.\n\nSend keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.\n\nWhen to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.",
     "version": "1.0.0",
     "termsOfService": "https://notifi.it/terms",
     "license": {
@@ -219,7 +219,7 @@
         "name": "link",
         "in": "query",
         "required": false,
-        "description": "URL opened when the notification is tapped.",
+        "description": "A link to a website or internal app.",
         "schema": {
           "type": "string",
           "maxLength": 2048,
@@ -288,7 +288,7 @@
           "message": {
             "type": "string",
             "maxLength": 16000,
-            "description": "The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning.",
+            "description": "The notification body, in Markdown. A longer body is delivered cropped, with a warning.",
             "examples": [
               "Your first notification."
             ]
@@ -297,7 +297,7 @@
             "type": "string",
             "maxLength": 2048,
             "format": "uri",
-            "description": "URL opened when the notification is tapped. https always opens. Another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.",
+            "description": "A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.",
             "examples": [
               "https://notifi.it/docs"
             ]

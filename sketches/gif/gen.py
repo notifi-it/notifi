@@ -1,3 +1,4 @@
+import re
 O=[0.0,100/3,200/3]
 def g(p,x): return round(O[p]+x,3)
 KARLA,RECUR=('/fonts/karla.woff2','/fonts/recursive-mono.woff2')
@@ -7,10 +8,10 @@ ANAGLYPH='/anaglyph-bell.png'
 # ---- original composition (film.js): terminal centred, devices centred, dots on the 50% midline
 TERM='left:4.17%;top:24.5%;width:38.43%;height:55%'
 DOTY=50.0
-DEV=[('left:64.25%;top:6.22%;width:18.5%;aspect-ratio:428/900'),
-     ('left:53.15%;top:17.55%;width:40.7%;aspect-ratio:1292/916'),
+DEV=[('left:53.15%;top:17.55%;width:40.7%;aspect-ratio:1292/916'),
+     ('left:64.25%;top:6.22%;width:18.5%;aspect-ratio:428/900'),
      ('left:51.75%;top:18.96%;width:43.5%;aspect-ratio:1640/1040')]
-TRAIL=[f'left:43.52%;width:19.91%;top:{DOTY}%',f'left:43.52%;width:8.79%;top:{DOTY}%',f'left:43.52%;width:7.41%;top:{DOTY}%']
+TRAIL=[f'left:43.52%;width:8.79%;top:{DOTY}%',f'left:43.52%;width:19.91%;top:{DOTY}%',f'left:43.52%;width:7.41%;top:{DOTY}%']
 
 SIG='<svg viewBox="0 0 25 18" class="ic" style="--w:{w}"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg>'
 WIFI='<svg viewBox="0 0 25 18" class="ic st" style="--w:{w}"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="fl"/></svg>'
@@ -24,7 +25,7 @@ PD_LOCK=lock('left:0;right:0;top:13%','1.474','7.985','Tuesday 11 August','10:24
 PHFIX=lambda h: h.replace('class="sbar"','class="sbar ph"',1)
 def sbar(st,fs,l,ic): return f'<div class="sbar" style="{st};--fs:{fs}"><span>{l}</span><span class="icons">{ic}</span></div>'
 PH_SB=PHFIX(sbar('left:7%;right:7%;top:2.3%;height:4.6%','5.946','',SIG.format(w=5.784)+WIFI.format(w=5.676)+BATT.format(w=8.757)))
-PD_SB=sbar('left:7.5%;right:7.5%;top:5.4%;height:4.2%','1.769','',WIFI.format(w=3.145)+BATT.format(w=4.324))
+PD_SB=sbar('left:7.5%;right:7.5%;top:5.4%;height:4.2%','1.769','',WIFI.format(w=2.803)+BATT.format(w=4.324))
 MC_SB=('<div class="sbar mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs:1.563">'
        '<svg class="amark" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg><span class="icons"><span class="mbell"></span>'+BATT.format(w=3.218)+
        '<span class="dt" data-clock="menubar">Tue 11 Aug 10:24</span></span></div>')
@@ -45,35 +46,42 @@ CPROMPT=['Build an app to send notifications over HTTP',
 CREPLY='It already exists. Check your phone.'
 
 PASSES=[
- dict(title='claude — ~/notifi',head=('Get a push notification to your device','from anything that can make an HTTP request.'),
-  claude=True,lines=[],
-  card=('Claude Finished','No mistakes made.'),cardpos='left:73.5%;top:42.2%;width:15%',sb=PH_SB+PH_LOCK,clip=None),
- dict(title='run.sh — -zsh',head=('One key per device.','Each iPhone, iPad or Mac gets its own key.'),
+ dict(title='run.sh — -zsh',head=('Get a push notification to your device','from anything that can make an HTTP request.'),
+  typed=True,
   lines=['<span class="c">$</span> curl notifi.it/send \\',
          '    -d key=<span class="k">nk_live_8f3a</span> \\','    -d title=<span class="s">"Hello from notifi"</span> \\',
          '    -d message=<span class="s">"Your first notification."</span> \\',
          '    -d link=<span class="s">https://notifi.it/docs</span> \\',
          '    -d image=<span class="s">https://notifi.it/anaglyph-bell.png</span>'],
   card=('Hello from notifi','Your first notification.'),thumb=ANAGLYPH,cardpos='left:73.5%;top:45.5%;width:22%',sb=PD_SB+PD_LOCK,clip=None),
- dict(title='ci.yml — -zsh',head=('No signup, no SDK.','Install the app, copy your key, start sending.'),
-  lines=['<span class="c"># a CI step fires only when the build fails</span>','<span class="s">- name:</span> notify',
-         '  <span class="s">run:</span> <span class="c">|</span>','    curl notifi.it/send -d key=<span class="k">$NOTIFI_KEY</span> \\',
-         '      -d title=<span class="s">"Build failed"</span> -d link=<span class="s">$RUN_URL</span>'],
-  card=('Build failed','tests (3.11) exited 1'),cardpos='left:76%;top:19.5%;width:43.15%',sb=MC_SB,
+ dict(title='claude — ~/notifi',head=('One key per device.','Each iPhone, iPad or Mac gets its own key.'),
+  claude=True,lines=[],
+  card=('Claude Finished','No mistakes made.'),cardpos='left:73.5%;top:42.2%;width:15%',sb=PH_SB+PH_LOCK,clip=None),
+ dict(title='train.py — -zsh',head=('No signup, no SDK.','Install the app, copy your key, start sending.'),
+  noresp=True,
+  lines=['<span class="c"># tell me when the training run ends</span>',
+         'import requests, tensorflow as tf',
+         'run = model.fit(train_ds, epochs=40)',
+         'loss = run.history[<span class="s">"val_loss"</span>][-1]',
+         'requests.post(<span class="s">"https://notifi.it/send"</span>,',
+         '    headers={<span class="s">"Authorization"</span>: <span class="s">f"Bearer {<span class="k">KEY</span>}"</span>},',
+         '    json={<span class="s">"title"</span>: <span class="s">"Training finished"</span>,',
+         '          <span class="s">"message"</span>: <span class="s">f"val loss {loss:.3f}"</span>})'],
+  card=('Training finished','val loss 0.041'),cardpos='left:76%;top:19.5%;width:43.15%',sb=MC_SB,
   clip='left:54.38%;top:21.05%;width:38.24%;height:55.52%'),
 ]
-SVG=["""<svg viewBox="0 0 428 900">
+SVG=["""<svg viewBox="0 0 1292 916">
+      <rect class="o" x="0" y="0" width="1292" height="916" rx="42"/>
+      <rect class="scr" x="41" y="41" width="1210" height="834" rx="18"/>
+      <circle class="dot" cx="646" cy="20" r="5"/>
+    </svg>""",
+"""<svg viewBox="0 0 428 900">
       <mask id="gfPhoneCut"><rect x="-20" y="-20" width="468" height="940" fill="#fff"/><rect x="151.5" y="24" width="125" height="37" rx="18.5" fill="#000"/></mask>
       <g mask="url(#gfPhoneCut)">
       <rect class="o" x="0" y="0" width="428" height="900" rx="75"/>
       <rect class="scr" x="13" y="13" width="402" height="874" rx="62"/>
       </g>
       <rect class="dot" x="145.5" y="870" width="137" height="5" rx="2.5"/>
-    </svg>""",
-"""<svg viewBox="0 0 1292 916">
-      <rect class="o" x="0" y="0" width="1292" height="916" rx="42"/>
-      <rect class="scr" x="41" y="41" width="1210" height="834" rx="18"/>
-      <circle class="dot" cx="646" cy="20" r="5"/>
     </svg>""",
 """<svg viewBox="0 0 1640 1040">
       <mask id="gfMacCut"><rect x="-20" y="-20" width="1680" height="1080" fill="#fff"/><path d="M 727.5 32 L 727.5 65 Q 727.5 85 747.5 85 L 892.5 85 Q 912.5 85 912.5 65 L 912.5 32 Z" fill="#000"/></mask>
@@ -108,10 +116,18 @@ for p in range(3):
             end=32.2 if last else b
             kf.append(f"@keyframes car{p}_{i}{{0%,{g(p,a)}%{{opacity:0}} {g(p,a+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
         kf.append(f"@keyframes reply{p}{{0%,{g(p,15.2)}%{{opacity:0}} {g(p,16.2)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+    elif PASSES[p].get('typed'):
+        spans=lnspans(len(PASSES[p]['lines']))
+        for i,(s,e) in enumerate(spans):
+            n=len(re.sub('<[^>]*>','',PASSES[p]['lines'][i]))
+            kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps({n},end)}} {g(p,e)}%,100%{{width:{n}ch}}}}")
+            last=(i==len(spans)-1)
+            end=32.2 if last else e
+            kf.append(f"@keyframes lcar{p}_{i}{{0%,{g(p,s)}%{{opacity:0}} {g(p,s+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
     else:
         for i,(s,e) in enumerate(lnspans(len(PASSES[p]['lines']))):
             kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps(30,end)}} {g(p,e)}%,100%{{width:100%}}}}")
-    if not PASSES[p].get('claude'):
+    if not PASSES[p].get('claude') and not PASSES[p].get('noresp'):
         kf.append(f"@keyframes rs{p}{{0%,{g(p,16.5)}%{{opacity:0}} {g(p,17.5)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     for k in range(5):
         st,on,off,gone=16.5+k*.6,17.5+k*.6,21.5+k*.25,23+k*.25
@@ -144,6 +160,9 @@ for p,P in enumerate(PASSES):
                       f'<i class="ccar cr{p}_{i}"></i></div>' for i,ln in enumerate(CPROMPT))
                   + f'<div class="crule"></div>'
                   + f'<div class="creply rp{p}"><i class="cdot"></i>{CREPLY}</div></div>')
+    elif P.get('typed'):
+        lns="".join(f'<div class="shline"><span class="ltype l{p}_{i}">{t}</span><i class="ccar lc{p}_{i}"></i></div>' for i,t in enumerate(P['lines']))
+        bh.append(f'<div class="body bg{p}">{lns}<div class="resp r{p}"><span class="r">{{"ok":true}}</span></div></div>')
     else:
         lns="".join(f'<div class="l{p}_{i}">{t}</div>' for i,t in enumerate(P['lines']))
         bh.append(f'<div class="body bg{p}">{lns}<div class="resp r{p}"><span class="r">{{"ok":true}}</span></div></div>')
@@ -162,12 +181,12 @@ for p,P in enumerate(PASSES):
     geo.append(f".cp{p}{{{P['cardpos']}}}")
     geo.append(f".tr{p}{{{TRAIL[p]}}}")
     if P['clip']: geo.append(f".cl{p}{{{P['clip']}}}")
-VERT_DEV=['left:19%;top:55%;width:62%;aspect-ratio:428/900',
-          'left:4%;top:56%;width:92%;aspect-ratio:1292/916',
+VERT_DEV=['left:4%;top:56%;width:92%;aspect-ratio:1292/916',
+          'left:19%;top:55%;width:62%;aspect-ratio:428/900',
           'left:2%;top:57%;width:96%;aspect-ratio:1640/1040']
-VERT_CARD=['left:50%;top:88.4%;width:50%','left:50%;top:73.5%;width:41%','left:50%;top:50%;width:92%']
+VERT_CARD=['left:50%;top:73.5%;width:41%','left:50%;top:88.4%;width:50%','left:50%;top:50%;width:92%']
 VERT_CLIP=['','','left:48%;top:59.9%;width:46%;height:9%']
-VERT_FS=[('.cp0',3.35),('.cp1',2.26),('.cp2',2.21)]
+VERT_FS=[('.cp0',2.26),('.cp1',3.35),('.cp2',2.21)]
 vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
       ".head .l1{--fs:3.6}.head .l2{--fs:3.0}",
@@ -183,9 +202,10 @@ for p in range(3):
 NLV=chr(10)
 VERTICAL="@media(max-width:760px){"+NLV+NLV.join(vgeo)+NLV+"}"
 still=[".stage *{animation:none}",
-       ".hd0,.bg0,.dv0,.sc0,.rp0{opacity:1}",
+       ".hd0,.bg0,.dv0,.sc0{opacity:1}",
+       ".body div.r0{opacity:1}",
        ".term .title.ti0{opacity:1}",
-       ".tp0_0,.tp0_1,.tp0_2{width:auto}",
+       ",".join(f".l0_{i}" for i in range(len(PASSES[0]['lines'])))+"{width:auto}",
        ".ccar,.trail{display:none}",
        ".hd1,.hd2,.bg1,.bg2,.dv1,.dv2,.ti1,.ti2,.cl2{display:none}",
        ".term .tabs button.tabA{background:var(--chip);color:var(--fg)}"]
@@ -199,12 +219,26 @@ for p in range(3):
             anim.append(f".cr{p}_{i}{{animation-name:car{p}_{i}}}")
         anim.append(f".rp{p}{{animation-name:reply{p}}}")
     else:
-        for i in range(len(PASSES[p]['lines'])): anim.append(f".l{p}_{i}{{animation-name:ln{p}_{i}}}")
+        for i in range(len(PASSES[p]['lines'])):
+            anim.append(f".l{p}_{i}{{animation-name:ln{p}_{i}}}")
+            if PASSES[p].get('typed'): anim.append(f".lc{p}_{i}{{animation-name:lcar{p}_{i}}}")
         anim.append(f".r{p}{{animation-name:rs{p}}}")
     for k in range(5): anim.append(f".dt{p}_{k}{{animation-name:d{p}_{k}}}")
     anim.append(f".sc{p}{{animation-name:sp{p}}}")
     anim.append(f".sc{p} .bb{{animation-name:rb{p}}}.sc{p} .bc{{animation-name:rc{p}}}")
-LSEL="".join(f".l{p}_{i}," for p,P in enumerate(PASSES) for i in range(len(P["lines"])))
+sel=[]
+for p,P in enumerate(PASSES):
+    sel+=[f".hd{p}",f".bg{p}",f".dv{p}",f".ti{p}",f".sc{p}"]
+    if P.get('claude'):
+        sel+=[f".tp{p}_{i}" for i in range(len(CPROMPT))]
+        sel+=[f".cr{p}_{i}" for i in range(len(CPROMPT))]
+        sel.append(f".rp{p}")
+    else:
+        sel+=[f".l{p}_{i}" for i in range(len(P['lines']))]
+        if P.get('typed'): sel+=[f".lc{p}_{i}" for i in range(len(P['lines']))]
+        sel.append(f".r{p}")
+    if P['clip']: sel.append(f".cl{p}")
+ANIMSEL=",".join(sel)+",.trail i,.tabs button,.bell i"
 NL=chr(10)
 html=f"""<!doctype html>
 <html lang="en">
@@ -221,9 +255,7 @@ html=f"""<!doctype html>
 body{{background:#161618;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:var(--sans);color:var(--fg)}}
 .stage{{position:relative;width:min(96vw,1600px);aspect-ratio:2160/960;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;container-type:inline-size}}
 .stage *{{font-size:calc(1cqw * var(--fs,1.5))}}
-.hd0,.hd1,.hd2,.bg0,.bg1,.bg2,.dv0,.dv1,.dv2,.ti0,.ti1,.ti2,.r0,.r1,.r2,.sc0,.sc1,.sc2,.cl2,
-{LSEL}
-.tp0_0,.tp0_1,.tp0_2,.cr0_0,.cr0_1,.cr0_2,.rp0,.trail i,.tabs button,.bell i{{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}}
+{ANIMSEL}{{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}}
 .head{{position:absolute;left:4.17%;top:9.2%;line-height:1.35;letter-spacing:-.01em;opacity:0}}
 .head .l1{{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}}
 .gif .l1{{--fs:2.3;color:var(--red)}}
@@ -258,6 +290,8 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .cchev{{color:var(--dim);flex:none}}
 .ctype{{display:inline-block;width:0;overflow:hidden;white-space:pre;vertical-align:bottom}}
 .ccar{{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}}
+.body div.shline{{width:auto;overflow:visible;display:flex;align-items:center}}
+.shline .ltype{{display:inline-block;width:0;overflow:hidden;white-space:pre}}
 .cinput+.cinput{{margin-top:-0.260cqw}}
 .creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
 .cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}}
@@ -306,7 +340,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
   {NL.join(hh)}
   <div class="term">
     <div class="bar"><i></i><i></i><i></i>{"".join(tih)}</div>
-    <div class="tabs"><button type="button" class="tabA" data-pass="0" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="tabB" data-pass="1" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="tabC" data-pass="2" aria-label="Play the ci.yml scene">workflows/ci.yml</button></div>
+    <div class="tabs"><button type="button" class="tabA" data-pass="0" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="tabB" data-pass="1" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="tabC" data-pass="2" aria-label="Play the train.py scene">~/train.py</button></div>
     <div class="bodywrap">
       {NL.join(bh)}
     </div>
