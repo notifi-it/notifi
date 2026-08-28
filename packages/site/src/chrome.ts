@@ -1,4 +1,4 @@
-import { AUTHOR, EMAIL, GITHUB, ORIGIN, OG_IMAGE, OG_IMAGE_ALT, SOCIAL, THEME_COLOR } from './constants.js';
+import { EMAIL, GITHUB, ORIGIN, OG_IMAGE, OG_IMAGE_ALT, SOCIAL, THEME_COLOR } from './constants.js';
 
 export interface Link {
   href: string;
@@ -127,7 +127,6 @@ export function footer(meta: Meta): string {
        only what is not up there — and never a link to the page you are on. -->
   <div class="wrap foot">
 ${links.map((link) => `    ${tag(link)}`).join('\n')}
-    <span class="meta">Built by ${AUTHOR}</span>
   </div>
 </footer>`;
 }
