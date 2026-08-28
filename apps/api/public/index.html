@@ -245,11 +245,10 @@ header.docked{
   transition:transform .3s var(--ease-out),opacity .3s var(--ease-out);
 }
 .bar{position:relative;display:flex;align-items:center;gap:14px;height:60px}
-/* The mark sits at the right end of the bar on wide screens, because that is
-   where the hero bell was when the bar arrived to replace it; row-reverse
-   keeps the bell outermost. On small screens the hero bell is centred, so the
-   docked mark centres too. */
-.mark{margin-left:auto;flex-direction:row-reverse;text-decoration:none}
+/* The bell alone, no wordmark, at the right end of the bar on wide screens —
+   that is where the hero bell was when the bar arrived to replace it. On
+   small screens the hero bell is centred, so the docked bell centres too. */
+.mark{margin-left:auto;display:flex;align-items:center;text-decoration:none}
 nav{display:flex;align-items:center;gap:22px}
 nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
 nav a:hover{color:var(--fg)}
@@ -264,13 +263,8 @@ nav a:hover{color:var(--fg)}
 @media(max-width:620px){
   nav .hide-sm{display:none}
   nav{margin-left:auto}
-  .mark{position:absolute;left:50%;transform:translateX(-50%);margin:0;flex-direction:row}
+  .mark{position:absolute;left:50%;transform:translateX(-50%);margin:0}
 }
-/* Below 360px the centred lockup and the Download button meet; the wordmark
-   gives way and the bell holds the centre alone. header .mark img, not
-   .mark img: the shared .lockup img rule sits later in the sheet and would
-   otherwise win the display back at equal specificity. */
-@media(max-width:360px){header .mark img{display:none}}
 /* The bell rings once each time the bar arrives. Pivot at the crown, not the
    centre — a real bell swings from where it hangs — and each swing loses
    height so it settles rather than stops. Runs on ::before so the layout box
@@ -1074,9 +1068,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <a href="/faq" class="hide-sm">FAQ</a>
       <a href="#download" class="navget">Download</a>
     </nav>
-    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+    <a class="mark" href="/" aria-label="notifi" style="--bell:24px">
       <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
     </a>
   </div>
 </header>
@@ -1727,7 +1720,8 @@ spec:
       </div>
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>
-        <p>Send with <code>is_critical=1</code> on a key you have marked critical, and the
+        <p>Send with <code>is_critical=1</code> on a key
+           <a href="/docs#critical-alerts">you have marked critical</a>, and the
            notification breaks through Focus and lands on the lock screen.</p>
       </div>
       <div class="row">
