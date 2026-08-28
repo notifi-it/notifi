@@ -17,15 +17,17 @@ Encryption is a **per-key setting**: each key carries an `is_encrypted` toggle i
 Key Detail, off by default. Flipping it on generates a **fresh P-256 keypair for
 that key alone** — distinct from the device's registered `encryption_public_key`,
 which keeps sealing the server's own envelope. The private half lives in the device
-keychain (shared with the NSE); the public half is **never sent to the server** —
-it appears only in Copy for scripts. Because the server never learns it, the server
+keychain (shared with the NSE, as the device key already is); the public half is
+**never sent to the server** — it appears only in Copy for scripts. Superseded
+private halves are **kept forever** — a Renew or a toggle flip mints a new keypair
+but never deletes the old one, or every row sealed to it dies. Because the server never learns it, the server
 cannot construct a blob that opens: sender forgery is closed, not just documented
 (§7). You flip a key on, copy its public key out of the app, and paste it into that
 key's script next to its send key. Every send to that key must then carry sealed
 fields — same parameter names, each value now `base64(HPKE-seal(value))`:
 
 ```
-POST /send                    (sends to an encrypted key are POST-only)
+POST /send                    (GET works as today; POST recommended)
   key=nk_...
   title=<base64>              required, sealed
   message=<base64>            optional, sealed
@@ -151,12 +153,13 @@ stamp. Everything downstream — `seal()`, the `INSERT`, the socket, the push �
 unchanged over the sealed values.
 
 **Device** — `ingest` opens the server envelope as today; when the content carries
-the `e2e` stamp it then opens each field. A field that fails to open shows the
-message as a visible "couldn't decrypt" row (new copy string) — the sender got a
-`202`, and the likeliest cause is a script still sealing to a renewed or
-pre-reinstall key, which only the recipient can notice. The NSE does the same
-two-step unwrap, keyed off the same stamp, and shows the existing fallback title
-when it cannot.
+the `e2e` stamp it picks the private key by the envelope's `key_id` — trying that
+key's older generations after a Renew — and opens each field. A field that fails
+to open shows the message as a visible "couldn't decrypt" row (new copy string) —
+the sender got a `202`, and the likeliest cause is a script still sealing to a
+renewed or pre-reinstall key, which only the recipient can notice. The NSE does
+the same two-step unwrap, keyed off the same stamp and `key_id`, and shows the
+existing fallback title when it cannot.
 
 ---
 
@@ -284,8 +287,9 @@ For the README, the first and second also on the site (§6).
 - **Metadata is visible.** Which key, which device, when, how urgent, which fields
   and roughly how long each — E2E hides contents, not the pattern of paging.
 - **The server cannot forge a message that opens** — it never learns the key's
-  public key — but it can still inject one *without* the `e2e` stamp, which
-  renders as plaintext. A plaintext row on an encrypted key is the tell.
+  public key. It can still inject an unstamped plaintext message; the app does
+  not flag those (a pre-flip row looks the same), it just renders them as the
+  plaintext they claim to be.
 - **Over ~1,800 characters the lock-screen preview degrades** to "New notification"
   (a warning, or a 422 under `strict_send`).
 - **The server cannot inspect encrypted content** — no crops, no image check; that
