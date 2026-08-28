@@ -498,9 +498,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 
 .gf-stage{position:relative;width:min(96vw,1600px);aspect-ratio:2160/960;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;container-type:inline-size}
 .gf-stage *{font-size:calc(1cqw * var(--fs,1.5))}
-.gf-hd0,.gf-hd1,.gf-hd2,.gf-bg0,.gf-bg1,.gf-bg2,.gf-dv0,.gf-dv1,.gf-dv2,.gf-ti0,.gf-ti1,.gf-ti2,.gf-r0,.gf-r1,.gf-r2,.gf-sc0,.gf-sc1,.gf-sc2,.gf-cl2,
-.gf-l1_0,.gf-l1_1,.gf-l1_2,.gf-l1_3,.gf-l1_4,.gf-l1_5,.gf-l2_0,.gf-l2_1,.gf-l2_2,.gf-l2_3,.gf-l2_4,
-.gf-tp0_0,.gf-tp0_1,.gf-tp0_2,.gf-cr0_0,.gf-cr0_1,.gf-cr0_2,.gf-rp0,.gf-trail i,.gf-tabs button,.gf-bell i{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}
+.gf-hd0,.gf-bg0,.gf-dv0,.gf-ti0,.gf-sc0,.gf-l0_0,.gf-l0_1,.gf-l0_2,.gf-l0_3,.gf-l0_4,.gf-l0_5,.gf-lc0_0,.gf-lc0_1,.gf-lc0_2,.gf-lc0_3,.gf-lc0_4,.gf-lc0_5,.gf-r0,.gf-hd1,.gf-bg1,.gf-dv1,.gf-ti1,.gf-sc1,.gf-tp1_0,.gf-tp1_1,.gf-tp1_2,.gf-cr1_0,.gf-cr1_1,.gf-cr1_2,.gf-rp1,.gf-hd2,.gf-bg2,.gf-dv2,.gf-ti2,.gf-sc2,.gf-l2_0,.gf-l2_1,.gf-l2_2,.gf-l2_3,.gf-l2_4,.gf-l2_5,.gf-l2_6,.gf-l2_7,.gf-r2,.gf-cl2,.gf-trail i,.gf-tabs button,.gf-bell i{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}
 .gf-head{position:absolute;left:4.17%;top:9.2%;line-height:1.35;letter-spacing:-.01em;opacity:0}
 .gf-head .gf-l1{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}
 .gf-gif .gf-l1{--fs:2.3;color:var(--red)}
@@ -535,6 +533,8 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-cchev{color:var(--dim);flex:none}
 .gf-ctype{display:inline-block;width:0;overflow:hidden;white-space:pre;vertical-align:bottom}
 .gf-ccar{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}
+.gf-body div.gf-shline{width:auto;overflow:visible;display:flex;align-items:center}
+.gf-shline .gf-ltype{display:inline-block;width:0;overflow:hidden;white-space:pre}
 .gf-cinput+.gf-cinput{margin-top:-0.260cqw}
 .gf-creply{margin-top:2.342cqw;opacity:0;white-space:normal}
 .gf-cdot{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}
@@ -570,24 +570,30 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-scard .gf-t{--fs:1.05;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
 .gf-scard .gf-b{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
 .gf-scard .gf-thumb{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-left:auto;background:var(--chip)}
-.gf-dv0{left:64.25%;top:6.22%;width:18.5%;aspect-ratio:428/900}
-.gf-cp0{left:73.5%;top:42.2%;width:15%}
-.gf-tr0{left:43.52%;width:19.91%;top:50.0%}
-.gf-dv1{left:53.15%;top:17.55%;width:40.7%;aspect-ratio:1292/916}
-.gf-cp1{left:73.5%;top:45.5%;width:22%}
-.gf-tr1{left:43.52%;width:8.79%;top:50.0%}
+.gf-dv0{left:53.15%;top:17.55%;width:40.7%;aspect-ratio:1292/916}
+.gf-cp0{left:73.5%;top:45.5%;width:22%}
+.gf-tr0{left:43.52%;width:8.79%;top:50.0%}
+.gf-dv1{left:64.25%;top:6.22%;width:18.5%;aspect-ratio:428/900}
+.gf-cp1{left:73.5%;top:42.2%;width:15%}
+.gf-tr1{left:43.52%;width:19.91%;top:50.0%}
 .gf-dv2{left:51.75%;top:18.96%;width:43.5%;aspect-ratio:1640/1040}
 .gf-cp2{left:76%;top:19.5%;width:43.15%}
 .gf-tr2{left:43.52%;width:7.41%;top:50.0%}
 .gf-cl2{left:54.38%;top:21.05%;width:38.24%;height:55.52%}
 .gf-hd0,.gf-bg0,.gf-dv0,.gf-ti0,.gf-cl0{animation-name:gf-vis0}
-.gf-tp0_0{animation-name:gf-type0_0}
-.gf-cr0_0{animation-name:gf-car0_0}
-.gf-tp0_1{animation-name:gf-type0_1}
-.gf-cr0_1{animation-name:gf-car0_1}
-.gf-tp0_2{animation-name:gf-type0_2}
-.gf-cr0_2{animation-name:gf-car0_2}
-.gf-rp0{animation-name:gf-reply0}
+.gf-l0_0{animation-name:gf-ln0_0}
+.gf-lc0_0{animation-name:gf-lcar0_0}
+.gf-l0_1{animation-name:gf-ln0_1}
+.gf-lc0_1{animation-name:gf-lcar0_1}
+.gf-l0_2{animation-name:gf-ln0_2}
+.gf-lc0_2{animation-name:gf-lcar0_2}
+.gf-l0_3{animation-name:gf-ln0_3}
+.gf-lc0_3{animation-name:gf-lcar0_3}
+.gf-l0_4{animation-name:gf-ln0_4}
+.gf-lc0_4{animation-name:gf-lcar0_4}
+.gf-l0_5{animation-name:gf-ln0_5}
+.gf-lc0_5{animation-name:gf-lcar0_5}
+.gf-r0{animation-name:gf-rs0}
 .gf-dt0_0{animation-name:gf-d0_0}
 .gf-dt0_1{animation-name:gf-d0_1}
 .gf-dt0_2{animation-name:gf-d0_2}
@@ -596,13 +602,13 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-sc0{animation-name:gf-sp0}
 .gf-sc0 .gf-bb{animation-name:gf-rb0}.gf-sc0 .gf-bc{animation-name:gf-rc0}
 .gf-hd1,.gf-bg1,.gf-dv1,.gf-ti1,.gf-cl1{animation-name:gf-vis1}
-.gf-l1_0{animation-name:gf-ln1_0}
-.gf-l1_1{animation-name:gf-ln1_1}
-.gf-l1_2{animation-name:gf-ln1_2}
-.gf-l1_3{animation-name:gf-ln1_3}
-.gf-l1_4{animation-name:gf-ln1_4}
-.gf-l1_5{animation-name:gf-ln1_5}
-.gf-r1{animation-name:gf-rs1}
+.gf-tp1_0{animation-name:gf-type1_0}
+.gf-cr1_0{animation-name:gf-car1_0}
+.gf-tp1_1{animation-name:gf-type1_1}
+.gf-cr1_1{animation-name:gf-car1_1}
+.gf-tp1_2{animation-name:gf-type1_2}
+.gf-cr1_2{animation-name:gf-car1_2}
+.gf-rp1{animation-name:gf-reply1}
 .gf-dt1_0{animation-name:gf-d1_0}
 .gf-dt1_1{animation-name:gf-d1_1}
 .gf-dt1_2{animation-name:gf-d1_2}
@@ -616,7 +622,10 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-l2_2{animation-name:gf-ln2_2}
 .gf-l2_3{animation-name:gf-ln2_3}
 .gf-l2_4{animation-name:gf-ln2_4}
-.gf-r2{animation-name:gf-rs2}
+.gf-l2_5{animation-name:gf-ln2_5}
+.gf-l2_6{animation-name:gf-ln2_6}
+.gf-l2_7{animation-name:gf-ln2_7}
+.gf-r2{animation-name:rs2}
 .gf-dt2_0{animation-name:gf-d2_0}
 .gf-dt2_1{animation-name:gf-d2_1}
 .gf-dt2_2{animation-name:gf-d2_2}
@@ -630,37 +639,44 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-head .gf-l1{--fs:3.6}.gf-head .gf-l2{--fs:3.0}
 .gf-term{left:4%;top:16.25%;width:92%;height:auto;aspect-ratio:830/528}
 .gf-trail{display:none}
-.gf-cp0 *{font-size:calc(1cqw * var(--fs,1.5) * 3.35)}
-.gf-cp0{--k:3.35}
-.gf-cp1 *{font-size:calc(1cqw * var(--fs,1.5) * 2.26)}
-.gf-cp1{--k:2.26}
+.gf-cp0 *{font-size:calc(1cqw * var(--fs,1.5) * 2.26)}
+.gf-cp0{--k:2.26}
+.gf-cp1 *{font-size:calc(1cqw * var(--fs,1.5) * 3.35)}
+.gf-cp1{--k:3.35}
 .gf-cp2 *{font-size:calc(1cqw * var(--fs,1.5) * 2.21)}
 .gf-cp2{--k:2.21}
-.gf-dv0{left:19%;top:55%;width:62%;aspect-ratio:428/900}
-.gf-cp0{left:50%;top:88.4%;width:50%}
-.gf-dv1{left:4%;top:56%;width:92%;aspect-ratio:1292/916}
-.gf-cp1{left:50%;top:73.5%;width:41%}
+.gf-dv0{left:4%;top:56%;width:92%;aspect-ratio:1292/916}
+.gf-cp0{left:50%;top:73.5%;width:41%}
+.gf-dv1{left:19%;top:55%;width:62%;aspect-ratio:428/900}
+.gf-cp1{left:50%;top:88.4%;width:50%}
 .gf-dv2{left:2%;top:57%;width:96%;aspect-ratio:1640/1040}
 .gf-cp2{left:50%;top:50%;width:92%}
 .gf-cl2{left:48%;top:59.9%;width:46%;height:9%}
 }
 @media(prefers-reduced-motion:reduce){
 .gf-stage *{animation:none}
-.gf-hd0,.gf-bg0,.gf-dv0,.gf-sc0,.gf-rp0{opacity:1}
+.gf-hd0,.gf-bg0,.gf-dv0,.gf-sc0{opacity:1}
+.gf-body div.gf-r0{opacity:1}
 .gf-term .gf-title.gf-ti0{opacity:1}
-.gf-tp0_0,.gf-tp0_1,.gf-tp0_2{width:auto}
+.gf-l0_0,.gf-l0_1,.gf-l0_2,.gf-l0_3,.gf-l0_4,.gf-l0_5{width:auto}
 .gf-ccar,.gf-trail{display:none}
 .gf-hd1,.gf-hd2,.gf-bg1,.gf-bg2,.gf-dv1,.gf-dv2,.gf-ti1,.gf-ti2,.gf-cl2{display:none}
 .gf-term .gf-tabs button.gf-gf-tabA{background:var(--chip);color:var(--fg)}
 }
 @keyframes gf-vis0{0%,0.5%{opacity:0} 2.0%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
-@keyframes gf-type0_0{0%,3.0%{width:0;animation-timing-function:steps(44,end)} 7.6%,100%{width:44ch}}
-@keyframes gf-car0_0{0%,3.0%{opacity:0} 3.01%,7.6%{opacity:1} 7.61%,100%{opacity:0}}
-@keyframes gf-type0_1{0%,7.6%{width:0;animation-timing-function:steps(37,end)} 11.4%,100%{width:37ch}}
-@keyframes gf-car0_1{0%,7.6%{opacity:0} 7.61%,11.4%{opacity:1} 11.41%,100%{opacity:0}}
-@keyframes gf-type0_2{0%,11.4%{width:0;animation-timing-function:steps(17,end)} 14.0%,100%{width:17ch}}
-@keyframes gf-car0_2{0%,11.4%{opacity:0} 11.41%,32.2%{opacity:1} 32.21%,100%{opacity:0}}
-@keyframes gf-reply0{0%,15.2%{opacity:0} 16.2%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
+@keyframes gf-ln0_0{0%,2.0%{width:0;animation-timing-function:steps(23,end)} 4.25%,100%{width:23ch}}
+@keyframes gf-lcar0_0{0%,2.0%{opacity:0} 2.01%,4.25%{opacity:1} 4.26%,100%{opacity:0}}
+@keyframes gf-ln0_1{0%,4.25%{width:0;animation-timing-function:steps(25,end)} 6.5%,100%{width:25ch}}
+@keyframes gf-lcar0_1{0%,4.25%{opacity:0} 4.26%,6.5%{opacity:1} 6.51%,100%{opacity:0}}
+@keyframes gf-ln0_2{0%,6.5%{width:0;animation-timing-function:steps(34,end)} 8.75%,100%{width:34ch}}
+@keyframes gf-lcar0_2{0%,6.5%{opacity:0} 6.51%,8.75%{opacity:1} 8.76%,100%{opacity:0}}
+@keyframes gf-ln0_3{0%,8.75%{width:0;animation-timing-function:steps(43,end)} 11.0%,100%{width:43ch}}
+@keyframes gf-lcar0_3{0%,8.75%{opacity:0} 8.76%,11.0%{opacity:1} 11.01%,100%{opacity:0}}
+@keyframes gf-ln0_4{0%,11.0%{width:0;animation-timing-function:steps(36,end)} 13.25%,100%{width:36ch}}
+@keyframes gf-lcar0_4{0%,11.0%{opacity:0} 11.01%,13.25%{opacity:1} 13.26%,100%{opacity:0}}
+@keyframes gf-ln0_5{0%,13.25%{width:0;animation-timing-function:steps(48,end)} 15.5%,100%{width:48ch}}
+@keyframes gf-lcar0_5{0%,13.25%{opacity:0} 13.26%,32.2%{opacity:1} 32.21%,100%{opacity:0}}
+@keyframes gf-rs0{0%,16.5%{opacity:0} 17.5%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
 @keyframes gf-d0_0{0%,16.5%{opacity:0} 17.5%,21.5%{opacity:0.35} 23.0%,100%{opacity:0}}
 @keyframes gf-d0_1{0%,17.1%{opacity:0} 18.1%,21.75%{opacity:0.5} 23.25%,100%{opacity:0}}
 @keyframes gf-d0_2{0%,17.7%{opacity:0} 18.7%,22.0%{opacity:0.65} 23.5%,100%{opacity:0}}
@@ -670,13 +686,13 @@ section{padding:clamp(48px,7vw,86px) 0}
 @keyframes gf-rb0{0%,19.6%{transform:rotate(0deg)} 19.6%{transform:rotate(0deg)} 20.137%{transform:rotate(-20deg)} 21.233%{transform:rotate(18deg)} 22.329%{transform:rotate(-16deg)} 23.427%{transform:rotate(14deg)} 24.523%{transform:rotate(-13deg)} 25.62%{transform:rotate(12deg)} 26.716%{transform:rotate(-10deg)} 27.813%{transform:rotate(8deg)} 28.91%{transform:rotate(-6deg)} 30.006%{transform:rotate(4deg)} 31.104%{transform:rotate(-2deg)} 32.2%{transform:rotate(0deg)} 32.2%,100%{transform:rotate(0deg)}}
 @keyframes gf-rc0{0%,19.6%{transform:rotate(0deg)} 19.6%{transform:rotate(0deg)} 19.912%{transform:rotate(0deg)} 20.485%{transform:rotate(-30deg)} 21.656%{transform:rotate(27deg)} 22.828%{transform:rotate(-24deg)} 24.0%{transform:rotate(20deg)} 25.17%{transform:rotate(-18deg)} 26.342%{transform:rotate(15deg)} 27.514%{transform:rotate(-12deg)} 28.686%{transform:rotate(9deg)} 29.856%{transform:rotate(-6deg)} 31.028%{transform:rotate(3deg)} 32.2%{transform:rotate(0deg)} 32.2%,100%{transform:rotate(0deg)}}
 @keyframes gf-vis1{0%,33.833%{opacity:0} 35.333%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
-@keyframes gf-ln1_0{0%,35.333%{width:0;animation-timing-function:steps(30,end)} 37.583%,100%{width:100%}}
-@keyframes gf-ln1_1{0%,37.583%{width:0;animation-timing-function:steps(30,end)} 39.833%,100%{width:100%}}
-@keyframes gf-ln1_2{0%,39.833%{width:0;animation-timing-function:steps(30,end)} 42.083%,100%{width:100%}}
-@keyframes gf-ln1_3{0%,42.083%{width:0;animation-timing-function:steps(30,end)} 44.333%,100%{width:100%}}
-@keyframes gf-ln1_4{0%,44.333%{width:0;animation-timing-function:steps(30,end)} 46.583%,100%{width:100%}}
-@keyframes gf-ln1_5{0%,46.583%{width:0;animation-timing-function:steps(30,end)} 48.833%,100%{width:100%}}
-@keyframes gf-rs1{0%,49.833%{opacity:0} 50.833%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
+@keyframes gf-type1_0{0%,36.333%{width:0;animation-timing-function:steps(44,end)} 40.933%,100%{width:44ch}}
+@keyframes gf-car1_0{0%,36.333%{opacity:0} 36.343%,40.933%{opacity:1} 40.943%,100%{opacity:0}}
+@keyframes gf-type1_1{0%,40.933%{width:0;animation-timing-function:steps(37,end)} 44.733%,100%{width:37ch}}
+@keyframes gf-car1_1{0%,40.933%{opacity:0} 40.943%,44.733%{opacity:1} 44.743%,100%{opacity:0}}
+@keyframes gf-type1_2{0%,44.733%{width:0;animation-timing-function:steps(17,end)} 47.333%,100%{width:17ch}}
+@keyframes gf-car1_2{0%,44.733%{opacity:0} 44.743%,65.533%{opacity:1} 65.543%,100%{opacity:0}}
+@keyframes gf-reply1{0%,48.533%{opacity:0} 49.533%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
 @keyframes gf-d1_0{0%,49.833%{opacity:0} 50.833%,54.833%{opacity:0.35} 56.333%,100%{opacity:0}}
 @keyframes gf-d1_1{0%,50.433%{opacity:0} 51.433%,55.083%{opacity:0.5} 56.583%,100%{opacity:0}}
 @keyframes gf-d1_2{0%,51.033%{opacity:0} 52.033%,55.333%{opacity:0.65} 56.833%,100%{opacity:0}}
@@ -686,12 +702,14 @@ section{padding:clamp(48px,7vw,86px) 0}
 @keyframes gf-rb1{0%,52.933%{transform:rotate(0deg)} 52.933%{transform:rotate(0deg)} 53.47%{transform:rotate(-20deg)} 54.566%{transform:rotate(18deg)} 55.662%{transform:rotate(-16deg)} 56.76%{transform:rotate(14deg)} 57.856%{transform:rotate(-13deg)} 58.954%{transform:rotate(12deg)} 60.05%{transform:rotate(-10deg)} 61.146%{transform:rotate(8deg)} 62.243%{transform:rotate(-6deg)} 63.34%{transform:rotate(4deg)} 64.437%{transform:rotate(-2deg)} 65.533%{transform:rotate(0deg)} 65.533%,100%{transform:rotate(0deg)}}
 @keyframes gf-rc1{0%,52.933%{transform:rotate(0deg)} 52.933%{transform:rotate(0deg)} 53.246%{transform:rotate(0deg)} 53.818%{transform:rotate(-30deg)} 54.99%{transform:rotate(27deg)} 56.161%{transform:rotate(-24deg)} 57.333%{transform:rotate(20deg)} 58.504%{transform:rotate(-18deg)} 59.676%{transform:rotate(15deg)} 60.847%{transform:rotate(-12deg)} 62.019%{transform:rotate(9deg)} 63.19%{transform:rotate(-6deg)} 64.362%{transform:rotate(3deg)} 65.533%{transform:rotate(0deg)} 65.533%,100%{transform:rotate(0deg)}}
 @keyframes gf-vis2{0%,67.167%{opacity:0} 68.667%,98.867%{opacity:1} 99.967%,100%{opacity:0}}
-@keyframes gf-ln2_0{0%,68.667%{width:0;animation-timing-function:steps(30,end)} 71.367%,100%{width:100%}}
-@keyframes gf-ln2_1{0%,71.367%{width:0;animation-timing-function:steps(30,end)} 74.067%,100%{width:100%}}
-@keyframes gf-ln2_2{0%,74.067%{width:0;animation-timing-function:steps(30,end)} 76.767%,100%{width:100%}}
-@keyframes gf-ln2_3{0%,76.767%{width:0;animation-timing-function:steps(30,end)} 79.467%,100%{width:100%}}
-@keyframes gf-ln2_4{0%,79.467%{width:0;animation-timing-function:steps(30,end)} 82.167%,100%{width:100%}}
-@keyframes gf-rs2{0%,83.167%{opacity:0} 84.167%,98.867%{opacity:1} 99.967%,100%{opacity:0}}
+@keyframes gf-ln2_0{0%,68.667%{width:0;animation-timing-function:steps(30,end)} 70.355%,100%{width:100%}}
+@keyframes gf-ln2_1{0%,70.355%{width:0;animation-timing-function:steps(30,end)} 72.042%,100%{width:100%}}
+@keyframes gf-ln2_2{0%,72.042%{width:0;animation-timing-function:steps(30,end)} 73.729%,100%{width:100%}}
+@keyframes gf-ln2_3{0%,73.729%{width:0;animation-timing-function:steps(30,end)} 75.417%,100%{width:100%}}
+@keyframes gf-ln2_4{0%,75.417%{width:0;animation-timing-function:steps(30,end)} 77.105%,100%{width:100%}}
+@keyframes gf-ln2_5{0%,77.105%{width:0;animation-timing-function:steps(30,end)} 78.792%,100%{width:100%}}
+@keyframes gf-ln2_6{0%,78.792%{width:0;animation-timing-function:steps(30,end)} 80.479%,100%{width:100%}}
+@keyframes gf-ln2_7{0%,80.479%{width:0;animation-timing-function:steps(30,end)} 82.167%,100%{width:100%}}
 @keyframes gf-d2_0{0%,83.167%{opacity:0} 84.167%,88.167%{opacity:0.35} 89.667%,100%{opacity:0}}
 @keyframes gf-d2_1{0%,83.767%{opacity:0} 84.767%,88.417%{opacity:0.5} 89.917%,100%{opacity:0}}
 @keyframes gf-d2_2{0%,84.367%{opacity:0} 85.367%,88.667%{opacity:0.65} 90.167%,100%{opacity:0}}
@@ -717,7 +735,7 @@ section{padding:clamp(48px,7vw,86px) 0}
    notification card and finishes before the crop; the iPad and Mac scenes fit
    the stage and keep their frames. */
 @media(max-width:760px){
-  .app-film .gf-dv0{
+  .app-film .gf-dv1{
     -webkit-mask-image:linear-gradient(to bottom,#000 44%,transparent 55%);
     mask-image:linear-gradient(to bottom,#000 44%,transparent 55%);
   }
@@ -1026,10 +1044,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="gf-head gf-hd1"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own key.</div></div>
       <div class="gf-head gf-hd2"><div class="gf-l1">No signup, no SDK.</div><div class="gf-l2">Install the app, copy your key, start sending.</div></div>
         <div class="gf-term">
-          <div class="gf-bar"><i></i><i></i><i></i><span class="gf-title gf-ti0">claude — ~/notifi</span><span class="gf-title gf-ti1">run.sh — -zsh</span><span class="gf-title gf-ti2">ci.yml — -zsh</span></div>
-          <div class="gf-tabs"><button type="button" class="gf-gf-tabA" data-pass="0" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="gf-gf-tabB" data-pass="1" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="gf-gf-tabC" data-pass="2" aria-label="Play the ci.yml scene">workflows/ci.yml</button></div>
+          <div class="gf-bar"><i></i><i></i><i></i><span class="gf-title gf-ti0">run.sh — -zsh</span><span class="gf-title gf-ti1">claude — ~/notifi</span><span class="gf-title gf-ti2">train.py — -zsh</span></div>
+          <div class="gf-tabs"><button type="button" class="gf-gf-tabA" data-pass="0" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="gf-gf-tabB" data-pass="1" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="gf-gf-tabC" data-pass="2" aria-label="Play the train.py scene">~/train.py</button></div>
           <div class="gf-bodywrap">
-            <div class="gf-body gf-cbody gf-bg0"><div class="gf-cbanner"><svg class="gf-mascot" viewBox="0 0 52 40" aria-hidden="true">
+            <div class="gf-body gf-bg0"><div class="gf-shline"><span class="gf-ltype gf-l0_0"><span class="gf-c">$</span> curl notifi.it/send \</span><i class="gf-ccar gf-lc0_0"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_1">    -d key=<span class="gf-k">nk_live_8f3a</span> \</span><i class="gf-ccar gf-lc0_1"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_2">    -d title=<span class="gf-s">"Hello from notifi"</span> \</span><i class="gf-ccar gf-lc0_2"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_3">    -d message=<span class="gf-s">"Your first notification."</span> \</span><i class="gf-ccar gf-lc0_3"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_4">    -d link=<span class="gf-s">https://notifi.it/docs</span> \</span><i class="gf-ccar gf-lc0_4"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_5">    -d image=<span class="gf-s">https://notifi.it/anaglyph-bell.png</span></span><i class="gf-ccar gf-lc0_5"></i></div><div class="gf-resp gf-r0"><span class="gf-r">{"ok":true}</span></div></div>
+      <div class="gf-body gf-cbody gf-bg1"><div class="gf-cbanner"><svg class="gf-mascot" viewBox="0 0 52 40" aria-hidden="true">
             <rect x="2" y="0" width="48" height="27" rx="3" fill="#D97757"/>
             <rect x="12" y="8" width="6" height="9" rx="1.2" fill="#1C1C1E"/>
             <rect x="34" y="8" width="6" height="9" rx="1.2" fill="#1C1C1E"/>
@@ -1037,15 +1056,19 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             <rect x="15" y="32" width="5" height="5" rx="1" fill="#D97757"/>
             <rect x="32" y="32" width="5" height="5" rx="1" fill="#D97757"/>
             <rect x="40" y="32" width="5" height="5" rx="1" fill="#D97757"/>
-          </svg><div class="gf-cmeta"><div><b>Claude Code</b> <span class="gf-c">v2.1.238</span></div><div class="gf-c">Fable 8</div></div></div><div class="gf-crule"></div><div class="gf-cinput"><span class="gf-cchev">&#10095;</span><span class="gf-ctype gf-tp0_0">Build an app to send notifications over HTTP</span><i class="gf-ccar gf-cr0_0"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp0_1">to my iOS device and my macOS device.</span><i class="gf-ccar gf-cr0_1"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp0_2">Make no mistakes.</span><i class="gf-ccar gf-cr0_2"></i></div><div class="gf-crule"></div><div class="gf-creply gf-rp0"><i class="gf-cdot"></i>It already exists. Check your phone.</div></div>
-      <div class="gf-body gf-bg1"><div class="gf-l1_0"><span class="gf-c">$</span> curl notifi.it/send \</div><div class="gf-l1_1">    -d key=<span class="gf-k">nk_live_8f3a</span> \</div><div class="gf-l1_2">    -d title=<span class="gf-s">"Hello from notifi"</span> \</div><div class="gf-l1_3">    -d message=<span class="gf-s">"Your first notification."</span> \</div><div class="gf-l1_4">    -d link=<span class="gf-s">https://notifi.it/docs</span> \</div><div class="gf-l1_5">    -d image=<span class="gf-s">https://notifi.it/anaglyph-bell.png</span></div><div class="gf-resp gf-r1"><span class="gf-r">{"ok":true}</span></div></div>
-      <div class="gf-body gf-bg2"><div class="gf-l2_0"><span class="gf-c"># a CI step fires only when the build fails</span></div><div class="gf-l2_1"><span class="gf-s">- name:</span> notify</div><div class="gf-l2_2">  <span class="gf-s">run:</span> <span class="gf-c">|</span></div><div class="gf-l2_3">    curl notifi.it/send -d key=<span class="gf-k">$NOTIFI_KEY</span> \</div><div class="gf-l2_4">      -d title=<span class="gf-s">"Build failed"</span> -d link=<span class="gf-s">$RUN_URL</span></div><div class="gf-resp gf-r2"><span class="gf-r">{"ok":true}</span></div></div>
+          </svg><div class="gf-cmeta"><div><b>Claude Code</b> <span class="gf-c">v2.1.238</span></div><div class="gf-c">Fable 8</div></div></div><div class="gf-crule"></div><div class="gf-cinput"><span class="gf-cchev">&#10095;</span><span class="gf-ctype gf-tp1_0">Build an app to send notifications over HTTP</span><i class="gf-ccar gf-cr1_0"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp1_1">to my iOS device and my macOS device.</span><i class="gf-ccar gf-cr1_1"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp1_2">Make no mistakes.</span><i class="gf-ccar gf-cr1_2"></i></div><div class="gf-crule"></div><div class="gf-creply gf-rp1"><i class="gf-cdot"></i>It already exists. Check your phone.</div></div>
+      <div class="gf-body gf-bg2"><div class="gf-l2_0"><span class="gf-c"># tell me when the training run ends</span></div><div class="gf-l2_1">import requests, tensorflow as tf</div><div class="gf-l2_2">run = model.fit(train_ds, epochs=40)</div><div class="gf-l2_3">loss = run.history[<span class="gf-s">"val_loss"</span>][-1]</div><div class="gf-l2_4">requests.post(<span class="gf-s">"https://notifi.it/send"</span>,</div><div class="gf-l2_5">    headers={<span class="gf-s">"Authorization"</span>: <span class="gf-s">f"Bearer {<span class="gf-k">KEY</span>}"</span>},</div><div class="gf-l2_6">    json={<span class="gf-s">"title"</span>: <span class="gf-s">"Training finished"</span>,</div><div class="gf-l2_7">          <span class="gf-s">"message"</span>: <span class="gf-s">f"val loss {loss:.3f}"</span>})</div><div class="gf-resp gf-r2"><span class="gf-r">{"ok":true}</span></div></div>
           </div>
         </div>
         <div class="gf-trail gf-tr0"><i class="gf-dt0_0" style="--d:0.30"></i><i class="gf-dt0_1" style="--d:0.39"></i><i class="gf-dt0_2" style="--d:0.48"></i><i class="gf-dt0_3" style="--d:0.57"></i><i class="gf-dt0_4" style="--d:0.66"></i></div>
       <div class="gf-trail gf-tr1"><i class="gf-dt1_0" style="--d:0.30"></i><i class="gf-dt1_1" style="--d:0.39"></i><i class="gf-dt1_2" style="--d:0.48"></i><i class="gf-dt1_3" style="--d:0.57"></i><i class="gf-dt1_4" style="--d:0.66"></i></div>
       <div class="gf-trail gf-tr2"><i class="gf-dt2_0" style="--d:0.30"></i><i class="gf-dt2_1" style="--d:0.39"></i><i class="gf-dt2_2" style="--d:0.48"></i><i class="gf-dt2_3" style="--d:0.57"></i><i class="gf-dt2_4" style="--d:0.66"></i></div>
-        <div class="gf-dev gf-dv0"><svg viewBox="0 0 428 900">
+        <div class="gf-dev gf-dv0"><svg viewBox="0 0 1292 916">
+            <rect class="gf-o" x="0" y="0" width="1292" height="916" rx="42"/>
+            <rect class="gf-scr" x="41" y="41" width="1210" height="834" rx="18"/>
+            <circle class="gf-dot" cx="646" cy="20" r="5"/>
+          </svg><div class="gf-sbar" style="left:7.5%;right:7.5%;top:5.4%;height:4.2%;--fs:1.769"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic gf-st" style="--w:2.803"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="gf-fl"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:4.324"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13%"><div class="gf-ldate" data-clock="date" style="--fs:1.474">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:7.985">10:24</div></div></div>
+      <div class="gf-dev gf-dv1"><svg viewBox="0 0 428 900">
             <mask id="gfPhoneCut"><rect x="-20" y="-20" width="468" height="940" fill="#fff"/><rect x="151.5" y="24" width="125" height="37" rx="18.5" fill="#000"/></mask>
             <g mask="url(#gfPhoneCut)">
             <rect class="gf-o" x="0" y="0" width="428" height="900" rx="75"/>
@@ -1053,11 +1076,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             </g>
             <rect class="gf-dot" x="145.5" y="870" width="137" height="5" rx="2.5"/>
           </svg><div class="gf-sbar gf-ph" style="left:7%;right:7%;top:2.3%;height:4.6%;--fs:5.946"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic" style="--w:5.784"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg><svg viewBox="0 0 25 18" class="gf-ic gf-st" style="--w:5.676"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="gf-fl"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:8.757"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13.5%"><div class="gf-ldate" data-clock="date" style="--fs:4.649">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:24.595">10:24</div></div></div>
-      <div class="gf-dev gf-dv1"><svg viewBox="0 0 1292 916">
-            <rect class="gf-o" x="0" y="0" width="1292" height="916" rx="42"/>
-            <rect class="gf-scr" x="41" y="41" width="1210" height="834" rx="18"/>
-            <circle class="gf-dot" cx="646" cy="20" r="5"/>
-          </svg><div class="gf-sbar" style="left:7.5%;right:7.5%;top:5.4%;height:4.2%;--fs:1.769"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic gf-st" style="--w:3.145"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="gf-fl"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:4.324"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13%"><div class="gf-ldate" data-clock="date" style="--fs:1.474">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:7.985">10:24</div></div></div>
       <div class="gf-dev gf-dv2"><svg viewBox="0 0 1640 1040">
             <mask id="gfMacCut"><rect x="-20" y="-20" width="1680" height="1080" fill="#fff"/><path d="M 727.5 32 L 727.5 65 Q 727.5 85 747.5 85 L 892.5 85 Q 912.5 85 912.5 65 L 912.5 32 Z" fill="#000"/></mask>
             <g mask="url(#gfMacCut)">
@@ -1067,9 +1085,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             </g>
             <path class="gf-o" d="M 0 1000 L 730 1000 C 752 1026 888 1026 910 1000 L 1640 1000 L 1640 1016 Q 1640 1040 1604 1040 L 36 1040 Q 0 1040 0 1016 Z"/>
           </svg><div class="gf-sbar gf-mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs:1.563"><svg class="gf-amark" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg><span class="gf-icons"><span class="gf-mbell"></span><svg viewBox="0 0 30 14" class="gf-ic" style="--w:3.218"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg><span class="gf-dt" data-clock="menubar">Tue 11 Aug 10:24</span></span></div></div>
-        <div class="gf-cardpos gf-cp0"><div class="gf-scard gf-sc0"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Claude Finished</div><div class="gf-b">No mistakes made.</div></div></div></div>
-      <div class="gf-cardpos gf-cp1"><div class="gf-scard gf-sc1"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Hello from notifi</div><div class="gf-b">Your first notification.</div></div><img class="gf-thumb" src="/anaglyph-bell.png" alt=""></div></div>
-      <div class="gf-clip gf-cl2"><div class="gf-cardpos gf-cp2"><div class="gf-scard gf-sc2"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Build failed</div><div class="gf-b">tests (3.11) exited 1</div></div></div></div></div>
+        <div class="gf-cardpos gf-cp0"><div class="gf-scard gf-sc0"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Hello from notifi</div><div class="gf-b">Your first notification.</div></div><img class="gf-thumb" src="/anaglyph-bell.png" alt=""></div></div>
+      <div class="gf-cardpos gf-cp1"><div class="gf-scard gf-sc1"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Claude Finished</div><div class="gf-b">No mistakes made.</div></div></div></div>
+      <div class="gf-clip gf-cl2"><div class="gf-cardpos gf-cp2"><div class="gf-scard gf-sc2"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Training finished</div><div class="gf-b">val loss 0.041</div></div></div></div></div>
       <script>
       (function () {
         var film = document.currentScript.parentElement;
@@ -1120,8 +1138,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </p>
     <p class="meta" style="margin-bottom:26px">
       JSON or form-encoded. Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>,
-      or pass <code>key</code> as a parameter. The header keeps it out of logs.
-      Query parameters win over the body.
+      or pass <code>key</code> as a parameter.
     </p>
 <!-- /gen:endpoint -->
 
@@ -1148,12 +1165,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>message</td>
             <td>string</td>
-            <td>The notification body. Markdown, up to 16,000 characters. The push shows a short preview; the app renders the full text.</td>
+            <td>The notification body. Markdown, up to 16,000 characters.</td>
           </tr>
           <tr>
             <td>link</td>
             <td>URL</td>
-            <td>URL opened when the notification is tapped. Up to 2,048 characters.</td>
+            <td>A link to a website or internal app. Up to 2,048 characters.</td>
           </tr>
           <tr>
             <td>image</td>
@@ -1163,12 +1180,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>occurred_at</td>
             <td>integer</td>
-            <td>When the event actually happened, as unix <em>milliseconds</em>, useful when a send is queued or retried. Only changes the timestamp shown in the app; defaults to when we receive the request.</td>
+            <td><a href="https://currentmillis.com" class="src">Unix milliseconds</a>. Changes the timestamp shown in the app; defaults to when we receive the request.</td>
           </tr>
           <tr>
             <td>is_critical</td>
             <td>boolean</td>
-            <td>Ask for a critical alert: it breaks through Focus and stays on the lock screen, but does not sound through silent mode. The key must also have <em>Critical alerts</em> switched on in the app; a send that asks without that arrives as an ordinary notification rather than failing, and the reply carries a <code>warning</code> saying so.</td>
+            <td>Ask for a critical alert: it breaks through Focus and stays on the lock screen, but does not sound through silent mode. The key must also have <em>Critical alerts</em> <a href="/docs#critical-alerts" class="src">switched on in the app</a>.</td>
           </tr>
 <!-- /gen:params -->
         </tbody>
@@ -1179,11 +1196,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
          same size as the sentence they now sit in. -->
 <!-- gen:apinote -->
     <p class="meta" style="margin-top:22px">
-      60 sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
-      <code>message</code>: <code>400</code> invalid parameters · <code>401</code> unknown or revoked key · <code>429</code> rate limited. <code>GET</code> works for a quick
-      test, but puts the key in edge logs and shell history, so rotate it afterwards;
-      <code>POST</code> with an <code>Authorization</code> header is recommended.
-      The full reference is at <a href="/docs">notifi.it/docs</a>.
+      The full reference is at <a href="/docs" class="src">notifi.it/docs</a>.
     </p>
 <!-- /gen:apinote -->
   </div>
