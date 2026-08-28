@@ -49,7 +49,7 @@ Accept-Language: en-GB
 | `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on. |
 | `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
 | `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning. |
-| `link` | string (uri) | optional | `≤ 2,048 chars` | URL opened when the notification is tapped. |
+| `link` | string (uri) | optional | `≤ 2,048 chars` | URL opened when the notification is tapped. https always opens. Another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden. |
 | `image` | string (uri) | optional | `≤ 2,048 chars` | https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives. |
 | `occurred_at` | integer | optional | `unix ms` | When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request. |
 | `is_critical` | boolean | optional | — | Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array. |

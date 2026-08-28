@@ -562,7 +562,7 @@ Accept-Language: en-GB
             <td>string (uri)</td>
             <td>optional</td>
             <td><code>≤ 2,048 chars</code></td>
-            <td>URL opened when the notification is tapped.</td>
+            <td>URL opened when the notification is tapped. https always opens. Another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.</td>
           </tr>
           <tr>
             <td><code>image</code></td>

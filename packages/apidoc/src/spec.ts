@@ -102,7 +102,8 @@ export const params: Param[] = [
     required: false,
     limit: '≤ 2,048 chars',
     summary: 'URL opened when the notification is tapped.',
-    detail: '',
+    detail:
+      'https always opens. Another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.',
     openapi: { type: 'string', format: 'uri', maxLength: URL_MAX },
     example: 'https://notifi.it/docs',
   },
