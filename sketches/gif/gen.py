@@ -57,7 +57,7 @@ PASSES=[
  dict(title='claude — ~/notifi',head=('One key per device.','Each iPhone, iPad or Mac gets its own key.'),
   claude=True,lines=[],
   card=('Claude Finished','No mistakes made.'),cardpos='left:73.5%;top:42.2%;width:15%',sb=PH_SB+PH_LOCK,clip=None),
- dict(title='train.py — -zsh',head=('No signup, no SDK.','Install the app, copy your key, start sending.'),
+ dict(title='train.py — -zsh',head=('No signup, just HTTP.','Install the app, copy your key, start sending.'),
   noresp=True,
   lines=['<span class="c"># tell me when the training run ends</span>',
          'import requests, tensorflow as tf',
