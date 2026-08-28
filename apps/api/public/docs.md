@@ -517,7 +517,7 @@ spec:
 
 ## Questions
 
-The [FAQ](https://notifi.it/faq) covers cost, limits, what the server can read and what happens when you delete the app. Anything else goes to [hello@notifi.it](mailto:hello@notifi.it).
+The [FAQ](https://notifi.it/faq) covers cost, limits, what the server can read and what happens when you delete the app. If yours isn't there, write to [hello@notifi.it](mailto:hello@notifi.it).
 
 ---
 
