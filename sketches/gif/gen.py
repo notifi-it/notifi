@@ -228,6 +228,11 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .head .l1{{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}}
 .gif .l1{{--fs:2.3;color:var(--red)}}
 .head .l2{{--fs:2.0;font-weight:400;color:var(--muted)}}
+@media(min-width:761px){{
+.head{{top:5.4%}}
+.head .l1{{--fs:3.1}}
+.head .l2{{--fs:2.2}}
+}}
 .term{{position:absolute;{TERM};container-type:inline-size;background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
 .term .bar{{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}}
 .term .bar i{{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}}

@@ -114,9 +114,9 @@
   --max:1080px;
 }
 *{box-sizing:border-box;margin:0}
-/* scroll-padding-top clears the 60px sticky header, which would otherwise sit
-   on top of whatever an in-page anchor just jumped to. */
-html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
+/* scroll-padding-top keeps an in-page anchor's target off the very top edge
+   of the viewport. */
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:24px;scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
@@ -136,7 +136,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static):not(header){position:relative;z-index:1}
+body>*:not(#static){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 /* Content links, decided once rather than per section: the text keeps the
@@ -200,20 +200,11 @@ p{max-width:62ch}
   letter-spacing:.18em;color:var(--line);
 }
 
-/* The dot after the headline crossfades between the text's white and the brand
-   red. The cycle is deliberately uneven — it holds at each end and takes longer
-   to come back to red than to leave it — so it reads as something settling
-   rather than as a blinking cursor. */
+/* The dot after the headline is the sentence's full stop, in the brand red. */
 .caret{
   display:inline-block;width:.17em;height:.17em;border-radius:50%;
   background-color:var(--brand);vertical-align:baseline;
   margin-left:.14em;
-  animation:caret-fade 3.4s ease-in-out infinite;
-}
-@keyframes caret-fade{
-  0%,14%{background-color:var(--brand)}
-  38%,56%{background-color:var(--fg)}
-  100%{background-color:var(--brand)}
 }
 
 /* Scroll reveal: the text resolves out of the static, letter by letter.
@@ -232,29 +223,8 @@ p{max-width:62ch}
 .reveal .w{white-space:nowrap}
 
 @media (prefers-reduced-motion:reduce){
-  .caret{animation:none}
   .reveal.armed .c{color:inherit}
-  header .bell::before,header .bell::after{animation:none}
 }
-
-/* ── header ─────────────────────────────────────────────────── */
-header{position:sticky;top:0;z-index:20;background:rgba(28,28,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.bar{display:flex;align-items:center;gap:14px;height:60px}
-.mark{display:flex;align-items:center;gap:9px;text-decoration:none}
-.mark img{height:17px;width:auto;display:block}
-.mark svg{height:21px;width:21px;display:block}
-nav{margin-left:auto;display:flex;align-items:center;gap:22px}
-nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-nav a:hover{color:var(--fg)}
-@media(max-width:620px){nav .hide-sm{display:none}}
-.navget{
-  font-family:var(--mono);font-size:13px;font-weight:600;
-  padding:7px 14px;border-radius:6px;
-  background:var(--fg);color:#1C1C1E;border:1px solid var(--fg);
-  transition:background var(--dur-press) var(--ease-out),
-             border-color var(--dur-press) var(--ease-out);
-}
-.navget:hover{color:#1C1C1E;background:#fff;border-color:#fff}
 
 /* ── buttons ────────────────────────────────────────────────── */
 .btn{
@@ -279,14 +249,44 @@ nav a:hover{color:var(--fg)}
 .btn-get b{display:block;font-size:14px;font-weight:700;line-height:1.25}
 .btn-get span{display:block;font-size:11px;font-weight:400;opacity:.72;line-height:1.35}
 /* ── hero ───────────────────────────────────────────────────── */
-.hero{padding:clamp(56px,10vw,110px) 0 clamp(40px,7vw,72px)}
+.hero{padding:clamp(28px,5vw,52px) 0 clamp(40px,7vw,72px)}
 .hero h1{margin-bottom:20px}
 /* The command in the headline is the literal thing you type, so it is marked up
    as code — but at headline size the usual inset chip reads as a button. Colour
    alone carries it here. */
 .h1-cmd{font:inherit;background:none;padding:0;color:var(--brand-text)}
 .hero .lede{margin-bottom:34px}
+
+/* Copy and bell side by side; the terminal keeps the full measure below them.
+   minmax(0,1fr) rather than 1fr so the headline wraps instead of pushing the
+   bell out of the wrap. */
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:clamp(28px,5vw,60px);align-items:center}
+.hero-grid .term{grid-column:1/-1}
+.hero{overflow-x:clip}
+/* The canvas overdraws its box so the shafts run past the bell instead of
+   stopping at a visible square; the box itself keeps the grid honest. */
+.hero-flare{position:relative;width:clamp(280px,34vw,400px);aspect-ratio:1;justify-self:end;pointer-events:none}
+.hero-flare canvas{position:absolute;inset:-35%;width:170%;height:170%;display:block}
+.hero-flare .bell{display:none}
+.hero-flare.flat canvas{display:none}
+.hero-flare.flat .bell{display:block;position:absolute;inset:20%;width:auto;height:auto;color:#3E3E40}
+/* The full-measure headline is sized for the full measure; next to the bell it
+   gets the column's own scale so four lines still sit above the fold. */
+@media(min-width:881px){.hero-grid h1{font-size:clamp(30px,4.1vw,44px)}}
+/* Below the split the sketch opens the page instead: a small centred mark
+   above the headline, the way app landing pages lead with their icon, so the
+   copy and the terminal keep their room. */
+/* A phone can only install the iOS app, so the Mac build's button stays
+   desktop-only and a small link stands in for it. */
+@media(max-width:880px){
+  .hero .cta a[href="/download/mac"]{display:none}
+  .hero .cta .hero-mac-note{display:block}
+  .hero-grid{grid-template-columns:1fr}
+  .hero-flare{order:-1;justify-self:center;width:clamp(120px,36vw,170px);margin:0 0 10px}
+}
+
 .cta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.hero-mac-note{display:none;font-size:11px}
 .cta .meta{width:100%;margin-top:6px}
 
 /* the terminal block that is the whole product */
@@ -404,45 +404,6 @@ section{padding:clamp(48px,7vw,86px) 0}
    badge of its own, so removing this overlay is the whole change; the fractions
    that used to be here are still printed by generate-marks.sh for the app,
    which does need them. */
-/* The header bell rings once on arrival. Pivot at the crown, not the centre —
-   a real bell swings from where it hangs — and each swing loses height so it
-   settles rather than stops. Runs on ::before so the layout box never moves. */
-/* These are Theme.swift's bellSwing and clapperSwing, keyframe for keyframe, so
-   the site and the app ring the same bell: the percentages are each track's
-   cumulative time over its own total (2.585s and 2.42s), which is why the two
-   durations differ rather than being rounded to match. Change one and the other
-   has to move with it. */
-header .bell::before{transform-origin:50% 0;animation:ring-body 2.585s ease-in-out .25s both}
-header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-out .25s both}
-@keyframes ring-body{
-  0%{transform:rotate(0)}
-  4.26%{transform:rotate(-20deg)}
-  12.96%{transform:rotate(18deg)}
-  21.66%{transform:rotate(-16deg)}
-  30.37%{transform:rotate(14deg)}
-  39.07%{transform:rotate(-13deg)}
-  47.78%{transform:rotate(12deg)}
-  56.48%{transform:rotate(-10deg)}
-  65.18%{transform:rotate(8deg)}
-  73.89%{transform:rotate(-6deg)}
-  82.59%{transform:rotate(4deg)}
-  91.30%{transform:rotate(-2deg)}
-  100%{transform:rotate(0)}
-}
-@keyframes ring-clapper{
-  0%,2.48%{transform:rotate(0)}
-  7.02%{transform:rotate(-30deg)}
-  16.32%{transform:rotate(27deg)}
-  25.62%{transform:rotate(-24deg)}
-  34.92%{transform:rotate(20deg)}
-  44.21%{transform:rotate(-18deg)}
-  53.51%{transform:rotate(15deg)}
-  62.81%{transform:rotate(-12deg)}
-  72.11%{transform:rotate(9deg)}
-  81.40%{transform:rotate(-6deg)}
-  90.70%{transform:rotate(3deg)}
-  100%{transform:rotate(0)}
-}
 .lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
 .lockup img{display:block;height:var(--word,20px);width:auto}
 
@@ -515,7 +476,7 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
    stops the grain dead in a rectangle — so the scene is in the page, carrying no
    backdrop or grain of its own, and the page's static shows through.
    Its classes are prefixed gf- because the scene and the site both use .term,
-   .bell, .tabs, .bar, .mark, .wrap and .lede for different things.
+   .bell, .tabs, .wrap and .lede for different things.
    The transport bar belongs to /gif, which is still the authoring page. */
 /* The scene insets its own content by 90 of its 2160, so a box the width of
    the column leaves the terminal short of the heading above it. The box is
@@ -544,6 +505,11 @@ header .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-
 .gf-head .gf-l1{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}
 .gf-gif .gf-l1{--fs:2.3;color:var(--red)}
 .gf-head .gf-l2{--fs:2.0;font-weight:400;color:var(--muted)}
+@media(min-width:761px){
+.gf-head{top:5.4%}
+.gf-head .gf-l1{--fs:3.1}
+.gf-head .gf-l2{--fs:2.2}
+}
 .gf-term{position:absolute;left:4.17%;top:24.5%;width:38.43%;height:55%;container-type:inline-size;background:var(--surface);border-radius:1.1cqw;overflow:hidden}
 .gf-term .gf-bar{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}
 .gf-term .gf-bar i{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}
@@ -988,28 +954,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </defs>
 </svg>
 
-<header>
-  <div class="wrap bar">
-    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
-      <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
-    </a>
-    <nav>
-      <a href="#api" class="hide-sm">API</a>
-      <a href="#send">Send</a>
-      <a href="#uses" class="hide-sm">Uses</a>
-      <a href="#how" class="hide-sm">How it works</a>
-      <a href="#download" class="navget">Download</a>
-      <a href="/faq" class="hide-sm">FAQ</a>
-    </nav>
-  </div>
-</header>
-
 <main>
 
 <!-- ══ hero ══════════════════════════════════════════════════ -->
 <section class="hero">
-  <div class="wrap">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
     <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede">
       notifi is free.
@@ -1026,6 +976,17 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
         <span class="lbl"><b>Download&nbsp;for&nbsp;Mac</b><span>Apple silicon · macOS 14+</span></span>
       </a>
+      <p class="meta hero-mac-note"><a class="src" href="#download-mac">Also on Mac.</a></p>
+    </div>
+    </div>
+
+    <!-- The bell, lit like the notification the headline promises: rim light
+         and light shafts from a source that drifts on its own until the
+         pointer takes over. Painted by the flare script below; the span is
+         the still fallback when WebGL2 or the bell texture is unavailable. -->
+    <div class="hero-flare" aria-hidden="true">
+      <canvas id="flare"></canvas>
+      <span class="bell"></span>
     </div>
 
     <div class="term">
@@ -1685,7 +1646,7 @@ spec:
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
         <span class="lbl"><b>Download&nbsp;on&nbsp;the&nbsp;App&nbsp;Store</b><span>iPhone and iPad · iOS 17+</span></span>
       </a>
-      <a class="btn btn-get" href="/download/mac">
+      <a class="btn btn-get" id="download-mac" href="/download/mac">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
         <span class="lbl"><b>Download&nbsp;the&nbsp;Mac&nbsp;app&nbsp;(.dmg)</b><span>Apple silicon or T2 · macOS 14+</span></span>
       </a>
@@ -1962,6 +1923,260 @@ document.querySelectorAll('.tabs').forEach(list => {
     if (document.hidden) { if (timer) { clearInterval(timer); timer = null; } }
     else apply();
   });
+})();
+
+// The hero bell as a sketch: thin hatch strokes draw in one by one and build
+// the mark, then keep breathing — a layered wave field sweeps light through
+// them, the pointer sends ripples — while the bell itself is a fixed mask, so
+// its silhouette never moves. Everything is inline and the
+// particles are sampled from /bell.svg — the same generated mark as everywhere
+// else — so the page still makes no third-party request and the artwork
+// cannot drift.
+(function(){
+  var host = document.querySelector(".hero-flare");
+  if (!host) return;
+  var cv = host.querySelector("canvas");
+  var gl = cv.getContext("webgl2", { alpha: true, antialias: false, premultipliedAlpha: true });
+  if (!gl) { host.classList.add("flat"); return; }
+
+  // The unread dot is read out of the artwork itself — the circle element in
+  // bell.svg — never hard-coded: every hand-copied dot position has drifted.
+  var dot = null;
+  fetch("/bell.svg").then(function(res){ return res.text(); }).then(function(txt){
+    var doc = new DOMParser().parseFromString(txt, "image/svg+xml");
+    var vb = (doc.documentElement.getAttribute("viewBox") || "").split(/\s+/).map(Number);
+    var c = doc.querySelector("circle");
+    if (vb.length === 4 && c) {
+      dot = {
+        u: (Number(c.getAttribute("cx")) - vb[0]) / vb[2],
+        v: (Number(c.getAttribute("cy")) - vb[1]) / vb[3],
+        r: Number(c.getAttribute("r")) / vb[2]
+      };
+    }
+  }).catch(function(){}).then(function(){
+    var img = new Image();
+    img.onerror = function(){ host.classList.add("flat"); };
+    img.onload = function(){ start(img); };
+    img.src = "/bell.svg";
+  });
+
+  function start(img){
+    var S = 512, pad = 0.3;
+
+    // The mark is black-on-transparent; its alpha is the shape, so a
+    // source-in fill recolours it without knowing anything about its paths.
+    function draw(x){
+      var size = S * (1 - 2 * pad);
+      x.drawImage(img, S * pad, S * pad, size, size);
+      x.globalCompositeOperation = "source-in";
+      x.fillStyle = "#fff";
+      x.fillRect(0, 0, S, S);
+      x.globalCompositeOperation = "source-over";
+    }
+    function layer(){
+      var c = document.createElement("canvas");
+      c.width = c.height = S;
+      return c;
+    }
+
+    var crisp = layer();
+    draw(crisp.getContext("2d"));
+
+    // Every few pixels of glyph coverage seeds one particle, jittered off the
+    // sampling grid so the field never reads as a grid.
+    var data = crisp.getContext("2d").getImageData(0, 0, S, S).data;
+    function alphaAt(px, py){
+      px = Math.max(0, Math.min(S - 1, px)); py = Math.max(0, Math.min(S - 1, py));
+      return data[(py * S + px) * 4 + 3];
+    }
+    // The ocean fills a dilated band around the glyph and the glyph itself is
+    // only a mask, applied per fragment — so the waves can toss the particles
+    // freely while the mark's silhouette never moves by a pixel.
+    // Hatching, not particles: each seed spawns one thin stroke at a random
+    // angle, and the strokes are dealt out one after another in shuffled
+    // order — each at full ink from the moment the pen lands, none ever
+    // fading — until the overlap itself reads as solid.
+    var cells = [];
+    var G = 96;
+    for (var gy = 0; gy < G; gy++){
+      for (var gx = 0; gx < G; gx++){
+        var u = (gx + .5) / G, v = (gy + .5) / G;
+        if (alphaAt(Math.floor(u * S), Math.floor(v * S)) < 96) continue;
+        cells.push([u, v]);
+      }
+    }
+    // Six shuffled passes over every cell, dealt strictly one after another,
+    // build the mark solid in under half a minute. After them a small ring of
+    // stroke slots is recycled forever — each slot, once its line is buried
+    // in the solid mark, is dealt again at a fresh spot — so the pen never
+    // runs out of strokes and never stops.
+    function isRed(u, v){
+      if (!dot) return 0;
+      var du = u - (pad + dot.u * (1 - 2 * pad));
+      var dv = v - (pad + dot.v * (1 - 2 * pad));
+      return du * du + dv * dv < Math.pow(dot.r * (1 - 2 * pad) * 1.2, 2) ? 1 : 0;
+    }
+    function stroke(u, v, start){
+      var ang = Math.random() * Math.PI;
+      var half = .02 + Math.random() * .035;
+      var dx = Math.cos(ang) * half, dy = Math.sin(ang) * half;
+      var red = isRed(u, v);
+      return [u, v, dx, dy, -1, start, red,
+              u, v, dx, dy, 1, start, red];
+    }
+    var LAYERS = 6, RING = 256;
+    var pts = [];
+    var total = cells.length * LAYERS;
+    var n = 0;
+    for (var l = 0; l < LAYERS; l++){
+      for (var i = cells.length - 1; i > 0; i--){
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cells[i]; cells[i] = cells[j]; cells[j] = tmp;
+      }
+      for (var k = 0; k < cells.length; k++){
+        Array.prototype.push.apply(pts, stroke(cells[k][0], cells[k][1], (n++ / total) * 26));
+      }
+    }
+    var deck = pts.length / 7;
+    for (var q = 0; q < RING; q++){
+      var c0 = cells[Math.floor(Math.random() * cells.length)];
+      Array.prototype.push.apply(pts, stroke(c0[0], c0[1], 26 + q * .25));
+    }
+    var count = pts.length / 7;
+    if (!count) { host.classList.add("flat"); return; }
+
+    var VS = "#version 300 es\n" +
+      "in vec2 aC; in vec2 aD; in float aE; in float aR; in float aK;" +
+      "uniform float uTime;" +
+      "out float vB; out vec3 vCol;" +
+      "void main(){" +
+      "  float g = clamp((uTime - aR) * 8., 0., 1.);" +
+      "  vec2 p = aC + aD * aE * g;" +
+      "  gl_Position = vec4(p.x * 2. - 1., 1. - p.y * 2., 0., 1.);" +
+      "  float tone = .86 + .14 * fract(aR * 137.508);" +
+      "  vCol = mix(vec3(.93, .95, 1.) * tone, vec3(.84, .21, .22) * tone, aK);" +
+      "  vB = step(1e-4, g) * .38;" +
+      "}";
+    var FS = "#version 300 es\n" +
+      "precision highp float;" +
+      "uniform sampler2D uT; uniform vec2 uRes;" +
+      "in float vB; in vec3 vCol; out vec4 o;" +
+      "void main(){" +
+      "  vec2 uv = gl_FragCoord.xy / uRes;" +
+      "  float m = texture(uT, vec2(uv.x, 1. - uv.y)).a;" +
+      "  float a = clamp(vB, 0., 1.) * smoothstep(.4, .6, m);" +
+      "  o = vec4(vCol * a, a);" +
+      "}";
+
+    function compile(vs, fs){
+      function shader(type, src){
+        var s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        return s;
+      }
+      var p = gl.createProgram();
+      gl.attachShader(p, shader(gl.VERTEX_SHADER, vs));
+      gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      return gl.getProgramParameter(p, gl.LINK_STATUS) ? p : null;
+    }
+    var prog = compile(VS, FS);
+    if (!prog) { host.classList.add("flat"); return; }
+
+    var vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+    var buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pts), gl.STATIC_DRAW);
+    var locC = gl.getAttribLocation(prog, "aC");
+    var locD = gl.getAttribLocation(prog, "aD");
+    var locE = gl.getAttribLocation(prog, "aE");
+    var locR = gl.getAttribLocation(prog, "aR");
+    var locK = gl.getAttribLocation(prog, "aK");
+    gl.enableVertexAttribArray(locC);
+    gl.vertexAttribPointer(locC, 2, gl.FLOAT, false, 28, 0);
+    gl.enableVertexAttribArray(locD);
+    gl.vertexAttribPointer(locD, 2, gl.FLOAT, false, 28, 8);
+    gl.enableVertexAttribArray(locE);
+    gl.vertexAttribPointer(locE, 1, gl.FLOAT, false, 28, 16);
+    gl.enableVertexAttribArray(locR);
+    gl.vertexAttribPointer(locR, 1, gl.FLOAT, false, 28, 20);
+    gl.enableVertexAttribArray(locK);
+    gl.vertexAttribPointer(locK, 1, gl.FLOAT, false, 28, 24);
+    gl.bindVertexArray(null);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, crisp);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0);
+    var uTime = gl.getUniformLocation(prog, "uTime");
+    var uRes = gl.getUniformLocation(prog, "uRes");
+    gl.useProgram(prog);
+    gl.uniform1i(gl.getUniformLocation(prog, "uT"), 0);
+
+    function resize(){
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var w = Math.floor(cv.clientWidth * dpr), h = Math.floor(cv.clientHeight * dpr);
+      if (!w || !h || (w === cv.width && h === cv.height)) return;
+      cv.width = w; cv.height = h;
+      gl.viewport(0, 0, w, h);
+      if (!raf) frame(40000);
+    }
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(cv);
+    else window.addEventListener("resize", resize);
+    resize();
+
+    var nextSpawn = 26 + RING * .25, ringCursor = 0;
+    function frame(t){
+      var s = t * .001;
+      var spawned = 0;
+      while (s > nextSpawn && spawned < 32){
+        var c1 = cells[Math.floor(Math.random() * cells.length)];
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferSubData(gl.ARRAY_BUFFER, (deck + ringCursor) * 56,
+                         new Float32Array(stroke(c1[0], c1[1], s + .03)));
+        ringCursor = (ringCursor + 1) % RING;
+        nextSpawn += .18 + Math.random() * .2;
+        spawned++;
+      }
+      if (s > nextSpawn) nextSpawn = s;
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.useProgram(prog);
+      gl.bindVertexArray(vao);
+      gl.uniform1f(uTime, s);
+      gl.uniform2f(uRes, cv.width, cv.height);
+      gl.drawArrays(gl.LINES, 0, count);
+      gl.bindVertexArray(null);
+    }
+
+    // One still frame under Reduce Motion — lit, but holding still — and no
+    // work while the tab is hidden or the hero is scrolled away.
+    var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var raf = null, visible = true;
+    function loop(t){ frame(t); raf = requestAnimationFrame(loop); }
+    function apply(){
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      if (still.matches) { frame(40000); return; }
+      if (visible && !document.hidden) raf = requestAnimationFrame(loop);
+    }
+    still.addEventListener("change", apply);
+    document.addEventListener("visibilitychange", apply);
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function(en){
+        visible = en[0].isIntersecting;
+        apply();
+      }).observe(cv);
+    }
+    apply();
+  }
 })();
 
 // Section numbering: the total is counted from the page rather than written
