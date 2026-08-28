@@ -55,7 +55,7 @@ const NOTES: Record<string, string> = {
   occurred_at:
     '<a href="https://currentmillis.com" class="src">Unix milliseconds</a>. Changes the timestamp shown in the app; defaults to when we receive the request.',
   is_critical:
-    'Ask for a critical alert: it breaks through Focus and stays on the lock screen, but does not sound through silent mode. The key must also have <em>Critical alerts</em> <a href="/docs#critical-alerts" class="src">switched on in the app</a>.',
+    'Ask for a critical alert: it breaks through Focus and stays on the lock screen. The key must also have <em>Critical alerts</em> <a href="/docs#critical-alerts" class="src">switched on in the app</a>.',
 };
 
 function shortType(type: string): string {
