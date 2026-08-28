@@ -13,6 +13,10 @@
     "gen-api": "tsx scripts/gen-api.ts",
     "check-api": "tsx scripts/gen-api.ts --check"
   },
+  "dependencies": {
+    "@notifi/contract": "workspace:*",
+    "zod": "^4.5.1"
+  },
   "devDependencies": {
     "@types/node": "^20.16.5",
     "simple-icons": "^16.28.0",

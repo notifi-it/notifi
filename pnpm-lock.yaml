@@ -49,6 +49,13 @@ importers:
         version: 4.116.0(@cloudflare/workers-types@4.20260702.1)
 
   packages/apidoc:
+    dependencies:
+      '@notifi/contract':
+        specifier: workspace:*
+        version: link:../contract
+      zod:
+        specifier: ^4.5.1
+        version: 4.5.1
     devDependencies:
       '@types/node':
         specifier: ^20.16.5

@@ -13,6 +13,13 @@ export const errorCode = z.enum([
 ]);
 export type ErrorCode = z.infer<typeof errorCode>;
 
+export const publicErrorCode = errorCode.exclude([
+  'bad_signature',
+  'stale_timestamp',
+  'unknown_device',
+]);
+export type PublicErrorCode = z.infer<typeof publicErrorCode>;
+
 export const apiError = z.object({
   error: z.object({
     code: errorCode,
@@ -31,18 +38,26 @@ const sendFlag = z
 export const TITLE_MAX = 200;
 export const MESSAGE_MAX = 16000;
 export const IMAGE_URL_MAX = 2048;
+export const LINK_URL_MAX = 2048;
 
-export const sendParams = z.object({
+export const sendFields = z.object({
   key: z.string(),
-  title: z.string().min(1).max(TITLE_MAX * 5),
-  message: z.string().max(MESSAGE_MAX * 4).optional(),
-  link: z.url().max(2048).optional(),
-  image: z.string().max(IMAGE_URL_MAX * 2).optional(),
+  title: z.string().min(1).max(TITLE_MAX),
+  message: z.string().max(MESSAGE_MAX).optional(),
+  link: z.url().max(LINK_URL_MAX).optional(),
+  image: z.string().max(IMAGE_URL_MAX).optional(),
   occurred_at: z
     .number()
     .int()
     .min(OCCURRED_AT_MIN_MS, { error: 'occurred_at must be after 2000-01-01' })
     .optional(),
+  is_critical: z.boolean().optional(),
+});
+
+export const sendParams = sendFields.extend({
+  title: z.string().min(1).max(TITLE_MAX * 5),
+  message: z.string().max(MESSAGE_MAX * 4).optional(),
+  image: z.string().max(IMAGE_URL_MAX * 2).optional(),
   is_critical: sendFlag.optional(),
 });
 export type SendParams = z.infer<typeof sendParams>;

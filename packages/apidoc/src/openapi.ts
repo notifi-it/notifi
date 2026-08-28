@@ -1,3 +1,5 @@
+import { publicErrorCode, sendFields, sendResponse } from '@notifi/contract';
+import { z } from 'zod';
 import {
   AUTH,
   DESCRIPTION,
@@ -9,6 +11,36 @@ import {
   errors,
   params,
 } from './spec.js';
+
+type JsonObject = Record<string, unknown>;
+
+function contractProperties(schema: z.ZodType): Record<string, JsonObject> {
+  const json = z.toJSONSchema(schema) as { properties?: Record<string, JsonObject> };
+  if (!json.properties) throw new Error('contract schema has no properties');
+  for (const property of Object.values(json.properties)) {
+    if (property.maximum === Number.MAX_SAFE_INTEGER) delete property.maximum;
+  }
+  return json.properties;
+}
+
+const fieldSchemas = contractProperties(sendFields);
+
+function fieldSchema(name: string): JsonObject {
+  const base = fieldSchemas[name];
+  const param = params.find((p) => p.name === name);
+  if (!base || !param) throw new Error(`no contract field ${name}`);
+  return { ...base, ...param.openapi };
+}
+
+function assertErrorTableMatchesContract(): void {
+  const documented = errors.map((e) => e.code);
+  const contract = publicErrorCode.options;
+  const missing = contract.filter((c) => !documented.includes(c));
+  const extra = documented.filter((c) => !contract.includes(c));
+  if (missing.length || extra.length) {
+    throw new Error(`error table out of sync with contract: missing ${missing}, extra ${extra}`);
+  }
+}
 
 const OPERATION_ERRORS = ['invalid_request', 'unknown_key', 'invalid_content', 'rate_limited'];
 
@@ -29,7 +61,7 @@ function properties(): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const param of params) {
     out[param.name] = {
-      ...param.openapi,
+      ...fieldSchema(param.name),
       description: description(param.name),
       ...(param.example === undefined ? {} : { examples: [param.example] }),
     };
@@ -45,7 +77,7 @@ function queryParameters(): Record<string, unknown> {
       in: 'query',
       required: param.name === 'title',
       description: param.summary,
-      schema: param.openapi,
+      schema: fieldSchema(param.name),
       ...(param.example === undefined ? {} : { example: param.example }),
     };
   }
@@ -113,7 +145,10 @@ function operationResponses(): Record<string, unknown> {
   return out;
 }
 
+const responseProperties = contractProperties(sendResponse);
+
 export function openapi(): Record<string, unknown> {
+  assertErrorTableMatchesContract();
   const security = [{ sendKey: [] }, { keyParameter: [] }];
   const bodySchema = { $ref: '#/components/schemas/SendParams' };
   const bodyExample = Object.fromEntries(
@@ -195,10 +230,9 @@ export function openapi(): Record<string, unknown> {
           type: 'object',
           required: ['ok'],
           properties: {
-            ok: { const: true },
+            ok: responseProperties.ok,
             warnings: {
-              type: 'array',
-              items: { type: 'string' },
+              ...responseProperties.warnings,
               description:
                 'Present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert delivered as an ordinary notification.',
             },
@@ -214,7 +248,7 @@ export function openapi(): Record<string, unknown> {
               properties: {
                 code: {
                   type: 'string',
-                  enum: errors.map((e) => e.code),
+                  enum: publicErrorCode.options,
                   description: 'Read error.code, not code: the code is nested one level down.',
                 },
                 message: {

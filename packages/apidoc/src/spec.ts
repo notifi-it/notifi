@@ -1,3 +1,8 @@
+import type { PublicErrorCode } from '@notifi/contract';
+import { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX } from '@notifi/contract';
+
+export { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX };
+
 export interface Param {
   name: string;
   type: string;
@@ -10,7 +15,7 @@ export interface Param {
 }
 
 export interface ErrorRow {
-  code: string;
+  code: PublicErrorCode;
   status: number;
   reason: string;
   message: string;
@@ -36,9 +41,7 @@ export interface Resource {
 export const ORIGIN = 'https://notifi.it';
 export const ENDPOINT = '/send';
 export const KEY_PREFIX = 'nk_';
-export const TITLE_MAX = 200;
-export const MESSAGE_MAX = 16000;
-export const URL_MAX = 2048;
+export const URL_MAX = LINK_URL_MAX;
 export const IMAGE_MAX_MB = 5;
 export const SENDS_PER_HOUR = 60;
 export const KEYS_PER_DEVICE = 5;
@@ -72,7 +75,7 @@ export const params: Param[] = [
     summary: 'The send key, if it is not sent as a bearer token.',
     detail:
       'Required unless sent as a bearer token. The key picks the device the notification lands on.',
-    openapi: { type: 'string', pattern: '^nk_' },
+    openapi: { pattern: '^nk_' },
     example: 'nk_yourkey',
   },
   {
@@ -82,7 +85,7 @@ export const params: Param[] = [
     limit: '1–200 chars',
     summary: 'The notification title.',
     detail: 'A longer title is delivered cropped, with a warning in the response.',
-    openapi: { type: 'string', minLength: 1, maxLength: TITLE_MAX },
+    openapi: {},
     example: 'Hello from notifi',
   },
   {
@@ -93,7 +96,7 @@ export const params: Param[] = [
     summary: 'The notification body, in Markdown.',
     detail:
       'The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning.',
-    openapi: { type: 'string', maxLength: MESSAGE_MAX },
+    openapi: {},
     example: 'Your first notification.',
   },
   {
@@ -104,7 +107,7 @@ export const params: Param[] = [
     summary: 'URL opened when the notification is tapped.',
     detail:
       'https always opens. Another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.',
-    openapi: { type: 'string', format: 'uri', maxLength: URL_MAX },
+    openapi: {},
     example: 'https://notifi.it/docs',
   },
   {
@@ -115,7 +118,7 @@ export const params: Param[] = [
     summary: 'https URL of a PNG, JPEG or GIF up to 5 MB.',
     detail:
       'One that cannot be fetched is dropped, with a warning, and the notification still arrives.',
-    openapi: { type: 'string', format: 'uri', pattern: '^https://', maxLength: URL_MAX },
+    openapi: { format: 'uri', pattern: '^https://' },
     example: 'https://notifi.it/anaglyph-bell.png',
   },
   {
@@ -126,7 +129,7 @@ export const params: Param[] = [
     summary: 'When the event actually happened, as unix milliseconds.',
     detail:
       'For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request.',
-    openapi: { type: 'integer', format: 'int64' },
+    openapi: { format: 'int64' },
   },
   {
     name: 'is_critical',
@@ -135,7 +138,7 @@ export const params: Param[] = [
     summary: 'Breaks through Focus.',
     detail:
       'The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array.',
-    openapi: { type: 'boolean' },
+    openapi: {},
   },
 ];
 

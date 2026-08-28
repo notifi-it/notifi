@@ -222,8 +222,8 @@
         "description": "URL opened when the notification is tapped.",
         "schema": {
           "type": "string",
-          "format": "uri",
-          "maxLength": 2048
+          "maxLength": 2048,
+          "format": "uri"
         },
         "example": "https://notifi.it/docs"
       },
@@ -234,9 +234,9 @@
         "description": "https URL of a PNG, JPEG or GIF up to 5 MB.",
         "schema": {
           "type": "string",
+          "maxLength": 2048,
           "format": "uri",
-          "pattern": "^https://",
-          "maxLength": 2048
+          "pattern": "^https://"
         },
         "example": "https://notifi.it/anaglyph-bell.png"
       },
@@ -247,6 +247,7 @@
         "description": "When the event actually happened, as unix milliseconds.",
         "schema": {
           "type": "integer",
+          "minimum": 946684800000,
           "format": "int64"
         }
       },
@@ -294,8 +295,8 @@
           },
           "link": {
             "type": "string",
-            "format": "uri",
             "maxLength": 2048,
+            "format": "uri",
             "description": "URL opened when the notification is tapped. https always opens. Another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.",
             "examples": [
               "https://notifi.it/docs"
@@ -303,9 +304,9 @@
           },
           "image": {
             "type": "string",
+            "maxLength": 2048,
             "format": "uri",
             "pattern": "^https://",
-            "maxLength": 2048,
             "description": "https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives.",
             "examples": [
               "https://notifi.it/anaglyph-bell.png"
@@ -313,6 +314,7 @@
           },
           "occurred_at": {
             "type": "integer",
+            "minimum": 946684800000,
             "format": "int64",
             "description": "When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request."
           },
@@ -330,6 +332,7 @@
         ],
         "properties": {
           "ok": {
+            "type": "boolean",
             "const": true
           },
           "warnings": {
@@ -357,10 +360,10 @@
               "code": {
                 "type": "string",
                 "enum": [
-                  "invalid_request",
                   "unknown_key",
-                  "invalid_content",
                   "rate_limited",
+                  "invalid_request",
+                  "invalid_content",
                   "not_found",
                   "internal_error"
                 ],
