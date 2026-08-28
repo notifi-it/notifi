@@ -71,7 +71,7 @@ export const params: Param[] = [
     limit: 'nk_…',
     summary: 'The send key, if it is not sent as a bearer token.',
     detail:
-      'Required unless sent as a bearer token. The key picks the device the notification lands on, so which key a script holds decides where its notifications go.',
+      'Required unless sent as a bearer token. The key picks the device the notification lands on.',
     openapi: { type: 'string', pattern: '^nk_' },
     example: 'nk_yourkey',
   },
@@ -114,7 +114,7 @@ export const params: Param[] = [
     summary: 'https URL of a PNG, JPEG or GIF up to 5 MB.',
     detail:
       'One that cannot be fetched is dropped, with a warning, and the notification still arrives.',
-    openapi: { type: 'string', format: 'uri', maxLength: URL_MAX },
+    openapi: { type: 'string', format: 'uri', pattern: '^https://', maxLength: URL_MAX },
     example: 'https://notifi.it/anaglyph-bell.png',
   },
   {

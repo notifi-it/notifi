@@ -46,7 +46,7 @@ Accept-Language: en-GB
 
 | Name | Type | Required | Limit | Description |
 | --- | --- | --- | --- | --- |
-| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on, so which key a script holds decides where its notifications go. |
+| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on. |
 | `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
 | `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning. |
 | `link` | string (uri) | optional | `≤ 2,048 chars` | URL opened when the notification is tapped. |
@@ -104,7 +104,7 @@ Retry-After: 42
 {"error":{"code":"rate_limited","message":"Too many notifications. Try again shortly."}}
 ```
 
-A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one. The status is still `202` — the notification was sent, in the altered form each warning describes.
+A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert delivered as an ordinary notification. The status is still `202` — the notification was sent, in the altered form each warning describes.
 
 ```http
 HTTP/1.1 202 Accepted

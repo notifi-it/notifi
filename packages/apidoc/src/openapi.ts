@@ -28,7 +28,11 @@ function description(name: string): string {
 function properties(): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const param of params) {
-    out[param.name] = { ...param.openapi, description: description(param.name) };
+    out[param.name] = {
+      ...param.openapi,
+      description: description(param.name),
+      ...(param.example === undefined ? {} : { examples: [param.example] }),
+    };
   }
   return out;
 }
@@ -42,6 +46,7 @@ function queryParameters(): Record<string, unknown> {
       required: param.name === 'title',
       description: param.summary,
       schema: param.openapi,
+      ...(param.example === undefined ? {} : { example: param.example }),
     };
   }
   return out;
@@ -51,14 +56,39 @@ function errorResponses(): Record<string, unknown> {
   const out: Record<string, unknown> = {
     Accepted: {
       description: 'The server accepted the notification. Not a delivery receipt.',
-      content: { 'application/json': { schema: { $ref: '#/components/schemas/SendResponse' } } },
+      content: {
+        'application/json': {
+          schema: { $ref: '#/components/schemas/SendResponse' },
+          examples: {
+            delivered: { value: { ok: true } },
+            deliveredWithWarnings: {
+              value: {
+                ok: true,
+                warnings: [
+                  'Sent as a normal notification: critical alerts are switched off for this key.',
+                ],
+              },
+            },
+          },
+        },
+      },
     },
+  };
+  const other = errors.filter((error) => !OPERATION_ERRORS.includes(error.code));
+  out.UnexpectedError = {
+    description: `Any other failure, in the same error shape: ${other.map((e) => e.code).join(' or ')}.`,
+    content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
   };
   for (const error of errors) {
     if (!OPERATION_ERRORS.includes(error.code)) continue;
     const body: Record<string, unknown> = {
       description: error.detail ? `${error.summary} ${error.detail}` : error.summary,
-      content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+      content: {
+        'application/json': {
+          schema: { $ref: '#/components/schemas/Error' },
+          example: { error: { code: error.code, message: error.message } },
+        },
+      },
     };
     if (error.code === 'rate_limited') {
       body.headers = {
@@ -79,12 +109,18 @@ function operationResponses(): Record<string, unknown> {
     if (!OPERATION_ERRORS.includes(error.code)) continue;
     out[String(error.status)] = { $ref: `#/components/responses/${responseName(error.code)}` };
   }
+  out.default = { $ref: '#/components/responses/UnexpectedError' };
   return out;
 }
 
 export function openapi(): Record<string, unknown> {
   const security = [{ sendKey: [] }, { keyParameter: [] }];
   const bodySchema = { $ref: '#/components/schemas/SendParams' };
+  const bodyExample = Object.fromEntries(
+    params
+      .filter((p) => ['title', 'message', 'link'].includes(p.name) && p.example !== undefined)
+      .map((p) => [p.name, p.example]),
+  );
   return {
     openapi: '3.1.0',
     info: {
@@ -119,14 +155,14 @@ export function openapi(): Record<string, unknown> {
           operationId: 'sendNotification',
           summary: 'Send a notification',
           description:
-            'Delivers a notification to the device that created the send key. Answers 202 once the server has accepted it, which is not a delivery receipt. Query parameters win over body fields when both are present.',
+            'Delivers a notification to the device that created the send key. Answers 202 once the server has accepted it, which is not a delivery receipt. Query parameters win over body fields when both are present. The key body field also authenticates; the security schemes above cannot describe a credential in the body, so it is listed only as a field of SendParams.',
           security,
           requestBody: {
             required: true,
             content: {
-              'application/json': { schema: bodySchema },
-              'application/x-www-form-urlencoded': { schema: bodySchema },
-              'multipart/form-data': { schema: bodySchema },
+              'application/json': { schema: bodySchema, example: bodyExample },
+              'application/x-www-form-urlencoded': { schema: bodySchema, example: bodyExample },
+              'multipart/form-data': { schema: bodySchema, example: bodyExample },
             },
           },
           responses: operationResponses(),
@@ -138,7 +174,6 @@ export function openapi(): Record<string, unknown> {
         sendKey: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'nk_',
           description: AUTH.bearerDescription,
         },
         keyParameter: {
@@ -165,7 +200,7 @@ export function openapi(): Record<string, unknown> {
               type: 'array',
               items: { type: 'string' },
               description:
-                'Present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one.',
+                'Present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert delivered as an ordinary notification.',
             },
           },
         },
@@ -196,7 +231,7 @@ export function openapi(): Record<string, unknown> {
     },
     'x-rate-limits': {
       perDevicePerHour: SENDS_PER_HOUR,
-      perAddressPerMinute: REQUESTS_PER_MINUTE,
+      perIpPerMinute: REQUESTS_PER_MINUTE,
     },
   };
 }
