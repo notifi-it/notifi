@@ -48,7 +48,7 @@ export const SUMMARY =
   'Push notifications to an iPhone, iPad or Mac from one HTTP request.';
 
 export const DESCRIPTION = [
-  'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account and no SDK: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.',
+  'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.',
   'Send keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.',
   'When to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.',
 ].join('\n\n');
@@ -91,8 +91,7 @@ export const params: Param[] = [
     required: false,
     limit: '≤ 16,000 chars',
     summary: 'The notification body, in Markdown.',
-    detail:
-      'The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning.',
+    detail: 'A longer body is delivered cropped, with a warning.',
     openapi: { type: 'string', maxLength: MESSAGE_MAX },
     example: 'Your first notification.',
   },
@@ -101,7 +100,7 @@ export const params: Param[] = [
     type: 'string (uri)',
     required: false,
     limit: '≤ 2,048 chars',
-    summary: 'URL opened when the notification is tapped.',
+    summary: 'A link to a website or internal app.',
     detail: '',
     openapi: { type: 'string', format: 'uri', maxLength: URL_MAX },
     example: 'https://notifi.it/docs',

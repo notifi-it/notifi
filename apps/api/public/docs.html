@@ -465,7 +465,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <a href="#errors">Errors</a>
     <a href="#limits">Rate limits</a>
     <a href="#clients">Clients and import</a>
-    <a href="#machine">Machine-readable</a>
+    <a href="#machine">For the bots</a>
     <a href="#recipes">Recipes</a></p>
   </div>
 
@@ -555,14 +555,14 @@ Accept-Language: en-GB
             <td>string</td>
             <td>optional</td>
             <td><code>≤ 16,000 chars</code></td>
-            <td>The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning.</td>
+            <td>The notification body, in Markdown. A longer body is delivered cropped, with a warning.</td>
           </tr>
           <tr>
             <td><code>link</code></td>
             <td>string (uri)</td>
             <td>optional</td>
             <td><code>≤ 2,048 chars</code></td>
-            <td>URL opened when the notification is tapped.</td>
+            <td>A link to a website or internal app.</td>
           </tr>
           <tr>
             <td><code>image</code></td>
@@ -654,20 +654,22 @@ Content-Type: application/json; charset=utf-8
 
 {&quot;ok&quot;:true,&quot;warnings&quot;:[&quot;Sent with a shortened title: it was over 200 characters.&quot;,&quot;Sent as a normal notification: critical alerts are switched off for this key.&quot;]}</pre>
 
-    <h3>Over-length text is cropped</h3>
+    <h3>Over-length text is cropped, invalid images dropped</h3>
     <p>
       A title over 200 characters or a body over 16000 is delivered cropped,
-      with a warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
+      with a warning. An image that cannot be fetched, is not a PNG, JPEG or GIF, or is over
+      5 MB is dropped the same way: the notification arrives without it, with a
+      warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
       the app's Settings, makes a send that would have been cropped or stripped answer
       <code>422 invalid_content</code> and store nothing. It is off by default, so cropping is
       what a send meets unless the person holding the device turned it on.
     </p>
     <figure>
-      <img src="/shots/settings-reject-invalid-sends.png" width="660" height="325" alt="The Settings screen, showing the Reject invalid sends switch turned off.">
+      <img src="/shots/settings-reject-invalid-sends.png" width="603" height="320" alt="The Settings screen, showing the Reject invalid sends switch turned off.">
       <figcaption>Settings → Permissions → Reject invalid sends. Off, the default: sends are cropped, not refused.</figcaption>
     </figure>
 
-    <h3>Critical alerts are granted per key</h3>
+    <h3 id="critical-alerts">Critical alerts are granted per key</h3>
     <p>
       <code>is_critical=1</code> asks for an alert that breaks through Focus and silent mode.
       It is not enough on its own: the key it was sent with must have <strong>Critical
@@ -676,8 +678,20 @@ Content-Type: application/json; charset=utf-8
       warning saying so. A sender cannot turn this on — only the person holding the device can.
     </p>
     <figure>
-      <img src="/shots/key-critical-alerts.png" width="660" height="815" alt="A key's screen in the app, showing the Critical alerts switch turned on.">
+      <img src="/shots/key-critical-alerts.png" width="603" height="744" alt="A key's screen in the app, showing the Critical alerts switch turned on.">
       <figcaption>Keys → a key → Settings → Critical alerts. Each key carries its own permission.</figcaption>
+    </figure>
+
+    <h3 id="links">A link does not have to be https</h3>
+    <p>
+      <code>link</code> accepts any URL scheme, so it can point at a website or deep-link into
+      another app on the device. The app opens only <code>https</code> links until
+      <strong>Open any link</strong> is switched on for the key, in that key's screen under the
+      Keys tab. A sender cannot turn it on — only the person holding the device can.
+    </p>
+    <figure>
+      <img src="/shots/key-open-any-link.png" width="603" height="145" alt="A key's screen in the app, showing the Open any link switch.">
+      <figcaption>Keys → a key → Settings → Open any link. Off, only https links open.</figcaption>
     </figure>
   </section>
 
@@ -796,7 +810,7 @@ openapi-generator-cli generate \
   </section>
 
   <section id="machine">
-    <h2>Machine-readable</h2>
+    <h2>For the bots</h2>
     <ul>
       <li><a href="/llms.txt"><code>/llms.txt</code></a> — The full reference as plain text, written for coding agents.</li>
       <li><a href="/openapi.json"><code>/openapi.json</code></a> — OpenAPI 3.1 for /send.</li>
@@ -1110,7 +1124,7 @@ spec:
     <h2>Questions</h2>
     <p>
       The <a href="/faq">FAQ</a> covers cost, limits, what the server can read and what happens
-      when you delete the app. Anything else goes to <a href="mailto:hello@notifi.it">hello@notifi.it</a>.
+      when you delete the app. If yours isn't there, write to <a href="mailto:hello@notifi.it">hello@notifi.it</a>.
     </p>
   </section>
 
