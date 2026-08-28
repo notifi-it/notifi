@@ -2122,10 +2122,15 @@ document.querySelectorAll('.tabs').forEach(list => {
       }
     }
     // Six shuffled passes over every cell, dealt strictly one after another,
-    // build the mark solid in under half a minute. After them a small ring of
-    // stroke slots is recycled forever — each slot, once its line is buried
-    // in the solid mark, is dealt again at a fresh spot — so the pen never
-    // runs out of strokes and never stops.
+    // build the mark solid in under half a minute — but not at a flat rate:
+    // the pen starts slow, gathers speed linearly over the first eight
+    // seconds, then holds that pace to the end. Below, that is the square
+    // root over the ramp (rate ∝ t integrates to strokes ∝ t²) and the
+    // linear tail after it, meeting at RAMP with matched rate so the
+    // handover is invisible. After them a small ring of stroke slots is
+    // recycled forever — each slot, once its line is buried in the solid
+    // mark, is dealt again at a fresh spot — so the pen never runs out of
+    // strokes and never stops.
     function isRed(u, v){
       if (!dot) return 0;
       var du = u - (pad + dot.u * (1 - 2 * pad));
@@ -2143,6 +2148,13 @@ document.querySelectorAll('.tabs').forEach(list => {
     var LAYERS = 6, RING = 256;
     var pts = [];
     var total = cells.length * LAYERS;
+    var BUILD = 26, RAMP = 8;
+    var RATE = total / (BUILD - RAMP / 2);
+    var RAMPED = RATE * RAMP / 2;
+    function startAt(i){
+      return i < RAMPED ? Math.sqrt(2 * RAMP * i / RATE)
+                        : RAMP + (i - RAMPED) / RATE;
+    }
     var n = 0;
     for (var l = 0; l < LAYERS; l++){
       for (var i = cells.length - 1; i > 0; i--){
@@ -2150,13 +2162,13 @@ document.querySelectorAll('.tabs').forEach(list => {
         var tmp = cells[i]; cells[i] = cells[j]; cells[j] = tmp;
       }
       for (var k = 0; k < cells.length; k++){
-        Array.prototype.push.apply(pts, stroke(cells[k][0], cells[k][1], (n++ / total) * 26));
+        Array.prototype.push.apply(pts, stroke(cells[k][0], cells[k][1], startAt(n++)));
       }
     }
     var deck = pts.length / 7;
     for (var q = 0; q < RING; q++){
       var c0 = cells[Math.floor(Math.random() * cells.length)];
-      Array.prototype.push.apply(pts, stroke(c0[0], c0[1], 26 + q * .25));
+      Array.prototype.push.apply(pts, stroke(c0[0], c0[1], BUILD + q * .25));
     }
     var count = pts.length / 7;
     if (!count) { host.classList.add("flat"); return; }
