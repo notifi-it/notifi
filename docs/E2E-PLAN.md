@@ -14,12 +14,15 @@ plan (notifi-swift PR #121) is out of scope and stays parked.
 ## 1. How it works
 
 Encryption is a **per-key setting**: each key carries an `is_encrypted` toggle in
-Key Detail, off by default. The keypair itself stays the device's — every encrypted
-key seals to the same `encryption_public_key`, and Renew (§5) rotates it for all of
-them at once. You flip a key on, copy the device's encryption public key out of the
-app, and paste it into that key's script next to its send key. Every send to that
-key must then carry sealed fields — same parameter names, each value now
-`base64(HPKE-seal(value))`:
+Key Detail, off by default. Flipping it on generates a **fresh P-256 keypair for
+that key alone** — distinct from the device's registered `encryption_public_key`,
+which keeps sealing the server's own envelope. The private half lives in the device
+keychain (shared with the NSE); the public half is **never sent to the server** —
+it appears only in Copy for scripts. Because the server never learns it, the server
+cannot construct a blob that opens: sender forgery is closed, not just documented
+(§7). You flip a key on, copy its public key out of the app, and paste it into that
+key's script next to its send key. Every send to that key must then carry sealed
+fields — same parameter names, each value now `base64(HPKE-seal(value))`:
 
 ```
 POST /send                    (sends to an encrypted key are POST-only)
@@ -53,10 +56,11 @@ key list to consult — learns which kind it holds from the first unwrap. The de
 opens the server's envelope as it always has, and opens each sender-sealed field
 inside it only when the stamp says to.
 
-The recipient's public key travels out of band — copied from the app, pasted into
-the script. It is pinned by construction: it changes only when you paste a new one
-(or renew, §5), and a wrong paste fails closed (the field never opens) rather than
-degrading to plaintext.
+The key's public key travels out of band — copied from the app, pasted into the
+script — and doubles as a secret from the server: public to senders, unknown to
+notifi. It is pinned by construction: it changes only when you paste a new one (or
+renew that key, §5), and a wrong paste fails closed (the field never opens) rather
+than degrading to plaintext.
 
 ---
 
@@ -70,16 +74,17 @@ kdf         HKDF-SHA256                    0x0001
 aead        AES-256-GCM                    0x0002
 info        empty
 aad         empty
-recipient   the 65-byte uncompressed P-256 point copied from the app (X9.63 / SEC1)
+recipient   the key's own 65-byte uncompressed P-256 point from Copy for
+            scripts (X9.63 / SEC1) — generated at toggle-on, never registered
 plaintext   the UTF-8 value of one field, nothing else
 wire        standard base64 (with padding) of  enc || ciphertext
             where enc is the 65-byte encapsulated key and ciphertext ends
             with the 16-byte GCM tag
 ```
 
-Sealing a field is one function taking one value: `base64(seal(pubkey, value))`. The
-device's key is also used for the Worker's own envelopes, which keep their non-empty
-info strings, so the layers can never cross-decrypt. This is CryptoKit's suite,
+Sealing a field is one function taking one value: `base64(seal(pubkey, value))`.
+The Worker's own envelopes use a different keypair entirely (the registered device
+key, with non-empty info strings), so the layers can never cross-decrypt. This is CryptoKit's suite,
 already used by the app and the NSE, with maintained RFC 9180 libraries in every SDK
 language.
 
@@ -104,7 +109,7 @@ requests.post("https://notifi.it/send", json={
 ```
 
 **Fingerprint:** first 8 bytes of SHA-256 of the 65-byte point (not its base64),
-uppercase hex in four-character groups: `A1B2 C3D4 E5F6 0718`. Shown in Settings,
+uppercase hex in four-character groups: `A1B2 C3D4 E5F6 0718`. Shown in Key Detail,
 printed by every SDK.
 
 **Test vector:** `e2e-vector.json` from `packages/contract/scripts/gen-vectors.ts`,
@@ -174,32 +179,30 @@ still see.
 
 ## 5. App, SDKs
 
-**App** — the keypair is device-wide and lives in **Settings**; everything about
-whether a key expects encryption lives in **Key Detail**. Settings makes no per-key
-claims — no counts, no lists:
+**App** — everything lives in **Key Detail**; Settings gains nothing (the
+device's registered keypair keeps sealing the server envelope and needs no UI):
 
-- **Settings → Encryption** (the keypair's home, nothing else):
-  - the fingerprint, monospaced,
-  - **Copy public key** — the full base64, plain `Clipboard.copy` (it is public;
-    safe to share),
-  - **Renew key** — generates a fresh encryption keypair and re-registers its
-    public half, for recovery from a suspected compromise. A centred `.alert`
-    (never `confirmationDialog`) states the consequence: every encrypted key's
-    pasted public key stops working until re-pasted, and anything sealed to the
-    old key after this point cannot be opened. Sync runs first so nothing in
-    flight is orphaned. The fingerprint changes, which is the point — a changed
-    fingerprint is verifiable evidence of the rotation,
-  - a line saying the key also changes if the app is reinstalled.
 - **Key Detail** gains the **Encrypted** toggle (`is_encrypted`, off by default,
-  via `PATCH /keys/:id`). Before flipping on, a centred alert states the
-  consequence: the script using this key fails from that moment until it seals,
-  and the server cannot check content it cannot read — nothing is trimmed to fit,
-  image links are not verified, and a message that is too long or broken arrives
-  as sent. With the toggle on, the screen swaps **Copy curl** for
-  **Copy for scripts** — two `export` lines, `NOTIFI_KEY` and
-  `NOTIFI_PUBLIC_KEY`, via `copySensitive` (it carries the send key) — and a
-  snippet button: a short Python snippet with both values inlined, since curl
-  cannot do HPKE. With it off, nothing about encryption appears.
+  via `PATCH /keys/:id`). Flipping it on generates the key's keypair in the
+  keychain first, then updates the server; a centred `.alert` (never
+  `confirmationDialog`) states the consequence: the script using this key fails
+  from that moment until it seals, and the server cannot check content it cannot
+  read — nothing is trimmed to fit, image links are not verified, and a message
+  that is too long or broken arrives as sent.
+- With the toggle on, the screen shows:
+  - the key's fingerprint, monospaced,
+  - **Copy for scripts** — two `export` lines, `NOTIFI_KEY` and
+    `NOTIFI_PUBLIC_KEY`, via `copySensitive` (it carries the send key), replacing
+    **Copy curl** — plus a snippet button: a short Python snippet with both
+    values inlined, since curl cannot do HPKE,
+  - **Renew** — generates a fresh keypair for this key only, for recovery from a
+    suspected compromise. A centred alert states the consequence: this key's
+    pasted public key stops working until re-pasted, and anything sealed to the
+    old keypair after this point cannot be opened. Other keys are untouched. Sync
+    runs first so nothing in flight is orphaned. The fingerprint changes, which
+    is the point — a changed fingerprint is verifiable evidence of the rotation,
+  - a line saying every key's keypair also changes if the app is reinstalled.
+- With it off, nothing about encryption appears.
 - Nothing else changes: search, retention, ack, socket untouched — decrypted messages
   sit in SwiftData exactly as today.
 - Copy strings in a new `encryption` namespace, every translation, `make gen-copy`,
@@ -280,8 +283,9 @@ For the README, the first and second also on the site (§6).
 
 - **Metadata is visible.** Which key, which device, when, how urgent, which fields
   and roughly how long each — E2E hides contents, not the pattern of paging.
-- **The server can forge a message to you, and always could.** HPKE base mode proves
-  nothing about the sender.
+- **The server cannot forge a message that opens** — it never learns the key's
+  public key — but it can still inject one *without* the `e2e` stamp, which
+  renders as plaintext. A plaintext row on an encrypted key is the tell.
 - **Over ~1,800 characters the lock-screen preview degrades** to "New notification"
   (a warning, or a 422 under `strict_send`).
 - **The server cannot inspect encrypted content** — no crops, no image check; that
