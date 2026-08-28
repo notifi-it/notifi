@@ -102,7 +102,7 @@ p,li{max-width:70ch}
   letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
 }
 
-header{position:sticky;top:0;z-index:20;background:rgba(28,28,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
 .mark img{height:17px;width:auto;display:block}
