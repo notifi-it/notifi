@@ -170,8 +170,14 @@ BASE=http://localhost:8787 make check-site
 
 ## API documentation is generated
 
-`packages/apidoc/src` is the source of truth for everything that describes
-`/send`. Change a parameter, an error code or a limit there and run
+`packages/apidoc/src` is the source of truth for the prose that describes
+`/send`; the schemas, limits and error codes come from the Zod contract.
+`openapi.ts` converts `sendFields` (the documented schema `sendParams` derives
+its crop tolerance from), `sendResponse` and `publicErrorCode` with
+`z.toJSONSchema`, merges apidoc's descriptions and examples on top, and refuses
+to generate if the error table in `spec.ts` and `publicErrorCode` disagree.
+Change a limit or an error code in `packages/contract`, or prose in
+`packages/apidoc/src`, and run
 
 ```bash
 make gen-api

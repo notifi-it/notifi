@@ -289,7 +289,7 @@ ${terminalGroup('r-', 'Responses', RESPONSES)}
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
       differently from what was asked: a cropped title or body, a dropped image, or a critical
-      alert downgraded to an ordinary one. The status is still <code>202</code> — the
+      alert delivered as an ordinary notification. The status is still <code>202</code> — the
       notification was sent, in the altered form each warning describes.
     </p>
 ${pre(WARNINGS_RESPONSE, 'http')}

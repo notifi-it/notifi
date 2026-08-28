@@ -46,10 +46,10 @@ Accept-Language: en-GB
 
 | Name | Type | Required | Limit | Description |
 | --- | --- | --- | --- | --- |
-| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on, so which key a script holds decides where its notifications go. |
+| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on. |
 | `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
 | `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. A longer body is delivered cropped, with a warning. |
-| `link` | string (uri) | optional | `≤ 2,048 chars` | A link to a website or internal app. |
+| `link` | string (uri) | optional | `≤ 2,048 chars` | A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden. |
 | `image` | string (uri) | optional | `≤ 2,048 chars` | https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives. |
 | `occurred_at` | integer | optional | `unix ms` | When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request. |
 | `is_critical` | boolean | optional | — | Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array. |
@@ -104,7 +104,7 @@ Retry-After: 42
 {"error":{"code":"rate_limited","message":"Too many notifications. Try again shortly."}}
 ```
 
-A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one. The status is still `202` — the notification was sent, in the altered form each warning describes.
+A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert delivered as an ordinary notification. The status is still `202` — the notification was sent, in the altered form each warning describes.
 
 ```http
 HTTP/1.1 202 Accepted

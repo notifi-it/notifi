@@ -13,6 +13,13 @@ export const errorCode = z.enum([
 ]);
 export type ErrorCode = z.infer<typeof errorCode>;
 
+export const publicErrorCode = errorCode.exclude([
+  'bad_signature',
+  'stale_timestamp',
+  'unknown_device',
+]);
+export type PublicErrorCode = z.infer<typeof publicErrorCode>;
+
 export const apiError = z.object({
   error: z.object({
     code: errorCode,
@@ -31,18 +38,26 @@ const sendFlag = z
 export const TITLE_MAX = 200;
 export const MESSAGE_MAX = 16000;
 export const IMAGE_URL_MAX = 2048;
+export const LINK_URL_MAX = 2048;
 
-export const sendParams = z.object({
+export const sendFields = z.object({
   key: z.string(),
-  title: z.string().min(1).max(TITLE_MAX * 5),
-  message: z.string().max(MESSAGE_MAX * 4).optional(),
-  link: z.string().url().max(2048).optional(),
-  image: z.string().max(IMAGE_URL_MAX * 2).optional(),
+  title: z.string().min(1).max(TITLE_MAX),
+  message: z.string().max(MESSAGE_MAX).optional(),
+  link: z.url().max(LINK_URL_MAX).optional(),
+  image: z.string().max(IMAGE_URL_MAX).optional(),
   occurred_at: z
     .number()
     .int()
-    .min(OCCURRED_AT_MIN_MS, { message: 'occurred_at must be after 2000-01-01' })
+    .min(OCCURRED_AT_MIN_MS, { error: 'occurred_at must be after 2000-01-01' })
     .optional(),
+  is_critical: z.boolean().optional(),
+});
+
+export const sendParams = sendFields.extend({
+  title: z.string().min(1).max(TITLE_MAX * 5),
+  message: z.string().max(MESSAGE_MAX * 4).optional(),
+  image: z.string().max(IMAGE_URL_MAX * 2).optional(),
   is_critical: sendFlag.optional(),
 });
 export type SendParams = z.infer<typeof sendParams>;
@@ -63,15 +78,13 @@ export const keyMeta = z.object({
 });
 export type KeyMeta = z.infer<typeof keyMeta>;
 
-export const registerDeviceBody = z
-  .object({
-    public_key: z.string(),
-    encryption_public_key: z.string(),
-    apns_token: z.string().min(1).optional(),
-    platform: z.string().min(1).max(16),
-    app_version: z.string().min(1).max(16),
-  })
-  .strict();
+export const registerDeviceBody = z.strictObject({
+  public_key: z.string(),
+  encryption_public_key: z.string(),
+  apns_token: z.string().min(1).optional(),
+  platform: z.string().min(1).max(16),
+  app_version: z.string().min(1).max(16),
+});
 export type RegisterDeviceBody = z.infer<typeof registerDeviceBody>;
 
 export const registerDeviceResponse = z.object({
@@ -96,11 +109,9 @@ export const listKeysResponse = z.object({
 });
 export type ListKeysResponse = z.infer<typeof listKeysResponse>;
 
-export const createKeyBody = z
-  .object({
-    name: z.string().min(1).max(64),
-  })
-  .strict();
+export const createKeyBody = z.strictObject({
+  name: z.string().min(1).max(64),
+});
 export type CreateKeyBody = z.infer<typeof createKeyBody>;
 
 export const createKeyResponse = z.object({
@@ -110,18 +121,14 @@ export const createKeyResponse = z.object({
 });
 export type CreateKeyResponse = z.infer<typeof createKeyResponse>;
 
-export const updateKeyBody = z
-  .object({
-    is_critical: z.boolean(),
-  })
-  .strict();
+export const updateKeyBody = z.strictObject({
+  is_critical: z.boolean(),
+});
 export type UpdateKeyBody = z.infer<typeof updateKeyBody>;
 
-export const updateDeviceSettingsBody = z
-  .object({
-    strict_send: z.boolean(),
-  })
-  .strict();
+export const updateDeviceSettingsBody = z.strictObject({
+  strict_send: z.boolean(),
+});
 export type UpdateDeviceSettingsBody = z.infer<typeof updateDeviceSettingsBody>;
 
 export const historyQuery = z.object({
