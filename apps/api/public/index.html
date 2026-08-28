@@ -114,9 +114,9 @@
   --max:1080px;
 }
 *{box-sizing:border-box;margin:0}
-/* scroll-padding-top keeps an in-page anchor's target off the very top edge
-   of the viewport. */
-html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:24px;scroll-behavior:smooth}
+/* scroll-padding-top clears the 60px fixed header, which is docked and in the
+   way whenever an in-page anchor is followed from below the hero. */
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
@@ -136,7 +136,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(header){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 /* Content links, decided once rather than per section: the text keeps the
@@ -224,6 +224,98 @@ p{max-width:62ch}
 
 @media (prefers-reduced-motion:reduce){
   .reveal.armed .c{color:inherit}
+}
+
+/* ── header ─────────────────────────────────────────────────── */
+/* The bar takes no space in the flow: it is fixed above the page and hidden
+   until the hero bell has scrolled out of view, then slides down — so there is
+   always exactly one bell on screen, and never two. A script near the bottom
+   toggles .docked from an IntersectionObserver on .hero-flare. */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  background:rgba(28,28,30,.82);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  transform:translateY(-100%);opacity:0;visibility:hidden;
+  transition:transform .3s var(--ease-out),opacity .3s var(--ease-out),
+             visibility 0s .3s;
+}
+header.docked{
+  transform:none;opacity:1;visibility:visible;
+  transition:transform .3s var(--ease-out),opacity .3s var(--ease-out);
+}
+.bar{position:relative;display:flex;align-items:center;gap:14px;height:60px}
+/* The mark sits at the right end of the bar on wide screens, because that is
+   where the hero bell was when the bar arrived to replace it; row-reverse
+   keeps the bell outermost. On small screens the hero bell is centred, so the
+   docked mark centres too. */
+.mark{margin-left:auto;flex-direction:row-reverse;text-decoration:none}
+nav{display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--fg)}
+.navget{
+  font-family:var(--mono);font-size:13px;font-weight:600;
+  padding:7px 14px;border-radius:6px;
+  background:var(--fg);color:#1C1C1E;border:1px solid var(--fg);
+  transition:background var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out);
+}
+.navget:hover{color:#1C1C1E;background:#fff;border-color:#fff}
+@media(max-width:620px){
+  nav .hide-sm{display:none}
+  nav{margin-left:auto}
+  .mark{position:absolute;left:50%;transform:translateX(-50%);margin:0;flex-direction:row}
+}
+/* Below 360px the centred lockup and the Download button meet; the wordmark
+   gives way and the bell holds the centre alone. header .mark img, not
+   .mark img: the shared .lockup img rule sits later in the sheet and would
+   otherwise win the display back at equal specificity. */
+@media(max-width:360px){header .mark img{display:none}}
+/* The bell rings once each time the bar arrives. Pivot at the crown, not the
+   centre — a real bell swings from where it hangs — and each swing loses
+   height so it settles rather than stops. Runs on ::before so the layout box
+   never moves. */
+/* These are Theme.swift's bellSwing and clapperSwing, keyframe for keyframe, so
+   the site and the app ring the same bell: the percentages are each track's
+   cumulative time over its own total (2.585s and 2.42s), which is why the two
+   durations differ rather than being rounded to match. Change one and the other
+   has to move with it. */
+header.docked .bell::before{transform-origin:50% 0;animation:ring-body 2.585s ease-in-out .25s both}
+header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-out .25s both}
+@keyframes ring-body{
+  0%{transform:rotate(0)}
+  4.26%{transform:rotate(-20deg)}
+  12.96%{transform:rotate(18deg)}
+  21.66%{transform:rotate(-16deg)}
+  30.37%{transform:rotate(14deg)}
+  39.07%{transform:rotate(-13deg)}
+  47.78%{transform:rotate(12deg)}
+  56.48%{transform:rotate(-10deg)}
+  65.18%{transform:rotate(8deg)}
+  73.89%{transform:rotate(-6deg)}
+  82.59%{transform:rotate(4deg)}
+  91.30%{transform:rotate(-2deg)}
+  100%{transform:rotate(0)}
+}
+@keyframes ring-clapper{
+  0%,2.48%{transform:rotate(0)}
+  7.02%{transform:rotate(-30deg)}
+  16.32%{transform:rotate(27deg)}
+  25.62%{transform:rotate(-24deg)}
+  34.92%{transform:rotate(20deg)}
+  44.21%{transform:rotate(-18deg)}
+  53.51%{transform:rotate(15deg)}
+  62.81%{transform:rotate(-12deg)}
+  72.11%{transform:rotate(9deg)}
+  81.40%{transform:rotate(-6deg)}
+  90.70%{transform:rotate(3deg)}
+  100%{transform:rotate(0)}
+}
+/* After the header rules, not in the reveal block above: these undo rules of
+   equal specificity, so they have to come later in the sheet to win. */
+@media (prefers-reduced-motion:reduce){
+  header,header.docked{transition:none}
+  header.docked .bell::before,header.docked .bell::after{animation:none}
 }
 
 /* ── buttons ────────────────────────────────────────────────── */
@@ -971,6 +1063,24 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </symbol>
   </defs>
 </svg>
+
+<header>
+  <div class="wrap bar">
+    <nav>
+      <a href="#api" class="hide-sm">API</a>
+      <a href="#send" class="hide-sm">Send</a>
+      <a href="#uses" class="hide-sm">Uses</a>
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="/faq" class="hide-sm">FAQ</a>
+      <a href="#download" class="navget">Download</a>
+    </nav>
+    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+      <span class="bell" aria-hidden="true"></span>
+      <img src="/wordmark.svg" alt="notifi">
+    </a>
+  </div>
+</header>
+<noscript><style>header{position:sticky;transform:none;opacity:1;visibility:visible}</style></noscript>
 
 <main>
 
@@ -2197,6 +2307,20 @@ document.querySelectorAll('.tabs').forEach(list => {
   var heads = document.querySelectorAll(".section-head");
   var of = String(heads.length).padStart(2, "0");
   for (var i = 0; i < heads.length; i++) heads[i].setAttribute("data-of", of);
+})();
+
+// The header docks the moment the hero bell leaves the top of the viewport,
+// and undocks when it comes back — one bell on screen at all times. The
+// top < 0 guard keeps the bar away when the bell is merely below the fold,
+// which is where it starts on a short phone viewport mid-load.
+(function(){
+  var hdr = document.querySelector("header");
+  var bell = document.querySelector(".hero-flare");
+  if (!hdr || !bell) return;
+  new IntersectionObserver(function(entries){
+    var e = entries[entries.length - 1];
+    hdr.classList.toggle("docked", !e.isIntersecting && e.boundingClientRect.top < 0);
+  }, { rootMargin: "-1px 0px 0px 0px" }).observe(bell);
 })();
 
 // Headings and ledes light up word by word as they cross the viewport.
