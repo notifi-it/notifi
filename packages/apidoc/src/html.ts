@@ -162,7 +162,7 @@ const SECTIONS: Array<[string, string]> = [
   ['errors', 'Errors'],
   ['limits', 'Rate limits'],
   ['clients', 'Clients and import'],
-  ['machine', 'Machine-readable'],
+  ['machine', 'For the bots'],
   ['recipes', 'Recipes'],
 ];
 
@@ -377,7 +377,7 @@ ${terminalGroup('c-', 'Clients', CLIENTS)}
   </section>
 
   <section id="machine">
-    <h2>Machine-readable</h2>
+    <h2>For the bots</h2>
     <ul>
 ${resources
   .map((r) => `      <li><a href="${r.path}"><code>${r.path}</code></a> — ${escape(r.summary)}</li>`)

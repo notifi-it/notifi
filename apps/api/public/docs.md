@@ -2,7 +2,7 @@
 
 > One endpoint, seven parameters, no SDK. Everything on this page is generated from the same file that generates [`/openapi.json`](https://notifi.it/openapi.json) and the client collections, so the three cannot disagree.
 
-_[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi.it/docs#auth) [Request](https://notifi.it/docs#request) [Parameters](https://notifi.it/docs#parameters) [Response](https://notifi.it/docs#response) [Errors](https://notifi.it/docs#errors) [Rate limits](https://notifi.it/docs#limits) [Clients and import](https://notifi.it/docs#clients) [Machine-readable](https://notifi.it/docs#machine) [Recipes](https://notifi.it/docs#recipes)_
+_[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi.it/docs#auth) [Request](https://notifi.it/docs#request) [Parameters](https://notifi.it/docs#parameters) [Response](https://notifi.it/docs#response) [Errors](https://notifi.it/docs#errors) [Rate limits](https://notifi.it/docs#limits) [Clients and import](https://notifi.it/docs#clients) [For the bots](https://notifi.it/docs#machine) [Recipes](https://notifi.it/docs#recipes)_
 
 ## Quickstart
 
@@ -208,7 +208,7 @@ openapi-generator-cli generate \
   -o ./notifi
 ```
 
-## Machine-readable
+## For the bots
 
 - [`/llms.txt`](https://notifi.it/llms.txt) — The full reference as plain text, written for coding agents.
 - [`/openapi.json`](https://notifi.it/openapi.json) — OpenAPI 3.1 for /send.
