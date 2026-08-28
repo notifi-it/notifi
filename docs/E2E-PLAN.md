@@ -305,7 +305,7 @@ For the README, the first and second also on the site (§6).
   the encrypted-key check in `send.ts`, push, two-step `ingest` with the
   "couldn't decrypt" row, NSE. Verify by hand: a throwaway Node script sealing to
   a real device, and a plaintext send to a normal key round-tripping unchanged.
-- **2 — app surface.** Settings toggle, Renew, Key Detail Copy for scripts,
+- **2 — app surface.** Key Detail toggle, fingerprint, Copy for scripts, Renew,
   copy strings, screenshots.
 - **3 — SDKs.** Python, Node, Go, `SPEC.md`, conformance runner + CLAUDE.md
   exception, the encryption page.
@@ -314,4 +314,4 @@ For the README, the first and second also on the site (§6).
 **Open question:** sender authentication (HPKE auth mode; would end the bearer-token
 send key and the one-line `curl` — not now; the spec name is versioned for a later
 revision). Deliberate re-key was an open question and is now a feature: Renew in
-Settings (§5).
+Key Detail (§5).
