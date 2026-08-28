@@ -252,11 +252,25 @@ sending" is the only allowed form, only where the feature is described.
 End-of-phase check: `grep -rin "end-to-end\|end to end" apps/api/public/` matches
 only inside the feature's docs.
 
-**With the feature:** `#api` documents encrypted keys and the push limit; a new
-encryption page carries §2 in full plus the worked example (added to `PAGES` /
-`PAGE_MARKDOWN` in `src/routes/site.ts`, `run_worker_first`, `sitemap.xml`, nav);
-"No SDK" becomes "No SDK required"; `#send` tabs gain SDK variants as each ships,
-`curl` staying the default tab.
+**With the feature:** the encryption page is a **trust ladder**, four rungs in
+order, each ending where the next begins:
+
+1. **The base layer** — every notification is sealed to your device's key before
+   it is stored; neither we nor Apple can read it afterwards. This is what
+   everyone gets with plain `curl`.
+2. **Seal it yourself** — flip the key's Encrypted toggle and the server never
+   sees the plaintext at all. A short how-to: the toggle, what to copy, and the
+   worked snippet; §2 in full below it as the normative reference.
+3. **Install an SDK** — the install line and minimal example for each shipped
+   SDK (`pip install notifi`, `npm install notifi`, `go get ...`), added as each
+   ships.
+4. **Still don't trust us?** — the GitHub repo, and a note that the Worker runs
+   on your own Cloudflare account: host it yourself and point the app at it.
+
+The page is added to `PAGES` / `PAGE_MARKDOWN` in `src/routes/site.ts`,
+`run_worker_first`, `sitemap.xml` and the nav. `#api` documents encrypted keys
+and the push limit; "No SDK" becomes "No SDK required"; `#send` tabs gain SDK
+variants as each ships, `curl` staying the default tab.
 
 ---
 
