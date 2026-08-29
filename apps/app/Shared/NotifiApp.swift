@@ -130,6 +130,8 @@ struct RootContentView: View {
                 }
                 #if os(iOS)
                 model.startLiveUpdates()
+                #else
+                Updater.shared.checkInBackground()
                 #endif
             } else {
                 #if os(iOS)

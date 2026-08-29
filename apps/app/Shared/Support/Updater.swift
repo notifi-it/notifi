@@ -10,7 +10,6 @@ final class Updater {
     private let controller: SPUStandardUpdaterController
     private(set) var canCheck = false
 
-    private(set) var automaticallyChecks = false
     private(set) var automaticallyInstalls = false
 
     private init() {
@@ -19,10 +18,10 @@ final class Updater {
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
+        controller.updater.automaticallyChecksForUpdates = true
         if UserDefaults.standard.object(forKey: "SUAutomaticallyUpdate") == nil {
             controller.updater.automaticallyDownloadsUpdates = true
         }
-        automaticallyChecks = controller.updater.automaticallyChecksForUpdates
         automaticallyInstalls = controller.updater.automaticallyDownloadsUpdates
         observation = controller.updater.observe(\.canCheckForUpdates, options: [.initial, .new]) { [weak self] updater, _ in
             Task { @MainActor in self?.canCheck = updater.canCheckForUpdates }
@@ -31,25 +30,20 @@ final class Updater {
 
     private var observation: NSKeyValueObservation?
 
-    func setAutomaticallyChecks(_ enabled: Bool) {
-        controller.updater.automaticallyChecksForUpdates = enabled
-        automaticallyChecks = enabled
-        if !enabled {
-            setAutomaticallyInstalls(false)
-        }
-    }
-
     func setAutomaticallyInstalls(_ enabled: Bool) {
         controller.updater.automaticallyDownloadsUpdates = enabled
         automaticallyInstalls = controller.updater.automaticallyDownloadsUpdates
     }
 
     func refresh() {
-        automaticallyChecks = controller.updater.automaticallyChecksForUpdates
         automaticallyInstalls = controller.updater.automaticallyDownloadsUpdates
     }
 
     var lastCheck: Date? { controller.updater.lastUpdateCheckDate }
+
+    func checkInBackground() {
+        controller.updater.checkForUpdatesInBackground()
+    }
 
     func checkForUpdates() {
         controller.updater.checkForUpdates()

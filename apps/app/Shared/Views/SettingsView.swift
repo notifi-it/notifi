@@ -98,17 +98,6 @@ struct SettingsView: View {
                     RowRule()
 
                     ToggleRow(
-                        title: Copy.Settings.automaticUpdates,
-                        detail: Copy.Settings.automaticUpdatesDetail,
-                        isOn: Binding(
-                            get: { Updater.shared.automaticallyChecks },
-                            set: { Updater.shared.setAutomaticallyChecks($0) }
-                        )
-                    )
-                    .geistGutter()
-                    RowRule()
-
-                    ToggleRow(
                         title: Copy.Settings.installUpdatesAutomatically,
                         detail: Copy.Settings.installUpdatesAutomaticallyDetail,
                         isOn: Binding(
@@ -116,7 +105,6 @@ struct SettingsView: View {
                             set: { Updater.shared.setAutomaticallyInstalls($0) }
                         )
                     )
-                    .disabled(!Updater.shared.automaticallyChecks)
                     .geistGutter()
                     RowRule()
 
