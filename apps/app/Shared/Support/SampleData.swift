@@ -87,6 +87,7 @@ enum SampleData {
     static func applyLaunchOverrides(context: ModelContext, model: AppModel) {
         guard isEnabled else { return }
         if let appearance = launchAppearance { model.appearance = appearance }
+        model.remoteImagesEnabled = true
         seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
     }
 
@@ -111,11 +112,11 @@ enum SampleData {
         #if os(macOS)
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
             ("Front door motion",
-             "Someone at the door — clip saved to the hub.",
+             "Someone at the door. Clip saved to the hub.",
              nil, nil, 14, true),
 
             ("Water leak detected under the sink",
-             "Moisture sensor tripped at 16:32 — the shut-off valve closed.",
+             "Moisture sensor tripped at 16:32. The shut-off valve closed.",
              nil, nil, 47, true),
 
             ("Deploy 9c41f2 finished",
@@ -123,7 +124,7 @@ enum SampleData {
              nil, "https://ci.notifi.sh/builds/1291", 76, true),
 
             ("Autoscaler added six nodes in eu-west-2 after the morning spike",
-             "Capacity holds at 84% with no dropped sends — the pool drains back to baseline once the migration completes at 08:00.",
+             "Capacity holds at 84% with no dropped sends. The pool drains back to baseline once the migration completes at 08:00.",
              "\(demo)/loss-curve.png", "https://grafana.internal/d/autoscaler", 130, false),
 
             ("Backup to r2 finished",
@@ -138,7 +139,7 @@ enum SampleData {
              "\(demo)/latency.png", "https://grafana.internal/d/api-latency", 1_510, true),
 
             ("New signup",
-             "hannah@shorepine.co upgraded to Pro — seat 12 of 25.",
+             "hannah@shorepine.co upgraded to Pro, seat 12 of 25.",
              nil, nil, 1_640, false),
 
             ("Washing machine finished",
@@ -174,34 +175,42 @@ enum SampleData {
         #else
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
             ("Autoscaler added six nodes in eu-west-2 after the morning traffic spike pushed queue depth past the ceiling",
-             "Capacity holds at 84% with no dropped sends — the pool drains back to baseline once the migration completes at 08:00, and the alert closes itself when queue depth stays under the ceiling for thirty minutes.",
+             """
+             Queue depth peaked at **2.4x** the ceiling at 07:41. Capacity holds at 84% with no dropped sends.
+
+             | Pool | Nodes | Queue |
+             | --- | --- | --- |
+             | eu-west-2a | 4 → 6 | 61% |
+             | eu-west-2b | 4 → 6 | 58% |
+             | eu-west-2c | 4 → 6 | 47% |
+
+             The pool drains back to baseline once the migration completes at 08:00.
+
+             > The alert closes itself when queue depth stays under the ceiling for thirty minutes.
+             """,
              "\(demo)/loss-curve.png", "https://grafana.internal/d/autoscaler", 4, false),
 
-            ("Send p99 crossed 800 ms",
+            ("Send p99 latency crossed 800 ms",
              """
-             notifi.it/send — **782 ms**, up from 214 ms over 12 minutes.
+             notifi.it/send at **782 ms**, up from 214 ms over 12 minutes.
 
-             ## What moved
-
-             - `send-api` — 782 ms *(was 214 ms)*
-             - `keys` — 240 ms, flat
-             - `delivery` — 198 ms, flat
+             | Stage | p99 | 30 min ago |
+             | --- | --- | --- |
+             | send-api | 782 ms | 214 ms |
+             | keys | 240 ms | 236 ms |
+             | delivery | 198 ms | 201 ms |
 
              Connection pool saturation on the primary, not the app tier.
 
              > Auto-scaling is held until 08:00 while the migration drains.
 
-             ```
-             kubectl -n api top pods --sort-by=cpu | head -5
-             ```
-
              [Open the dashboard](https://grafana.internal/d/api-latency)
              """,
              "\(demo)/latency.png",
-             "https://grafana.internal/d/api-latency", 9, true),
+             "https://grafana.internal/d/api-latency", 9, false),
 
             ("Disk 91% full on notifi-db-01",
-             "/dev/nvme0n1 — 41 GB free of 460 GB.",
+             "/dev/nvme0n1 has 41 GB free of 460 GB.",
              nil, nil, 6, true),
 
             ("Send error rate spiked to 4.1%",
@@ -215,7 +224,7 @@ enum SampleData {
              nil, nil, 300, false),
 
             ("New signup",
-             "hannah@shorepine.co upgraded to Pro — seat 12 of 25.",
+             "hannah@shorepine.co upgraded to Pro, seat 12 of 25.",
              nil, "https://dashboard.stripe.com/customers/cus_Qk29fJ", 660, false),
 
             ("Certificate expires in 7 days",
@@ -232,9 +241,9 @@ enum SampleData {
              ## Summary
              api.notifi.it rolled out to **eu-west-2** in *42s*. One check is still amber.
 
-             - `queue-worker` — healthy
-             - `redrive` — restarting
-             - api — healthy
+             - `queue-worker`: healthy
+             - `redrive`: restarting
+             - api: healthy
 
              > Watch the redrive loop for the next 10 minutes.
 

@@ -183,12 +183,12 @@ struct MessageDetailView: View {
                 .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
 
             metaLine(for: message)
                 .padding(.top, 9)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity)
 
             if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                 Group {
@@ -207,8 +207,7 @@ struct MessageDetailView: View {
 
             if let annotated {
                 MarkdownText(source: annotated.body, allowAnyScheme: anyScheme,
-                             allowsRemoteImages: showsImage,
-                             critical: message.isCritical)
+                             allowsRemoteImages: showsImage)
                     .padding(.top, 16)
             }
         }
@@ -227,7 +226,7 @@ struct MessageDetailView: View {
     }
 
     private func quietLine(_ name: String?, age: String, stamp: String) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(spacing: 5) {
             HStack(spacing: 6) {
                 if let name {
                     keyGlyph(11, Theme.dim)
@@ -247,7 +246,7 @@ struct MessageDetailView: View {
         }
         .lineLimit(1)
         .monospacedDigit()
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
