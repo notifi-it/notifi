@@ -188,7 +188,7 @@ struct MessageDetailView: View {
 
             metaLine(for: message)
                 .padding(.top, 9)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity)
 
             if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                 Group {
@@ -226,7 +226,7 @@ struct MessageDetailView: View {
     }
 
     private func quietLine(_ name: String?, age: String, stamp: String) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(spacing: 5) {
             HStack(spacing: 6) {
                 if let name {
                     keyGlyph(11, Theme.dim)
@@ -246,7 +246,7 @@ struct MessageDetailView: View {
         }
         .lineLimit(1)
         .monospacedDigit()
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
