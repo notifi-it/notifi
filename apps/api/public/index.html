@@ -38,8 +38,8 @@
      none of the markup. What a coding agent should fetch instead of this page. -->
 <link rel="alternate" type="text/plain" href="/llms.txt" title="notifi for coding agents">
 
-<meta property="og:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
-<meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your notifications. No account, no SDK, open source.">
+<meta property="og:title" content="notifi - send push notifications to your iPhone and Mac">
+<meta property="og:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://notifi.it/">
 <meta property="og:site_name" content="notifi">
@@ -50,8 +50,8 @@
 <meta property="og:image:alt" content="The notifi bell, sketched in thin hatched strokes with a red dot.">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="notifi: send push notifications to iPhone and Mac with one HTTP request">
-<meta name="twitter:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device. Encrypted with your public key, so neither we nor Apple can read your notifications. No account, no SDK, open source.">
+<meta name="twitter:title" content="notifi - send push notifications to your iPhone and Mac">
+<meta name="twitter:description" content="Download for iPhone and Mac. One HTTP request to notifi.it and it lands on your device.">
 <meta name="twitter:image" content="https://notifi.it/og.png">
 <meta name="twitter:image:alt" content="One HTTP request to notifi.it, and a push notification lands on your iPhone.">
 
@@ -155,7 +155,8 @@ a{color:inherit}
    on the whole assembly. The underline moves onto the solid copy because
    text-decoration does not propagate into an inline-block child. */
 a.glitch{position:relative;display:inline-block;text-decoration:none;opacity:var(--glow,1)}
-a.glitch .gghost{position:absolute;inset:0;opacity:var(--gchroma,0);pointer-events:none}
+a.glitch .gghost{position:absolute;inset:0;opacity:var(--gchroma,0);pointer-events:none;user-select:none}
+a.glitch .gghost::before{content:attr(data-text)}
 a.glitch .gwarm{color:var(--chroma-warm);transform:translateX(calc(var(--gshift,0px) * -1))}
 a.glitch .gcool{color:var(--chroma-cool);transform:translateX(var(--gshift,0px))}
 /* hard-light, not overlay, for the 404's reason: these links sit at --fg, and
@@ -1112,7 +1113,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
         <span class="lbl"><b>Download&nbsp;.dmg</b><span>Apple silicon · macOS 14+</span></span>
       </a>
-      <p class="meta hero-mac-note"><a class="src" href="#download-mac">Also on Mac.</a></p>
+      <p class="meta hero-mac-note"><a class="src" href="#download-mac">Also available on Mac.</a></p>
     </div>
     </div>
 
@@ -2618,8 +2619,13 @@ document.querySelectorAll('.tabs').forEach(list => {
     for (var i = 0; i < layers.length; i++){
       var s = document.createElement("span");
       s.className = layers[i];
-      s.textContent = text;
-      if (layers[i] !== "gsolid") s.setAttribute("aria-hidden", "true");
+      // The ghosts carry their text as an attribute drawn by ::before, so
+      // selection, copy and any text extraction see the sentence once.
+      if (layers[i] === "gsolid") s.textContent = text;
+      else {
+        s.setAttribute("data-text", text);
+        s.setAttribute("aria-hidden", "true");
+      }
       a.appendChild(s);
     }
     a.classList.add("glitch");
