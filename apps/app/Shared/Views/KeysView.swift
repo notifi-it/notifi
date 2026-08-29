@@ -17,7 +17,6 @@ struct KeysView: View {
 
     private var criticalKeys: [CachedKey] { activeKeys.filter(\.isCritical) }
 
-    private var refreshFailed: Bool { model.sync?.keysRefreshFailed == true }
 
     private var docsURL: URL {
         guard let full = model.defaultKeyValue else {
@@ -42,15 +41,9 @@ struct KeysView: View {
             }
         } content: {
             VStack(alignment: .leading, spacing: 0) {
-                if refreshFailed {
-                    InlineError(message: Copy.Keys.refreshFailed)
-                        .geistGutter()
-                        .geistBannerTransition()
-                }
-
                 SectionLabel(text: Copy.Keys.sectionActive,
                              trailing: "\(orderedActiveKeys.count)",
-                             isFirst: !refreshFailed)
+                             isFirst: true)
                     .geistGutter()
 
                 if !hasLoaded && keys.isEmpty {
@@ -103,7 +96,6 @@ struct KeysView: View {
                 .padding(.bottom, 40)
                 .geistGutter()
             }
-            .animation(Theme.state, value: refreshFailed)
         }
         .navigationDestination(for: CachedKey.self) { key in
             KeyDetailView(keyID: key.id)
@@ -153,10 +145,6 @@ private struct KeyRow: View {
                             .tracking(isFixture ? 0.5 : 0)
                             .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
                             .lineLimit(1)
-                        if key.isCritical && !key.isRevoked {
-                            Chip(text: Copy.Keys.chipCritical, color: Theme.brandText,
-                                 border: Theme.brandText.opacity(0.45))
-                        }
                     }
                     HStack(spacing: 10) {
                         Text(key.maskedValue)

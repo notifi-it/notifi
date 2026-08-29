@@ -78,7 +78,7 @@ struct InboxView: View {
 
             if isOffline {
                 InlineError(message: Copy.Inbox.offline, followsAction: false)
-                    .padding(.top, Theme.contentTop)
+                    .padding(.bottom, 14)
                     .geistGutter()
             }
 
@@ -143,21 +143,11 @@ struct InboxView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FeedHeader(filterKeyID: $filterKeyID) {
+            FeedHeader(title: activeKeyName ?? Copy.Inbox.title,
+                       filterKeyID: $filterKeyID) {
                 #if os(macOS)
                 if !messages.isEmpty { searchToggle }
                 #endif
-            } accessory: {
-                if !messages.isEmpty, let activeKeyName {
-                    Button { filterKeyID = nil } label: {
-                        Chip(text: activeKeyName, color: Theme.fg,
-                             border: Theme.muted.opacity(0.5),
-                             trailingSymbol: "xmark")
-                    }
-                    .buttonStyle(.geist)
-                    .geistHitArea(expandedBy: 12)
-                    .accessibilityLabel(Copy.Common.clear)
-                }
             }
             .padding(.bottom, hasHeaderControls ? 14 : 0)
 
