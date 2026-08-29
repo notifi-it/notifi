@@ -183,8 +183,8 @@ struct MessageDetailView: View {
                 .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
 
             metaLine(for: message)
                 .padding(.top, 9)
