@@ -114,9 +114,9 @@
   --max:1080px;
 }
 *{box-sizing:border-box;margin:0}
-/* scroll-padding-top keeps an in-page anchor's target off the very top edge
-   of the viewport. */
-html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:24px;scroll-behavior:smooth}
+/* scroll-padding-top clears the 60px fixed header, which is docked and in the
+   way whenever an in-page anchor is followed from below the hero. */
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
@@ -136,7 +136,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(header){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 /* Content links, decided once rather than per section: the text keeps the
@@ -226,6 +226,91 @@ p{max-width:62ch}
   .reveal.armed .c{color:inherit}
 }
 
+/* ── header ─────────────────────────────────────────────────── */
+/* The bar takes no space in the flow: it is fixed above the page and hidden
+   until the hero bell has scrolled out of view, then slides down — so there is
+   always exactly one bell on screen, and never two. A script near the bottom
+   toggles .docked from an IntersectionObserver on .hero-flare. */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  background:var(--bg);
+  border-bottom:1px solid var(--line);
+  transform:translateY(-100%);opacity:0;visibility:hidden;
+  transition:transform .3s var(--ease-out),opacity .3s var(--ease-out),
+             visibility 0s .3s;
+}
+header.docked{
+  transform:none;opacity:1;visibility:visible;
+  transition:transform .3s var(--ease-out),opacity .3s var(--ease-out);
+}
+.bar{position:relative;display:flex;align-items:center;gap:14px;height:60px}
+/* The bell alone, no wordmark, at the right end of the bar on wide screens —
+   that is where the hero bell was when the bar arrived to replace it. On
+   small screens the hero bell is centred, so the docked bell centres too. */
+.mark{margin-left:auto;display:flex;align-items:center;text-decoration:none}
+nav{display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--fg)}
+.navget{
+  font-family:var(--mono);font-size:13px;font-weight:600;
+  padding:7px 14px;border-radius:6px;
+  background:var(--fg);color:#1C1C1E;border:1px solid var(--fg);
+  transition:background var(--dur-press) var(--ease-out),
+             border-color var(--dur-press) var(--ease-out);
+}
+.navget:hover{color:#1C1C1E;background:#fff;border-color:#fff}
+@media(max-width:620px){
+  nav .hide-sm{display:none}
+  nav{margin-left:auto}
+  .mark{position:absolute;left:50%;transform:translateX(-50%);margin:0}
+}
+/* The bell rings once each time the bar arrives. Pivot at the crown, not the
+   centre — a real bell swings from where it hangs — and each swing loses
+   height so it settles rather than stops. Runs on ::before so the layout box
+   never moves. */
+/* These are Theme.swift's bellSwing and clapperSwing, keyframe for keyframe, so
+   the site and the app ring the same bell: the percentages are each track's
+   cumulative time over its own total (2.585s and 2.42s), which is why the two
+   durations differ rather than being rounded to match. Change one and the other
+   has to move with it. */
+header.docked .bell::before{transform-origin:50% 0;animation:ring-body 2.585s ease-in-out .25s both}
+header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s ease-in-out .25s both}
+@keyframes ring-body{
+  0%{transform:rotate(0)}
+  4.26%{transform:rotate(-20deg)}
+  12.96%{transform:rotate(18deg)}
+  21.66%{transform:rotate(-16deg)}
+  30.37%{transform:rotate(14deg)}
+  39.07%{transform:rotate(-13deg)}
+  47.78%{transform:rotate(12deg)}
+  56.48%{transform:rotate(-10deg)}
+  65.18%{transform:rotate(8deg)}
+  73.89%{transform:rotate(-6deg)}
+  82.59%{transform:rotate(4deg)}
+  91.30%{transform:rotate(-2deg)}
+  100%{transform:rotate(0)}
+}
+@keyframes ring-clapper{
+  0%,2.48%{transform:rotate(0)}
+  7.02%{transform:rotate(-30deg)}
+  16.32%{transform:rotate(27deg)}
+  25.62%{transform:rotate(-24deg)}
+  34.92%{transform:rotate(20deg)}
+  44.21%{transform:rotate(-18deg)}
+  53.51%{transform:rotate(15deg)}
+  62.81%{transform:rotate(-12deg)}
+  72.11%{transform:rotate(9deg)}
+  81.40%{transform:rotate(-6deg)}
+  90.70%{transform:rotate(3deg)}
+  100%{transform:rotate(0)}
+}
+/* After the header rules, not in the reveal block above: these undo rules of
+   equal specificity, so they have to come later in the sheet to win. */
+@media (prefers-reduced-motion:reduce){
+  header,header.docked{transition:none}
+  header.docked .bell::before,header.docked .bell::after{animation:none}
+}
+
 /* ── buttons ────────────────────────────────────────────────── */
 .btn{
   display:inline-flex;align-items:center;gap:8px;
@@ -287,7 +372,17 @@ p{max-width:62ch}
 
 .cta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .hero-mac-note{display:none;font-size:11px}
-.cta .meta{width:100%;margin-top:6px}
+/* The flex row-gap already spaces the wrapped line; the negative margin eats
+   most of it so the note reads as the button's caption, not a stray line. */
+.cta .meta{width:100%;margin-top:-5px}
+
+/* The hero curl fits one line down to about 720px; below that the folded
+   form with continuations takes over instead of scrolling sideways. */
+.term .term-narrow{display:none}
+@media(max-width:720px){
+  .term .term-wide{display:none}
+  .term .term-narrow{display:block}
+}
 
 /* the terminal block that is the whole product */
 /* No edge at all. The panel is already a step up from the ground in --surface,
@@ -308,6 +403,8 @@ p{max-width:62ch}
 }
 .dot3{display:flex;gap:5px}
 .dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
+.dot3 i:first-child{background:#28282A}
+.dot3 i:last-child{background:#2E2E30}
 .term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
 .term pre{
   margin:0;padding:16px 18px;overflow-x:auto;
@@ -315,7 +412,9 @@ p{max-width:62ch}
 }
 .term .p{color:var(--dim)}          /* prompt */
 .term .s{color:#7FA8E0}             /* string */
-.term .f{color:var(--muted)}        /* flag */
+.term .f{color:#B48EAD}             /* keyword */
+.term .fn{color:#8FBCBB}            /* function call */
+.term .n{color:#A3BE8C}             /* number, true/false */
 .term .c{color:var(--dim)}          /* comment */
 .term .k{color:var(--brand-text)}   /* the key you swap in */
 .copy{
@@ -511,6 +610,8 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-term{position:absolute;left:4.17%;top:24.5%;width:38.43%;height:55%;container-type:inline-size;background:var(--surface);border-radius:1.1cqw;overflow:hidden}
 .gf-term .gf-bar{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}
 .gf-term .gf-bar i{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}
+.gf-term .gf-bar i:first-child{background:#363638}
+.gf-term .gf-bar i:nth-child(3){background:#424244}
 .gf-term .gf-title{--fs:2.602;position:absolute;left:15.092cqw;top:50%;transform:translateY(-50%);font-family:var(--mono);color:var(--dim);opacity:0}
 .gf-term .gf-tabs{display:flex;gap:1.171cqw;padding:0 2.082cqw 1.821cqw}
 .gf-term .gf-tabs button{--fs:2.602;flex:1;text-align:center;font-family:var(--mono);color:var(--dim);background:#222224;border-radius:0.85cqw;padding:0.989cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -538,7 +639,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-cinput+.gf-cinput{margin-top:-0.260cqw}
 .gf-creply{margin-top:2.342cqw;opacity:0;white-space:normal}
 .gf-cdot{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}
-.gf-c{color:var(--dim)}.gf-k{color:var(--red)}.gf-s{color:var(--blue)}.gf-r{color:var(--dim)}
+.gf-c{color:var(--dim)}.gf-k{color:var(--red)}.gf-s{color:var(--blue)}.gf-f{color:#B48EAD}.gf-fn{color:#8FBCBB}.gf-n{color:#A3BE8C}.gf-r{color:var(--dim)}
 .gf-dev{position:absolute;opacity:0;container-type:inline-size}
 .gf-dev svg{display:block;width:100%;height:100%;overflow:visible}
 .gf-o{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
@@ -972,6 +1073,23 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </defs>
 </svg>
 
+<header>
+  <div class="wrap bar">
+    <nav>
+      <a href="#api" class="hide-sm">API</a>
+      <a href="#send" class="hide-sm">Send</a>
+      <a href="#uses" class="hide-sm">Uses</a>
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="/faq" class="hide-sm">FAQ</a>
+      <a href="#download" class="navget">Download</a>
+    </nav>
+    <a class="mark" href="/" aria-label="notifi" style="--bell:24px">
+      <span class="bell" aria-hidden="true"></span>
+    </a>
+  </div>
+</header>
+<noscript><style>header{position:sticky;transform:none;opacity:1;visibility:visible}</style></noscript>
+
 <main>
 
 <!-- ══ hero ══════════════════════════════════════════════════ -->
@@ -992,7 +1110,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </a>
       <a class="btn btn-get" href="/download/mac">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
-        <span class="lbl"><b>Download&nbsp;for&nbsp;Mac</b><span>Apple silicon · macOS 14+</span></span>
+        <span class="lbl"><b>Download&nbsp;.dmg</b><span>Apple silicon · macOS 14+</span></span>
       </a>
       <p class="meta hero-mac-note"><a class="src" href="#download-mac">Also on Mac.</a></p>
     </div>
@@ -1016,7 +1134,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
              sends an empty key and answers 401. -->
         <button class="copy" aria-label="Copy the example curl command" data-copy='curl https://notifi.it/send -d key=nk_yourkeyhere -d title="hello world"'>Copy</button>
       </div>
-<pre><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span>
+<pre class="term-wide"><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span>
+<span class="c">{"ok":true}</span></pre>
+<!-- The same command folded with continuations for a phone's measure; the
+     Copy button still hands over the one-line form, which pastes anywhere. -->
+<pre class="term-narrow"><span class="p">$</span> curl https://notifi.it/send \
+    -d key=<span class="k">nk_yourkeyhere</span> \
+    -d title=<span class="s">"hello world"</span>
 <span class="c">{"ok":true}</span></pre>
     </div>
     <!-- Carries the one instruction the removed three-step section was for:
@@ -1040,14 +1164,14 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             aria-label="A coding agent, a deploy script and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac.">
       <!-- gf:html:start -->
       <div class="gf-stage">
-        <div class="gf-head gf-hd0"><div class="gf-l1">Get a push notification to your device</div><div class="gf-l2">from anything that can make an HTTP request.</div></div>
-      <div class="gf-head gf-hd1"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own key.</div></div>
-      <div class="gf-head gf-hd2"><div class="gf-l1">No signup, no SDK.</div><div class="gf-l2">Install the app, copy your key, start sending.</div></div>
+        <div class="gf-head gf-hd0"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own key.</div></div>
+      <div class="gf-head gf-hd1"><div class="gf-l1">Get a push notification to your device</div><div class="gf-l2">from anything that can make an HTTP request.</div></div>
+      <div class="gf-head gf-hd2"><div class="gf-l1">No signup, just HTTP.</div><div class="gf-l2">Install the app, copy your key, start sending.</div></div>
         <div class="gf-term">
           <div class="gf-bar"><i></i><i></i><i></i><span class="gf-title gf-ti0">run.sh — -zsh</span><span class="gf-title gf-ti1">claude — ~/notifi</span><span class="gf-title gf-ti2">train.py — -zsh</span></div>
           <div class="gf-tabs"><button type="button" class="gf-gf-tabA" data-pass="0" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="gf-gf-tabB" data-pass="1" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="gf-gf-tabC" data-pass="2" aria-label="Play the train.py scene">~/train.py</button></div>
           <div class="gf-bodywrap">
-            <div class="gf-body gf-bg0"><div class="gf-shline"><span class="gf-ltype gf-l0_0"><span class="gf-c">$</span> curl notifi.it/send \</span><i class="gf-ccar gf-lc0_0"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_1">    -d key=<span class="gf-k">nk_live_8f3a</span> \</span><i class="gf-ccar gf-lc0_1"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_2">    -d title=<span class="gf-s">"Hello from notifi"</span> \</span><i class="gf-ccar gf-lc0_2"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_3">    -d message=<span class="gf-s">"Your first notification."</span> \</span><i class="gf-ccar gf-lc0_3"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_4">    -d link=<span class="gf-s">https://notifi.it/docs</span> \</span><i class="gf-ccar gf-lc0_4"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_5">    -d image=<span class="gf-s">https://notifi.it/anaglyph-bell.png</span></span><i class="gf-ccar gf-lc0_5"></i></div><div class="gf-resp gf-r0"><span class="gf-r">{"ok":true}</span></div></div>
+            <div class="gf-body gf-bg0"><div class="gf-shline"><span class="gf-ltype gf-l0_0"><span class="gf-c">$</span> <span class="gf-fn">curl</span> notifi.it/send \</span><i class="gf-ccar gf-lc0_0"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_1">    -d key=<span class="gf-k">nk_live_8f3a</span> \</span><i class="gf-ccar gf-lc0_1"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_2">    -d title=<span class="gf-s">&quot;Hello from notifi&quot;</span> \</span><i class="gf-ccar gf-lc0_2"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_3">    -d message=<span class="gf-s">&quot;Your first notification.&quot;</span> \</span><i class="gf-ccar gf-lc0_3"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_4">    -d link=https://notifi.it/docs \</span><i class="gf-ccar gf-lc0_4"></i></div><div class="gf-shline"><span class="gf-ltype gf-l0_5">    -d image=https://notifi.it/anaglyph-bell.png</span><i class="gf-ccar gf-lc0_5"></i></div><div class="gf-resp gf-r0"><span class="gf-r">{"ok":true}</span></div></div>
       <div class="gf-body gf-cbody gf-bg1"><div class="gf-cbanner"><svg class="gf-mascot" viewBox="0 0 52 40" aria-hidden="true">
             <rect x="2" y="0" width="48" height="27" rx="3" fill="#D97757"/>
             <rect x="12" y="8" width="6" height="9" rx="1.2" fill="#1C1C1E"/>
@@ -1057,7 +1181,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             <rect x="32" y="32" width="5" height="5" rx="1" fill="#D97757"/>
             <rect x="40" y="32" width="5" height="5" rx="1" fill="#D97757"/>
           </svg><div class="gf-cmeta"><div><b>Claude Code</b> <span class="gf-c">v2.1.238</span></div><div class="gf-c">Fable 8</div></div></div><div class="gf-crule"></div><div class="gf-cinput"><span class="gf-cchev">&#10095;</span><span class="gf-ctype gf-tp1_0">Build an app to send notifications over HTTP</span><i class="gf-ccar gf-cr1_0"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp1_1">to my iOS device and my macOS device.</span><i class="gf-ccar gf-cr1_1"></i></div><div class="gf-cinput"><span class="gf-cchev">&nbsp;</span><span class="gf-ctype gf-tp1_2">Make no mistakes.</span><i class="gf-ccar gf-cr1_2"></i></div><div class="gf-crule"></div><div class="gf-creply gf-rp1"><i class="gf-cdot"></i>It already exists. Check your phone.</div></div>
-      <div class="gf-body gf-bg2"><div class="gf-l2_0"><span class="gf-c"># tell me when the training run ends</span></div><div class="gf-l2_1">import requests, tensorflow as tf</div><div class="gf-l2_2">run = model.fit(train_ds, epochs=40)</div><div class="gf-l2_3">loss = run.history[<span class="gf-s">"val_loss"</span>][-1]</div><div class="gf-l2_4">requests.post(<span class="gf-s">"https://notifi.it/send"</span>,</div><div class="gf-l2_5">    headers={<span class="gf-s">"Authorization"</span>: <span class="gf-s">f"Bearer {<span class="gf-k">KEY</span>}"</span>},</div><div class="gf-l2_6">    json={<span class="gf-s">"title"</span>: <span class="gf-s">"Training finished"</span>,</div><div class="gf-l2_7">          <span class="gf-s">"message"</span>: <span class="gf-s">f"val loss {loss:.3f}"</span>})</div><div class="gf-resp gf-r2"><span class="gf-r">{"ok":true}</span></div></div>
+      <div class="gf-body gf-bg2"><div class="gf-l2_0"><span class="gf-c"># tell me when the training run ends</span></div><div class="gf-l2_1"><span class="gf-f">import</span> requests, tensorflow <span class="gf-f">as</span> tf</div><div class="gf-l2_2">run = model.<span class="gf-fn">fit</span>(train_ds, epochs=<span class="gf-n">40</span>)</div><div class="gf-l2_3">loss = run.history[<span class="gf-s">&quot;val_loss&quot;</span>][-<span class="gf-n">1</span>]</div><div class="gf-l2_4">requests.<span class="gf-fn">post</span>(<span class="gf-s">&quot;https://notifi.it/send&quot;</span>,</div><div class="gf-l2_5">    headers={<span class="gf-s">&quot;Authorization&quot;</span>: <span class="gf-f">f</span><span class="gf-s">&quot;Bearer </span>{<span class="gf-k">KEY</span>}<span class="gf-s">&quot;</span>},</div><div class="gf-l2_6">    json={<span class="gf-s">&quot;title&quot;</span>: <span class="gf-s">&quot;Training finished&quot;</span>,</div><div class="gf-l2_7">          <span class="gf-s">&quot;message&quot;</span>: <span class="gf-f">f</span><span class="gf-s">&quot;val loss </span>{loss<span class="gf-f">:.3f</span>}<span class="gf-s">&quot;</span>})</div><div class="gf-resp gf-r2"><span class="gf-r">{"ok":true}</span></div></div>
           </div>
         </div>
         <div class="gf-trail gf-tr0"><i class="gf-dt0_0" style="--d:0.30"></i><i class="gf-dt0_1" style="--d:0.39"></i><i class="gf-dt0_2" style="--d:0.48"></i><i class="gf-dt0_3" style="--d:0.57"></i><i class="gf-dt0_4" style="--d:0.66"></i></div>
@@ -1237,7 +1361,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
 <!-- gen:panels -->
       <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh" data-label="curl">
-<pre>curl -X POST https://notifi.it/send \
+<pre><span class="fn">curl</span> -X POST https://notifi.it/send \
   -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
   -d <span class="s">&quot;title=Hello from notifi&quot;</span> \
   -d <span class="s">&quot;message=Your first notification.&quot;</span> \
@@ -1245,13 +1369,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   -d <span class="s">&quot;image=https://notifi.it/anaglyph-bell.png&quot;</span></pre>
       </div>
       <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" data-label="JavaScript" hidden>
-<pre>await fetch(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
+<pre><span class="f">await</span> <span class="fn">fetch</span>(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
   method: <span class="s">&quot;POST&quot;</span>,
   headers: {
     <span class="s">&quot;Authorization&quot;</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
     <span class="s">&quot;Content-Type&quot;</span>: <span class="s">&quot;application/json&quot;</span>,
   },
-  body: JSON.stringify({
+  body: JSON.<span class="fn">stringify</span>({
     title: <span class="s">&quot;Hello from notifi&quot;</span>,
     message: <span class="s">&quot;Your first notification.&quot;</span>,
     link: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
@@ -1262,9 +1386,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="panel" id="p-py" role="tabpanel" tabindex="0" aria-labelledby="t-py" data-name="send.py" data-label="Python" hidden>
 <pre><span class="f">import</span> os, requests
 
-requests.post(
+requests.<span class="fn">post</span>(
     <span class="s">&quot;https://notifi.it/send&quot;</span>,
-    headers={<span class="s">&quot;Authorization&quot;</span>: f<span class="s">&quot;Bearer {os.environ['<span class="k">NOTIFI_KEY</span>']}&quot;</span>},
+    headers={<span class="s">&quot;Authorization&quot;</span>: <span class="f">f</span><span class="s">&quot;Bearer </span>{os.environ[<span class="s">'<span class="k">NOTIFI_KEY</span>'</span>]}<span class="s">&quot;</span>},
     json={
         <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
         <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
@@ -1274,7 +1398,7 @@ requests.post(
 )</pre>
       </div>
       <div class="panel" id="p-go" role="tabpanel" tabindex="0" aria-labelledby="t-go" data-name="send.go" data-label="Go" hidden>
-<pre><span class="f">package</span> main
+<pre>package main
 
 <span class="f">import</span> (
 	<span class="s">&quot;net/http&quot;</span>
@@ -1283,57 +1407,57 @@ requests.post(
 	<span class="s">&quot;strings&quot;</span>
 )
 
-<span class="f">func</span> main() {
+<span class="f">func</span> <span class="fn">main</span>() {
 	form := url.Values{
 		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Hello from notifi&quot;</span>},
 		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;Your first notification.&quot;</span>},
 		<span class="s">&quot;link&quot;</span>:    {<span class="s">&quot;https://notifi.it/docs&quot;</span>},
 		<span class="s">&quot;image&quot;</span>:   {<span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>},
 	}
-	req, _ := http.NewRequest(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
-		strings.NewReader(form.Encode()))
-	req.Header.Set(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span>+os.Getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
-	req.Header.Set(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
-	http.DefaultClient.Do(req)
+	req, _ := http.<span class="fn">NewRequest</span>(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
+		strings.<span class="fn">NewReader</span>(form.<span class="fn">Encode</span>()))
+	req.Header.<span class="fn">Set</span>(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span>+os.<span class="fn">Getenv</span>(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
+	req.Header.<span class="fn">Set</span>(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
+	http.DefaultClient.<span class="fn">Do</span>(req)
 }</pre>
       </div>
       <div class="panel" id="p-swift" role="tabpanel" tabindex="0" aria-labelledby="t-swift" data-name="Send.swift" data-label="Swift" hidden>
 <pre><span class="f">import</span> Foundation
 
-<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">&quot;https://notifi.it/send&quot;</span>)!)
+<span class="f">var</span> request = <span class="fn">URLRequest</span>(<span class="fn">url</span>: <span class="fn">URL</span>(<span class="fn">string</span>: <span class="s">&quot;https://notifi.it/send&quot;</span>)!)
 request.httpMethod = <span class="s">&quot;POST&quot;</span>
-request.setValue(<span class="s">&quot;Bearer \(key)&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Authorization&quot;</span>)
-request.setValue(<span class="s">&quot;application/json&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Content-Type&quot;</span>)
-request.httpBody = <span class="f">try</span> JSONEncoder().encode([
+request.<span class="fn">setValue</span>(<span class="s">&quot;Bearer \(key)&quot;</span>, <span class="fn">forHTTPHeaderField</span>: <span class="s">&quot;Authorization&quot;</span>)
+request.<span class="fn">setValue</span>(<span class="s">&quot;application/json&quot;</span>, <span class="fn">forHTTPHeaderField</span>: <span class="s">&quot;Content-Type&quot;</span>)
+request.httpBody = <span class="f">try</span> <span class="fn">JSONEncoder</span>().<span class="fn">encode</span>([
     <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
     <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
     <span class="s">&quot;link&quot;</span>: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
     <span class="s">&quot;image&quot;</span>: <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>,
 ])
 
-_ = <span class="f">try await</span> URLSession.shared.data(<span class="f">for</span>: request)</pre>
+_ = <span class="f">try</span> <span class="f">await</span> URLSession.shared.<span class="fn">data</span>(<span class="fn">for</span>: request)</pre>
       </div>
       <div class="panel" id="p-ruby" role="tabpanel" tabindex="0" aria-labelledby="t-ruby" data-name="send.rb" data-label="Ruby" hidden>
 <pre><span class="f">require</span> <span class="s">&quot;net/http&quot;</span>
 
 uri = URI(<span class="s">&quot;https://notifi.it/send&quot;</span>)
-req = Net::HTTP::Post.new(uri)
+req = Net::HTTP::Post.<span class="f">new</span>(uri)
 req[<span class="s">&quot;Authorization&quot;</span>] = <span class="s">&quot;Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}&quot;</span>
-req.set_form_data(
+req.<span class="fn">set_form_data</span>(
   <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
   <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
   <span class="s">&quot;link&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/docs&quot;</span>,
   <span class="s">&quot;image&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>
 )
 
-Net::HTTP.start(uri.host, uri.port, use_ssl: <span class="f">true</span>) { |http| http.request(req) }</pre>
+Net::HTTP.<span class="fn">start</span>(uri.<span class="fn">host</span>, uri.<span class="fn">port</span>, <span class="n">use_ssl:</span> <span class="n">true</span>) { |http| http.<span class="fn">request</span>(req) }</pre>
       </div>
       <div class="panel" id="p-php" role="tabpanel" tabindex="0" aria-labelledby="t-php" data-name="send.php" data-label="PHP" hidden>
 <pre>&lt;?php
-$ch = curl_init(<span class="s">&quot;https://notifi.it/send&quot;</span>);
-curl_setopt_array($ch, [
-    CURLOPT_POST       =&gt; <span class="f">true</span>,
-    CURLOPT_HTTPHEADER =&gt; [<span class="s">&quot;Authorization: Bearer &quot;</span> . getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)],
+$ch = <span class="fn">curl_init</span>(<span class="s">&quot;https://notifi.it/send&quot;</span>);
+<span class="fn">curl_setopt_array</span>($ch, [
+    CURLOPT_POST       =&gt; <span class="n">true</span>,
+    CURLOPT_HTTPHEADER =&gt; [<span class="s">&quot;Authorization: Bearer &quot;</span> . <span class="fn">getenv</span>(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)],
     CURLOPT_POSTFIELDS =&gt; [
         <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
         <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
@@ -1341,127 +1465,127 @@ curl_setopt_array($ch, [
         <span class="s">&quot;image&quot;</span>   =&gt; <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>,
     ],
 ]);
-curl_exec($ch);</pre>
+<span class="fn">curl_exec</span>($ch);</pre>
       </div>
       <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" data-label="Rust" hidden>
-<pre>// reqwest = { version = <span class="s">&quot;0.12&quot;</span>, features = [<span class="s">&quot;json&quot;</span>] }
-<span class="f">let</span> key = std::env::var(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)?;
+<pre><span class="c">// reqwest = { version = &quot;0.12&quot;, features = [&quot;json&quot;] }</span>
+<span class="f">let</span> key = std::env::<span class="fn">var</span>(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)?;
 
-reqwest::Client::new()
-    .post(<span class="s">&quot;https://notifi.it/send&quot;</span>)
-    .bearer_auth(key)
-    .form(&amp;[
+reqwest::Client::<span class="fn">new</span>()
+    .<span class="fn">post</span>(<span class="s">&quot;https://notifi.it/send&quot;</span>)
+    .<span class="fn">bearer_auth</span>(key)
+    .<span class="fn">form</span>(&amp;[
         (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
         (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
         (<span class="s">&quot;link&quot;</span>, <span class="s">&quot;https://notifi.it/docs&quot;</span>),
         (<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>),
     ])
-    .send()
+    .<span class="fn">send</span>()
     .<span class="f">await</span>?;</pre>
       </div>
       <div class="panel" id="p-java" role="tabpanel" tabindex="0" aria-labelledby="t-java" data-name="Send.java" data-label="Java" hidden>
-<pre><span class="f">import</span> java.net.URI;
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.function.BiFunction;
-import <span class="f">static</span> java.nio.charset.StandardCharsets.UTF_8;
+<pre><span class="f">import</span> <span class="f">java.net.URI</span>;
+<span class="f">import</span> <span class="f">java.net.URLEncoder</span>;
+<span class="f">import</span> <span class="f">java.net.http.HttpClient</span>;
+<span class="f">import</span> <span class="f">java.net.http.HttpRequest</span>;
+<span class="f">import</span> <span class="f">java.net.http.HttpResponse</span>;
+<span class="f">import</span> <span class="f">java.util.function.BiFunction</span>;
+<span class="f">import</span> <span class="f">static</span> <span class="f">java.nio.charset.StandardCharsets.UTF_8</span>;
 
-BiFunction&lt;String, String, String&gt; field = (k, v) -&gt; k + <span class="s">&quot;=&quot;</span> + URLEncoder.encode(v, UTF_8);
+<span class="f">BiFunction</span>&lt;<span class="f">String</span>, <span class="f">String</span>, <span class="f">String</span>&gt; field = (k, v) <span class="f">-&gt;</span> k + <span class="s">&quot;=&quot;</span> + URLEncoder.<span class="fn">encode</span>(v, UTF_8);
 
-<span class="f">var</span> body = String.join(<span class="s">&quot;&amp;&quot;</span>,
-    field.apply(<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
-    field.apply(<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
-    field.apply(<span class="s">&quot;link&quot;</span>, <span class="s">&quot;https://notifi.it/docs&quot;</span>),
-    field.apply(<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>));
+<span class="f">var</span> body = String.<span class="fn">join</span>(<span class="s">&quot;&amp;&quot;</span>,
+    field.<span class="fn">apply</span>(<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
+    field.<span class="fn">apply</span>(<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
+    field.<span class="fn">apply</span>(<span class="s">&quot;link&quot;</span>, <span class="s">&quot;https://notifi.it/docs&quot;</span>),
+    field.<span class="fn">apply</span>(<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>));
 
-var request = HttpRequest.newBuilder(URI.create(<span class="s">&quot;https://notifi.it/send&quot;</span>))
-    .header(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span> + System.getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
-    .header(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
-    .POST(HttpRequest.BodyPublishers.ofString(body))
-    .build();
+<span class="f">var</span> request = HttpRequest.<span class="fn">newBuilder</span>(URI.<span class="fn">create</span>(<span class="s">&quot;https://notifi.it/send&quot;</span>))
+    .<span class="fn">header</span>(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span> + System.<span class="fn">getenv</span>(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
+    .<span class="fn">header</span>(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
+    .<span class="fn">POST</span>(HttpRequest.BodyPublishers.<span class="fn">ofString</span>(body))
+    .<span class="fn">build</span>();
 
-HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding());</pre>
+HttpClient.<span class="fn">newHttpClient</span>().<span class="fn">send</span>(request, HttpResponse.BodyHandlers.<span class="fn">discarding</span>());</pre>
       </div>
       <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" data-label="Claude Code" hidden>
-<pre>// Fires when Claude stops.
+<pre><span class="c">// Fires when Claude stops.</span>
 {
   <span class="s">&quot;hooks&quot;</span>: {
     <span class="s">&quot;Stop&quot;</span>: [{
       <span class="s">&quot;hooks&quot;</span>: [{
         <span class="s">&quot;type&quot;</span>: <span class="s">&quot;command&quot;</span>,
-        <span class="s">&quot;command&quot;</span>: &quot;curl -s https://notifi.it/send \
-                     -H \<span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>\&quot;</span> \
-                     -d \<span class="s">&quot;title=Claude finished\&quot;</span> \
-                     -d \<span class="s">&quot;message=$CLAUDE_PROJECT_DIR\&quot;</span>&quot;
+        <span class="s">&quot;command&quot;</span>: <span class="s">&quot;curl -s https://notifi.it/send \</span>
+<span class="s">                     -H \&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>\&quot; \</span>
+<span class="s">                     -d \&quot;title=Claude finished\&quot; \</span>
+<span class="s">                     -d \&quot;message=$CLAUDE_PROJECT_DIR\&quot;&quot;</span>
       }]
     }]
   }
 }</pre>
       </div>
       <div class="panel" id="p-gha" role="tabpanel" tabindex="0" aria-labelledby="t-gha" data-name=".github/workflows/ci.yml" data-label="GitHub Actions" hidden>
-<pre><span class="c"># Put <span class="k">NOTIFI_KEY</span> in the repository's secrets.
+<pre><span class="c"># Put <span class="k">NOTIFI_KEY</span> in the repository's secrets.</span>
 - name: Tell me it broke
   if: failure()
-  run: |
+  run: <span class="f">|</span>
     curl -s https://notifi.it/send \
-      -H </span><span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
-      -d <span class="s">&quot;title=$GITHUB_WORKFLOW failed&quot;</span> \
-      -d <span class="s">&quot;message=$GITHUB_REF_NAME at $(git log -1 --format=%s)&quot;</span> \
-      -d <span class="s">&quot;link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID&quot;</span>
+      -H &quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot; \
+      -d &quot;title=$GITHUB_WORKFLOW failed&quot; \
+      -d &quot;message=$GITHUB_REF_NAME at $(git log -1 --format=%s)&quot; \
+      -d &quot;link=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID&quot;
   env:
     <span class="k">NOTIFI_KEY</span>: ${{ secrets.<span class="k">NOTIFI_KEY</span> }}</pre>
       </div>
       <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" data-label="Shell hook" hidden>
-<pre><span class="c"># Notify for any command that took longer than a minute, and say
-# whether it worked.
-autoload -Uz add-zsh-hook
+<pre><span class="c"># Notify for any command that took longer than a minute, and say</span>
+<span class="c"># whether it worked.</span>
+<span class="fn">autoload</span> -Uz add-zsh-hook
 
-_notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
-_notifi_end() {
-  local code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
-  (( secs &lt; 60 )) &amp;&amp; return
-  curl -s https://notifi.it/send \
-    -H </span><span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
-    -d <span class="s">&quot;title=$([[ $code == 0 ]] &amp;&amp; echo ok || echo failed) after ${secs}s&quot;</span> \
+<span class="fn">_notifi_start</span>() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
+<span class="fn">_notifi_end</span>() {
+  <span class="f">local</span> code=$? secs=$(( <span class="fn">SECONDS</span> - ${_NOTIFI_T:-SECONDS} ))
+  (( secs &lt; <span class="n">60</span> )) &amp;&amp; <span class="f">return</span>
+  <span class="fn">curl</span> -s https://notifi.it/send \
+    -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+    -d <span class="s">&quot;title=$([[ $code == </span><span class="n">0</span><span class="s"> ]] &amp;&amp; </span><span class="fn">echo</span><span class="s"> </span>ok<span class="s"> || </span><span class="fn">echo</span><span class="s"> </span>failed<span class="s">) after ${secs}s&quot;</span> \
     -d <span class="s">&quot;message=$_NOTIFI_CMD&quot;</span> &gt;/dev/null
 }
-add-zsh-hook preexec _notifi_start
-add-zsh-hook precmd  _notifi_end</pre>
+<span class="fn">add-zsh-hook</span> preexec _notifi_start
+<span class="fn">add-zsh-hook</span> precmd  _notifi_end</pre>
       </div>
       <div class="panel" id="p-cron" role="tabpanel" tabindex="0" aria-labelledby="t-cron" data-name="crontab" data-label="cron" hidden>
-<pre><span class="c"># crontab -e. A cron job gets no PATH, and its output goes nowhere you
-# will read, so a job that quietly stopped working stays quiet for months.
-# A literal % is a newline to cron: escape any you need as \%.
+<pre><span class="c"># crontab -e. A cron job gets no PATH, and its output goes nowhere you</span>
+<span class="c"># will read, so a job that quietly stopped working stays quiet for months.</span>
+<span class="c"># A literal % is a newline to cron: escape any you need as \%.</span>
 PATH=/usr/local/bin:/usr/bin:/bin
 <span class="k">NOTIFI_KEY</span>=...
 
-0 3 * * * backup.sh &gt;/tmp/backup.log 2&gt;&amp;1; curl -s https://notifi.it/send -H </span><span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> -d <span class="s">&quot;title=backup $([ $? = 0 ] &amp;&amp; echo ok || echo failed) on $(hostname)&quot;</span> --data-urlencode <span class="s">&quot;message=$(tail -c 800 /tmp/backup.log)&quot;</span></pre>
+<span class="fn">0</span> <span class="n">3</span> * * * backup.sh &gt;/tmp/backup.log 2&gt;&amp;1; <span class="fn">curl</span> -s https://notifi.it/send -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> -d <span class="s">&quot;title=backup $([ $? = </span><span class="n">0</span><span class="s"> ] &amp;&amp; </span><span class="fn">echo</span><span class="s"> </span>ok<span class="s"> || </span><span class="fn">echo</span><span class="s"> </span>failed<span class="s">) on $(</span><span class="fn">hostname</span><span class="s">)&quot;</span> --data-urlencode <span class="s">&quot;message=$(</span><span class="fn">tail</span><span class="s"> </span>-c<span class="s"> </span><span class="n">800</span><span class="s"> </span>/tmp/backup.log<span class="s">)&quot;</span></pre>
       </div>
       <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" data-label="systemd" hidden>
-<pre><span class="c"># Drop this in /etc/systemd/system/, then add one line to any unit:
-#   OnFailure=notifi-failed@%n.service
-# Every unit on the box can share it. %i is the unit that failed.
+<pre><span class="c"># Drop this in /etc/systemd/system/, then add one line to any unit:</span>
+<span class="c">#   OnFailure=notifi-failed@%n.service</span>
+<span class="c"># Every unit on the box can share it. %i is the unit that failed.</span>
 [Unit]
-Description=Push a notification when %i fails
+<span class="f">Description</span>=Push a notification when %i fails
 
 [Service]
-Type=oneshot
-EnvironmentFile=/etc/notifi.env
-ExecStart=/usr/bin/curl -s https://notifi.it/send \
-  -H </span><span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
+<span class="f">Type</span>=oneshot
+<span class="f">EnvironmentFile</span>=/etc/notifi.env
+<span class="f">ExecStart</span>=/usr/bin/curl -s https://notifi.it/send \
+  -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
   -d <span class="s">&quot;title=%i failed on %H&quot;</span> \
   --data-urlencode <span class="s">&quot;message=$(systemctl status %i --lines=10 --no-pager)&quot;</span></pre>
       </div>
       <div class="panel" id="p-kube" role="tabpanel" tabindex="0" aria-labelledby="t-kube" data-name="backup.yaml" data-label="Kubernetes" hidden>
-<pre><span class="c"># Put the key in a Secret, then curl at the end of any Job's command.
+<pre><span class="c"># Put the key in a Secret, then curl at the end of any Job's command.</span>
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: nightly-backup
 spec:
-  schedule: </span><span class="s">&quot;0 3 * * *&quot;</span>
+  schedule: <span class="s">&quot;0 3 * * *&quot;</span>
   jobTemplate:
     spec:
       template:
@@ -1472,11 +1596,11 @@ spec:
             image: alpine/curl
             command: [<span class="s">&quot;/bin/sh&quot;</span>, <span class="s">&quot;-c&quot;</span>]
             args:
-            - |
+            - <span class="f">|</span>
               ./backup.sh &amp;&amp;
               curl -s https://notifi.it/send \
-                -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
-                -d <span class="s">&quot;title=Backup complete&quot;</span>
+                -H &quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot; \
+                -d &quot;title=Backup complete&quot;
             env:
             - name: <span class="k">NOTIFI_KEY</span>
               valueFrom: { secretKeyRef: { name: notifi, key: key } }</pre>
@@ -1571,7 +1695,8 @@ spec:
       </div>
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>
-        <p>Send with <code>is_critical=1</code> on a key you have marked critical, and the
+        <p>Send with <code>is_critical=1</code> on a key
+           <a href="/docs#critical-alerts">you have marked critical</a>, and the
            notification breaks through Focus and lands on the lock screen.</p>
       </div>
       <div class="row">
@@ -1999,10 +2124,16 @@ document.querySelectorAll('.tabs').forEach(list => {
       }
     }
     // Six shuffled passes over every cell, dealt strictly one after another,
-    // build the mark solid in under half a minute. After them a small ring of
-    // stroke slots is recycled forever — each slot, once its line is buried
-    // in the solid mark, is dealt again at a fresh spot — so the pen never
-    // runs out of strokes and never stops.
+    // build the mark solid in under half a minute — but not at a flat rate:
+    // the pen opens in a burst, ten times its settling pace, sheds speed
+    // linearly over the first eight seconds, then holds the plateau to the
+    // end. Below, that is the inverted quadratic over the ramp (rate falling
+    // linearly integrates to a quadratic stroke count, solved back for time)
+    // and the linear tail after it, meeting at RAMP with matched rate so
+    // the handover is invisible. After them a small ring of stroke slots is
+    // recycled forever — each slot, once its line is buried in the solid
+    // mark, is dealt again at a fresh spot — so the pen never runs out of
+    // strokes and never stops.
     function isRed(u, v){
       if (!dot) return 0;
       var du = u - (pad + dot.u * (1 - 2 * pad));
@@ -2020,6 +2151,15 @@ document.querySelectorAll('.tabs').forEach(list => {
     var LAYERS = 6, RING = 256;
     var pts = [];
     var total = cells.length * LAYERS;
+    var BUILD = 26, RAMP = 8, BURST = 10;
+    var RATE = total / (RAMP * (BURST + 1) / 2 + BUILD - RAMP);
+    var R0 = BURST * RATE;
+    var A = (R0 - RATE) / RAMP;
+    var RAMPED = (R0 + RATE) / 2 * RAMP;
+    function startAt(i){
+      return i < RAMPED ? (R0 - Math.sqrt(R0 * R0 - 2 * A * i)) / A
+                        : RAMP + (i - RAMPED) / RATE;
+    }
     var n = 0;
     for (var l = 0; l < LAYERS; l++){
       for (var i = cells.length - 1; i > 0; i--){
@@ -2027,13 +2167,13 @@ document.querySelectorAll('.tabs').forEach(list => {
         var tmp = cells[i]; cells[i] = cells[j]; cells[j] = tmp;
       }
       for (var k = 0; k < cells.length; k++){
-        Array.prototype.push.apply(pts, stroke(cells[k][0], cells[k][1], (n++ / total) * 26));
+        Array.prototype.push.apply(pts, stroke(cells[k][0], cells[k][1], startAt(n++)));
       }
     }
     var deck = pts.length / 7;
     for (var q = 0; q < RING; q++){
       var c0 = cells[Math.floor(Math.random() * cells.length)];
-      Array.prototype.push.apply(pts, stroke(c0[0], c0[1], 26 + q * .25));
+      Array.prototype.push.apply(pts, stroke(c0[0], c0[1], BUILD + q * .25));
     }
     var count = pts.length / 7;
     if (!count) { host.classList.add("flat"); return; }
@@ -2178,6 +2318,20 @@ document.querySelectorAll('.tabs').forEach(list => {
   var heads = document.querySelectorAll(".section-head");
   var of = String(heads.length).padStart(2, "0");
   for (var i = 0; i < heads.length; i++) heads[i].setAttribute("data-of", of);
+})();
+
+// The header docks the moment the hero bell leaves the top of the viewport,
+// and undocks when it comes back — one bell on screen at all times. The
+// top < 0 guard keeps the bar away when the bell is merely below the fold,
+// which is where it starts on a short phone viewport mid-load.
+(function(){
+  var hdr = document.querySelector("header");
+  var bell = document.querySelector(".hero-flare");
+  if (!hdr || !bell) return;
+  new IntersectionObserver(function(entries){
+    var e = entries[entries.length - 1];
+    hdr.classList.toggle("docked", !e.isIntersecting && e.boundingClientRect.top < 0);
+  }, { rootMargin: "-1px 0px 0px 0px" }).observe(bell);
 })();
 
 // Headings and ledes light up word by word as they cross the viewport.

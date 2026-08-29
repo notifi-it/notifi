@@ -1,5 +1,6 @@
 import type { PublicErrorCode } from '@notifi/contract';
 import { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX } from '@notifi/contract';
+import type { Lang } from './shikify.js';
 
 export { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX };
 
@@ -28,7 +29,7 @@ export interface Sample {
   label: string;
   file: string;
   code: string;
-  keywords?: string[];
+  lang: Lang;
   icon?: string;
   group?: string;
 }

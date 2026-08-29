@@ -82,6 +82,7 @@ const RESPONSES: Group[] = [
     id: '202',
     label: '202',
     file: 'accepted',
+    lang: 'http',
     code: responseBody(202, 'Accepted', '{"ok":true}'),
   },
   ...errors
@@ -90,6 +91,7 @@ const RESPONSES: Group[] = [
       id: String(e.status),
       label: String(e.status),
       file: e.code,
+      lang: 'http',
       code: responseBody(
         e.status,
         e.reason,
@@ -102,6 +104,7 @@ const RESPONSES: Group[] = [
 const CLIENTS: Group[] = [
   {
     id: 'postman',
+    lang: 'bash',
     icon: 'siPostman',
     label: 'Postman',
     file: 'postman',
@@ -110,6 +113,7 @@ ${ORIGIN}/notifi.postman_collection.json`,
   },
   {
     id: 'bruno',
+    lang: 'bash',
     icon: 'siBruno',
     label: 'Bruno',
     file: 'bruno',
@@ -119,6 +123,7 @@ curl -O ${ORIGIN}/notifi.bru`,
   },
   {
     id: 'insomnia',
+    lang: 'bash',
     icon: 'siInsomnia',
     label: 'Insomnia',
     file: 'insomnia',
@@ -128,6 +133,7 @@ ${ORIGIN}/openapi.json`,
   },
   {
     id: 'httpie',
+    lang: 'bash',
     icon: 'siHttpie',
     label: 'HTTPie',
     file: 'httpie',
@@ -141,6 +147,7 @@ http -f POST ${ORIGIN}${ENDPOINT} \\
   },
   {
     id: 'generate',
+    lang: 'bash',
     icon: 'siOpenapiinitiative',
     label: 'Client generator',
     file: 'openapi-generator',
