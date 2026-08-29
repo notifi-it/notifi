@@ -190,7 +190,7 @@ enum SampleData {
              """,
              "\(demo)/loss-curve.png", "https://grafana.internal/d/autoscaler", 4, false),
 
-            ("Send p99 crossed 800 ms",
+            ("Send p99 latency crossed 800 ms",
              """
              notifi.it/send at **782 ms**, up from 214 ms over 12 minutes.
 
@@ -207,7 +207,7 @@ enum SampleData {
              [Open the dashboard](https://grafana.internal/d/api-latency)
              """,
              "\(demo)/latency.png",
-             "https://grafana.internal/d/api-latency", 9, true),
+             "https://grafana.internal/d/api-latency", 9, false),
 
             ("Disk 91% full on notifi-db-01",
              "/dev/nvme0n1 has 41 GB free of 460 GB.",
