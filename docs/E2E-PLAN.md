@@ -8,11 +8,6 @@ including its own seal on top. The server never sees the plaintext, never learns
 the feature exists, and changes by **zero lines**: encryption is an agreement
 between the app and the script, carried entirely in the values.
 
-Ported from notifi-swift PR #106, re-grounded against this repo, then reshaped
-twice: the expectation moved from the device to the key, and then off the server
-entirely. The companion CLI plan (notifi-swift PR #121) is out of scope and stays
-parked.
-
 ---
 
 ## 1. How it works
