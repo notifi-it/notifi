@@ -297,6 +297,8 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .term{{position:absolute;{TERM};container-type:inline-size;background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
 .term .bar{{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}}
 .term .bar i{{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}}
+.term .bar i:first-child{{background:#363638}}
+.term .bar i:nth-child(3){{background:#424244}}
 .term .title{{--fs:2.602;position:absolute;left:15.092cqw;top:50%;transform:translateY(-50%);font-family:var(--mono);color:var(--dim);opacity:0}}
 .term .tabs{{display:flex;gap:1.171cqw;padding:0 2.082cqw 1.821cqw}}
 .term .tabs button{{--fs:2.602;flex:1;text-align:center;font-family:var(--mono);color:var(--dim);background:#222224;border-radius:0.85cqw;padding:0.989cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
