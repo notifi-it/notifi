@@ -106,7 +106,7 @@ const LANDING_NODES: Array<Record<string, unknown>> = [
     url: `${ORIGIN}/`,
     name: 'notifi',
     description:
-      'Push notifications to your iPhone or Mac from one plain HTTP request. No account, no SDK, encrypted with your public key, and open source.',
+      'Push notifications to your iPhone or Mac from one plain HTTP request. No account, encrypted with your public key, and open source.',
     publisher: { '@id': ORG_ID },
     inLanguage: 'en',
   },
@@ -120,10 +120,10 @@ const LANDING_NODES: Array<Record<string, unknown>> = [
     installUrl: APP_STORE,
     downloadUrl: `${ORIGIN}${MAC_DOWNLOAD}`,
     description:
-      'The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it from any script, and a native push notification arrives on your iPhone or Mac. Notification content is encrypted with your public key. No SDK, no account, no sign-in.',
+      'The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it from any script, and a native push notification arrives on your iPhone or Mac. Notification content is encrypted with your public key. No account, no sign-in.',
     featureList: [
       'One plain HTTP request, GET or POST, JSON or form-encoded',
-      'No SDK, no account and no sign-in',
+      'No account and no sign-in',
       'Notification content encrypted with your public key',
       'Open source',
       'Per-script revocable send keys',

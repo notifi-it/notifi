@@ -42,7 +42,7 @@ The server identifies a device only by its public key. Nothing in the system lin
 
 Notification content (the title, body, link and image URL) is encrypted to your device's public key before it is written to the database, using HPKE (P-256 / HKDF-SHA256 / AES-256-GCM). The server holds no private key that can undo this. A full copy of the database, together with every server secret, does not reveal the contents of a single notification. Your send key names are encrypted the same way.
 
-This is what "neither we nor Apple can read your notifications" means on the landing page, and it is the limit of that claim. The sections below cover what remains visible.
+This is what "neither we nor Apple can read your notifications" means on the landing page, and it is the limit of that claim.
 
 ## What the server can see
 
@@ -68,11 +68,11 @@ notifi is a relay, not a mailbox. Once your device has a notification, the serve
 
 The service runs on Cloudflare Workers. Cloudflare records the metadata of requests reaching the network, including source IP address, timestamp and the full request URL. notifi does not control the contents of those logs and does not write notification contents to logs of its own.
 
-> **This matters for how you send.** The `/send` endpoint accepts a key and a body as URL query parameters, which is convenient for a one-off `curl`. Anything placed in a URL appears in those logs in the clear, before it is ever encrypted, and also in your shell history and in any proxy between you and Cloudflare.
+> **Do not put the key in a URL.** The `/send` endpoint accepts a key and a body as URL query parameters, which is convenient for a one-off `curl`. Anything placed in a URL appears in those logs in the clear, before it is ever encrypted, and also in your shell history and in any proxy between you and Cloudflare.
 >
 > Send the key as an `Authorization: Bearer` header and the body in a `POST` body instead. Neither is logged.
 
-When the server hits an error it cannot handle, a report of that error is sent to Sentry, an error-tracking service, so that it can be fixed. A report carries the failure itself — what broke, and where in the code — along with the request's method and route. It does not carry notification contents, request bodies, headers, or the source IP address. A send key involved in a failed request is replaced, before the report leaves the server, by a short one-way fingerprint of itself: enough to tell that several reports concern the same key, and not enough to recover the key from. Nothing about your device or your notifications is sent to Sentry in the ordinary course of a request; a report exists only where something has gone wrong.
+When the server hits an error it cannot handle, a report of that error is sent to Sentry, an error-tracking service, so that it can be fixed. A report carries the failure itself — what broke, and where in the code — along with the request's method and route. It does not carry notification contents, request bodies, headers, or the source IP address. A send key involved in a failed request is replaced, before the report leaves the server, by a short one-way fingerprint of itself. The fingerprint shows that several reports concern the same key and cannot be reversed to recover the key. Nothing about your device or your notifications is sent to Sentry in the ordinary course of a request.
 
 ## Images in notifications
 

@@ -1,6 +1,6 @@
 # notifi API documentation
 
-> One endpoint, seven parameters, no SDK. Everything on this page is generated from the same file that generates [`/openapi.json`](https://notifi.it/openapi.json) and the client collections, so the three cannot disagree.
+> One endpoint and seven parameters. Everything on this page is generated from the same file that generates [`/openapi.json`](https://notifi.it/openapi.json) and the client collections, so the three cannot disagree.
 
 _[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi.it/docs#auth) [Request](https://notifi.it/docs#request) [Parameters](https://notifi.it/docs#parameters) [Response](https://notifi.it/docs#response) [Errors](https://notifi.it/docs#errors) [Rate limits](https://notifi.it/docs#limits) [Clients and import](https://notifi.it/docs#clients) [For the bots](https://notifi.it/docs#machine) [Recipes](https://notifi.it/docs#recipes)_
 
@@ -19,12 +19,12 @@ curl -X POST https://notifi.it/send \
 
 ## Authentication
 
-Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between: use it only for a quick test, and rotate the key afterwards.
+Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between. Use it only for a quick test, and rotate the key afterwards.
 
 | Method | Sent as | Notes |
 | --- | --- | --- |
 | Bearer token | `Authorization: Bearer nk_yourkey` | The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history. |
-| Parameter | `key=nk_yourkey` | The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option: use it only for a quick test, and rotate the key afterwards. |
+| Parameter | `key=nk_yourkey` | The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option. Use it only for a quick test, and rotate the key afterwards. |
 
 ## Request
 
@@ -56,7 +56,7 @@ Accept-Language: en-GB
 
 ## Response
 
-A send answers `202`. That means the server accepted it, not that it was delivered — delivery is best-effort, as the [terms](https://notifi.it/terms) describe. Every status the endpoint can answer with is here:
+A send answers `202` when the server has accepted it. Delivery is best-effort, as the [terms](https://notifi.it/terms) describe. Every status the endpoint can answer with is here:
 
 ### 202
 
@@ -104,13 +104,13 @@ Retry-After: 42
 {"error":{"code":"rate_limited","message":"Too many notifications. Try again shortly."}}
 ```
 
-A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, or a critical alert delivered as an ordinary notification. The status is still `202` — the notification was sent, in the altered form each warning describes.
+A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, or a critical alert delivered as an ordinary notification. The status is still `202`; the notification was sent, in the altered form each warning describes.
 
 ```http
 HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{"ok":true,"warnings":["Sent with a shortened title: it was over 200 characters.","Sent as a normal notification: critical alerts are switched off for this key."]}
+{"ok":true,"warnings":["Sent with a shortened title, because it was over 200 characters.","Sent as a normal notification, because critical alerts are switched off for this key."]}
 ```
 
 ### Over-length text is cropped
@@ -123,7 +123,7 @@ _Settings → Permissions → Reject invalid sends. Off, the default: sends are 
 
 ### Critical alerts are granted per key
 
-`is_critical=1` asks for an alert that breaks through Focus and silent mode. It is not enough on its own: the key it was sent with must have **Critical alerts** switched on, on that device, in that key's screen under the Keys tab. Without it the notification is delivered as an ordinary one and the response carries a warning saying so. A sender cannot turn this on — only the person holding the device can.
+`is_critical=1` asks for an alert that breaks through Focus and silent mode, but only if the key it was sent with has **Critical alerts** switched on, on that device, in that key's screen under the Keys tab. Without it the notification is delivered as an ordinary one and the response carries a warning saying so. Only the person holding the device can switch it on.
 
 ![A key's screen in the app, showing the Critical alerts switch turned on.](/shots/key-critical-alerts.png)
 
@@ -131,7 +131,7 @@ _Keys → a key → Settings → Critical alerts. Each key carries its own permi
 
 ### A link does not have to be https
 
-`link` accepts any URL scheme, so it can point at a website or deep-link into another app on the device. The app opens only `https` links until **Open any link** is switched on for the key, in that key's screen under the Keys tab. A sender cannot turn it on — only the person holding the device can.
+`link` accepts any URL scheme, so it can point at a website or deep-link into another app on the device. The app opens only `https` links until **Open any link** is switched on for the key, in that key's screen under the Keys tab. That switch belongs to the person holding the device, not the sender.
 
 ![A key's screen in the app, showing the Open any link switch.](/shots/key-open-any-link.png)
 
@@ -219,7 +219,7 @@ openapi-generator-cli generate \
 
 Every page on this site is also served as Markdown: send `Accept: text/markdown` on the same URL, or append `.md`. [The source](https://github.com/notifi-it/notifi) covers the app, the API and the cryptography.
 
-There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface, and anything claiming otherwise is not us.
+There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface. Anything claiming otherwise is not notifi.
 
 ## Recipes
 

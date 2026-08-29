@@ -87,7 +87,7 @@ function queryParameters(): Record<string, unknown> {
 function errorResponses(): Record<string, unknown> {
   const out: Record<string, unknown> = {
     Accepted: {
-      description: 'The server accepted the notification. Not a delivery receipt.',
+      description: 'The server accepted the notification; it is not a delivery receipt.',
       content: {
         'application/json': {
           schema: { $ref: '#/components/schemas/SendResponse' },
@@ -97,7 +97,7 @@ function errorResponses(): Record<string, unknown> {
               value: {
                 ok: true,
                 warnings: [
-                  'Sent as a normal notification: critical alerts are switched off for this key.',
+                  'Sent as a normal notification, because critical alerts are switched off for this key.',
                 ],
               },
             },

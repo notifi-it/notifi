@@ -343,7 +343,7 @@ export const it: Translation = {
   'store.subtitle': 'Per script e server',
   'store.promotionalText':
     'Una richiesta HTTP e la notifica arriva sul tuo iPhone o Mac. Cifrato con la tua chiave ' +
-    'pubblica: non possiamo leggere le tue notifiche. Niente account, niente SDK.',
+    'pubblica: non possiamo leggere le tue notifiche. Niente account.',
   'store.keywords':
     'webhook,api,avvisare,allerta,auto,ospitato,cron,curl,cli,devops,homelab,ssh,docker,' +
     'monitor',
@@ -371,7 +371,7 @@ export const it: Translation = {
   'store.shotInboxTitle': 'Una richiesta.\nDritta in tasca.',
   'store.shotInboxBody':
     'Notifiche push per i tuoi script e server. Una richiesta HTTP a notifi.it e arriva un ' +
-    'momento dopo. Niente account, niente SDK.',
+    'momento dopo. Niente account.',
   'store.shotMessageTitle': 'Immagini, link,\nMarkdown.',
   'store.shotMessageBody':
     'Un titolo, un corpo, un\'immagine e un link. Titoli, elenchi, citazioni e blocchi di codice ' +

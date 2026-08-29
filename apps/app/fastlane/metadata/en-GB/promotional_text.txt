@@ -1,1 +1,1 @@
-One HTTP request, and the notification is on your iPhone or Mac. Encrypted with your public key — we can't read your notifications. No accounts, no SDK.
+One HTTP request, and the notification is on your iPhone or Mac. Encrypted with your public key, so we can't read your notifications. No accounts.

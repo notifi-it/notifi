@@ -45,7 +45,7 @@
       "name": "notifi",
       "alternateName": "notifi.it",
       "url": "https://notifi.it/",
-      "description": "notifi delivers a push notification to an iPhone, iPad or Mac from one HTTP request. No account, no SDK, and notification content is encrypted with the device's public key.",
+      "description": "notifi delivers a push notification to an iPhone, iPad or Mac from one HTTP request. No account, and notification content is encrypted with the device's public key.",
       "logo": "https://notifi.it/apple-touch-icon.png",
       "email": "hello@notifi.it",
       "contactPoint": [
@@ -450,7 +450,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <p class="eyebrow">API reference</p>
   <h1>notifi API documentation</h1>
   <p class="lede">
-    One endpoint, seven parameters, no SDK. Everything on this page is generated
+    One endpoint and seven parameters. Everything on this page is generated
     from the same file that generates <a href="/openapi.json"><code>/openapi.json</code></a>
     and the client collections, so the three cannot disagree.
   </p>
@@ -490,7 +490,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section id="auth">
     <h2>Authentication</h2>
-    <p>Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between: use it only for a quick test, and rotate the key afterwards.</p>
+    <p>Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between. Use it only for a quick test, and rotate the key afterwards.</p>
     <div class="tablewrap" tabindex="0" role="group" aria-label="Authentication methods">
       <table>
         <thead><tr><th>Method</th><th>Sent as</th><th>Notes</th></tr></thead>
@@ -503,7 +503,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>Parameter</td>
             <td><code>key=nk_yourkey</code></td>
-            <td>The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option: use it only for a quick test, and rotate the key afterwards.</td>
+            <td>The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option. Use it only for a quick test, and rotate the key afterwards.</td>
           </tr>
         </tbody>
       </table>
@@ -595,8 +595,8 @@ Accept-Language: en-GB
   <section id="response">
     <h2>Response</h2>
     <p>
-      A send answers <code>202</code>. That means the server accepted it, not that it was
-      delivered — delivery is best-effort, as the <a href="/terms">terms</a> describe. Every
+      A send answers <code>202</code> when the server has accepted it. Delivery is
+      best-effort, as the <a href="/terms">terms</a> describe. Every
       status the endpoint can answer with is here:
     </p>
     <div class="tabs" role="tablist" aria-label="Responses">
@@ -648,13 +648,13 @@ Retry-After<span class="f">:</span> <span class="s">42</span>
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
       differently from what was asked: a cropped title or body, or a critical
-      alert delivered as an ordinary notification. The status is still <code>202</code> — the
+      alert delivered as an ordinary notification. The status is still <code>202</code>; the
       notification was sent, in the altered form each warning describes.
     </p>
 <pre data-lang="http">HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{&quot;ok&quot;:true,&quot;warnings&quot;:[&quot;Sent with a shortened title: it was over 200 characters.&quot;,&quot;Sent as a normal notification: critical alerts are switched off for this key.&quot;]}</pre>
+{&quot;ok&quot;:true,&quot;warnings&quot;:[&quot;Sent with a shortened title, because it was over 200 characters.&quot;,&quot;Sent as a normal notification, because critical alerts are switched off for this key.&quot;]}</pre>
 
     <h3>Over-length text is cropped</h3>
     <p>
@@ -671,11 +671,11 @@ Content-Type: application/json; charset=utf-8
 
     <h3 id="critical-alerts">Critical alerts are granted per key</h3>
     <p>
-      <code>is_critical=1</code> asks for an alert that breaks through Focus and silent mode.
-      It is not enough on its own: the key it was sent with must have <strong>Critical
-      alerts</strong> switched on, on that device, in that key's screen under the Keys tab.
-      Without it the notification is delivered as an ordinary one and the response carries a
-      warning saying so. A sender cannot turn this on — only the person holding the device can.
+      <code>is_critical=1</code> asks for an alert that breaks through Focus and silent mode,
+      but only if the key it was sent with has <strong>Critical alerts</strong> switched on,
+      on that device, in that key's screen under the Keys tab. Without it the notification is
+      delivered as an ordinary one and the response carries a warning saying so. Only the
+      person holding the device can switch it on.
     </p>
     <figure>
       <img src="/shots/key-critical-alerts.png" width="603" height="744" alt="A key's screen in the app, showing the Critical alerts switch turned on.">
@@ -687,7 +687,7 @@ Content-Type: application/json; charset=utf-8
       <code>link</code> accepts any URL scheme, so it can point at a website or deep-link into
       another app on the device. The app opens only <code>https</code> links until
       <strong>Open any link</strong> is switched on for the key, in that key's screen under the
-      Keys tab. A sender cannot turn it on — only the person holding the device can.
+      Keys tab. That switch belongs to the person holding the device, not the sender.
     </p>
     <figure>
       <img src="/shots/key-open-any-link.png" width="603" height="145" alt="A key's screen in the app, showing the Open any link switch.">
@@ -825,7 +825,7 @@ Content-Type: application/json; charset=utf-8
       <a href="https://github.com/notifi-it/notifi">The source</a> covers the app, the API and
       the cryptography.
     </p>
-    <p>There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface, and anything claiming otherwise is not us.</p>
+    <p>There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface. Anything claiming otherwise is not notifi.</p>
   </section>
 
   <section id="recipes">

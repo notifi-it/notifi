@@ -30,9 +30,9 @@ export const copy = {
     invalidSendParams: 'Invalid send parameters.',
     occurredAtTooFuture: 'occurred_at is too far in the future.',
     criticalNotAllowed:
-      'Sent as a normal notification: critical alerts are switched off for this key.',
-    titleCropped: 'Sent with a shortened title: it was over {max} characters.',
-    messageCropped: 'Sent with a shortened notification: it was over {max} characters.',
+      'Sent as a normal notification, because critical alerts are switched off for this key.',
+    titleCropped: 'Sent with a shortened title, because it was over {max} characters.',
+    messageCropped: 'Sent with a shortened notification, because it was over {max} characters.',
     strictContentRejected:
       'Not sent. This device is set to refuse a notification it cannot deliver as written.',
 
@@ -43,7 +43,7 @@ export const copy = {
     subtitle: 'For scripts and servers',
     promotionalText:
       "One HTTP request, and the notification is on your iPhone or Mac. Encrypted with " +
-      "your public key — we can't read your notifications. No accounts, no SDK.",
+      "your public key, so we can't read your notifications. No accounts.",
     keywords:
       'webhook,api,notify,alerts,self,hosted,cron,curl,cli,devops,homelab,ssh,docker,' +
       'terminal,developer',
@@ -71,7 +71,7 @@ export const copy = {
     shotInboxTitle: 'One request.\nStraight to your pocket.',
     shotInboxBody:
       'Push notifications for your scripts and servers. One HTTP request to notifi.it and ' +
-      'it arrives a moment later. No account, no SDK.',
+      'it arrives a moment later. No account.',
     shotMessageTitle: 'Images, links,\nMarkdown.',
     shotMessageBody:
       'A title, a body, an image and a link. Headings, lists, quotes and code blocks are ' +
