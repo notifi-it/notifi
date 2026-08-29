@@ -100,6 +100,10 @@ struct MessageDetailView: View {
             }
         }
         .scrollContentBackground(.hidden)
+        .contentMargins(.top, Theme.contentTop, for: .scrollContent)
+        #if os(macOS)
+        .contentMargins(.bottom, Theme.bottomPlate, for: .scrollContent)
+        #endif
         .geistTopFade()
     }
 
@@ -144,7 +148,6 @@ struct MessageDetailView: View {
         }
         .geistGutter()
         .geistPageHeader()
-        .padding(.bottom, 10)
         .background(StaticField())
     }
 
