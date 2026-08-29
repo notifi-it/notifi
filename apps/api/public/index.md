@@ -25,16 +25,6 @@ own send keys, for marketing, and for anything where a missed notification
 causes harm: a key delivers only to the device that made it, and delivery is
 best-effort.
 
-## Why not just use ...
-
-- Quicker to set up than an **SMTP relay**
-- Your important notifications in one place, without cluttering your **email inbox**
-- Lighter than running **Slack**
-- No bot to register, unlike **Telegram**
-- Custom formatting, unlike **SMS**
-- Encrypted, unlike **Ntfy**
-- Free, unlike **Pushover**
-
 ## Start
 
 1. Install the app: [iPhone and iPad](https://apps.apple.com/app/id1563961135)
@@ -71,6 +61,16 @@ parameter.
 
 The full reference is at [notifi.it/docs](https://notifi.it/docs), machine-readable
 at [notifi.it/openapi.json](https://notifi.it/openapi.json).
+
+## Why not just use ...
+
+- Quicker to set up than an **SMTP relay**
+- Your important notifications in one place, without cluttering your **email inbox**
+- Lighter than running **Slack**
+- No bot to register, unlike **Telegram**
+- Custom formatting, unlike **SMS**
+- Encrypted, unlike **Ntfy**
+- Free, unlike **Pushover**
 
 ## What it costs
 
