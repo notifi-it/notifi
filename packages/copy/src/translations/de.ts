@@ -323,6 +323,9 @@ export const de: Translation = {
   'settings.openAtLoginDetail': 'Startet notifi bei der Anmeldung an diesem Mac in der Menüleiste.',
   'settings.automaticUpdates': 'Automatische Updates',
   'settings.automaticUpdatesDetail': 'Sucht im Hintergrund nach neuen Versionen.',
+  'settings.installUpdatesAutomatically': 'Updates automatisch installieren',
+  'settings.installUpdatesAutomaticallyDetail':
+    'Lädt neue Versionen ohne Nachfrage herunter und installiert sie. notifi startet sich beim Update neu.',
   'settings.checkForUpdates': 'Nach Updates suchen',
   'settings.deleteAll': 'Alle Benachrichtigungen löschen',
   'settings.deleteAllTitle': 'Alle Benachrichtigungen löschen?',

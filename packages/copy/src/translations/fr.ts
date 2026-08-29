@@ -279,6 +279,9 @@ export const fr: Translation = {
     "Démarre notifi dans la barre des menus lorsque vous ouvrez une session sur ce Mac.",
   'settings.automaticUpdates': 'Mises à jour automatiques',
   'settings.automaticUpdatesDetail': "Vérifie la présence de nouvelles versions en arrière-plan.",
+  'settings.installUpdatesAutomatically': 'Installer les mises à jour automatiquement',
+  'settings.installUpdatesAutomaticallyDetail':
+    "Télécharge et installe les nouvelles versions sans demander. notifi redémarre lorsqu'il se met à jour.",
   'settings.checkForUpdates': 'Rechercher des mises à jour',
   'settings.deleteAll': 'Supprimer toutes les notifications',
   'settings.deleteAllTitle': 'Supprimer toutes les notifications ?',

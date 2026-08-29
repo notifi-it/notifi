@@ -348,6 +348,8 @@ export const copy = {
     openAtLoginDetail: 'Starts notifi in the menu bar when you log in to this Mac.',
     automaticUpdates: 'Automatic updates',
     automaticUpdatesDetail: 'Check for new versions in the background.',
+    installUpdatesAutomatically: 'Install updates automatically',
+    installUpdatesAutomaticallyDetail: 'Download and install new versions without asking. notifi relaunches itself when it updates.',
     checkForUpdates: 'Check for updates',
     deleteAll: 'Delete all notifications',
     deleteAllTitle: 'Are you sure?',

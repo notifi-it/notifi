@@ -207,6 +207,8 @@ enum Copy {
         static var openAtLoginDetail: String { NSLocalizedString("settings.openAtLoginDetail", comment: "") }
         static var automaticUpdates: String { NSLocalizedString("settings.automaticUpdates", comment: "") }
         static var automaticUpdatesDetail: String { NSLocalizedString("settings.automaticUpdatesDetail", comment: "") }
+        static var installUpdatesAutomatically: String { NSLocalizedString("settings.installUpdatesAutomatically", comment: "") }
+        static var installUpdatesAutomaticallyDetail: String { NSLocalizedString("settings.installUpdatesAutomaticallyDetail", comment: "") }
         static var checkForUpdates: String { NSLocalizedString("settings.checkForUpdates", comment: "") }
         static var deleteAll: String { NSLocalizedString("settings.deleteAll", comment: "") }
         static var deleteAllTitle: String { NSLocalizedString("settings.deleteAllTitle", comment: "") }

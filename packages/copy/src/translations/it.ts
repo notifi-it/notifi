@@ -275,6 +275,9 @@ export const it: Translation = {
   'settings.openAtLoginDetail': 'Avvia notifi nella barra dei menu quando accedi a questo Mac.',
   'settings.automaticUpdates': 'Aggiornamenti automatici',
   'settings.automaticUpdatesDetail': 'Verifica la presenza di nuove versioni in background.',
+  'settings.installUpdatesAutomatically': 'Installa gli aggiornamenti automaticamente',
+  'settings.installUpdatesAutomaticallyDetail':
+    'Scarica e installa le nuove versioni senza chiedere. notifi si riavvia quando si aggiorna.',
   'settings.checkForUpdates': 'Verifica aggiornamenti',
   'settings.deleteAll': 'Elimina tutte le notifiche',
   'settings.deleteAllTitle': 'Eliminare tutte le notifiche?',

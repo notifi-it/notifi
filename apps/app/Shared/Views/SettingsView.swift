@@ -108,6 +108,18 @@ struct SettingsView: View {
                     .geistGutter()
                     RowRule()
 
+                    ToggleRow(
+                        title: Copy.Settings.installUpdatesAutomatically,
+                        detail: Copy.Settings.installUpdatesAutomaticallyDetail,
+                        isOn: Binding(
+                            get: { Updater.shared.automaticallyInstalls },
+                            set: { Updater.shared.setAutomaticallyInstalls($0) }
+                        )
+                    )
+                    .disabled(!Updater.shared.automaticallyChecks)
+                    .geistGutter()
+                    RowRule()
+
                     Button {
                         Updater.shared.checkForUpdates()
                     } label: {

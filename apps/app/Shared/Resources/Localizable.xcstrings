@@ -6971,6 +6971,76 @@
         }
       }
     },
+    "settings.installUpdatesAutomatically": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install updates automatically"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalar actualizaciones automáticamente"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates automatisch installieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installer les mises à jour automatiquement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installa gli aggiornamenti automaticamente"
+          }
+        }
+      }
+    },
+    "settings.installUpdatesAutomaticallyDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download and install new versions without asking. notifi relaunches itself when it updates."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descarga e instala las nuevas versiones sin preguntar. notifi se reinicia al actualizarse."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lädt neue Versionen ohne Nachfrage herunter und installiert sie. notifi startet sich beim Update neu."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharge et installe les nouvelles versions sans demander. notifi redémarre lorsqu'il se met à jour."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarica e installa le nuove versioni senza chiedere. notifi si riavvia quando si aggiorna."
+          }
+        }
+      }
+    },
     "settings.iosApp": {
       "extractionState": "manual",
       "localizations": {
