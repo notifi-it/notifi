@@ -10,6 +10,7 @@ import {
 import { samples } from './samples.js';
 import { escape } from './html.js';
 import { brand } from './icons.js';
+import { shikify, type Lang } from './shikify.js';
 
 const KEY = /\$?NOTIFI_KEY/g;
 
@@ -17,33 +18,8 @@ function markKeys(text: string): string {
   return text.replace(KEY, (hit) => `<span class="k">${hit}</span>`);
 }
 
-function markKeywords(text: string, keywords: string[]): string {
-  let out = text;
-  for (const word of keywords) {
-    const found = new RegExp(`\\b${word}\\b`).exec(out);
-    if (!found) continue;
-    const at = found.index;
-    out = `${out.slice(0, at)}<span class="f">${word}</span>${out.slice(at + word.length)}`;
-  }
-  return out;
-}
-
-export function highlight(code: string, keywords: string[] = []): string {
-  const pieces = escape(code).split(/(&quot;[^\n]*?&quot;|`[^\n`]*?`)/g);
-  const remaining = [...keywords];
-  return pieces
-    .map((piece, i) => {
-      if (i % 2 === 1) return `<span class="s">${markKeys(piece)}</span>`;
-      if (/^\s*#/.test(piece)) return `<span class="c">${markKeys(piece)}</span>`;
-      let out = markKeywords(piece, remaining);
-      for (const word of remaining.slice()) {
-        if (out.includes(`<span class="f">${word}</span>`)) {
-          remaining.splice(remaining.indexOf(word), 1);
-        }
-      }
-      return markKeys(out);
-    })
-    .join('');
+export function highlight(code: string, lang: Lang): string {
+  return markKeys(shikify(code, lang));
 }
 
 const NOTES: Record<string, string> = {
@@ -87,7 +63,7 @@ export function landingPanels(): string {
     .map((s, i) => {
       const hidden = i === 0 ? '' : ' hidden';
       return `      <div class="panel" id="p-${s.id}" role="tabpanel" tabindex="0" aria-labelledby="t-${s.id}" data-name="${escape(s.file)}" data-label="${escape(s.label)}"${hidden}>
-<pre>${highlight(s.code, s.keywords ?? [])}</pre>
+<pre>${highlight(s.code, s.lang)}</pre>
       </div>`;
     })
     .join('\n');
@@ -114,7 +90,7 @@ export interface Group {
   label: string;
   file: string;
   code: string;
-  keywords?: string[];
+  lang: Lang;
   icon?: string;
   group?: string;
 }
@@ -156,7 +132,7 @@ export function terminalGroup(prefix: string, aria: string, items: Group[]): str
     .map((item, i) => {
       const hidden = i === 0 ? '' : ' hidden';
       return `      <div class="panel" id="${prefix}p-${item.id}" role="tabpanel" tabindex="0" aria-labelledby="${prefix}t-${item.id}" data-name="${escape(item.file)}" data-label="${escape(item.label)}"${hidden}>
-<pre>${highlight(item.code, item.keywords ?? [])}</pre>
+<pre>${highlight(item.code, item.lang)}</pre>
       </div>`;
     })
     .join('\n');

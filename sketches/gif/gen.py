@@ -1,4 +1,4 @@
-import re
+import json, os, re, subprocess
 O=[0.0,100/3,200/3]
 def g(p,x): return round(O[p]+x,3)
 KARLA,RECUR=('/fonts/karla.woff2','/fonts/recursive-mono.woff2')
@@ -47,29 +47,58 @@ CREPLY='It already exists. Check your phone.'
 
 PASSES=[
  dict(title='run.sh — -zsh',head=('One key per device.','Each iPhone, iPad or Mac gets its own key.'),
-  typed=True,
-  lines=['<span class="c">$</span> curl notifi.it/send \\',
-         '    -d key=<span class="k">nk_live_8f3a</span> \\','    -d title=<span class="s">"Hello from notifi"</span> \\',
-         '    -d message=<span class="s">"Your first notification."</span> \\',
-         '    -d link=<span class="s">https://notifi.it/docs</span> \\',
-         '    -d image=<span class="s">https://notifi.it/anaglyph-bell.png</span>'],
+  typed=True,lang='bash',keys=['nk_live_8f3a'],prompt=True,
+  lines=['curl notifi.it/send \\',
+         '    -d key=nk_live_8f3a \\','    -d title="Hello from notifi" \\',
+         '    -d message="Your first notification." \\',
+         '    -d link=https://notifi.it/docs \\',
+         '    -d image=https://notifi.it/anaglyph-bell.png'],
   card=('Hello from notifi','Your first notification.'),thumb=ANAGLYPH,cardpos='left:73.5%;top:45.5%;width:22%',sb=PD_SB+PD_LOCK,clip=None),
  dict(title='claude — ~/notifi',head=('Get a push notification to your device','from anything that can make an HTTP request.'),
   claude=True,lines=[],
   card=('Claude Finished','No mistakes made.'),cardpos='left:73.5%;top:42.2%;width:15%',sb=PH_SB+PH_LOCK,clip=None),
  dict(title='train.py — -zsh',head=('No signup, just HTTP.','Install the app, copy your key, start sending.'),
-  noresp=True,
-  lines=['<span class="c"># tell me when the training run ends</span>',
+  noresp=True,lang='python',keys=['KEY'],
+  lines=['# tell me when the training run ends',
          'import requests, tensorflow as tf',
          'run = model.fit(train_ds, epochs=40)',
-         'loss = run.history[<span class="s">"val_loss"</span>][-1]',
-         'requests.post(<span class="s">"https://notifi.it/send"</span>,',
-         '    headers={<span class="s">"Authorization"</span>: <span class="s">f"Bearer {<span class="k">KEY</span>}"</span>},',
-         '    json={<span class="s">"title"</span>: <span class="s">"Training finished"</span>,',
-         '          <span class="s">"message"</span>: <span class="s">f"val loss {loss:.3f}"</span>})'],
+         'loss = run.history["val_loss"][-1]',
+         'requests.post("https://notifi.it/send",',
+         '    headers={"Authorization": f"Bearer {KEY}"},',
+         '    json={"title": "Training finished",',
+         '          "message": f"val loss {loss:.3f}"})'],
   card=('Training finished','val loss 0.041'),cardpos='left:76%;top:19.5%;width:43.15%',sb=MC_SB,
   clip='left:54.38%;top:21.05%;width:38.24%;height:55.52%'),
 ]
+
+# The code lines above are plain source; the spans come from shiki, via the
+# same scope-to-class mapping the site's terminals use (film-highlight.ts in
+# packages/apidoc). One node call per build keeps gen.py the only author of
+# the film and the lockfile the only authority on the highlighter.
+def _shikify():
+    jobs=[{'lang':P['lang'],'code':'\n'.join(P['lines']),'keys':P.get('keys',[])}
+          for P in PASSES if P.get('lang')]
+    if not jobs: return
+    apidoc=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','packages','apidoc')
+    r=subprocess.run(['pnpm','exec','tsx','scripts/film-highlight.ts'],
+                     cwd=apidoc,input=json.dumps(jobs).encode(),
+                     stdout=subprocess.PIPE,check=True)
+    lit=json.loads(r.stdout)
+    i=0
+    for P in PASSES:
+        if not P.get('lang'): continue
+        P['lines']=lit[i]; i+=1
+        if P.get('prompt'):
+            P['lines'][0]='<span class="c">$</span> '+P['lines'][0]
+_shikify()
+
+# Visible length of a highlighted line: strip the tags, then undo the HTML
+# entities shiki escaped — the typing animation counts characters a reader
+# sees, and &quot; is one of them, not six.
+def vislen(line):
+    t=re.sub('<[^>]*>','',line)
+    for a,b in (('&quot;','"'),('&lt;','<'),('&gt;','>'),('&amp;','&')): t=t.replace(a,b)
+    return len(t)
 SVG=["""<svg viewBox="0 0 1292 916">
       <rect class="o" x="0" y="0" width="1292" height="916" rx="42"/>
       <rect class="scr" x="41" y="41" width="1210" height="834" rx="18"/>
@@ -119,7 +148,7 @@ for p in range(3):
     elif PASSES[p].get('typed'):
         spans=lnspans(len(PASSES[p]['lines']))
         for i,(s,e) in enumerate(spans):
-            n=len(re.sub('<[^>]*>','',PASSES[p]['lines'][i]))
+            n=vislen(PASSES[p]['lines'][i])
             kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps({n},end)}} {g(p,e)}%,100%{{width:{n}ch}}}}")
             last=(i==len(spans)-1)
             end=32.2 if last else e
@@ -295,7 +324,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .cinput+.cinput{{margin-top:-0.260cqw}}
 .creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
 .cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}}
-.c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.r{{color:var(--dim)}}
+.c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.f{{color:#A1A1A1}}.r{{color:var(--dim)}}
 .dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
 .o{{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}}

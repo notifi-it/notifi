@@ -3,6 +3,7 @@ import type { Sample } from './spec.js';
 export const samples: Sample[] = [
   {
     id: 'curl',
+    lang: 'bash',
     group: 'Languages',
     icon: 'siCurl',
     label: 'curl',
@@ -16,6 +17,7 @@ export const samples: Sample[] = [
   },
   {
     id: 'js',
+    lang: 'javascript',
     group: 'Languages',
     icon: 'siJavascript',
     label: 'JavaScript',
@@ -36,9 +38,9 @@ export const samples: Sample[] = [
   },
   {
     id: 'py',
+    lang: 'python',
     group: 'Languages',
     icon: 'siPython',
-    keywords: ['import'],
     label: 'Python',
     file: 'send.py',
     code: `import os, requests
@@ -56,9 +58,9 @@ requests.post(
   },
   {
     id: 'go',
+    lang: 'go',
     group: 'Languages',
     icon: 'siGo',
-    keywords: ['package', 'import', 'func'],
     label: 'Go',
     file: 'send.go',
     code: `package main
@@ -86,9 +88,9 @@ func main() {
   },
   {
     id: 'swift',
+    lang: 'swift',
     group: 'Languages',
     icon: 'siSwift',
-    keywords: ['import', 'var', 'try await', 'try', 'for'],
     label: 'Swift',
     file: 'Send.swift',
     code: `import Foundation
@@ -108,9 +110,9 @@ _ = try await URLSession.shared.data(for: request)`,
   },
   {
     id: 'ruby',
+    lang: 'ruby',
     group: 'Languages',
     icon: 'siRuby',
-    keywords: ['require', 'true'],
     label: 'Ruby',
     file: 'send.rb',
     code: `require "net/http"
@@ -129,9 +131,9 @@ Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }`
   },
   {
     id: 'php',
+    lang: 'php',
     group: 'Languages',
     icon: 'siPhp',
-    keywords: ['true'],
     label: 'PHP',
     file: 'send.php',
     code: `<?php
@@ -150,9 +152,9 @@ curl_exec($ch);`,
   },
   {
     id: 'rust',
+    lang: 'rust',
     group: 'Languages',
     icon: 'siRust',
-    keywords: ['let', 'await'],
     label: 'Rust',
     file: 'main.rs',
     code: `// reqwest = { version = "0.12", features = ["json"] }
@@ -172,9 +174,9 @@ reqwest::Client::new()
   },
   {
     id: 'java',
+    lang: 'java',
     group: 'Languages',
     icon: 'siOpenjdk',
-    keywords: ['import', 'static', 'var'],
     label: 'Java',
     file: 'Send.java',
     code: `import java.net.URI;
@@ -203,6 +205,7 @@ HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding())
   },
   {
     id: 'hook',
+    lang: 'jsonc',
     group: 'Automation',
     icon: 'siClaude',
     label: 'Claude Code',
@@ -224,6 +227,7 @@ HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding())
   },
   {
     id: 'gha',
+    lang: 'yaml',
     group: 'Automation',
     icon: 'siGithubactions',
     label: 'GitHub Actions',
@@ -242,9 +246,9 @@ HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding())
   },
   {
     id: 'shell',
+    lang: 'bash',
     group: 'Automation',
     icon: 'siZsh',
-    keywords: ['autoload', 'local', 'return'],
     label: 'Shell hook',
     file: '~/.zshrc',
     code: `# Notify for any command that took longer than a minute, and say
@@ -265,9 +269,9 @@ add-zsh-hook precmd  _notifi_end`,
   },
   {
     id: 'cron',
+    lang: 'bash',
     group: 'Automation',
     icon: 'siGnubash',
-    keywords: ['PATH'],
     label: 'cron',
     file: 'crontab',
     code: `# crontab -e. A cron job gets no PATH, and its output goes nowhere you
@@ -280,9 +284,9 @@ NOTIFI_KEY=...
   },
   {
     id: 'systemd',
+    lang: 'ini',
     group: 'Automation',
     icon: 'siLinux',
-    keywords: ['Unit', 'Service'],
     label: 'systemd',
     file: 'notifi-failed@.service',
     code: `# Drop this in /etc/systemd/system/, then add one line to any unit:
@@ -301,6 +305,7 @@ ExecStart=/usr/bin/curl -s https://notifi.it/send \\
   },
   {
     id: 'kube',
+    lang: 'yaml',
     group: 'Automation',
     icon: 'siKubernetes',
     label: 'Kubernetes',

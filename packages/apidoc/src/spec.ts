@@ -1,3 +1,5 @@
+import type { Lang } from './shikify.js';
+
 export interface Param {
   name: string;
   type: string;
@@ -23,7 +25,7 @@ export interface Sample {
   label: string;
   file: string;
   code: string;
-  keywords?: string[];
+  lang: Lang;
   icon?: string;
   group?: string;
 }
