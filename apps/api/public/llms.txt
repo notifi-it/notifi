@@ -116,7 +116,7 @@ quick test and rotate the key afterwards.
 | `title` | Required. 1 to 200 characters. |
 | `message` | Up to 16,000 characters, Markdown. |
 | `link` | URL, up to 2,048 characters. A link to a website or internal app. |
-| `image` | `https` URL. PNG, JPEG or GIF, 5 MB max. One that cannot be fetched is dropped and the notification still arrives. |
+| `image` | URL of an image shown with the notification, up to 2,048 characters. Fetched by the receiving device, never by the server. |
 | `occurred_at` | Unix milliseconds. Changes the timestamp shown in the app; defaults to when the server receives the request. |
 | `is_critical` | Breaks through Focus. The key must also be marked Critical in the app, or an ordinary notification is delivered and the response carries a `warnings` array. |
 

@@ -42,7 +42,7 @@ Accept-Language: en-GB
 
 ## Parameters
 
-`key` is required unless the request carries a bearer token. An image is fetched server-side and must be `https`, PNG, JPEG or GIF, 5 MB at most.
+`key` is required unless the request carries a bearer token.
 
 | Name | Type | Required | Limit | Description |
 | --- | --- | --- | --- | --- |
@@ -50,7 +50,7 @@ Accept-Language: en-GB
 | `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
 | `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. A longer body is delivered cropped, with a warning. |
 | `link` | string (uri) | optional | `≤ 2,048 chars` | A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden. |
-| `image` | string (uri) | optional | `≤ 2,048 chars` | https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives. |
+| `image` | string (uri) | optional | `≤ 2,048 chars` | URL of an image shown with the notification. Fetched by the receiving device, never by the server; by default the app loads it only when tapped. |
 | `occurred_at` | integer | optional | `unix ms` | When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request. |
 | `is_critical` | boolean | optional | — | Breaks through Focus. The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array. |
 
@@ -104,7 +104,7 @@ Retry-After: 42
 {"error":{"code":"rate_limited","message":"Too many notifications. Try again shortly."}}
 ```
 
-A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert delivered as an ordinary notification. The status is still `202` — the notification was sent, in the altered form each warning describes.
+A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, or a critical alert delivered as an ordinary notification. The status is still `202` — the notification was sent, in the altered form each warning describes.
 
 ```http
 HTTP/1.1 202 Accepted
@@ -113,9 +113,9 @@ Content-Type: application/json; charset=utf-8
 {"ok":true,"warnings":["Sent with a shortened title: it was over 200 characters.","Sent as a normal notification: critical alerts are switched off for this key."]}
 ```
 
-### Over-length text is cropped, invalid images dropped
+### Over-length text is cropped
 
-A title over 200 characters or a body over 16000 is delivered cropped, with a warning. An image that cannot be fetched, is not a PNG, JPEG or GIF, or is over 5 MB is dropped the same way: the notification arrives without it, with a warning. The device can refuse instead: **Reject invalid sends**, in the app's Settings, makes a send that would have been cropped or stripped answer `422 invalid_content` and store nothing. It is off by default, so cropping is what a send meets unless the person holding the device turned it on.
+A title over 200 characters or a body over 16000 is delivered cropped, with a warning. The device can refuse instead: **Reject invalid sends**, in the app's Settings, makes a send that would have been cropped answer `422 invalid_content` and store nothing. It is off by default, so cropping is what a send meets unless the person holding the device turned it on.
 
 ![The Settings screen, showing the Reject invalid sends switch turned off.](/shots/settings-reject-invalid-sends.png)
 

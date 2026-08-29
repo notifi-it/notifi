@@ -231,12 +231,11 @@
         "name": "image",
         "in": "query",
         "required": false,
-        "description": "https URL of a PNG, JPEG or GIF up to 5 MB.",
+        "description": "URL of an image shown with the notification.",
         "schema": {
           "type": "string",
           "maxLength": 2048,
-          "format": "uri",
-          "pattern": "^https://"
+          "format": "uri"
         },
         "example": "https://notifi.it/anaglyph-bell.png"
       },
@@ -306,8 +305,7 @@
             "type": "string",
             "maxLength": 2048,
             "format": "uri",
-            "pattern": "^https://",
-            "description": "https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives.",
+            "description": "URL of an image shown with the notification. Fetched by the receiving device, never by the server; by default the app loads it only when tapped.",
             "examples": [
               "https://notifi.it/anaglyph-bell.png"
             ]
@@ -340,7 +338,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert delivered as an ordinary notification."
+            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body, or a critical alert delivered as an ordinary notification."
           }
         }
       },

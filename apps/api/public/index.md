@@ -55,7 +55,7 @@ parameter.
 - `title` — required, 1 to 200 characters.
 - `message` — the body, Markdown, up to 16,000 characters.
 - `link` — a link to a website or internal app, up to 2,048 characters.
-- `image` — `https` URL to a PNG, JPEG or GIF, 5 MB max.
+- `image` — URL of an image shown with the notification, up to 2,048 characters.
 - `occurred_at` — unix milliseconds; changes the timestamp shown in the app.
 - `is_critical` — breaks through Focus, if the key allows it.
 

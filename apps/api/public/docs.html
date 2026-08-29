@@ -527,8 +527,6 @@ Accept-Language: en-GB
     <h2>Parameters</h2>
     <p>
       <code>key</code> is required unless the request carries a bearer token.
-      An image is fetched server-side and must be <code>https</code>, PNG, JPEG or GIF,
-      5&nbsp;MB at most.
     </p>
     <div class="tablewrap" tabindex="0" role="group" aria-label="Send parameters, scrollable">
       <table>
@@ -569,7 +567,7 @@ Accept-Language: en-GB
             <td>string (uri)</td>
             <td>optional</td>
             <td><code>≤ 2,048 chars</code></td>
-            <td>https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives.</td>
+            <td>URL of an image shown with the notification. Fetched by the receiving device, never by the server; by default the app loads it only when tapped.</td>
           </tr>
           <tr>
             <td><code>occurred_at</code></td>
@@ -645,7 +643,7 @@ Retry-After: 42
     </div>
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
-      differently from what was asked: a cropped title or body, a dropped image, or a critical
+      differently from what was asked: a cropped title or body, or a critical
       alert delivered as an ordinary notification. The status is still <code>202</code> — the
       notification was sent, in the altered form each warning describes.
     </p>
@@ -654,13 +652,11 @@ Content-Type: application/json; charset=utf-8
 
 {&quot;ok&quot;:true,&quot;warnings&quot;:[&quot;Sent with a shortened title: it was over 200 characters.&quot;,&quot;Sent as a normal notification: critical alerts are switched off for this key.&quot;]}</pre>
 
-    <h3>Over-length text is cropped, invalid images dropped</h3>
+    <h3>Over-length text is cropped</h3>
     <p>
       A title over 200 characters or a body over 16000 is delivered cropped,
-      with a warning. An image that cannot be fetched, is not a PNG, JPEG or GIF, or is over
-      5 MB is dropped the same way: the notification arrives without it, with a
-      warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
-      the app's Settings, makes a send that would have been cropped or stripped answer
+      with a warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
+      the app's Settings, makes a send that would have been cropped answer
       <code>422 invalid_content</code> and store nothing. It is off by default, so cropping is
       what a send meets unless the person holding the device turned it on.
     </p>

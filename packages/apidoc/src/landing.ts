@@ -1,6 +1,5 @@
 import {
   ENDPOINT,
-  IMAGE_MAX_MB,
   MESSAGE_MAX,
   ORIGIN,
   TITLE_MAX,
@@ -51,7 +50,7 @@ const NOTES: Record<string, string> = {
   title: `The notification title. Up to ${TITLE_MAX} characters.`,
   message: `The notification body. Markdown, up to ${MESSAGE_MAX.toLocaleString('en-GB')} characters.`,
   link: `A link to a website or internal app. Up to ${URL_MAX.toLocaleString('en-GB')} characters.`,
-  image: `Image displayed with the notification. Must be <code>https</code>. PNG, JPEG or GIF, ${IMAGE_MAX_MB}&nbsp;MB max, URL up to ${URL_MAX.toLocaleString('en-GB')} characters.`,
+  image: `Image displayed with the notification. URL up to ${URL_MAX.toLocaleString('en-GB')} characters.`,
   occurred_at:
     '<a href="https://currentmillis.com" class="src">Unix milliseconds</a>. Changes the timestamp shown in the app; defaults to when we receive the request.',
   is_critical:
