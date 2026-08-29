@@ -46,7 +46,7 @@ CPROMPT=['Build an app to send notifications over HTTP',
 CREPLY='It already exists. Check your phone.'
 
 PASSES=[
- dict(title='run.sh — -zsh',head=('Get a push notification to your device','from anything that can make an HTTP request.'),
+ dict(title='run.sh — -zsh',head=('One key per device.','Each iPhone, iPad or Mac gets its own key.'),
   typed=True,
   lines=['<span class="c">$</span> curl notifi.it/send \\',
          '    -d key=<span class="k">nk_live_8f3a</span> \\','    -d title=<span class="s">"Hello from notifi"</span> \\',
@@ -54,7 +54,7 @@ PASSES=[
          '    -d link=<span class="s">https://notifi.it/docs</span> \\',
          '    -d image=<span class="s">https://notifi.it/anaglyph-bell.png</span>'],
   card=('Hello from notifi','Your first notification.'),thumb=ANAGLYPH,cardpos='left:73.5%;top:45.5%;width:22%',sb=PD_SB+PD_LOCK,clip=None),
- dict(title='claude — ~/notifi',head=('One key per device.','Each iPhone, iPad or Mac gets its own key.'),
+ dict(title='claude — ~/notifi',head=('Get a push notification to your device','from anything that can make an HTTP request.'),
   claude=True,lines=[],
   card=('Claude Finished','No mistakes made.'),cardpos='left:73.5%;top:42.2%;width:15%',sb=PH_SB+PH_LOCK,clip=None),
  dict(title='train.py — -zsh',head=('No signup, just HTTP.','Install the app, copy your key, start sending.'),
