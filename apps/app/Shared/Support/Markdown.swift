@@ -36,7 +36,7 @@ private struct GeistStructuredStyle: StructuredText.Style {
             .code(.font(.custom("Recursive Mono", size: 13)),
                   .foregroundColor(Theme.fg),
                   .backgroundColor(Theme.surface))
-            .strong(.fontWeight(.semibold), .foregroundColor(Theme.fg))
+            .strong(.fontWeight(.bold))
             .link(.foregroundColor(Theme.fg), .underlineStyle(.single))
             .strikethrough(.strikethroughStyle(Text.LineStyle(pattern: .solid, color: Theme.brand)),
                            .foregroundColor(Theme.brandDim))

@@ -87,6 +87,7 @@ enum SampleData {
     static func applyLaunchOverrides(context: ModelContext, model: AppModel) {
         guard isEnabled else { return }
         if let appearance = launchAppearance { model.appearance = appearance }
+        model.remoteImagesEnabled = true
         seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
     }
 
