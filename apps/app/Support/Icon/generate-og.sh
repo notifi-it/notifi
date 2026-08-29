@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
 # The link-preview banner (apps/api/public/og.png): the website hero's
-# scribbled bell as a still, 1200x630, nothing else on the card.
+# scribbled bell as a still, 2400x1260 — the og card's 1200x630 at 2x, so
+# the thin hatch strokes survive retina previews — nothing else on the card.
 #
 # The strokes are dealt the way the hero deals them — a grid of seeds over
 # the glyph's coverage, one thin hatch line per seed at a random angle,
@@ -39,7 +40,7 @@ dot_u = (float(c.group(1)) - vb[0]) / vb[2]
 dot_v = (float(c.group(2)) - vb[1]) / vb[3]
 dot_r = float(c.group(3)) / vb[2]
 
-W, H = 2400, 1260
+W, H = 4800, 2520
 SIZE = H * 0.72
 GX, GY = W / 2 - SIZE / 2, H / 2 - SIZE / 2
 INK, RED, BG = "#EDEDED", "#DB4A4B", "#1C1C1E"
@@ -86,7 +87,7 @@ open(out_svg, "w").write(
     % (W, H, W, H, mask, W, H, BG, "\n".join(lines)))
 PY
 
-rsvg-convert -w 2400 -h 1260 "$TMP/og.svg" -o "$TMP/og-2x.png"
+rsvg-convert -w 4800 -h 2520 "$TMP/og.svg" -o "$TMP/og-2x.png"
 
 # The grain the site's surfaces carry, then the 2x render folded down to the
 # shipped size so the strokes keep their antialiasing through the platforms'
@@ -105,7 +106,7 @@ for x in range(0, img.size[0], 300):
     for y in range(0, img.size[1], 300):
         noise.paste(tile, (x, y))
 img = Image.blend(img, noise.convert("RGB"), 0.055)
-img = img.resize((1200, 630), Image.LANCZOS)
+img = img.resize((2400, 1260), Image.LANCZOS)
 img.save(out, optimize=True)
-print("  wrote %s (1200x630)" % out)
+print("  wrote %s (2400x1260)" % out)
 PY
