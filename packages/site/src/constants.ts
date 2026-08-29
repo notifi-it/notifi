@@ -21,7 +21,7 @@ export const SOCIAL: Social[] = [
 export const THEME_COLOR = '#1C1C1E';
 export const OG_IMAGE = `${ORIGIN}/og.png`;
 export const OG_IMAGE_ALT =
-  'One HTTP request to notifi.it, and a push notification lands on your iPhone.';
+  'The notifi bell, sketched in thin hatched strokes with a red dot.';
 
 export const ORG_DESCRIPTION =
   "notifi delivers a push notification to an iPhone, iPad or Mac from one HTTP request. No account, no SDK, and notification content is encrypted with the device's public key.";
