@@ -35,8 +35,9 @@ function report(args: readonly unknown[]): void {
     const tags: Record<string, string> = {};
     const context: Record<string, unknown> = {};
     for (const [field, value] of Object.entries(detail)) {
+      if (isIdentifier(field)) continue;
       const scalar = typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
-      if (scalar && !isIdentifier(field)) tags[field] = tagValue(value);
+      if (scalar) tags[field] = tagValue(value);
       else context[field] = value;
     }
     tags.event = key;
