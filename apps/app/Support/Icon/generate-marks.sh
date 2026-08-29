@@ -247,11 +247,11 @@ def favicon_ink(colour):
         outline.replace(BRAND, colour).replace("<path", '<path class="ink"', 1),
     ))
 
-svg("%s/favicon.svg" % web, 32, 32, logo_box, favicon_ink("#EDEDED"),
-    note="\n\n       White ink in both tab themes, matching the site's own dark ground;\n"
-         "       the bell is never drawn black anywhere else either.")
+svg("%s/favicon.svg" % web, 32, 32, logo_box, favicon_ink("#BC2122"),
+    note="\n\n       All brand red, badge included: at 16px a tab icon is one shape, and\n"
+         "       one saturated colour survives that better than a two-tone mark.")
 
-svg("%s/favicon-flat.svg" % TMP, 32, 32, logo_box, mark(logo_box, "#EDEDED", "#BC2122"))
+svg("%s/favicon-flat.svg" % TMP, 32, 32, logo_box, mark(logo_box, "#BC2122", "#BC2122"))
 
 plate = ('  <rect width="32" height="32" rx="7" fill="#1C1C1E"/>\n'
          '  <g transform="translate(16 16) scale(0.78) translate(-16 -16)">\n'
