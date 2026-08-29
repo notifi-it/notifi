@@ -207,8 +207,7 @@ struct MessageDetailView: View {
 
             if let annotated {
                 MarkdownText(source: annotated.body, allowAnyScheme: anyScheme,
-                             allowsRemoteImages: showsImage,
-                             critical: message.isCritical)
+                             allowsRemoteImages: showsImage)
                     .padding(.top, 16)
             }
         }

@@ -5,7 +5,6 @@ struct MarkdownText: View {
     let source: String
     let allowAnyScheme: Bool
     var allowsRemoteImages: Bool = false
-    var critical: Bool = false
 
     var body: some View {
         Group {
@@ -27,19 +26,17 @@ struct MarkdownText: View {
         StructuredText(markdown: source)
             .font(.custom("Karla", size: 15))
             .foregroundStyle(Theme.muted)
-            .textual.structuredTextStyle(GeistStructuredStyle(critical: critical))
+            .textual.structuredTextStyle(GeistStructuredStyle())
     }
 }
 
 private struct GeistStructuredStyle: StructuredText.Style {
-    let critical: Bool
-
     var inlineStyle: InlineStyle {
         InlineStyle()
             .code(.font(.custom("Recursive Mono", size: 13)),
                   .foregroundColor(Theme.fg),
                   .backgroundColor(Theme.surface))
-            .strong(.fontWeight(.semibold), .foregroundColor(critical ? Theme.brandDim : Theme.fg))
+            .strong(.fontWeight(.semibold), .foregroundColor(Theme.fg))
             .link(.foregroundColor(Theme.fg), .underlineStyle(.single))
             .strikethrough(.strikethroughStyle(Text.LineStyle(pattern: .solid, color: Theme.brand)),
                            .foregroundColor(Theme.brandDim))

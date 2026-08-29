@@ -175,7 +175,7 @@ enum SampleData {
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
             ("Autoscaler added six nodes in eu-west-2 after the morning traffic spike pushed queue depth past the ceiling",
              """
-             Queue depth peaked at **2.4×** the ceiling at 07:41. Capacity holds at 84% with no dropped sends.
+             Queue depth peaked at **2.4x** the ceiling at 07:41. Capacity holds at 84% with no dropped sends.
 
              | Pool | Nodes | Queue |
              | --- | --- | --- |
