@@ -240,7 +240,8 @@ def frame(shot_name, title, desc, out_name):
     publish(canvas.convert("RGB"), f"{OUT}/{out_name}", "PNG")
 
 
-frame("inbox.png", CAPTIONS["inboxTitle"], CAPTIONS["inboxBody"], "01_inbox.png")
+INBOX_TITLE = CAPTIONS["inboxTitleIpad"] if os.environ.get("IPAD") else CAPTIONS["inboxTitle"]
+frame("inbox.png", INBOX_TITLE, CAPTIONS["inboxBody"], "01_inbox.png")
 frame("detail.png", CAPTIONS["messageTitle"], CAPTIONS["messageBody"], "02_message.png")
 frame("keys.png", CAPTIONS["keysTitle"], CAPTIONS["keysBody"], "03_keys.png")
 

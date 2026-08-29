@@ -369,6 +369,7 @@ export const it: Translation = {
     'schermata di blocco.\n',
   'store.releaseNotes': 'Bug fixes and performance improvements.\n',
   'store.shotInboxTitle': 'Una richiesta.\nDritta in tasca.',
+  'store.shotInboxTitleIpad': 'Una richiesta.\nDritta sui tuoi dispositivi.',
   'store.shotInboxBody':
     'Notifiche push per i tuoi script e server. Una richiesta HTTP a notifi.it e arriva un ' +
     'momento dopo. Niente account.',

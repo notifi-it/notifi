@@ -199,12 +199,6 @@ enum SampleData {
              | send-api | 782 ms | 214 ms |
              | keys | 240 ms | 236 ms |
              | delivery | 198 ms | 201 ms |
-
-             Connection pool saturation on the primary, not the app tier.
-
-             > Auto-scaling is held until 08:00 while the migration drains.
-
-             [Open the dashboard](https://grafana.internal/d/api-latency)
              """,
              "\(demo)/latency.png",
              "https://grafana.internal/d/api-latency", 9, false),

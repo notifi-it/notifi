@@ -834,6 +834,83 @@ section{padding:clamp(48px,7vw,86px) 0}
    scene stacks instead: the film carries a portrait layout of its own below
    this width, and the figure has to stop imposing a landscape box on it. */
 @media(max-width:760px){.app-film{aspect-ratio:10/16;margin:24px calc(50% - 50vw)}}
+
+/* ── the two shots under the film ───────────────────────────── */
+/* An unnumbered head: same shape as .section-head, but outside its class so
+   the counting script never sees it and the denominator stays honest. */
+.sub-head{display:flex;align-items:center;gap:14px;margin:64px 0 26px}
+.sub-head .eyebrow{color:var(--fg-soft)}
+.sub-head .rule{flex:1}
+.app-two{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(24px,4.5vw,56px);align-items:center;
+}
+.app-phone{margin:0;order:2}
+/* The frame copies the film's phone (viewBox 428x900): bezel 13/428, outer
+   radius 75/428, screen radius 62/428. The wrapper exists so cqw equals the
+   device's own width and the ratios hold at every size. */
+.app-phone .phone-fit{width:min(340px,100%);margin:0 auto;container-type:inline-size}
+.app-phone .phone{
+  border:1px solid #9A9A98;
+  background:linear-gradient(160deg,#E8E8E6,#C9C9C7);
+  border-radius:17.5cqw;
+  padding:2cqw;
+}
+.app-phone img{width:100%;height:auto;display:block;border-radius:15.5cqw}
+.app-phone figcaption{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  margin-top:10px;text-align:center;
+}
+.app-two .mac{width:100%;max-width:440px;margin:0 auto}
+.app-two .mac-shot{width:min(360px,92%)}
+.app-two .mac figcaption{margin-top:10px;text-align:center}
+
+/* ── the Mac, hanging from its menu bar ─────────────────────── */
+/* Same construction as the iOS shot — hairline border, surface ground — but
+   the popover is shown attached to the thing that anchors it. The bar is drawn
+   in HTML rather than captured, so it carries no real desktop; the bell sits
+   dead centre because the popover's arrow is at the centre of the screenshot
+   below it, and the two must line up or the figure reads as broken. */
+/* The bar copies the film's Mac at the aspect it is seen at: in the film the
+   bar (50 units) sits beside a 708-unit notification card, and here it sits
+   beside the popover, so the bar is 50/708 of the popover's width and every
+   glyph keeps the film's glyph-to-bar ratio. */
+.mac{margin:34px 0 0;max-width:520px;container-type:inline-size}
+.mac-desk{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+/* The film's .sbar.mb rules verbatim, every cqw doubled: the film sizes its
+   bar against the whole Mac screen, this desk stands in for only the popover's
+   corner of it, and x2 lands the bar at the height the film shows next to its
+   notification card. */
+.mac-bar{
+  position:relative;display:flex;align-items:center;justify-content:space-between;
+  height:5.83cqw;padding:0 2.9cqw;border-bottom:1px solid var(--line);
+  font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:600;color:var(--fg);
+}
+.mac-bar .bell{position:absolute;left:50%;transform:translateX(-50%);color:var(--fg)}
+.mac-wifi{display:block;width:4.6cqw;height:auto;color:var(--fg)}
+.mac-apple{width:5.06cqw;height:5.06cqw;display:block;fill:var(--fg);opacity:.85;flex:none;color:var(--fg)}
+.mac-status{display:flex;align-items:center;gap:2.85cqw;color:var(--fg)}
+.mac-batt{display:block;width:6.44cqw;height:auto}
+.mac-clock{
+  font-size:3.13cqw;font-weight:400;
+  margin-left:0.92cqw;font-variant-numeric:tabular-nums;
+}
+.mac-shot{display:block;width:min(460px,94%);height:auto;margin:0 auto}
+.mac figcaption{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
+/* The launch gif's Mac, minus its wallpaper: the popover is cut out of its
+   black field (mac-cut.webp) and hangs over the page's own grainy ground,
+   under a frosted bar. The shadow follows the popover's alpha, arrow and
+   all — the one place the site casts a shadow, because a popover without
+   one reads as a flat card, not a thing hanging from the bar. */
+.mac-wall .mac-desk{background:transparent}
+.mac-wall .mac-bar{background:rgba(28,28,30,0.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,0.06)}
+.mac-wall .mac-shot{padding:0 0 26px;filter:drop-shadow(0 18px 36px rgba(0,0,0,0.55))}
+/* One under the other on a phone: side by side, each shot is half a narrow
+   column and neither reads. The film runs full-bleed there, so the sub-head
+   marks the pair's start and the figures keep daylight between them. */
+@media(max-width:760px){
+  .app-two{grid-template-columns:minmax(0,1fr);row-gap:48px}
+}
 /* The portrait layout stands the phone taller than the stage, so its frame met
    the bottom edge as a cut rather than an end. The fade lands below the
    notification card and finishes before the crop; the iPad and Mac scenes fit
@@ -1194,7 +1271,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             <rect class="gf-o" x="0" y="0" width="1292" height="916" rx="42"/>
             <rect class="gf-scr" x="41" y="41" width="1210" height="834" rx="18"/>
             <circle class="gf-dot" cx="646" cy="20" r="5"/>
-          </svg><div class="gf-sbar" style="left:7.5%;right:7.5%;top:5.4%;height:4.2%;--fs:1.769"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic gf-st" style="--w:2.803"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="gf-fl"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:4.324"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13%"><div class="gf-ldate" data-clock="date" style="--fs:1.474">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:7.985">10:24</div></div></div>
+          </svg><div class="gf-sbar" style="left:7.5%;right:7.5%;top:5.4%;height:4.2%;--fs:1.769"><span></span><span class="gf-icons"><svg viewBox="2 9 52 38" class="gf-ic" style="--w:2.803"><path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:4.324"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13%"><div class="gf-ldate" data-clock="date" style="--fs:1.474">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:7.985">10:24</div></div></div>
       <div class="gf-dev gf-dv1"><svg viewBox="0 0 428 900">
             <mask id="gfPhoneCut"><rect x="-20" y="-20" width="468" height="940" fill="#fff"/><rect x="151.5" y="24" width="125" height="37" rx="18.5" fill="#000"/></mask>
             <g mask="url(#gfPhoneCut)">
@@ -1202,7 +1279,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             <rect class="gf-scr" x="13" y="13" width="402" height="874" rx="62"/>
             </g>
             <rect class="gf-dot" x="145.5" y="870" width="137" height="5" rx="2.5"/>
-          </svg><div class="gf-sbar gf-ph" style="left:7%;right:7%;top:2.3%;height:4.6%;--fs:5.946"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic" style="--w:5.784"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg><svg viewBox="0 0 25 18" class="gf-ic gf-st" style="--w:5.676"><path d="M2.2 6.4a15.5 15.5 0 0 1 20.6 0"/><path d="M5.9 10.4a10 10 0 0 1 13.2 0"/><path d="M9.6 14.2a4.6 4.6 0 0 1 5.8 0"/><circle cx="12.5" cy="16.6" r="1.4" class="gf-fl"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:8.757"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13.5%"><div class="gf-ldate" data-clock="date" style="--fs:4.649">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:24.595">10:24</div></div></div>
+          </svg><div class="gf-sbar gf-ph" style="left:7%;right:7%;top:2.3%;height:4.6%;--fs:5.946"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic" style="--w:5.784"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg><svg viewBox="2 9 52 38" class="gf-ic" style="--w:5.676"><path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:8.757"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13.5%"><div class="gf-ldate" data-clock="date" style="--fs:4.649">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:24.595">10:24</div></div></div>
       <div class="gf-dev gf-dv2"><svg viewBox="0 0 1640 1040">
             <mask id="gfMacCut"><rect x="-20" y="-20" width="1680" height="1080" fill="#fff"/><path d="M 727.5 32 L 727.5 65 Q 727.5 85 747.5 85 L 892.5 85 Q 912.5 85 912.5 65 L 912.5 32 Z" fill="#000"/></mask>
             <g mask="url(#gfMacCut)">
@@ -1249,6 +1326,43 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </script>
 <!-- gf:html:end -->
     </figure>
+
+    <div class="sub-head">
+      <p class="eyebrow">On the device</p><hr class="rule">
+    </div>
+
+    <div class="app-two">
+      <figure class="app-phone">
+        <div class="phone-fit"><div class="phone">
+          <img src="/screens/detail.webp" width="620" height="1348" loading="lazy"
+               alt="A notification opened on iPhone: a latency alert with its chart and a table of stages, rendered from Markdown.">
+        </div></div>
+        <figcaption>A notification. The body is Markdown: headings, tables, images and code, rendered on the device. Attach a main image and a link.</figcaption>
+      </figure>
+      <figure class="mac mac-wall">
+        <div class="mac-desk">
+          <div class="mac-bar" aria-hidden="true">
+            <svg class="mac-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+            <span class="bell" style="--bell:3.7cqw"></span>
+            <span class="mac-status">
+              <svg class="mac-wifi" viewBox="2 9 52 38" fill="currentColor">
+                <path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/>
+              </svg>
+              <svg class="mac-batt" viewBox="0 0 30 14" fill="currentColor">
+                <rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none"
+                      stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/>
+                <path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/>
+                <rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/>
+              </svg>
+              <span class="mac-clock">Sat 29 Aug 14:07</span>
+            </span>
+          </div>
+          <img class="mac-shot" src="/screens/mac-cut.webp" width="840" height="1296" loading="lazy"
+               alt="The inbox hanging from the Mac menu bar: the bell sits in the bar and the popover beneath it lists the day's notifications, the urgent one in red.">
+        </div>
+        <figcaption>The inbox, from the Mac menu bar. The only place a notification permanently rests.</figcaption>
+      </figure>
+    </div>
 
   </div>
 </section>

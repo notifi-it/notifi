@@ -69,6 +69,7 @@ export const copy = {
     releaseNotes: 'Bug fixes and performance improvements.\n',
 
     shotInboxTitle: 'One request.\nStraight to your pocket.',
+    shotInboxTitleIpad: 'One request.\nStraight to your devices.',
     shotInboxBody:
       'Push notifications for your scripts and servers. One HTTP request to notifi.it and ' +
       'it arrives a moment later. No account.',
