@@ -244,7 +244,7 @@ private struct BandHeader: View {
                 .foregroundStyle(Theme.dim)
                 .monospacedDigit()
         }
-        .padding(.top, isFirst ? 0 : 26)
+        .padding(.top, isFirst ? 0 : 16)
         .padding(.bottom, 10)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Copy.Inbox.bandLabel(title, Copy.Inbox.count(count)))

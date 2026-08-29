@@ -360,6 +360,7 @@ export const fr: Translation = {
     "l'écran verrouillé.\n",
   'store.releaseNotes': 'Bug fixes and performance improvements.\n',
   'store.shotInboxTitle': 'Une requête.\nDroit dans votre poche.',
+  'store.shotInboxTitleIpad': 'Une requête.\nDroit sur vos appareils.',
   'store.shotInboxBody':
     'Notifications push pour vos scripts et serveurs. Une requête HTTP vers notifi.it et ' +
     'elle arrive un instant plus tard. Pas de compte, pas de SDK.',

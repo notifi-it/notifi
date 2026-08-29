@@ -1,6 +1,7 @@
 {
   "en-GB": {
     "inboxTitle": "One request.\nStraight to your pocket.",
+    "inboxTitleIpad": "One request.\nStraight to your devices.",
     "inboxBody": "Push notifications for your scripts and servers. One HTTP request to notifi.it and it arrives a moment later. No account, no SDK.",
     "messageTitle": "Images, links,\nMarkdown.",
     "messageBody": "A title, a body, an image and a link. Headings, lists, quotes and code blocks are rendered on the device. Encrypted with your public key, so we cannot read your notifications.",
@@ -9,6 +10,7 @@
   },
   "es-ES": {
     "inboxTitle": "Una solicitud.\nDirecto a tu bolsillo.",
+    "inboxTitleIpad": "Una solicitud.\nDirecto a tus dispositivos.",
     "inboxBody": "Notificaciones push para tus scripts y servidores. Una solicitud HTTP a notifi.it y llega un momento después. Sin cuenta, sin SDK.",
     "messageTitle": "Imágenes, enlaces,\nMarkdown.",
     "messageBody": "Un título, un cuerpo, una imagen y un enlace. Encabezados, listas, citas y bloques de código se muestran en el dispositivo. Cifrado con tu clave pública, así que no podemos leer tus notificaciones.",
@@ -17,6 +19,7 @@
   },
   "de-DE": {
     "inboxTitle": "Eine Anfrage.\nDirekt in deine Tasche.",
+    "inboxTitleIpad": "Eine Anfrage.\nDirekt auf deine Geräte.",
     "inboxBody": "Push-Benachrichtigungen für deine Skripte und Server. Eine HTTP-Anfrage an notifi.it, und sie kommt einen Moment später an. Kein Account, kein SDK.",
     "messageTitle": "Bilder, Links,\nMarkdown.",
     "messageBody": "Ein Titel, ein Text, ein Bild und ein Link. Überschriften, Listen, Zitate und Code-Blöcke werden auf dem Gerät gerendert. Mit deinem öffentlichen Schlüssel verschlüsselt, sodass wir deine Benachrichtigungen nicht lesen können.",
@@ -25,6 +28,7 @@
   },
   "fr-FR": {
     "inboxTitle": "Une requête.\nDroit dans votre poche.",
+    "inboxTitleIpad": "Une requête.\nDroit sur vos appareils.",
     "inboxBody": "Notifications push pour vos scripts et serveurs. Une requête HTTP vers notifi.it et elle arrive un instant plus tard. Pas de compte, pas de SDK.",
     "messageTitle": "Images, liens,\nMarkdown.",
     "messageBody": "Un titre, un corps, une image et un lien. Titres, listes, citations et blocs de code sont rendus sur l'appareil. Chiffré avec votre clé publique, nous ne pouvons donc pas lire vos notifications.",
@@ -33,6 +37,7 @@
   },
   "it": {
     "inboxTitle": "Una richiesta.\nDritta in tasca.",
+    "inboxTitleIpad": "Una richiesta.\nDritta sui tuoi dispositivi.",
     "inboxBody": "Notifiche push per i tuoi script e server. Una richiesta HTTP a notifi.it e arriva un momento dopo. Niente account, niente SDK.",
     "messageTitle": "Immagini, link,\nMarkdown.",
     "messageBody": "Un titolo, un corpo, un'immagine e un link. Titoli, elenchi, citazioni e blocchi di codice sono renderizzati sul dispositivo. Cifrato con la tua chiave pubblica, quindi non possiamo leggere le tue notifiche.",

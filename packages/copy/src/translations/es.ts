@@ -368,6 +368,7 @@ export const es: Translation = {
     'pantalla de bloqueo.\n',
   'store.releaseNotes': 'Bug fixes and performance improvements.\n',
   'store.shotInboxTitle': 'Una solicitud.\nDirecto a tu bolsillo.',
+  'store.shotInboxTitleIpad': 'Una solicitud.\nDirecto a tus dispositivos.',
   'store.shotInboxBody':
     'Notificaciones push para tus scripts y servidores. Una solicitud HTTP a notifi.it y llega un ' +
     'momento después. Sin cuenta, sin SDK.',

@@ -832,6 +832,76 @@ section{padding:clamp(48px,7vw,86px) 0}
    scene stacks instead: the film carries a portrait layout of its own below
    this width, and the figure has to stop imposing a landscape box on it. */
 @media(max-width:760px){.app-film{aspect-ratio:10/16;margin:24px calc(50% - 50vw)}}
+
+/* ── the two shots under the film ───────────────────────────── */
+.app-two{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(24px,4.5vw,56px);align-items:center;margin-top:30px;
+}
+.app-phone{margin:0}
+/* The frame copies the film's phone (viewBox 428x900): bezel 13/428, outer
+   radius 75/428, screen radius 62/428. The wrapper exists so cqw equals the
+   device's own width and the ratios hold at every size. */
+.app-phone .phone-fit{width:min(340px,100%);margin:0 auto;container-type:inline-size}
+.app-phone .phone{
+  border:1px solid #9A9A98;
+  background:linear-gradient(160deg,#E8E8E6,#C9C9C7);
+  border-radius:17.5cqw;
+  padding:3.04cqw;
+}
+.app-phone img{width:100%;height:auto;display:block;border-radius:14.5cqw}
+.app-phone figcaption{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  margin-top:10px;text-align:center;
+}
+.app-two .mac{width:100%;max-width:440px;margin:0 auto}
+.app-two .mac-shot{width:min(360px,92%)}
+.app-two .mac figcaption{margin-top:10px;text-align:center}
+
+/* ── the Mac, hanging from its menu bar ─────────────────────── */
+/* Same construction as the iOS shot — hairline border, surface ground — but
+   the popover is shown attached to the thing that anchors it. The bar is drawn
+   in HTML rather than captured, so it carries no real desktop; the bell sits
+   dead centre because the popover's arrow is at the centre of the screenshot
+   below it, and the two must line up or the figure reads as broken. */
+/* The bar copies the film's Mac at the aspect it is seen at: in the film the
+   bar (50 units) sits beside a 708-unit notification card, and here it sits
+   beside the popover, so the bar is 50/708 of the popover's width and every
+   glyph keeps the film's glyph-to-bar ratio. */
+.mac{margin:34px 0 0;max-width:520px;container-type:inline-size}
+.mac-desk{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+/* The film's .sbar.mb rules verbatim, every cqw doubled: the film sizes its
+   bar against the whole Mac screen, this desk stands in for only the popover's
+   corner of it, and x2 lands the bar at the height the film shows next to its
+   notification card. */
+.mac-bar{
+  position:relative;display:flex;align-items:center;justify-content:space-between;
+  height:5.83cqw;padding:0 2.9cqw;border-bottom:1px solid var(--line);
+  font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:600;color:var(--fg);
+}
+.mac-bar .bell{color:var(--fg);transform:translateY(-0.04cqw)}
+.mac-apple{width:5.06cqw;height:5.06cqw;display:block;fill:var(--fg);opacity:.85;flex:none;color:var(--fg)}
+.mac-status{display:flex;align-items:center;gap:2.85cqw;color:var(--fg)}
+.mac-batt{display:block;width:6.44cqw;height:auto}
+.mac-clock{
+  font-size:3.13cqw;font-weight:400;color:var(--muted);
+  margin-left:0.92cqw;font-variant-numeric:tabular-nums;
+}
+.mac-shot{display:block;width:min(460px,94%);height:auto;margin:0 auto}
+.mac figcaption{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
+/* The launch gif's Mac, minus its wallpaper: the popover is cut out of its
+   black field (mac-cut.webp) and hangs over the page's own grainy ground,
+   under a frosted bar. The shadow follows the popover's alpha, arrow and
+   all — the one place the site casts a shadow, because a popover without
+   one reads as a flat card, not a thing hanging from the bar. */
+.mac-wall .mac-desk{background:transparent}
+.mac-wall .mac-bar{background:rgba(28,28,30,0.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,0.06)}
+.mac-wall .mac-shot{padding:0 0 26px;transform:translateX(6.43cqw);filter:drop-shadow(0 18px 36px rgba(0,0,0,0.55))}
+/* One under the other on a phone: side by side, each shot is half a narrow
+   column and neither reads. */
+@media(max-width:760px){
+  .app-two{grid-template-columns:minmax(0,1fr)}
+}
 /* The portrait layout stands the phone taller than the stage, so its frame met
    the bottom edge as a cut rather than an end. The fade lands below the
    notification card and finishes before the crop; the iPad and Mac scenes fit
@@ -1247,6 +1317,36 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </script>
 <!-- gf:html:end -->
     </figure>
+
+    <div class="app-two">
+      <figure class="app-phone">
+        <div class="phone-fit"><div class="phone">
+          <img src="/screens/detail.webp" width="620" height="1348" loading="lazy"
+               alt="A notification opened on iPhone: a latency alert with its chart and a table of stages, rendered from Markdown.">
+        </div></div>
+        <figcaption>A notification. The body is Markdown: headings, tables, images and code, rendered on the device. Attach a main image and a link.</figcaption>
+      </figure>
+      <figure class="mac mac-wall">
+        <div class="mac-desk">
+          <div class="mac-bar" aria-hidden="true">
+            <svg class="mac-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+            <span class="mac-status">
+              <span class="bell" style="--bell:3.7cqw"></span>
+              <svg class="mac-batt" viewBox="0 0 30 14" fill="currentColor">
+                <rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none"
+                      stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/>
+                <path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/>
+                <rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/>
+              </svg>
+              <span class="mac-clock">Sat 29 Aug 14:07</span>
+            </span>
+          </div>
+          <img class="mac-shot" src="/screens/mac-cut.webp" width="840" height="1296" loading="lazy"
+               alt="The inbox hanging from the Mac menu bar: the bell sits in the bar and the popover beneath it lists the day's notifications, the urgent one in red.">
+        </div>
+        <figcaption>The inbox, from the Mac menu bar. The only place a notification permanently rests.</figcaption>
+      </figure>
+    </div>
 
   </div>
 </section>

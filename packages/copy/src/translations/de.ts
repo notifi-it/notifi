@@ -65,6 +65,7 @@ export const de: Translation = {
     'den Fokus und landen auf dem Sperrbildschirm.\n',
   'store.releaseNotes': 'Bug fixes and performance improvements.\n',
   'store.shotInboxTitle': 'Eine Anfrage.\nDirekt in deine Tasche.',
+  'store.shotInboxTitleIpad': 'Eine Anfrage.\nDirekt auf deine Geräte.',
   'store.shotInboxBody':
     'Push-Benachrichtigungen für deine Skripte und Server. Eine HTTP-Anfrage an notifi.it, ' +
     'und sie kommt einen Moment später an. Kein Account, kein SDK.',

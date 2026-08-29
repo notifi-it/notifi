@@ -268,6 +268,7 @@ function storeOutputs(): Array<{ path: string; contents: string; label: string }
 
     captions[locale] = {
       inboxTitle: s.shotInboxTitle,
+      inboxTitleIpad: s.shotInboxTitleIpad,
       inboxBody: s.shotInboxBody,
       messageTitle: s.shotMessageTitle,
       messageBody: s.shotMessageBody,
