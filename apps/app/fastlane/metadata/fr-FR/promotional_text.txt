@@ -1,1 +1,1 @@
-Une requête HTTP, et la notification arrive sur votre iPhone ou Mac. Chiffré avec votre clé publique — nous ne pouvons pas la lire. Pas de compte, pas de SDK.
+Une requête HTTP, et la notification arrive sur votre iPhone ou Mac. Chiffré avec votre clé publique, donc nous ne pouvons pas la lire. Pas de compte.

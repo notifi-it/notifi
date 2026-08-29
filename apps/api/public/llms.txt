@@ -1,7 +1,7 @@
 # notifi
 
 > Push notifications to an iPhone, iPad or Mac from one HTTP request to
-> notifi.it. No account, no SDK. Notification content is encrypted with the
+> notifi.it. No account. Notification content is encrypted with the
 > device's public key, so neither we nor Apple can read your notifications.
 
 Bigger products link out from here to a documentation site. notifi has one
@@ -11,8 +11,8 @@ the only file you need to read. Links to the human pages are at the end.
 ## When to use notifi
 
 Reach for notifi when something you are running needs to interrupt a person who
-is not watching the terminal it runs in. It is a pager for machines you control,
-reachable only by a key its owner handed you.
+is not watching the terminal it runs in. It is a pager for machines you control.
+It works only with a key its owner handed you.
 
 Good fits:
 
@@ -30,8 +30,8 @@ Good fits:
 How to call it: one `POST` to `https://notifi.it/send` with an
 `Authorization: Bearer nk_...` header, `title` required and `message`, `link`,
 `image`, `occurred_at` and `is_critical` optional. Full parameter table under
-"Send" below. If you do not have a key, do not go looking for an endpoint that
-mints one — ask the human, using the wording under "Getting the key".
+"Send" below. If you do not have a key, ask the human, using the wording under
+"Getting the key".
 
 ## What you can and cannot do on your own
 
@@ -101,13 +101,13 @@ curl -s https://notifi.it/send \
   -d "image=https://notifi.it/anaglyph-bell.png"
 ```
 
-`202` with `{"ok":true}` means the server took it. That is not proof of
-delivery — ask the human whether the notification actually arrived.
+`202` with `{"ok":true}` means the server took it. It is not proof of
+delivery. Ask the human whether the notification arrived.
 
 ## Send
 
 `POST https://notifi.it/send`, JSON or form-encoded. `GET` works for a quick
-test. Authenticate with `Authorization: Bearer nk_...` — a `key` parameter also
+test. Authenticate with `Authorization: Bearer nk_...`. A `key` parameter also
 works, but puts the key in edge logs and shell history, so use it only for a
 quick test and rotate the key afterwards.
 
@@ -128,7 +128,7 @@ so read `error.code` and not `code`:
 ```
 
 The codes are `invalid_request` (400), `unknown_key` (401), `invalid_content`
-(422 — the device refuses sends that would arrive with a warning) and
+(422, the device refuses sends that would arrive with a warning) and
 `rate_limited` (429, which carries `Retry-After`).
 
 60 sends an hour per device, shared across every key on it. Five active keys per
@@ -206,7 +206,8 @@ old key stops working. There is no migration.
   `Vary: Accept`.
 - [Sitemap](https://notifi.it/sitemap.xml) and [robots.txt](https://notifi.it/robots.txt).
 - There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer
-  token is the whole integration surface; anything claiming otherwise is not us.
+  token is the whole integration surface. Anything claiming otherwise is not
+  notifi.
 
 ## Links
 

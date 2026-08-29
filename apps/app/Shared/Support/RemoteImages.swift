@@ -9,9 +9,9 @@ enum RemoteImages {
             accessGroup: IdentityConstants.sharedAccessGroup
         )
         guard let data = stored ?? nil, let value = String(data: data, encoding: .utf8) else {
-            return true
+            return false
         }
-        return value != "0"
+        return value == "1"
     }
 
     static func setEnabled(_ enabled: Bool) {

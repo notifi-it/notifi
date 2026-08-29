@@ -1,12 +1,12 @@
 # notifi: push notifications to iPhone and Mac from one request
 
 > One HTTP request to notifi.it, and a native push notification lands on your
-> iPhone, iPad or Mac. No account, no SDK. Notification content is encrypted
+> iPhone, iPad or Mac. No account. Notification content is encrypted
 > with your public key, so neither we nor Apple can read your notifications.
 
 If you are a coding agent, read [llms.txt](https://notifi.it/llms.txt) instead:
 it is the same product with the install steps, the key handover script, the full
-parameter list and the hook recipes, and nothing else.
+parameter list and the hook recipes.
 
 ## When to use notifi
 
@@ -68,9 +68,9 @@ at [notifi.it/openapi.json](https://notifi.it/openapi.json).
 - Your important notifications in one place, without cluttering your **email inbox**
 - Lighter than running **Slack**
 - No bot to register, unlike **Telegram**
-- Custom formatting, unlike **SMS**
+- Richer formatting than **SMS** allows
 - Encrypted, unlike **Ntfy**
-- Free, unlike **Pushover**
+- Free, where **Pushover** charges
 
 ## What it costs
 

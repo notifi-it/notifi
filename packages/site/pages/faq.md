@@ -14,7 +14,7 @@ ogDescription: What it costs, what the limits are, what the server can read, and
 
 ### What is notifi?
 
-A push-notification relay. You create a send key in the app, send an HTTP request to `notifi.it/send` with a title and a body, and the notification lands on your iPhone and Mac. There is no SDK to install and nothing to sign up for.
+A push-notification relay. You create a send key in the app, send an HTTP request to `notifi.it/send` with a title and a body, and the notification lands on your iPhone and Mac. There is nothing to install on the sending side and nothing to sign up for.
 
 ### What does it cost?
 
@@ -57,13 +57,13 @@ A push payload has a 4,000-byte ceiling set by Apple, so a long notification is 
 
 ### Why did my send get a 401?
 
-The key is unknown or revoked. Revocation takes effect on the next send. Reinstalling the app, or moving to a new phone, creates a new identity and the old keys stop working — there is no migration, by design.
+The key is unknown or revoked. Revocation takes effect on the next send. Reinstalling the app, or moving to a new phone, creates a new identity and the old keys stop working, and there is no migration.
 
 ## Privacy and encryption
 
 ### Can you read my notifications?
 
-No. The title, body, link and image URL are encrypted with your device's public key at the moment they arrive, before anything is written to the database, and only your device holds the key that opens them. A full copy of the database together with every server secret does not reveal the contents of a single notification. The [source](https://github.com/notifi-it/notifi) is public if you want to check that claim rather than take it.
+No. The title, body, link and image URL are encrypted with your device's public key at the moment they arrive, before anything is written to the database, and only your device holds the key that opens them. A full copy of the database together with every server secret does not reveal the contents of a single notification. The [source](https://github.com/notifi-it/notifi) is public.
 
 ### What can the server see?
 
@@ -71,7 +71,7 @@ The IP addresses of the sender and the device, the time of every send and every 
 
 ### Is it safe to put the key in the URL?
 
-It is convenient and it is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a `Authorization: Bearer` header and the body in a `POST` body where you can.
+It is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a `Authorization: Bearer` header and the body in a `POST` body where you can.
 
 ### How long are notifications kept?
 
@@ -79,17 +79,17 @@ A notification is deleted as soon as your device confirms it has it. One your de
 
 ### What happens if I delete the app?
 
-Your notifications, your keys and your identity go with it. None of it is recoverable, because nothing is held that could recover it, and every send key you created stops working.
+Your notifications, your keys and your identity go with it. None of it is recoverable, and every send key you created stops working.
 
 ### Do you track me?
 
-There is no analytics, no crash reporting, no advertising identifier and no third-party SDK in the apps. This website sets no cookies and makes no third-party request; the fonts are served from this domain.
+There is no analytics, no crash reporting, no advertising identifier and no tracking SDK in the apps. This website sets no cookies and serves its fonts from this domain; Cloudflare, which hosts it, counts visits with its cookieless Web Analytics, and that is the only analytics anywhere in the product. The [privacy policy](/privacy) has the full picture.
 
 ## The apps
 
 ### Which devices does it run on?
 
-iPhone and iPad on iOS 17 or later, and Mac on macOS 14 or later, where it lives in the menu bar. There is no Android app: delivery goes through Apple's push service.
+iPhone and iPad on iOS 17 or later, and Mac on macOS 14 or later, where it lives in the menu bar. There is no Android app, because delivery goes through Apple's push service.
 
 ### Where do I get the Mac app?
 
@@ -117,7 +117,7 @@ That needs Apple's Critical Alerts entitlement, which has been requested and not
 
 ### Is delivery guaranteed?
 
-No. Every send goes out over Apple's push service and a websocket at the same time, and the notification is stored before either, so the app can fetch anything a push missed. But delivery still depends on Apple, your network and your device's settings, and the service is provided as is, without an uptime guarantee. The [terms](/terms) say so plainly.
+No. Every send goes out over Apple's push service and a websocket at the same time, and the notification is stored before either, so the app can fetch anything a push missed. But delivery still depends on Apple, your network and your device's settings, and the service is provided as is, without an uptime guarantee. See the [terms](/terms).
 
 > **Do not make notifi the only path for anything where a missed notification causes harm.** It is a pager for your own systems, not a life-safety, medical or emergency alerting system.
 

@@ -73,6 +73,11 @@ new_sqlite_classes = ["DeviceSocket"]
 tag = "v2"
 new_sqlite_classes = ["ApnsToken"]
 
+# The daily purge the privacy policy promises: rows whose expires_at has
+# passed are removed even if the device never collects them.
+[triggers]
+crons = ["0 4 * * *"]
+
 [observability]
 enabled = true
 head_sampling_rate = 1

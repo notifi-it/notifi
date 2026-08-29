@@ -333,7 +333,7 @@ export const fr: Translation = {
   'store.subtitle': 'Pour scripts et serveurs',
   'store.promotionalText':
     'Une requête HTTP, et la notification arrive sur votre iPhone ou Mac. Chiffré avec ' +
-    'votre clé publique — nous ne pouvons pas la lire. Pas de compte, pas de SDK.',
+    'votre clé publique, donc nous ne pouvons pas la lire. Pas de compte.',
   'store.keywords':
     'webhook,api,avertir,alerte,auto,hébergé,cron,curl,cli,devops,homelab,ssh,docker,' +
     'monitor',
@@ -363,7 +363,7 @@ export const fr: Translation = {
   'store.shotInboxTitleIpad': 'Une requête.\nDroit sur vos appareils.',
   'store.shotInboxBody':
     'Notifications push pour vos scripts et serveurs. Une requête HTTP vers notifi.it et ' +
-    'elle arrive un instant plus tard. Pas de compte, pas de SDK.',
+    'elle arrive un instant plus tard. Pas de compte.',
   'store.shotMessageTitle': 'Images, liens,\nMarkdown.',
   'store.shotMessageBody':
     'Un titre, un corps, une image et un lien. Titres, listes, citations et blocs de code ' +
