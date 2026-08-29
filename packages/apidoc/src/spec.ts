@@ -54,6 +54,7 @@ export const DESCRIPTION = [
   'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account. Install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.',
   'Send keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.',
   'When to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.',
+  'Use of the API is use of the service, and the terms at notifi.it/terms apply to it.',
 ].join('\n\n');
 
 export const AUTH = {

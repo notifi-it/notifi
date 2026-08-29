@@ -2,6 +2,7 @@ import { negotiate } from '@notifi/copy';
 import { instrumentDurableObjectWithSentry, withSentry } from '@sentry/cloudflare';
 import { Hono } from 'hono';
 import { errBody, t } from './lib/respond.js';
+import { now } from './lib/time.js';
 import { ipLimiter } from './middleware.js';
 import { devices } from './routes/devices.js';
 import { downloads } from './routes/downloads.js';
@@ -14,7 +15,7 @@ import { socket } from './routes/socket.js';
 import { ApnsToken as ApnsTokenBase } from './apnstoken.js';
 import { sentryOptions } from './sentry.js';
 import { DeviceSocket as DeviceSocketBase } from './socket.js';
-import type { AppEnv } from './types.js';
+import type { AppEnv, Env } from './types.js';
 
 const app = new Hono<AppEnv>();
 
@@ -60,6 +61,9 @@ app.onError((err, c) => {
 
 export default withSentry(sentryOptions, {
   fetch: app.fetch,
+  scheduled: async (_controller, env: Env) => {
+    await env.DB.prepare('DELETE FROM messages WHERE expires_at <= ?').bind(now()).run();
+  },
 });
 
 export const DeviceSocket = instrumentDurableObjectWithSentry(sentryOptions, DeviceSocketBase);

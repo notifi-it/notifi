@@ -83,7 +83,7 @@ Your notifications, your keys and your identity go with it. None of it is recove
 
 ### Do you track me?
 
-There is no analytics, no crash reporting, no advertising identifier and no third-party SDK in the apps. This website sets no cookies and makes no third-party request; the fonts are served from this domain.
+There is no analytics, no crash reporting, no advertising identifier and no tracking SDK in the apps. This website sets no cookies and serves its fonts from this domain; Cloudflare, which hosts it, counts visits with its cookieless Web Analytics, and that is the only analytics anywhere in the product. The [privacy policy](/privacy) has the full picture.
 
 ## The apps
 
