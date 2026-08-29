@@ -100,11 +100,6 @@ export function landingEndpoint(): string {
     <p class="meta" style="margin-bottom:26px">
       JSON or form-encoded. Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>,
       or pass <code>key</code> as a parameter.
-    </p>`;
-}
-
-export function landingNote(): string {
-  return `    <p class="meta" style="margin-top:22px">
       The full reference is at <a href="/docs" class="src">notifi.it/docs</a>.
     </p>`;
 }
