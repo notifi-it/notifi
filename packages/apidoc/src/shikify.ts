@@ -33,11 +33,15 @@ const PLAIN = '#000000';
 const COMMENT = '#000001';
 const STRING = '#000002';
 const KEYWORD = '#000003';
+const FUNC = '#000004';
+const NUMBER = '#000005';
 
 const CLASSES: Record<string, string> = {
   [COMMENT]: 'c',
   [STRING]: 's',
   [KEYWORD]: 'f',
+  [FUNC]: 'fn',
+  [NUMBER]: 'n',
 };
 
 const marker = {
@@ -64,9 +68,20 @@ const marker = {
         'keyword.declaration',
         'storage.type',
         'storage.modifier',
-        'constant.language',
       ],
       settings: { foreground: KEYWORD },
+    },
+    {
+      scope: [
+        'entity.name.function',
+        'support.function',
+        'meta.function-call.generic',
+      ],
+      settings: { foreground: FUNC },
+    },
+    {
+      scope: ['constant.numeric', 'constant.language'],
+      settings: { foreground: NUMBER },
     },
   ],
 };

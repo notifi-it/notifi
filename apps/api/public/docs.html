@@ -377,7 +377,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 }
 .term .p{color:var(--dim)}          /* prompt */
 .term .s{color:#7FA8E0}             /* string */
-.term .f{color:var(--muted)}        /* flag */
+.term .f{color:#B48EAD}             /* keyword */
+.term .fn{color:#8FBCBB}            /* function call */
+.term .n{color:#A3BE8C}             /* number, true/false */
 .term .c{color:var(--dim)}          /* comment */
 .term .k{color:var(--brand-text)}   /* the key you swap in */
 .copy{
@@ -614,31 +616,31 @@ Accept-Language: en-GB
         <button class="copy" data-copy-panel aria-label="Copy the responses shown">Copy</button>
       </div>
       <div class="panel" id="r-p-202" role="tabpanel" tabindex="0" aria-labelledby="r-t-202" data-name="accepted" data-label="202">
-<pre><span class="f">HTTP</span>/1.1 202 <span class="s">Accepted</span>
+<pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">202</span> <span class="s">Accepted</span>
 Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
 
-{<span class="s">&quot;ok&quot;</span>:<span class="f">true</span>}</pre>
+{<span class="s">&quot;ok&quot;</span>:<span class="n">true</span>}</pre>
       </div>
       <div class="panel" id="r-p-400" role="tabpanel" tabindex="0" aria-labelledby="r-t-400" data-name="invalid_request" data-label="400" hidden>
-<pre><span class="f">HTTP</span>/1.1 400 <span class="s">Bad Request</span>
+<pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">400</span> <span class="s">Bad Request</span>
 Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
 
 {<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;invalid_request&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;title is required.&quot;</span>}}</pre>
       </div>
       <div class="panel" id="r-p-401" role="tabpanel" tabindex="0" aria-labelledby="r-t-401" data-name="unknown_key" data-label="401" hidden>
-<pre><span class="f">HTTP</span>/1.1 401 <span class="s">Unauthorized</span>
+<pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">401</span> <span class="s">Unauthorized</span>
 Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
 
 {<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;unknown_key&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Unknown or revoked key.&quot;</span>}}</pre>
       </div>
       <div class="panel" id="r-p-422" role="tabpanel" tabindex="0" aria-labelledby="r-t-422" data-name="invalid_content" data-label="422" hidden>
-<pre><span class="f">HTTP</span>/1.1 422 <span class="s">Unprocessable Content</span>
+<pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">422</span> <span class="s">Unprocessable Content</span>
 Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
 
 {<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;invalid_content&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Not sent. This device is set to refuse a notification it cannot deliver as written.&quot;</span>}}</pre>
       </div>
       <div class="panel" id="r-p-429" role="tabpanel" tabindex="0" aria-labelledby="r-t-429" data-name="rate_limited" data-label="429" hidden>
-<pre><span class="f">HTTP</span>/1.1 429 <span class="s">Too Many Requests</span>
+<pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">429</span> <span class="s">Too Many Requests</span>
 Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
 Retry-After<span class="f">:</span> <span class="s">42</span>
 
@@ -780,21 +782,21 @@ Content-Type: application/json; charset=utf-8
       </div>
       <div class="panel" id="c-p-postman" role="tabpanel" tabindex="0" aria-labelledby="c-t-postman" data-name="postman" data-label="Postman">
 <pre><span class="c"># Import → Link, then paste this. Postman keeps it in sync from there.</span>
-https://notifi.it/notifi.postman_collection.json</pre>
+<span class="fn">https://notifi.it/notifi.postman_collection.json</span></pre>
       </div>
       <div class="panel" id="c-p-bruno" role="tabpanel" tabindex="0" aria-labelledby="c-t-bruno" data-name="bruno" data-label="Bruno" hidden>
 <pre><span class="c"># Drop the .bru straight into a collection folder,</span>
 <span class="c"># or use Import → Postman Collection with the URL above.</span>
-curl -O https://notifi.it/notifi.bru</pre>
+<span class="fn">curl</span> -O https://notifi.it/notifi.bru</pre>
       </div>
       <div class="panel" id="c-p-insomnia" role="tabpanel" tabindex="0" aria-labelledby="c-t-insomnia" data-name="insomnia" data-label="Insomnia" hidden>
 <pre><span class="c"># Import From → URL takes either the OpenAPI document</span>
 <span class="c"># or the Postman collection.</span>
-https://notifi.it/openapi.json</pre>
+<span class="fn">https://notifi.it/openapi.json</span></pre>
       </div>
       <div class="panel" id="c-p-httpie" role="tabpanel" tabindex="0" aria-labelledby="c-t-httpie" data-name="httpie" data-label="HTTPie" hidden>
 <pre><span class="c"># No import needed.</span>
-http -f POST https://notifi.it/send \
+<span class="fn">http</span> -f POST https://notifi.it/send \
   <span class="s">&quot;Authorization:Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
   title=<span class="s">&quot;Hello from notifi&quot;</span> \
   message=<span class="s">&quot;Your first notification.&quot;</span> \
@@ -803,7 +805,7 @@ http -f POST https://notifi.it/send \
       </div>
       <div class="panel" id="c-p-generate" role="tabpanel" tabindex="0" aria-labelledby="c-t-generate" data-name="openapi-generator" data-label="Client generator" hidden>
 <pre><span class="c"># Any generator that reads OpenAPI 3.1.</span>
-openapi-generator-cli generate \
+<span class="fn">openapi-generator-cli</span> generate \
   -i https://notifi.it/openapi.json \
   -g typescript-fetch \
   -o ./notifi</pre>
@@ -872,7 +874,7 @@ openapi-generator-cli generate \
         <button class="copy" data-copy-panel aria-label="Copy the examples shown">Copy</button>
       </div>
       <div class="panel" id="p-curl" role="tabpanel" tabindex="0" aria-labelledby="t-curl" data-name="send.sh" data-label="curl">
-<pre>curl -X POST https://notifi.it/send \
+<pre><span class="fn">curl</span> -X POST https://notifi.it/send \
   -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
   -d <span class="s">&quot;title=Hello from notifi&quot;</span> \
   -d <span class="s">&quot;message=Your first notification.&quot;</span> \
@@ -880,13 +882,13 @@ openapi-generator-cli generate \
   -d <span class="s">&quot;image=https://notifi.it/anaglyph-bell.png&quot;</span></pre>
       </div>
       <div class="panel" id="p-js" role="tabpanel" tabindex="0" aria-labelledby="t-js" data-name="send.js" data-label="JavaScript" hidden>
-<pre><span class="f">await</span> fetch(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
+<pre><span class="f">await</span> <span class="fn">fetch</span>(<span class="s">&quot;https://notifi.it/send&quot;</span>, {
   method: <span class="s">&quot;POST&quot;</span>,
   headers: {
     <span class="s">&quot;Authorization&quot;</span>: <span class="s">`Bearer ${process.env.<span class="k">NOTIFI_KEY</span>}`</span>,
     <span class="s">&quot;Content-Type&quot;</span>: <span class="s">&quot;application/json&quot;</span>,
   },
-  body: JSON.stringify({
+  body: JSON.<span class="fn">stringify</span>({
     title: <span class="s">&quot;Hello from notifi&quot;</span>,
     message: <span class="s">&quot;Your first notification.&quot;</span>,
     link: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
@@ -897,7 +899,7 @@ openapi-generator-cli generate \
       <div class="panel" id="p-py" role="tabpanel" tabindex="0" aria-labelledby="t-py" data-name="send.py" data-label="Python" hidden>
 <pre><span class="f">import</span> os, requests
 
-requests.post(
+requests.<span class="fn">post</span>(
     <span class="s">&quot;https://notifi.it/send&quot;</span>,
     headers={<span class="s">&quot;Authorization&quot;</span>: <span class="f">f</span><span class="s">&quot;Bearer </span>{os.environ[<span class="s">'<span class="k">NOTIFI_KEY</span>'</span>]}<span class="s">&quot;</span>},
     json={
@@ -918,35 +920,35 @@ requests.post(
 	<span class="s">&quot;strings&quot;</span>
 )
 
-<span class="f">func</span> main() {
+<span class="f">func</span> <span class="fn">main</span>() {
 	form := url.Values{
 		<span class="s">&quot;title&quot;</span>:   {<span class="s">&quot;Hello from notifi&quot;</span>},
 		<span class="s">&quot;message&quot;</span>: {<span class="s">&quot;Your first notification.&quot;</span>},
 		<span class="s">&quot;link&quot;</span>:    {<span class="s">&quot;https://notifi.it/docs&quot;</span>},
 		<span class="s">&quot;image&quot;</span>:   {<span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>},
 	}
-	req, _ := http.NewRequest(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
-		strings.NewReader(form.Encode()))
-	req.Header.Set(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span>+os.Getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
-	req.Header.Set(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
-	http.DefaultClient.Do(req)
+	req, _ := http.<span class="fn">NewRequest</span>(<span class="s">&quot;POST&quot;</span>, <span class="s">&quot;https://notifi.it/send&quot;</span>,
+		strings.<span class="fn">NewReader</span>(form.<span class="fn">Encode</span>()))
+	req.Header.<span class="fn">Set</span>(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span>+os.<span class="fn">Getenv</span>(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
+	req.Header.<span class="fn">Set</span>(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
+	http.DefaultClient.<span class="fn">Do</span>(req)
 }</pre>
       </div>
       <div class="panel" id="p-swift" role="tabpanel" tabindex="0" aria-labelledby="t-swift" data-name="Send.swift" data-label="Swift" hidden>
 <pre><span class="f">import</span> Foundation
 
-<span class="f">var</span> request = URLRequest(url: URL(string: <span class="s">&quot;https://notifi.it/send&quot;</span>)!)
+<span class="f">var</span> request = <span class="fn">URLRequest</span>(<span class="fn">url</span>: <span class="fn">URL</span>(<span class="fn">string</span>: <span class="s">&quot;https://notifi.it/send&quot;</span>)!)
 request.httpMethod = <span class="s">&quot;POST&quot;</span>
-request.setValue(<span class="s">&quot;Bearer \(key)&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Authorization&quot;</span>)
-request.setValue(<span class="s">&quot;application/json&quot;</span>, forHTTPHeaderField: <span class="s">&quot;Content-Type&quot;</span>)
-request.httpBody = <span class="f">try</span> JSONEncoder().encode([
+request.<span class="fn">setValue</span>(<span class="s">&quot;Bearer \(key)&quot;</span>, <span class="fn">forHTTPHeaderField</span>: <span class="s">&quot;Authorization&quot;</span>)
+request.<span class="fn">setValue</span>(<span class="s">&quot;application/json&quot;</span>, <span class="fn">forHTTPHeaderField</span>: <span class="s">&quot;Content-Type&quot;</span>)
+request.httpBody = <span class="f">try</span> <span class="fn">JSONEncoder</span>().<span class="fn">encode</span>([
     <span class="s">&quot;title&quot;</span>: <span class="s">&quot;Hello from notifi&quot;</span>,
     <span class="s">&quot;message&quot;</span>: <span class="s">&quot;Your first notification.&quot;</span>,
     <span class="s">&quot;link&quot;</span>: <span class="s">&quot;https://notifi.it/docs&quot;</span>,
     <span class="s">&quot;image&quot;</span>: <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>,
 ])
 
-_ = <span class="f">try</span> <span class="f">await</span> URLSession.shared.data(for: request)</pre>
+_ = <span class="f">try</span> <span class="f">await</span> URLSession.shared.<span class="fn">data</span>(<span class="fn">for</span>: request)</pre>
       </div>
       <div class="panel" id="p-ruby" role="tabpanel" tabindex="0" aria-labelledby="t-ruby" data-name="send.rb" data-label="Ruby" hidden>
 <pre><span class="f">require</span> <span class="s">&quot;net/http&quot;</span>
@@ -954,21 +956,21 @@ _ = <span class="f">try</span> <span class="f">await</span> URLSession.shared.da
 uri = URI(<span class="s">&quot;https://notifi.it/send&quot;</span>)
 req = Net::HTTP::Post.<span class="f">new</span>(uri)
 req[<span class="s">&quot;Authorization&quot;</span>] = <span class="s">&quot;Bearer #{ENV['<span class="k">NOTIFI_KEY</span>']}&quot;</span>
-req.set_form_data(
+req.<span class="fn">set_form_data</span>(
   <span class="s">&quot;title&quot;</span> =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
   <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
   <span class="s">&quot;link&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/docs&quot;</span>,
   <span class="s">&quot;image&quot;</span> =&gt; <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>
 )
 
-Net::HTTP.start(uri.host, uri.port, <span class="f">use_ssl:</span> <span class="f">true</span>) { |http| http.request(req) }</pre>
+Net::HTTP.<span class="fn">start</span>(uri.<span class="fn">host</span>, uri.<span class="fn">port</span>, <span class="n">use_ssl:</span> <span class="n">true</span>) { |http| http.<span class="fn">request</span>(req) }</pre>
       </div>
       <div class="panel" id="p-php" role="tabpanel" tabindex="0" aria-labelledby="t-php" data-name="send.php" data-label="PHP" hidden>
 <pre>&lt;?php
-$ch = curl_init(<span class="s">&quot;https://notifi.it/send&quot;</span>);
-curl_setopt_array($ch, [
-    CURLOPT_POST       =&gt; <span class="f">true</span>,
-    CURLOPT_HTTPHEADER =&gt; [<span class="s">&quot;Authorization: Bearer &quot;</span> . getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)],
+$ch = <span class="fn">curl_init</span>(<span class="s">&quot;https://notifi.it/send&quot;</span>);
+<span class="fn">curl_setopt_array</span>($ch, [
+    CURLOPT_POST       =&gt; <span class="n">true</span>,
+    CURLOPT_HTTPHEADER =&gt; [<span class="s">&quot;Authorization: Bearer &quot;</span> . <span class="fn">getenv</span>(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)],
     CURLOPT_POSTFIELDS =&gt; [
         <span class="s">&quot;title&quot;</span>   =&gt; <span class="s">&quot;Hello from notifi&quot;</span>,
         <span class="s">&quot;message&quot;</span> =&gt; <span class="s">&quot;Your first notification.&quot;</span>,
@@ -976,22 +978,22 @@ curl_setopt_array($ch, [
         <span class="s">&quot;image&quot;</span>   =&gt; <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>,
     ],
 ]);
-curl_exec($ch);</pre>
+<span class="fn">curl_exec</span>($ch);</pre>
       </div>
       <div class="panel" id="p-rust" role="tabpanel" tabindex="0" aria-labelledby="t-rust" data-name="main.rs" data-label="Rust" hidden>
 <pre><span class="c">// reqwest = { version = &quot;0.12&quot;, features = [&quot;json&quot;] }</span>
-<span class="f">let</span> key = std::env::var(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)?;
+<span class="f">let</span> key = std::env::<span class="fn">var</span>(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>)?;
 
-reqwest::Client::new()
-    .post(<span class="s">&quot;https://notifi.it/send&quot;</span>)
-    .bearer_auth(key)
-    .form(&amp;[
+reqwest::Client::<span class="fn">new</span>()
+    .<span class="fn">post</span>(<span class="s">&quot;https://notifi.it/send&quot;</span>)
+    .<span class="fn">bearer_auth</span>(key)
+    .<span class="fn">form</span>(&amp;[
         (<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
         (<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
         (<span class="s">&quot;link&quot;</span>, <span class="s">&quot;https://notifi.it/docs&quot;</span>),
         (<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>),
     ])
-    .send()
+    .<span class="fn">send</span>()
     .<span class="f">await</span>?;</pre>
       </div>
       <div class="panel" id="p-java" role="tabpanel" tabindex="0" aria-labelledby="t-java" data-name="Send.java" data-label="Java" hidden>
@@ -1003,21 +1005,21 @@ reqwest::Client::new()
 <span class="f">import</span> <span class="f">java.util.function.BiFunction</span>;
 <span class="f">import</span> <span class="f">static</span> <span class="f">java.nio.charset.StandardCharsets.UTF_8</span>;
 
-<span class="f">BiFunction</span>&lt;<span class="f">String</span>, <span class="f">String</span>, <span class="f">String</span>&gt; field = (k, v) <span class="f">-&gt;</span> k + <span class="s">&quot;=&quot;</span> + URLEncoder.encode(v, UTF_8);
+<span class="f">BiFunction</span>&lt;<span class="f">String</span>, <span class="f">String</span>, <span class="f">String</span>&gt; field = (k, v) <span class="f">-&gt;</span> k + <span class="s">&quot;=&quot;</span> + URLEncoder.<span class="fn">encode</span>(v, UTF_8);
 
-<span class="f">var</span> body = String.join(<span class="s">&quot;&amp;&quot;</span>,
-    field.apply(<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
-    field.apply(<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
-    field.apply(<span class="s">&quot;link&quot;</span>, <span class="s">&quot;https://notifi.it/docs&quot;</span>),
-    field.apply(<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>));
+<span class="f">var</span> body = String.<span class="fn">join</span>(<span class="s">&quot;&amp;&quot;</span>,
+    field.<span class="fn">apply</span>(<span class="s">&quot;title&quot;</span>, <span class="s">&quot;Hello from notifi&quot;</span>),
+    field.<span class="fn">apply</span>(<span class="s">&quot;message&quot;</span>, <span class="s">&quot;Your first notification.&quot;</span>),
+    field.<span class="fn">apply</span>(<span class="s">&quot;link&quot;</span>, <span class="s">&quot;https://notifi.it/docs&quot;</span>),
+    field.<span class="fn">apply</span>(<span class="s">&quot;image&quot;</span>, <span class="s">&quot;https://notifi.it/anaglyph-bell.png&quot;</span>));
 
-<span class="f">var</span> request = HttpRequest.newBuilder(URI.create(<span class="s">&quot;https://notifi.it/send&quot;</span>))
-    .header(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span> + System.getenv(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
-    .header(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
-    .POST(HttpRequest.BodyPublishers.ofString(body))
-    .build();
+<span class="f">var</span> request = HttpRequest.<span class="fn">newBuilder</span>(URI.<span class="fn">create</span>(<span class="s">&quot;https://notifi.it/send&quot;</span>))
+    .<span class="fn">header</span>(<span class="s">&quot;Authorization&quot;</span>, <span class="s">&quot;Bearer &quot;</span> + System.<span class="fn">getenv</span>(<span class="s">&quot;<span class="k">NOTIFI_KEY</span>&quot;</span>))
+    .<span class="fn">header</span>(<span class="s">&quot;Content-Type&quot;</span>, <span class="s">&quot;application/x-www-form-urlencoded&quot;</span>)
+    .<span class="fn">POST</span>(HttpRequest.BodyPublishers.<span class="fn">ofString</span>(body))
+    .<span class="fn">build</span>();
 
-HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding());</pre>
+HttpClient.<span class="fn">newHttpClient</span>().<span class="fn">send</span>(request, HttpResponse.BodyHandlers.<span class="fn">discarding</span>());</pre>
       </div>
       <div class="panel" id="p-hook" role="tabpanel" tabindex="0" aria-labelledby="t-hook" data-name=".claude/settings.json" data-label="Claude Code" hidden>
 <pre><span class="c">// Fires when Claude stops.</span>
@@ -1051,19 +1053,19 @@ HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding())
       <div class="panel" id="p-shell" role="tabpanel" tabindex="0" aria-labelledby="t-shell" data-name="~/.zshrc" data-label="Shell hook" hidden>
 <pre><span class="c"># Notify for any command that took longer than a minute, and say</span>
 <span class="c"># whether it worked.</span>
-autoload -Uz add-zsh-hook
+<span class="fn">autoload</span> -Uz add-zsh-hook
 
-_notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
-_notifi_end() {
-  <span class="f">local</span> code=$? secs=$(( SECONDS - ${_NOTIFI_T:-SECONDS} ))
-  (( secs &lt; 60 )) &amp;&amp; <span class="f">return</span>
-  curl -s https://notifi.it/send \
+<span class="fn">_notifi_start</span>() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
+<span class="fn">_notifi_end</span>() {
+  <span class="f">local</span> code=$? secs=$(( <span class="fn">SECONDS</span> - ${_NOTIFI_T:-SECONDS} ))
+  (( secs &lt; <span class="n">60</span> )) &amp;&amp; <span class="f">return</span>
+  <span class="fn">curl</span> -s https://notifi.it/send \
     -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> \
-    -d <span class="s">&quot;title=$([[ $code == 0 ]] &amp;&amp; echo </span>ok<span class="s"> || echo </span>failed<span class="s">) after ${secs}s&quot;</span> \
+    -d <span class="s">&quot;title=$([[ $code == </span><span class="n">0</span><span class="s"> ]] &amp;&amp; </span><span class="fn">echo</span><span class="s"> </span>ok<span class="s"> || </span><span class="fn">echo</span><span class="s"> </span>failed<span class="s">) after ${secs}s&quot;</span> \
     -d <span class="s">&quot;message=$_NOTIFI_CMD&quot;</span> &gt;/dev/null
 }
-add-zsh-hook preexec _notifi_start
-add-zsh-hook precmd  _notifi_end</pre>
+<span class="fn">add-zsh-hook</span> preexec _notifi_start
+<span class="fn">add-zsh-hook</span> precmd  _notifi_end</pre>
       </div>
       <div class="panel" id="p-cron" role="tabpanel" tabindex="0" aria-labelledby="t-cron" data-name="crontab" data-label="cron" hidden>
 <pre><span class="c"># crontab -e. A cron job gets no PATH, and its output goes nowhere you</span>
@@ -1072,7 +1074,7 @@ add-zsh-hook precmd  _notifi_end</pre>
 PATH=/usr/local/bin:/usr/bin:/bin
 <span class="k">NOTIFI_KEY</span>=...
 
-0 3 * * * backup.sh &gt;/tmp/backup.log 2&gt;&amp;1; curl -s https://notifi.it/send -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> -d <span class="s">&quot;title=backup $([ $? = 0 ] &amp;&amp; echo </span>ok<span class="s"> || echo </span>failed<span class="s">) on $(hostname)&quot;</span> --data-urlencode <span class="s">&quot;message=$(tail </span>-c<span class="s"> </span>800<span class="s"> </span>/tmp/backup.log<span class="s">)&quot;</span></pre>
+<span class="fn">0</span> <span class="n">3</span> * * * backup.sh &gt;/tmp/backup.log 2&gt;&amp;1; <span class="fn">curl</span> -s https://notifi.it/send -H <span class="s">&quot;Authorization: Bearer <span class="k">$NOTIFI_KEY</span>&quot;</span> -d <span class="s">&quot;title=backup $([ $? = </span><span class="n">0</span><span class="s"> ] &amp;&amp; </span><span class="fn">echo</span><span class="s"> </span>ok<span class="s"> || </span><span class="fn">echo</span><span class="s"> </span>failed<span class="s">) on $(</span><span class="fn">hostname</span><span class="s">)&quot;</span> --data-urlencode <span class="s">&quot;message=$(</span><span class="fn">tail</span><span class="s"> </span>-c<span class="s"> </span><span class="n">800</span><span class="s"> </span>/tmp/backup.log<span class="s">)&quot;</span></pre>
       </div>
       <div class="panel" id="p-systemd" role="tabpanel" tabindex="0" aria-labelledby="t-systemd" data-name="notifi-failed@.service" data-label="systemd" hidden>
 <pre><span class="c"># Drop this in /etc/systemd/system/, then add one line to any unit:</span>
