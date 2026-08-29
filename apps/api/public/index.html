@@ -834,9 +834,14 @@ section{padding:clamp(48px,7vw,86px) 0}
 @media(max-width:760px){.app-film{aspect-ratio:10/16;margin:24px calc(50% - 50vw)}}
 
 /* ── the two shots under the film ───────────────────────────── */
+/* An unnumbered head: same shape as .section-head, but outside its class so
+   the counting script never sees it and the denominator stays honest. */
+.sub-head{display:flex;align-items:center;gap:14px;margin:64px 0 26px}
+.sub-head .eyebrow{color:var(--fg-soft)}
+.sub-head .rule{flex:1}
 .app-two{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:clamp(24px,4.5vw,56px);align-items:center;margin-top:30px;
+  gap:clamp(24px,4.5vw,56px);align-items:center;
 }
 .app-phone{margin:0;order:2}
 /* The frame copies the film's phone (viewBox 428x900): bezel 13/428, outer
@@ -899,10 +904,10 @@ section{padding:clamp(48px,7vw,86px) 0}
 .mac-wall .mac-bar{background:rgba(28,28,30,0.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,0.06)}
 .mac-wall .mac-shot{padding:0 0 26px;filter:drop-shadow(0 18px 36px rgba(0,0,0,0.55))}
 /* One under the other on a phone: side by side, each shot is half a narrow
-   column and neither reads. The film runs full-bleed there, so the pair
-   needs its own clear start and daylight between the two figures. */
+   column and neither reads. The film runs full-bleed there, so the sub-head
+   marks the pair's start and the figures keep daylight between them. */
 @media(max-width:760px){
-  .app-two{grid-template-columns:minmax(0,1fr);margin-top:56px;row-gap:48px}
+  .app-two{grid-template-columns:minmax(0,1fr);row-gap:48px}
 }
 /* The portrait layout stands the phone taller than the stage, so its frame met
    the bottom edge as a cut rather than an end. The fade lands below the
@@ -1319,6 +1324,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </script>
 <!-- gf:html:end -->
     </figure>
+
+    <div class="sub-head">
+      <p class="eyebrow">On the device</p><hr class="rule">
+    </div>
 
     <div class="app-two">
       <figure class="app-phone">
