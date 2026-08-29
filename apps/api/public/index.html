@@ -373,7 +373,9 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 
 .cta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .hero-mac-note{display:none;font-size:11px}
-.cta .meta{width:100%;margin-top:6px}
+/* The flex row-gap already spaces the wrapped line; the negative margin eats
+   most of it so the note reads as the button's caption, not a stray line. */
+.cta .meta{width:100%;margin-top:-5px}
 
 /* the terminal block that is the whole product */
 /* No edge at all. The panel is already a step up from the ground in --surface,
@@ -394,6 +396,8 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 }
 .dot3{display:flex;gap:5px}
 .dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
+.dot3 i:first-child{background:#28282A}
+.dot3 i:last-child{background:#2E2E30}
 .term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
 .term pre{
   margin:0;padding:16px 18px;overflow-x:auto;
