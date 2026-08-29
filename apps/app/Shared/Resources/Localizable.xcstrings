@@ -6726,76 +6726,6 @@
         }
       }
     },
-    "settings.automaticUpdates": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatic updates"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Actualizaciones automáticas"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatische Updates"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mises à jour automatiques"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aggiornamenti automatici"
-          }
-        }
-      }
-    },
-    "settings.automaticUpdatesDetail": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check for new versions in the background."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Busca nuevas versiones en segundo plano."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sucht im Hintergrund nach neuen Versionen."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vérifie la présence de nouvelles versions en arrière-plan."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verifica la presenza di nuove versioni in background."
-          }
-        }
-      }
-    },
     "settings.checkForUpdates": {
       "extractionState": "manual",
       "localizations": {
@@ -6967,6 +6897,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "Feedback"
+          }
+        }
+      }
+    },
+    "settings.installUpdatesAutomatically": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install updates automatically"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalar actualizaciones automáticamente"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates automatisch installieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installer les mises à jour automatiquement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installa gli aggiornamenti automaticamente"
+          }
+        }
+      }
+    },
+    "settings.installUpdatesAutomaticallyDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download and install new versions without asking. notifi relaunches itself when it updates."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descarga e instala las nuevas versiones sin preguntar. notifi se reinicia al actualizarse."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lädt neue Versionen ohne Nachfrage herunter und installiert sie. notifi startet sich beim Update neu."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharge et installe les nouvelles versions sans demander. notifi redémarre lorsqu'il se met à jour."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarica e installa le nuove versioni senza chiedere. notifi si riavvia quando si aggiorna."
           }
         }
       }

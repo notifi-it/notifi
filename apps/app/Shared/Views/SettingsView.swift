@@ -98,11 +98,11 @@ struct SettingsView: View {
                     RowRule()
 
                     ToggleRow(
-                        title: Copy.Settings.automaticUpdates,
-                        detail: Copy.Settings.automaticUpdatesDetail,
+                        title: Copy.Settings.installUpdatesAutomatically,
+                        detail: Copy.Settings.installUpdatesAutomaticallyDetail,
                         isOn: Binding(
-                            get: { Updater.shared.automaticallyChecks },
-                            set: { Updater.shared.setAutomaticallyChecks($0) }
+                            get: { Updater.shared.automaticallyInstalls },
+                            set: { Updater.shared.setAutomaticallyInstalls($0) }
                         )
                     )
                     .geistGutter()

@@ -273,8 +273,9 @@ export const es: Translation = {
   'settings.version': 'Versión',
   'settings.openAtLogin': 'Abrir al iniciar sesión',
   'settings.openAtLoginDetail': 'Inicia notifi en la barra de menús al iniciar sesión en este Mac.',
-  'settings.automaticUpdates': 'Actualizaciones automáticas',
-  'settings.automaticUpdatesDetail': 'Busca nuevas versiones en segundo plano.',
+  'settings.installUpdatesAutomatically': 'Instalar actualizaciones automáticamente',
+  'settings.installUpdatesAutomaticallyDetail':
+    'Descarga e instala las nuevas versiones sin preguntar. notifi se reinicia al actualizarse.',
   'settings.checkForUpdates': 'Buscar actualizaciones',
   'settings.deleteAll': 'Eliminar todas las notificaciones',
   'settings.deleteAllTitle': '¿Eliminar todas las notificaciones?',

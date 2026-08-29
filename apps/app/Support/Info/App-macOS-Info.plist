@@ -34,6 +34,8 @@
 	<string>https://notifi.it/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>Xlsia4hLTja1GdypYg25beFydOefBfX+TkL2v8cLlNU=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
 	<key>SUEnableInstallerLauncherService</key>
 	<true/>
 	<!-- Same declaration as App-iOS-Info.plist, and it has to be the same: both
