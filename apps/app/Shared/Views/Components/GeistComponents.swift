@@ -500,20 +500,20 @@ struct GeistHeader<Trailing: View>: View {
                     .minimumScaleFactor(0.8)
                     .frame(height: Theme.headerBarHeight, alignment: .leading)
                 ZStack(alignment: .leading) {
-                    Color.clear.frame(width: 0, height: Theme.headerSubtitleHeight)
+                    Color.clear.frame(width: 0, height: subtitle != nil ? Theme.headerSubtitleHeight : 0)
                     if let subtitle {
                         Text(subtitle)
                             .font(Theme.meta)
                             .foregroundStyle(Theme.muted)
                     }
                 }
-                .frame(height: Theme.headerSubtitleHeight, alignment: .leading)
+                .frame(height: subtitle != nil ? Theme.headerSubtitleHeight : 0, alignment: .leading)
             }
             Spacer(minLength: 8)
             HStack(spacing: Theme.headerActionSpacing) {
                 trailing
             }
-                .frame(minHeight: Theme.headerBarHeight)
+                .frame(height: Theme.headerBarHeight)
         }
     }
 }

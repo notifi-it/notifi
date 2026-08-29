@@ -7,15 +7,21 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \Message.createdAt, order: .reverse) private var messages: [Message]
 
+    var title: String = Copy.Inbox.title
     var subtitle: Text? = nil
     @Binding var filterKeyID: Int?
+    var showsAccessory: Bool = false
     @ViewBuilder var trailing: () -> Trailing
     @ViewBuilder var accessory: () -> Accessory
+
+    private var subtitleHeight: CGFloat {
+        subtitle != nil || showsAccessory ? Theme.headerSubtitleHeight : 0
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(Copy.Inbox.title.uppercased())
+                Text(title.uppercased())
                     .font(Theme.screenTitle)
                     .tracking(Theme.screenTitleTracking)
                     .foregroundStyle(Theme.fg)
@@ -23,7 +29,7 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
                     .minimumScaleFactor(0.8)
                     .frame(height: Theme.headerBarHeight, alignment: .leading)
                 ZStack(alignment: .leading) {
-                    Color.clear.frame(width: 0, height: Theme.headerSubtitleHeight)
+                    Color.clear.frame(width: 0, height: subtitleHeight)
                     if let subtitle {
                         subtitle
                             .font(Theme.meta)
@@ -33,14 +39,15 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
                         accessory().fixedSize()
                     }
                 }
-                .frame(height: Theme.headerSubtitleHeight, alignment: .leading)
+                .frame(height: subtitleHeight, alignment: .leading)
+                .clipped()
             }
             Spacer(minLength: 8)
             HStack(spacing: Theme.headerActionSpacing) {
                 trailing()
                 overflowMenu
             }
-                .frame(minHeight: Theme.headerBarHeight)
+                .frame(height: Theme.headerBarHeight)
         }
     }
     private var overflowMenu: some View {
@@ -119,7 +126,9 @@ extension FeedHeader where Trailing == EmptyView, Accessory == EmptyView {
 }
 
 extension FeedHeader where Accessory == EmptyView {
-    init(subtitle: Text? = nil, filterKeyID: Binding<Int?>, @ViewBuilder trailing: @escaping () -> Trailing) {
-        self.init(subtitle: subtitle, filterKeyID: filterKeyID, trailing: trailing, accessory: { EmptyView() })
+    init(title: String = Copy.Inbox.title, subtitle: Text? = nil, filterKeyID: Binding<Int?>,
+         @ViewBuilder trailing: @escaping () -> Trailing) {
+        self.init(title: title, subtitle: subtitle, filterKeyID: filterKeyID,
+                  trailing: trailing, accessory: { EmptyView() })
     }
 }

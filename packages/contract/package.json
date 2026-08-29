@@ -13,7 +13,7 @@
     "gen-vectors": "tsx scripts/gen-vectors.ts"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^4.5.1"
   },
   "devDependencies": {
     "@hpke/core": "^1.7.4",

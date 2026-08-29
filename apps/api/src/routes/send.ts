@@ -8,7 +8,6 @@ import {
 import { copyFor, fmt, SOURCE_LANGUAGE, type Strings } from '@notifi/copy';
 import { Hono } from 'hono';
 import { push } from '../lib/apns.js';
-import { checkImage } from '../lib/imagecheck.js';
 import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
 import { hashKey } from '../lib/sendkey.js';
@@ -196,16 +195,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     warnings.push(fmt(t(c).api.messageCropped, { max: MESSAGE_MAX }));
   }
 
-  let image = input.image;
-  if (image !== undefined) {
-    const rejection = await checkImage(image);
-    if (rejection !== null) {
-      image = undefined;
-      warnings.push(
-        rejection === 'rejected' ? t(c).api.imageRejected : t(c).api.imageUnreachable,
-      );
-    }
-  }
+  const image = input.image;
 
   if (row.strict_send === 1 && warnings.length > 0) {
     return c.json(errBody('invalid_content', t(c).api.strictContentRejected), 422);

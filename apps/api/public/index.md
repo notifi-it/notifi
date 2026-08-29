@@ -25,16 +25,6 @@ own send keys, for marketing, and for anything where a missed notification
 causes harm: a key delivers only to the device that made it, and delivery is
 best-effort.
 
-## Why not just use ...
-
-- Quicker to set up than an **SMTP relay**
-- Your important notifications in one place, without cluttering your **email inbox**
-- Lighter than running **Slack**
-- No bot to register, unlike **Telegram**
-- Custom formatting, unlike **SMS**
-- Encrypted, unlike **Ntfy**
-- Free, unlike **Pushover**
-
 ## Start
 
 1. Install the app: [iPhone and iPad](https://apps.apple.com/app/id1563961135)
@@ -65,12 +55,22 @@ parameter.
 - `title` — required, 1 to 200 characters.
 - `message` — the body, Markdown, up to 16,000 characters.
 - `link` — a link to a website or internal app, up to 2,048 characters.
-- `image` — `https` URL to a PNG, JPEG or GIF, 5 MB max.
+- `image` — URL of an image shown with the notification, up to 2,048 characters.
 - `occurred_at` — unix milliseconds; changes the timestamp shown in the app.
 - `is_critical` — breaks through Focus, if the key allows it.
 
 The full reference is at [notifi.it/docs](https://notifi.it/docs), machine-readable
 at [notifi.it/openapi.json](https://notifi.it/openapi.json).
+
+## Why not just use ...
+
+- Quicker to set up than an **SMTP relay**
+- Your important notifications in one place, without cluttering your **email inbox**
+- Lighter than running **Slack**
+- No bot to register, unlike **Telegram**
+- Custom formatting, unlike **SMS**
+- Encrypted, unlike **Ntfy**
+- Free, unlike **Pushover**
 
 ## What it costs
 
