@@ -1,6 +1,7 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
 	gen-site check-site-html gen-site-md check-site-md check-site gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
+	app-submit-mac app-resubmit-mac app-metadata-mac app-screenshots-mac screens-mac-store \
 	app-metadata app-metadata-check app-screenshots app-resubmit shots doc-shots screens screens-mac \
 	film film-gif check-film
 
@@ -110,9 +111,31 @@ app-preflight:
 # run with DEVELOPMENT_TEAM exported, or project.yml interpolates an empty team and
 # every signed build fails with "requires a development team".
 #
-# macOS ships as a direct-download DMG. It is never uploaded to the App Store.
+# The direct-download macOS channel: a Developer ID DMG with Sparkle updates.
 app-dmg:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac dmg
+
+# The Mac App Store channel: the notifi-macOS-AppStore target (no Sparkle, no
+# temporary-exception entitlements), exported as a pkg and submitted to the
+# same App Store Connect record as iOS. The two channels coexist -- the DMG
+# and its appcast are untouched by this.
+app-submit-mac:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac submit
+
+app-resubmit-mac:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac resubmit
+
+app-metadata-mac:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac metadata
+
+app-screenshots-mac:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac screenshots
+
+# Re-render fastlane/screenshots-macos from the popover capture. Uses the raw
+# capture a `make screens-mac` run left in /tmp when there is one, else the
+# committed site asset -- so this needs no human at the machine.
+screens-mac-store:
+	python3 apps/app/Scripts/appstore-frames-mac.py
 
 # iOS ships through the App Store, in two steps. `app-testflight` puts a build in
 # front of testers; `app-submit` builds the same thing again and submits that

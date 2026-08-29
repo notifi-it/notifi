@@ -130,7 +130,7 @@ struct RootContentView: View {
                 }
                 #if os(iOS)
                 model.startLiveUpdates()
-                #else
+                #elseif canImport(Sparkle)
                 Updater.shared.checkInBackground()
                 #endif
             } else {
