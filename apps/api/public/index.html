@@ -184,6 +184,8 @@ h2{font-size:clamp(24px,3.6vw,34px)}
 h3{font-size:17px;letter-spacing:-.02em}
 p{max-width:62ch}
 .lede{font-family:var(--mono);font-size:clamp(15px,1.85vw,17px);color:var(--muted);line-height:1.6}
+.lede .free{display:block;color:var(--fg);font-weight:600;margin-bottom:12px}
+.lede .free .bang{color:var(--brand)}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 .eyebrow{
   font-family:var(--mono);font-size:11px;font-weight:600;
@@ -1098,8 +1100,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <div class="wrap hero-grid">
     <div class="hero-copy">
     <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
-    <p class="lede">
-      notifi is free.
+    <p class="lede no-reveal">
+      <span class="free">it's free<span class="bang">!</span></span>
       Install the app, grab your key, and send an HTTP request to
       <code>notifi.it/send</code>.
     </p>
