@@ -28,9 +28,6 @@ export const de: Translation = {
     'Als normale Benachrichtigung gesendet: Kritische Benachrichtigungen sind für diesen Schlüssel deaktiviert.',
   'api.titleCropped': 'Mit gekürztem Titel gesendet: Er war länger als {max} Zeichen.',
   'api.messageCropped': 'Mit gekürzter Benachrichtigung gesendet: Sie war länger als {max} Zeichen.',
-  'api.imageRejected': 'Ohne Bild gesendet: Diese Adresse rufen wir nicht ab.',
-  'api.imageUnreachable':
-    'Ohne Bild gesendet: Es kam keine Antwort als PNG, JPEG oder GIF unter 5 MB.',
   'api.strictContentRejected':
     'Nicht gesendet. Dieses Gerät ist so eingestellt, dass es eine nicht wie geschrieben zustellbare Benachrichtigung ablehnt.',
 
@@ -306,9 +303,8 @@ export const de: Translation = {
 
   'settings.strictSend': 'Ungültige Sendungen ablehnen',
   'settings.strictSendDetail':
-    'Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist ' +
-    'oder eine Bild-URL die Validierung nicht besteht. Aus, /send kürzt oder verwirft das Feld und ' +
-    'gibt 202 mit einem warnings-Array zurück.',
+    'Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist. ' +
+    'Aus, /send kürzt das Feld und gibt 202 mit einem warnings-Array zurück.',
   'settings.strictSendFailed': 'PATCH /devices/settings fehlgeschlagen. Verbindung prüfen und erneut versuchen.',
 
   'settings.testTitle': 'Hello from notifi',

@@ -42,7 +42,6 @@ export const ORIGIN = 'https://notifi.it';
 export const ENDPOINT = '/send';
 export const KEY_PREFIX = 'nk_';
 export const URL_MAX = LINK_URL_MAX;
-export const IMAGE_MAX_MB = 5;
 export const SENDS_PER_HOUR = 60;
 export const KEYS_PER_DEVICE = 5;
 export const REQUESTS_PER_MINUTE = 100;
@@ -114,10 +113,10 @@ export const params: Param[] = [
     type: 'string (uri)',
     required: false,
     limit: '≤ 2,048 chars',
-    summary: 'https URL of a PNG, JPEG or GIF up to 5 MB.',
+    summary: 'URL of an image shown with the notification.',
     detail:
-      'One that cannot be fetched is dropped, with a warning, and the notification still arrives.',
-    openapi: { format: 'uri', pattern: '^https://' },
+      'Fetched by the receiving device, never by the server; by default the app loads it only when tapped.',
+    openapi: { format: 'uri' },
     example: 'https://notifi.it/anaglyph-bell.png',
   },
   {

@@ -28,9 +28,6 @@ export const it: Translation = {
     'Inviata come notifica normale: gli avvisi critici sono disattivati per questa chiave.',
   'api.titleCropped': 'Inviata con un titolo abbreviato: superava {max} caratteri.',
   'api.messageCropped': 'Inviata con una notifica abbreviata: superava {max} caratteri.',
-  'api.imageRejected': "Inviata senza l'immagine: non è un indirizzo che recuperiamo.",
-  'api.imageUnreachable':
-    "Inviata senza l'immagine: non ha risposto con un PNG, JPEG o GIF sotto i 5 MB.",
   'api.strictContentRejected':
     'Non inviata. Questo dispositivo è impostato per rifiutare una notifica che non può consegnare così com\'è scritta.',
 
@@ -260,8 +257,7 @@ export const it: Translation = {
   'settings.strictSend': 'Rifiuta invii non validi',
   'settings.strictSendDetail':
     'Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un corpo supera la ' +
-    'lunghezza consentita o l\'URL di un\'immagine non supera la convalida. Disattivato, /send abbrevia o ' +
-    'scarta il campo e restituisce 202 con un array di warnings.',
+    'lunghezza consentita. Disattivato, /send abbrevia il campo e restituisce 202 con un array di warnings.',
   'settings.strictSendFailed': 'PATCH /devices/settings non riuscito. Controlla la connessione e riprova.',
 
   'settings.testTitle': 'Hello from notifi',

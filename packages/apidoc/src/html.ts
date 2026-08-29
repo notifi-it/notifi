@@ -3,7 +3,6 @@ import {
   INTEGRATION_SURFACE,
   OPERATION_ERRORS,
   ENDPOINT,
-  IMAGE_MAX_MB,
   KEYS_PER_DEVICE,
   MESSAGE_MAX,
   ORIGIN,
@@ -263,8 +262,6 @@ export function docsBody(): string {
     <h2>Parameters</h2>
     <p>
       <code>key</code> is required unless the request carries a bearer token.
-      An image is fetched server-side and must be <code>https</code>, PNG, JPEG or GIF,
-      ${IMAGE_MAX_MB}&nbsp;MB at most.
     </p>
     <div class="tablewrap" tabindex="0" role="group" aria-label="Send parameters, scrollable">
       <table>
@@ -288,19 +285,17 @@ ${parameterRows()}
 ${terminalGroup('r-', 'Responses', RESPONSES)}
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
-      differently from what was asked: a cropped title or body, a dropped image, or a critical
+      differently from what was asked: a cropped title or body, or a critical
       alert delivered as an ordinary notification. The status is still <code>202</code> — the
       notification was sent, in the altered form each warning describes.
     </p>
 ${pre(WARNINGS_RESPONSE, 'http')}
 
-    <h3>Over-length text is cropped, invalid images dropped</h3>
+    <h3>Over-length text is cropped</h3>
     <p>
       A title over ${TITLE_MAX} characters or a body over ${MESSAGE_MAX} is delivered cropped,
-      with a warning. An image that cannot be fetched, is not a PNG, JPEG or GIF, or is over
-      ${IMAGE_MAX_MB} MB is dropped the same way: the notification arrives without it, with a
-      warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
-      the app's Settings, makes a send that would have been cropped or stripped answer
+      with a warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
+      the app's Settings, makes a send that would have been cropped answer
       <code>422 invalid_content</code> and store nothing. It is off by default, so cropping is
       what a send meets unless the person holding the device turned it on.
     </p>

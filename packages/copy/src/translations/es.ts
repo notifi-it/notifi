@@ -28,9 +28,6 @@ export const es: Translation = {
     'Enviado como notificación normal: las alertas críticas están desactivadas para esta clave.',
   'api.titleCropped': 'Enviado con un título acortado: superaba los {max} caracteres.',
   'api.messageCropped': 'Enviado con una notificación acortada: superaba los {max} caracteres.',
-  'api.imageRejected': 'Enviado sin la imagen: esa no es una dirección que vayamos a obtener.',
-  'api.imageUnreachable':
-    'Enviado sin la imagen: no respondió con un PNG, JPEG o GIF de menos de 5 MB.',
   'api.strictContentRejected':
     'No enviado. Este dispositivo está configurado para rechazar una notificación que no puede entregar tal como está escrita.',
 
@@ -260,8 +257,7 @@ export const es: Translation = {
   'settings.strictSend': 'Rechazar envíos no válidos',
   'settings.strictSendDetail':
     'Devuelve 422 invalid_content y no guarda nada cuando un título o cuerpo supera la ' +
-    'longitud o una URL de imagen no pasa la validación. Desactivado, /send recorta o descarta el campo y ' +
-    'devuelve 202 con un array de avisos.',
+    'longitud. Desactivado, /send recorta el campo y devuelve 202 con un array de avisos.',
   'settings.strictSendFailed': 'PATCH /devices/settings falló. Comprueba tu conexión e inténtalo de nuevo.',
 
   'settings.testTitle': 'Hello from notifi',

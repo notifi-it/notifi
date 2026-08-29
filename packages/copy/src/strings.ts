@@ -33,9 +33,6 @@ export const copy = {
       'Sent as a normal notification: critical alerts are switched off for this key.',
     titleCropped: 'Sent with a shortened title: it was over {max} characters.',
     messageCropped: 'Sent with a shortened notification: it was over {max} characters.',
-    imageRejected: 'Sent without the image: that is not an address we will fetch.',
-    imageUnreachable:
-      'Sent without the image: it did not answer with a PNG, JPEG or GIF under 5 MB.',
     strictContentRejected:
       'Not sent. This device is set to refuse a notification it cannot deliver as written.',
 
@@ -333,8 +330,7 @@ export const copy = {
     strictSend: 'Reject invalid sends',
     strictSendDetail:
       'Returns 422 invalid_content and stores nothing when a title or body is over ' +
-      'length or an image URL fails validation. Off, /send crops or drops the field and ' +
-      'returns 202 with a warnings array.',
+      'length. Off, /send crops the field and returns 202 with a warnings array.',
     strictSendFailed: 'PATCH /devices/settings failed. Check your connection and try again.',
 
     testTitle: 'Hello from notifi',

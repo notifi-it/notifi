@@ -7677,31 +7677,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Returns 422 invalid_content and stores nothing when a title or body is over length or an image URL fails validation. Off, /send crops or drops the field and returns 202 with a warnings array."
+            "value": "Returns 422 invalid_content and stores nothing when a title or body is over length. Off, /send crops the field and returns 202 with a warnings array."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Devuelve 422 invalid_content y no guarda nada cuando un título o cuerpo supera la longitud o una URL de imagen no pasa la validación. Desactivado, /send recorta o descarta el campo y devuelve 202 con un array de avisos."
+            "value": "Devuelve 422 invalid_content y no guarda nada cuando un título o cuerpo supera la longitud. Desactivado, /send recorta el campo y devuelve 202 con un array de avisos."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist oder eine Bild-URL die Validierung nicht besteht. Aus, /send kürzt oder verwirft das Feld und gibt 202 mit einem warnings-Array zurück."
+            "value": "Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist. Aus, /send kürzt das Feld und gibt 202 mit einem warnings-Array zurück."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Renvoie 422 invalid_content et ne stocke rien lorsqu'un titre ou un corps dépasse la longueur autorisée ou qu'une URL d'image échoue à la validation. Désactivé, /send raccourcit ou supprime le champ et renvoie 202 avec un tableau warnings."
+            "value": "Renvoie 422 invalid_content et ne stocke rien lorsqu'un titre ou un corps dépasse la longueur autorisée. Désactivé, /send raccourcit le champ et renvoie 202 avec un tableau warnings."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un corpo supera la lunghezza consentita o l'URL di un'immagine non supera la convalida. Disattivato, /send abbrevia o scarta il campo e restituisce 202 con un array di warnings."
+            "value": "Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un corpo supera la lunghezza consentita. Disattivato, /send abbrevia il campo e restituisce 202 con un array di warnings."
           }
         }
       }
