@@ -1,3 +1,5 @@
+import { publicErrorCode, sendFields, sendResponse } from '@notifi/contract';
+import { z } from 'zod';
 import {
   AUTH,
   DESCRIPTION,
@@ -9,6 +11,36 @@ import {
   errors,
   params,
 } from './spec.js';
+
+type JsonObject = Record<string, unknown>;
+
+function contractProperties(schema: z.ZodType): Record<string, JsonObject> {
+  const json = z.toJSONSchema(schema) as { properties?: Record<string, JsonObject> };
+  if (!json.properties) throw new Error('contract schema has no properties');
+  for (const property of Object.values(json.properties)) {
+    if (property.maximum === Number.MAX_SAFE_INTEGER) delete property.maximum;
+  }
+  return json.properties;
+}
+
+const fieldSchemas = contractProperties(sendFields);
+
+function fieldSchema(name: string): JsonObject {
+  const base = fieldSchemas[name];
+  const param = params.find((p) => p.name === name);
+  if (!base || !param) throw new Error(`no contract field ${name}`);
+  return { ...base, ...param.openapi };
+}
+
+function assertErrorTableMatchesContract(): void {
+  const documented = errors.map((e) => e.code);
+  const contract = publicErrorCode.options;
+  const missing = contract.filter((c) => !documented.includes(c));
+  const extra = documented.filter((c) => !contract.includes(c));
+  if (missing.length || extra.length) {
+    throw new Error(`error table out of sync with contract: missing ${missing}, extra ${extra}`);
+  }
+}
 
 const OPERATION_ERRORS = ['invalid_request', 'unknown_key', 'invalid_content', 'rate_limited'];
 
@@ -28,7 +60,11 @@ function description(name: string): string {
 function properties(): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const param of params) {
-    out[param.name] = { ...param.openapi, description: description(param.name) };
+    out[param.name] = {
+      ...fieldSchema(param.name),
+      description: description(param.name),
+      ...(param.example === undefined ? {} : { examples: [param.example] }),
+    };
   }
   return out;
 }
@@ -41,7 +77,8 @@ function queryParameters(): Record<string, unknown> {
       in: 'query',
       required: param.name === 'title',
       description: param.summary,
-      schema: param.openapi,
+      schema: fieldSchema(param.name),
+      ...(param.example === undefined ? {} : { example: param.example }),
     };
   }
   return out;
@@ -51,14 +88,39 @@ function errorResponses(): Record<string, unknown> {
   const out: Record<string, unknown> = {
     Accepted: {
       description: 'The server accepted the notification. Not a delivery receipt.',
-      content: { 'application/json': { schema: { $ref: '#/components/schemas/SendResponse' } } },
+      content: {
+        'application/json': {
+          schema: { $ref: '#/components/schemas/SendResponse' },
+          examples: {
+            delivered: { value: { ok: true } },
+            deliveredWithWarnings: {
+              value: {
+                ok: true,
+                warnings: [
+                  'Sent as a normal notification: critical alerts are switched off for this key.',
+                ],
+              },
+            },
+          },
+        },
+      },
     },
+  };
+  const other = errors.filter((error) => !OPERATION_ERRORS.includes(error.code));
+  out.UnexpectedError = {
+    description: `Any other failure, in the same error shape: ${other.map((e) => e.code).join(' or ')}.`,
+    content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
   };
   for (const error of errors) {
     if (!OPERATION_ERRORS.includes(error.code)) continue;
     const body: Record<string, unknown> = {
       description: error.detail ? `${error.summary} ${error.detail}` : error.summary,
-      content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+      content: {
+        'application/json': {
+          schema: { $ref: '#/components/schemas/Error' },
+          example: { error: { code: error.code, message: error.message } },
+        },
+      },
     };
     if (error.code === 'rate_limited') {
       body.headers = {
@@ -79,12 +141,21 @@ function operationResponses(): Record<string, unknown> {
     if (!OPERATION_ERRORS.includes(error.code)) continue;
     out[String(error.status)] = { $ref: `#/components/responses/${responseName(error.code)}` };
   }
+  out.default = { $ref: '#/components/responses/UnexpectedError' };
   return out;
 }
 
+const responseProperties = contractProperties(sendResponse);
+
 export function openapi(): Record<string, unknown> {
+  assertErrorTableMatchesContract();
   const security = [{ sendKey: [] }, { keyParameter: [] }];
   const bodySchema = { $ref: '#/components/schemas/SendParams' };
+  const bodyExample = Object.fromEntries(
+    params
+      .filter((p) => ['title', 'message', 'link'].includes(p.name) && p.example !== undefined)
+      .map((p) => [p.name, p.example]),
+  );
   return {
     openapi: '3.1.0',
     info: {
@@ -119,14 +190,14 @@ export function openapi(): Record<string, unknown> {
           operationId: 'sendNotification',
           summary: 'Send a notification',
           description:
-            'Delivers a notification to the device that created the send key. Answers 202 once the server has accepted it, which is not a delivery receipt. Query parameters win over body fields when both are present.',
+            'Delivers a notification to the device that created the send key. Answers 202 once the server has accepted it, which is not a delivery receipt. Query parameters win over body fields when both are present. The key body field also authenticates; the security schemes above cannot describe a credential in the body, so it is listed only as a field of SendParams.',
           security,
           requestBody: {
             required: true,
             content: {
-              'application/json': { schema: bodySchema },
-              'application/x-www-form-urlencoded': { schema: bodySchema },
-              'multipart/form-data': { schema: bodySchema },
+              'application/json': { schema: bodySchema, example: bodyExample },
+              'application/x-www-form-urlencoded': { schema: bodySchema, example: bodyExample },
+              'multipart/form-data': { schema: bodySchema, example: bodyExample },
             },
           },
           responses: operationResponses(),
@@ -138,7 +209,6 @@ export function openapi(): Record<string, unknown> {
         sendKey: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'nk_',
           description: AUTH.bearerDescription,
         },
         keyParameter: {
@@ -160,12 +230,11 @@ export function openapi(): Record<string, unknown> {
           type: 'object',
           required: ['ok'],
           properties: {
-            ok: { const: true },
+            ok: responseProperties.ok,
             warnings: {
-              type: 'array',
-              items: { type: 'string' },
+              ...responseProperties.warnings,
               description:
-                'Present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one.',
+                'Present only when the notification was delivered differently from what was asked: a cropped title or body, or a critical alert delivered as an ordinary notification.',
             },
           },
         },
@@ -179,7 +248,7 @@ export function openapi(): Record<string, unknown> {
               properties: {
                 code: {
                   type: 'string',
-                  enum: errors.map((e) => e.code),
+                  enum: publicErrorCode.options,
                   description: 'Read error.code, not code: the code is nested one level down.',
                 },
                 message: {
@@ -196,7 +265,7 @@ export function openapi(): Record<string, unknown> {
     },
     'x-rate-limits': {
       perDevicePerHour: SENDS_PER_HOUR,
-      perAddressPerMinute: REQUESTS_PER_MINUTE,
+      perIpPerMinute: REQUESTS_PER_MINUTE,
     },
   };
 }

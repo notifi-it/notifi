@@ -3,7 +3,7 @@
   "info": {
     "title": "notifi",
     "summary": "Push notifications to an iPhone, iPad or Mac from one HTTP request.",
-    "description": "notifi delivers a push notification to the device that created the send key you authenticate with. There is no account and no SDK: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.\n\nSend keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.\n\nWhen to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.",
+    "description": "notifi delivers a push notification to the device that created the send key you authenticate with. There is no account: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.\n\nSend keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.\n\nWhen to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.",
     "version": "1.0.0",
     "termsOfService": "https://notifi.it/terms",
     "license": {
@@ -87,6 +87,9 @@
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          },
+          "default": {
+            "$ref": "#/components/responses/UnexpectedError"
           }
         }
       },
@@ -96,7 +99,7 @@
         ],
         "operationId": "sendNotification",
         "summary": "Send a notification",
-        "description": "Delivers a notification to the device that created the send key. Answers 202 once the server has accepted it, which is not a delivery receipt. Query parameters win over body fields when both are present.",
+        "description": "Delivers a notification to the device that created the send key. Answers 202 once the server has accepted it, which is not a delivery receipt. Query parameters win over body fields when both are present. The key body field also authenticates; the security schemes above cannot describe a credential in the body, so it is listed only as a field of SendParams.",
         "security": [
           {
             "sendKey": []
@@ -111,16 +114,31 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/SendParams"
+              },
+              "example": {
+                "title": "Hello from notifi",
+                "message": "Your first notification.",
+                "link": "https://notifi.it/docs"
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
                 "$ref": "#/components/schemas/SendParams"
+              },
+              "example": {
+                "title": "Hello from notifi",
+                "message": "Your first notification.",
+                "link": "https://notifi.it/docs"
               }
             },
             "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/SendParams"
+              },
+              "example": {
+                "title": "Hello from notifi",
+                "message": "Your first notification.",
+                "link": "https://notifi.it/docs"
               }
             }
           }
@@ -140,6 +158,9 @@
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          },
+          "default": {
+            "$ref": "#/components/responses/UnexpectedError"
           }
         }
       }
@@ -150,7 +171,6 @@
       "sendKey": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "nk_",
         "description": "The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history."
       },
       "keyParameter": {
@@ -169,7 +189,8 @@
         "schema": {
           "type": "string",
           "pattern": "^nk_"
-        }
+        },
+        "example": "nk_yourkey"
       },
       "title": {
         "name": "title",
@@ -180,7 +201,8 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 200
-        }
+        },
+        "example": "Hello from notifi"
       },
       "message": {
         "name": "message",
@@ -190,29 +212,32 @@
         "schema": {
           "type": "string",
           "maxLength": 16000
-        }
+        },
+        "example": "Your first notification."
       },
       "link": {
         "name": "link",
         "in": "query",
         "required": false,
-        "description": "URL opened when the notification is tapped.",
+        "description": "A link to a website or internal app.",
         "schema": {
           "type": "string",
-          "format": "uri",
-          "maxLength": 2048
-        }
+          "maxLength": 2048,
+          "format": "uri"
+        },
+        "example": "https://notifi.it/docs"
       },
       "image": {
         "name": "image",
         "in": "query",
         "required": false,
-        "description": "https URL of a PNG, JPEG or GIF up to 5 MB.",
+        "description": "URL of an image shown with the notification.",
         "schema": {
           "type": "string",
-          "format": "uri",
-          "maxLength": 2048
-        }
+          "maxLength": 2048,
+          "format": "uri"
+        },
+        "example": "https://notifi.it/anaglyph-bell.png"
       },
       "occurred_at": {
         "name": "occurred_at",
@@ -221,6 +246,7 @@
         "description": "When the event actually happened, as unix milliseconds.",
         "schema": {
           "type": "integer",
+          "minimum": 946684800000,
           "format": "int64"
         }
       },
@@ -244,33 +270,49 @@
           "key": {
             "type": "string",
             "pattern": "^nk_",
-            "description": "The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on, so which key a script holds decides where its notifications go."
+            "description": "The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device the notification lands on.",
+            "examples": [
+              "nk_yourkey"
+            ]
           },
           "title": {
             "type": "string",
             "minLength": 1,
             "maxLength": 200,
-            "description": "The notification title. A longer title is delivered cropped, with a warning in the response."
+            "description": "The notification title. A longer title is delivered cropped, with a warning in the response.",
+            "examples": [
+              "Hello from notifi"
+            ]
           },
           "message": {
             "type": "string",
             "maxLength": 16000,
-            "description": "The notification body, in Markdown. The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning."
+            "description": "The notification body, in Markdown. A longer body is delivered cropped, with a warning.",
+            "examples": [
+              "Your first notification."
+            ]
           },
           "link": {
             "type": "string",
-            "format": "uri",
             "maxLength": 2048,
-            "description": "URL opened when the notification is tapped."
+            "format": "uri",
+            "description": "A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.",
+            "examples": [
+              "https://notifi.it/docs"
+            ]
           },
           "image": {
             "type": "string",
-            "format": "uri",
             "maxLength": 2048,
-            "description": "https URL of a PNG, JPEG or GIF up to 5 MB. One that cannot be fetched is dropped, with a warning, and the notification still arrives."
+            "format": "uri",
+            "description": "URL of an image shown with the notification. Fetched by the receiving device, never by the server; by default the app loads it only when tapped.",
+            "examples": [
+              "https://notifi.it/anaglyph-bell.png"
+            ]
           },
           "occurred_at": {
             "type": "integer",
+            "minimum": 946684800000,
             "format": "int64",
             "description": "When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request."
           },
@@ -288,6 +330,7 @@
         ],
         "properties": {
           "ok": {
+            "type": "boolean",
             "const": true
           },
           "warnings": {
@@ -295,7 +338,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body, a dropped image, or a critical alert downgraded to an ordinary one."
+            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body, or a critical alert delivered as an ordinary notification."
           }
         }
       },
@@ -315,10 +358,10 @@
               "code": {
                 "type": "string",
                 "enum": [
-                  "invalid_request",
                   "unknown_key",
-                  "invalid_content",
                   "rate_limited",
+                  "invalid_request",
+                  "invalid_content",
                   "not_found",
                   "internal_error"
                 ],
@@ -340,6 +383,31 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/SendResponse"
+            },
+            "examples": {
+              "delivered": {
+                "value": {
+                  "ok": true
+                }
+              },
+              "deliveredWithWarnings": {
+                "value": {
+                  "ok": true,
+                  "warnings": [
+                    "Sent as a normal notification: critical alerts are switched off for this key."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "UnexpectedError": {
+        "description": "Any other failure, in the same error shape: not_found or internal_error.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
             }
           }
         }
@@ -350,6 +418,12 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "invalid_request",
+                "message": "title is required."
+              }
             }
           }
         }
@@ -360,6 +434,12 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "unknown_key",
+                "message": "Unknown or revoked key."
+              }
             }
           }
         }
@@ -370,6 +450,12 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "invalid_content",
+                "message": "Not sent. This device is set to refuse a notification it cannot deliver as written."
+              }
             }
           }
         }
@@ -380,6 +466,12 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "rate_limited",
+                "message": "Too many notifications. Try again shortly."
+              }
             }
           }
         },
@@ -396,6 +488,6 @@
   },
   "x-rate-limits": {
     "perDevicePerHour": 60,
-    "perAddressPerMinute": 100
+    "perIpPerMinute": 100
   }
 }

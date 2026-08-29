@@ -1,3 +1,8 @@
+import type { PublicErrorCode } from '@notifi/contract';
+import { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX } from '@notifi/contract';
+
+export { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX };
+
 export interface Param {
   name: string;
   type: string;
@@ -10,7 +15,7 @@ export interface Param {
 }
 
 export interface ErrorRow {
-  code: string;
+  code: PublicErrorCode;
   status: number;
   reason: string;
   message: string;
@@ -36,10 +41,7 @@ export interface Resource {
 export const ORIGIN = 'https://notifi.it';
 export const ENDPOINT = '/send';
 export const KEY_PREFIX = 'nk_';
-export const TITLE_MAX = 200;
-export const MESSAGE_MAX = 16000;
-export const URL_MAX = 2048;
-export const IMAGE_MAX_MB = 5;
+export const URL_MAX = LINK_URL_MAX;
 export const SENDS_PER_HOUR = 60;
 export const KEYS_PER_DEVICE = 5;
 export const REQUESTS_PER_MINUTE = 100;
@@ -48,7 +50,7 @@ export const SUMMARY =
   'Push notifications to an iPhone, iPad or Mac from one HTTP request.';
 
 export const DESCRIPTION = [
-  'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account and no SDK: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.',
+  'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.',
   'Send keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.',
   'When to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.',
 ].join('\n\n');
@@ -71,8 +73,8 @@ export const params: Param[] = [
     limit: 'nk_…',
     summary: 'The send key, if it is not sent as a bearer token.',
     detail:
-      'Required unless sent as a bearer token. The key picks the device the notification lands on, so which key a script holds decides where its notifications go.',
-    openapi: { type: 'string', pattern: '^nk_' },
+      'Required unless sent as a bearer token. The key picks the device the notification lands on.',
+    openapi: { pattern: '^nk_' },
     example: 'nk_yourkey',
   },
   {
@@ -82,7 +84,7 @@ export const params: Param[] = [
     limit: '1–200 chars',
     summary: 'The notification title.',
     detail: 'A longer title is delivered cropped, with a warning in the response.',
-    openapi: { type: 'string', minLength: 1, maxLength: TITLE_MAX },
+    openapi: {},
     example: 'Hello from notifi',
   },
   {
@@ -91,9 +93,8 @@ export const params: Param[] = [
     required: false,
     limit: '≤ 16,000 chars',
     summary: 'The notification body, in Markdown.',
-    detail:
-      'The push shows a short preview; the app renders the full text. A longer body is delivered cropped, with a warning.',
-    openapi: { type: 'string', maxLength: MESSAGE_MAX },
+    detail: 'A longer body is delivered cropped, with a warning.',
+    openapi: {},
     example: 'Your first notification.',
   },
   {
@@ -101,9 +102,10 @@ export const params: Param[] = [
     type: 'string (uri)',
     required: false,
     limit: '≤ 2,048 chars',
-    summary: 'URL opened when the notification is tapped.',
-    detail: '',
-    openapi: { type: 'string', format: 'uri', maxLength: URL_MAX },
+    summary: 'A link to a website or internal app.',
+    detail:
+      'Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.',
+    openapi: {},
     example: 'https://notifi.it/docs',
   },
   {
@@ -111,10 +113,10 @@ export const params: Param[] = [
     type: 'string (uri)',
     required: false,
     limit: '≤ 2,048 chars',
-    summary: 'https URL of a PNG, JPEG or GIF up to 5 MB.',
+    summary: 'URL of an image shown with the notification.',
     detail:
-      'One that cannot be fetched is dropped, with a warning, and the notification still arrives.',
-    openapi: { type: 'string', format: 'uri', maxLength: URL_MAX },
+      'Fetched by the receiving device, never by the server; by default the app loads it only when tapped.',
+    openapi: { format: 'uri' },
     example: 'https://notifi.it/anaglyph-bell.png',
   },
   {
@@ -125,7 +127,7 @@ export const params: Param[] = [
     summary: 'When the event actually happened, as unix milliseconds.',
     detail:
       'For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request.',
-    openapi: { type: 'integer', format: 'int64' },
+    openapi: { format: 'int64' },
   },
   {
     name: 'is_critical',
@@ -134,7 +136,7 @@ export const params: Param[] = [
     summary: 'Breaks through Focus.',
     detail:
       'The key must also have critical alerts switched on in the app, or an ordinary notification is delivered and the response carries a warnings array.',
-    openapi: { type: 'boolean' },
+    openapi: {},
   },
 ];
 

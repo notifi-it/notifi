@@ -170,8 +170,14 @@ BASE=http://localhost:8787 make check-site
 
 ## API documentation is generated
 
-`packages/apidoc/src` is the source of truth for everything that describes
-`/send`. Change a parameter, an error code or a limit there and run
+`packages/apidoc/src` is the source of truth for the prose that describes
+`/send`; the schemas, limits and error codes come from the Zod contract.
+`openapi.ts` converts `sendFields` (the documented schema `sendParams` derives
+its crop tolerance from), `sendResponse` and `publicErrorCode` with
+`z.toJSONSchema`, merges apidoc's descriptions and examples on top, and refuses
+to generate if the error table in `spec.ts` and `publicErrorCode` disagree.
+Change a limit or an error code in `packages/contract`, or prose in
+`packages/apidoc/src`, and run
 
 ```bash
 make gen-api
@@ -350,9 +356,16 @@ header and content and choose only `scroll:` (`.content` = own container,
 before (titles 107pt apart on iPad).
 
 Know before changing: the nav bar is shown on all three tabs at regular width
-(it carries a safe-area inset regardless; hiding it moves titles), and
-`GeistHeader` reserves the subtitle line on screens without a count (Settings)
-so the rule doesn't jump between tabs.
+(it carries a safe-area inset regardless; hiding it moves titles), and the
+header subtitle line (`GeistHeader`/`FeedHeader`) collapses to zero height when
+it has no subtitle or accessory, so screens without one sit tight.
+
+The vertical distance from the header title to the first section label must be
+**identical on all three tabs** (INBOX→first band, KEYS→ACTIVE,
+SETTINGS→PERMISSIONS). Measure it on the Simulator after any header, margin or
+section-label change — the three screens share `GeistPage`/`SectionLabel`
+geometry precisely so this cannot drift, and a per-screen fix that breaks the
+match is wrong even if that one screen looks better.
 
 The gutter is `Theme.gutter` (20pt) via `geistGutter()` — never a literal, and
 never a compensating offset to cancel a container quirk.

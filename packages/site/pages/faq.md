@@ -51,7 +51,7 @@ A successful send answers `202` with `{"ok":true}`. The key can also be passed a
 
 - `title` — 1 to 200 characters, required.
 - `message` — up to 16,000 characters.
-- `link` and `image` — up to 2,048 characters. An `image` must be `https`, and PNG, JPEG or GIF up to 5 MB.
+- `link` and `image` — up to 2,048 characters.
 
 A push payload has a 4,000-byte ceiling set by Apple, so a long notification is truncated in the banner and delivered in full to the app.
 

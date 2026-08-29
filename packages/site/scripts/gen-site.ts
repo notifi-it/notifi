@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import {
   docsBody,
   landingEndpoint,
-  landingNote,
   landingPanels,
   landingRows,
   landingTabs,
@@ -153,7 +152,6 @@ function landing(): string {
   html = splice(html, 'footer', footer({ path: '/' } as Meta));
   html = splice(html, 'endpoint', landingEndpoint());
   html = splice(html, 'params', landingRows());
-  html = splice(html, 'apinote', landingNote());
   html = splice(html, 'tabs', landingTabs());
   html = splice(html, 'panels', landingPanels());
   html = splice(html, 'termcss', terminalCss.trimEnd(), 'css');

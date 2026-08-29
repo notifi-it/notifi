@@ -1,8 +1,8 @@
 """Crop the raw simulator captures into the figures /docs shows.
 
 `make doc-shots` runs shots.sh for the screens below and then this, so the
-two published figures are never cropped by hand. The boxes are in the raw
-1320x2868 capture's pixels; each output is halved, so the file's own pixel
+published figures are never cropped by hand. The boxes are in the raw
+1206x2622 capture's pixels; each output is halved, so the file's own pixel
 size is the size the page displays it at, and gen-site reads that off the
 file rather than being told.
 
@@ -18,8 +18,9 @@ RAW = Path("/tmp/notifi-shots")
 OUT = ROOT / "apps/api/public/shots"
 
 FIGURES = [
-    ("settings", "settings-reject-invalid-sends.png", (0, 150, 1320, 800)),
-    ("key", "key-critical-alerts.png", (0, 120, 1320, 1750)),
+    ("settings", "settings-reject-invalid-sends.png", (0, 160, 1206, 800)),
+    ("key", "key-critical-alerts.png", (0, 110, 1206, 1599)),
+    ("key", "key-open-any-link.png", (0, 1160, 1206, 1450)),
 ]
 
 

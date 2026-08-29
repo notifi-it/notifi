@@ -8,7 +8,6 @@ export {
   landingTabs,
   landingPanels,
   landingEndpoint,
-  landingNote,
   highlight,
   terminal,
   terminalGroup,

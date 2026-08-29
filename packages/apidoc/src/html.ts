@@ -3,7 +3,6 @@ import {
   INTEGRATION_SURFACE,
   OPERATION_ERRORS,
   ENDPOINT,
-  IMAGE_MAX_MB,
   KEYS_PER_DEVICE,
   MESSAGE_MAX,
   ORIGIN,
@@ -162,7 +161,7 @@ const SECTIONS: Array<[string, string]> = [
   ['errors', 'Errors'],
   ['limits', 'Rate limits'],
   ['clients', 'Clients and import'],
-  ['machine', 'Machine-readable'],
+  ['machine', 'For the bots'],
   ['recipes', 'Recipes'],
 ];
 
@@ -263,8 +262,6 @@ export function docsBody(): string {
     <h2>Parameters</h2>
     <p>
       <code>key</code> is required unless the request carries a bearer token.
-      An image is fetched server-side and must be <code>https</code>, PNG, JPEG or GIF,
-      ${IMAGE_MAX_MB}&nbsp;MB at most.
     </p>
     <div class="tablewrap" tabindex="0" role="group" aria-label="Send parameters, scrollable">
       <table>
@@ -288,8 +285,8 @@ ${parameterRows()}
 ${terminalGroup('r-', 'Responses', RESPONSES)}
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
-      differently from what was asked: a cropped title or body, a dropped image, or a critical
-      alert downgraded to an ordinary one. The status is still <code>202</code> — the
+      differently from what was asked: a cropped title or body, or a critical
+      alert delivered as an ordinary notification. The status is still <code>202</code> — the
       notification was sent, in the altered form each warning describes.
     </p>
 ${pre(WARNINGS_RESPONSE, 'http')}
@@ -298,7 +295,7 @@ ${pre(WARNINGS_RESPONSE, 'http')}
     <p>
       A title over ${TITLE_MAX} characters or a body over ${MESSAGE_MAX} is delivered cropped,
       with a warning. The device can refuse instead: <strong>Reject invalid sends</strong>, in
-      the app's Settings, makes a send that would have been cropped or stripped answer
+      the app's Settings, makes a send that would have been cropped answer
       <code>422 invalid_content</code> and store nothing. It is off by default, so cropping is
       what a send meets unless the person holding the device turned it on.
     </p>
@@ -308,7 +305,7 @@ ${figure(
   'Settings → Permissions → Reject invalid sends. Off, the default: sends are cropped, not refused.',
 )}
 
-    <h3>Critical alerts are granted per key</h3>
+    <h3 id="critical-alerts">Critical alerts are granted per key</h3>
     <p>
       <code>is_critical=1</code> asks for an alert that breaks through Focus and silent mode.
       It is not enough on its own: the key it was sent with must have <strong>Critical
@@ -320,6 +317,19 @@ ${figure(
   '/shots/key-critical-alerts.png',
   "A key's screen in the app, showing the Critical alerts switch turned on.",
   'Keys → a key → Settings → Critical alerts. Each key carries its own permission.',
+)}
+
+    <h3 id="links">A link does not have to be https</h3>
+    <p>
+      <code>link</code> accepts any URL scheme, so it can point at a website or deep-link into
+      another app on the device. The app opens only <code>https</code> links until
+      <strong>Open any link</strong> is switched on for the key, in that key's screen under the
+      Keys tab. A sender cannot turn it on — only the person holding the device can.
+    </p>
+${figure(
+  '/shots/key-open-any-link.png',
+  "A key's screen in the app, showing the Open any link switch.",
+  'Keys → a key → Settings → Open any link. Off, only https links open.',
 )}
   </section>
 
@@ -362,7 +372,7 @@ ${terminalGroup('c-', 'Clients', CLIENTS)}
   </section>
 
   <section id="machine">
-    <h2>Machine-readable</h2>
+    <h2>For the bots</h2>
     <ul>
 ${resources
   .map((r) => `      <li><a href="${r.path}"><code>${r.path}</code></a> — ${escape(r.summary)}</li>`)
@@ -394,7 +404,7 @@ ${terminalGroup('', 'Examples', samples)}
     <h2>Questions</h2>
     <p>
       The <a href="/faq">FAQ</a> covers cost, limits, what the server can read and what happens
-      when you delete the app. Anything else goes to <a href="mailto:hello@notifi.it">hello@notifi.it</a>.
+      when you delete the app. If yours isn't there, write to <a href="mailto:hello@notifi.it">hello@notifi.it</a>.
     </p>
   </section>
 

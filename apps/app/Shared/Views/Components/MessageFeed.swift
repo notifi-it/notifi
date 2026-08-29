@@ -257,20 +257,27 @@ private struct MonoLine: View {
 
     static let ellipsis = "..."
 
+    private static let tracking: CGFloat = -0.34
+    private static let ruler = String(repeating: "0", count: 40)
+
     @State private var cell: CGFloat = 0
     @State private var available: CGFloat = 0
 
+    private static var reserved: Int {
+        Int((CGFloat(ellipsis.count) * (1 + tracking)).rounded(.up))
+    }
+
     private var head: String? {
         guard cell > 0, available > 0 else { return nil }
-        let cells = Int(available / cell)
-        guard cells > Self.ellipsis.count, text.count > cells else { return nil }
-        let cut = text.prefix(cells - Self.ellipsis.count)
-        return String(cut.reversed().drop { $0 == "." || $0.isWhitespace }.reversed())
+        let cells = Int((available + cell * 0.02) / cell)
+        guard cells > Self.reserved, text.count > cells else { return nil }
+        let cut = text.prefix(cells - Self.reserved)
+        return String(cut.reversed().drop { $0 == "." }.reversed())
     }
 
     private var line: Text {
         guard let head else { return Text(text) }
-        return Text(head) + Text(Self.ellipsis).tracking(-cell * 0.34)
+        return Text(head) + Text(Self.ellipsis).tracking(cell * Self.tracking)
     }
 
     var body: some View {
@@ -288,15 +295,17 @@ private struct MonoLine: View {
                 }
             }
             .background(alignment: .leading) {
-                Text(verbatim: "0")
+                Text(verbatim: Self.ruler)
                     .font(font)
+                    .lineLimit(1)
+                    .fixedSize()
                     .hidden()
                     .accessibilityHidden(true)
                     .background {
                         GeometryReader { proxy in
                             Color.clear
                                 .onChange(of: proxy.size.width, initial: true) { _, width in
-                                    cell = width
+                                    cell = width / CGFloat(Self.ruler.count)
                                 }
                         }
                     }
@@ -351,22 +360,22 @@ private struct MessageRow: View {
                 .fixedSize()
 
             VStack(alignment: .leading, spacing: 5) {
-                MonoLine(text: message.title,
-                         font: .inco(size: 13.5, weight: isEscalated ? .bold : .regular,
-                                     relativeTo: .footnote))
-                    .foregroundStyle(message.isCritical ? Theme.brandText
-                                     : message.isRead && !isHovered ? Theme.read : Theme.fg)
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    MonoLine(text: message.title,
+                             font: .inco(size: 13.5, weight: isEscalated ? .bold : .regular,
+                                         relativeTo: .footnote))
+                        .foregroundStyle(message.isCritical ? Theme.brandText
+                                         : message.isRead && !isHovered ? Theme.read : Theme.fg)
+
+                    slot(present: message.link != nil, systemName: "globe")
+                    slot(present: message.imageURL != nil, systemName: "photo")
+                }
 
                 if let preview {
                     MonoLine(text: preview, font: Theme.metaSmall)
                         .foregroundStyle(isHovered ? Theme.dim : Theme.mark)
                 }
             }
-
-            Spacer(minLength: 0)
-
-            slot(present: message.link != nil, systemName: "globe")
-            slot(present: message.imageURL != nil, systemName: "photo")
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 13)
@@ -393,13 +402,15 @@ private struct MessageRow: View {
         #endif
     }
 
+    @ViewBuilder
     private func slot(present: Bool, systemName: String) -> some View {
-        Image(systemName: systemName)
-            .font(.system(size: 11, weight: .medium))
-            .foregroundStyle(Theme.dim)
-            .opacity(present ? 1 : 0)
-            .frame(width: 12)
-            .accessibilityHidden(true)
+        if present {
+            Image(systemName: systemName)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Theme.dim)
+                .frame(width: 12)
+                .accessibilityHidden(true)
+        }
     }
 
     private var rule: some View {

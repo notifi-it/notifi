@@ -1,12 +1,9 @@
 import {
   ENDPOINT,
-  IMAGE_MAX_MB,
   MESSAGE_MAX,
   ORIGIN,
-  SENDS_PER_HOUR,
   TITLE_MAX,
   URL_MAX,
-  errors,
   params,
 } from './spec.js';
 import { samples } from './samples.js';
@@ -51,13 +48,13 @@ export function highlight(code: string, keywords: string[] = []): string {
 const NOTES: Record<string, string> = {
   key: 'The key from the app. It picks which device gets the push. Send it as a header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of logs; or pass it as this parameter.',
   title: `The notification title. Up to ${TITLE_MAX} characters.`,
-  message: `The notification body. Markdown, up to ${MESSAGE_MAX.toLocaleString('en-GB')} characters. The push shows a short preview; the app renders the full text.`,
-  link: `URL opened when the notification is tapped. Up to ${URL_MAX.toLocaleString('en-GB')} characters.`,
-  image: `Image displayed with the notification. Must be <code>https</code>. PNG, JPEG or GIF, ${IMAGE_MAX_MB}&nbsp;MB max, URL up to ${URL_MAX.toLocaleString('en-GB')} characters.`,
+  message: `The notification body. Markdown, up to ${MESSAGE_MAX.toLocaleString('en-GB')} characters.`,
+  link: `A link to a website or internal app. Up to ${URL_MAX.toLocaleString('en-GB')} characters.`,
+  image: `Image displayed with the notification. URL up to ${URL_MAX.toLocaleString('en-GB')} characters.`,
   occurred_at:
-    'When the event actually happened, as unix <em>milliseconds</em>, useful when a send is queued or retried. Only changes the timestamp shown in the app; defaults to when we receive the request.',
+    '<a href="https://currentmillis.com" class="src">Unix milliseconds</a>. Changes the timestamp shown in the app; defaults to when we receive the request.',
   is_critical:
-    'Ask for a critical alert: it breaks through Focus and stays on the lock screen, but does not sound through silent mode. The key must also have <em>Critical alerts</em> switched on in the app; a send that asks without that arrives as an ordinary notification rather than failing, and the reply carries a <code>warning</code> saying so.',
+    'Ask for a critical alert: it breaks through Focus and stays on the lock screen. The key must also have <em>Critical alerts</em> <a href="/docs#critical-alerts" class="src">switched on in the app</a>.',
 };
 
 function shortType(type: string): string {
@@ -95,37 +92,14 @@ export function landingPanels(): string {
     .join('\n');
 }
 
-const NOTE_ERRORS = ['invalid_request', 'unknown_key', 'rate_limited'];
-
-const NOTE_LABELS: Record<string, string> = {
-  invalid_request: 'invalid parameters',
-  unknown_key: 'unknown or revoked key',
-  rate_limited: 'rate limited',
-};
-
 export function landingEndpoint(): string {
   return `    <p class="lede no-reveal" style="margin-top:14px;margin-bottom:8px">
       <code>GET</code> or <code>POST</code> <code>${ORIGIN}${ENDPOINT}</code>
     </p>
     <p class="meta" style="margin-bottom:26px">
       JSON or form-encoded. Authenticate with <code>Authorization: Bearer &lt;key&gt;</code>,
-      or pass <code>key</code> as a parameter. The header keeps it out of logs.
-      Query parameters win over the body.
-    </p>`;
-}
-
-export function landingNote(): string {
-  const codes = NOTE_ERRORS.map((code) => {
-    const row = errors.find((e) => e.code === code);
-    if (!row) throw new Error(`no error ${code}`);
-    return `<code>${row.status}</code> ${NOTE_LABELS[code]}`;
-  }).join(' · ');
-  return `    <p class="meta" style="margin-top:22px">
-      ${SENDS_PER_HOUR} sends an hour, shared by every key on your device. Errors return JSON with a <code>code</code> and a readable
-      <code>message</code>: ${codes}. <code>GET</code> works for a quick
-      test, but puts the key in edge logs and shell history, so rotate it afterwards;
-      <code>POST</code> with an <code>Authorization</code> header is recommended.
-      The full reference is at <a href="/docs">notifi.it/docs</a>.
+      or pass <code>key</code> as a parameter.
+      The full reference is at <a href="/docs" class="src">notifi.it/docs</a>.
     </p>`;
 }
 

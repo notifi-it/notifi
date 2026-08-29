@@ -79,7 +79,7 @@ enum Theme {
     #endif
 
     #if os(macOS)
-    static let firstBlockTop: CGFloat = 16
+    static let firstBlockTop: CGFloat = 10
     #else
     static let firstBlockTop: CGFloat = 0
     #endif
@@ -101,7 +101,11 @@ enum Theme {
 
     static let bottomPlate: CGFloat = 44
 
+    #if os(macOS)
+    static let topFade: CGFloat = 36
+    #else
     static let topFade: CGFloat = 14
+    #endif
 
     #if os(macOS)
     static let contentTop: CGFloat = firstBlockTop
@@ -154,7 +158,7 @@ extension View {
 
     func geistPageHeader() -> some View {
         #if os(macOS)
-        padding(.top, 18).padding(.bottom, 6)
+        padding(.top, 18).padding(.bottom, 0)
         #else
         padding(.top, 4).padding(.bottom, 2)
         #endif
@@ -208,8 +212,8 @@ struct GroundFade: View {
                 LinearGradient(
                     stops: [
                         .init(color: .white.opacity(0), location: 0),
-                        .init(color: .white.opacity(0.35), location: 0.4),
-                        .init(color: .white.opacity(0.75), location: 0.7),
+                        .init(color: .white.opacity(0.12), location: 0.45),
+                        .init(color: .white.opacity(0.55), location: 0.75),
                         .init(color: .white, location: 1)
                     ],
                     startPoint: .bottom,
