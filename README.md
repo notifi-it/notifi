@@ -27,13 +27,13 @@ zero-dependency SwiftUI client for iOS 17+ and macOS 14+.
 
 ## Documentation
 
-- **[notifi API documentation](https://notifi.it/docs)** — the `/send` endpoint,
+- **[notifi API documentation](https://notifi.it/docs)**: the `/send` endpoint,
   its parameters, its error codes and its limits.
-- **[llms.txt](https://notifi.it/llms.txt)** — the same thing as plain text for
+- **[llms.txt](https://notifi.it/llms.txt)**: the same thing as plain text for
   coding agents, including when to reach for notifi and how to ask a human for a
   send key.
-- **[openapi.json](https://notifi.it/openapi.json)** — OpenAPI 3.1 for `/send`.
-- **[Postman collection](https://notifi.it/notifi.postman_collection.json)** —
+- **[openapi.json](https://notifi.it/openapi.json)**: OpenAPI 3.1 for `/send`.
+- **[Postman collection](https://notifi.it/notifi.postman_collection.json)**:
   v2.1, which Bruno, Insomnia and Hoppscotch import as well; the
   **[.bru file](https://notifi.it/notifi.bru)** is there for Bruno directly.
 - **[FAQ](https://notifi.it/faq)**,
@@ -61,5 +61,5 @@ packages/
   contract/   Zod schemas, the single source of truth — @notifi/contract
 ```
 
-This project has **no automated tests and no code comments** by decision —
-verification is by hand.
+This project has **no automated tests and no code comments**; verification is
+by hand.

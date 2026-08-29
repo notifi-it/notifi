@@ -21,7 +21,7 @@
 <!-- Kept under ~60 characters: a result page truncates past that, and the
      differentiator sits at the end where it would be the part cut. -->
 <title>notifi: Push notifications</title>
-<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, no SDK, open source, and the notification is sealed so neither we nor Apple can read it.">
+<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, open source, and the notification is sealed so neither we nor Apple can read it.">
 <meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -894,7 +894,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "name": "notifi",
       "alternateName": "notifi.it",
       "url": "https://notifi.it/",
-      "description": "notifi delivers a push notification to an iPhone, iPad or Mac from one HTTP request. No account, no SDK, and notification content is encrypted with the device's public key.",
+      "description": "notifi delivers a push notification to an iPhone, iPad or Mac from one HTTP request. No account, and notification content is encrypted with the device's public key.",
       "logo": "https://notifi.it/apple-touch-icon.png",
       "email": "hello@notifi.it",
       "contactPoint": [
@@ -936,7 +936,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "@id": "https://notifi.it/#website",
       "url": "https://notifi.it/",
       "name": "notifi",
-      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No account, no SDK, encrypted with your public key, and open source.",
+      "description": "Push notifications to your iPhone or Mac from one plain HTTP request. No account, encrypted with your public key, and open source.",
       "publisher": {
         "@id": "https://notifi.it/#org"
       },
@@ -951,10 +951,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       "operatingSystem": "iOS 17.0 or later, macOS 14.0 or later",
       "installUrl": "https://apps.apple.com/app/id1563961135",
       "downloadUrl": "https://notifi.it/download/mac",
-      "description": "The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it from any script, and a native push notification arrives on your iPhone or Mac. Notification content is encrypted with your public key. No SDK, no account, no sign-in.",
+      "description": "The app makes you a send key on first launch. Copy it, then make one HTTP request to notifi.it from any script, and a native push notification arrives on your iPhone or Mac. Notification content is encrypted with your public key. No account, no sign-in.",
       "featureList": [
         "One plain HTTP request, GET or POST, JSON or form-encoded",
-        "No SDK, no account and no sign-in",
+        "No account and no sign-in",
         "Notification content encrypted with your public key",
         "Open source",
         "Per-script revocable send keys",
@@ -1694,7 +1694,7 @@ spec:
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-erase"/></svg>
         <p>The server deletes a notification as soon as your device confirms it has collected
-           it. Your history lives on your device, not in our database.</p>
+           it. Your history stays on your device.</p>
       </div>
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-urgent"/></svg>
@@ -1709,7 +1709,7 @@ spec:
       </div>
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>
-        <p>Plain HTTP and no SDK, so anything that can make an HTTP request can send: a
+        <p>Plain HTTP, so anything that can make an HTTP request can send: a
            Linux box, a CI runner, a router, a home hub, another phone.</p>
       </div>
       <div class="row">
@@ -1739,9 +1739,9 @@ spec:
       <div class="use-col">
         <ul>
           <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-agent"/></svg>No bot to register, unlike <b>Telegram</b></li>
-          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-format"/></svg>Custom formatting, unlike <b>SMS</b></li>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-format"/></svg>Richer formatting than <b>SMS</b> allows</li>
           <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Encrypted, unlike <b>Ntfy</b></li>
-          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-money"/></svg>Free, unlike <b>Pushover</b></li>
+          <li><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-money"/></svg>Free, where <b>Pushover</b> charges</li>
         </ul>
       </div>
     </div>

@@ -1,1 +1,1 @@
-Una solicitud HTTP y la notificación llega a tu iPhone o Mac. Cifrado con tu clave pública: no podemos leer tus notificaciones. Sin cuentas, sin SDK.
+Una solicitud HTTP y la notificación llega a tu iPhone o Mac. Cifrado con tu clave pública: no podemos leer tus notificaciones. Sin cuentas.

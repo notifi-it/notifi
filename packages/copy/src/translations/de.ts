@@ -36,8 +36,8 @@ export const de: Translation = {
   'store.subtitle': 'Für Skripte und Server',
   'store.promotionalText':
     'Eine HTTP-Anfrage, und sie landet auf deinem iPhone oder Mac. Mit deinem ' +
-    'öffentlichen Schlüssel verschlüsselt — wir können sie nicht lesen. ' +
-    'Kein Account, kein SDK.',
+    'öffentlichen Schlüssel verschlüsselt, sodass wir sie nicht lesen können. ' +
+    'Kein Account.',
   'store.keywords':
     'webhook,api,push,alarm,selbst,gehostet,cron,curl,cli,devops,homelab,ssh,docker,' +
     'überwachung',
@@ -67,7 +67,7 @@ export const de: Translation = {
   'store.shotInboxTitle': 'Eine Anfrage.\nDirekt in deine Tasche.',
   'store.shotInboxBody':
     'Push-Benachrichtigungen für deine Skripte und Server. Eine HTTP-Anfrage an notifi.it, ' +
-    'und sie kommt einen Moment später an. Kein Account, kein SDK.',
+    'und sie kommt einen Moment später an. Kein Account.',
   'store.shotMessageTitle': 'Bilder, Links,\nMarkdown.',
   'store.shotMessageBody':
     'Ein Titel, ein Text, ein Bild und ein Link. Überschriften, Listen, Zitate und ' +

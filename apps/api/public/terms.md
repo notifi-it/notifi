@@ -12,7 +12,7 @@ notifi delivers push notifications: an HTTP request to `notifi.it/send`, authent
 
 - A send key delivers only to the device that created it. You are responsible for where you put your keys and for what the scripts holding them send.
 - If a key leaks, revoke it in the app. Sends made with it before revocation still count as yours.
-- Deleting the app deletes your identity. There is no recovery, because there is nothing held that could recover it.
+- Deleting the app deletes your identity. There is no recovery.
 
 ## Acceptable use
 

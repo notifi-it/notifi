@@ -1,1 +1,1 @@
-Eine HTTP-Anfrage, und sie landet auf deinem iPhone oder Mac. Mit deinem öffentlichen Schlüssel verschlüsselt — wir können sie nicht lesen. Kein Account, kein SDK.
+Eine HTTP-Anfrage, und sie landet auf deinem iPhone oder Mac. Mit deinem öffentlichen Schlüssel verschlüsselt, sodass wir sie nicht lesen können. Kein Account.

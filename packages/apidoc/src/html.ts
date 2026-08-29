@@ -58,7 +58,7 @@ const QUICKSTART = `curl -X POST ${ORIGIN}${ENDPOINT} \\
 const WARNINGS_RESPONSE = `HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{"ok":true,"warnings":["Sent with a shortened title: it was over ${TITLE_MAX} characters.","Sent as a normal notification: critical alerts are switched off for this key."]}`;
+{"ok":true,"warnings":["Sent with a shortened title, because it was over ${TITLE_MAX} characters.","Sent as a normal notification, because critical alerts are switched off for this key."]}`;
 
 const RAW_REQUEST = `POST /send HTTP/1.1
 Host: notifi.it
@@ -208,7 +208,7 @@ export function docsBody(): string {
   <p class="eyebrow">API reference</p>
   <h1>notifi API documentation</h1>
   <p class="lede">
-    One endpoint, seven parameters, no SDK. Everything on this page is generated
+    One endpoint and seven parameters. Everything on this page is generated
     from the same file that generates <a href="/openapi.json"><code>/openapi.json</code></a>
     and the client collections, so the three cannot disagree.
   </p>
@@ -285,15 +285,15 @@ ${parameterRows()}
   <section id="response">
     <h2>Response</h2>
     <p>
-      A send answers <code>202</code>. That means the server accepted it, not that it was
-      delivered — delivery is best-effort, as the <a href="/terms">terms</a> describe. Every
+      A send answers <code>202</code> when the server has accepted it. Delivery is
+      best-effort, as the <a href="/terms">terms</a> describe. Every
       status the endpoint can answer with is here:
     </p>
 ${terminalGroup('r-', 'Responses', RESPONSES)}
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
       differently from what was asked: a cropped title or body, or a critical
-      alert delivered as an ordinary notification. The status is still <code>202</code> — the
+      alert delivered as an ordinary notification. The status is still <code>202</code>; the
       notification was sent, in the altered form each warning describes.
     </p>
 ${pre(WARNINGS_RESPONSE, 'http')}
@@ -314,11 +314,11 @@ ${figure(
 
     <h3 id="critical-alerts">Critical alerts are granted per key</h3>
     <p>
-      <code>is_critical=1</code> asks for an alert that breaks through Focus and silent mode.
-      It is not enough on its own: the key it was sent with must have <strong>Critical
-      alerts</strong> switched on, on that device, in that key's screen under the Keys tab.
-      Without it the notification is delivered as an ordinary one and the response carries a
-      warning saying so. A sender cannot turn this on — only the person holding the device can.
+      <code>is_critical=1</code> asks for an alert that breaks through Focus and silent mode,
+      but only if the key it was sent with has <strong>Critical alerts</strong> switched on,
+      on that device, in that key's screen under the Keys tab. Without it the notification is
+      delivered as an ordinary one and the response carries a warning saying so. Only the
+      person holding the device can switch it on.
     </p>
 ${figure(
   '/shots/key-critical-alerts.png',
@@ -331,7 +331,7 @@ ${figure(
       <code>link</code> accepts any URL scheme, so it can point at a website or deep-link into
       another app on the device. The app opens only <code>https</code> links until
       <strong>Open any link</strong> is switched on for the key, in that key's screen under the
-      Keys tab. A sender cannot turn it on — only the person holding the device can.
+      Keys tab. That switch belongs to the person holding the device, not the sender.
     </p>
 ${figure(
   '/shots/key-open-any-link.png',

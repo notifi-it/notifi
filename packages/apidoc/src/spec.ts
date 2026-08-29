@@ -51,7 +51,7 @@ export const SUMMARY =
   'Push notifications to an iPhone, iPad or Mac from one HTTP request.';
 
 export const DESCRIPTION = [
-  'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account: install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.',
+  'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account. Install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.',
   'Send keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.',
   'When to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.',
 ].join('\n\n');
@@ -59,11 +59,11 @@ export const DESCRIPTION = [
 export const AUTH = {
   header: 'Authorization: Bearer nk_yourkey',
   summary:
-    'Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between: use it only for a quick test, and rotate the key afterwards.',
+    'Authenticate with a bearer token. A key parameter also works, but it is written to edge logs, shell history and any proxy in between. Use it only for a quick test, and rotate the key afterwards.',
   bearerDescription:
     'The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history.',
   parameterDescription:
-    'The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option: use it only for a quick test, and rotate the key afterwards.',
+    'The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option. Use it only for a quick test, and rotate the key afterwards.',
 };
 
 export const params: Param[] = [
@@ -195,7 +195,7 @@ export const limits: string[] = [
 export const OPERATION_ERRORS = ['invalid_request', 'unknown_key', 'invalid_content', 'rate_limited'];
 
 export const INTEGRATION_SURFACE =
-  'There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface, and anything claiming otherwise is not us.';
+  'There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface. Anything claiming otherwise is not notifi.';
 
 export const resources: Resource[] = [
   { path: '/llms.txt', summary: 'The full reference as plain text, written for coding agents.' },
