@@ -233,8 +233,7 @@ p{max-width:62ch}
    toggles .docked from an IntersectionObserver on .hero-flare. */
 header{
   position:fixed;top:0;left:0;right:0;z-index:20;
-  background:rgba(28,28,30,.82);
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  background:var(--bg);
   border-bottom:1px solid var(--line);
   transform:translateY(-100%);opacity:0;visibility:hidden;
   transition:transform .3s var(--ease-out),opacity .3s var(--ease-out),
@@ -376,6 +375,14 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 /* The flex row-gap already spaces the wrapped line; the negative margin eats
    most of it so the note reads as the button's caption, not a stray line. */
 .cta .meta{width:100%;margin-top:-5px}
+
+/* The hero curl fits one line down to about 720px; below that the folded
+   form with continuations takes over instead of scrolling sideways. */
+.term .term-narrow{display:none}
+@media(max-width:720px){
+  .term .term-wide{display:none}
+  .term .term-narrow{display:block}
+}
 
 /* the terminal block that is the whole product */
 /* No edge at all. The panel is already a step up from the ground in --surface,
@@ -1099,7 +1106,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       </a>
       <a class="btn btn-get" href="/download/mac">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
-        <span class="lbl"><b>Download&nbsp;for&nbsp;Mac</b><span>Apple silicon · macOS 14+</span></span>
+        <span class="lbl"><b>Download&nbsp;.dmg</b><span>Apple silicon · macOS 14+</span></span>
       </a>
       <p class="meta hero-mac-note"><a class="src" href="#download-mac">Also on Mac.</a></p>
     </div>
@@ -1123,7 +1130,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
              sends an empty key and answers 401. -->
         <button class="copy" aria-label="Copy the example curl command" data-copy='curl https://notifi.it/send -d key=nk_yourkeyhere -d title="hello world"'>Copy</button>
       </div>
-<pre><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span>
+<pre class="term-wide"><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span>
+<span class="c">{"ok":true}</span></pre>
+<!-- The same command folded with continuations for a phone's measure; the
+     Copy button still hands over the one-line form, which pastes anywhere. -->
+<pre class="term-narrow"><span class="p">$</span> curl https://notifi.it/send \
+    -d key=<span class="k">nk_yourkeyhere</span> \
+    -d title=<span class="s">"hello world"</span>
 <span class="c">{"ok":true}</span></pre>
     </div>
     <!-- Carries the one instruction the removed three-step section was for:
