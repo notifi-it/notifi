@@ -97,9 +97,6 @@ struct KeyDetailView: View {
                     .font(.inco(.title, weight: .bold))
                     .foregroundStyle(Theme.fg)
                     .fixedSize(horizontal: false, vertical: true)
-                if key.isDefault {
-                    Chip(text: Copy.Keys.chipDefault, color: Theme.fg, border: Theme.muted.opacity(0.5))
-                }
                 if key.isRevoked {
                     Chip(text: Copy.Keys.chipRevoked, color: Theme.dim)
                 }

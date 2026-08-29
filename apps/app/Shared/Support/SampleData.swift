@@ -122,6 +122,10 @@ enum SampleData {
              "api.notifi.it rolled out in 38s. All checks green.",
              nil, "https://ci.notifi.sh/builds/1291", 76, true),
 
+            ("Autoscaler added six nodes in eu-west-2 after the morning spike",
+             "Capacity holds at 84% with no dropped sends — the pool drains back to baseline once the migration completes at 08:00.",
+             "\(demo)/loss-curve.png", "https://grafana.internal/d/autoscaler", 130, false),
+
             ("Backup to r2 finished",
              "notifi-db → r2, 4.6 GB in 2m 58s.",
              nil, nil, 210, false),
@@ -131,7 +135,7 @@ enum SampleData {
 
             ("Send p95 back under 300 ms",
              "notifi.it/send recovered after the 02:10 spike. No action needed.",
-             nil, "https://grafana.internal/d/api-latency", 1_510, true),
+             "\(demo)/latency.png", "https://grafana.internal/d/api-latency", 1_510, true),
 
             ("New signup",
              "hannah@shorepine.co upgraded to Pro — seat 12 of 25.",
@@ -169,6 +173,10 @@ enum SampleData {
         ]
         #else
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
+            ("Autoscaler added six nodes in eu-west-2 after the morning traffic spike pushed queue depth past the ceiling",
+             "Capacity holds at 84% with no dropped sends — the pool drains back to baseline once the migration completes at 08:00, and the alert closes itself when queue depth stays under the ceiling for thirty minutes.",
+             "\(demo)/loss-curve.png", "https://grafana.internal/d/autoscaler", 4, false),
+
             ("Send p99 crossed 800 ms",
              """
              notifi.it/send — **782 ms**, up from 214 ms over 12 minutes.

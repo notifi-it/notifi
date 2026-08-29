@@ -53,26 +53,11 @@ struct MessageDetailView: View {
     }()
 
     var body: some View {
-        ScrollView {
-            if let message {
-                content(for: message)
-                    .geistGutter()
-            } else {
-                VStack(spacing: 10) {
-                    Text(Copy.Message.notFound)
-                        .font(.inco(.title3, weight: .bold))
-                        .foregroundStyle(Theme.fg)
-                    Text(Copy.Message.notFoundDetail)
-                        .font(Theme.body)
-                        .foregroundStyle(Theme.muted)
-                }
-                .padding(.vertical, 80)
-                .frame(maxWidth: .infinity)
-            }
+        VStack(spacing: 0) {
+            backBar
+            scroll
         }
         .background(StaticField())
-        .scrollContentBackground(.hidden)
-        .safeAreaInset(edge: .top) { backBar }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
@@ -94,6 +79,28 @@ struct MessageDetailView: View {
         } message: {
             Text(Copy.Inbox.deleteMessage)
         }
+    }
+
+    private var scroll: some View {
+        ScrollView {
+            if let message {
+                content(for: message)
+                    .geistGutter()
+            } else {
+                VStack(spacing: 10) {
+                    Text(Copy.Message.notFound)
+                        .font(.inco(.title3, weight: .bold))
+                        .foregroundStyle(Theme.fg)
+                    Text(Copy.Message.notFoundDetail)
+                        .font(Theme.body)
+                        .foregroundStyle(Theme.muted)
+                }
+                .padding(.vertical, 80)
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .geistTopFade()
     }
 
     private func deleteMessage() {
@@ -137,6 +144,7 @@ struct MessageDetailView: View {
         }
         .geistGutter()
         .geistPageHeader()
+        .padding(.bottom, 10)
         .background(StaticField())
     }
 
@@ -172,12 +180,12 @@ struct MessageDetailView: View {
                 .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             metaLine(for: message)
                 .padding(.top, 9)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
                 Group {
@@ -216,7 +224,7 @@ struct MessageDetailView: View {
     }
 
     private func quietLine(_ name: String?, age: String, stamp: String) -> some View {
-        VStack(spacing: 5) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
                 if let name {
                     keyGlyph(11, Theme.dim)
@@ -236,7 +244,7 @@ struct MessageDetailView: View {
         }
         .lineLimit(1)
         .monospacedDigit()
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
