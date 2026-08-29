@@ -3,8 +3,8 @@ name: notifi
 options:
   bundleIdPrefix: it.notifi
   deploymentTarget:
-    iOS: "17.0"
-    macOS: "14.0"
+    iOS: "18.0"
+    macOS: "15.0"
   createIntermediateGroups: true
   groupSortPosition: top
   # Localizable.xcstrings carrying a language is not enough on its own: Xcode
@@ -62,9 +62,9 @@ packages:
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
     exactVersion: "2.9.5"
-  MarkdownUI:
-    url: https://github.com/gonzalezreal/swift-markdown-ui
-    from: "2.4.0"
+  Textual:
+    url: https://github.com/gonzalezreal/textual
+    exactVersion: "0.5.0"
 
 targets:
   notifi-iOS:
@@ -92,7 +92,7 @@ targets:
           CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-iOS-Release.entitlements
     dependencies:
       - target: NotificationService-iOS
-      - package: MarkdownUI
+      - package: Textual
 
   notifi-macOS:
     type: application
@@ -114,7 +114,7 @@ targets:
     dependencies:
       - target: NotificationService-macOS
       - package: Sparkle
-      - package: MarkdownUI
+      - package: Textual
 
   NotificationService-iOS:
     type: app-extension
