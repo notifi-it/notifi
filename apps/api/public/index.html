@@ -847,9 +847,9 @@ section{padding:clamp(48px,7vw,86px) 0}
   border:1px solid #9A9A98;
   background:linear-gradient(160deg,#E8E8E6,#C9C9C7);
   border-radius:17.5cqw;
-  padding:3.04cqw;
+  padding:2cqw;
 }
-.app-phone img{width:100%;height:auto;display:block;border-radius:14.5cqw}
+.app-phone img{width:100%;height:auto;display:block;border-radius:15.5cqw}
 .app-phone figcaption{
   font-family:var(--mono);font-size:12px;color:var(--dim);
   margin-top:10px;text-align:center;
@@ -879,7 +879,8 @@ section{padding:clamp(48px,7vw,86px) 0}
   height:5.83cqw;padding:0 2.9cqw;border-bottom:1px solid var(--line);
   font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:600;color:var(--fg);
 }
-.mac-bar .bell{color:var(--fg);transform:translateY(-0.04cqw)}
+.mac-bar .bell{position:absolute;left:50%;transform:translateX(-50%);color:var(--fg)}
+.mac-sq{display:block;width:3.2cqw;height:3.2cqw;border-radius:0.7cqw;background:var(--fg);opacity:.55}
 .mac-apple{width:5.06cqw;height:5.06cqw;display:block;fill:var(--fg);opacity:.85;flex:none;color:var(--fg)}
 .mac-status{display:flex;align-items:center;gap:2.85cqw;color:var(--fg)}
 .mac-batt{display:block;width:6.44cqw;height:auto}
@@ -896,7 +897,7 @@ section{padding:clamp(48px,7vw,86px) 0}
    one reads as a flat card, not a thing hanging from the bar. */
 .mac-wall .mac-desk{background:transparent}
 .mac-wall .mac-bar{background:rgba(28,28,30,0.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,0.06)}
-.mac-wall .mac-shot{padding:0 0 26px;transform:translateX(6.43cqw);filter:drop-shadow(0 18px 36px rgba(0,0,0,0.55))}
+.mac-wall .mac-shot{padding:0 0 26px;filter:drop-shadow(0 18px 36px rgba(0,0,0,0.55))}
 /* One under the other on a phone: side by side, each shot is half a narrow
    column and neither reads. */
 @media(max-width:760px){
@@ -1330,8 +1331,9 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <div class="mac-desk">
           <div class="mac-bar" aria-hidden="true">
             <svg class="mac-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+            <span class="bell" style="--bell:3.7cqw"></span>
             <span class="mac-status">
-              <span class="bell" style="--bell:3.7cqw"></span>
+              <span class="mac-sq"></span>
               <svg class="mac-batt" viewBox="0 0 30 14" fill="currentColor">
                 <rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none"
                       stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/>
