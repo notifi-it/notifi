@@ -1213,14 +1213,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
              sends an empty key and answers 401. -->
         <button class="copy" aria-label="Copy the example curl command" data-copy='curl https://notifi.it/send -d key=nk_yourkeyhere -d title="hello world"'>Copy</button>
       </div>
-<pre class="term-wide"><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span>
-<span class="c">{"ok":true}</span></pre>
+<pre class="term-wide"><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span></pre>
 <!-- The same command folded with continuations for a phone's measure; the
      Copy button still hands over the one-line form, which pastes anywhere. -->
 <pre class="term-narrow"><span class="p">$</span> curl https://notifi.it/send \
     -d key=<span class="k">nk_yourkeyhere</span> \
-    -d title=<span class="s">"hello world"</span>
-<span class="c">{"ok":true}</span></pre>
+    -d title=<span class="s">"hello world"</span></pre>
     </div>
     <!-- Carries the one instruction the removed three-step section was for:
          nk_yourkeyhere is the slot, and the app is where the key comes from. -->
