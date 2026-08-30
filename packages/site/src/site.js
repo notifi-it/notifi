@@ -263,8 +263,10 @@
       a.style.setProperty("--gchroma", "0");
       a.style.setProperty("--glow", "1");
     }
-    a.addEventListener("mouseenter", start);
-    a.addEventListener("mouseleave", stop);
+    if (window.matchMedia("(hover: hover)").matches){
+      a.addEventListener("mouseenter", start);
+      a.addEventListener("mouseleave", stop);
+    }
     a.addEventListener("focus", start);
     a.addEventListener("blur", stop);
 

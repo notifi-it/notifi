@@ -91,6 +91,7 @@ body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
 }
 /* Television static over the ground.
@@ -105,7 +106,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(.skip){position:relative;z-index:1}
 /* Scroll reveal: the text resolves out of the static, letter by letter.
    The arrival is faded rather than snapped. Each letter carries its own long
    ease, so what travels down a paragraph is a soft front a few characters wide
@@ -127,6 +128,16 @@ body>*:not(#static){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+/* First focusable element on every page, off-canvas until it takes focus. */
+.skip{
+  position:fixed;left:var(--gutter);top:8px;z-index:30;
+  font-family:var(--mono);font-size:13px;
+  padding:9px 14px;border-radius:6px;
+  background:var(--surface);color:var(--fg);
+  border:1px solid var(--control-border);text-decoration:none;
+  transform:translateY(calc(-100% - 16px));
+}
+.skip:focus-visible{transform:none}
 
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
 .rule{height:1px;background:var(--line);border:0}
@@ -136,7 +147,7 @@ h1{font-size:clamp(30px,5.4vw,48px)}
 h2{font-size:clamp(21px,3vw,27px)}
 h3{font-size:16px;letter-spacing:-.02em}
 p,li{max-width:70ch}
-.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55;text-wrap:pretty}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 .eyebrow{
   font-family:var(--mono);font-size:11px;font-weight:600;
@@ -147,9 +158,9 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px s
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
 .mark img{height:17px;width:auto;display:block}
-nav{margin-left:auto;display:flex;align-items:center;gap:22px}
-nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-nav a:hover{color:var(--fg)}
+nav{margin-inline-start:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
+@media (hover:hover){nav a:hover{color:var(--fg)}}
 
 .bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
 .bell::before{
@@ -176,7 +187,7 @@ nav a:hover{color:var(--fg)}
 .doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
 .doc strong{color:var(--fg);font-weight:500}
 .doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
-.doc a:hover{text-decoration-color:var(--fg)}
+@media (hover:hover){.doc a:hover{text-decoration-color:var(--fg)}}
 
 /* GrainyBell at link scale: the 404 glyph's decay on the content links, built
    by the link-glitch block in site.js (which also says which links are left
@@ -200,7 +211,8 @@ a.glitch .gsolid{
   -webkit-text-fill-color:transparent;
   text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px;
 }
-a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+@media (hover:hover){a.glitch:hover .gsolid{text-decoration-color:var(--fg)}}
 
 .card{
   border:1px solid var(--line);border-radius:10px;background:var(--surface);
@@ -209,15 +221,16 @@ a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(
 .card p:first-child{margin-top:0}
 
 footer{border-top:1px solid var(--line);padding:40px 0 56px}
-.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+.foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;
   font-family:var(--mono);font-size:13px;color:var(--dim)}
-.foot a{color:var(--muted);text-decoration:none}
-.foot a:hover{color:var(--fg)}
-.foot .meta{margin-left:auto}
-@media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
+.foot a{color:var(--muted);text-decoration:none;padding-block:5px}
+@media (hover:hover){.foot a:hover{color:var(--fg)}}
+.foot .meta{margin-inline-start:auto}
+@media(max-width:620px){.foot .meta{margin-inline-start:0;width:100%}}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="static" aria-hidden="true"></canvas>
 
 <header>
@@ -234,7 +247,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </div>
 </header>
 
-<main class="wrap doc">
+<main id="main" class="wrap doc">
 
   <p class="eyebrow">FAQ</p>
   <h1>Frequently asked questions</h1>
@@ -266,7 +279,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h3>How much can I send?</h3>
     <ul>
       <li><strong>60 sends an hour per device</strong>, shared by every key on that device rather than counted per key. Over the limit answers <code>429</code> with a <code>Retry-After</code> header.</li>
-      <li><strong>Five active send keys per device</strong>, one of which is the app's own default key.</li>
+      <li><strong>Five active send keys per device</strong>, one of which is the app’s own default key.</li>
       <li>There is also a per-IP ceiling of 100 requests a minute on every endpoint.</li>
     </ul>
     <h3>How long can a notification be?</h3>
@@ -283,11 +296,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>Privacy and encryption</h2>
     <h3>Can you read my notifications?</h3>
-    <p>No. The title, body, link and image URL are encrypted with your device's public key at the moment they arrive, before anything is written to the database, and only your device holds the key that opens them. A full copy of the database together with every server secret does not reveal the contents of a single notification. The <a href="https://github.com/notifi-it/notifi">source</a> is public.</p>
+    <p>No. The title, body, link and image URL are encrypted with your device’s public key at the moment they arrive, before anything is written to the database, and only your device holds the key that opens them. A full copy of the database together with every server secret does not reveal the contents of a single notification. The <a href="https://github.com/notifi-it/notifi">source</a> is public.</p>
     <h3>What can the server see?</h3>
-    <p>The IP addresses of the sender and the device, the time of every send and every collection, the approximate size of a notification, which key sent it and how often, and your device's push token. Because the sender and the recipient both talk to the same server, that server is in a position to correlate the two. The <a href="/privacy">privacy policy</a> covers this in full.</p>
+    <p>The IP addresses of the sender and the device, the time of every send and every collection, the approximate size of a notification, which key sent it and how often, and your device’s push token. Because the sender and the recipient both talk to the same server, that server is in a position to correlate the two. The <a href="/privacy">privacy policy</a> covers this in full.</p>
     <h3>Is it safe to put the key in the URL?</h3>
-    <p>It is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a <code>Authorization: Bearer</code> header and the body in a <code>POST</code> body where you can.</p>
+    <p>It is the weaker option. A query string lands in Cloudflare’s edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a <code>Authorization: Bearer</code> header and the body in a <code>POST</code> body where you can.</p>
     <h3>How long are notifications kept?</h3>
     <p>A notification is deleted as soon as your device confirms it has it. One your device never collects stays, encrypted, until it does — there is no time limit. Revoked send keys are kept forever, as hashes, so that a revoked key can never be reused.</p>
     <h3>What happens if I delete the app?</h3>
@@ -299,7 +312,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>The apps</h2>
     <h3>Which devices does it run on?</h3>
-    <p>iPhone and iPad on iOS 17 or later, and Mac on macOS 14 or later, where it lives in the menu bar. There is no Android app, because delivery goes through Apple's push service.</p>
+    <p>iPhone and iPad on iOS 17 or later, and Mac on macOS 14 or later, where it lives in the menu bar. There is no Android app, because delivery goes through Apple’s push service.</p>
     <h3>Where do I get the Mac app?</h3>
     <p>From this site, as a notarized DMG. It is not on the App Store, and it updates itself.</p>
     <h3>Can I send to more than one device?</h3>
@@ -313,13 +326,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h3>What does the urgent toggle do?</h3>
     <p>A key marked urgent, sent with <code>is_critical=1</code>, is delivered as a Time Sensitive notification: it breaks through Focus and stays on the lock screen. It does <strong>not</strong> sound through the silent switch. Both halves are required — a send that asks for urgency with a key that does not have it is delivered as an ordinary notification rather than refused.</p>
     <h3>Will it ever ring through silent mode?</h3>
-    <p>That needs Apple's Critical Alerts entitlement, which has been requested and not yet granted. If it is granted, the same toggle reaches the higher level with nothing else to change.</p>
+    <p>That needs Apple’s Critical Alerts entitlement, which has been requested and not yet granted. If it is granted, the same toggle reaches the higher level with nothing else to change.</p>
   </section>
 
   <section>
     <h2>Reliability</h2>
     <h3>Is delivery guaranteed?</h3>
-    <p>No. Every send goes out over Apple's push service and a websocket at the same time, and the notification is stored before either, so the app can fetch anything a push missed. But delivery still depends on Apple, your network and your device's settings, and the service is provided as is, without an uptime guarantee. See the <a href="/terms">terms</a>.</p>
+    <p>No. Every send goes out over Apple’s push service and a websocket at the same time, and the notification is stored before either, so the app can fetch anything a push missed. But delivery still depends on Apple, your network and your device’s settings, and the service is provided as is, without an uptime guarantee. See the <a href="/terms">terms</a>.</p>
     <div class="card">
       <p><strong>Do not make notifi the only path for anything where a missed notification causes harm.</strong> It is a pager for your own systems, not a life-safety, medical or emergency alerting system.</p>
     </div>
@@ -621,8 +634,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       a.style.setProperty("--gchroma", "0");
       a.style.setProperty("--glow", "1");
     }
-    a.addEventListener("mouseenter", start);
-    a.addEventListener("mouseleave", stop);
+    if (window.matchMedia("(hover: hover)").matches){
+      a.addEventListener("mouseenter", start);
+      a.addEventListener("mouseleave", stop);
+    }
     a.addEventListener("focus", start);
     a.addEventListener("blur", stop);
 

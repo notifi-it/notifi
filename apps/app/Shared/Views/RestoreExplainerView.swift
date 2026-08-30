@@ -8,6 +8,7 @@ struct RestoreExplainerView: View {
             Image(systemName: "iphone.and.arrow.forward")
                 .font(.system(size: 52))
                 .foregroundStyle(.tint)
+                .accessibilityHidden(true)
 
             Text(Copy.Restore.title)
                 .font(.inco(.title2, weight: .bold))

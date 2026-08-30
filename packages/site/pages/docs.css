@@ -1,6 +1,6 @@
 
 .doc.api p.meta a{color:var(--muted);text-decoration:none}
-.doc.api p.meta a:hover{color:var(--fg)}
+@media (hover:hover){.doc.api p.meta a:hover{color:var(--fg)}}
 /* The actions row: the Markdown twin is served and negotiated already, and
    nothing on the page said so. */
 .doc.api .actions{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:16px}
@@ -10,8 +10,10 @@
   text-decoration:none;
 }
 .doc.api .actions .tab-i{opacity:.55}
+@media (hover:hover){
 .doc.api .actions a:hover,.doc.api .linkish:hover{color:var(--fg)}
 .doc.api .actions a:hover .tab-i,.doc.api .linkish:hover .tab-i{opacity:.8}
+}
 .doc.api .linkish[data-state="failed"]{color:var(--brand-text)}
 /* The contents. A line of anchors at the top is gone on the first scroll, so
    at a width that has room for it the same links become a rail that stays. */

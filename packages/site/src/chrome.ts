@@ -148,6 +148,7 @@ export function document(page: Page, tokens: string, site: string): string {
   const extra = page.script ? `\n<script>${page.script}</script>` : '';
   return `${head(page.meta, style)}
 <body${attrs}>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="static" aria-hidden="true"></canvas>
 
 ${header(page.meta)}

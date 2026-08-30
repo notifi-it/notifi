@@ -43,7 +43,7 @@ export const copy = {
     subtitle: 'For scripts and servers',
     promotionalText:
       "One HTTP request, and the notification is on your iPhone or Mac. Encrypted with " +
-      "your public key, so we can't read your notifications. No accounts.",
+      "your public key, so we can’t read your notifications. No accounts.",
     keywords:
       'webhook,api,notify,alerts,self,hosted,cron,curl,cli,devops,homelab,ssh,docker,' +
       'terminal,developer',
@@ -130,7 +130,7 @@ export const copy = {
 
   inbox: {
     title: 'Inbox',
-    offline: "Can't reach notifi servers. Check your connection and try again.",
+    offline: "Can’t reach notifi servers. Check your connection and try again.",
     count: plural('1 notification', '{n} notifications'),
     filteredToKey: 'Filtered to the “{name}” key.',
     closeSearch: 'Close search',
@@ -185,7 +185,7 @@ export const copy = {
   keys: {
     title: 'Keys',
     newKey: 'New key',
-    refreshFailed: "Couldn't refresh keys. Showing the last known list.",
+    refreshFailed: "Couldn’t refresh keys. Showing the last known list.",
     sectionActive: 'Active',
     sectionRevoked: 'Revoked',
     intro:
@@ -264,15 +264,15 @@ export const copy = {
       'will be rejected.',
 
     regeneratedAnnouncement: 'Key regenerated. The old value no longer works.',
-    regenerateFailed: "Couldn't regenerate the key. Check your connection and try again.",
+    regenerateFailed: "Couldn’t regenerate the key. Check your connection and try again.",
     revokedAnnouncement: 'Key revoked.',
-    revokeFailed: "Couldn't revoke the key. Check your connection and try again.",
+    revokeFailed: "Couldn’t revoke the key. Check your connection and try again.",
 
     criticalNotPermitted:
       'Critical Alerts are turned off for notifi in system settings. These will still ' +
       'break through Focus, but they will not sound through silent mode.',
     criticalChangeFailed:
-      "Couldn't change critical alerts for this key. Check your connection and try again.",
+      "Couldn’t change critical alerts for this key. Check your connection and try again.",
   },
 
   createKey: {
@@ -289,17 +289,17 @@ export const copy = {
 
     validationEmpty: 'Enter a name for this key.',
     validationTooLong: 'Use 64 characters or fewer.',
-    validationReserved: "Choose another name. “default” is your device's own key.",
+    validationReserved: "Choose another name. “default” is your device’s own key.",
     validationTaken: 'Choose another name. One of your active keys already has this one.',
-    createFailed: "Couldn't create the key. Check your connection and try again.",
+    createFailed: "Couldn’t create the key. Check your connection and try again.",
 
     revealTitle: 'Copy your key now',
-    revealDetail: "It won't be shown again.",
+    revealDetail: "It won’t be shown again.",
     revealLabel: 'Your new key',
     revealWarning:
       'Treat it like a password. If you lose it, revoke the key and make a new one.',
 
-    leaveTitle: "Haven't copied it?",
+    leaveTitle: "Haven’t copied it?",
     leaveCopyAndClose: 'Copy and close',
     leaveCloseAndRevoke: 'Close and revoke',
     leaveMessage: 'This key will never be shown again.',
@@ -322,6 +322,7 @@ export const copy = {
     theme: 'Theme',
     themeDark: 'Dark',
     themeLight: 'Light',
+    themeSystem: 'System',
 
     loadImages: 'Load images automatically',
     loadImagesDetail:
@@ -350,8 +351,9 @@ export const copy = {
     installUpdatesAutomaticallyDetail: 'Download and install new versions without asking. notifi relaunches itself when it updates.',
     checkForUpdates: 'Check for updates',
     deleteAll: 'Delete all notifications',
-    deleteAllTitle: 'Are you sure?',
-    deleteAllMessage: "This can't be undone.",
+    deleteAllTitle: 'Delete all notifications?',
+    deleteAllConfirm: 'Delete all',
+    deleteAllMessage: "This can’t be undone.",
     support: 'Report a problem',
     feedback: 'Feedback',
     privacyPolicy: 'Privacy policy',
@@ -373,10 +375,10 @@ export const copy = {
     sendTest: 'Send a test',
     sending: 'Sending…',
     sent: 'Sent. It arrives here and on your lock screen in a moment.',
-    sendFailed: "Couldn't send. Check your connection and try again.",
+    sendFailed: "Couldn’t send. Check your connection and try again.",
 
     makingKey: 'Making your key…',
-    makeKeyFailed: "Couldn't make a key. Check your connection and try again.",
+    makeKeyFailed: "Couldn’t make a key. Check your connection and try again.",
 
     stepLabel: 'Step {n}. {title}.',
     stepDone: ' Done.',
@@ -394,7 +396,7 @@ export const copy = {
   },
 
   identity: {
-    title: "Can't unlock notifi",
+    title: "Can’t unlock notifi",
     detail:
       'notifi could not read its identity key from the keychain. This usually clears once the ' +
       'device has been unlocked. Your notifications and send keys are unaffected.',
@@ -420,8 +422,8 @@ export const copy = {
     notFound: 'That is no longer on the server. Refresh and try again.',
     rateLimited: 'Too many requests just now. Try again in a moment.',
     server: 'The server is having trouble. Try again in a moment.',
-    generic: "The request didn't go through. Try again.",
-    transport: "Couldn't reach the server. Check your connection and try again.",
+    generic: "The request didn’t go through. Try again.",
+    transport: "Couldn’t reach the server. Check your connection and try again.",
     decoding: 'The server returned something unexpected. Try again in a moment.',
   },
 };

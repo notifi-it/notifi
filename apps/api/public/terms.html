@@ -91,6 +91,7 @@ body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
 }
 /* Television static over the ground.
@@ -105,7 +106,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(.skip){position:relative;z-index:1}
 /* Scroll reveal: the text resolves out of the static, letter by letter.
    The arrival is faded rather than snapped. Each letter carries its own long
    ease, so what travels down a paragraph is a soft front a few characters wide
@@ -127,6 +128,16 @@ body>*:not(#static){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+/* First focusable element on every page, off-canvas until it takes focus. */
+.skip{
+  position:fixed;left:var(--gutter);top:8px;z-index:30;
+  font-family:var(--mono);font-size:13px;
+  padding:9px 14px;border-radius:6px;
+  background:var(--surface);color:var(--fg);
+  border:1px solid var(--control-border);text-decoration:none;
+  transform:translateY(calc(-100% - 16px));
+}
+.skip:focus-visible{transform:none}
 
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
 .rule{height:1px;background:var(--line);border:0}
@@ -136,7 +147,7 @@ h1{font-size:clamp(30px,5.4vw,48px)}
 h2{font-size:clamp(21px,3vw,27px)}
 h3{font-size:16px;letter-spacing:-.02em}
 p,li{max-width:70ch}
-.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55;text-wrap:pretty}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 .eyebrow{
   font-family:var(--mono);font-size:11px;font-weight:600;
@@ -147,9 +158,9 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px s
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
 .mark img{height:17px;width:auto;display:block}
-nav{margin-left:auto;display:flex;align-items:center;gap:22px}
-nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-nav a:hover{color:var(--fg)}
+nav{margin-inline-start:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
+@media (hover:hover){nav a:hover{color:var(--fg)}}
 
 .bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
 .bell::before{
@@ -176,7 +187,7 @@ nav a:hover{color:var(--fg)}
 .doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
 .doc strong{color:var(--fg);font-weight:500}
 .doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
-.doc a:hover{text-decoration-color:var(--fg)}
+@media (hover:hover){.doc a:hover{text-decoration-color:var(--fg)}}
 
 /* GrainyBell at link scale: the 404 glyph's decay on the content links, built
    by the link-glitch block in site.js (which also says which links are left
@@ -200,7 +211,8 @@ a.glitch .gsolid{
   -webkit-text-fill-color:transparent;
   text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px;
 }
-a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+@media (hover:hover){a.glitch:hover .gsolid{text-decoration-color:var(--fg)}}
 
 .card{
   border:1px solid var(--line);border-radius:10px;background:var(--surface);
@@ -209,15 +221,16 @@ a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(
 .card p:first-child{margin-top:0}
 
 footer{border-top:1px solid var(--line);padding:40px 0 56px}
-.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+.foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;
   font-family:var(--mono);font-size:13px;color:var(--dim)}
-.foot a{color:var(--muted);text-decoration:none}
-.foot a:hover{color:var(--fg)}
-.foot .meta{margin-left:auto}
-@media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
+.foot a{color:var(--muted);text-decoration:none;padding-block:5px}
+@media (hover:hover){.foot a:hover{color:var(--fg)}}
+.foot .meta{margin-inline-start:auto}
+@media(max-width:620px){.foot .meta{margin-inline-start:0;width:100%}}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="static" aria-hidden="true"></canvas>
 
 <header>
@@ -235,7 +248,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </div>
 </header>
 
-<main class="wrap doc">
+<main id="main" class="wrap doc">
 
   <p class="eyebrow">Terms</p>
   <h1>Terms of service</h1>
@@ -244,7 +257,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>The service</h2>
-    <p>notifi delivers push notifications: an HTTP request to <code>notifi.it/send</code>, authenticated by a send key, becomes a notification on the device that created the key. The service is free, and there is no account — your device's keys are your identity, as the <a href="/privacy">privacy policy</a> describes.</p>
+    <p>notifi delivers push notifications: an HTTP request to <code>notifi.it/send</code>, authenticated by a send key, becomes a notification on the device that created the key. The service is free, and there is no account — your device’s keys are your identity, as the <a href="/privacy">privacy policy</a> describes.</p>
     <p>The service is run by Maximilian Mitchell, based in the United Kingdom. Contact: <a href="mailto:hello@notifi.it">hello@notifi.it</a>.</p>
   </section>
 
@@ -264,12 +277,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <li>Do not attempt to disrupt the service, probe it for weaknesses beyond what responsible disclosure needs, or circumvent the rate limits.</li>
       <li>Do not send content you have no right to send, even to your own device.</li>
     </ul>
-    <p>Keys or devices used in breach of these terms can be blocked without notice. If someone brings a claim against notifi because of what you sent or how you used the service in breach of these terms or the law, responding to it is your responsibility, not notifi's — except to the extent the claim arises from notifi's own fault.</p>
+    <p>Keys or devices used in breach of these terms can be blocked without notice. If someone brings a claim against notifi because of what you sent or how you used the service in breach of these terms or the law, responding to it is your responsibility, not notifi’s — except to the extent the claim arises from notifi’s own fault.</p>
   </section>
 
   <section>
     <h2>What the service does not promise</h2>
-    <p>The service is provided as is, without warranty of any kind, and without an uptime or delivery guarantee. Delivery depends on Apple's push service, your network, and your device's settings, none of which notifi controls. The service may change, be interrupted, or be discontinued.</p>
+    <p>The service is provided as is, without warranty of any kind, and without an uptime or delivery guarantee. Delivery depends on Apple’s push service, your network, and your device’s settings, none of which notifi controls. The service may change, be interrupted, or be discontinued.</p>
     <div class="card">
       <p><strong>Do not make notifi the only path for anything where a missed notification causes harm.</strong> It is a pager for your own systems, not a life-safety, medical or emergency alerting system, and it must not be relied on as one. A notification about a safety-relevant event is a fine use; notifi as the only alarm is not.</p>
     </div>
@@ -287,12 +300,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>The apps</h2>
-    <p>The iPhone app is distributed through the App Store, where Apple's own terms also apply. The Mac app is distributed from this site and updates itself. The source code for the apps and the service is public at <a href="https://github.com/notifi-it/notifi">github.com/notifi-it/notifi</a>, under the licence stated there.</p>
+    <p>The iPhone app is distributed through the App Store, where Apple’s own terms also apply. The Mac app is distributed from this site and updates itself. The source code for the apps and the service is public at <a href="https://github.com/notifi-it/notifi">github.com/notifi-it/notifi</a>, under the licence stated there.</p>
   </section>
 
   <section>
     <h2>Changes and contact</h2>
-    <p>These terms may change to reflect changes in the law, in Apple's requirements, or in what the service does. When they change, the date at the top of this page changes with it, the previous versions remain in the public git history of the project, and a material change is announced on this site before it takes effect. You can stop using the service, and revoke your keys, at any time and at no cost.</p>
+    <p>These terms may change to reflect changes in the law, in Apple’s requirements, or in what the service does. When they change, the date at the top of this page changes with it, the previous versions remain in the public git history of the project, and a material change is announced on this site before it takes effect. You can stop using the service, and revoke your keys, at any time and at no cost.</p>
     <p>Questions about these terms can be raised at <a href="mailto:hello@notifi.it">hello@notifi.it</a> or <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.</p>
   </section>
 
@@ -587,8 +600,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       a.style.setProperty("--gchroma", "0");
       a.style.setProperty("--glow", "1");
     }
-    a.addEventListener("mouseenter", start);
-    a.addEventListener("mouseleave", stop);
+    if (window.matchMedia("(hover: hover)").matches){
+      a.addEventListener("mouseenter", start);
+      a.addEventListener("mouseleave", stop);
+    }
     a.addEventListener("focus", start);
     a.addEventListener("blur", stop);
 

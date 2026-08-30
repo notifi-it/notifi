@@ -125,6 +125,9 @@ private struct GeistCodeBlockStyle: StructuredText.CodeBlockStyle {
 
 private struct CodeCopyButton: View {
     let codeBlock: StructuredText.CodeBlockProxy
+
+    @ScaledMetric(relativeTo: .caption2) private var iconSize: CGFloat = 10
+
     @State private var copied = false
 
     var body: some View {
@@ -137,11 +140,11 @@ private struct CodeCopyButton: View {
             }
         } label: {
             SwiftUI.Image(systemName: copied ? "checkmark" : "doc.on.doc")
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: iconSize, weight: .medium))
                 .foregroundStyle(copied ? Theme.fg : Theme.dim)
                 .padding(6)
-                .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.radius))
-                .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.chip, lineWidth: 1))
+                .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.innerRadius))
+                .overlay(RoundedRectangle(cornerRadius: Theme.innerRadius).stroke(Theme.chip, lineWidth: 1))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -209,7 +212,8 @@ private struct BlockedImageAttachment: Attachment {
     var body: some View {
         HStack(spacing: 7) {
             SwiftUI.Image(systemName: "photo")
-                .font(.system(size: 12, weight: .medium))
+                .font(.inco(.footnote))
+                .accessibilityHidden(true)
             Text(Copy.Message.imageHidden)
                 .font(.inco(.footnote))
         }

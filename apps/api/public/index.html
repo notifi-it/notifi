@@ -121,6 +121,7 @@ body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   overflow-x:clip;
 }
 
@@ -136,7 +137,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static):not(header){position:relative;z-index:1}
+body>*:not(#static):not(header):not(.skip){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 /* Content links, decided once rather than per section: the text keeps the
@@ -146,7 +147,7 @@ a{color:inherit}
   text-decoration:underline;
   text-decoration-color:var(--chip);text-underline-offset:3px;
 }
-.src:hover,.reviews-meta a:hover{text-decoration-color:var(--fg)}
+@media (hover:hover){.src:hover,.reviews-meta a:hover{text-decoration-color:var(--fg)}}
 
 /* GrainyBell at link scale: the 404 glyph's decay on the content links,
    built by the link-glitch script at the end of the page (which also says
@@ -171,8 +172,19 @@ a.glitch .gsolid{
   -webkit-text-fill-color:transparent;
   text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px;
 }
-a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+@media (hover:hover){a.glitch:hover .gsolid{text-decoration-color:var(--fg)}}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+/* First focusable element on the page, off-canvas until it takes focus. */
+.skip{
+  position:fixed;left:var(--gutter);top:8px;z-index:30;
+  font-family:var(--mono);font-size:13px;
+  padding:9px 14px;border-radius:6px;
+  background:var(--surface);color:var(--fg);
+  border:1px solid var(--control-border);text-decoration:none;
+  transform:translateY(calc(-100% - 16px));
+}
+.skip:focus-visible{transform:none}
 
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
 .rule{height:1px;background:var(--line);border:0}
@@ -182,8 +194,8 @@ h1,h2,h3{font-family:var(--mono);font-weight:700;letter-spacing:-.03em;line-heig
 h1{font-size:clamp(34px,6.4vw,60px)}
 h2{font-size:clamp(24px,3.6vw,34px)}
 h3{font-size:17px;letter-spacing:-.02em}
-p{max-width:62ch}
-.lede{font-family:var(--mono);font-size:clamp(15px,1.85vw,17px);color:var(--muted);line-height:1.6}
+p{max-width:62ch;text-wrap:pretty}
+.lede{font-family:var(--mono);font-size:clamp(15px,1.85vw,17px);color:var(--muted);line-height:1.6;text-wrap:pretty}
 .lede .free{display:block;color:var(--fg);font-weight:600;margin-bottom:12px}
 .lede .free .bang{color:var(--brand)}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
@@ -207,7 +219,7 @@ p{max-width:62ch}
 .caret{
   display:inline-block;width:.17em;height:.17em;border-radius:50%;
   background-color:var(--brand);vertical-align:baseline;
-  margin-left:.14em;
+  margin-inline-start:.14em;
 }
 
 /* Scroll reveal: the text resolves out of the static, letter by letter.
@@ -250,10 +262,10 @@ header.docked{
 /* The bell alone, no wordmark, at the right end of the bar on wide screens —
    that is where the hero bell was when the bar arrived to replace it. On
    small screens the hero bell is centred, so the docked bell centres too. */
-.mark{margin-left:auto;display:flex;align-items:center;text-decoration:none}
+.mark{margin-inline-start:auto;display:flex;align-items:center;text-decoration:none}
 nav{display:flex;align-items:center;gap:22px}
-nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-nav a:hover{color:var(--fg)}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
+@media (hover:hover){nav a:hover{color:var(--fg)}}
 .navget{
   font-family:var(--mono);font-size:13px;font-weight:600;
   padding:7px 14px;border-radius:6px;
@@ -261,10 +273,10 @@ nav a:hover{color:var(--fg)}
   transition:background var(--dur-press) var(--ease-out),
              border-color var(--dur-press) var(--ease-out);
 }
-.navget:hover{color:#1C1C1E;background:#fff;border-color:#fff}
+@media (hover:hover){.navget:hover{color:#1C1C1E;background:#fff;border-color:#fff}}
 @media(max-width:620px){
   nav .hide-sm{display:none}
-  nav{margin-left:auto}
+  nav{margin-inline-start:auto}
   .mark{position:absolute;left:50%;transform:translateX(-50%);margin:0}
 }
 /* The bell rings once each time the bar arrives. Pivot at the crown, not the
@@ -324,12 +336,12 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
              border-color var(--dur-press) var(--ease-out),
              transform var(--dur-press) var(--ease-out);
 }
-.btn:hover{background:#0E0E0E;border-color:#6A6A6A}
+@media (hover:hover){.btn:hover{background:#0E0E0E;border-color:#6A6A6A}}
 /* Hover does not exist on a phone, so without this a tap on the download
    buttons produced nothing at all until the navigation happened. */
 .btn:active{transform:scale(.98)}
 .btn-primary{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
-.btn-primary:hover{background:#fff;border-color:#fff}
+@media (hover:hover){.btn-primary:hover{background:#fff;border-color:#fff}}
 /* The download buttons carry two lines — what it is, and which machine it is
    for — so the reader does not have to guess which of the two is theirs. */
 .btn-get{align-items:center;gap:11px;padding:12px 20px}
@@ -408,7 +420,7 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 .dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
 .dot3 i:first-child{background:#28282A}
 .dot3 i:last-child{background:#2E2E30}
-.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
+.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-inline-start:4px}
 .term pre{
   margin:0;padding:16px 18px;overflow-x:auto;
   font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--fg);
@@ -421,10 +433,10 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 .term .c{color:var(--dim)}          /* comment */
 .term .k{color:var(--brand-text)}   /* the key you swap in */
 .copy{
-  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
-  background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
+  margin-inline-start:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
+  background:none;border:0;cursor:pointer;padding:6px 8px;border-radius:4px;
 }
-.copy:hover{color:var(--fg);background:#141414}
+@media (hover:hover){.copy:hover{color:var(--fg);background:#141414}}
 .copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
 .copy:active{color:var(--fg);background:#1C1C1C}
 .copy[data-state="failed"]{color:var(--brand-text)}
@@ -438,13 +450,13 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 .tabgroup-items{display:flex;flex-wrap:wrap;gap:6px}
 .tab{
   font-family:var(--mono);font-size:13px;color:var(--muted);
-  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
+  padding:8px 12px;border:1px solid var(--control-border);border-radius:6px;
   background:transparent;cursor:pointer;
   transition:color var(--dur-press) var(--ease-out),
              border-color var(--dur-press) var(--ease-out),
              background var(--dur-press) var(--ease-out);
 }
-.tab:hover{color:var(--fg);border-color:#6A6A6A}
+@media (hover:hover){.tab:hover{color:var(--fg);border-color:#6A6A6A}}
 .tab:active{border-color:var(--fg)}
 .tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
 .panel[hidden]{display:none}
@@ -461,14 +473,14 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
    and held back from the text so the row still reads as words first. */
 .tab{display:inline-flex;align-items:center;gap:7px}
 .tab-i{flex:0 0 auto;opacity:.62}
-.tab:hover .tab-i{opacity:.85}
+@media (hover:hover){.tab:hover .tab-i{opacity:.85}}
 .tab[aria-selected="true"] .tab-i{opacity:.75}
 /* /gen:termcss */
 /* The language and automation marks fade to red on hover and while selected.
    The selected tab sits on a white ground, so it takes the deeper red of the
    two rather than the one lifted for the dark ground. */
 .tab-i{transition:color .22s var(--ease-out),opacity .22s var(--ease-out)}
-.tab:hover .tab-i{opacity:.82;color:var(--brand-text)}
+@media (hover:hover){.tab:hover .tab-i{opacity:.82;color:var(--brand-text)}}
 .tab[aria-selected="true"] .tab-i{opacity:1;color:var(--brand)}
 
 /* The Homebrew line under the download buttons: the shared terminal, sized
@@ -641,7 +653,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-shline .gf-ltype{display:inline-block;width:0;overflow:hidden;white-space:pre}
 .gf-cinput+.gf-cinput{margin-top:-0.260cqw}
 .gf-creply{margin-top:2.342cqw;opacity:0;white-space:normal}
-.gf-cdot{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}
+.gf-cdot{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-inline-end:1.0cqw;position:relative;top:-0.1cqw}
 .gf-c{color:var(--dim)}.gf-k{color:var(--red)}.gf-s{color:var(--blue)}.gf-f{color:#B48EAD}.gf-fn{color:#8FBCBB}.gf-n{color:#A3BE8C}.gf-r{color:var(--dim)}
 .gf-dev{position:absolute;opacity:0;container-type:inline-size}
 .gf-dev svg{display:block;width:100%;height:100%;overflow:visible}
@@ -653,13 +665,13 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-lock{position:absolute;text-align:center;font-family:var(--ui);color:var(--fg)}
 .gf-lock .gf-ldate{font-weight:600;opacity:.9;letter-spacing:.01em}
 .gf-lock .gf-ltime{font-weight:600;line-height:1.02;letter-spacing:-.02em;margin-top:.25em}
-.gf-sbar.gf-ph .gf-icons{gap:1.838cqw;margin-right:1.730cqw}
+.gf-sbar.gf-ph .gf-icons{gap:1.838cqw;margin-inline-end:1.730cqw}
 .gf-sbar.gf-mb .gf-icons{gap:1.425cqw}
 .gf-sbar.gf-ph>span:first-child{flex:0 0 28.3%;text-align:center}
 .gf-sbar svg.gf-ic{display:block;width:calc(1cqw * var(--w));height:auto;fill:currentColor;overflow:visible}
 .gf-sbar svg.gf-st path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .gf-sbar svg.gf-st circle.gf-fl{fill:currentColor;stroke:none}
-.gf-sbar .gf-dt{--fs:1.563;font-weight:400;color:var(--muted);margin-left:0.460cqw}
+.gf-sbar .gf-dt{--fs:1.563;font-weight:400;color:var(--muted);margin-inline-start:0.460cqw}
 .gf-mbell{width:1.85cqw;height:1.85cqw;transform:translateY(-0.02cqw);background:var(--fg);-webkit-mask:url(/bell.svg) center/contain no-repeat;mask:url(/bell.svg) center/contain no-repeat}
 .gf-sbar svg.gf-amark{width:2.529cqw;height:2.529cqw;display:block;fill:var(--fg);opacity:.85;flex:none}
 .gf-trail{position:absolute;display:flex;align-items:center;justify-content:space-between;transform:translateY(-50%)}
@@ -673,7 +685,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-bell .gf-bc{-webkit-mask-image:url(/bell-clapper.svg);mask-image:url(/bell-clapper.svg)}
 .gf-scard .gf-t{--fs:1.05;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
 .gf-scard .gf-b{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
-.gf-scard .gf-thumb{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-left:auto;background:var(--chip)}
+.gf-scard .gf-thumb{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-inline-start:auto;background:var(--chip)}
 .gf-dv0{left:53.15%;top:17.55%;width:40.7%;aspect-ratio:1292/916}
 .gf-cp0{left:73.5%;top:45.5%;width:22%}
 .gf-tr0{left:43.52%;width:8.79%;top:50.0%}
@@ -893,7 +905,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .mac-batt{display:block;width:6.44cqw;height:auto}
 .mac-clock{
   font-size:3.13cqw;font-weight:400;
-  margin-left:0.92cqw;font-variant-numeric:tabular-nums;
+  margin-inline-start:0.92cqw;font-variant-numeric:tabular-nums;
 }
 .mac-shot{display:block;width:min(460px,94%);height:auto;margin:0 auto}
 .mac figcaption{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
@@ -941,10 +953,10 @@ code{font-family:var(--mono);font-size:.92em;color:var(--fg)}
 
 /* ── footer ─────────────────────────────────────────────────── */
 footer{border-top:1px solid var(--line);padding:40px 0 56px}
-.foot{display:flex;flex-wrap:wrap;gap:18px 30px;align-items:center}
-.foot a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-.foot a:hover{color:var(--fg)}
-.foot .meta{margin-left:auto}
+.foot{display:flex;flex-wrap:wrap;gap:8px 30px;align-items:center}
+.foot a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:5px}
+@media (hover:hover){.foot a:hover{color:var(--fg)}}
+.foot .meta{margin-inline-start:auto}
 
 /* Reduce Motion asks for less movement, not for none. Killing every transition
    outright turned each of these into a hard cut, which is the jarring change the
@@ -1053,6 +1065,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 </head>
 
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="static" aria-hidden="true"></canvas>
 
 <!-- Icon sprite. Thin stroke, currentColor, so each icon inherits whatever
@@ -1169,7 +1182,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 </header>
 <noscript><style>header{position:sticky;transform:none;opacity:1;visibility:visible}</style></noscript>
 
-<main>
+<main id="main">
 
 <!-- ══ hero ══════════════════════════════════════════════════ -->
 <section class="hero">
@@ -1177,7 +1190,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="hero-copy">
     <h1>Get a push notification to your device<br>from anything that can make an HTTP request<span class="caret" aria-hidden="true"></span></h1>
     <p class="lede no-reveal">
-      <span class="free">it's free<span class="bang">!</span></span>
+      <span class="free">it’s free<span class="bang">!</span></span>
       Install the app, grab your key, and send an HTTP request to
       <code>notifi.it/send</code>.
     </p>
@@ -1355,7 +1368,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             </span>
           </div>
           <img class="mac-shot" src="/screens/mac-cut.webp" width="840" height="1296" loading="lazy"
-               alt="The inbox hanging from the Mac menu bar: the bell sits in the bar and the popover beneath it lists the day's notifications, the urgent one in red.">
+               alt="The inbox hanging from the Mac menu bar: the bell sits in the bar and the popover beneath it lists the day’s notifications, the urgent one in red.">
         </div>
         <figcaption>The inbox, from the Mac menu bar. Notifications are stored here, on the device (deleted from our servers immediately after receiving).</figcaption>
       </figure>
@@ -1911,11 +1924,11 @@ spec:
     </div>
     <div class="rating" id="reviews-rating"></div>
     <p class="lede" style="margin-bottom:28px;font-style:italic">
-      Unfortunately, we didn't realize we had any users when we took down the servers.
+      Unfortunately, we didn’t realize we had any users when we took down the servers.
     </p>
     <div class="reviews" id="reviews-list"></div>
     <p class="reviews-meta">
-      Pulled from Apple's public review feed, newest first, nothing filtered out.
+      Pulled from Apple’s public review feed, newest first, nothing filtered out.
       <a href="https://apps.apple.com/app/id1563961135">Write one</a>.
     </p>
   </div>
@@ -2790,8 +2803,10 @@ document.querySelectorAll('.tabs').forEach(list => {
       a.style.setProperty("--gchroma", "0");
       a.style.setProperty("--glow", "1");
     }
-    a.addEventListener("mouseenter", start);
-    a.addEventListener("mouseleave", stop);
+    if (window.matchMedia("(hover: hover)").matches){
+      a.addEventListener("mouseenter", start);
+      a.addEventListener("mouseleave", stop);
+    }
     a.addEventListener("focus", start);
     a.addEventListener("blur", stop);
 

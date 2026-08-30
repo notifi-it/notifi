@@ -5,10 +5,12 @@ struct SearchField: View {
     var placeholder: String = Copy.Common.search
     var focused: FocusState<Bool>.Binding
 
+    @ScaledMetric(relativeTo: .subheadline) private var glassSize: CGFloat = 14
+
     var body: some View {
         HStack(spacing: 9) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: glassSize, weight: .medium))
                 .foregroundStyle(focused.wrappedValue ? Theme.muted : Theme.dim)
                 .accessibilityHidden(true)
 
@@ -286,6 +288,8 @@ struct ToggleRow: View {
     var detail: String?
     @Binding var isOn: Bool
 
+    @ScaledMetric(relativeTo: .subheadline) private var infoIconSize: CGFloat = 14
+
     @State private var showingDetail = false
 
     var body: some View {
@@ -300,7 +304,7 @@ struct ToggleRow: View {
                         showingDetail = true
                     } label: {
                         Image(systemName: "info.circle")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.system(size: infoIconSize, weight: .medium))
                             .foregroundStyle(Theme.dim)
                     }
                     .buttonStyle(.geist)
@@ -337,6 +341,10 @@ struct SegmentedRow<Option: Hashable>: View {
     let options: [Option]
     let label: (Option) -> String
     @Binding var selection: Option
+
+    private var controlWidth: CGFloat {
+        CGFloat(options.count) * ((Theme.controlWidth + 32) / 2)
+    }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -375,7 +383,7 @@ struct SegmentedRow<Option: Hashable>: View {
                 RoundedRectangle(cornerRadius: Theme.radius)
                     .stroke(Theme.controlBorder, lineWidth: 1)
             }
-            .frame(width: Theme.controlWidth + 32, alignment: .trailing)
+            .frame(width: controlWidth, alignment: .trailing)
             .geistHitArea(expandedBy: 8)
         }
         .padding(.vertical, Theme.rowPadV)
@@ -387,12 +395,14 @@ struct SegmentedRow<Option: Hashable>: View {
 struct DisclosureRow<Content: View>: View {
     @ViewBuilder var content: Content
 
+    @ScaledMetric(relativeTo: .caption) private var chevronSize: CGFloat = 12
+
     var body: some View {
         HStack(spacing: 12) {
             content
             Spacer(minLength: 8)
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: chevronSize, weight: .semibold))
                 .foregroundStyle(Theme.dim)
                 .accessibilityHidden(true)
         }

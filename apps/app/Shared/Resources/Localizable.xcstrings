@@ -287,7 +287,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The request didn't go through. Try again."
+            "value": "The request didn’t go through. Try again."
           }
         },
         "es": {
@@ -305,7 +305,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La requête n'a pas abouti. Réessayez."
+            "value": "La requête n’a pas abouti. Réessayez."
           }
         },
         "it": {
@@ -340,7 +340,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce n'est plus sur le serveur. Actualisez et réessayez."
+            "value": "Ce n’est plus sur le serveur. Actualisez et réessayez."
           }
         },
         "it": {
@@ -427,7 +427,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't reach the server. Check your connection and try again."
+            "value": "Couldn’t reach the server. Check your connection and try again."
           }
         },
         "es": {
@@ -480,7 +480,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cette clé n'est plus acceptée. Créez-en une nouvelle dans Clés."
+            "value": "Cette clé n’est plus acceptée. Créez-en une nouvelle dans Clés."
           }
         },
         "it": {
@@ -1477,7 +1477,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't create the key. Check your connection and try again."
+            "value": "Couldn’t create the key. Check your connection and try again."
           }
         },
         "es": {
@@ -1687,7 +1687,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Haven't copied it?"
+            "value": "Haven’t copied it?"
           }
         },
         "es": {
@@ -1705,7 +1705,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous ne l'avez pas copiée ?"
+            "value": "Vous ne l’avez pas copiée ?"
           }
         },
         "it": {
@@ -1862,7 +1862,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It won't be shown again."
+            "value": "It won’t be shown again."
           }
         },
         "es": {
@@ -2107,7 +2107,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose another name. “default” is your device's own key."
+            "value": "Choose another name. “default” is your device’s own key."
           }
         },
         "es": {
@@ -2282,7 +2282,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't make a key. Check your connection and try again."
+            "value": "Couldn’t make a key. Check your connection and try again."
           }
         },
         "es": {
@@ -2457,7 +2457,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't send. Check your connection and try again."
+            "value": "Couldn’t send. Check your connection and try again."
           }
         },
         "es": {
@@ -2475,7 +2475,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de l'envoi. Vérifiez votre connexion et réessayez."
+            "value": "Échec de l’envoi. Vérifiez votre connexion et réessayez."
           }
         },
         "it": {
@@ -2790,7 +2790,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "notifi n'a pas pu lire sa clé d'identité dans le trousseau. Cela se résout généralement une fois l'appareil déverrouillé. Vos notifications et clés d'envoi ne sont pas affectées."
+            "value": "notifi n’a pas pu lire sa clé d’identité dans le trousseau. Cela se résout généralement une fois l’appareil déverrouillé. Vos notifications et clés d’envoi ne sont pas affectées."
           }
         },
         "it": {
@@ -2807,7 +2807,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Can't unlock notifi"
+            "value": "Can’t unlock notifi"
           }
         },
         "es": {
@@ -2930,7 +2930,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aujourd'hui"
+            "value": "Aujourd’hui"
           }
         },
         "it": {
@@ -3000,7 +3000,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Effacer les données d'exemple"
+            "value": "Effacer les données d’exemple"
           }
         },
         "it": {
@@ -3567,7 +3567,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Can't reach notifi servers. Check your connection and try again."
+            "value": "Can’t reach notifi servers. Check your connection and try again."
           }
         },
         "es": {
@@ -3655,7 +3655,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Générer des données d'exemple"
+            "value": "Générer des données d’exemple"
           }
         },
         "it": {
@@ -3847,7 +3847,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't change critical alerts for this key. Check your connection and try again."
+            "value": "Couldn’t change critical alerts for this key. Check your connection and try again."
           }
         },
         "es": {
@@ -4250,7 +4250,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvrir n'importe quel lien"
+            "value": "Ouvrir n’importe quel lien"
           }
         },
         "it": {
@@ -4390,7 +4390,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clé régénérée. L'ancienne valeur ne fonctionne plus."
+            "value": "Clé régénérée. L’ancienne valeur ne fonctionne plus."
           }
         },
         "it": {
@@ -4425,7 +4425,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Régénérer émet une nouvelle valeur et retire l'ancienne. Tout ce qui envoie encore avec l'ancienne valeur sera rejeté."
+            "value": "Régénérer émet une nouvelle valeur et retire l’ancienne. Tout ce qui envoie encore avec l’ancienne valeur sera rejeté."
           }
         },
         "it": {
@@ -4442,7 +4442,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't regenerate the key. Check your connection and try again."
+            "value": "Couldn’t regenerate the key. Check your connection and try again."
           }
         },
         "es": {
@@ -4775,7 +4775,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cette clé est révoquée et n'accepte plus d'envois."
+            "value": "Cette clé est révoquée et n’accepte plus d’envois."
           }
         },
         "it": {
@@ -4792,7 +4792,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't revoke the key. Check your connection and try again."
+            "value": "Couldn’t revoke the key. Check your connection and try again."
           }
         },
         "es": {
@@ -5090,7 +5090,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La valeur n'a été affichée qu'une fois, à la création de cette clé. Elle n'est pas stockée sur l'appareil."
+            "value": "La valeur n’a été affichée qu’une fois, à la création de cette clé. Elle n’est pas stockée sur l’appareil."
           }
         },
         "it": {
@@ -5387,7 +5387,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't refresh keys. Showing the last known list."
+            "value": "Couldn’t refresh keys. Showing the last known list."
           }
         },
         "es": {
@@ -5405,13 +5405,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible d'actualiser les clés. Affichage de la dernière liste connue."
+            "value": "Impossible d’actualiser les clés. Affichage de la dernière liste connue."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossibile aggiornare le chiavi. Mostro l'ultimo elenco noto."
+            "value": "Impossibile aggiornare le chiavi. Mostro l’ultimo elenco noto."
           }
         }
       }
@@ -5780,7 +5780,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Télécharger l'image"
+            "value": "Télécharger l’image"
           }
         },
         "it": {
@@ -5850,13 +5850,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec du chargement de l'image"
+            "value": "Échec du chargement de l’image"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Caricamento dell'immagine non riuscito"
+            "value": "Caricamento dell’immagine non riuscito"
           }
         }
       }
@@ -6060,7 +6060,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Charger l'image"
+            "value": "Charger l’image"
           }
         },
         "it": {
@@ -6305,7 +6305,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voir l'image en plein écran"
+            "value": "Voir l’image en plein écran"
           }
         },
         "it": {
@@ -6515,7 +6515,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vos anciennes notifications ont été restaurées depuis une sauvegarde, mais pas vos clés. Les clés sont liées à l'appareil sur lequel elles ont été créées et ne peuvent pas être déplacées. Tout ce qui envoie encore vers vos anciennes clés sera désormais rejeté. Créez de nouvelles clés pour continuer à recevoir des notifications."
+            "value": "Vos anciennes notifications ont été restaurées depuis une sauvegarde, mais pas vos clés. Les clés sont liées à l’appareil sur lequel elles ont été créées et ne peuvent pas être déplacées. Tout ce qui envoie encore vers vos anciennes clés sera désormais rejeté. Créez de nouvelles clés pour continuer à recevoir des notifications."
           }
         },
         "it": {
@@ -6796,13 +6796,48 @@
         }
       }
     },
+    "settings.deleteAllConfirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete all"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar todas"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle löschen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout supprimer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina tutte"
+          }
+        }
+      }
+    },
     "settings.deleteAllMessage": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be undone."
+            "value": "This can’t be undone."
           }
         },
         "es": {
@@ -6837,7 +6872,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Are you sure?"
+            "value": "Delete all notifications?"
           }
         },
         "es": {
@@ -6960,7 +6995,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Télécharge et installe les nouvelles versions sans demander. notifi redémarre lorsqu'il se met à jour."
+            "value": "Télécharge et installe les nouvelles versions sans demander. notifi redémarre lorsqu’il se met à jour."
           }
         },
         "it": {
@@ -6995,7 +7030,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Télécharger dans l'App Store"
+            "value": "Télécharger dans l’App Store"
           }
         },
         "it": {
@@ -7065,7 +7100,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récupère chaque image dès l'arrivée de la notification, ce qui révèle votre adresse IP à son hôte. Désactivé, les images ne se chargent qu'au toucher."
+            "value": "Récupère chaque image dès l’arrivée de la notification, ce qui révèle votre adresse IP à son hôte. Désactivé, les images ne se chargent qu’au toucher."
           }
         },
         "it": {
@@ -7135,7 +7170,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvrir à l'ouverture de session"
+            "value": "Ouvrir à l’ouverture de session"
           }
         },
         "it": {
@@ -7695,7 +7730,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Renvoie 422 invalid_content et ne stocke rien lorsqu'un titre ou un corps dépasse la longueur autorisée. Désactivé, /send raccourcit le champ et renvoie 202 avec un tableau warnings."
+            "value": "Renvoie 422 invalid_content et ne stocke rien lorsqu’un titre ou un corps dépasse la longueur autorisée. Désactivé, /send raccourcit le champ et renvoie 202 avec un tableau warnings."
           }
         },
         "it": {
@@ -7951,6 +7986,41 @@
         }
       }
     },
+    "settings.themeSystem": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Système"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        }
+      }
+    },
     "settings.title": {
       "extractionState": "manual",
       "localizations": {
@@ -8185,7 +8255,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "notifi nécessite un Mac avec puce Apple silicon ou puce T2. Ce Mac n'a pas d'Enclave sécurisée, que notifi utilise pour protéger votre clé d'identité."
+            "value": "notifi nécessite un Mac avec puce Apple silicon ou puce T2. Ce Mac n’a pas d’Enclave sécurisée, que notifi utilise pour protéger votre clé d’identité."
           }
         },
         "it": {

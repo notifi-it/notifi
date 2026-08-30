@@ -296,6 +296,7 @@ export const de: Translation = {
   'settings.theme': 'Design',
   'settings.themeDark': 'Dunkel',
   'settings.themeLight': 'Hell',
+  'settings.themeSystem': 'System',
 
   'settings.loadImages': 'Bilder automatisch laden',
   'settings.loadImagesDetail':
@@ -327,6 +328,7 @@ export const de: Translation = {
   'settings.checkForUpdates': 'Nach Updates suchen',
   'settings.deleteAll': 'Alle Benachrichtigungen löschen',
   'settings.deleteAllTitle': 'Alle Benachrichtigungen löschen?',
+  'settings.deleteAllConfirm': 'Alle löschen',
   'settings.deleteAllMessage': 'Das kann nicht rückgängig gemacht werden.',
   'settings.support': 'Problem melden',
   'settings.feedback': 'Feedback',

@@ -158,6 +158,7 @@ body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
 }
 /* Television static over the ground.
@@ -172,7 +173,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(.skip){position:relative;z-index:1}
 /* Scroll reveal: the text resolves out of the static, letter by letter.
    The arrival is faded rather than snapped. Each letter carries its own long
    ease, so what travels down a paragraph is a soft front a few characters wide
@@ -194,6 +195,16 @@ body>*:not(#static){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+/* First focusable element on every page, off-canvas until it takes focus. */
+.skip{
+  position:fixed;left:var(--gutter);top:8px;z-index:30;
+  font-family:var(--mono);font-size:13px;
+  padding:9px 14px;border-radius:6px;
+  background:var(--surface);color:var(--fg);
+  border:1px solid var(--control-border);text-decoration:none;
+  transform:translateY(calc(-100% - 16px));
+}
+.skip:focus-visible{transform:none}
 
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
 .rule{height:1px;background:var(--line);border:0}
@@ -203,7 +214,7 @@ h1{font-size:clamp(30px,5.4vw,48px)}
 h2{font-size:clamp(21px,3vw,27px)}
 h3{font-size:16px;letter-spacing:-.02em}
 p,li{max-width:70ch}
-.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55;text-wrap:pretty}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 .eyebrow{
   font-family:var(--mono);font-size:11px;font-weight:600;
@@ -214,9 +225,9 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px s
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
 .mark img{height:17px;width:auto;display:block}
-nav{margin-left:auto;display:flex;align-items:center;gap:22px}
-nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-nav a:hover{color:var(--fg)}
+nav{margin-inline-start:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
+@media (hover:hover){nav a:hover{color:var(--fg)}}
 
 .bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
 .bell::before{
@@ -243,7 +254,7 @@ nav a:hover{color:var(--fg)}
 .doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
 .doc strong{color:var(--fg);font-weight:500}
 .doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
-.doc a:hover{text-decoration-color:var(--fg)}
+@media (hover:hover){.doc a:hover{text-decoration-color:var(--fg)}}
 
 /* GrainyBell at link scale: the 404 glyph's decay on the content links, built
    by the link-glitch block in site.js (which also says which links are left
@@ -267,7 +278,8 @@ a.glitch .gsolid{
   -webkit-text-fill-color:transparent;
   text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px;
 }
-a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+@media (hover:hover){a.glitch:hover .gsolid{text-decoration-color:var(--fg)}}
 
 .card{
   border:1px solid var(--line);border-radius:10px;background:var(--surface);
@@ -276,15 +288,15 @@ a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(
 .card p:first-child{margin-top:0}
 
 footer{border-top:1px solid var(--line);padding:40px 0 56px}
-.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+.foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;
   font-family:var(--mono);font-size:13px;color:var(--dim)}
-.foot a{color:var(--muted);text-decoration:none}
-.foot a:hover{color:var(--fg)}
-.foot .meta{margin-left:auto}
-@media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
+.foot a{color:var(--muted);text-decoration:none;padding-block:5px}
+@media (hover:hover){.foot a:hover{color:var(--fg)}}
+.foot .meta{margin-inline-start:auto}
+@media(max-width:620px){.foot .meta{margin-inline-start:0;width:100%}}
 
 .doc.api p.meta a{color:var(--muted);text-decoration:none}
-.doc.api p.meta a:hover{color:var(--fg)}
+@media (hover:hover){.doc.api p.meta a:hover{color:var(--fg)}}
 /* The actions row: the Markdown twin is served and negotiated already, and
    nothing on the page said so. */
 .doc.api .actions{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:16px}
@@ -294,8 +306,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   text-decoration:none;
 }
 .doc.api .actions .tab-i{opacity:.55}
+@media (hover:hover){
 .doc.api .actions a:hover,.doc.api .linkish:hover{color:var(--fg)}
 .doc.api .actions a:hover .tab-i,.doc.api .linkish:hover .tab-i{opacity:.8}
+}
 .doc.api .linkish[data-state="failed"]{color:var(--brand-text)}
 /* The contents. A line of anchors at the top is gone on the first scroll, so
    at a width that has room for it the same links become a rail that stays. */
@@ -368,7 +382,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
 .dot3 i:first-child{background:#28282A}
 .dot3 i:last-child{background:#2E2E30}
-.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
+.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-inline-start:4px}
 .term pre{
   margin:0;padding:16px 18px;overflow-x:auto;
   font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--fg);
@@ -381,10 +395,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .term .c{color:var(--dim)}          /* comment */
 .term .k{color:var(--brand-text)}   /* the key you swap in */
 .copy{
-  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
-  background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
+  margin-inline-start:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
+  background:none;border:0;cursor:pointer;padding:6px 8px;border-radius:4px;
 }
-.copy:hover{color:var(--fg);background:#141414}
+@media (hover:hover){.copy:hover{color:var(--fg);background:#141414}}
 .copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
 .copy:active{color:var(--fg);background:#1C1C1C}
 .copy[data-state="failed"]{color:var(--brand-text)}
@@ -398,13 +412,13 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .tabgroup-items{display:flex;flex-wrap:wrap;gap:6px}
 .tab{
   font-family:var(--mono);font-size:13px;color:var(--muted);
-  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
+  padding:8px 12px;border:1px solid var(--control-border);border-radius:6px;
   background:transparent;cursor:pointer;
   transition:color var(--dur-press) var(--ease-out),
              border-color var(--dur-press) var(--ease-out),
              background var(--dur-press) var(--ease-out);
 }
-.tab:hover{color:var(--fg);border-color:#6A6A6A}
+@media (hover:hover){.tab:hover{color:var(--fg);border-color:#6A6A6A}}
 .tab:active{border-color:var(--fg)}
 .tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
 .panel[hidden]{display:none}
@@ -421,11 +435,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
    and held back from the text so the row still reads as words first. */
 .tab{display:inline-flex;align-items:center;gap:7px}
 .tab-i{flex:0 0 auto;opacity:.62}
-.tab:hover .tab-i{opacity:.85}
+@media (hover:hover){.tab:hover .tab-i{opacity:.85}}
 .tab[aria-selected="true"] .tab-i{opacity:.75}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="static" aria-hidden="true"></canvas>
 
 <header>
@@ -443,7 +458,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </div>
 </header>
 
-<main class="wrap doc api">
+<main id="main" class="wrap doc api">
 
   <p class="eyebrow">API reference</p>
   <h1>notifi API documentation</h1>
@@ -1417,8 +1432,10 @@ spec:
       a.style.setProperty("--gchroma", "0");
       a.style.setProperty("--glow", "1");
     }
-    a.addEventListener("mouseenter", start);
-    a.addEventListener("mouseleave", stop);
+    if (window.matchMedia("(hover: hover)").matches){
+      a.addEventListener("mouseenter", start);
+      a.addEventListener("mouseleave", stop);
+    }
     a.addEventListener("focus", start);
     a.addEventListener("blur", stop);
 
