@@ -153,7 +153,7 @@
 *{box-sizing:border-box;margin:0}
 /* scroll-padding-top clears the 60px sticky header, which would otherwise sit
    on top of whatever an in-page anchor just jumped to. */
-html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px}
 body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
@@ -282,8 +282,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .foot a:hover{color:var(--fg)}
 .foot .meta{margin-left:auto}
 @media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
-
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 
 .doc.api p.meta a{color:var(--muted);text-decoration:none}
 .doc.api p.meta a:hover{color:var(--fg)}
