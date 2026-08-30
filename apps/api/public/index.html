@@ -116,7 +116,7 @@
 *{box-sizing:border-box;margin:0}
 /* scroll-padding-top clears the 60px fixed header, which is docked and in the
    way whenever an in-page anchor is followed from below the hero. */
-html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px}
 body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
@@ -950,7 +950,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
    outright turned each of these into a hard cut, which is the jarring change the
    motion was added to prevent. So: nothing moves or resizes, and the fades stay. */
 @media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
   .btn:active{transform:none}
 }
 </style>
