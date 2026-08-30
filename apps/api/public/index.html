@@ -1213,14 +1213,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
              sends an empty key and answers 401. -->
         <button class="copy" aria-label="Copy the example curl command" data-copy='curl https://notifi.it/send -d key=nk_yourkeyhere -d title="hello world"'>Copy</button>
       </div>
-<pre class="term-wide"><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span>
-<span class="c">{"ok":true}</span></pre>
+<pre class="term-wide"><span class="p">$</span> curl https://notifi.it/send -d key=<span class="k">nk_yourkeyhere</span> -d title=<span class="s">"hello world"</span></pre>
 <!-- The same command folded with continuations for a phone's measure; the
      Copy button still hands over the one-line form, which pastes anywhere. -->
 <pre class="term-narrow"><span class="p">$</span> curl https://notifi.it/send \
     -d key=<span class="k">nk_yourkeyhere</span> \
-    -d title=<span class="s">"hello world"</span>
-<span class="c">{"ok":true}</span></pre>
+    -d title=<span class="s">"hello world"</span></pre>
     </div>
     <!-- Carries the one instruction the removed three-step section was for:
          nk_yourkeyhere is the slot, and the app is where the key comes from. -->
@@ -2371,21 +2369,35 @@ document.querySelectorAll('.tabs').forEach(list => {
     gl.useProgram(prog);
     gl.uniform1i(gl.getUniformLocation(prog, "uT"), 0);
 
+    // The strokes are laid out in the mark's own coordinates, so a phone draws
+    // the same line over a third of the pixels — at one pace the pen reads as
+    // hurried there and unhurried on a desktop. The clock runs in proportion to
+    // the mark instead: full pace at the widest the hero ever gets, slower as
+    // it shrinks, with a floor so a small phone still finishes the build rather
+    // than crawling. Everything hangs off this one clock — the deal rate, each
+    // stroke's own extension, the endless respawn — so they all slow together.
+    var REF = 680, MIN_SPEED = .45, speed = 1;
     function resize(){
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var w = Math.floor(cv.clientWidth * dpr), h = Math.floor(cv.clientHeight * dpr);
+      speed = Math.min(1, Math.max(MIN_SPEED, (cv.clientWidth || REF) / REF));
       if (!w || !h || (w === cv.width && h === cv.height)) return;
       cv.width = w; cv.height = h;
       gl.viewport(0, 0, w, h);
-      if (!raf) frame(40000);
+      if (!raf) frame(40);
     }
     if (window.ResizeObserver) new ResizeObserver(resize).observe(cv);
     else window.addEventListener("resize", resize);
     resize();
 
     var nextSpawn = 26 + RING * .25, ringCursor = 0;
-    function frame(t){
-      var s = t * .001;
+    var clock = 0, last = null;
+    function tick(t){
+      if (last !== null) clock += (t - last) * .001 * speed;
+      last = t;
+      frame(clock);
+    }
+    function frame(s){
       var spawned = 0;
       while (s > nextSpawn && spawned < 32){
         var c1 = cells[Math.floor(Math.random() * cells.length)];
@@ -2410,10 +2422,11 @@ document.querySelectorAll('.tabs').forEach(list => {
     // work while the tab is hidden or the hero is scrolled away.
     var still = window.matchMedia("(prefers-reduced-motion: reduce)");
     var raf = null, visible = true;
-    function loop(t){ frame(t); raf = requestAnimationFrame(loop); }
+    function loop(t){ tick(t); raf = requestAnimationFrame(loop); }
     function apply(){
       if (raf) { cancelAnimationFrame(raf); raf = null; }
-      if (still.matches) { frame(40000); return; }
+      last = null;
+      if (still.matches) { frame(40); return; }
       if (visible && !document.hidden) raf = requestAnimationFrame(loop);
     }
     still.addEventListener("change", apply);
