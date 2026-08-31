@@ -602,7 +602,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 }
 /* gf:css:start */
 .app-film{--bg:#1C1C1E;--surface:#262628;--line:#333;--chip:#3C3C3C;--fg:#EDEDED;--muted:#A1A1A1;--dim:#8A8A8A;--red:#DB4A4B;--blue:#7FA8E0;--stroke:#EDEDED;--stroke2:#55555A;
---mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:15s}
+--mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:21s}
 .app-film *{box-sizing:border-box;margin:0;padding:0}
 @font-face{font-family:'Recursive Mono';font-style:normal;font-weight:300 800;font-display:block;src:url(/fonts/recursive-mono.woff2) format('woff2')}
 @font-face{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:block;src:url(/fonts/karla.woff2) format('woff2')}
@@ -611,7 +611,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 
 .gf-stage{position:relative;width:min(96vw,1600px);aspect-ratio:2160/960;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;container-type:inline-size}
 .gf-stage *{font-size:calc(1cqw * var(--fs,1.5))}
-.gf-hd0,.gf-bg0,.gf-dv0,.gf-ti0,.gf-sc0,.gf-l0_0,.gf-l0_1,.gf-l0_2,.gf-l0_3,.gf-l0_4,.gf-l0_5,.gf-lc0_0,.gf-lc0_1,.gf-lc0_2,.gf-lc0_3,.gf-lc0_4,.gf-lc0_5,.gf-r0,.gf-hd1,.gf-bg1,.gf-dv1,.gf-ti1,.gf-sc1,.gf-tp1_0,.gf-tp1_1,.gf-tp1_2,.gf-cr1_0,.gf-cr1_1,.gf-cr1_2,.gf-rp1,.gf-hd2,.gf-bg2,.gf-dv2,.gf-ti2,.gf-sc2,.gf-l2_0,.gf-l2_1,.gf-l2_2,.gf-l2_3,.gf-l2_4,.gf-l2_5,.gf-l2_6,.gf-l2_7,.gf-r2,.gf-cl2,.gf-trail i,.gf-tabs button,.gf-bell i{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}
+.gf-hd0,.gf-bg0,.gf-dv0,.gf-ti0,.gf-sc0,.gf-l0_0,.gf-l0_1,.gf-l0_2,.gf-l0_3,.gf-l0_4,.gf-l0_5,.gf-lc0_0,.gf-lc0_1,.gf-lc0_2,.gf-lc0_3,.gf-lc0_4,.gf-lc0_5,.gf-r0,.gf-hd1,.gf-bg1,.gf-dv1,.gf-ti1,.gf-sc1,.gf-tp1_0,.gf-tp1_1,.gf-tp1_2,.gf-cr1_0,.gf-cr1_1,.gf-cr1_2,.gf-rp1,.gf-hd2,.gf-bg2,.gf-dv2,.gf-ti2,.gf-sc2,.gf-l2_0,.gf-l2_1,.gf-l2_2,.gf-l2_3,.gf-l2_4,.gf-l2_5,.gf-l2_6,.gf-l2_7,.gf-r2,.gf-cl2,.gf-trail i,.gf-tabs button,.gf-bell i,.gf-term,.gf-rgt{animation-duration:var(--T);animation-timing-function:linear;animation-iteration-count:infinite}
 .gf-head{position:absolute;left:4.17%;top:9.2%;line-height:1.35;letter-spacing:-.01em;opacity:0}
 .gf-head .gf-l1{--fs:2.0;font-family:var(--mono);font-weight:700;letter-spacing:-.03em;color:var(--fg)}
 .gf-gif .gf-l1{--fs:2.3;color:var(--red)}
@@ -645,15 +645,16 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-cmeta b{font-weight:700;color:var(--fg)}
 .gf-crule{height:1px;background:var(--line);margin:1.301cqw 0}
 .gf-cinput{display:flex;align-items:baseline;gap:1.561cqw;padding:0.911cqw 0;white-space:pre}
-.gf-cchev{color:var(--dim);flex:none}
+.gf-cchev{color:var(--dim);flex:none;width:1ch}
 .gf-ctype{display:inline-block;width:0;overflow:hidden;white-space:pre;vertical-align:bottom}
 .gf-ccar{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}
 .gf-body div.gf-shline{width:auto;overflow:visible;display:flex;align-items:center}
 .gf-shline .gf-ltype{display:inline-block;width:0;overflow:hidden;white-space:pre}
 .gf-cinput+.gf-cinput{margin-top:-0.260cqw}
-.gf-creply{margin-top:2.342cqw;opacity:0;white-space:normal}
-.gf-cdot{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-inline-end:1.0cqw;position:relative;top:-0.1cqw}
+.gf-creply{position:relative;margin-top:2.342cqw;padding-inline-start:calc(1ch + 1.561cqw);opacity:0;white-space:normal}
+.gf-cdot{position:absolute;inset-inline-start:calc((1ch - 1.35cqw) / 2);top:calc((1.7em - 1.35cqw) / 2);width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757}
 .gf-c{color:var(--dim)}.gf-k{color:var(--red)}.gf-s{color:var(--blue)}.gf-f{color:#B48EAD}.gf-fn{color:#8FBCBB}.gf-n{color:#A3BE8C}.gf-r{color:var(--dim)}
+.gf-rgt{position:absolute;inset:0;pointer-events:none}
 .gf-dev{position:absolute;opacity:0;container-type:inline-size}
 .gf-dev svg{display:block;width:100%;height:100%;overflow:visible}
 .gf-o{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
@@ -716,6 +717,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-dt0_4{animation-name:gf-d0_4}
 .gf-sc0{animation-name:gf-sp0}
 .gf-sc0 .gf-bb{animation-name:gf-rb0}.gf-sc0 .gf-bc{animation-name:gf-rc0}
+.gf-rg0{animation-name:gf-focR0}
 .gf-hd1,.gf-bg1,.gf-dv1,.gf-ti1,.gf-cl1{animation-name:gf-vis1}
 .gf-tp1_0{animation-name:gf-type1_0}
 .gf-cr1_0{animation-name:gf-car1_0}
@@ -731,6 +733,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-dt1_4{animation-name:gf-d1_4}
 .gf-sc1{animation-name:gf-sp1}
 .gf-sc1 .gf-bb{animation-name:gf-rb1}.gf-sc1 .gf-bc{animation-name:gf-rc1}
+.gf-rg1{animation-name:gf-focR1}
 .gf-hd2,.gf-bg2,.gf-dv2,.gf-ti2,.gf-cl2{animation-name:gf-vis2}
 .gf-l2_0{animation-name:gf-ln2_0}
 .gf-l2_1{animation-name:gf-ln2_1}
@@ -748,6 +751,8 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-dt2_4{animation-name:gf-d2_4}
 .gf-sc2{animation-name:gf-sp2}
 .gf-sc2 .gf-bb{animation-name:gf-rb2}.gf-sc2 .gf-bc{animation-name:gf-rc2}
+.gf-rg2{animation-name:gf-focR2}
+.gf-term{animation-name:gf-focT}
 @media(max-width:760px){
 .gf-stage{aspect-ratio:10/16}
 .gf-head{left:4%;top:3.75%;width:92%}
@@ -778,7 +783,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-hd1,.gf-hd2,.gf-bg1,.gf-bg2,.gf-dv1,.gf-dv2,.gf-ti1,.gf-ti2,.gf-cl2{display:none}
 .gf-term .gf-tabs button.gf-gf-tabA{background:var(--chip);color:var(--fg)}
 }
-@keyframes gf-vis0{0%,0.5%{opacity:0} 2.0%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
+@keyframes gf-vis0{0%,0.5%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 2.0%,32.2%{opacity:1;animation-timing-function:cubic-bezier(.3,0,1,1)} 33.3%,100%{opacity:0}}
 @keyframes gf-ln0_0{0%,2.0%{width:0;animation-timing-function:steps(23,end)} 4.25%,100%{width:23ch}}
 @keyframes gf-lcar0_0{0%,2.0%{opacity:0} 2.01%,4.25%{opacity:1} 4.26%,100%{opacity:0}}
 @keyframes gf-ln0_1{0%,4.25%{width:0;animation-timing-function:steps(25,end)} 6.5%,100%{width:25ch}}
@@ -790,33 +795,33 @@ section{padding:clamp(48px,7vw,86px) 0}
 @keyframes gf-ln0_4{0%,11.0%{width:0;animation-timing-function:steps(36,end)} 13.25%,100%{width:36ch}}
 @keyframes gf-lcar0_4{0%,11.0%{opacity:0} 11.01%,13.25%{opacity:1} 13.26%,100%{opacity:0}}
 @keyframes gf-ln0_5{0%,13.25%{width:0;animation-timing-function:steps(48,end)} 15.5%,100%{width:48ch}}
-@keyframes gf-lcar0_5{0%,13.25%{opacity:0} 13.26%,32.2%{opacity:1} 32.21%,100%{opacity:0}}
-@keyframes gf-rs0{0%,16.5%{opacity:0} 17.5%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
-@keyframes gf-d0_0{0%,16.5%{opacity:0} 17.5%,21.5%{opacity:0.35} 23.0%,100%{opacity:0}}
-@keyframes gf-d0_1{0%,17.1%{opacity:0} 18.1%,21.75%{opacity:0.5} 23.25%,100%{opacity:0}}
-@keyframes gf-d0_2{0%,17.7%{opacity:0} 18.7%,22.0%{opacity:0.65} 23.5%,100%{opacity:0}}
-@keyframes gf-d0_3{0%,18.3%{opacity:0} 19.3%,22.25%{opacity:0.8} 23.75%,100%{opacity:0}}
-@keyframes gf-d0_4{0%,18.9%{opacity:0} 19.9%,22.5%{opacity:1} 24.0%,100%{opacity:0}}
-@keyframes gf-sp0{0%,17.8%{opacity:0;transform:scale(.8)} 18.0%{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)} 20.0%,32.2%{opacity:1;transform:scale(1)} 33.3%,100%{opacity:0;transform:scale(1)}}
-@keyframes gf-rb0{0%,19.6%{transform:rotate(0deg)} 19.6%{transform:rotate(0deg)} 20.137%{transform:rotate(-20deg)} 21.233%{transform:rotate(18deg)} 22.329%{transform:rotate(-16deg)} 23.427%{transform:rotate(14deg)} 24.523%{transform:rotate(-13deg)} 25.62%{transform:rotate(12deg)} 26.716%{transform:rotate(-10deg)} 27.813%{transform:rotate(8deg)} 28.91%{transform:rotate(-6deg)} 30.006%{transform:rotate(4deg)} 31.104%{transform:rotate(-2deg)} 32.2%{transform:rotate(0deg)} 32.2%,100%{transform:rotate(0deg)}}
-@keyframes gf-rc0{0%,19.6%{transform:rotate(0deg)} 19.6%{transform:rotate(0deg)} 19.912%{transform:rotate(0deg)} 20.485%{transform:rotate(-30deg)} 21.656%{transform:rotate(27deg)} 22.828%{transform:rotate(-24deg)} 24.0%{transform:rotate(20deg)} 25.17%{transform:rotate(-18deg)} 26.342%{transform:rotate(15deg)} 27.514%{transform:rotate(-12deg)} 28.686%{transform:rotate(9deg)} 29.856%{transform:rotate(-6deg)} 31.028%{transform:rotate(3deg)} 32.2%{transform:rotate(0deg)} 32.2%,100%{transform:rotate(0deg)}}
-@keyframes gf-vis1{0%,33.833%{opacity:0} 35.333%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
+@keyframes gf-lcar0_5{0%,13.25%{opacity:0} 13.26%,16.5%{opacity:1} 16.51%,100%{opacity:0}}
+@keyframes gf-rs0{0%,16.5%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 17.214%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
+@keyframes gf-d0_0{0%,16.5%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 17.214%,21.5%{opacity:0.35;animation-timing-function:cubic-bezier(.4,0,.2,1)} 23.0%,100%{opacity:0}}
+@keyframes gf-d0_1{0%,16.929%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 17.643%,21.75%{opacity:0.5;animation-timing-function:cubic-bezier(.4,0,.2,1)} 23.25%,100%{opacity:0}}
+@keyframes gf-d0_2{0%,17.358%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 18.072%,22.0%{opacity:0.65;animation-timing-function:cubic-bezier(.4,0,.2,1)} 23.5%,100%{opacity:0}}
+@keyframes gf-d0_3{0%,17.787%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 18.501%,22.25%{opacity:0.8;animation-timing-function:cubic-bezier(.4,0,.2,1)} 23.75%,100%{opacity:0}}
+@keyframes gf-d0_4{0%,18.216%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 18.93%,22.5%{opacity:1;animation-timing-function:cubic-bezier(.4,0,.2,1)} 24.0%,100%{opacity:0}}
+@keyframes gf-sp0{0%,17.8%{opacity:0;transform:scale(.8)} 18.0%{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)} 19.429%,32.2%{opacity:1;transform:scale(1)} 33.3%,100%{opacity:0;transform:scale(1)}}
+@keyframes gf-rb0{0%,19.429%{transform:rotate(0deg);animation-timing-function:ease-in-out} 19.429%{transform:rotate(0deg);animation-timing-function:ease-in-out} 19.953%{transform:rotate(-20deg);animation-timing-function:ease-in-out} 21.024%{transform:rotate(18deg);animation-timing-function:ease-in-out} 22.095%{transform:rotate(-16deg);animation-timing-function:ease-in-out} 23.168%{transform:rotate(14deg);animation-timing-function:ease-in-out} 24.239%{transform:rotate(-13deg);animation-timing-function:ease-in-out} 25.311%{transform:rotate(12deg);animation-timing-function:ease-in-out} 26.382%{transform:rotate(-10deg);animation-timing-function:ease-in-out} 27.453%{transform:rotate(8deg);animation-timing-function:ease-in-out} 28.525%{transform:rotate(-6deg);animation-timing-function:ease-in-out} 29.596%{transform:rotate(4deg);animation-timing-function:ease-in-out} 30.668%{transform:rotate(-2deg);animation-timing-function:ease-in-out} 31.739%{transform:rotate(0deg);animation-timing-function:ease-in-out} 31.739%,100%{transform:rotate(0deg)}}
+@keyframes gf-rc0{0%,19.429%{transform:rotate(0deg);animation-timing-function:ease-in-out} 19.429%{transform:rotate(0deg);animation-timing-function:ease-in-out} 19.715%{transform:rotate(0deg);animation-timing-function:ease-in-out} 20.238%{transform:rotate(-30deg);animation-timing-function:ease-in-out} 21.31%{transform:rotate(27deg);animation-timing-function:ease-in-out} 22.381%{transform:rotate(-24deg);animation-timing-function:ease-in-out} 23.453%{transform:rotate(20deg);animation-timing-function:ease-in-out} 24.524%{transform:rotate(-18deg);animation-timing-function:ease-in-out} 25.595%{transform:rotate(15deg);animation-timing-function:ease-in-out} 26.667%{transform:rotate(-12deg);animation-timing-function:ease-in-out} 27.739%{transform:rotate(9deg);animation-timing-function:ease-in-out} 28.81%{transform:rotate(-6deg);animation-timing-function:ease-in-out} 29.881%{transform:rotate(3deg);animation-timing-function:ease-in-out} 30.953%{transform:rotate(0deg);animation-timing-function:ease-in-out} 30.953%,100%{transform:rotate(0deg)}}
+@keyframes gf-vis1{0%,33.833%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 35.333%,65.533%{opacity:1;animation-timing-function:cubic-bezier(.3,0,1,1)} 66.633%,100%{opacity:0}}
 @keyframes gf-type1_0{0%,36.333%{width:0;animation-timing-function:steps(44,end)} 40.933%,100%{width:44ch}}
 @keyframes gf-car1_0{0%,36.333%{opacity:0} 36.343%,40.933%{opacity:1} 40.943%,100%{opacity:0}}
 @keyframes gf-type1_1{0%,40.933%{width:0;animation-timing-function:steps(37,end)} 44.733%,100%{width:37ch}}
 @keyframes gf-car1_1{0%,40.933%{opacity:0} 40.943%,44.733%{opacity:1} 44.743%,100%{opacity:0}}
 @keyframes gf-type1_2{0%,44.733%{width:0;animation-timing-function:steps(17,end)} 47.333%,100%{width:17ch}}
-@keyframes gf-car1_2{0%,44.733%{opacity:0} 44.743%,65.533%{opacity:1} 65.543%,100%{opacity:0}}
-@keyframes gf-reply1{0%,48.533%{opacity:0} 49.533%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
-@keyframes gf-d1_0{0%,49.833%{opacity:0} 50.833%,54.833%{opacity:0.35} 56.333%,100%{opacity:0}}
-@keyframes gf-d1_1{0%,50.433%{opacity:0} 51.433%,55.083%{opacity:0.5} 56.583%,100%{opacity:0}}
-@keyframes gf-d1_2{0%,51.033%{opacity:0} 52.033%,55.333%{opacity:0.65} 56.833%,100%{opacity:0}}
-@keyframes gf-d1_3{0%,51.633%{opacity:0} 52.633%,55.583%{opacity:0.8} 57.083%,100%{opacity:0}}
-@keyframes gf-d1_4{0%,52.233%{opacity:0} 53.233%,55.833%{opacity:1} 57.333%,100%{opacity:0}}
-@keyframes gf-sp1{0%,51.133%{opacity:0;transform:scale(.8)} 51.333%{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)} 53.333%,65.533%{opacity:1;transform:scale(1)} 66.633%,100%{opacity:0;transform:scale(1)}}
-@keyframes gf-rb1{0%,52.933%{transform:rotate(0deg)} 52.933%{transform:rotate(0deg)} 53.47%{transform:rotate(-20deg)} 54.566%{transform:rotate(18deg)} 55.662%{transform:rotate(-16deg)} 56.76%{transform:rotate(14deg)} 57.856%{transform:rotate(-13deg)} 58.954%{transform:rotate(12deg)} 60.05%{transform:rotate(-10deg)} 61.146%{transform:rotate(8deg)} 62.243%{transform:rotate(-6deg)} 63.34%{transform:rotate(4deg)} 64.437%{transform:rotate(-2deg)} 65.533%{transform:rotate(0deg)} 65.533%,100%{transform:rotate(0deg)}}
-@keyframes gf-rc1{0%,52.933%{transform:rotate(0deg)} 52.933%{transform:rotate(0deg)} 53.246%{transform:rotate(0deg)} 53.818%{transform:rotate(-30deg)} 54.99%{transform:rotate(27deg)} 56.161%{transform:rotate(-24deg)} 57.333%{transform:rotate(20deg)} 58.504%{transform:rotate(-18deg)} 59.676%{transform:rotate(15deg)} 60.847%{transform:rotate(-12deg)} 62.019%{transform:rotate(9deg)} 63.19%{transform:rotate(-6deg)} 64.362%{transform:rotate(3deg)} 65.533%{transform:rotate(0deg)} 65.533%,100%{transform:rotate(0deg)}}
-@keyframes gf-vis2{0%,67.167%{opacity:0} 68.667%,98.867%{opacity:1} 99.967%,100%{opacity:0}}
+@keyframes gf-car1_2{0%,44.733%{opacity:0} 44.743%,47.628%{opacity:1} 47.638%,100%{opacity:0}}
+@keyframes gf-reply1{0%,47.628%{opacity:0;animation-timing-function:cubic-bezier(.4,0,.2,1)} 49.533%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
+@keyframes gf-d1_0{0%,49.833%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 50.547%,54.833%{opacity:0.35;animation-timing-function:cubic-bezier(.4,0,.2,1)} 56.333%,100%{opacity:0}}
+@keyframes gf-d1_1{0%,50.262%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 50.976%,55.083%{opacity:0.5;animation-timing-function:cubic-bezier(.4,0,.2,1)} 56.583%,100%{opacity:0}}
+@keyframes gf-d1_2{0%,50.691%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 51.405%,55.333%{opacity:0.65;animation-timing-function:cubic-bezier(.4,0,.2,1)} 56.833%,100%{opacity:0}}
+@keyframes gf-d1_3{0%,51.12%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 51.834%,55.583%{opacity:0.8;animation-timing-function:cubic-bezier(.4,0,.2,1)} 57.083%,100%{opacity:0}}
+@keyframes gf-d1_4{0%,51.549%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 52.263%,55.833%{opacity:1;animation-timing-function:cubic-bezier(.4,0,.2,1)} 57.333%,100%{opacity:0}}
+@keyframes gf-sp1{0%,51.133%{opacity:0;transform:scale(.8)} 51.333%{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)} 52.762%,65.533%{opacity:1;transform:scale(1)} 66.633%,100%{opacity:0;transform:scale(1)}}
+@keyframes gf-rb1{0%,52.762%{transform:rotate(0deg);animation-timing-function:ease-in-out} 52.762%{transform:rotate(0deg);animation-timing-function:ease-in-out} 53.287%{transform:rotate(-20deg);animation-timing-function:ease-in-out} 54.358%{transform:rotate(18deg);animation-timing-function:ease-in-out} 55.429%{transform:rotate(-16deg);animation-timing-function:ease-in-out} 56.501%{transform:rotate(14deg);animation-timing-function:ease-in-out} 57.572%{transform:rotate(-13deg);animation-timing-function:ease-in-out} 58.644%{transform:rotate(12deg);animation-timing-function:ease-in-out} 59.715%{transform:rotate(-10deg);animation-timing-function:ease-in-out} 60.786%{transform:rotate(8deg);animation-timing-function:ease-in-out} 61.858%{transform:rotate(-6deg);animation-timing-function:ease-in-out} 62.929%{transform:rotate(4deg);animation-timing-function:ease-in-out} 64.001%{transform:rotate(-2deg);animation-timing-function:ease-in-out} 65.072%{transform:rotate(0deg);animation-timing-function:ease-in-out} 65.072%,100%{transform:rotate(0deg)}}
+@keyframes gf-rc1{0%,52.762%{transform:rotate(0deg);animation-timing-function:ease-in-out} 52.762%{transform:rotate(0deg);animation-timing-function:ease-in-out} 53.048%{transform:rotate(0deg);animation-timing-function:ease-in-out} 53.571%{transform:rotate(-30deg);animation-timing-function:ease-in-out} 54.643%{transform:rotate(27deg);animation-timing-function:ease-in-out} 55.715%{transform:rotate(-24deg);animation-timing-function:ease-in-out} 56.787%{transform:rotate(20deg);animation-timing-function:ease-in-out} 57.857%{transform:rotate(-18deg);animation-timing-function:ease-in-out} 58.929%{transform:rotate(15deg);animation-timing-function:ease-in-out} 60.001%{transform:rotate(-12deg);animation-timing-function:ease-in-out} 61.072%{transform:rotate(9deg);animation-timing-function:ease-in-out} 62.143%{transform:rotate(-6deg);animation-timing-function:ease-in-out} 63.215%{transform:rotate(3deg);animation-timing-function:ease-in-out} 64.286%{transform:rotate(0deg);animation-timing-function:ease-in-out} 64.286%,100%{transform:rotate(0deg)}}
+@keyframes gf-vis2{0%,67.167%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 68.667%,98.867%{opacity:1;animation-timing-function:cubic-bezier(.3,0,1,1)} 99.967%,100%{opacity:0}}
 @keyframes gf-ln2_0{0%,68.667%{width:0;animation-timing-function:steps(30,end)} 70.355%,100%{width:100%}}
 @keyframes gf-ln2_1{0%,70.355%{width:0;animation-timing-function:steps(30,end)} 72.042%,100%{width:100%}}
 @keyframes gf-ln2_2{0%,72.042%{width:0;animation-timing-function:steps(30,end)} 73.729%,100%{width:100%}}
@@ -825,14 +830,18 @@ section{padding:clamp(48px,7vw,86px) 0}
 @keyframes gf-ln2_5{0%,77.105%{width:0;animation-timing-function:steps(30,end)} 78.792%,100%{width:100%}}
 @keyframes gf-ln2_6{0%,78.792%{width:0;animation-timing-function:steps(30,end)} 80.479%,100%{width:100%}}
 @keyframes gf-ln2_7{0%,80.479%{width:0;animation-timing-function:steps(30,end)} 82.167%,100%{width:100%}}
-@keyframes gf-d2_0{0%,83.167%{opacity:0} 84.167%,88.167%{opacity:0.35} 89.667%,100%{opacity:0}}
-@keyframes gf-d2_1{0%,83.767%{opacity:0} 84.767%,88.417%{opacity:0.5} 89.917%,100%{opacity:0}}
-@keyframes gf-d2_2{0%,84.367%{opacity:0} 85.367%,88.667%{opacity:0.65} 90.167%,100%{opacity:0}}
-@keyframes gf-d2_3{0%,84.967%{opacity:0} 85.967%,88.917%{opacity:0.8} 90.417%,100%{opacity:0}}
-@keyframes gf-d2_4{0%,85.567%{opacity:0} 86.567%,89.167%{opacity:1} 90.667%,100%{opacity:0}}
-@keyframes gf-sp2{0%,84.267%{opacity:0;transform:translateX(165%)} 84.667%{opacity:1;transform:translateX(165%);animation-timing-function:cubic-bezier(.17,.84,.44,1)} 87.667%,98.867%{opacity:1;transform:translateX(0)} 99.967%,100%{opacity:0;transform:translateX(0)}}
-@keyframes gf-rb2{0%,86.267%{transform:rotate(0deg)} 86.267%{transform:rotate(0deg)} 86.803%{transform:rotate(-20deg)} 87.9%{transform:rotate(18deg)} 88.996%{transform:rotate(-16deg)} 90.093%{transform:rotate(14deg)} 91.189%{transform:rotate(-13deg)} 92.287%{transform:rotate(12deg)} 93.383%{transform:rotate(-10deg)} 94.479%{transform:rotate(8deg)} 95.577%{transform:rotate(-6deg)} 96.673%{transform:rotate(4deg)} 97.77%{transform:rotate(-2deg)} 98.867%{transform:rotate(0deg)} 98.867%,100%{transform:rotate(0deg)}}
-@keyframes gf-rc2{0%,86.267%{transform:rotate(0deg)} 86.267%{transform:rotate(0deg)} 86.579%{transform:rotate(0deg)} 87.151%{transform:rotate(-30deg)} 88.323%{transform:rotate(27deg)} 89.495%{transform:rotate(-24deg)} 90.667%{transform:rotate(20deg)} 91.837%{transform:rotate(-18deg)} 93.009%{transform:rotate(15deg)} 94.181%{transform:rotate(-12deg)} 95.353%{transform:rotate(9deg)} 96.523%{transform:rotate(-6deg)} 97.695%{transform:rotate(3deg)} 98.867%{transform:rotate(0deg)} 98.867%,100%{transform:rotate(0deg)}}
+@keyframes gf-d2_0{0%,83.167%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 83.881%,88.167%{opacity:0.35;animation-timing-function:cubic-bezier(.4,0,.2,1)} 89.667%,100%{opacity:0}}
+@keyframes gf-d2_1{0%,83.596%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 84.31%,88.417%{opacity:0.5;animation-timing-function:cubic-bezier(.4,0,.2,1)} 89.917%,100%{opacity:0}}
+@keyframes gf-d2_2{0%,84.025%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 84.739%,88.667%{opacity:0.65;animation-timing-function:cubic-bezier(.4,0,.2,1)} 90.167%,100%{opacity:0}}
+@keyframes gf-d2_3{0%,84.454%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 85.168%,88.917%{opacity:0.8;animation-timing-function:cubic-bezier(.4,0,.2,1)} 90.417%,100%{opacity:0}}
+@keyframes gf-d2_4{0%,84.883%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 85.597%,89.167%{opacity:1;animation-timing-function:cubic-bezier(.4,0,.2,1)} 90.667%,100%{opacity:0}}
+@keyframes gf-sp2{0%,84.267%{opacity:0;transform:translateX(165%)} 84.667%{opacity:1;transform:translateX(165%);animation-timing-function:cubic-bezier(.17,.84,.44,1)} 86.81%,98.867%{opacity:1;transform:translateX(0)} 99.967%,100%{opacity:0;transform:translateX(0)}}
+@keyframes gf-rb2{0%,86.096%{transform:rotate(0deg);animation-timing-function:ease-in-out} 86.096%{transform:rotate(0deg);animation-timing-function:ease-in-out} 86.62%{transform:rotate(-20deg);animation-timing-function:ease-in-out} 87.691%{transform:rotate(18deg);animation-timing-function:ease-in-out} 88.762%{transform:rotate(-16deg);animation-timing-function:ease-in-out} 89.834%{transform:rotate(14deg);animation-timing-function:ease-in-out} 90.905%{transform:rotate(-13deg);animation-timing-function:ease-in-out} 91.977%{transform:rotate(12deg);animation-timing-function:ease-in-out} 93.048%{transform:rotate(-10deg);animation-timing-function:ease-in-out} 94.119%{transform:rotate(8deg);animation-timing-function:ease-in-out} 95.192%{transform:rotate(-6deg);animation-timing-function:ease-in-out} 96.262%{transform:rotate(4deg);animation-timing-function:ease-in-out} 97.335%{transform:rotate(-2deg);animation-timing-function:ease-in-out} 98.406%{transform:rotate(0deg);animation-timing-function:ease-in-out} 98.406%,100%{transform:rotate(0deg)}}
+@keyframes gf-rc2{0%,86.096%{transform:rotate(0deg);animation-timing-function:ease-in-out} 86.096%{transform:rotate(0deg);animation-timing-function:ease-in-out} 86.381%{transform:rotate(0deg);animation-timing-function:ease-in-out} 86.905%{transform:rotate(-30deg);animation-timing-function:ease-in-out} 87.976%{transform:rotate(27deg);animation-timing-function:ease-in-out} 89.048%{transform:rotate(-24deg);animation-timing-function:ease-in-out} 90.12%{transform:rotate(20deg);animation-timing-function:ease-in-out} 91.19%{transform:rotate(-18deg);animation-timing-function:ease-in-out} 92.262%{transform:rotate(15deg);animation-timing-function:ease-in-out} 93.334%{transform:rotate(-12deg);animation-timing-function:ease-in-out} 94.406%{transform:rotate(9deg);animation-timing-function:ease-in-out} 95.476%{transform:rotate(-6deg);animation-timing-function:ease-in-out} 96.548%{transform:rotate(3deg);animation-timing-function:ease-in-out} 97.62%{transform:rotate(0deg);animation-timing-function:ease-in-out} 97.62%,100%{transform:rotate(0deg)}}
+@keyframes gf-focR0{0%,16.5%{opacity:.5;animation-timing-function:cubic-bezier(.23,1,.32,1)} 17.643%,100%{opacity:1}}
+@keyframes gf-focR1{0%,49.833%{opacity:.5;animation-timing-function:cubic-bezier(.23,1,.32,1)} 50.976%,100%{opacity:1}}
+@keyframes gf-focR2{0%,83.167%{opacity:.5;animation-timing-function:cubic-bezier(.23,1,.32,1)} 84.31%,100%{opacity:1}}
+@keyframes gf-focT{0%{opacity:.6} 0.5%{opacity:.6;animation-timing-function:cubic-bezier(.23,1,.32,1)} 2.0%,16.786%{opacity:1;animation-timing-function:cubic-bezier(.4,0,.2,1)} 18.596%,32.2%{opacity:.6} 33.833%{opacity:.6;animation-timing-function:cubic-bezier(.23,1,.32,1)} 35.333%,50.119%{opacity:1;animation-timing-function:cubic-bezier(.4,0,.2,1)} 51.929%,65.533%{opacity:.6} 67.167%{opacity:.6;animation-timing-function:cubic-bezier(.23,1,.32,1)} 68.667%,83.453%{opacity:1;animation-timing-function:cubic-bezier(.4,0,.2,1)} 85.263%,98.867%{opacity:.6} 100%{opacity:.6}}
 @keyframes gf-tabA{0%,32.9%{background:var(--chip);color:var(--fg)} 33.5%,99.6%{background:#222224;color:var(--dim)} 100%{background:var(--chip);color:var(--fg)}}
 @keyframes gf-tabB{0%,32.9%{background:#222224;color:var(--dim)} 33.5%,66.2%{background:var(--chip);color:var(--fg)} 66.8%,100%{background:#222224;color:var(--dim)}}
 @keyframes gf-tabC{0%,66.2%{background:#222224;color:var(--dim)} 66.8%,100%{background:var(--chip);color:var(--fg)}}
@@ -1255,7 +1264,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <div class="gf-head gf-hd0"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own key.</div></div>
       <div class="gf-head gf-hd1"><div class="gf-l1">Get a push notification to your device</div><div class="gf-l2">from anything that can make an HTTP request.</div></div>
       <div class="gf-head gf-hd2"><div class="gf-l1">No signup, just HTTP.</div><div class="gf-l2">Install the app, copy your key, start sending.</div></div>
-        <div class="gf-term">
+        <div class="gf-term" data-lift="term">
           <div class="gf-bar"><i></i><i></i><i></i><span class="gf-title gf-ti0">run.sh — -zsh</span><span class="gf-title gf-ti1">claude — ~/notifi</span><span class="gf-title gf-ti2">train.py — -zsh</span></div>
           <div class="gf-tabs"><button type="button" class="gf-gf-tabA" data-pass="0" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="gf-gf-tabB" data-pass="1" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="gf-gf-tabC" data-pass="2" aria-label="Play the train.py scene">~/train.py</button></div>
           <div class="gf-bodywrap">
@@ -1272,23 +1281,20 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="gf-body gf-bg2"><div class="gf-l2_0"><span class="gf-c"># tell me when the training run ends</span></div><div class="gf-l2_1"><span class="gf-f">import</span> requests, tensorflow <span class="gf-f">as</span> tf</div><div class="gf-l2_2">run = model.<span class="gf-fn">fit</span>(train_ds, epochs=<span class="gf-n">40</span>)</div><div class="gf-l2_3">loss = run.history[<span class="gf-s">&quot;val_loss&quot;</span>][-<span class="gf-n">1</span>]</div><div class="gf-l2_4">requests.<span class="gf-fn">post</span>(<span class="gf-s">&quot;https://notifi.it/send&quot;</span>,</div><div class="gf-l2_5">    headers={<span class="gf-s">&quot;Authorization&quot;</span>: <span class="gf-f">f</span><span class="gf-s">&quot;Bearer </span>{<span class="gf-k">KEY</span>}<span class="gf-s">&quot;</span>},</div><div class="gf-l2_6">    json={<span class="gf-s">&quot;title&quot;</span>: <span class="gf-s">&quot;Training finished&quot;</span>,</div><div class="gf-l2_7">          <span class="gf-s">&quot;message&quot;</span>: <span class="gf-f">f</span><span class="gf-s">&quot;val loss </span>{loss<span class="gf-f">:.3f</span>}<span class="gf-s">&quot;</span>})</div><div class="gf-resp gf-r2"><span class="gf-r">{"ok":true}</span></div></div>
           </div>
         </div>
-        <div class="gf-trail gf-tr0"><i class="gf-dt0_0" style="--d:0.30"></i><i class="gf-dt0_1" style="--d:0.39"></i><i class="gf-dt0_2" style="--d:0.48"></i><i class="gf-dt0_3" style="--d:0.57"></i><i class="gf-dt0_4" style="--d:0.66"></i></div>
-      <div class="gf-trail gf-tr1"><i class="gf-dt1_0" style="--d:0.30"></i><i class="gf-dt1_1" style="--d:0.39"></i><i class="gf-dt1_2" style="--d:0.48"></i><i class="gf-dt1_3" style="--d:0.57"></i><i class="gf-dt1_4" style="--d:0.66"></i></div>
-      <div class="gf-trail gf-tr2"><i class="gf-dt2_0" style="--d:0.30"></i><i class="gf-dt2_1" style="--d:0.39"></i><i class="gf-dt2_2" style="--d:0.48"></i><i class="gf-dt2_3" style="--d:0.57"></i><i class="gf-dt2_4" style="--d:0.66"></i></div>
-        <div class="gf-dev gf-dv0"><svg viewBox="0 0 1292 916">
+        <div class="gf-rgt gf-rg0" data-lift="0"><div class="gf-dev gf-dv0"><svg viewBox="0 0 1292 916">
             <rect class="gf-o" x="0" y="0" width="1292" height="916" rx="42"/>
             <rect class="gf-scr" x="41" y="41" width="1210" height="834" rx="18"/>
             <circle class="gf-dot" cx="646" cy="20" r="5"/>
-          </svg><div class="gf-sbar" style="left:7.5%;right:7.5%;top:5.4%;height:4.2%;--fs:1.769"><span></span><span class="gf-icons"><svg viewBox="2 9 52 38" class="gf-ic" style="--w:2.803"><path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:4.324"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13%"><div class="gf-ldate" data-clock="date" style="--fs:1.474">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:7.985">10:24</div></div></div>
-      <div class="gf-dev gf-dv1"><svg viewBox="0 0 428 900">
+          </svg><div class="gf-sbar" style="left:7.5%;right:7.5%;top:5.4%;height:4.2%;--fs:1.769"><span></span><span class="gf-icons"><svg viewBox="2 9 52 38" class="gf-ic" style="--w:2.803"><path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:4.324"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13%"><div class="gf-ldate" data-clock="date" style="--fs:1.474">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:7.985">10:24</div></div></div><div class="gf-trail gf-tr0"><i class="gf-dt0_0" style="--d:0.30"></i><i class="gf-dt0_1" style="--d:0.39"></i><i class="gf-dt0_2" style="--d:0.48"></i><i class="gf-dt0_3" style="--d:0.57"></i><i class="gf-dt0_4" style="--d:0.66"></i></div><div class="gf-cardpos gf-cp0"><div class="gf-scard gf-sc0"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Hello from notifi</div><div class="gf-b">Your first notification.</div></div><img class="gf-thumb" src="/anaglyph-bell.png" alt=""></div></div></div>
+      <div class="gf-rgt gf-rg1" data-lift="1"><div class="gf-dev gf-dv1"><svg viewBox="0 0 428 900">
             <mask id="gfPhoneCut"><rect x="-20" y="-20" width="468" height="940" fill="#fff"/><rect x="151.5" y="24" width="125" height="37" rx="18.5" fill="#000"/></mask>
             <g mask="url(#gfPhoneCut)">
             <rect class="gf-o" x="0" y="0" width="428" height="900" rx="75"/>
             <rect class="gf-scr" x="13" y="13" width="402" height="874" rx="62"/>
             </g>
             <rect class="gf-dot" x="145.5" y="870" width="137" height="5" rx="2.5"/>
-          </svg><div class="gf-sbar gf-ph" style="left:7%;right:7%;top:2.3%;height:4.6%;--fs:5.946"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic" style="--w:5.784"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg><svg viewBox="2 9 52 38" class="gf-ic" style="--w:5.676"><path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:8.757"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13.5%"><div class="gf-ldate" data-clock="date" style="--fs:4.649">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:24.595">10:24</div></div></div>
-      <div class="gf-dev gf-dv2"><svg viewBox="0 0 1640 1040">
+          </svg><div class="gf-sbar gf-ph" style="left:7%;right:7%;top:2.3%;height:4.6%;--fs:5.946"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic" style="--w:5.784"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg><svg viewBox="2 9 52 38" class="gf-ic" style="--w:5.676"><path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:8.757"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13.5%"><div class="gf-ldate" data-clock="date" style="--fs:4.649">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:24.595">10:24</div></div></div><div class="gf-trail gf-tr1"><i class="gf-dt1_0" style="--d:0.30"></i><i class="gf-dt1_1" style="--d:0.39"></i><i class="gf-dt1_2" style="--d:0.48"></i><i class="gf-dt1_3" style="--d:0.57"></i><i class="gf-dt1_4" style="--d:0.66"></i></div><div class="gf-cardpos gf-cp1"><div class="gf-scard gf-sc1"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Claude Finished</div><div class="gf-b">No mistakes made.</div></div></div></div></div>
+      <div class="gf-rgt gf-rg2" data-lift="2"><div class="gf-dev gf-dv2"><svg viewBox="0 0 1640 1040">
             <mask id="gfMacCut"><rect x="-20" y="-20" width="1680" height="1080" fill="#fff"/><path d="M 727.5 32 L 727.5 65 Q 727.5 85 747.5 85 L 892.5 85 Q 912.5 85 912.5 65 L 912.5 32 Z" fill="#000"/></mask>
             <g mask="url(#gfMacCut)">
             <path class="gf-o" d="M 64 1000 L 64 40 Q 64 0 104 0 L 1536 0 Q 1576 0 1576 40 L 1576 1000"/>
@@ -1296,10 +1302,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             <path d="M 99 85 L 99 51 Q 99 35 115 35 L 1525 35 Q 1541 35 1541 51 L 1541 85 Z" style="fill:#2E2E31;stroke:none"/>
             </g>
             <path class="gf-o" d="M 0 1000 L 730 1000 C 752 1026 888 1026 910 1000 L 1640 1000 L 1640 1016 Q 1640 1040 1604 1040 L 36 1040 Q 0 1040 0 1016 Z"/>
-          </svg><div class="gf-sbar gf-mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs:1.563"><svg class="gf-amark" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg><span class="gf-icons"><span class="gf-mbell"></span><svg viewBox="0 0 30 14" class="gf-ic" style="--w:3.218"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg><span class="gf-dt" data-clock="menubar">Tue 11 Aug 10:24</span></span></div></div>
-        <div class="gf-cardpos gf-cp0"><div class="gf-scard gf-sc0"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Hello from notifi</div><div class="gf-b">Your first notification.</div></div><img class="gf-thumb" src="/anaglyph-bell.png" alt=""></div></div>
-      <div class="gf-cardpos gf-cp1"><div class="gf-scard gf-sc1"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Claude Finished</div><div class="gf-b">No mistakes made.</div></div></div></div>
-      <div class="gf-clip gf-cl2"><div class="gf-cardpos gf-cp2"><div class="gf-scard gf-sc2"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Training finished</div><div class="gf-b">val loss 0.041</div></div></div></div></div>
+          </svg><div class="gf-sbar gf-mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs:1.563"><svg class="gf-amark" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg><span class="gf-icons"><span class="gf-mbell"></span><svg viewBox="0 0 30 14" class="gf-ic" style="--w:3.218"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg><span class="gf-dt" data-clock="menubar">Tue 11 Aug 10:24</span></span></div></div><div class="gf-trail gf-tr2"><i class="gf-dt2_0" style="--d:0.30"></i><i class="gf-dt2_1" style="--d:0.39"></i><i class="gf-dt2_2" style="--d:0.48"></i><i class="gf-dt2_3" style="--d:0.57"></i><i class="gf-dt2_4" style="--d:0.66"></i></div><div class="gf-clip gf-cl2"><div class="gf-cardpos gf-cp2"><div class="gf-scard gf-sc2"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Training finished</div><div class="gf-b">val loss 0.041</div></div></div></div></div></div>
       <script>
       (function () {
         var film = document.currentScript.parentElement;
@@ -1321,14 +1324,58 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         }
         try { setClocks(); setInterval(setClocks, 30000); } catch (err) {}
         if (!film.getAnimations) return;
+        // A click holds the scene still and whole so it can be read; a second click
+        // plays it once and lets it come to rest in that same frame. It never runs
+        // on into the next scene, and never loops.
+        // Coming to rest lifts the dim off. Opacity here is animation-controlled and
+        // an animated value outranks a plain declaration — pausing does not release
+        // it either — so the animation comes off the element before the value is
+        // moved by transition; release puts it back and the film is seekable again.
+        var restTimer = null;
+        var lifted = ['term', 0, 1, 2];
+        var release = function () {
+          lifted.forEach(function (k) {
+            var el = film.querySelector('[data-lift="' + k + '"]');
+            if (!el) return;
+            el.style.transition = '';
+            el.style.opacity = '';
+            el.style.animationName = '';
+          });
+          film.offsetWidth;
+        };
         film.addEventListener('click', function (e) {
           var btn = e.target.closest('[data-pass]');
           if (!btn) return;
-          var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || 15000;
-          var at = (+btn.dataset.pass) * (T / 3);
-          film.getAnimations({ subtree: true }).forEach(function (a) {
-            try { a.currentTime = at; a.play(); } catch (err) {}
-          });
+          var pass = +btn.dataset.pass;
+          var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || 21000;
+          var at = pass * (T / 3), rest = at + 31.8 / 100 * T;
+          var each = function (fn) {
+            film.getAnimations({ subtree: true }).forEach(function (a) {
+              try { fn(a); } catch (err) {}
+            });
+          };
+          // Seeking rather than trusting the timer means a throttled background tab
+          // comes to rest on the right frame regardless of when it fires.
+          var settle = function () {
+            restTimer = null;
+            each(function (a) { a.currentTime = rest; a.pause(); });
+            ['term', pass].forEach(function (k) {
+              var el = film.querySelector('[data-lift="' + k + '"]');
+              if (!el) return;
+              var from = getComputedStyle(el).opacity;
+              if (from === '1') return;
+              el.style.transition = 'none';
+              el.style.animationName = 'none';
+              el.style.opacity = from;
+              el.offsetWidth;
+              el.style.transition = 'opacity .32s cubic-bezier(.23,1,.32,1)';
+              el.style.opacity = '1';
+            });
+          };
+          release();
+          if (restTimer) { clearTimeout(restTimer); restTimer = null; }
+          each(function (a) { a.currentTime = at; a.play(); });
+          restTimer = setTimeout(settle, rest - at);
         });
       })();
       </script>
