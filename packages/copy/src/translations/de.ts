@@ -364,7 +364,6 @@ export const de: Translation = {
   'components.errorLabel': 'Fehler. {message}',
   'components.backTo': 'Zurück zu {label}',
   'components.createKey': 'Schlüssel erstellen',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'notifi kann nicht entsperrt werden',
   'identity.detail':
