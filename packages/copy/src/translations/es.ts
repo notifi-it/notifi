@@ -248,6 +248,7 @@ export const es: Translation = {
   'settings.theme': 'Tema',
   'settings.themeDark': 'Oscuro',
   'settings.themeLight': 'Claro',
+  'settings.themeSystem': 'Sistema',
 
   'settings.loadImages': 'Cargar imágenes automáticamente',
   'settings.loadImagesDetail':
@@ -279,6 +280,7 @@ export const es: Translation = {
   'settings.checkForUpdates': 'Buscar actualizaciones',
   'settings.deleteAll': 'Eliminar todas las notificaciones',
   'settings.deleteAllTitle': '¿Eliminar todas las notificaciones?',
+  'settings.deleteAllConfirm': 'Eliminar todas',
   'settings.deleteAllMessage': 'Esto no se puede deshacer.',
   'settings.support': 'Informar de un problema',
   'settings.feedback': 'Comentarios',

@@ -44,7 +44,7 @@ A successful send answers `202` with `{"ok":true}`. The key can also be passed a
 ### How much can I send?
 
 - **60 sends an hour per device**, shared by every key on that device rather than counted per key. Over the limit answers `429` with a `Retry-After` header.
-- **Five active send keys per device**, one of which is the app's own default key.
+- **Five active send keys per device**, one of which is the app’s own default key.
 - There is also a per-IP ceiling of 100 requests a minute on every endpoint.
 
 ### How long can a notification be?
@@ -63,15 +63,15 @@ The key is unknown or revoked. Revocation takes effect on the next send. Reinsta
 
 ### Can you read my notifications?
 
-No. The title, body, link and image URL are encrypted with your device's public key at the moment they arrive, before anything is written to the database, and only your device holds the key that opens them. A full copy of the database together with every server secret does not reveal the contents of a single notification. The [source](https://github.com/notifi-it/notifi) is public.
+No. The title, body, link and image URL are encrypted with your device’s public key at the moment they arrive, before anything is written to the database, and only your device holds the key that opens them. A full copy of the database together with every server secret does not reveal the contents of a single notification. The [source](https://github.com/notifi-it/notifi) is public.
 
 ### What can the server see?
 
-The IP addresses of the sender and the device, the time of every send and every collection, the approximate size of a notification, which key sent it and how often, and your device's push token. Because the sender and the recipient both talk to the same server, that server is in a position to correlate the two. The [privacy policy](/privacy) covers this in full.
+The IP addresses of the sender and the device, the time of every send and every collection, the approximate size of a notification, which key sent it and how often, and your device’s push token. Because the sender and the recipient both talk to the same server, that server is in a position to correlate the two. The [privacy policy](/privacy) covers this in full.
 
 ### Is it safe to put the key in the URL?
 
-It is the weaker option. A query string lands in Cloudflare's edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a `Authorization: Bearer` header and the body in a `POST` body where you can.
+It is the weaker option. A query string lands in Cloudflare’s edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a `Authorization: Bearer` header and the body in a `POST` body where you can.
 
 ### How long are notifications kept?
 
@@ -89,7 +89,7 @@ There is no analytics, no crash reporting, no advertising identifier and no trac
 
 ### Which devices does it run on?
 
-iPhone and iPad on iOS 17 or later, and Mac on macOS 14 or later, where it lives in the menu bar. There is no Android app, because delivery goes through Apple's push service.
+iPhone and iPad on iOS 17 or later, and Mac on macOS 14 or later, where it lives in the menu bar. There is no Android app, because delivery goes through Apple’s push service.
 
 ### Where do I get the Mac app?
 
@@ -111,13 +111,13 @@ A key marked urgent, sent with `is_critical=1`, is delivered as a Time Sensitive
 
 ### Will it ever ring through silent mode?
 
-That needs Apple's Critical Alerts entitlement, which has been requested and not yet granted. If it is granted, the same toggle reaches the higher level with nothing else to change.
+That needs Apple’s Critical Alerts entitlement, which has been requested and not yet granted. If it is granted, the same toggle reaches the higher level with nothing else to change.
 
 ## Reliability
 
 ### Is delivery guaranteed?
 
-No. Every send goes out over Apple's push service and a websocket at the same time, and the notification is stored before either, so the app can fetch anything a push missed. But delivery still depends on Apple, your network and your device's settings, and the service is provided as is, without an uptime guarantee. See the [terms](/terms).
+No. Every send goes out over Apple’s push service and a websocket at the same time, and the notification is stored before either, so the app can fetch anything a push missed. But delivery still depends on Apple, your network and your device’s settings, and the service is provided as is, without an uptime guarantee. See the [terms](/terms).
 
 > **Do not make notifi the only path for anything where a missed notification causes harm.** It is a pager for your own systems, not a life-safety, medical or emergency alerting system.
 

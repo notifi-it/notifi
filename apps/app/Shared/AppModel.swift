@@ -22,10 +22,23 @@ enum BootState {
 enum Appearance: String, CaseIterable {
     case dark
     case light
+    case system
 
-    var colorScheme: ColorScheme { self == .dark ? .dark : .light }
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .dark: .dark
+        case .light: .light
+        case .system: nil
+        }
+    }
 
-    var title: String { self == .dark ? Copy.Settings.themeDark : Copy.Settings.themeLight }
+    var title: String {
+        switch self {
+        case .dark: Copy.Settings.themeDark
+        case .light: Copy.Settings.themeLight
+        case .system: Copy.Settings.themeSystem
+        }
+    }
 }
 
 enum AppRoute: Hashable {

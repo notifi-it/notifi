@@ -307,12 +307,12 @@ function footerLinks(html) {
     .join("\n");
 }
 
-// The opening tag is matched on its prefix, not in full: a page that adds a
-// modifier class to it — docs.html carries `api` — is still a doc page, and
-// matching the whole tag silently dropped it from the agent-facing copy
-// instead of failing.
+// The opening tag is matched on the class alone, not in full: a page that adds
+// a modifier class to it — docs.html carries `api` — or another attribute
+// beside it — the skip link's `id` — is still a doc page, and matching the
+// whole tag silently dropped it from the agent-facing copy instead of failing.
 function sliceMain(html) {
-  const open = /<main class="wrap doc[^"]*">/.exec(html);
+  const open = /<main\b[^>]*\bclass="wrap doc[^"]*"[^>]*>/.exec(html);
   if (!open) return null;
   const end = html.indexOf("</main>", open.index);
   if (end === -1) throw new Error("missing </main>");

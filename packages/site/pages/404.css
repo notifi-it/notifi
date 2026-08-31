@@ -81,6 +81,6 @@
 }
 .notfound .doc p{color:var(--dim);font-size:13px;max-width:62ch;margin-inline:auto}
 .notfound .doc a{color:var(--muted);text-decoration-color:transparent}
-.notfound .doc a:hover{color:var(--fg);text-decoration-color:var(--chip)}
+@media (hover:hover){.notfound .doc a:hover{color:var(--fg);text-decoration-color:var(--chip)}}
 /* The header is chrome on every other page and a distraction on this one. */
 .notfound header nav a{font-size:12px;color:var(--dim)}

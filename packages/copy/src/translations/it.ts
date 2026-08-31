@@ -107,7 +107,7 @@ export const it: Translation = {
   'message.openKey': 'Inviato con la chiave {name}. Aprila.',
   'message.viewImageFullScreen': 'Visualizza immagine a schermo intero',
   'message.shareLink': 'Condividi link',
-  'message.imageFailedToLoad': "Caricamento dell'immagine non riuscito",
+  'message.imageFailedToLoad': "Caricamento dell’immagine non riuscito",
   'message.imageHidden': 'Immagine nascosta',
   'message.imageHost': 'un altro host',
   'message.imageLoadWarning': 'Caricandola contatterai {host}.',
@@ -117,7 +117,7 @@ export const it: Translation = {
   'message.sourceHeader': 'Origine',
   'keys.title': 'Chiavi',
   'keys.newKey': 'Nuova chiave',
-  'keys.refreshFailed': "Impossibile aggiornare le chiavi. Mostro l'ultimo elenco noto.",
+  'keys.refreshFailed': "Impossibile aggiornare le chiavi. Mostro l’ultimo elenco noto.",
   'keys.sectionActive': 'Attive',
   'keys.sectionRevoked': 'Revocate',
   'keys.intro':
@@ -248,6 +248,7 @@ export const it: Translation = {
   'settings.theme': 'Tema',
   'settings.themeDark': 'Scuro',
   'settings.themeLight': 'Chiaro',
+  'settings.themeSystem': 'Sistema',
 
   'settings.loadImages': 'Carica le immagini automaticamente',
   'settings.loadImagesDetail':
@@ -279,6 +280,7 @@ export const it: Translation = {
   'settings.checkForUpdates': 'Verifica aggiornamenti',
   'settings.deleteAll': 'Elimina tutte le notifiche',
   'settings.deleteAllTitle': 'Eliminare tutte le notifiche?',
+  'settings.deleteAllConfirm': 'Elimina tutte',
   'settings.deleteAllMessage': 'Questa azione non può essere annullata.',
   'settings.support': 'Segnala un problema',
   'settings.feedback': 'Feedback',

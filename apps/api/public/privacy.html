@@ -91,6 +91,7 @@ body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
 }
 /* Television static over the ground.
@@ -105,7 +106,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(.skip){position:relative;z-index:1}
 /* Scroll reveal: the text resolves out of the static, letter by letter.
    The arrival is faded rather than snapped. Each letter carries its own long
    ease, so what travels down a paragraph is a soft front a few characters wide
@@ -127,6 +128,16 @@ body>*:not(#static){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+/* First focusable element on every page, off-canvas until it takes focus. */
+.skip{
+  position:fixed;left:var(--gutter);top:8px;z-index:30;
+  font-family:var(--mono);font-size:13px;
+  padding:9px 14px;border-radius:6px;
+  background:var(--surface);color:var(--fg);
+  border:1px solid var(--control-border);text-decoration:none;
+  transform:translateY(calc(-100% - 16px));
+}
+.skip:focus-visible{transform:none}
 
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
 .rule{height:1px;background:var(--line);border:0}
@@ -136,7 +147,7 @@ h1{font-size:clamp(30px,5.4vw,48px)}
 h2{font-size:clamp(21px,3vw,27px)}
 h3{font-size:16px;letter-spacing:-.02em}
 p,li{max-width:70ch}
-.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55;text-wrap:pretty}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 .eyebrow{
   font-family:var(--mono);font-size:11px;font-weight:600;
@@ -147,9 +158,9 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px s
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
 .mark img{height:17px;width:auto;display:block}
-nav{margin-left:auto;display:flex;align-items:center;gap:22px}
-nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-nav a:hover{color:var(--fg)}
+nav{margin-inline-start:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
+@media (hover:hover){nav a:hover{color:var(--fg)}}
 
 .bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
 .bell::before{
@@ -176,7 +187,7 @@ nav a:hover{color:var(--fg)}
 .doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
 .doc strong{color:var(--fg);font-weight:500}
 .doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
-.doc a:hover{text-decoration-color:var(--fg)}
+@media (hover:hover){.doc a:hover{text-decoration-color:var(--fg)}}
 
 /* GrainyBell at link scale: the 404 glyph's decay on the content links, built
    by the link-glitch block in site.js (which also says which links are left
@@ -200,7 +211,8 @@ a.glitch .gsolid{
   -webkit-text-fill-color:transparent;
   text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px;
 }
-a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+@media (hover:hover){a.glitch:hover .gsolid{text-decoration-color:var(--fg)}}
 
 .card{
   border:1px solid var(--line);border-radius:10px;background:var(--surface);
@@ -209,19 +221,20 @@ a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(
 .card p:first-child{margin-top:0}
 
 footer{border-top:1px solid var(--line);padding:40px 0 56px}
-.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+.foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;
   font-family:var(--mono);font-size:13px;color:var(--dim)}
-.foot a{color:var(--muted);text-decoration:none}
-.foot a:hover{color:var(--fg)}
-.foot .meta{margin-left:auto}
-.soc{display:flex;align-items:center;gap:16px;margin-left:auto}
+.foot a{color:var(--muted);text-decoration:none;padding-block:5px}
+@media (hover:hover){.foot a:hover{color:var(--fg)}}
+.foot .meta{margin-inline-start:auto}
+.soc{display:flex;align-items:center;gap:16px;margin-inline-start:auto}
 .foot .soc a{display:flex;color:var(--dim);transition:color var(--dur-state) var(--ease-out)}
-.foot .soc a:hover{color:var(--fg)}
+@media (hover:hover){.foot .soc a:hover{color:var(--fg)}}
 .soc svg{display:block}
-@media(max-width:620px){.foot .meta{margin-left:0;width:100%}.soc{margin-left:0;width:100%}}
+@media(max-width:620px){.foot .meta{margin-inline-start:0;width:100%}.soc{margin-inline-start:0;width:100%}}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="static" aria-hidden="true"></canvas>
 
 <header>
@@ -239,7 +252,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </div>
 </header>
 
-<main class="wrap doc">
+<main id="main" class="wrap doc">
 
   <p class="eyebrow">Privacy</p>
   <h1>Privacy policy</h1>
@@ -275,15 +288,15 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </ul>
     <h3>Your notifications</h3>
     <ul>
-      <li>The notification, encrypted to your device's public key at the moment it arrives.</li>
+      <li>The notification, encrypted to your device’s public key at the moment it arrives.</li>
       <li>Which key sent it, when the server received it, and the event time the sender supplied, if any.</li>
     </ul>
   </section>
 
   <section>
     <h2>What the server cannot read</h2>
-    <p>Notification content (the title, body, link and image URL) is encrypted to your device's public key before it is written to the database, using HPKE (P-256 / HKDF-SHA256 / AES-256-GCM). The server holds no private key that can undo this. A full copy of the database, together with every server secret, does not reveal the contents of a single notification. Your send key names are encrypted the same way.</p>
-    <p>One moment sits before that encryption: a <code>/send</code> request arrives at the server as plaintext, and for the instant between arrival and encryption the content passes through the server's memory in the clear. It is encrypted before it is stored, it is not written to notifi's error reports, and — if you send with a <code>POST</code> body rather than the URL — it is not written to logs either. "Neither we nor Apple can read your notifications" is a claim about stored and delivered notifications, and that is its exact scope.</p>
+    <p>Notification content (the title, body, link and image URL) is encrypted to your device’s public key before it is written to the database, using HPKE (P-256 / HKDF-SHA256 / AES-256-GCM). The server holds no private key that can undo this. A full copy of the database, together with every server secret, does not reveal the contents of a single notification. Your send key names are encrypted the same way.</p>
+    <p>One moment sits before that encryption: a <code>/send</code> request arrives at the server as plaintext, and for the instant between arrival and encryption the content passes through the server’s memory in the clear. It is encrypted before it is stored, it is not written to notifi’s error reports, and — if you send with a <code>POST</code> body rather than the URL — it is not written to logs either. "Neither we nor Apple can read your notifications" is a claim about stored and delivered notifications, and that is its exact scope.</p>
   </section>
 
   <section>
@@ -304,7 +317,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <ul>
       <li><strong>Notifications</strong> are deleted from the server as soon as your device confirms it has collected them.</li>
       <li><strong>Uncollected notifications</strong> are kept, encrypted, until your device collects them, for at most 90 days. A daily job removes anything older.</li>
-      <li><strong>Devices</strong> are kept as long as they are registered. When Apple's push service reports that the app has been removed from a device, the next send to it deletes the registration and everything under it — keys and uncollected notifications included. A device that is never sent to again can keep its row until a deletion request removes it; email <a href="mailto:hello@notifi.it">hello@notifi.it</a> with the device's public key.</li>
+      <li><strong>Devices</strong> are kept as long as they are registered. When Apple’s push service reports that the app has been removed from a device, the next send to it deletes the registration and everything under it — keys and uncollected notifications included. A device that is never sent to again can keep its row until a deletion request removes it; email <a href="mailto:hello@notifi.it">hello@notifi.it</a> with the device’s public key.</li>
       <li><strong>Send keys</strong> are kept while the device exists, including revoked ones, so that a revoked key cannot be reused.</li>
     </ul>
     <p>notifi is a relay, not a mailbox. Once your device has a notification, the server copy is gone and the only copy is the one on your device.</p>
@@ -312,12 +325,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>Server logs</h2>
-    <p>The service runs on Cloudflare Workers, and its requests are logged twice. Cloudflare records the metadata of requests reaching its network, including source IP address, timestamp and the full request URL; those logs are Cloudflare's own. notifi additionally enables Cloudflare's request-log stream for the Worker, which records the same metadata and is readable by notifi; Cloudflare retains it for a matter of days. Neither log contains notification content — unless you put it in the URL, which is the next paragraph.</p>
+    <p>The service runs on Cloudflare Workers, and its requests are logged twice. Cloudflare records the metadata of requests reaching its network, including source IP address, timestamp and the full request URL; those logs are Cloudflare’s own. notifi additionally enables Cloudflare’s request-log stream for the Worker, which records the same metadata and is readable by notifi; Cloudflare retains it for a matter of days. Neither log contains notification content — unless you put it in the URL, which is the next paragraph.</p>
     <div class="card">
       <p><strong>Do not put the key in a URL.</strong> The <code>/send</code> endpoint accepts a key and a body as URL query parameters, which is convenient for a one-off <code>curl</code>. Anything placed in a URL appears in both logs in the clear, before it is ever encrypted, and also in your shell history and in any proxy between you and Cloudflare.</p>
       <p>Send the key as an <code>Authorization: Bearer</code> header and the body in a <code>POST</code> body instead. Neither is logged.</p>
     </div>
-    <p>When the server hits an error it cannot handle, a report of that error is sent to Sentry, an error-tracking service, so that it can be fixed. A report carries the failure itself — what broke, and where in the code — along with the request's method and route. It does not carry notification contents, request bodies, headers, the source IP address, or any identifier of your device or your notifications. A send key involved in a failed request is replaced, before the report leaves the server, by a short one-way fingerprint of itself. The fingerprint shows that several reports concern the same key and cannot be reversed to recover the key.</p>
+    <p>When the server hits an error it cannot handle, a report of that error is sent to Sentry, an error-tracking service, so that it can be fixed. A report carries the failure itself — what broke, and where in the code — along with the request’s method and route. It does not carry notification contents, request bodies, headers, the source IP address, or any identifier of your device or your notifications. A send key involved in a failed request is replaced, before the report leaves the server, by a short one-way fingerprint of itself. The fingerprint shows that several reports concern the same key and cannot be reversed to recover the key.</p>
   </section>
 
   <section>
@@ -329,7 +342,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>On your device</h2>
     <ul>
-      <li>Collected notifications are stored locally and protected by the device's own encryption. They are readable only after the device has been unlocked at least once since it started.</li>
+      <li>Collected notifications are stored locally and protected by the device’s own encryption. They are readable only after the device has been unlocked at least once since it started.</li>
       <li>Private keys are in the Secure Enclave and the keychain, marked as not backed up and not synced.</li>
       <li>Deleting a notification in the app deletes it from the device. The server copy is already gone.</li>
       <li>Deleting the app deletes the notifications, the keys and the identity. None of it can be recovered afterwards, and any send keys you had created stop working.</li>
@@ -338,8 +351,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>Tracking, analytics and third parties</h2>
-    <p>The app contains no analytics, no crash reporting and no advertising identifiers — the error reporting described under <strong>Server logs</strong> above is the server's own, and the app takes no part in it. It talks to <code>notifi.it</code> and to Apple's push service, and to an image host only when you ask it to load an image. The Mac app additionally embeds Sparkle, an open-source updater, which periodically asks <code>notifi.it</code> for the latest release and is redirected to <code>github.com</code> to fetch it; each check exposes your IP address and its timing to those two hosts and carries nothing else about you.</p>
-    <p>This website sets no cookies and serves its fonts from <code>notifi.it</code>. Cloudflare, which hosts the site, injects its Web Analytics script into the pages: it counts visits without cookies, without a persistent identifier and without following you to other sites, and the counts are read by notifi as daily totals. It is the site's one analytics tool and its one third-party request. Because nothing on the site tracks you across sites or over time, a Do Not Track signal changes nothing: there is no tracking to turn off, and no third party collects data about your activity elsewhere through this site.</p>
+    <p>The app contains no analytics, no crash reporting and no advertising identifiers — the error reporting described under <strong>Server logs</strong> above is the server’s own, and the app takes no part in it. It talks to <code>notifi.it</code> and to Apple’s push service, and to an image host only when you ask it to load an image. The Mac app additionally embeds Sparkle, an open-source updater, which periodically asks <code>notifi.it</code> for the latest release and is redirected to <code>github.com</code> to fetch it; each check exposes your IP address and its timing to those two hosts and carries nothing else about you.</p>
+    <p>This website sets no cookies and serves its fonts from <code>notifi.it</code>. Cloudflare, which hosts the site, injects its Web Analytics script into the pages: it counts visits without cookies, without a persistent identifier and without following you to other sites, and the counts are read by notifi as daily totals. It is the site’s one analytics tool and its one third-party request. Because nothing on the site tracks you across sites or over time, a Do Not Track signal changes nothing: there is no tracking to turn off, and no third party collects data about your activity elsewhere through this site.</p>
     <p>The parties that touch data in the ordinary running of the service are Cloudflare (hosting, logs, site analytics), Apple (push delivery), Sentry (error reports, as limited above) and GitHub (serving Mac app updates). No data is sold, rented or shared with anyone else, and nothing here is used to build a profile or to advertise.</p>
     <p>One more dataset the service holds: public App Store reviews of notifi — reviewer name, country, rating and text — are fetched from Apple and shown on this site. They are already public on the App Store; asking Apple to remove a review removes it here too.</p>
   </section>
@@ -351,22 +364,22 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>Where the data lives</h2>
-    <p>Cloudflare answers requests at whichever of its data centres is nearest, which may be outside the UK or the EEA; the database is a single Cloudflare D1 instance. Sentry (Functional Software, Inc.) is a US company. Both are certified under the EU-US Data Privacy Framework and its UK extension, and both process data under their standard data-processing agreements (<a href="https://www.cloudflare.com/cloudflare-customer-dpa/">Cloudflare's</a>, <a href="https://sentry.io/legal/dpa/">Sentry's</a>), which include EU standard contractual clauses and the UK addendum as fallback.</p>
+    <p>Cloudflare answers requests at whichever of its data centres is nearest, which may be outside the UK or the EEA; the database is a single Cloudflare D1 instance. Sentry (Functional Software, Inc.) is a US company. Both are certified under the EU-US Data Privacy Framework and its UK extension, and both process data under their standard data-processing agreements (<a href="https://www.cloudflare.com/cloudflare-customer-dpa/">Cloudflare’s</a>, <a href="https://sentry.io/legal/dpa/">Sentry’s</a>), which include EU standard contractual clauses and the UK addendum as fallback.</p>
   </section>
 
   <section>
     <h2>Your rights</h2>
-    <p>UK and EU law gives you rights over data held about you: access, correction, erasure, restriction, portability and objection. The server cannot tell which records are yours without your device's public key — that is the design, not an obstacle — so a request should include it; the app can show it. Requests go to <a href="mailto:hello@notifi.it">hello@notifi.it</a>. Deleting the app is the faster and more complete route for everything except the device row itself. You can also complain to the <a href="https://ico.org.uk">Information Commissioner's Office</a> or the supervisory authority where you live.</p>
+    <p>UK and EU law gives you rights over data held about you: access, correction, erasure, restriction, portability and objection. The server cannot tell which records are yours without your device’s public key — that is the design, not an obstacle — so a request should include it; the app can show it. Requests go to <a href="mailto:hello@notifi.it">hello@notifi.it</a>. Deleting the app is the faster and more complete route for everything except the device row itself. You can also complain to the <a href="https://ico.org.uk">Information Commissioner’s Office</a> or the supervisory authority where you live.</p>
   </section>
 
   <section>
     <h2>Children</h2>
-    <p>notifi is not directed at children. It has no accounts and no profiles; the closest things to identifiers it handles are an IP address and a device's public key, described above, and they are handled the same way for everyone.</p>
+    <p>notifi is not directed at children. It has no accounts and no profiles; the closest things to identifiers it handles are an IP address and a device’s public key, described above, and they are handled the same way for everyone.</p>
   </section>
 
   <section>
     <h2>Changes and contact</h2>
-    <p>This policy may change to reflect changes in the law, in Apple's requirements, or in what the service does. When it changes, the date at the top changes with it, the previous versions remain in the public git history of the project, and a material change is announced on this site before it takes effect.</p>
+    <p>This policy may change to reflect changes in the law, in Apple’s requirements, or in what the service does. When it changes, the date at the top changes with it, the previous versions remain in the public git history of the project, and a material change is announced on this site before it takes effect.</p>
     <p>Questions about privacy, or a request to delete data held about a device, can be raised at <a href="mailto:hello@notifi.it">hello@notifi.it</a> or <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.</p>
   </section>
 
@@ -663,8 +676,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       a.style.setProperty("--gchroma", "0");
       a.style.setProperty("--glow", "1");
     }
-    a.addEventListener("mouseenter", start);
-    a.addEventListener("mouseleave", stop);
+    if (window.matchMedia("(hover: hover)").matches){
+      a.addEventListener("mouseenter", start);
+      a.addEventListener("mouseleave", stop);
+    }
     a.addEventListener("focus", start);
     a.addEventListener("blur", stop);
 

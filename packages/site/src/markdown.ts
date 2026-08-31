@@ -159,5 +159,5 @@ export function render(body: string): string {
 
 export function main(eyebrow: string, body: string): string {
   const top = eyebrow ? `  <p class="eyebrow">${eyebrow}</p>\n` : '';
-  return `<main class="wrap doc">\n\n${top}${render(body)}\n\n</main>`;
+  return `<main id="main" class="wrap doc">\n\n${top}${render(body)}\n\n</main>`;
 }

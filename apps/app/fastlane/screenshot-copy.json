@@ -33,7 +33,7 @@
     "messageTitle": "Images, liens,\nMarkdown.",
     "messageBody": "Un titre, un corps, une image et un lien. Titres, listes, citations et blocs de code sont rendus sur l'appareil. Chiffré avec votre clé publique, nous ne pouvons donc pas lire vos notifications.",
     "keysTitle": "Une clé\npar source.",
-    "keysBody": "Donnez une clé au bot de déploiement et une autre à la sonnette. Révoquez-en une, les autres continuent de fonctionner. Chaque clé porte son propre nombre d'envois, sans aucun compte à créer au préalable."
+    "keysBody": "Donnez une clé au bot de déploiement et une autre à la sonnette. Révoquez-en une, les autres continuent de fonctionner. Chaque clé porte son propre nombre d’envois, sans aucun compte à créer au préalable."
   },
   "it": {
     "inboxTitle": "Una richiesta.\nDritta in tasca.",
