@@ -146,7 +146,8 @@ T_MS=21000
 MS=lambda ms: round(ms*100/T_MS,3)
 DOT_STAG,DOT_IN=MS(90),MS(150)
 REPLY_END,REPLY_MS=16.2,400   # Claude's answer lands before the send, unhurried
-HOLD_AT=31.8                  # a click freezes here: typed, delivered, bell upright
+HOLD_AT=31.8                  # a click comes to rest here: typed, delivered, bell upright
+SEND=16.5                     # the request leaves; the caret goes with it
 # A bell rings at the speed it rings at, not at a fraction of the loop. The
 # durations and the ease are the header bell's in index.html, where the
 # clapper settles before the body — that gap is what makes it read as a bell.
@@ -168,7 +169,7 @@ for p in range(3):
             n=len(CPROMPT[i])
             kf.append(f"@keyframes type{p}_{i}{{0%,{g(p,a)}%{{width:0;animation-timing-function:steps({n},end)}} {g(p,b)}%,100%{{width:{n}ch}}}}")
             last=(i==len(spans)-1)
-            end=32.2 if last else b
+            end=REPLY_END-MS(REPLY_MS) if last else b
             kf.append(f"@keyframes car{p}_{i}{{0%,{g(p,a)}%{{opacity:0}} {g(p,a+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
         kf.append(f"@keyframes reply{p}{{0%,{g(p,REPLY_END-MS(REPLY_MS))}%{{opacity:0;animation-timing-function:{E_SOFT}}} {g(p,REPLY_END)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     elif PASSES[p].get('typed'):
@@ -177,15 +178,15 @@ for p in range(3):
             n=vislen(PASSES[p]['lines'][i])
             kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps({n},end)}} {g(p,e)}%,100%{{width:{n}ch}}}}")
             last=(i==len(spans)-1)
-            end=32.2 if last else e
+            end=SEND if last else e
             kf.append(f"@keyframes lcar{p}_{i}{{0%,{g(p,s)}%{{opacity:0}} {g(p,s+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
     else:
         for i,(s,e) in enumerate(lnspans(len(PASSES[p]['lines']))):
             kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps(30,end)}} {g(p,e)}%,100%{{width:100%}}}}")
     if not PASSES[p].get('claude') and not PASSES[p].get('noresp'):
-        kf.append(f"@keyframes rs{p}{{0%,{g(p,16.5)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,16.5+MS(150))}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+        kf.append(f"@keyframes rs{p}{{0%,{g(p,SEND)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,SEND+MS(150))}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     for k in range(5):
-        st=16.5+k*DOT_STAG; on=st+DOT_IN; off,gone=21.5+k*.25,23+k*.25
+        st=SEND+k*DOT_STAG; on=st+DOT_IN; off,gone=21.5+k*.25,23+k*.25
         kf.append(f"@keyframes d{p}_{k}{{0%,{g(p,st)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,on)}%,{g(p,off)}%{{opacity:{OPA[k]};animation-timing-function:{E_SOFT}}} {g(p,gone)}%,100%{{opacity:0}}}}")
     if p<2:
         kf.append(f"@keyframes sp{p}{{0%,{g(p,17.8)}%{{opacity:0;transform:scale(.8)}} {g(p,18)}%{{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)}} {g(p,18+MS(300))}%,{g(p,32.2)}%{{opacity:1;transform:scale(1)}} {g(p,33.3)}%,100%{{opacity:0;transform:scale(1)}}}}")
@@ -197,7 +198,6 @@ for p in range(3):
         kf.append(f"@keyframes {nm}{p}{{0%,{g(p,RS)}%{{transform:rotate(0deg);animation-timing-function:ease-in-out}}{stops} {g(p,RS+RL)}%,100%{{transform:rotate(0deg)}}}}")
 FT_ON,FT_OFF="opacity:1","opacity:.6"
 FR_ON,FR_OFF="opacity:1","opacity:.5"
-SEND=16.5
 focT=["0%{"+FT_OFF+"}"]
 for p in range(3):
     focT.append(f"{g(p,0.5)}%{{{FT_OFF};animation-timing-function:{E_OUT}}} "
@@ -443,11 +443,11 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
   // A click holds the scene still and whole so it can be read; a second click
   // plays it once and lets it come to rest in that same frame. It never runs
   // on into the next scene, and never loops.
-  // Coming to rest lifts the dim off. Opacity here is held by a CSS animation,
-  // which wins over both a transition and a scripted animation even while it is
-  // paused, so the animation is taken off the element first and the value moved
-  // by transition; release puts it back and the film is seekable again.
-  var held = null, restTimer = null;
+  // Coming to rest lifts the dim off. Opacity here is animation-controlled and
+  // an animated value outranks a plain declaration — pausing does not release
+  // it either — so the animation comes off the element before the value is
+  // moved by transition; release puts it back and the film is seekable again.
+  var restTimer = null;
   var lifted = ['term', 0, 1, 2];
   var release = function () {{
     lifted.forEach(function (k) {{
@@ -474,7 +474,6 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
     // comes to rest on the right frame regardless of when it fires.
     var settle = function () {{
       restTimer = null;
-      held = pass;
       each(function (a) {{ a.currentTime = rest; a.pause(); }});
       ['term', pass].forEach(function (k) {{
         var el = film.querySelector('[data-lift="' + k + '"]');
@@ -491,13 +490,8 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
     }};
     release();
     if (restTimer) {{ clearTimeout(restTimer); restTimer = null; }}
-    if (held === pass) {{
-      held = null;
-      each(function (a) {{ a.currentTime = at; a.play(); }});
-      restTimer = setTimeout(settle, rest - at);
-    }} else {{
-      settle();
-    }}
+    each(function (a) {{ a.currentTime = at; a.play(); }});
+    restTimer = setTimeout(settle, rest - at);
   }});
 }})();
 </script>

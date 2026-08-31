@@ -783,7 +783,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 @keyframes gf-ln0_4{0%,11.0%{width:0;animation-timing-function:steps(36,end)} 13.25%,100%{width:36ch}}
 @keyframes gf-lcar0_4{0%,11.0%{opacity:0} 11.01%,13.25%{opacity:1} 13.26%,100%{opacity:0}}
 @keyframes gf-ln0_5{0%,13.25%{width:0;animation-timing-function:steps(48,end)} 15.5%,100%{width:48ch}}
-@keyframes gf-lcar0_5{0%,13.25%{opacity:0} 13.26%,32.2%{opacity:1} 32.21%,100%{opacity:0}}
+@keyframes gf-lcar0_5{0%,13.25%{opacity:0} 13.26%,16.5%{opacity:1} 16.51%,100%{opacity:0}}
 @keyframes gf-rs0{0%,16.5%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 17.214%,32.2%{opacity:1} 33.3%,100%{opacity:0}}
 @keyframes gf-d0_0{0%,16.5%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 17.214%,21.5%{opacity:0.35;animation-timing-function:cubic-bezier(.4,0,.2,1)} 23.0%,100%{opacity:0}}
 @keyframes gf-d0_1{0%,16.929%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 17.643%,21.75%{opacity:0.5;animation-timing-function:cubic-bezier(.4,0,.2,1)} 23.25%,100%{opacity:0}}
@@ -799,7 +799,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 @keyframes gf-type1_1{0%,40.933%{width:0;animation-timing-function:steps(37,end)} 44.733%,100%{width:37ch}}
 @keyframes gf-car1_1{0%,40.933%{opacity:0} 40.943%,44.733%{opacity:1} 44.743%,100%{opacity:0}}
 @keyframes gf-type1_2{0%,44.733%{width:0;animation-timing-function:steps(17,end)} 47.333%,100%{width:17ch}}
-@keyframes gf-car1_2{0%,44.733%{opacity:0} 44.743%,65.533%{opacity:1} 65.543%,100%{opacity:0}}
+@keyframes gf-car1_2{0%,44.733%{opacity:0} 44.743%,47.628%{opacity:1} 47.638%,100%{opacity:0}}
 @keyframes gf-reply1{0%,47.628%{opacity:0;animation-timing-function:cubic-bezier(.4,0,.2,1)} 49.533%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
 @keyframes gf-d1_0{0%,49.833%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 50.547%,54.833%{opacity:0.35;animation-timing-function:cubic-bezier(.4,0,.2,1)} 56.333%,100%{opacity:0}}
 @keyframes gf-d1_1{0%,50.262%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 50.976%,55.083%{opacity:0.5;animation-timing-function:cubic-bezier(.4,0,.2,1)} 56.583%,100%{opacity:0}}
@@ -1314,11 +1314,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         // A click holds the scene still and whole so it can be read; a second click
         // plays it once and lets it come to rest in that same frame. It never runs
         // on into the next scene, and never loops.
-        // Coming to rest lifts the dim off. Opacity here is held by a CSS animation,
-        // which wins over both a transition and a scripted animation even while it is
-        // paused, so the animation is taken off the element first and the value moved
-        // by transition; release puts it back and the film is seekable again.
-        var held = null, restTimer = null;
+        // Coming to rest lifts the dim off. Opacity here is animation-controlled and
+        // an animated value outranks a plain declaration — pausing does not release
+        // it either — so the animation comes off the element before the value is
+        // moved by transition; release puts it back and the film is seekable again.
+        var restTimer = null;
         var lifted = ['term', 0, 1, 2];
         var release = function () {
           lifted.forEach(function (k) {
@@ -1345,7 +1345,6 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           // comes to rest on the right frame regardless of when it fires.
           var settle = function () {
             restTimer = null;
-            held = pass;
             each(function (a) { a.currentTime = rest; a.pause(); });
             ['term', pass].forEach(function (k) {
               var el = film.querySelector('[data-lift="' + k + '"]');
@@ -1362,13 +1361,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           };
           release();
           if (restTimer) { clearTimeout(restTimer); restTimer = null; }
-          if (held === pass) {
-            held = null;
-            each(function (a) { a.currentTime = at; a.play(); });
-            restTimer = setTimeout(settle, rest - at);
-          } else {
-            settle();
-          }
+          each(function (a) { a.currentTime = at; a.play(); });
+          restTimer = setTimeout(settle, rest - at);
         });
       })();
       </script>
