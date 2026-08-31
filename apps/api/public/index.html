@@ -2297,8 +2297,8 @@ document.querySelectorAll('.tabs').forEach(list => {
         cells.push([u, v]);
       }
     }
-    // Six shuffled passes over every cell, dealt strictly one after another,
-    // build the mark solid in under half a minute — but not at a flat rate:
+    // Twelve shuffled passes over every cell, dealt strictly one after
+    // another, build the mark solid in under half a minute — but not at a flat rate:
     // the pen opens in a burst, ten times its settling pace, sheds speed
     // linearly over the first eight seconds, then holds the plateau to the
     // end. Below, that is the inverted quadratic over the ramp (rate falling
@@ -2322,7 +2322,7 @@ document.querySelectorAll('.tabs').forEach(list => {
       return [u, v, dx, dy, -1, start, red,
               u, v, dx, dy, 1, start, red];
     }
-    var LAYERS = 6, RING = 256;
+    var LAYERS = 12, RING = 256;
     var pts = [];
     var total = cells.length * LAYERS;
     var BUILD = 26, RAMP = 8, BURST = 10;
