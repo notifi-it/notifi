@@ -1,4 +1,5 @@
 import { EMAIL, GITHUB, ORIGIN, OG_IMAGE, OG_IMAGE_ALT, SOCIAL, THEME_COLOR } from './constants.js';
+import { brand, type BrandName } from './icons.js';
 
 export interface Link {
   href: string;
@@ -21,6 +22,9 @@ export const FOOTER: Link[] = [
   { href: '/terms', label: 'Terms' },
   { href: '/llms.txt', label: 'llms.txt' },
   { href: `mailto:${EMAIL}`, label: EMAIL },
+];
+
+export const FOOTER_BRANDS: Link[] = [
   { href: GITHUB, label: 'GitHub' },
   ...SOCIAL.map((s) => ({ href: s.url, label: s.name, rel: 'me' })),
 ];
@@ -44,6 +48,14 @@ const FONT_NOTE = `Self-hosted, so the page has no third-party request at all. L
 function tag(link: Link): string {
   const rel = link.rel ? ` rel="${link.rel}"` : '';
   return `<a href="${link.href}"${rel}>${link.label}</a>`;
+}
+
+function brandTag(link: Link): string {
+  const rel = link.rel ? ` rel="${link.rel}"` : '';
+  return (
+    `<a href="${link.href}"${rel} aria-label="${link.label}" title="${link.label}">` +
+    `${brand(link.label as BrandName)}</a>`
+  );
 }
 
 function withoutSelf(links: Link[], path: string): Link[] {
@@ -127,6 +139,9 @@ export function footer(meta: Meta): string {
        only what is not up there — and never a link to the page you are on. -->
   <div class="wrap foot">
 ${links.map((link) => `    ${tag(link)}`).join('\n')}
+    <span class="soc">
+${FOOTER_BRANDS.map((link) => `      ${brandTag(link)}`).join('\n')}
+    </span>
   </div>
 </footer>`;
 }

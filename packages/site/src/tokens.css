@@ -173,4 +173,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .foot a{color:var(--muted);text-decoration:none}
 .foot a:hover{color:var(--fg)}
 .foot .meta{margin-left:auto}
-@media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
+.soc{display:flex;align-items:center;gap:16px;margin-left:auto}
+.foot .soc a{display:flex;color:var(--dim);transition:color var(--dur-state) var(--ease-out)}
+.foot .soc a:hover{color:var(--fg)}
+.soc svg{display:block}
+@media(max-width:620px){.foot .meta{margin-left:0;width:100%}.soc{margin-left:0;width:100%}}

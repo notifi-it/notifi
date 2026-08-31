@@ -293,8 +293,18 @@ function slice(html, open, close) {
 function footerLinks(html) {
   const foot = slice(html, '<div class="wrap foot">', "</div>");
   if (!foot) throw new Error("no footer");
-  const links = [...foot.matchAll(/<a\s+href="([^"]+)"[^>]*>([^<]+)<\/a>/g)];
-  return links.map(([, href, label]) => `- [${spaces(decode(label))}](${absolute(href)})`).join("\n");
+  // The social links are icon-only in the HTML, so their name is in the
+  // aria-label rather than between the tags. Dropping them left the agent-facing
+  // copy with no GitHub or X at all, which is the one thing this file is for.
+  const links = [...foot.matchAll(/<a\s+href="([^"]+)"([^>]*)>([\s\S]*?)<\/a>/g)];
+  return links
+    .map(([, href, attrs, inner]) => {
+      const text = inner.replace(/<[^>]*>/g, "").trim();
+      const label = text || (attrs.match(/aria-label="([^"]+)"/) ?? [])[1];
+      if (!label) throw new Error(`footer link ${href} has no label`);
+      return `- [${spaces(decode(label))}](${absolute(href)})`;
+    })
+    .join("\n");
 }
 
 // The opening tag is matched on its prefix, not in full: a page that adds a
