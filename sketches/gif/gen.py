@@ -129,6 +129,18 @@ def lnspans(n):
     step=(LN1-LN0)/n
     return [(round(LN0+i*step,3),round(LN0+(i+1)*step,3)) for i in range(n)]
 OPA=[.35,.5,.65,.8,1]
+# Curves. E_OUT is the site's own --ease-out (easeOutQuint) and carries every
+# arrival; E_SOFT recedes without pulling the eye; E_IN takes things off.
+# The loop runs linear at the top level so steps() typing stays honest, so
+# each curve is declared inside the keyframe that starts its segment.
+E_OUT='cubic-bezier(.23,1,.32,1)'
+E_SOFT='cubic-bezier(.4,0,.2,1)'
+E_IN='cubic-bezier(.3,0,1,1)'
+# The send beat is written in wall-clock and converted, so lengthening the
+# loop buys reading time without slowing the delivery it pays off with.
+T_MS=21000
+MS=lambda ms: round(ms*100/T_MS,3)
+DOT_STAG,DOT_IN=MS(90),MS(150)
 RS,RL=19.6,12.6   # ring window; longer hold after it before the pass fades
 # ring tracks lifted from film.js (RING_BODY/RING_CLAP)
 BF=[0,4.26,12.96,21.66,30.37,39.07,47.78,56.48,65.18,73.89,82.59,91.30,100]
@@ -137,7 +149,7 @@ CF=[0,2.48,7.02,16.32,25.62,34.92,44.21,53.51,62.81,72.11,81.40,90.70,100]
 CV=[0,0,-30,27,-24,20,-18,15,-12,9,-6,3,0]
 kf=[]
 for p in range(3):
-    kf.append(f"@keyframes vis{p}{{0%,{g(p,0.5)}%{{opacity:0}} {g(p,2)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+    kf.append(f"@keyframes vis{p}{{0%,{g(p,0.5)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,2)}%,{g(p,32.2)}%{{opacity:1;animation-timing-function:{E_IN}}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     if PASSES[p].get('claude'):
         spans=[(3,7.6),(7.6,11.4),(11.4,14)]
         for i,(a,b) in enumerate(spans):
@@ -146,7 +158,7 @@ for p in range(3):
             last=(i==len(spans)-1)
             end=32.2 if last else b
             kf.append(f"@keyframes car{p}_{i}{{0%,{g(p,a)}%{{opacity:0}} {g(p,a+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
-        kf.append(f"@keyframes reply{p}{{0%,{g(p,15.2)}%{{opacity:0}} {g(p,16.2)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+        kf.append(f"@keyframes reply{p}{{0%,{g(p,15.2)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,16.2)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     elif PASSES[p].get('typed'):
         spans=lnspans(len(PASSES[p]['lines']))
         for i,(s,e) in enumerate(spans):
@@ -159,23 +171,27 @@ for p in range(3):
         for i,(s,e) in enumerate(lnspans(len(PASSES[p]['lines']))):
             kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps(30,end)}} {g(p,e)}%,100%{{width:100%}}}}")
     if not PASSES[p].get('claude') and not PASSES[p].get('noresp'):
-        kf.append(f"@keyframes rs{p}{{0%,{g(p,16.5)}%{{opacity:0}} {g(p,17.5)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+        kf.append(f"@keyframes rs{p}{{0%,{g(p,16.5)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,16.5+MS(150))}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     for k in range(5):
-        st,on,off,gone=16.5+k*.6,17.5+k*.6,21.5+k*.25,23+k*.25
-        kf.append(f"@keyframes d{p}_{k}{{0%,{g(p,st)}%{{opacity:0}} {g(p,on)}%,{g(p,off)}%{{opacity:{OPA[k]}}} {g(p,gone)}%,100%{{opacity:0}}}}")
+        st=16.5+k*DOT_STAG; on=st+DOT_IN; off,gone=21.5+k*.25,23+k*.25
+        kf.append(f"@keyframes d{p}_{k}{{0%,{g(p,st)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,on)}%,{g(p,off)}%{{opacity:{OPA[k]};animation-timing-function:{E_SOFT}}} {g(p,gone)}%,100%{{opacity:0}}}}")
     if p<2:
-        kf.append(f"@keyframes sp{p}{{0%,{g(p,17.8)}%{{opacity:0;transform:scale(.8)}} {g(p,18)}%{{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)}} {g(p,20)}%,{g(p,32.2)}%{{opacity:1;transform:scale(1)}} {g(p,33.3)}%,100%{{opacity:0;transform:scale(1)}}}}")
+        kf.append(f"@keyframes sp{p}{{0%,{g(p,17.8)}%{{opacity:0;transform:scale(.8)}} {g(p,18)}%{{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)}} {g(p,18+MS(300))}%,{g(p,32.2)}%{{opacity:1;transform:scale(1)}} {g(p,33.3)}%,100%{{opacity:0;transform:scale(1)}}}}")
     else:
-        kf.append(f"@keyframes sp2{{0%,{g(2,17.6)}%{{opacity:0;transform:translateX(165%)}} {g(2,18)}%{{opacity:1;transform:translateX(165%);animation-timing-function:cubic-bezier(.17,.84,.44,1)}} {g(2,21)}%,{g(2,32.2)}%{{opacity:1;transform:translateX(0)}} {g(2,33.3)}%,100%{{opacity:0;transform:translateX(0)}}}}")
+        kf.append(f"@keyframes sp2{{0%,{g(2,17.6)}%{{opacity:0;transform:translateX(165%)}} {g(2,18)}%{{opacity:1;transform:translateX(165%);animation-timing-function:cubic-bezier(.17,.84,.44,1)}} {g(2,18+MS(450))}%,{g(2,32.2)}%{{opacity:1;transform:translateX(0)}} {g(2,33.3)}%,100%{{opacity:0;transform:translateX(0)}}}}")
     for nm,F,V in (('rb',BF,BV),('rc',CF,CV)):
         stops="".join(f" {g(p,RS+f/100*RL)}%{{transform:rotate({v}deg)}}" for f,v in zip(F,V))
         kf.append(f"@keyframes {nm}{p}{{0%,{g(p,RS)}%{{transform:rotate(0deg)}}{stops} {g(p,RS+RL)}%,100%{{transform:rotate(0deg)}}}}")
 FT_ON,FT_OFF="opacity:1","opacity:.6"
 FR_ON,FR_OFF="opacity:1","opacity:.5"
+SEND=16.5
 focT=["0%{"+FT_OFF+"}"]
 for p in range(3):
-    focT.append(f"{g(p,0.5)}%{{{FT_OFF}}} {g(p,2)}%,{g(p,16.5)}%{{{FT_ON}}} {g(p,18.5)}%,{g(p,32.2)}%{{{FT_OFF}}}")
-    kf.append(f"@keyframes focR{p}{{0%,{g(p,16.5)}%{{{FR_OFF}}} {g(p,18.5)}%,100%{{{FR_ON}}}}}")
+    focT.append(f"{g(p,0.5)}%{{{FT_OFF};animation-timing-function:{E_OUT}}} "
+                f"{g(p,2)}%,{g(p,SEND+MS(60))}%{{{FT_ON};animation-timing-function:{E_SOFT}}} "
+                f"{g(p,SEND+MS(60)+MS(380))}%,{g(p,32.2)}%{{{FT_OFF}}}")
+    kf.append(f"@keyframes focR{p}{{0%,{g(p,SEND)}%{{{FR_OFF};animation-timing-function:{E_OUT}}} "
+              f"{g(p,SEND+MS(240))}%,100%{{{FR_ON}}}}}")
 kf.append("@keyframes focT{"+" ".join(focT)+" 100%{"+FT_OFF+"}}")
 ON,OFF="background:var(--chip);color:var(--fg)","background:#222224;color:var(--dim)"
 kf+=[f"@keyframes tabA{{0%,32.9%{{{ON}}} 33.5%,99.6%{{{OFF}}} 100%{{{ON}}}}}",
@@ -291,7 +307,7 @@ html=f"""<!doctype html>
 @font-face{{font-family:'Recursive Mono';font-style:normal;font-weight:300 800;font-display:block;src:url({RECUR}) format('woff2')}}
 @font-face{{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:block;src:url({KARLA}) format('woff2')}}
 :root{{--bg:#1C1C1E;--surface:#262628;--line:#333;--chip:#3C3C3C;--fg:#EDEDED;--muted:#A1A1A1;--dim:#8A8A8A;--red:#DB4A4B;--blue:#7FA8E0;--stroke:#EDEDED;--stroke2:#55555A;
---mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:21s}}
+--mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:{T_MS/1000:g}s}}
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{background:#161618;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:var(--sans);color:var(--fg)}}
 .stage{{position:relative;width:min(96vw,1600px);aspect-ratio:2160/960;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;container-type:inline-size}}
