@@ -327,7 +327,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .shline .ltype{{display:inline-block;width:0;overflow:hidden;white-space:pre}}
 .cinput+.cinput{{margin-top:-0.260cqw}}
 .creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
-.cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}}
+.cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-inline-end:1.0cqw;position:relative;top:-0.1cqw}}
 .c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.f{{color:#B48EAD}}.fn{{color:#8FBCBB}}.n{{color:#A3BE8C}}.r{{color:var(--dim)}}
 .dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
@@ -339,13 +339,13 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .lock{{position:absolute;text-align:center;font-family:var(--ui);color:var(--fg)}}
 .lock .ldate{{font-weight:600;opacity:.9;letter-spacing:.01em}}
 .lock .ltime{{font-weight:600;line-height:1.02;letter-spacing:-.02em;margin-top:.25em}}
-.sbar.ph .icons{{gap:1.838cqw;margin-right:1.730cqw}}
+.sbar.ph .icons{{gap:1.838cqw;margin-inline-end:1.730cqw}}
 .sbar.mb .icons{{gap:1.425cqw}}
 .sbar.ph>span:first-child{{flex:0 0 28.3%;text-align:center}}
 .sbar svg.ic{{display:block;width:calc(1cqw * var(--w));height:auto;fill:currentColor;overflow:visible}}
 .sbar svg.st path{{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}}
 .sbar svg.st circle.fl{{fill:currentColor;stroke:none}}
-.sbar .dt{{--fs:1.563;font-weight:400;color:var(--muted);margin-left:0.460cqw}}
+.sbar .dt{{--fs:1.563;font-weight:400;color:var(--muted);margin-inline-start:0.460cqw}}
 .mbell{{width:1.85cqw;height:1.85cqw;transform:translateY(-0.02cqw);background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
 .sbar svg.amark{{width:2.529cqw;height:2.529cqw;display:block;fill:var(--fg);opacity:.85;flex:none}}
 .trail{{position:absolute;display:flex;align-items:center;justify-content:space-between;transform:translateY(-50%)}}
@@ -359,7 +359,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .bell .bc{{-webkit-mask-image:url({CLAP});mask-image:url({CLAP})}}
 .scard .t{{--fs:1.05;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
 .scard .b{{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
-.scard .thumb{{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-left:auto;background:var(--chip)}}
+.scard .thumb{{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-inline-start:auto;background:var(--chip)}}
 {NL.join(geo)}
 {NL.join(anim)}
 {VERTICAL}
