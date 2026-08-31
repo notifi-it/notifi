@@ -96,7 +96,7 @@ private struct TabButton: View {
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
         .overlay {
             HoverZone { hovering = $0 }
                 .frame(width: 28, height: 28)
