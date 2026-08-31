@@ -633,16 +633,17 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-cmeta b{font-weight:700;color:var(--fg)}
 .gf-crule{height:1px;background:var(--line);margin:1.301cqw 0}
 .gf-cinput{display:flex;align-items:baseline;gap:1.561cqw;padding:0.911cqw 0;white-space:pre}
-.gf-cchev{color:var(--dim);flex:none}
+.gf-cchev{color:var(--dim);flex:none;width:1ch}
 .gf-ctype{display:inline-block;width:0;overflow:hidden;white-space:pre;vertical-align:bottom}
 .gf-ccar{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}
 .gf-body div.gf-shline{width:auto;overflow:visible;display:flex;align-items:center}
 .gf-shline .gf-ltype{display:inline-block;width:0;overflow:hidden;white-space:pre}
 .gf-cinput+.gf-cinput{margin-top:-0.260cqw}
-.gf-creply{margin-top:2.342cqw;opacity:0;white-space:normal}
-.gf-cdot{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}
+.gf-creply{position:relative;margin-top:2.342cqw;padding-left:calc(1ch + 1.561cqw);opacity:0;white-space:normal}
+.gf-cdot{position:absolute;left:calc((1ch - 1.35cqw) / 2);top:calc((1.7em - 1.35cqw) / 2);width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757}
 .gf-c{color:var(--dim)}.gf-k{color:var(--red)}.gf-s{color:var(--blue)}.gf-f{color:#B48EAD}.gf-fn{color:#8FBCBB}.gf-n{color:#A3BE8C}.gf-r{color:var(--dim)}
 .gf-rgt{position:absolute;inset:0;pointer-events:none}
+.gf-stage[data-held] .gf-term,.gf-stage[data-held] .gf-rgt{opacity:1 !important}
 .gf-dev{position:absolute;opacity:0;container-type:inline-size}
 .gf-dev svg{display:block;width:100%;height:100%;overflow:visible}
 .gf-o{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
@@ -800,7 +801,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 @keyframes gf-car1_1{0%,40.933%{opacity:0} 40.943%,44.733%{opacity:1} 44.743%,100%{opacity:0}}
 @keyframes gf-type1_2{0%,44.733%{width:0;animation-timing-function:steps(17,end)} 47.333%,100%{width:17ch}}
 @keyframes gf-car1_2{0%,44.733%{opacity:0} 44.743%,65.533%{opacity:1} 65.543%,100%{opacity:0}}
-@keyframes gf-reply1{0%,48.533%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 49.533%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
+@keyframes gf-reply1{0%,47.628%{opacity:0;animation-timing-function:cubic-bezier(.4,0,.2,1)} 49.533%,65.533%{opacity:1} 66.633%,100%{opacity:0}}
 @keyframes gf-d1_0{0%,49.833%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 50.547%,54.833%{opacity:0.35;animation-timing-function:cubic-bezier(.4,0,.2,1)} 56.333%,100%{opacity:0}}
 @keyframes gf-d1_1{0%,50.262%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 50.976%,55.083%{opacity:0.5;animation-timing-function:cubic-bezier(.4,0,.2,1)} 56.583%,100%{opacity:0}}
 @keyframes gf-d1_2{0%,50.691%{opacity:0;animation-timing-function:cubic-bezier(.23,1,.32,1)} 51.405%,55.333%{opacity:0.65;animation-timing-function:cubic-bezier(.4,0,.2,1)} 56.833%,100%{opacity:0}}
@@ -1311,21 +1312,33 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         }
         try { setClocks(); setInterval(setClocks, 30000); } catch (err) {}
         if (!film.getAnimations) return;
-        var pinTimer = null;
+        // A click holds the scene still and whole so it can be read; a second click
+        // on the same tab plays it, and keeps playing it rather than moving on.
+        var held = null, pinTimer = null;
         film.addEventListener('click', function (e) {
           var btn = e.target.closest('[data-pass]');
           if (!btn) return;
+          var pass = +btn.dataset.pass;
           var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || 21000;
-          var seg = T / 3;
-          var at = (+btn.dataset.pass) * seg;
-          var seek = function () {
+          var seg = T / 3, at = pass * seg;
+          var each = function (fn) {
             film.getAnimations({ subtree: true }).forEach(function (a) {
-              try { a.currentTime = at; a.play(); } catch (err) {}
+              try { fn(a); } catch (err) {}
             });
           };
-          seek();
-          if (pinTimer) clearInterval(pinTimer);
-          pinTimer = setInterval(seek, seg);
+          if (pinTimer) { clearInterval(pinTimer); pinTimer = null; }
+          if (held === pass) {
+            held = null;
+            delete film.dataset.held;
+            var play = function () { each(function (a) { a.currentTime = at; a.play(); }); };
+            play();
+            pinTimer = setInterval(play, seg);
+          } else {
+            held = pass;
+            film.dataset.held = '';
+            var stop = at + 31.8 / 100 * T;
+            each(function (a) { a.currentTime = stop; a.pause(); });
+          }
         });
       })();
       </script>

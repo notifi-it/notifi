@@ -33,6 +33,10 @@ MC_SB=('<div class="sbar mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs
        '<span class="dt" data-clock="menubar">Tue 11 Aug 10:24</span></span></div>')
 
 CLAUDE_ORANGE='#D97757'
+# The reply sits in the same two-column grid as the prompts above it: one
+# character of gutter, then this gap. Both read it, so the text edges line up.
+CGAP='1.561cqw'
+CDOT='1.35cqw'
 MASCOT=("""<svg class="mascot" viewBox="0 0 52 40" aria-hidden="true">
       <rect x="2" y="0" width="48" height="27" rx="3" fill="%s"/>
       <rect x="12" y="8" width="6" height="9" rx="1.2" fill="#1C1C1E"/>
@@ -141,6 +145,8 @@ E_IN='cubic-bezier(.3,0,1,1)'
 T_MS=21000
 MS=lambda ms: round(ms*100/T_MS,3)
 DOT_STAG,DOT_IN=MS(90),MS(150)
+REPLY_END,REPLY_MS=16.2,400   # Claude's answer lands before the send, unhurried
+HOLD_AT=31.8                  # a click freezes here: typed, delivered, bell upright
 # A bell rings at the speed it rings at, not at a fraction of the loop. The
 # durations and the ease are the header bell's in index.html, where the
 # clapper settles before the body — that gap is what makes it read as a bell.
@@ -164,7 +170,7 @@ for p in range(3):
             last=(i==len(spans)-1)
             end=32.2 if last else b
             kf.append(f"@keyframes car{p}_{i}{{0%,{g(p,a)}%{{opacity:0}} {g(p,a+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
-        kf.append(f"@keyframes reply{p}{{0%,{g(p,15.2)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,16.2)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+        kf.append(f"@keyframes reply{p}{{0%,{g(p,REPLY_END-MS(REPLY_MS))}%{{opacity:0;animation-timing-function:{E_SOFT}}} {g(p,REPLY_END)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     elif PASSES[p].get('typed'):
         spans=lnspans(len(PASSES[p]['lines']))
         for i,(s,e) in enumerate(spans):
@@ -352,17 +358,18 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .cmeta{{--fs:2.732;line-height:1.5}}
 .cmeta b{{font-weight:700;color:var(--fg)}}
 .crule{{height:1px;background:var(--line);margin:1.301cqw 0}}
-.cinput{{display:flex;align-items:baseline;gap:1.561cqw;padding:0.911cqw 0;white-space:pre}}
-.cchev{{color:var(--dim);flex:none}}
+.cinput{{display:flex;align-items:baseline;gap:{CGAP};padding:0.911cqw 0;white-space:pre}}
+.cchev{{color:var(--dim);flex:none;width:1ch}}
 .ctype{{display:inline-block;width:0;overflow:hidden;white-space:pre;vertical-align:bottom}}
 .ccar{{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}}
 .body div.shline{{width:auto;overflow:visible;display:flex;align-items:center}}
 .shline .ltype{{display:inline-block;width:0;overflow:hidden;white-space:pre}}
 .cinput+.cinput{{margin-top:-0.260cqw}}
-.creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
-.cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}}
+.creply{{position:relative;margin-top:2.342cqw;padding-left:calc(1ch + {CGAP});opacity:0;white-space:normal}}
+.cdot{{position:absolute;left:calc((1ch - {CDOT}) / 2);top:calc((1.7em - {CDOT}) / 2);width:{CDOT};height:{CDOT};border-radius:50%;background:#D97757}}
 .c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.f{{color:#B48EAD}}.fn{{color:#8FBCBB}}.n{{color:#A3BE8C}}.r{{color:var(--dim)}}
 .rgt{{position:absolute;inset:0;pointer-events:none}}
+.stage[data-held] .term,.stage[data-held] .rgt{{opacity:1 !important}}
 .dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
 .o{{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}}
@@ -434,21 +441,33 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
   }}
   try {{ setClocks(); setInterval(setClocks, 30000); }} catch (err) {{}}
   if (!film.getAnimations) return;
-  var pinTimer = null;
+  // A click holds the scene still and whole so it can be read; a second click
+  // on the same tab plays it, and keeps playing it rather than moving on.
+  var held = null, pinTimer = null;
   film.addEventListener('click', function (e) {{
     var btn = e.target.closest('[data-pass]');
     if (!btn) return;
-    var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || 21000;
-    var seg = T / 3;
-    var at = (+btn.dataset.pass) * seg;
-    var seek = function () {{
+    var pass = +btn.dataset.pass;
+    var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || {T_MS};
+    var seg = T / 3, at = pass * seg;
+    var each = function (fn) {{
       film.getAnimations({{ subtree: true }}).forEach(function (a) {{
-        try {{ a.currentTime = at; a.play(); }} catch (err) {{}}
+        try {{ fn(a); }} catch (err) {{}}
       }});
     }};
-    seek();
-    if (pinTimer) clearInterval(pinTimer);
-    pinTimer = setInterval(seek, seg);
+    if (pinTimer) {{ clearInterval(pinTimer); pinTimer = null; }}
+    if (held === pass) {{
+      held = null;
+      delete film.dataset.held;
+      var play = function () {{ each(function (a) {{ a.currentTime = at; a.play(); }}); }};
+      play();
+      pinTimer = setInterval(play, seg);
+    }} else {{
+      held = pass;
+      film.dataset.held = '';
+      var stop = at + {HOLD_AT} / 100 * T;
+      each(function (a) {{ a.currentTime = stop; a.pause(); }});
+    }}
   }});
 }})();
 </script>
