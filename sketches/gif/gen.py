@@ -242,7 +242,7 @@ for p,P in enumerate(PASSES):
     th.append(f'<div class="trail tr{p}">{dots}</div>')
     hh.append(f'<div class="head hd{p}"><div class="l1">{P["head"][0]}</div><div class="l2">{P["head"][1]}</div></div>')
     tih.append(f'<span class="title ti{p}">{P["title"]}</span>')
-rgt=[f'<div class="rgt rg{p}">'+dh[p]+th[p]+ch[p]+'</div>' for p in range(3)]
+rgt=[f'<div class="rgt rg{p}" data-lift="{p}">'+dh[p]+th[p]+ch[p]+'</div>' for p in range(3)]
 geo=[]
 for p,P in enumerate(PASSES):
     geo.append(f".dv{p}{{{DEV[p]}}}")
@@ -369,7 +369,6 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .cdot{{position:absolute;left:calc((1ch - {CDOT}) / 2);top:calc((1.7em - {CDOT}) / 2);width:{CDOT};height:{CDOT};border-radius:50%;background:#D97757}}
 .c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.f{{color:#B48EAD}}.fn{{color:#8FBCBB}}.n{{color:#A3BE8C}}.r{{color:var(--dim)}}
 .rgt{{position:absolute;inset:0;pointer-events:none}}
-.stage[data-held] .term,.stage[data-held] .rgt{{opacity:1 !important}}
 .dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
 .o{{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}}
@@ -412,7 +411,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 <!--STAGE-->
 <div class="stage">
   {NL.join(hh)}
-  <div class="term">
+  <div class="term" data-lift="term">
     <div class="bar"><i></i><i></i><i></i>{"".join(tih)}</div>
     <div class="tabs"><button type="button" class="tabA" data-pass="0" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="tabB" data-pass="1" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="tabC" data-pass="2" aria-label="Play the train.py scene">~/train.py</button></div>
     <div class="bodywrap">
@@ -442,31 +441,62 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
   try {{ setClocks(); setInterval(setClocks, 30000); }} catch (err) {{}}
   if (!film.getAnimations) return;
   // A click holds the scene still and whole so it can be read; a second click
-  // on the same tab plays it, and keeps playing it rather than moving on.
-  var held = null, pinTimer = null;
+  // plays it once and lets it come to rest in that same frame. It never runs
+  // on into the next scene, and never loops.
+  // Coming to rest lifts the dim off. Opacity here is held by a CSS animation,
+  // which wins over both a transition and a scripted animation even while it is
+  // paused, so the animation is taken off the element first and the value moved
+  // by transition; release puts it back and the film is seekable again.
+  var held = null, restTimer = null;
+  var lifted = ['term', 0, 1, 2];
+  var release = function () {{
+    lifted.forEach(function (k) {{
+      var el = film.querySelector('[data-lift="' + k + '"]');
+      if (!el) return;
+      el.style.transition = '';
+      el.style.opacity = '';
+      el.style.animationName = '';
+    }});
+    film.offsetWidth;
+  }};
   film.addEventListener('click', function (e) {{
     var btn = e.target.closest('[data-pass]');
     if (!btn) return;
     var pass = +btn.dataset.pass;
     var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || {T_MS};
-    var seg = T / 3, at = pass * seg;
+    var at = pass * (T / 3), rest = at + {HOLD_AT} / 100 * T;
     var each = function (fn) {{
       film.getAnimations({{ subtree: true }}).forEach(function (a) {{
         try {{ fn(a); }} catch (err) {{}}
       }});
     }};
-    if (pinTimer) {{ clearInterval(pinTimer); pinTimer = null; }}
+    // Seeking rather than trusting the timer means a throttled background tab
+    // comes to rest on the right frame regardless of when it fires.
+    var settle = function () {{
+      restTimer = null;
+      held = pass;
+      each(function (a) {{ a.currentTime = rest; a.pause(); }});
+      ['term', pass].forEach(function (k) {{
+        var el = film.querySelector('[data-lift="' + k + '"]');
+        if (!el) return;
+        var from = getComputedStyle(el).opacity;
+        if (from === '1') return;
+        el.style.transition = 'none';
+        el.style.animationName = 'none';
+        el.style.opacity = from;
+        el.offsetWidth;
+        el.style.transition = 'opacity .32s cubic-bezier(.23,1,.32,1)';
+        el.style.opacity = '1';
+      }});
+    }};
+    release();
+    if (restTimer) {{ clearTimeout(restTimer); restTimer = null; }}
     if (held === pass) {{
       held = null;
-      delete film.dataset.held;
-      var play = function () {{ each(function (a) {{ a.currentTime = at; a.play(); }}); }};
-      play();
-      pinTimer = setInterval(play, seg);
+      each(function (a) {{ a.currentTime = at; a.play(); }});
+      restTimer = setTimeout(settle, rest - at);
     }} else {{
-      held = pass;
-      film.dataset.held = '';
-      var stop = at + {HOLD_AT} / 100 * T;
-      each(function (a) {{ a.currentTime = stop; a.pause(); }});
+      settle();
     }}
   }});
 }})();

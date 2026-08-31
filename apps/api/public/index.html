@@ -643,7 +643,6 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-cdot{position:absolute;left:calc((1ch - 1.35cqw) / 2);top:calc((1.7em - 1.35cqw) / 2);width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757}
 .gf-c{color:var(--dim)}.gf-k{color:var(--red)}.gf-s{color:var(--blue)}.gf-f{color:#B48EAD}.gf-fn{color:#8FBCBB}.gf-n{color:#A3BE8C}.gf-r{color:var(--dim)}
 .gf-rgt{position:absolute;inset:0;pointer-events:none}
-.gf-stage[data-held] .gf-term,.gf-stage[data-held] .gf-rgt{opacity:1 !important}
 .gf-dev{position:absolute;opacity:0;container-type:inline-size}
 .gf-dev svg{display:block;width:100%;height:100%;overflow:visible}
 .gf-o{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
@@ -1252,7 +1251,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         <div class="gf-head gf-hd0"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own key.</div></div>
       <div class="gf-head gf-hd1"><div class="gf-l1">Get a push notification to your device</div><div class="gf-l2">from anything that can make an HTTP request.</div></div>
       <div class="gf-head gf-hd2"><div class="gf-l1">No signup, just HTTP.</div><div class="gf-l2">Install the app, copy your key, start sending.</div></div>
-        <div class="gf-term">
+        <div class="gf-term" data-lift="term">
           <div class="gf-bar"><i></i><i></i><i></i><span class="gf-title gf-ti0">run.sh — -zsh</span><span class="gf-title gf-ti1">claude — ~/notifi</span><span class="gf-title gf-ti2">train.py — -zsh</span></div>
           <div class="gf-tabs"><button type="button" class="gf-gf-tabA" data-pass="0" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="gf-gf-tabB" data-pass="1" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="gf-gf-tabC" data-pass="2" aria-label="Play the train.py scene">~/train.py</button></div>
           <div class="gf-bodywrap">
@@ -1269,12 +1268,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       <div class="gf-body gf-bg2"><div class="gf-l2_0"><span class="gf-c"># tell me when the training run ends</span></div><div class="gf-l2_1"><span class="gf-f">import</span> requests, tensorflow <span class="gf-f">as</span> tf</div><div class="gf-l2_2">run = model.<span class="gf-fn">fit</span>(train_ds, epochs=<span class="gf-n">40</span>)</div><div class="gf-l2_3">loss = run.history[<span class="gf-s">&quot;val_loss&quot;</span>][-<span class="gf-n">1</span>]</div><div class="gf-l2_4">requests.<span class="gf-fn">post</span>(<span class="gf-s">&quot;https://notifi.it/send&quot;</span>,</div><div class="gf-l2_5">    headers={<span class="gf-s">&quot;Authorization&quot;</span>: <span class="gf-f">f</span><span class="gf-s">&quot;Bearer </span>{<span class="gf-k">KEY</span>}<span class="gf-s">&quot;</span>},</div><div class="gf-l2_6">    json={<span class="gf-s">&quot;title&quot;</span>: <span class="gf-s">&quot;Training finished&quot;</span>,</div><div class="gf-l2_7">          <span class="gf-s">&quot;message&quot;</span>: <span class="gf-f">f</span><span class="gf-s">&quot;val loss </span>{loss<span class="gf-f">:.3f</span>}<span class="gf-s">&quot;</span>})</div><div class="gf-resp gf-r2"><span class="gf-r">{"ok":true}</span></div></div>
           </div>
         </div>
-        <div class="gf-rgt gf-rg0"><div class="gf-dev gf-dv0"><svg viewBox="0 0 1292 916">
+        <div class="gf-rgt gf-rg0" data-lift="0"><div class="gf-dev gf-dv0"><svg viewBox="0 0 1292 916">
             <rect class="gf-o" x="0" y="0" width="1292" height="916" rx="42"/>
             <rect class="gf-scr" x="41" y="41" width="1210" height="834" rx="18"/>
             <circle class="gf-dot" cx="646" cy="20" r="5"/>
           </svg><div class="gf-sbar" style="left:7.5%;right:7.5%;top:5.4%;height:4.2%;--fs:1.769"><span></span><span class="gf-icons"><svg viewBox="2 9 52 38" class="gf-ic" style="--w:2.803"><path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:4.324"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13%"><div class="gf-ldate" data-clock="date" style="--fs:1.474">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:7.985">10:24</div></div></div><div class="gf-trail gf-tr0"><i class="gf-dt0_0" style="--d:0.30"></i><i class="gf-dt0_1" style="--d:0.39"></i><i class="gf-dt0_2" style="--d:0.48"></i><i class="gf-dt0_3" style="--d:0.57"></i><i class="gf-dt0_4" style="--d:0.66"></i></div><div class="gf-cardpos gf-cp0"><div class="gf-scard gf-sc0"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Hello from notifi</div><div class="gf-b">Your first notification.</div></div><img class="gf-thumb" src="/anaglyph-bell.png" alt=""></div></div></div>
-      <div class="gf-rgt gf-rg1"><div class="gf-dev gf-dv1"><svg viewBox="0 0 428 900">
+      <div class="gf-rgt gf-rg1" data-lift="1"><div class="gf-dev gf-dv1"><svg viewBox="0 0 428 900">
             <mask id="gfPhoneCut"><rect x="-20" y="-20" width="468" height="940" fill="#fff"/><rect x="151.5" y="24" width="125" height="37" rx="18.5" fill="#000"/></mask>
             <g mask="url(#gfPhoneCut)">
             <rect class="gf-o" x="0" y="0" width="428" height="900" rx="75"/>
@@ -1282,7 +1281,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
             </g>
             <rect class="gf-dot" x="145.5" y="870" width="137" height="5" rx="2.5"/>
           </svg><div class="gf-sbar gf-ph" style="left:7%;right:7%;top:2.3%;height:4.6%;--fs:5.946"><span></span><span class="gf-icons"><svg viewBox="0 0 25 18" class="gf-ic" style="--w:5.784"><rect x="0" y="12" width="4" height="6" rx="1"/><rect x="7" y="8" width="4" height="10" rx="1"/><rect x="14" y="4" width="4" height="14" rx="1"/><rect x="21" y="0" width="4" height="18" rx="1"/></svg><svg viewBox="2 9 52 38" class="gf-ic" style="--w:5.676"><path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/></svg><svg viewBox="0 0 30 14" class="gf-ic" style="--w:8.757"><rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/><rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/></svg></span></div><div class="gf-lock" style="left:0;right:0;top:13.5%"><div class="gf-ldate" data-clock="date" style="--fs:4.649">Tuesday 11 August</div><div class="gf-ltime" data-clock="time" style="--fs:24.595">10:24</div></div></div><div class="gf-trail gf-tr1"><i class="gf-dt1_0" style="--d:0.30"></i><i class="gf-dt1_1" style="--d:0.39"></i><i class="gf-dt1_2" style="--d:0.48"></i><i class="gf-dt1_3" style="--d:0.57"></i><i class="gf-dt1_4" style="--d:0.66"></i></div><div class="gf-cardpos gf-cp1"><div class="gf-scard gf-sc1"><span class="gf-bell"><i class="gf-bb"></i><i class="gf-bc"></i></span><div style="min-width:0"><div class="gf-t">Claude Finished</div><div class="gf-b">No mistakes made.</div></div></div></div></div>
-      <div class="gf-rgt gf-rg2"><div class="gf-dev gf-dv2"><svg viewBox="0 0 1640 1040">
+      <div class="gf-rgt gf-rg2" data-lift="2"><div class="gf-dev gf-dv2"><svg viewBox="0 0 1640 1040">
             <mask id="gfMacCut"><rect x="-20" y="-20" width="1680" height="1080" fill="#fff"/><path d="M 727.5 32 L 727.5 65 Q 727.5 85 747.5 85 L 892.5 85 Q 912.5 85 912.5 65 L 912.5 32 Z" fill="#000"/></mask>
             <g mask="url(#gfMacCut)">
             <path class="gf-o" d="M 64 1000 L 64 40 Q 64 0 104 0 L 1536 0 Q 1576 0 1576 40 L 1576 1000"/>
@@ -1313,31 +1312,62 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
         try { setClocks(); setInterval(setClocks, 30000); } catch (err) {}
         if (!film.getAnimations) return;
         // A click holds the scene still and whole so it can be read; a second click
-        // on the same tab plays it, and keeps playing it rather than moving on.
-        var held = null, pinTimer = null;
+        // plays it once and lets it come to rest in that same frame. It never runs
+        // on into the next scene, and never loops.
+        // Coming to rest lifts the dim off. Opacity here is held by a CSS animation,
+        // which wins over both a transition and a scripted animation even while it is
+        // paused, so the animation is taken off the element first and the value moved
+        // by transition; release puts it back and the film is seekable again.
+        var held = null, restTimer = null;
+        var lifted = ['term', 0, 1, 2];
+        var release = function () {
+          lifted.forEach(function (k) {
+            var el = film.querySelector('[data-lift="' + k + '"]');
+            if (!el) return;
+            el.style.transition = '';
+            el.style.opacity = '';
+            el.style.animationName = '';
+          });
+          film.offsetWidth;
+        };
         film.addEventListener('click', function (e) {
           var btn = e.target.closest('[data-pass]');
           if (!btn) return;
           var pass = +btn.dataset.pass;
           var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || 21000;
-          var seg = T / 3, at = pass * seg;
+          var at = pass * (T / 3), rest = at + 31.8 / 100 * T;
           var each = function (fn) {
             film.getAnimations({ subtree: true }).forEach(function (a) {
               try { fn(a); } catch (err) {}
             });
           };
-          if (pinTimer) { clearInterval(pinTimer); pinTimer = null; }
+          // Seeking rather than trusting the timer means a throttled background tab
+          // comes to rest on the right frame regardless of when it fires.
+          var settle = function () {
+            restTimer = null;
+            held = pass;
+            each(function (a) { a.currentTime = rest; a.pause(); });
+            ['term', pass].forEach(function (k) {
+              var el = film.querySelector('[data-lift="' + k + '"]');
+              if (!el) return;
+              var from = getComputedStyle(el).opacity;
+              if (from === '1') return;
+              el.style.transition = 'none';
+              el.style.animationName = 'none';
+              el.style.opacity = from;
+              el.offsetWidth;
+              el.style.transition = 'opacity .32s cubic-bezier(.23,1,.32,1)';
+              el.style.opacity = '1';
+            });
+          };
+          release();
+          if (restTimer) { clearTimeout(restTimer); restTimer = null; }
           if (held === pass) {
             held = null;
-            delete film.dataset.held;
-            var play = function () { each(function (a) { a.currentTime = at; a.play(); }); };
-            play();
-            pinTimer = setInterval(play, seg);
+            each(function (a) { a.currentTime = at; a.play(); });
+            restTimer = setTimeout(settle, rest - at);
           } else {
-            held = pass;
-            film.dataset.held = '';
-            var stop = at + 31.8 / 100 * T;
-            each(function (a) { a.currentTime = stop; a.pause(); });
+            settle();
           }
         });
       })();
