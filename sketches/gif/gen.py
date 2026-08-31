@@ -141,8 +141,14 @@ E_IN='cubic-bezier(.3,0,1,1)'
 T_MS=21000
 MS=lambda ms: round(ms*100/T_MS,3)
 DOT_STAG,DOT_IN=MS(90),MS(150)
-RS,RL=19.6,12.6   # ring window; longer hold after it before the pass fades
-# ring tracks lifted from film.js (RING_BODY/RING_CLAP)
+# A bell rings at the speed it rings at, not at a fraction of the loop. The
+# durations and the ease are the header bell's in index.html, where the
+# clapper settles before the body — that gap is what makes it read as a bell.
+RING_BODY_MS,RING_CLAP_MS=2585,2420
+RS=18+MS(300)     # rings as the notification lands
+# The app is the bell. These are bellSwing/clapperSwing from Theme.swift —
+# same angles, same stop times as a percentage of each track's own duration.
+# Change one and change the other, or the site rings a different bell.
 BF=[0,4.26,12.96,21.66,30.37,39.07,47.78,56.48,65.18,73.89,82.59,91.30,100]
 BV=[0,-20,18,-16,14,-13,12,-10,8,-6,4,-2,0]
 CF=[0,2.48,7.02,16.32,25.62,34.92,44.21,53.51,62.81,72.11,81.40,90.70,100]
@@ -179,9 +185,10 @@ for p in range(3):
         kf.append(f"@keyframes sp{p}{{0%,{g(p,17.8)}%{{opacity:0;transform:scale(.8)}} {g(p,18)}%{{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)}} {g(p,18+MS(300))}%,{g(p,32.2)}%{{opacity:1;transform:scale(1)}} {g(p,33.3)}%,100%{{opacity:0;transform:scale(1)}}}}")
     else:
         kf.append(f"@keyframes sp2{{0%,{g(2,17.6)}%{{opacity:0;transform:translateX(165%)}} {g(2,18)}%{{opacity:1;transform:translateX(165%);animation-timing-function:cubic-bezier(.17,.84,.44,1)}} {g(2,18+MS(450))}%,{g(2,32.2)}%{{opacity:1;transform:translateX(0)}} {g(2,33.3)}%,100%{{opacity:0;transform:translateX(0)}}}}")
-    for nm,F,V in (('rb',BF,BV),('rc',CF,CV)):
-        stops="".join(f" {g(p,RS+f/100*RL)}%{{transform:rotate({v}deg)}}" for f,v in zip(F,V))
-        kf.append(f"@keyframes {nm}{p}{{0%,{g(p,RS)}%{{transform:rotate(0deg)}}{stops} {g(p,RS+RL)}%,100%{{transform:rotate(0deg)}}}}")
+    for nm,F,V,ms in (('rb',BF,BV,RING_BODY_MS),('rc',CF,CV,RING_CLAP_MS)):
+        RL=MS(ms)
+        stops="".join(f" {g(p,RS+f/100*RL)}%{{transform:rotate({v}deg);animation-timing-function:ease-in-out}}" for f,v in zip(F,V))
+        kf.append(f"@keyframes {nm}{p}{{0%,{g(p,RS)}%{{transform:rotate(0deg);animation-timing-function:ease-in-out}}{stops} {g(p,RS+RL)}%,100%{{transform:rotate(0deg)}}}}")
 FT_ON,FT_OFF="opacity:1","opacity:.6"
 FR_ON,FR_OFF="opacity:1","opacity:.5"
 SEND=16.5
