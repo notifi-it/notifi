@@ -12,6 +12,8 @@ export const de: Translation = {
 
   'api.unknownDevice': 'Gerät ist nicht registriert.',
   'api.unknownKey': 'Unbekannter oder widerrufener Schlüssel.',
+  'api.keyPaused':
+    'Dieser Schlüssel ist pausiert. Er nimmt keine Sendungen an, bis er in der App fortgesetzt wird.',
   'api.keyNotFound': 'Schlüssel nicht gefunden.',
   'api.activeKeyLimit': 'Limit für aktive Schlüssel erreicht.',
 
@@ -177,9 +179,11 @@ export const de: Translation = {
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Standard',
   'keys.chipRevoked': 'Widerrufen',
+  'keys.chipPaused': 'Pausiert',
   'keys.chipCritical': 'Kritisch',
   'keys.rowLabel': 'Schlüssel, {name}, endet auf {suffix}',
   'keys.rowLabelRevoked': ', widerrufen',
+  'keys.rowLabelPaused': ', pausiert',
   'keys.rowLabelCritical': ', Kritische Benachrichtigungen an',
   'keys.maskedValue': '{prefix}…',
 
@@ -215,6 +219,34 @@ export const de: Translation = {
     'andere Apps auf diesem Gerät starten.',
 
   'keyDetail.criticalAlerts': 'Kritische Benachrichtigungen',
+
+  'keyDetail.paused': 'Pausiert',
+  'keyDetail.pausedDetail':
+    'An, nimmt dieser Schlüssel nichts an und es wird keine Benachrichtigung zugestellt. ' +
+    'Wieder aus, sendet er wie zuvor. Der Wert ändert sich nicht, es muss also nirgends ' +
+    'etwas angepasst werden, wo er verwendet wird.',
+  'keyDetail.pauseFailed':
+    'Die Pause für diesen Schlüssel konnte nicht geändert werden. Prüfe deine Verbindung und versuche es erneut.',
+  'keyDetail.pausedAnnouncement': 'Schlüssel pausiert.',
+  'keyDetail.resumedAnnouncement': 'Schlüssel fortgesetzt.',
+  'keyDetail.pausedNotice':
+    'Dieser Schlüssel ist pausiert. Alles, was damit sendet, wird abgelehnt, bis du ihn fortsetzt.',
+
+  'keyDetail.sectionName': 'Name',
+  'keyDetail.rename': 'Schlüssel umbenennen',
+  'keyDetail.renaming': 'Wird umbenannt…',
+  'keyDetail.renameDetail':
+    'Der Name wird nur auf diesem Gerät angezeigt. Der Schlüssel selbst ändert sich nicht, ' +
+    'es muss also nichts angepasst werden, was damit sendet.',
+  'keyDetail.renameTitle': '„{name}“ umbenennen',
+  'keyDetail.renameConfirm': 'Umbenennen',
+  'keyDetail.renameMessage':
+    'Ein Name, den nur du siehst. Er erscheint in der Schlüsselliste und in Filtern.',
+  'keyDetail.renamedAnnouncement': 'Schlüssel umbenannt.',
+  'keyDetail.renameFailed':
+    'Der Schlüssel konnte nicht umbenannt werden. Prüfe deine Verbindung und versuche es erneut.',
+  'keyDetail.renameDefaultDetail':
+    'Der Standardschlüssel behält seinen Namen. Die App findet ihn auf diesem Gerät über diesen Namen.',
 
   'keyDetail.revokedNotice': 'Dieser Schlüssel ist widerrufen und akzeptiert keine Sendungen mehr.',
 

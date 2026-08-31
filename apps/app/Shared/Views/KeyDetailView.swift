@@ -7,6 +7,10 @@ struct KeyDetailView: View {
     let keyID: Int
 
     @State private var showingRevokeConfirm = false
+    @State private var showingRename = false
+    @State private var renameText = ""
+    @State private var isRenaming = false
+    @State private var isUpdatingPause = false
     @State private var showingRegenerateConfirm = false
     @State private var isRevoking = false
     @State private var isRegenerating = false
@@ -87,6 +91,20 @@ struct KeyDetailView: View {
         } message: {
             Text(Copy.KeyDetail.regenerateMessage)
         }
+        .alert(
+            key.map { Copy.KeyDetail.renameTitle($0.name) } ?? Copy.KeyDetail.rename,
+            isPresented: $showingRename
+        ) {
+            TextField(Copy.CreateKey.nameLabel, text: $renameText)
+                #if os(iOS)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                #endif
+            Button(Copy.KeyDetail.renameConfirm) { Task { await rename() } }
+            Button(Copy.Common.cancel, role: .cancel) {}
+        } message: {
+            Text(Copy.KeyDetail.renameMessage)
+        }
     }
 
     @ViewBuilder
@@ -99,6 +117,8 @@ struct KeyDetailView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 if key.isRevoked {
                     Chip(text: Copy.Keys.chipRevoked, color: Theme.dim)
+                } else if key.isPaused {
+                    Chip(text: Copy.Keys.chipPaused, color: Theme.dim)
                 }
                 Spacer(minLength: 0)
             }
@@ -140,7 +160,37 @@ struct KeyDetailView: View {
             } ?? Copy.Common.never)
             Hairline()
 
+            if !key.isRevoked {
+                SectionLabel(text: Copy.KeyDetail.sectionName)
+                if key.isDefault {
+                    Text(Copy.KeyDetail.renameDefaultDetail)
+                        .geistConsequence()
+                } else {
+                    OutlineButton(title: isRenaming ? Copy.KeyDetail.renaming : Copy.KeyDetail.rename) {
+                        renameText = key.name
+                        showingRename = true
+                    }
+                    .disabled(isRenaming)
+                    Text(Copy.KeyDetail.renameDetail)
+                        .geistConsequence()
+                        .padding(.top, 10)
+                }
+            }
+
             SectionLabel(text: Copy.Settings.title)
+
+            if !key.isRevoked {
+                ToggleRow(
+                    title: Copy.KeyDetail.paused,
+                    detail: Copy.KeyDetail.pausedDetail,
+                    isOn: Binding(
+                        get: { key.isPaused },
+                        set: { on in Task { await setPaused(on) } }
+                    )
+                )
+                .disabled(isUpdatingPause)
+                Hairline()
+            }
 
             ToggleRow(
                 title: Copy.KeyDetail.openAnyLink,
@@ -173,26 +223,33 @@ struct KeyDetailView: View {
                 Text(Copy.KeyDetail.revokedNotice)
                     .geistConsequence()
                     .padding(.top, 20)
-            } else if key.isDefault {
-                SectionLabel(text: Copy.KeyDetail.sectionDanger)
-                OutlineButton(title: isRegenerating ? Copy.KeyDetail.regenerating : Copy.KeyDetail.regenerate,
-                              role: .destructive) {
-                    showingRegenerateConfirm = true
-                }
-                .disabled(isRegenerating)
-                Text(Copy.KeyDetail.regenerateDetail)
-                    .geistConsequence()
-                    .padding(.top, 10)
             } else {
-                SectionLabel(text: Copy.KeyDetail.sectionDanger)
-                OutlineButton(title: isRevoking ? Copy.KeyDetail.revoking : Copy.KeyDetail.revoke,
-                              role: .destructive) {
-                    showingRevokeConfirm = true
+                if key.isPaused {
+                    Text(Copy.KeyDetail.pausedNotice)
+                        .geistConsequence()
+                        .padding(.top, 20)
                 }
-                .disabled(isRevoking)
-                Text(Copy.KeyDetail.revokeDetail)
-                    .geistConsequence()
-                    .padding(.top, 10)
+
+                SectionLabel(text: Copy.KeyDetail.sectionDanger)
+                if key.isDefault {
+                    OutlineButton(title: isRegenerating ? Copy.KeyDetail.regenerating : Copy.KeyDetail.regenerate,
+                                  role: .destructive) {
+                        showingRegenerateConfirm = true
+                    }
+                    .disabled(isRegenerating)
+                    Text(Copy.KeyDetail.regenerateDetail)
+                        .geistConsequence()
+                        .padding(.top, 10)
+                } else {
+                    OutlineButton(title: isRevoking ? Copy.KeyDetail.revoking : Copy.KeyDetail.revoke,
+                                  role: .destructive) {
+                        showingRevokeConfirm = true
+                    }
+                    .disabled(isRevoking)
+                    Text(Copy.KeyDetail.revokeDetail)
+                        .geistConsequence()
+                        .padding(.top, 10)
+                }
             }
 
             Spacer(minLength: 40)
@@ -268,6 +325,51 @@ struct KeyDetailView: View {
                 ?? Copy.KeyDetail.criticalChangeFailed
         }
         isUpdatingCritical = false
+    }
+
+    private func setPaused(_ paused: Bool) async {
+        isUpdatingPause = true
+        errorMessage = nil
+        do {
+            try await model.setKeyPaused(id: keyID, paused: paused)
+            AccessibilityNotification.Announcement(
+                paused ? Copy.KeyDetail.pausedAnnouncement : Copy.KeyDetail.resumedAnnouncement
+            ).post()
+            Haptics.success()
+        } catch {
+            errorMessage = (error as? APIError)?.userMessage ?? Copy.KeyDetail.pauseFailed
+        }
+        isUpdatingPause = false
+    }
+
+    private func rename() async {
+        let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
+        errorMessage = nil
+        if let problem = renameProblem(trimmed) {
+            errorMessage = problem
+            return
+        }
+        guard trimmed != key?.name else { return }
+        isRenaming = true
+        do {
+            try await model.renameKey(id: keyID, to: trimmed)
+            AccessibilityNotification.Announcement(Copy.KeyDetail.renamedAnnouncement).post()
+            Haptics.success()
+        } catch {
+            errorMessage = (error as? APIError)?.userMessage ?? Copy.KeyDetail.renameFailed
+        }
+        isRenaming = false
+    }
+
+    private func renameProblem(_ trimmed: String) -> String? {
+        if trimmed.isEmpty { return Copy.CreateKey.validationEmpty }
+        if trimmed.count > 64 { return Copy.CreateKey.validationTooLong }
+        if trimmed.lowercased() == "default" { return Copy.CreateKey.validationReserved }
+        let taken = (model.sync?.keys ?? []).contains {
+            $0.id != keyID && !$0.isRevoked && $0.name.lowercased() == trimmed.lowercased()
+        }
+        if taken { return Copy.CreateKey.validationTaken }
+        return nil
     }
 
     private func revoke() async {

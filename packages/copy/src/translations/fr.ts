@@ -12,6 +12,8 @@ export const fr: Translation = {
 
   'api.unknownDevice': "L’appareil n’est pas enregistré.",
   'api.unknownKey': 'Clé inconnue ou révoquée.',
+  'api.keyPaused':
+    "Cette clé est en pause. Elle n’accepte aucun envoi tant qu’elle n’est pas réactivée dans l’application.",
   'api.keyNotFound': 'Clé introuvable.',
   'api.activeKeyLimit': 'Limite de clés actives atteinte.',
 
@@ -130,9 +132,11 @@ export const fr: Translation = {
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Par défaut',
   'keys.chipRevoked': 'Révoquée',
+  'keys.chipPaused': 'En pause',
   'keys.chipCritical': 'Critique',
   'keys.rowLabel': 'Clé, {name}, se termine par {suffix}',
   'keys.rowLabelRevoked': ', révoquée',
+  'keys.rowLabelPaused': ', en pause',
   'keys.rowLabelCritical': ', alertes critiques activées',
   'keys.maskedValue': '{prefix}…',
 
@@ -168,6 +172,34 @@ export const fr: Translation = {
     'y compris ceux qui lancent d’autres applications sur cet appareil.',
 
   'keyDetail.criticalAlerts': 'Alertes critiques',
+
+  'keyDetail.paused': 'En pause',
+  'keyDetail.pausedDetail':
+    "Activé, cette clé n’accepte rien et aucune notification n’est délivrée. Désactivé, " +
+    "elle envoie comme avant. La valeur ne change pas, rien n’a donc à être mis à jour " +
+    "là où elle est utilisée.",
+  'keyDetail.pauseFailed':
+    'Impossible de modifier la pause de cette clé. Vérifiez votre connexion et réessayez.',
+  'keyDetail.pausedAnnouncement': 'Clé en pause.',
+  'keyDetail.resumedAnnouncement': 'Clé réactivée.',
+  'keyDetail.pausedNotice':
+    "Cette clé est en pause. Tout ce qui envoie avec elle sera rejeté jusqu’à ce que vous la réactiviez.",
+
+  'keyDetail.sectionName': 'Nom',
+  'keyDetail.rename': 'Renommer la clé',
+  'keyDetail.renaming': 'Renommage…',
+  'keyDetail.renameDetail':
+    "Le nom n’est affiché que sur cet appareil. La clé elle-même ne change pas, rien de ce " +
+    "qui envoie avec elle n’a donc à être mis à jour.",
+  'keyDetail.renameTitle': 'Renommer « {name} »',
+  'keyDetail.renameConfirm': 'Renommer',
+  'keyDetail.renameMessage':
+    'Un nom que vous seul voyez. Il apparaît dans la liste des clés et dans les filtres.',
+  'keyDetail.renamedAnnouncement': 'Clé renommée.',
+  'keyDetail.renameFailed':
+    'Impossible de renommer la clé. Vérifiez votre connexion et réessayez.',
+  'keyDetail.renameDefaultDetail':
+    "La clé par défaut conserve son nom. L’application la retrouve par ce nom sur cet appareil.",
 
   'keyDetail.revokedNotice': "Cette clé est révoquée et n’accepte plus d’envois.",
 

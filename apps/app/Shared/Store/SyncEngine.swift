@@ -298,6 +298,7 @@ final class SyncEngine {
                     createdAt: summary.createdAt,
                     lastUsedAt: summary.lastUsedAt,
                     revokedAt: summary.revokedAt,
+                    pausedAt: summary.pausedAt,
                     isCriticalFlag: summary.isCritical == 1
                 ))
             }

@@ -17,6 +17,7 @@ export const copy = {
 
     unknownDevice: 'Device is not registered.',
     unknownKey: 'Unknown or revoked key.',
+    keyPaused: 'This key is paused. It accepts no sends until it is resumed in the app.',
     keyNotFound: 'Key not found.',
     activeKeyLimit: 'Active key limit reached.',
 
@@ -197,9 +198,11 @@ export const copy = {
     docsLink: 'API docs',
     chipDefault: 'Default',
     chipRevoked: 'Revoked',
+    chipPaused: 'Paused',
     chipCritical: 'Critical',
     rowLabel: 'Key, {name}, ends {suffix}',
     rowLabelRevoked: ', revoked',
+    rowLabelPaused: ', paused',
     rowLabelCritical: ', Critical Alerts on',
     maskedValue: '{prefix}…',
   },
@@ -230,6 +233,30 @@ export const copy = {
     fieldSent: 'Sent',
     fieldCreated: 'Created',
     fieldLastUsed: 'Last used',
+
+    paused: 'Paused',
+    pausedDetail:
+      'On, this key accepts nothing and no notification is delivered. Off again, it ' +
+      'sends as before. The value does not change, so nothing has to be updated where ' +
+      'it is used.',
+    pauseFailed: "Couldn’t change the pause for this key. Check your connection and try again.",
+    pausedAnnouncement: 'Key paused.',
+    resumedAnnouncement: 'Key resumed.',
+    pausedNotice: 'This key is paused. Anything sending with it is refused until you resume it.',
+
+    sectionName: 'Name',
+    rename: 'Rename key',
+    renaming: 'Renaming…',
+    renameDetail:
+      'The name is only shown on this device. The key itself does not change, so ' +
+      'nothing that sends with it has to be updated.',
+    renameTitle: 'Rename “{name}”',
+    renameConfirm: 'Rename',
+    renameMessage: 'A name only you see. It shows up on the key list and in filters.',
+    renamedAnnouncement: 'Key renamed.',
+    renameFailed: "Couldn’t rename the key. Check your connection and try again.",
+    renameDefaultDetail:
+      'The default key keeps its name. The app looks for it by that name on this device.',
 
     openAnyLink: 'Open any link',
     openAnyLinkDetail:

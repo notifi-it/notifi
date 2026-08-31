@@ -82,6 +82,9 @@
           "401": {
             "$ref": "#/components/responses/UnknownKey"
           },
+          "403": {
+            "$ref": "#/components/responses/KeyPaused"
+          },
           "422": {
             "$ref": "#/components/responses/InvalidContent"
           },
@@ -152,6 +155,9 @@
           },
           "401": {
             "$ref": "#/components/responses/UnknownKey"
+          },
+          "403": {
+            "$ref": "#/components/responses/KeyPaused"
           },
           "422": {
             "$ref": "#/components/responses/InvalidContent"
@@ -359,6 +365,7 @@
                 "type": "string",
                 "enum": [
                   "unknown_key",
+                  "key_paused",
                   "rate_limited",
                   "invalid_request",
                   "invalid_content",
@@ -439,6 +446,22 @@
               "error": {
                 "code": "unknown_key",
                 "message": "Unknown or revoked key."
+              }
+            }
+          }
+        }
+      },
+      "KeyPaused": {
+        "description": "The key is paused in the app. Pausing is reversible and leaves the key itself unchanged. Nothing is queued while it is paused, so a send made now is not delivered later.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "key_paused",
+                "message": "This key is paused. It accepts no sends until it is resumed in the app."
               }
             }
           }

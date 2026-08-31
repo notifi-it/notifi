@@ -19,17 +19,17 @@ enum SampleData {
         func days(_ count: Int) -> Int { now - count * 86_400 }
         func hours(_ count: Int) -> Int { now - count * 3_600 }
 
-        let rows: [(String, String, Int, Int, Int?, Int?, Bool)] = [
-            ("Default", "nk_a4Qm", 128, days(420), hours(2), nil, false),
-            ("Deploy bot", "nk_u7Pg", 1_842, days(310), hours(1), nil, false),
-            ("Doorbell", "nk_k2Vd", 63, days(96), hours(9), nil, true),
-            ("Backups", "nk_z9Rt", 704, days(88), days(1), nil, false),
-            ("Grafana", "nk_c3Wn", 219, days(54), days(3), nil, false),
-            ("Old laptop", "nk_p6Hs", 47, days(500), days(212), days(210), false),
+        let rows: [(String, String, Int, Int, Int?, Int?, Int?, Bool)] = [
+            ("Default", "nk_a4Qm", 128, days(420), hours(2), nil, nil, false),
+            ("Deploy bot", "nk_u7Pg", 1_842, days(310), hours(1), nil, nil, false),
+            ("Doorbell", "nk_k2Vd", 63, days(96), hours(9), nil, nil, true),
+            ("Backups", "nk_z9Rt", 704, days(88), days(1), nil, nil, false),
+            ("Grafana", "nk_c3Wn", 219, days(54), days(3), nil, days(2), false),
+            ("Old laptop", "nk_p6Hs", 47, days(500), days(212), days(210), nil, false),
         ]
 
         return rows.enumerated().map { index, row in
-            let (name, prefix, sent, created, lastUsed, revoked, critical) = row
+            let (name, prefix, sent, created, lastUsed, revoked, paused, critical) = row
             return CachedKey(
                 id: idFloor - index,
                 name: name,
@@ -38,6 +38,7 @@ enum SampleData {
                 createdAt: created,
                 lastUsedAt: lastUsed,
                 revokedAt: revoked,
+                pausedAt: paused,
                 isCriticalFlag: critical
             )
         }

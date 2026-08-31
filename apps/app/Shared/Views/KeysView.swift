@@ -145,6 +145,9 @@ private struct KeyRow: View {
                             .tracking(isFixture ? 0.5 : 0)
                             .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
                             .lineLimit(1)
+                        if key.isPaused {
+                            Chip(text: Copy.Keys.chipPaused, color: Theme.dim)
+                        }
                     }
                     HStack(spacing: 10) {
                         Text(key.maskedValue)
@@ -167,6 +170,7 @@ private struct KeyRow: View {
         .accessibilityLabel(
             Copy.Keys.rowLabel(key.name, String(key.prefix.suffix(4)))
             + (key.isRevoked ? Copy.Keys.rowLabelRevoked : "")
+            + (key.isPaused ? Copy.Keys.rowLabelPaused : "")
             + (key.isCritical && !key.isRevoked ? Copy.Keys.rowLabelCritical : "")
         )
     }

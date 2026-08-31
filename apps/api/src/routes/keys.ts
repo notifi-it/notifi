@@ -25,7 +25,8 @@ keys.get('/keys', async (c) => {
   if (!device) return c.json(errBody('unknown_device', t(c).api.unknownDevice), 401);
 
   const rows = await c.env.DB.prepare(
-    `SELECT id, meta_sealed, created_at, last_used_at, sent_count, revoked_at, is_critical
+    `SELECT id, meta_sealed, created_at, last_used_at, sent_count, revoked_at, paused_at,
+            is_critical
      FROM keys WHERE device_id = ? AND meta_sealed != '' ORDER BY id DESC`,
   )
     .bind(device.id)
@@ -93,11 +94,26 @@ keys.patch('/keys/:id', async (c) => {
     return c.json(errBody('invalid_request', t(c).api.invalidUpdateKeyBody), 400);
   }
 
+  const assignments: string[] = [];
+  const values: (string | number | null)[] = [];
+  if (parsed.is_critical !== undefined) {
+    assignments.push('is_critical = ?');
+    values.push(parsed.is_critical ? 1 : 0);
+  }
+  if (parsed.paused !== undefined) {
+    assignments.push('paused_at = ?');
+    values.push(parsed.paused ? nowS : null);
+  }
+  if (parsed.meta_sealed !== undefined) {
+    assignments.push('meta_sealed = ?');
+    values.push(parsed.meta_sealed);
+  }
+
   const updated = await c.env.DB.prepare(
-    `UPDATE keys SET is_critical = ?
+    `UPDATE keys SET ${assignments.join(', ')}
      WHERE id = ? AND device_id = ? AND revoked_at IS NULL RETURNING id`,
   )
-    .bind(parsed.is_critical ? 1 : 0, id, device.id)
+    .bind(...values, id, device.id)
     .first<{ id: number }>();
 
   if (!updated) {

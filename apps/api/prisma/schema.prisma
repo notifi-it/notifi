@@ -49,6 +49,7 @@ model keys {
   created_at      Int
   last_used_at    Int?
   revoked_at      Int?
+  paused_at       Int?
   is_critical     Int     @default(0)
 
   device   devices    @relation(fields: [device_id], references: [id], onDelete: Cascade)

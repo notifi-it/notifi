@@ -85,6 +85,15 @@ Content-Type: application/json; charset=utf-8
 {"error":{"code":"unknown_key","message":"Unknown or revoked key."}}
 ```
 
+### 403
+
+```
+HTTP/1.1 403 Forbidden
+Content-Type: application/json; charset=utf-8
+
+{"error":{"code":"key_paused","message":"This key is paused. It accepts no sends until it is resumed in the app."}}
+```
+
 ### 422
 
 ```
@@ -145,6 +154,7 @@ Every error nests the code one level down. Read `error.code`, not `code`. The `m
 | --- | --- | --- |
 | `400` | `invalid_request` | A parameter is missing or malformed. |
 | `401` | `unknown_key` | The key is unknown or has been revoked. |
+| `403` | `key_paused` | The key is paused in the app. Pausing is reversible and leaves the key itself unchanged. Nothing is queued while it is paused, so a send made now is not delivered later. |
 | `422` | `invalid_content` | The device is set to refuse a notification it cannot deliver as written. |
 | `429` | `rate_limited` | Over the hourly device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets. |
 | `404` | `not_found` | No such path. |
@@ -155,7 +165,7 @@ Every error nests the code one level down. Read `error.code`, not `code`. The `m
 - 60 notifications an hour per device, shared across every key on it.
 - 5 active send keys per device, one of which is the app’s own default.
 - 100 requests a minute per IP address, across every endpoint.
-- Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.
+- Revoking or pausing a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.
 
 A `429` carries `Retry-After` in seconds. The device limit is 60 an hour across all 5 keys; the address limit is 100 requests a minute and covers every endpoint.
 

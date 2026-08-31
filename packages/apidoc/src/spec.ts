@@ -160,6 +160,15 @@ export const errors: ErrorRow[] = [
     detail: '',
   },
   {
+    code: 'key_paused',
+    status: 403,
+    reason: 'Forbidden',
+    message: 'This key is paused. It accepts no sends until it is resumed in the app.',
+    summary: 'The key is paused in the app.',
+    detail:
+      'Pausing is reversible and leaves the key itself unchanged. Nothing is queued while it is paused, so a send made now is not delivered later.',
+  },
+  {
     code: 'invalid_content',
     status: 422,
     reason: 'Unprocessable Content',
@@ -190,10 +199,16 @@ export const limits: string[] = [
   `${SENDS_PER_HOUR} notifications an hour per device, shared across every key on it.`,
   `${KEYS_PER_DEVICE} active send keys per device, one of which is the app’s own default.`,
   `${REQUESTS_PER_MINUTE} requests a minute per IP address, across every endpoint.`,
-  'Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.',
+  'Revoking or pausing a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.',
 ];
 
-export const OPERATION_ERRORS = ['invalid_request', 'unknown_key', 'invalid_content', 'rate_limited'];
+export const OPERATION_ERRORS = [
+  'invalid_request',
+  'unknown_key',
+  'key_paused',
+  'invalid_content',
+  'rate_limited',
+];
 
 export const INTEGRATION_SURFACE =
   'There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface. Anything claiming otherwise is not notifi.';

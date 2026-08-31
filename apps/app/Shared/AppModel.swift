@@ -278,6 +278,23 @@ final class AppModel {
         return criticalAlertStatus
     }
 
+    func setKeyPaused(id: Int, paused: Bool) async throws {
+        guard let api, let sync else { throw NotifiError.identityMissing }
+        try await api.updateKey(id: id, paused: paused)
+        await sync.refreshKeys()
+    }
+
+    func renameKey(id: Int, to name: String) async throws {
+        guard let api, let sync, let identity else { throw NotifiError.identityMissing }
+        guard let key = sync.keys.first(where: { $0.id == id }) else {
+            throw NotifiError.identityMissing
+        }
+        let meta = KeyMeta(id: id, name: name, prefix: key.prefix)
+        let sealed = try identity.seal(try JSONEncoder().encode(meta), info: "key_meta")
+        try await api.updateKey(id: id, metaSealed: sealed)
+        await sync.refreshKeys()
+    }
+
     func setStrictSend(_ enabled: Bool) async throws {
         guard let api else { throw NotifiError.identityMissing }
         try await api.updateDeviceSettings(strictSend: enabled)

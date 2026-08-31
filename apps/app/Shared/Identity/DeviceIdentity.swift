@@ -99,6 +99,16 @@ struct DeviceIdentity: SigningIdentity, SealedBoxOpener {
         try EncryptionKeyOpener(encryption: encryption).open(sealedB64: sealedB64, info: info)
     }
 
+    func seal(_ plaintext: Data, info: String) throws -> String {
+        var sender = try HPKE.Sender(
+            recipientKey: encryption.publicKey,
+            ciphersuite: .P256_SHA256_AES_GCM_256,
+            info: Data(info.utf8)
+        )
+        let ciphertext = try sender.seal(plaintext)
+        return (sender.encapsulatedKey + ciphertext).base64EncodedString()
+    }
+
     @MainActor
     static func loadOrCreate() throws -> DeviceIdentity {
         if let existing = try load(returnNilIfMissing: true) {

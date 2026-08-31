@@ -127,7 +127,8 @@ so read `error.code` and not `code`:
 {"error":{"code":"unknown_key","message":"Unknown or revoked key."}}
 ```
 
-The codes are `invalid_request` (400), `unknown_key` (401), `invalid_content`
+The codes are `invalid_request` (400), `unknown_key` (401), `key_paused` (403,
+the key is paused in the app and nothing is queued while it is), `invalid_content`
 (422, the device refuses sends that would arrive with a warning) and
 `rate_limited` (429, which carries `Retry-After`).
 

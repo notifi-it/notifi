@@ -50,8 +50,14 @@ final class APIClient {
         }
     }
 
-    func updateKey(id: Int, isCritical: Bool) async throws {
-        let data = try encode(UpdateKeyBody(isCritical: isCritical))
+    func updateKey(
+        id: Int,
+        isCritical: Bool? = nil,
+        paused: Bool? = nil,
+        metaSealed: String? = nil
+    ) async throws {
+        let data = try encode(
+            UpdateKeyBody(isCritical: isCritical, paused: paused, metaSealed: metaSealed))
         _ = try await performSignedVoid {
             try self.signedRequest(method: "PATCH", path: "/keys/\(id)", body: data)
         }

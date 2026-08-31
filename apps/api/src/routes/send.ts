@@ -27,6 +27,7 @@ const MINIMAL_MESSAGE_MAX = 200;
 interface KeyDeviceRow {
   key_id: number;
   revoked_at: number | null;
+  paused_at: number | null;
   is_critical: number;
   device_id: number;
   apns_token: string;
@@ -117,7 +118,8 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const secretHash = await hashKey(input.key);
   const row = await c.env.DB.prepare(
-    `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.is_critical AS is_critical,
+    `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.paused_at AS paused_at,
+            k.is_critical AS is_critical,
             d.id AS device_id, d.apns_token AS apns_token,
             d.encryption_public_key AS encryption_public_key,
             d.strict_send AS strict_send
@@ -129,6 +131,10 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   if (!row || row.revoked_at !== null) {
     return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
+  }
+
+  if (row.paused_at !== null) {
+    return c.json(errBody('key_paused', t(c).api.keyPaused), 403);
   }
 
   const w = windowStart(nowS);
@@ -158,7 +164,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const keyLive = await c.env.DB.prepare(
     `UPDATE keys SET sent_count = sent_count + 1, last_used_at = ?
-     WHERE id = ? AND revoked_at IS NULL
+     WHERE id = ? AND revoked_at IS NULL AND paused_at IS NULL
      RETURNING id`,
   )
     .bind(nowS, row.key_id)

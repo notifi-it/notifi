@@ -616,6 +616,7 @@ Accept-Language: en-GB
       <button class="tab" role="tab" aria-selected="true" aria-controls="r-p-202" id="r-t-202"><span>202</span></button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-400" id="r-t-400"><span>400</span></button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-401" id="r-t-401"><span>401</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-403" id="r-t-403"><span>403</span></button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-422" id="r-t-422"><span>422</span></button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-429" id="r-t-429"><span>429</span></button>
     </div>
@@ -643,6 +644,12 @@ Content-Type<span class="f">:</span> <span class="s">application/json; charset=u
 Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
 
 {<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;unknown_key&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Unknown or revoked key.&quot;</span>}}</pre>
+      </div>
+      <div class="panel" id="r-p-403" role="tabpanel" tabindex="0" aria-labelledby="r-t-403" data-name="key_paused" data-label="403" hidden>
+<pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">403</span> <span class="s">Forbidden</span>
+Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
+
+{<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;key_paused&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;This key is paused. It accepts no sends until it is resumed in the app.&quot;</span>}}</pre>
       </div>
       <div class="panel" id="r-p-422" role="tabpanel" tabindex="0" aria-labelledby="r-t-422" data-name="invalid_content" data-label="422" hidden>
 <pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">422</span> <span class="s">Unprocessable Content</span>
@@ -730,6 +737,11 @@ Content-Type: application/json; charset=utf-8
             <td>The key is unknown or has been revoked.</td>
           </tr>
           <tr>
+            <td><code>403</code></td>
+            <td><code>key_paused</code></td>
+            <td>The key is paused in the app. Pausing is reversible and leaves the key itself unchanged. Nothing is queued while it is paused, so a send made now is not delivered later.</td>
+          </tr>
+          <tr>
             <td><code>422</code></td>
             <td><code>invalid_content</code></td>
             <td>The device is set to refuse a notification it cannot deliver as written.</td>
@@ -760,7 +772,7 @@ Content-Type: application/json; charset=utf-8
       <li>60 notifications an hour per device, shared across every key on it.</li>
       <li>5 active send keys per device, one of which is the app’s own default.</li>
       <li>100 requests a minute per IP address, across every endpoint.</li>
-      <li>Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.</li>
+      <li>Revoking or pausing a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.</li>
     </ul>
     <p>
       A <code>429</code> carries <code>Retry-After</code> in seconds. The device limit is

@@ -12,6 +12,8 @@ export const es: Translation = {
 
   'api.unknownDevice': 'El dispositivo no está registrado.',
   'api.unknownKey': 'Clave desconocida o revocada.',
+  'api.keyPaused':
+    'Esta clave está en pausa. No acepta envíos hasta que se reanude en la app.',
   'api.keyNotFound': 'Clave no encontrada.',
   'api.activeKeyLimit': 'Se alcanzó el límite de claves activas.',
 
@@ -129,9 +131,11 @@ export const es: Translation = {
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Predeterminada',
   'keys.chipRevoked': 'Revocada',
+  'keys.chipPaused': 'En pausa',
   'keys.chipCritical': 'Crítica',
   'keys.rowLabel': 'Clave, {name}, termina en {suffix}',
   'keys.rowLabelRevoked': ', revocada',
+  'keys.rowLabelPaused': ', en pausa',
   'keys.rowLabelCritical': ', alertas críticas activadas',
   'keys.maskedValue': '{prefix}…',
 
@@ -167,6 +171,34 @@ export const es: Translation = {
     'lanzan otras apps en este dispositivo.',
 
   'keyDetail.criticalAlerts': 'Alertas críticas',
+
+  'keyDetail.paused': 'En pausa',
+  'keyDetail.pausedDetail':
+    'Activado, esta clave no acepta nada y no se entrega ninguna notificación. Desactivado ' +
+    'de nuevo, envía como antes. El valor no cambia, así que no hay que actualizar nada ' +
+    'donde se use.',
+  'keyDetail.pauseFailed':
+    'No se pudo cambiar la pausa de esta clave. Comprueba tu conexión e inténtalo de nuevo.',
+  'keyDetail.pausedAnnouncement': 'Clave en pausa.',
+  'keyDetail.resumedAnnouncement': 'Clave reanudada.',
+  'keyDetail.pausedNotice':
+    'Esta clave está en pausa. Cualquier envío que la use será rechazado hasta que la reanudes.',
+
+  'keyDetail.sectionName': 'Nombre',
+  'keyDetail.rename': 'Renombrar clave',
+  'keyDetail.renaming': 'Renombrando…',
+  'keyDetail.renameDetail':
+    'El nombre solo se muestra en este dispositivo. La clave en sí no cambia, así que no hay ' +
+    'que actualizar nada que envíe con ella.',
+  'keyDetail.renameTitle': 'Renombrar "{name}"',
+  'keyDetail.renameConfirm': 'Renombrar',
+  'keyDetail.renameMessage':
+    'Un nombre que solo tú ves. Aparece en la lista de claves y en los filtros.',
+  'keyDetail.renamedAnnouncement': 'Clave renombrada.',
+  'keyDetail.renameFailed':
+    'No se pudo renombrar la clave. Comprueba tu conexión e inténtalo de nuevo.',
+  'keyDetail.renameDefaultDetail':
+    'La clave por defecto conserva su nombre. La app la busca por ese nombre en este dispositivo.',
 
   'keyDetail.revokedNotice': 'Esta clave está revocada y ya no acepta envíos.',
 

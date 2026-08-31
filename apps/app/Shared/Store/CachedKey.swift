@@ -8,9 +8,12 @@ struct CachedKey: Codable, Identifiable, Hashable, Sendable {
     var createdAt: Int
     var lastUsedAt: Int?
     var revokedAt: Int?
+    var pausedAt: Int?
     var isCriticalFlag: Bool?
 
     var isRevoked: Bool { revokedAt != nil }
+
+    var isPaused: Bool { pausedAt != nil && !isRevoked }
 
     var isCritical: Bool { isCriticalFlag == true }
 

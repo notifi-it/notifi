@@ -33,6 +33,7 @@ struct KeySummary: Codable, Sendable {
     let lastUsedAt: Int?
     let sentCount: Int
     let revokedAt: Int?
+    let pausedAt: Int?
     let isCritical: Int
 
     enum CodingKeys: String, CodingKey {
@@ -42,6 +43,7 @@ struct KeySummary: Codable, Sendable {
         case lastUsedAt = "last_used_at"
         case sentCount = "sent_count"
         case revokedAt = "revoked_at"
+        case pausedAt = "paused_at"
         case isCritical = "is_critical"
     }
 }
@@ -61,10 +63,14 @@ struct CreateKeyResponse: Codable, Sendable {
 }
 
 struct UpdateKeyBody: Codable, Sendable {
-    let isCritical: Bool
+    var isCritical: Bool?
+    var paused: Bool?
+    var metaSealed: String?
 
     enum CodingKeys: String, CodingKey {
         case isCritical = "is_critical"
+        case paused
+        case metaSealed = "meta_sealed"
     }
 }
 

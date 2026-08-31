@@ -104,9 +104,11 @@ enum Copy {
         static var docsLink: String { NSLocalizedString("keys.docsLink", comment: "") }
         static var chipDefault: String { NSLocalizedString("keys.chipDefault", comment: "") }
         static var chipRevoked: String { NSLocalizedString("keys.chipRevoked", comment: "") }
+        static var chipPaused: String { NSLocalizedString("keys.chipPaused", comment: "") }
         static var chipCritical: String { NSLocalizedString("keys.chipCritical", comment: "") }
         static func rowLabel(_ name: String, _ suffix: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLabel", comment: ""), name, suffix) }
         static var rowLabelRevoked: String { NSLocalizedString("keys.rowLabelRevoked", comment: "") }
+        static var rowLabelPaused: String { NSLocalizedString("keys.rowLabelPaused", comment: "") }
         static var rowLabelCritical: String { NSLocalizedString("keys.rowLabelCritical", comment: "") }
         static func maskedValue(_ prefix: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.maskedValue", comment: ""), prefix) }
     }
@@ -125,6 +127,22 @@ enum Copy {
         static var fieldSent: String { NSLocalizedString("keyDetail.fieldSent", comment: "") }
         static var fieldCreated: String { NSLocalizedString("keyDetail.fieldCreated", comment: "") }
         static var fieldLastUsed: String { NSLocalizedString("keyDetail.fieldLastUsed", comment: "") }
+        static var paused: String { NSLocalizedString("keyDetail.paused", comment: "") }
+        static var pausedDetail: String { NSLocalizedString("keyDetail.pausedDetail", comment: "") }
+        static var pauseFailed: String { NSLocalizedString("keyDetail.pauseFailed", comment: "") }
+        static var pausedAnnouncement: String { NSLocalizedString("keyDetail.pausedAnnouncement", comment: "") }
+        static var resumedAnnouncement: String { NSLocalizedString("keyDetail.resumedAnnouncement", comment: "") }
+        static var pausedNotice: String { NSLocalizedString("keyDetail.pausedNotice", comment: "") }
+        static var sectionName: String { NSLocalizedString("keyDetail.sectionName", comment: "") }
+        static var rename: String { NSLocalizedString("keyDetail.rename", comment: "") }
+        static var renaming: String { NSLocalizedString("keyDetail.renaming", comment: "") }
+        static var renameDetail: String { NSLocalizedString("keyDetail.renameDetail", comment: "") }
+        static func renameTitle(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keyDetail.renameTitle", comment: ""), name) }
+        static var renameConfirm: String { NSLocalizedString("keyDetail.renameConfirm", comment: "") }
+        static var renameMessage: String { NSLocalizedString("keyDetail.renameMessage", comment: "") }
+        static var renamedAnnouncement: String { NSLocalizedString("keyDetail.renamedAnnouncement", comment: "") }
+        static var renameFailed: String { NSLocalizedString("keyDetail.renameFailed", comment: "") }
+        static var renameDefaultDetail: String { NSLocalizedString("keyDetail.renameDefaultDetail", comment: "") }
         static var openAnyLink: String { NSLocalizedString("keyDetail.openAnyLink", comment: "") }
         static var openAnyLinkDetail: String { NSLocalizedString("keyDetail.openAnyLinkDetail", comment: "") }
         static var criticalAlerts: String { NSLocalizedString("keyDetail.criticalAlerts", comment: "") }

@@ -5,6 +5,7 @@ export const errorCode = z.enum([
   'stale_timestamp',
   'unknown_device',
   'unknown_key',
+  'key_paused',
   'rate_limited',
   'invalid_request',
   'invalid_content',
@@ -100,6 +101,7 @@ export const keySummary = z.object({
   last_used_at: z.number().int().nullable(),
   sent_count: z.number().int(),
   revoked_at: z.number().int().nullable(),
+  paused_at: z.number().int().nullable(),
   is_critical: z.number().int(),
 });
 export type KeySummary = z.infer<typeof keySummary>;
@@ -109,8 +111,11 @@ export const listKeysResponse = z.object({
 });
 export type ListKeysResponse = z.infer<typeof listKeysResponse>;
 
+export const KEY_NAME_MAX = 64;
+export const META_SEALED_MAX = 1024;
+
 export const createKeyBody = z.strictObject({
-  name: z.string().min(1).max(64),
+  name: z.string().min(1).max(KEY_NAME_MAX),
 });
 export type CreateKeyBody = z.infer<typeof createKeyBody>;
 
@@ -121,9 +126,13 @@ export const createKeyResponse = z.object({
 });
 export type CreateKeyResponse = z.infer<typeof createKeyResponse>;
 
-export const updateKeyBody = z.strictObject({
-  is_critical: z.boolean(),
-});
+export const updateKeyBody = z
+  .strictObject({
+    is_critical: z.boolean().optional(),
+    paused: z.boolean().optional(),
+    meta_sealed: z.string().min(1).max(META_SEALED_MAX).optional(),
+  })
+  .refine((body) => Object.keys(body).length > 0);
 export type UpdateKeyBody = z.infer<typeof updateKeyBody>;
 
 export const updateDeviceSettingsBody = z.strictObject({
