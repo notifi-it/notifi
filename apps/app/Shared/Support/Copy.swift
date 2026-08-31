@@ -190,6 +190,7 @@ enum Copy {
         static var theme: String { NSLocalizedString("settings.theme", comment: "") }
         static var themeDark: String { NSLocalizedString("settings.themeDark", comment: "") }
         static var themeLight: String { NSLocalizedString("settings.themeLight", comment: "") }
+        static var themeSystem: String { NSLocalizedString("settings.themeSystem", comment: "") }
         static var loadImages: String { NSLocalizedString("settings.loadImages", comment: "") }
         static var loadImagesDetail: String { NSLocalizedString("settings.loadImagesDetail", comment: "") }
         static var strictSend: String { NSLocalizedString("settings.strictSend", comment: "") }
@@ -210,6 +211,7 @@ enum Copy {
         static var checkForUpdates: String { NSLocalizedString("settings.checkForUpdates", comment: "") }
         static var deleteAll: String { NSLocalizedString("settings.deleteAll", comment: "") }
         static var deleteAllTitle: String { NSLocalizedString("settings.deleteAllTitle", comment: "") }
+        static var deleteAllConfirm: String { NSLocalizedString("settings.deleteAllConfirm", comment: "") }
         static var deleteAllMessage: String { NSLocalizedString("settings.deleteAllMessage", comment: "") }
         static var support: String { NSLocalizedString("settings.support", comment: "") }
         static var feedback: String { NSLocalizedString("settings.feedback", comment: "") }

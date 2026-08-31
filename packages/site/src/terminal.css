@@ -14,7 +14,7 @@
 .dot3 i{width:9px;height:9px;border-radius:50%;background:#2A2A2A;display:block}
 .dot3 i:first-child{background:#28282A}
 .dot3 i:last-child{background:#2E2E30}
-.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:4px}
+.term-title{font-family:var(--mono);font-size:12px;color:var(--dim);margin-inline-start:4px}
 .term pre{
   margin:0;padding:16px 18px;overflow-x:auto;
   font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--fg);
@@ -27,10 +27,10 @@
 .term .c{color:var(--dim)}          /* comment */
 .term .k{color:var(--brand-text)}   /* the key you swap in */
 .copy{
-  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
-  background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:4px;
+  margin-inline-start:auto;font-family:var(--mono);font-size:12px;color:var(--dim);
+  background:none;border:0;cursor:pointer;padding:6px 8px;border-radius:4px;
 }
-.copy:hover{color:var(--fg);background:#141414}
+@media (hover:hover){.copy:hover{color:var(--fg);background:#141414}}
 .copy{transition:color var(--dur-press) var(--ease-out),background var(--dur-press) var(--ease-out)}
 .copy:active{color:var(--fg);background:#1C1C1C}
 .copy[data-state="failed"]{color:var(--brand-text)}
@@ -44,13 +44,13 @@
 .tabgroup-items{display:flex;flex-wrap:wrap;gap:6px}
 .tab{
   font-family:var(--mono);font-size:13px;color:var(--muted);
-  padding:6px 12px;border:1px solid var(--control-border);border-radius:6px;
+  padding:8px 12px;border:1px solid var(--control-border);border-radius:6px;
   background:transparent;cursor:pointer;
   transition:color var(--dur-press) var(--ease-out),
              border-color var(--dur-press) var(--ease-out),
              background var(--dur-press) var(--ease-out);
 }
-.tab:hover{color:var(--fg);border-color:#6A6A6A}
+@media (hover:hover){.tab:hover{color:var(--fg);border-color:#6A6A6A}}
 .tab:active{border-color:var(--fg)}
 .tab[aria-selected="true"]{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
 .panel[hidden]{display:none}
@@ -67,5 +67,5 @@
    and held back from the text so the row still reads as words first. */
 .tab{display:inline-flex;align-items:center;gap:7px}
 .tab-i{flex:0 0 auto;opacity:.62}
-.tab:hover .tab-i{opacity:.85}
+@media (hover:hover){.tab:hover .tab-i{opacity:.85}}
 .tab[aria-selected="true"] .tab-i{opacity:.75}

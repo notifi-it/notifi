@@ -241,7 +241,7 @@ struct SettingsView: View {
             }
         }
         .alert(Copy.Settings.deleteAllTitle, isPresented: $confirmingDeleteAll) {
-            Button(Copy.Common.delete, role: .destructive) { deleteAllMessages() }
+            Button(Copy.Settings.deleteAllConfirm, role: .destructive) { deleteAllMessages() }
             Button(Copy.Common.cancel, role: .cancel) {}
         } message: {
             Text(Copy.Settings.deleteAllMessage)

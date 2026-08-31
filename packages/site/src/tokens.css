@@ -50,6 +50,7 @@ body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
 }
 /* Television static over the ground.
@@ -64,7 +65,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(.skip){position:relative;z-index:1}
 /* Scroll reveal: the text resolves out of the static, letter by letter.
    The arrival is faded rather than snapped. Each letter carries its own long
    ease, so what travels down a paragraph is a soft front a few characters wide
@@ -86,6 +87,16 @@ body>*:not(#static){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+/* First focusable element on every page, off-canvas until it takes focus. */
+.skip{
+  position:fixed;left:var(--gutter);top:8px;z-index:30;
+  font-family:var(--mono);font-size:13px;
+  padding:9px 14px;border-radius:6px;
+  background:var(--surface);color:var(--fg);
+  border:1px solid var(--control-border);text-decoration:none;
+  transform:translateY(calc(-100% - 16px));
+}
+.skip:focus-visible{transform:none}
 
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
 .rule{height:1px;background:var(--line);border:0}
@@ -95,7 +106,7 @@ h1{font-size:clamp(30px,5.4vw,48px)}
 h2{font-size:clamp(21px,3vw,27px)}
 h3{font-size:16px;letter-spacing:-.02em}
 p,li{max-width:70ch}
-.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55;text-wrap:pretty}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 .eyebrow{
   font-family:var(--mono);font-size:11px;font-weight:600;
@@ -106,9 +117,9 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px s
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
 .mark img{height:17px;width:auto;display:block}
-nav{margin-left:auto;display:flex;align-items:center;gap:22px}
-nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-nav a:hover{color:var(--fg)}
+nav{margin-inline-start:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
+@media (hover:hover){nav a:hover{color:var(--fg)}}
 
 .bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
 .bell::before{
@@ -135,7 +146,7 @@ nav a:hover{color:var(--fg)}
 .doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
 .doc strong{color:var(--fg);font-weight:500}
 .doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
-.doc a:hover{text-decoration-color:var(--fg)}
+@media (hover:hover){.doc a:hover{text-decoration-color:var(--fg)}}
 
 /* GrainyBell at link scale: the 404 glyph's decay on the content links, built
    by the link-glitch block in site.js (which also says which links are left
@@ -159,7 +170,8 @@ a.glitch .gsolid{
   -webkit-text-fill-color:transparent;
   text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px;
 }
-a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+@media (hover:hover){a.glitch:hover .gsolid{text-decoration-color:var(--fg)}}
 
 .card{
   border:1px solid var(--line);border-radius:10px;background:var(--surface);
@@ -168,13 +180,13 @@ a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(
 .card p:first-child{margin-top:0}
 
 footer{border-top:1px solid var(--line);padding:40px 0 56px}
-.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+.foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;
   font-family:var(--mono);font-size:13px;color:var(--dim)}
-.foot a{color:var(--muted);text-decoration:none}
-.foot a:hover{color:var(--fg)}
-.foot .meta{margin-left:auto}
-.soc{display:flex;align-items:center;gap:16px;margin-left:auto}
+.foot a{color:var(--muted);text-decoration:none;padding-block:5px}
+@media (hover:hover){.foot a:hover{color:var(--fg)}}
+.foot .meta{margin-inline-start:auto}
+.soc{display:flex;align-items:center;gap:16px;margin-inline-start:auto}
 .foot .soc a{display:flex;color:var(--dim);transition:color var(--dur-state) var(--ease-out)}
-.foot .soc a:hover{color:var(--fg)}
+@media (hover:hover){.foot .soc a:hover{color:var(--fg)}}
 .soc svg{display:block}
-@media(max-width:620px){.foot .meta{margin-left:0;width:100%}.soc{margin-left:0;width:100%}}
+@media(max-width:620px){.foot .meta{margin-inline-start:0;width:100%}.soc{margin-inline-start:0;width:100%}}

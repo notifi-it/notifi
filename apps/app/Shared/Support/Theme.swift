@@ -95,6 +95,7 @@ enum Theme {
 
     static let controlWidth: CGFloat = 88
     static let radius: CGFloat = 6
+    static let innerRadius: CGFloat = 3
     static let thumb: CGFloat = 42
 
     static let minTarget: CGFloat = 44

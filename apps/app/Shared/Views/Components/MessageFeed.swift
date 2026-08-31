@@ -319,6 +319,8 @@ private struct MessageRow: View {
     let now: Date
     let showsRule: Bool
 
+    @ScaledMetric(relativeTo: .caption2) private var slotIconSize: CGFloat = 11
+
     @State private var isHovered = false
     @State private var hoverTask: Task<Void, Never>?
 
@@ -406,9 +408,9 @@ private struct MessageRow: View {
     private func slot(present: Bool, systemName: String) -> some View {
         if present {
             Image(systemName: systemName)
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: slotIconSize, weight: .medium))
                 .foregroundStyle(Theme.dim)
-                .frame(width: 12)
+                .frame(width: slotIconSize + 1)
                 .accessibilityHidden(true)
         }
     }

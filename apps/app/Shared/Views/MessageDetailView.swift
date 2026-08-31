@@ -21,6 +21,9 @@ struct MessageDetailView: View {
     @Query private var messages: [Message]
     private let log = Logger(subsystem: "it.notifi.app", category: "store")
 
+    @ScaledMetric(relativeTo: .caption2) private var stampSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var chipIconSize: CGFloat = 11
+
     @State private var confirmingDelete = false
     @State private var revealedImage = false
     @State private var viewingImage: ViewedImage?
@@ -240,7 +243,7 @@ struct MessageDetailView: View {
                     .foregroundStyle(Theme.muted)
             }
             Text(stamp)
-                .font(.system(size: 11, weight: .regular, design: .monospaced))
+                .font(.system(size: stampSize, weight: .regular, design: .monospaced))
                 .tracking(1.4)
                 .foregroundStyle(Theme.dim)
         }
@@ -279,7 +282,7 @@ struct MessageDetailView: View {
         Button { revealedImage = true } label: {
             HStack(spacing: 8) {
                 Image(systemName: "photo")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: chipIconSize, weight: .medium))
                     .foregroundStyle(Theme.dim)
                     .accessibilityHidden(true)
                 Text("\(ImageBlock.filename(of: url)) · \(Copy.Message.imageBlocked)")
@@ -378,6 +381,10 @@ private struct ImageBlock: View {
     let onExpand: () -> Void
     let onDownload: () -> Void
 
+    @ScaledMetric(relativeTo: .subheadline) private var failedIconSize: CGFloat = 15
+    @ScaledMetric(relativeTo: .footnote) private var downloadIconSize: CGFloat = 13
+    @ScaledMetric(relativeTo: .caption) private var expandIconSize: CGFloat = 12
+
     private struct Loaded {
         let image: Image
         let width: Int
@@ -414,7 +421,7 @@ private struct ImageBlock: View {
             case .failed:
                 VStack(spacing: 6) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.system(size: failedIconSize, weight: .medium))
                     Text(Copy.Message.imageFailedToLoad)
                         .font(Theme.metaSmall)
                 }
@@ -454,7 +461,7 @@ private struct ImageBlock: View {
 
                 Button(action: onDownload) {
                     Image(systemName: "arrow.down.to.line")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: downloadIconSize, weight: .medium))
                         .foregroundStyle(Theme.fg)
                 }
                 .buttonStyle(.geist)
@@ -463,7 +470,7 @@ private struct ImageBlock: View {
 
                 Button(action: onExpand) {
                     Image(systemName: "arrow.up.left.and.arrow.down.right")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: expandIconSize, weight: .medium))
                         .foregroundStyle(Theme.dim)
                 }
                 .buttonStyle(.geist)
