@@ -129,6 +129,7 @@ struct RootContentView: View {
                     await model.refresh()
                 }
                 #if os(iOS)
+                Haptics.prepare()
                 model.startLiveUpdates()
                 #else
                 Updater.shared.checkInBackground()

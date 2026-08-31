@@ -3,17 +3,31 @@ import SwiftUI
 struct ImageViewer: View {
     let url: URL
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var zoom: CGFloat = 1
     @State private var pinch: CGFloat = 1
     @State private var offset: CGSize = .zero
     @State private var dragged: CGSize = .zero
+    @State private var pinched: CGSize = .zero
+    @State private var fitted: CGSize = .zero
 
     private static let maxZoom: CGFloat = 8
 
     private static let tapZoom: CGFloat = 3
 
+    private static let decelerationRate: CGFloat = 0.998
+
+    private static let resistance: CGFloat = 0.55
+
     private var scale: CGFloat { min(max(zoom * pinch, 1), Self.maxZoom) }
+
+    private var settle: Animation { reduceMotion ? Theme.state : Theme.settle }
+
+    private var translation: CGSize {
+        CGSize(width: offset.width + dragged.width + pinched.width,
+               height: offset.height + dragged.height + pinched.height)
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -26,12 +40,13 @@ struct ImageViewer: View {
                         image
                             .resizable()
                             .scaledToFit()
+                            .onGeometryChange(for: CGSize.self) { $0.size } action: { fitted = $0 }
                             .scaleEffect(scale)
-                            .offset(x: offset.width + dragged.width,
-                                    y: offset.height + dragged.height)
-                            .gesture(pan(in: proxy.size))
-                            .gesture(magnify(in: proxy.size))
-                            .onTapGesture(count: 2) { toggleZoom(in: proxy.size) }
+                            .offset(x: translation.width, y: translation.height)
+                            .gesture(SimultaneousGesture(pan(in: proxy.size), magnify(in: proxy.size)))
+                            .onTapGesture(count: 2) { location in
+                                toggleZoom(at: location, in: proxy.size)
+                            }
                     case .failure:
                         message(Copy.Message.imageFailedToLoad)
                     default:
@@ -75,45 +90,97 @@ struct ImageViewer: View {
         DragGesture()
             .onChanged { value in
                 guard scale > 1 else { return }
-                dragged = value.translation
+                dragged = resisted(value.translation, in: size)
             }
-            .onEnded { _ in
-                withAnimation(Theme.state) {
-                    offset = clamp(CGSize(width: offset.width + dragged.width,
-                                          height: offset.height + dragged.height),
-                                   in: size)
+            .onEnded { value in
+                guard scale > 1 else { return }
+                let released = CGSize(width: offset.width + dragged.width,
+                                      height: offset.height + dragged.height)
+                let projected = CGSize(
+                    width: released.width + Self.project(value.velocity.width),
+                    height: released.height + Self.project(value.velocity.height)
+                )
+                withAnimation(settle) {
                     dragged = .zero
+                    offset = clamp(projected, in: size)
                 }
             }
     }
 
     private func magnify(in size: CGSize) -> some Gesture {
         MagnifyGesture()
-            .onChanged { value in pinch = value.magnification }
+            .onChanged { value in
+                let previous = scale
+                pinch = value.magnification
+                let anchor = anchorPoint(value.startAnchor)
+                pinched = CGSize(width: pinched.width + anchor.x * (previous - scale),
+                                 height: pinched.height + anchor.y * (previous - scale))
+            }
             .onEnded { _ in
-                zoom = scale
+                let settled = scale
+                let combined = CGSize(width: offset.width + pinched.width,
+                                      height: offset.height + pinched.height)
+                zoom = settled
                 pinch = 1
-                withAnimation(Theme.state) {
-                    if zoom <= 1 { reset() } else { offset = clamp(offset, in: size) }
+                withAnimation(settle) {
+                    pinched = .zero
+                    if settled <= 1 { reset() } else { offset = clamp(combined, in: size) }
                 }
             }
     }
 
-    private func toggleZoom(in size: CGSize) {
-        withAnimation(Theme.state) {
+    private func toggleZoom(at location: CGPoint, in size: CGSize) {
+        withAnimation(settle) {
             if scale > 1 {
                 reset()
             } else {
+                let anchor = CGPoint(x: location.x - fitted.width / 2,
+                                     y: location.y - fitted.height / 2)
                 zoom = Self.tapZoom
+                offset = clamp(CGSize(width: anchor.x * (1 - Self.tapZoom),
+                                      height: anchor.y * (1 - Self.tapZoom)), in: size)
             }
         }
     }
 
+    private func anchorPoint(_ unit: UnitPoint) -> CGPoint {
+        CGPoint(x: (unit.x - 0.5) * fitted.width, y: (unit.y - 0.5) * fitted.height)
+    }
+
+    private func limits(in size: CGSize) -> CGSize {
+        CGSize(width: max(0, (fitted.width * scale - size.width) / 2),
+               height: max(0, (fitted.height * scale - size.height) / 2))
+    }
+
     private func clamp(_ proposed: CGSize, in size: CGSize) -> CGSize {
-        let limitX = max(0, (size.width * scale - size.width) / 2)
-        let limitY = max(0, (size.height * scale - size.height) / 2)
-        return CGSize(width: min(max(proposed.width, -limitX), limitX),
-                      height: min(max(proposed.height, -limitY), limitY))
+        let limit = limits(in: size)
+        return CGSize(width: min(max(proposed.width, -limit.width), limit.width),
+                      height: min(max(proposed.height, -limit.height), limit.height))
+    }
+
+    private func resisted(_ translation: CGSize, in size: CGSize) -> CGSize {
+        let limit = limits(in: size)
+        return CGSize(
+            width: Self.resist(translation.width, from: offset.width,
+                               limit: limit.width, dimension: size.width),
+            height: Self.resist(translation.height, from: offset.height,
+                                limit: limit.height, dimension: size.height)
+        )
+    }
+
+    private static func resist(_ translation: CGFloat, from origin: CGFloat,
+                               limit: CGFloat, dimension: CGFloat) -> CGFloat {
+        let proposed = origin + translation
+        let bounded = min(max(proposed, -limit), limit)
+        let overshoot = proposed - bounded
+        guard overshoot != 0 else { return translation }
+        let damped = (overshoot * dimension * resistance)
+            / (dimension + resistance * abs(overshoot))
+        return bounded + damped - origin
+    }
+
+    private static func project(_ velocity: CGFloat) -> CGFloat {
+        (velocity / 1000) * decelerationRate / (1 - decelerationRate)
     }
 
     private func reset() {
@@ -121,5 +188,6 @@ struct ImageViewer: View {
         pinch = 1
         offset = .zero
         dragged = .zero
+        pinched = .zero
     }
 }

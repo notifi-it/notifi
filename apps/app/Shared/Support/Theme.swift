@@ -123,6 +123,8 @@ enum Theme {
 
     static let reveal = Animation.easeOut(duration: 0.25)
 
+    static let settle = Animation.spring(duration: 0.4, bounce: 0.2)
+
     static var reduceMotion: Bool {
         #if os(iOS)
         UIAccessibility.isReduceMotionEnabled

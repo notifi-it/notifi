@@ -147,7 +147,7 @@ private struct CodeCopyButton: View {
                 .overlay(RoundedRectangle(cornerRadius: Theme.innerRadius).stroke(Theme.chip, lineWidth: 1))
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
         .padding(6)
         .accessibilityLabel(copied ? Copy.Common.copied : Copy.Common.copy)
     }

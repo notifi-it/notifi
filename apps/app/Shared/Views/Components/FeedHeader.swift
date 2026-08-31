@@ -94,7 +94,7 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
                 .geistHitArea(expandedBy: 5)
         }
         .menuStyle(.button)
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
         .menuIndicator(.hidden)
         .fixedSize()
         .accessibilityLabel(Copy.Inbox.more)

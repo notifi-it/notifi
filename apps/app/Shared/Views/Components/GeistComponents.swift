@@ -364,10 +364,10 @@ struct SegmentedRow<Option: Hashable>: View {
                             .foregroundStyle(isSelected ? Theme.fg : Theme.dim)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
+                            .background(isSelected ? Theme.surface : Color.clear)
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
-                    .background(isSelected ? Theme.surface : Color.clear)
+                    .buttonStyle(.geistRow)
                     .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : .isButton)
 
                     if index < options.count - 1 {
