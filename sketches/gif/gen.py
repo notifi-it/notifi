@@ -170,8 +170,8 @@ for p in range(3):
     for nm,F,V in (('rb',BF,BV),('rc',CF,CV)):
         stops="".join(f" {g(p,RS+f/100*RL)}%{{transform:rotate({v}deg)}}" for f,v in zip(F,V))
         kf.append(f"@keyframes {nm}{p}{{0%,{g(p,RS)}%{{transform:rotate(0deg)}}{stops} {g(p,RS+RL)}%,100%{{transform:rotate(0deg)}}}}")
-FT_ON,FT_OFF="opacity:1;transform:scale(1.02)","opacity:.55;transform:scale(1)"
-FR_ON,FR_OFF="opacity:1;transform:scale(1)","opacity:.45;transform:scale(.97)"
+FT_ON,FT_OFF="opacity:1","opacity:.6"
+FR_ON,FR_OFF="opacity:1","opacity:.5"
 focT=["0%{"+FT_OFF+"}"]
 for p in range(3):
     focT.append(f"{g(p,0.5)}%{{{FT_OFF}}} {g(p,2)}%,{g(p,16.5)}%{{{FT_ON}}} {g(p,18.5)}%,{g(p,32.2)}%{{{FT_OFF}}}")
@@ -230,8 +230,7 @@ vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
       ".head .l1{--fs:3.6}.head .l2{--fs:3.0}",
       ".term{left:4%;top:16.25%;width:92%;height:auto;aspect-ratio:830/528}",
-      ".trail{display:none}",
-      ".rgt{transform-origin:50% 72%}"]
+      ".trail{display:none}"]
 for sel,k in VERT_FS:
     vgeo.append(f"{sel} *{{font-size:calc(1cqw * var(--fs,1.5) * {k})}}")
     vgeo.append(f"{sel}{{--k:{k}}}")
@@ -307,7 +306,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .head .l1{{--fs:2.35}}
 .head .l2{{--fs:2.1}}
 }}
-.term{{position:absolute;{TERM};container-type:inline-size;transform-origin:0 50%;background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
+.term{{position:absolute;{TERM};container-type:inline-size;background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
 .term .bar{{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}}
 .term .bar i{{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}}
 .term .bar i:first-child{{background:#363638}}
@@ -340,7 +339,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
 .cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}}
 .c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.f{{color:#B48EAD}}.fn{{color:#8FBCBB}}.n{{color:#A3BE8C}}.r{{color:var(--dim)}}
-.rgt{{position:absolute;inset:0;transform-origin:73% 50%;pointer-events:none}}
+.rgt{{position:absolute;inset:0;pointer-events:none}}
 .dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
 .o{{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}}
