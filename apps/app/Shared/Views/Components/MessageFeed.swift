@@ -143,7 +143,9 @@ struct MessageFeed<Empty: View>: View {
             Button(Copy.Inbox.copyLink) { Clipboard.copy(link.absoluteString) }
             if LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
                 Button(Copy.Common.openLink) { open(link, keyID: message.keyID) }
-                ShareLink(item: link) { Label(Copy.Message.shareLink, systemImage: "square.and.arrow.up") }
+                #if os(iOS)
+                ShareLink(item: link) { Text(Copy.Message.shareLink) }
+                #endif
             }
         }
         Divider()
