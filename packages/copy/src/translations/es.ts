@@ -316,7 +316,6 @@ export const es: Translation = {
   'components.errorLabel': 'Error. {message}',
   'components.backTo': 'Volver a {label}',
   'components.createKey': 'Crear clave',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'No se puede desbloquear notifi',
   'identity.detail':

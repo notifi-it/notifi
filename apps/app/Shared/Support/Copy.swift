@@ -244,7 +244,6 @@ enum Copy {
         static func errorLabel(_ message: String) -> String { String.localizedStringWithFormat(NSLocalizedString("components.errorLabel", comment: ""), message) }
         static func backTo(_ label: String) -> String { String.localizedStringWithFormat(NSLocalizedString("components.backTo", comment: ""), label) }
         static var createKey: String { NSLocalizedString("components.createKey", comment: "") }
-        static var wordmark: String { NSLocalizedString("components.wordmark", comment: "") }
     }
     enum Identity {
         static var title: String { NSLocalizedString("identity.title", comment: "") }

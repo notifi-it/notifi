@@ -224,7 +224,6 @@ p,li{max-width:70ch}
 header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
-.mark img{height:17px;width:auto;display:block}
 nav{margin-inline-start:auto;display:flex;align-items:center;gap:22px}
 nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
 @media (hover:hover){nav a:hover{color:var(--fg)}}
@@ -235,8 +234,6 @@ nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:
   -webkit-mask:url(/bell.svg) center/contain no-repeat;
           mask:url(/bell.svg) center/contain no-repeat;
 }
-.lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
-.lockup img{display:block;height:var(--word,20px);width:auto}
 
 .doc{padding-block:clamp(44px,7vw,80px) clamp(50px,8vw,90px)}
 .doc h1{margin-bottom:16px}
@@ -449,9 +446,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
 <header>
   <div class="wrap bar">
-    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+    <a class="mark" href="/" aria-label="notifi" style="--bell:24px">
       <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
     </a>
     <nav>
       <a href="/">Home</a>
@@ -1149,10 +1145,7 @@ spec:
 
 <footer>
   <div class="wrap">
-    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
-      <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
-    </div>
+    <span class="bell" aria-hidden="true" style="--bell:44px;display:block;color:var(--fg);margin-bottom:26px"></span>
   </div>
   <!-- The sticky header already carries the navigation, so the footer holds
        only what is not up there — and never a link to the page you are on. -->

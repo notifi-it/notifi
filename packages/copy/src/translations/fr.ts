@@ -320,7 +320,6 @@ export const fr: Translation = {
   'components.errorLabel': 'Erreur. {message}',
   'components.backTo': 'Retour à {label}',
   'components.createKey': 'Créer une clé',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'Impossible de déverrouiller notifi',
   'identity.detail':

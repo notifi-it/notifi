@@ -19,9 +19,6 @@ PROFILE PICTURE — all four platforms
   looks like two apps. The grain survives the downscale and re-encode a platform
   puts an avatar through (checked at 176px, JPEG q70).
 
-  Use the mark, not the lockup, because every platform crops the avatar to a
-  circle, which takes the ends off a word before it takes anything off a bell.
-
   X            400x400 displayed, accepts up to 2MB
   Instagram    320x320 displayed
   Facebook     176x176 displayed on desktop, 196x196 on mobile
@@ -34,11 +31,9 @@ BANNER / COVER
   docs/socials/images/facebook-cover.png    1640x856
   docs/socials/images/linkedin-banner.png   1128x191
 
-  Bell and wordmark centred on the same grain plate as the avatar, nothing
-  else. The bell's badge is white here rather than red. The wordmark ends in a
-  dotless `i` whose tittle is already brand red, and two red discs side by side
-  read as two competing dots. The avatar keeps the red badge, because standing
-  alone it is the only thing making the silhouette an `i`.
+  The bell centred on the same grain plate as the avatar, nothing else. The
+  badge is red, as it is everywhere the mark stands alone: it is the only thing
+  making the silhouette an `i`.
 
   There is no tagline. X crops the banner's bottom behind the avatar,
   Facebook crops the sides, and a line of type that survives all three
@@ -46,7 +41,7 @@ BANNER / COVER
   banner already says it.
 
   Facebook's file is 1640x856, but most people see a 640x360 crop out of the
-  middle, so the lockup is sized against that box rather than against the
+  middle, so the bell is sized against that box rather than against the
   file. Anything outside the middle is decoration for desktop.
 
   Instagram has no banner.
@@ -57,7 +52,7 @@ PRODUCT HUNT
   docs/socials/images/producthunt-cover.png   1270x760
 
   The gallery image on producthunt.com/products/notifi. The whole frame is
-  shown, so the lockup is sized against the file rather than against a crop the
+  shown, so the bell is sized against the file rather than against a crop the
   way Facebook's is.
 
   Do not reuse og.png; it is 1200x630, a 1.90 aspect against this 1.67, and

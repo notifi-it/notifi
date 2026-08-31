@@ -392,7 +392,6 @@ export const copy = {
     errorLabel: 'Error. {message}',
     backTo: 'Back to {label}',
     createKey: 'Create key',
-    wordmark: 'notifi',
   },
 
   identity: {
