@@ -170,6 +170,13 @@ for p in range(3):
     for nm,F,V in (('rb',BF,BV),('rc',CF,CV)):
         stops="".join(f" {g(p,RS+f/100*RL)}%{{transform:rotate({v}deg)}}" for f,v in zip(F,V))
         kf.append(f"@keyframes {nm}{p}{{0%,{g(p,RS)}%{{transform:rotate(0deg)}}{stops} {g(p,RS+RL)}%,100%{{transform:rotate(0deg)}}}}")
+FT_ON,FT_OFF="opacity:1;transform:scale(1.02)","opacity:.55;transform:scale(1)"
+FR_ON,FR_OFF="opacity:1;transform:scale(1)","opacity:.45;transform:scale(.97)"
+focT=["0%{"+FT_OFF+"}"]
+for p in range(3):
+    focT.append(f"{g(p,0.5)}%{{{FT_OFF}}} {g(p,2)}%,{g(p,16.5)}%{{{FT_ON}}} {g(p,18.5)}%,{g(p,32.2)}%{{{FT_OFF}}}")
+    kf.append(f"@keyframes focR{p}{{0%,{g(p,16.5)}%{{{FR_OFF}}} {g(p,18.5)}%,100%{{{FR_ON}}}}}")
+kf.append("@keyframes focT{"+" ".join(focT)+" 100%{"+FT_OFF+"}}")
 ON,OFF="background:var(--chip);color:var(--fg)","background:#222224;color:var(--dim)"
 kf+=[f"@keyframes tabA{{0%,32.9%{{{ON}}} 33.5%,99.6%{{{OFF}}} 100%{{{ON}}}}}",
      f"@keyframes tabB{{0%,32.9%{{{OFF}}} 33.5%,66.2%{{{ON}}} 66.8%,100%{{{OFF}}}}}",
@@ -206,6 +213,7 @@ for p,P in enumerate(PASSES):
     th.append(f'<div class="trail tr{p}">{dots}</div>')
     hh.append(f'<div class="head hd{p}"><div class="l1">{P["head"][0]}</div><div class="l2">{P["head"][1]}</div></div>')
     tih.append(f'<span class="title ti{p}">{P["title"]}</span>')
+rgt=[f'<div class="rgt rg{p}">'+dh[p]+th[p]+ch[p]+'</div>' for p in range(3)]
 geo=[]
 for p,P in enumerate(PASSES):
     geo.append(f".dv{p}{{{DEV[p]}}}")
@@ -222,7 +230,8 @@ vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
       ".head .l1{--fs:3.6}.head .l2{--fs:3.0}",
       ".term{left:4%;top:16.25%;width:92%;height:auto;aspect-ratio:830/528}",
-      ".trail{display:none}"]
+      ".trail{display:none}",
+      ".rgt{transform-origin:50% 72%}"]
 for sel,k in VERT_FS:
     vgeo.append(f"{sel} *{{font-size:calc(1cqw * var(--fs,1.5) * {k})}}")
     vgeo.append(f"{sel}{{--k:{k}}}")
@@ -257,6 +266,8 @@ for p in range(3):
     for k in range(5): anim.append(f".dt{p}_{k}{{animation-name:d{p}_{k}}}")
     anim.append(f".sc{p}{{animation-name:sp{p}}}")
     anim.append(f".sc{p} .bb{{animation-name:rb{p}}}.sc{p} .bc{{animation-name:rc{p}}}")
+    anim.append(f".rg{p}{{animation-name:focR{p}}}")
+anim.append(".term{animation-name:focT}")
 sel=[]
 for p,P in enumerate(PASSES):
     sel+=[f".hd{p}",f".bg{p}",f".dv{p}",f".ti{p}",f".sc{p}"]
@@ -269,7 +280,7 @@ for p,P in enumerate(PASSES):
         if P.get('typed'): sel+=[f".lc{p}_{i}" for i in range(len(P['lines']))]
         sel.append(f".r{p}")
     if P['clip']: sel.append(f".cl{p}")
-ANIMSEL=",".join(sel)+",.trail i,.tabs button,.bell i"
+ANIMSEL=",".join(sel)+",.trail i,.tabs button,.bell i,.term,.rgt"
 NL=chr(10)
 html=f"""<!doctype html>
 <html lang="en">
@@ -281,7 +292,7 @@ html=f"""<!doctype html>
 @font-face{{font-family:'Recursive Mono';font-style:normal;font-weight:300 800;font-display:block;src:url({RECUR}) format('woff2')}}
 @font-face{{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:block;src:url({KARLA}) format('woff2')}}
 :root{{--bg:#1C1C1E;--surface:#262628;--line:#333;--chip:#3C3C3C;--fg:#EDEDED;--muted:#A1A1A1;--dim:#8A8A8A;--red:#DB4A4B;--blue:#7FA8E0;--stroke:#EDEDED;--stroke2:#55555A;
---mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:15s}}
+--mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:21s}}
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{background:#161618;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:var(--sans);color:var(--fg)}}
 .stage{{position:relative;width:min(96vw,1600px);aspect-ratio:2160/960;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;container-type:inline-size}}
@@ -296,7 +307,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .head .l1{{--fs:2.35}}
 .head .l2{{--fs:2.1}}
 }}
-.term{{position:absolute;{TERM};container-type:inline-size;background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
+.term{{position:absolute;{TERM};container-type:inline-size;transform-origin:0 50%;background:var(--surface);border-radius:1.1cqw;overflow:hidden}}
 .term .bar{{position:relative;display:flex;align-items:center;gap:1.301cqw;padding:2.342cqw 3.123cqw}}
 .term .bar i{{width:2.212cqw;height:2.212cqw;border-radius:50%;background:var(--chip)}}
 .term .bar i:first-child{{background:#363638}}
@@ -329,6 +340,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
 .cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}}
 .c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.f{{color:#B48EAD}}.fn{{color:#8FBCBB}}.n{{color:#A3BE8C}}.r{{color:var(--dim)}}
+.rgt{{position:absolute;inset:0;transform-origin:73% 50%;pointer-events:none}}
 .dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
 .o{{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}}
@@ -378,9 +390,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
       {NL.join(bh)}
     </div>
   </div>
-  {NL.join(th)}
-  {NL.join(dh)}
-  {NL.join(ch)}
+  {NL.join(rgt)}
 <script>
 (function () {{
   var film = document.currentScript.parentElement;
@@ -402,14 +412,21 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
   }}
   try {{ setClocks(); setInterval(setClocks, 30000); }} catch (err) {{}}
   if (!film.getAnimations) return;
+  var pinTimer = null;
   film.addEventListener('click', function (e) {{
     var btn = e.target.closest('[data-pass]');
     if (!btn) return;
-    var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || 15000;
-    var at = (+btn.dataset.pass) * (T / 3);
-    film.getAnimations({{ subtree: true }}).forEach(function (a) {{
-      try {{ a.currentTime = at; a.play(); }} catch (err) {{}}
-    }});
+    var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || 21000;
+    var seg = T / 3;
+    var at = (+btn.dataset.pass) * seg;
+    var seek = function () {{
+      film.getAnimations({{ subtree: true }}).forEach(function (a) {{
+        try {{ a.currentTime = at; a.play(); }} catch (err) {{}}
+      }});
+    }};
+    seek();
+    if (pinTimer) clearInterval(pinTimer);
+    pinTimer = setInterval(seek, seg);
   }});
 }})();
 </script>
