@@ -92,7 +92,8 @@ struct MessageFeed<Empty: View>: View {
             model.path.append(message.serverID)
         } label: {
             MessageRow(message: message, now: now,
-                       showsRule: showsRule)
+                       showsRule: showsRule,
+                       openLink: openAction(for: message))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.geistRow)
@@ -115,6 +116,13 @@ struct MessageFeed<Empty: View>: View {
         }
         #endif
         .contextMenu { menu(for: message) }
+    }
+
+    private func openAction(for message: Message) -> (() -> Void)? {
+        guard let link = message.link,
+              LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID))
+        else { return nil }
+        return { open(link, keyID: message.keyID) }
     }
 
     private var bands: [BandedMessages] {
@@ -320,10 +328,12 @@ private struct MessageRow: View {
     let message: Message
     let now: Date
     let showsRule: Bool
+    var openLink: (() -> Void)?
 
     @ScaledMetric(relativeTo: .caption2) private var slotIconSize: CGFloat = 11
 
     @State private var isHovered = false
+    @State private var isLinkHovered = false
     @State private var hoverTask: Task<Void, Never>?
 
     static let drawsRules = false
@@ -336,7 +346,17 @@ private struct MessageRow: View {
 
     private var basis: Date { message.occurredAt ?? message.createdAt }
 
-    private var isEscalated: Bool { !message.isRead || message.isCritical }
+    private var textWeight: Font.Weight { message.isRead ? .light : .regular }
+
+    private var textColor: Color {
+        message.isRead && !isHovered ? Theme.read : Theme.fg
+    }
+
+    private var previewColor: Color {
+        message.isRead && !isHovered ? Theme.muted : Theme.read
+    }
+
+    private var isEscalated: Bool { !message.isRead }
 
     private var preview: String? {
         guard let body = message.body else { return nil }
@@ -356,8 +376,9 @@ private struct MessageRow: View {
     private var content: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(Self.clock.string(from: basis))
-                .font(.inco(size: 12, weight: isEscalated ? .semibold : .regular))
+                .font(.inco(size: 12, weight: textWeight))
                 .monospacedDigit()
+                .underline(message.isCritical, pattern: .solid)
                 .foregroundStyle(isEscalated ? Theme.brandText
                                  : isHovered ? Theme.muted : Theme.dim)
                 .lineLimit(1)
@@ -366,18 +387,22 @@ private struct MessageRow: View {
             VStack(alignment: .leading, spacing: 5) {
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     MonoLine(text: message.title,
-                             font: .inco(size: 13.5, weight: isEscalated ? .bold : .regular,
+                             font: .inco(size: 13.5, weight: textWeight,
                                          relativeTo: .footnote))
-                        .foregroundStyle(message.isCritical ? Theme.brandText
-                                         : message.isRead && !isHovered ? Theme.read : Theme.fg)
+                        .foregroundStyle(textColor)
 
-                    slot(present: message.link != nil, systemName: "globe")
+                    slot(present: message.isCritical, systemName: "bolt")
+                    linkSlot
                     slot(present: message.imageURL != nil, systemName: "photo")
                 }
 
                 if let preview {
-                    MonoLine(text: preview, font: Theme.metaSmall)
-                        .foregroundStyle(isHovered ? Theme.dim : Theme.mark)
+                    Text(preview)
+                        .font(.karla(size: 12.5, weight: textWeight, relativeTo: .footnote))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(previewColor)
                 }
             }
         }
@@ -407,12 +432,38 @@ private struct MessageRow: View {
     }
 
     @ViewBuilder
+    private var linkSlot: some View {
+        #if os(macOS)
+        if message.link != nil, let openLink {
+            Button(action: openLink) {
+                glyph("globe")
+                    .foregroundStyle(isLinkHovered ? Theme.brandText : Theme.dim)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .animation(.easeOut(duration: 0.12), value: isLinkHovered)
+            .onHover { isLinkHovered = $0 }
+            .help(Copy.Common.openLink)
+            .accessibilityLabel(Copy.Common.openLink)
+        } else {
+            slot(present: message.link != nil, systemName: "globe")
+        }
+        #else
+        slot(present: message.link != nil, systemName: "globe")
+        #endif
+    }
+
+    private func glyph(_ systemName: String) -> some View {
+        Image(systemName: systemName)
+            .font(.system(size: slotIconSize, weight: .medium))
+            .frame(width: slotIconSize + 1)
+    }
+
+    @ViewBuilder
     private func slot(present: Bool, systemName: String) -> some View {
         if present {
-            Image(systemName: systemName)
-                .font(.system(size: slotIconSize, weight: .medium))
+            glyph(systemName)
                 .foregroundStyle(Theme.dim)
-                .frame(width: slotIconSize + 1)
                 .accessibilityHidden(true)
         }
     }

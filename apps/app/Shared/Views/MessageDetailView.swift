@@ -183,7 +183,7 @@ struct MessageDetailView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(message.title)
                 .font(.inco(.title, weight: .bold))
-                .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
+                .foregroundStyle(Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
                 .multilineTextAlignment(.center)
@@ -228,9 +228,17 @@ struct MessageDetailView: View {
             .accessibilityHidden(true)
     }
 
-    private func quietLine(_ name: String?, age: String, stamp: String) -> some View {
+    private func quietLine(_ name: String?, age: String, stamp: String,
+                           critical: Bool) -> some View {
         VStack(spacing: 5) {
             HStack(spacing: 6) {
+                if critical {
+                    Image(systemName: "bolt")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Theme.dim)
+                        .accessibilityLabel(Copy.Inbox.critical)
+                    Text("·").foregroundStyle(Theme.chip)
+                }
                 if let name {
                     keyGlyph(11, Theme.dim)
                     Text(name)
@@ -260,7 +268,8 @@ struct MessageDetailView: View {
         tappableKey(message) {
             quietLine(keyName(for: message),
                       age: Self.age(of: message),
-                      stamp: stamp)
+                      stamp: stamp,
+                      critical: message.isCritical)
         }
     }
 
