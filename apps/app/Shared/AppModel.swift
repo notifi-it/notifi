@@ -209,6 +209,11 @@ final class AppModel {
         do {
             let identity = try DeviceIdentity.loadOrCreate()
             finishBoot(with: identity)
+            #if os(macOS)
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .notifiOpenPanel, object: nil)
+            }
+            #endif
         } catch NotifiError.unsupportedDevice {
             bootState = .unsupported
         } catch {
