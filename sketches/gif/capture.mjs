@@ -11,11 +11,14 @@ const PUBLIC = path.resolve(HERE, '../../apps/api/public')
 const OUT = path.join(HERE, 'out')
 const FPS = 20
 const WIDTH = 1200
-const LOOP_MS = 15000
 
 execFileSync('python3', ['gen.py'], { cwd: HERE, stdio: 'inherit' })
 
 const doc = readFileSync(path.join(HERE, 'gif-full.html'), 'utf8')
+// The loop length is gen.py's T_MS, written into the page as --T. Read it
+// back rather than carry a copy: the film went from 15s to 21s and a fixed
+// number here captured the first 15 and dropped the last scene.
+const LOOP_MS = parseFloat(doc.match(/--T:([\d.]+)s/)[1]) * 1000
 const MIME = { '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png' }
 const server = http.createServer((req, res) => {
   const url = decodeURIComponent(req.url.split('?')[0])
