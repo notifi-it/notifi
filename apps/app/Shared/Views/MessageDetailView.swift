@@ -1,5 +1,6 @@
 import OSLog
 #if os(iOS)
+import Photos
 import StoreKit
 #endif
 import SwiftData
@@ -27,6 +28,7 @@ struct MessageDetailView: View {
     @State private var confirmingDelete = false
     @State private var revealedImage = false
     @State private var viewingImage: ViewedImage?
+    @State private var imageSave: ImageSaveState = .idle
 
     private struct ViewedImage: Identifiable {
         let url: URL
@@ -197,6 +199,7 @@ struct MessageDetailView: View {
                 Group {
                     if showsImage {
                         ImageBlock(url: url,
+                                   saveState: imageSave,
                                    onExpand: { viewingImage = ViewedImage(url: url) },
                                    onDownload: { downloadImage(url, keyID: message.keyID) })
                     } else {
@@ -340,44 +343,107 @@ struct MessageDetailView: View {
         #endif
     }
 
+    @MainActor
     fileprivate func downloadImage(_ url: URL, keyID: Int?) {
         guard LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
+        guard imageSave != .saving else { return }
+        imageSave = .saving
         Task {
-            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
-            #if os(iOS)
-            guard let image = UIImage(data: data) else { return }
-            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-            #else
-            await MainActor.run {
-                NSApp.activate(ignoringOtherApps: true)
-
-                let panel = NSSavePanel()
-                panel.nameFieldStringValue = url.lastPathComponent
-                panel.directoryURL = try? FileManager.default.url(
-                    for: .downloadsDirectory, in: .userDomainMask,
-                    appropriateFor: nil, create: false)
-                panel.level = .modalPanel
-
-                macMenuBar.holdOpen()
-                panel.begin { response in
-                    if response == .OK, let target = panel.url {
-                        do {
-                            try data.write(to: target)
-                            NSWorkspace.shared.activateFileViewerSelecting([target])
-                        } catch {
-                            log.error("image save failed: \(String(describing: error), privacy: .public)")
-                        }
-                    }
-                    macMenuBar.releaseHold()
-                }
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else {
+                settle(.failed(Copy.Message.imageSaveFailed))
+                return
             }
+            #if os(iOS)
+            await saveToPhotos(data)
+            #else
+            await saveToFile(data, named: url.lastPathComponent)
             #endif
         }
     }
+
+    @MainActor
+    private func settle(_ state: ImageSaveState) {
+        imageSave = state
+        switch state {
+        case .saved(let text):
+            Haptics.success()
+            AccessibilityNotification.Announcement(text).post()
+        case .failed(let text):
+            Haptics.error()
+            AccessibilityNotification.Announcement(text).post()
+        case .idle, .saving:
+            break
+        }
+        guard state != .idle else { return }
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            if imageSave == state { imageSave = .idle }
+        }
+    }
+
+    #if os(iOS)
+    @MainActor
+    private func saveToPhotos(_ data: Data) async {
+        var status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        if status == .notDetermined {
+            status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        }
+        guard status == .authorized || status == .limited else {
+            settle(.failed(Copy.Message.imageSaveDenied))
+            return
+        }
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                PHAssetCreationRequest.forAsset().addResource(with: .photo, data: data, options: nil)
+            }
+            settle(.saved(Copy.Message.imageSaved))
+        } catch {
+            log.error("image save failed: \(String(describing: error), privacy: .public)")
+            settle(.failed(Copy.Message.imageSaveFailed))
+        }
+    }
+    #else
+    @MainActor
+    private func saveToFile(_ data: Data, named name: String) async {
+        NSApp.activate(ignoringOtherApps: true)
+
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = name
+        panel.directoryURL = try? FileManager.default.url(
+            for: .downloadsDirectory, in: .userDomainMask,
+            appropriateFor: nil, create: false)
+        panel.level = .modalPanel
+
+        macMenuBar.holdOpen()
+        panel.begin { response in
+            if response == .OK, let target = panel.url {
+                do {
+                    try data.write(to: target)
+                    NSWorkspace.shared.activateFileViewerSelecting([target])
+                    settle(.saved(Copy.Message.imageSavedToFile))
+                } catch {
+                    log.error("image save failed: \(String(describing: error), privacy: .public)")
+                    settle(.failed(Copy.Message.imageSaveFailed))
+                }
+            } else {
+                imageSave = .idle
+            }
+            macMenuBar.releaseHold()
+        }
+    }
+    #endif
+}
+
+enum ImageSaveState: Equatable {
+    case idle
+    case saving
+    case saved(String)
+    case failed(String)
 }
 
 private struct ImageBlock: View {
     let url: URL
+    let saveState: ImageSaveState
     let onExpand: () -> Void
     let onDownload: () -> Void
 
@@ -451,21 +517,29 @@ private struct ImageBlock: View {
         VStack(spacing: 0) {
             Hairline()
             HStack(spacing: 14) {
-                Text("\(Self.filename(of: url)) · \(loaded.width)×\(loaded.height) · \(Self.bytes.string(fromByteCount: Int64(loaded.bytes)))")
-                    .foregroundStyle(Theme.dim)
-                    .font(.inco(size: 10, relativeTo: .caption2))
-                    .tracking(0.6)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Group {
+                    if let status = saveStatus {
+                        Text(status.text)
+                            .foregroundStyle(status.tint)
+                    } else {
+                        Text("\(Self.filename(of: url)) · \(loaded.width)×\(loaded.height) · \(Self.bytes.string(fromByteCount: Int64(loaded.bytes)))")
+                            .foregroundStyle(Theme.dim)
+                    }
+                }
+                .font(.inco(size: 10, relativeTo: .caption2))
+                .tracking(0.6)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .animation(Theme.state, value: saveState)
 
                 Button(action: onDownload) {
-                    Image(systemName: "arrow.down.to.line")
-                        .font(.system(size: downloadIconSize, weight: .medium))
-                        .foregroundStyle(Theme.fg)
+                    downloadGlyph
+                        .frame(width: downloadIconSize + 5, height: downloadIconSize + 5)
                 }
                 .buttonStyle(.geist)
-                .accessibilityLabel(Copy.Message.downloadImage)
+                .disabled(saveState == .saving)
+                .accessibilityLabel(saveStatus?.text ?? Copy.Message.downloadImage)
                 .geistHitArea(expandedBy: 10)
 
                 Button(action: onExpand) {
@@ -479,6 +553,38 @@ private struct ImageBlock: View {
             }
             .padding(.vertical, 7)
             .padding(.horizontal, 12)
+        }
+    }
+
+    private var saveStatus: (text: String, tint: Color)? {
+        switch saveState {
+        case .idle: return nil
+        case .saving: return (Copy.Message.savingImage, Theme.dim)
+        case .saved(let text): return (text, Theme.fg)
+        case .failed(let text): return (text, Theme.danger)
+        }
+    }
+
+    @ViewBuilder
+    private var downloadGlyph: some View {
+        switch saveState {
+        case .saving:
+            ProgressView()
+                .controlSize(.mini)
+                .tint(Theme.dim)
+        case .saved:
+            Image(systemName: "checkmark")
+                .font(.system(size: downloadIconSize, weight: .semibold))
+                .foregroundStyle(Theme.fg)
+                .transition(.opacity)
+        case .failed:
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: downloadIconSize, weight: .medium))
+                .foregroundStyle(Theme.danger)
+        case .idle:
+            Image(systemName: "arrow.down.to.line")
+                .font(.system(size: downloadIconSize, weight: .medium))
+                .foregroundStyle(Theme.fg)
         }
     }
 

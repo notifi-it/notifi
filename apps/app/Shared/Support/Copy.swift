@@ -77,6 +77,11 @@ enum Copy {
         static var notFound: String { NSLocalizedString("message.notFound", comment: "") }
         static var notFoundDetail: String { NSLocalizedString("message.notFoundDetail", comment: "") }
         static var downloadImage: String { NSLocalizedString("message.downloadImage", comment: "") }
+        static var savingImage: String { NSLocalizedString("message.savingImage", comment: "") }
+        static var imageSaved: String { NSLocalizedString("message.imageSaved", comment: "") }
+        static var imageSavedToFile: String { NSLocalizedString("message.imageSavedToFile", comment: "") }
+        static var imageSaveFailed: String { NSLocalizedString("message.imageSaveFailed", comment: "") }
+        static var imageSaveDenied: String { NSLocalizedString("message.imageSaveDenied", comment: "") }
         static func keyFallbackName(_ id: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.keyFallbackName", comment: ""), id) }
         static func sentWithKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.sentWithKey", comment: ""), name) }
         static func openKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.openKey", comment: ""), name) }
