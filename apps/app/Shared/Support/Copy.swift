@@ -63,6 +63,8 @@ enum Copy {
         static func bandLabel(_ title: String, _ count: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.bandLabel", comment: ""), title, count) }
         static var unread: String { NSLocalizedString("inbox.unread", comment: "") }
         static var critical: String { NSLocalizedString("inbox.critical", comment: "") }
+        static var hasImage: String { NSLocalizedString("inbox.hasImage", comment: "") }
+        static var offlineBadge: String { NSLocalizedString("inbox.offlineBadge", comment: "") }
         static func linkTo(_ host: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.linkTo", comment: ""), host) }
         static func deleteTitle(_ title: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.deleteTitle", comment: ""), title) }
         static var deleteTitleFallback: String { NSLocalizedString("inbox.deleteTitleFallback", comment: "") }
@@ -89,6 +91,9 @@ enum Copy {
         static var loadImage: String { NSLocalizedString("message.loadImage", comment: "") }
         static var load: String { NSLocalizedString("message.load", comment: "") }
         static var imageBlocked: String { NSLocalizedString("message.imageBlocked", comment: "") }
+        static var image: String { NSLocalizedString("message.image", comment: "") }
+        static var resetZoom: String { NSLocalizedString("message.resetZoom", comment: "") }
+        static var linkBlockedNotice: String { NSLocalizedString("message.linkBlockedNotice", comment: "") }
         static var sourceHeader: String { NSLocalizedString("message.sourceHeader", comment: "") }
     }
     enum Keys {

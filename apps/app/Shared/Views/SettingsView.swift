@@ -111,10 +111,22 @@ struct SettingsView: View {
                     Button {
                         Updater.shared.checkForUpdates()
                     } label: {
-                        DisclosureRow {
-                            Text(Copy.Settings.checkForUpdates)
-                                .font(Theme.body)
-                                .foregroundStyle(Updater.shared.canCheck ? Theme.fg : Theme.dim)
+                        Group {
+                            if Updater.shared.canCheck {
+                                DisclosureRow {
+                                    Text(Copy.Settings.checkForUpdates)
+                                        .font(Theme.body)
+                                        .foregroundStyle(Theme.fg)
+                                }
+                            } else {
+                                HStack(spacing: 12) {
+                                    Text(Copy.Settings.checkForUpdates)
+                                        .font(Theme.body)
+                                        .foregroundStyle(Theme.dim)
+                                    Spacer(minLength: 8)
+                                }
+                                .contentShape(Rectangle())
+                            }
                         }
                         .padding(.vertical, Theme.rowPadV)
                     }

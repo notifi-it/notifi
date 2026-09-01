@@ -90,6 +90,8 @@ export const it: Translation = {
 
   'inbox.unread': 'Non letta',
   'inbox.critical': 'Critica',
+  'inbox.hasImage': 'Contiene un’immagine',
+  'inbox.offlineBadge': 'Offline',
   'inbox.linkTo': 'Link a {host}',
   'inbox.deleteTitle': 'Eliminare “{title}”?',
   'inbox.deleteTitleFallback': 'Eliminare questa notifica?',
@@ -114,6 +116,9 @@ export const it: Translation = {
   'message.loadImage': 'Carica immagine',
   'message.load': 'Carica',
   'message.imageBlocked': 'bloccata',
+  'message.image': 'Immagine',
+  'message.resetZoom': 'Reimposta lo zoom',
+  'message.linkBlockedNotice': 'Link bloccato',
   'message.sourceHeader': 'Origine',
   'keys.title': 'Chiavi',
   'keys.newKey': 'Nuova chiave',
