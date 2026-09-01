@@ -27,6 +27,7 @@ struct MessageDetailView: View {
     @State private var confirmingDelete = false
     @State private var revealedImage = false
     @State private var viewingImage: ViewedImage?
+    @State private var downloadingImage = false
 
     private struct ViewedImage: Identifiable {
         let url: URL
@@ -199,6 +200,7 @@ struct MessageDetailView: View {
                 Group {
                     if showsImage {
                         ImageBlock(url: url,
+                                   downloading: downloadingImage,
                                    onExpand: { viewingImage = ViewedImage(url: url) },
                                    onDownload: { downloadImage(url, keyID: message.keyID) })
                     } else {
@@ -353,43 +355,52 @@ struct MessageDetailView: View {
     }
 
     fileprivate func downloadImage(_ url: URL, keyID: Int?) {
-        guard LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
+        guard !downloadingImage,
+              LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
+        downloadingImage = true
         Task {
-            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
-            #if os(iOS)
-            guard let image = UIImage(data: data) else { return }
-            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-            #else
-            await MainActor.run {
-                NSApp.activate(ignoringOtherApps: true)
-
-                let panel = NSSavePanel()
-                panel.nameFieldStringValue = url.lastPathComponent
-                panel.directoryURL = try? FileManager.default.url(
-                    for: .downloadsDirectory, in: .userDomainMask,
-                    appropriateFor: nil, create: false)
-                panel.level = .modalPanel
-
-                macMenuBar.holdOpen()
-                panel.begin { response in
-                    if response == .OK, let target = panel.url {
-                        do {
-                            try data.write(to: target)
-                            NSWorkspace.shared.activateFileViewerSelecting([target])
-                        } catch {
-                            log.error("image save failed: \(String(describing: error), privacy: .public)")
-                        }
-                    }
-                    macMenuBar.releaseHold()
-                }
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else {
+                downloadingImage = false
+                return
             }
+            #if os(iOS)
+            if let image = UIImage(data: data) {
+                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+            }
+            downloadingImage = false
+            #else
+            do {
+                let downloads = try FileManager.default.url(
+                    for: .downloadsDirectory, in: .userDomainMask,
+                    appropriateFor: nil, create: true)
+                try data.write(to: Self.unusedURL(for: url.lastPathComponent, in: downloads))
+            } catch {
+                log.error("image save failed: \(String(describing: error), privacy: .public)")
+            }
+            downloadingImage = false
             #endif
         }
     }
+
+    #if os(macOS)
+    private static func unusedURL(for filename: String, in directory: URL) -> URL {
+        let stem = (filename as NSString).deletingPathExtension
+        let ext = (filename as NSString).pathExtension
+        var candidate = directory.appendingPathComponent(filename)
+        var counter = 2
+        while FileManager.default.fileExists(atPath: candidate.path) {
+            let name = ext.isEmpty ? "\(stem) \(counter)" : "\(stem) \(counter).\(ext)"
+            candidate = directory.appendingPathComponent(name)
+            counter += 1
+        }
+        return candidate
+    }
+    #endif
 }
 
 private struct ImageBlock: View {
     let url: URL
+    let downloading: Bool
     let onExpand: () -> Void
     let onDownload: () -> Void
 
@@ -477,6 +488,7 @@ private struct ImageBlock: View {
                         .foregroundStyle(Theme.fg)
                 }
                 .buttonStyle(.geist)
+                .disabled(downloading)
                 .accessibilityLabel(Copy.Message.downloadImage)
                 .geistHitArea(expandedBy: 16)
 
