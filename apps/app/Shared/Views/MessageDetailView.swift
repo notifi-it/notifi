@@ -369,33 +369,33 @@ struct MessageDetailView: View {
             }
             downloadingImage = false
             #else
-            do {
-                let downloads = try FileManager.default.url(
+            await MainActor.run {
+                NSApp.activate(ignoringOtherApps: true)
+
+                let panel = NSSavePanel()
+                panel.nameFieldStringValue = url.lastPathComponent
+                panel.directoryURL = try? FileManager.default.url(
                     for: .downloadsDirectory, in: .userDomainMask,
-                    appropriateFor: nil, create: true)
-                try data.write(to: Self.unusedURL(for: url.lastPathComponent, in: downloads))
-            } catch {
-                log.error("image save failed: \(String(describing: error), privacy: .public)")
+                    appropriateFor: nil, create: false)
+                panel.level = .modalPanel
+
+                macMenuBar.holdOpen()
+                panel.begin { response in
+                    if response == .OK, let target = panel.url {
+                        do {
+                            try data.write(to: target)
+                            NSWorkspace.shared.activateFileViewerSelecting([target])
+                        } catch {
+                            log.error("image save failed: \(String(describing: error), privacy: .public)")
+                        }
+                    }
+                    macMenuBar.releaseHold()
+                    downloadingImage = false
+                }
             }
-            downloadingImage = false
             #endif
         }
     }
-
-    #if os(macOS)
-    private static func unusedURL(for filename: String, in directory: URL) -> URL {
-        let stem = (filename as NSString).deletingPathExtension
-        let ext = (filename as NSString).pathExtension
-        var candidate = directory.appendingPathComponent(filename)
-        var counter = 2
-        while FileManager.default.fileExists(atPath: candidate.path) {
-            let name = ext.isEmpty ? "\(stem) \(counter)" : "\(stem) \(counter).\(ext)"
-            candidate = directory.appendingPathComponent(name)
-            counter += 1
-        }
-        return candidate
-    }
-    #endif
 }
 
 private struct ImageBlock: View {
