@@ -108,6 +108,7 @@ export const copy = {
     markAsUnread: 'Mark as unread',
     openLink: 'Open link',
     never: 'Never',
+    moreActions: 'More actions',
     expand: 'Expand',
     collapse: 'Collapse',
   },
@@ -193,15 +194,11 @@ export const copy = {
     refreshFailed: "Couldn’t refresh keys. Showing the last known list.",
     sectionActive: 'Active',
     sectionRevoked: 'Revoked',
-    intro:
-      'Keys identify who sent a notification. Use a different key for each script. ' +
-      'The default key was made when this device was set up.',
     aboutKeys: 'About keys',
     sent: plural('1 sent', '{n} sent'),
     rowLastUsed: 'used {ago}',
     docsLink: 'API docs',
     chipDefault: 'Default',
-    chipRevoked: 'Revoked',
     chipCritical: 'Critical',
     rowLabel: 'Key, {name}, ends {suffix}',
     rowLabelRevoked: ', revoked',

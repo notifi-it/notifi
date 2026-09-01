@@ -102,6 +102,7 @@ export const de: Translation = {
   'common.markAsUnread': 'Als ungelesen markieren',
   'common.openLink': 'Link öffnen',
   'common.never': 'Nie',
+  'common.moreActions': 'Weitere Aktionen',
   'common.expand': 'Erweitern',
   'common.collapse': 'Einklappen',
 
@@ -173,15 +174,11 @@ export const de: Translation = {
   'keys.refreshFailed': 'Schlüssel konnten nicht aktualisiert werden. Letzte bekannte Liste wird angezeigt.',
   'keys.sectionActive': 'Aktiv',
   'keys.sectionRevoked': 'Widerrufen',
-  'keys.intro':
-    'Schlüssel zeigen, wer eine Benachrichtigung gesendet hat. Verwende für jedes Skript einen eigenen Schlüssel. ' +
-    'Der Standardschlüssel wurde bei der Einrichtung dieses Geräts erstellt.',
   'keys.aboutKeys': 'Über Schlüssel',
   'keys.sent': { one: '1 gesendet', other: '{n} gesendet' },
   'keys.rowLastUsed': 'genutzt {ago}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Standard',
-  'keys.chipRevoked': 'Widerrufen',
   'keys.chipCritical': 'Kritisch',
   'keys.rowLabel': 'Schlüssel, {name}, endet auf {suffix}',
   'keys.rowLabelRevoked': ', widerrufen',

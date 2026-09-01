@@ -54,6 +54,7 @@ export const es: Translation = {
   'common.markAsUnread': 'Marcar como no leído',
   'common.openLink': 'Abrir enlace',
   'common.never': 'Nunca',
+  'common.moreActions': 'Más acciones',
   'common.expand': 'Expandir',
   'common.collapse': 'Contraer',
 
@@ -125,15 +126,11 @@ export const es: Translation = {
   'keys.refreshFailed': 'No se pudieron actualizar las claves. Mostrando la última lista conocida.',
   'keys.sectionActive': 'Activas',
   'keys.sectionRevoked': 'Revocadas',
-  'keys.intro':
-    'Las claves identifican quién envió una notificación. Usa una clave distinta para cada script. ' +
-    'La clave predeterminada se creó al configurar este dispositivo.',
   'keys.aboutKeys': 'Acerca de las claves',
   'keys.sent': { one: '1 enviada', other: '{n} enviadas' },
   'keys.rowLastUsed': 'usada {ago}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Predeterminada',
-  'keys.chipRevoked': 'Revocada',
   'keys.chipCritical': 'Crítica',
   'keys.rowLabel': 'Clave, {name}, termina en {suffix}',
   'keys.rowLabelRevoked': ', revocada',

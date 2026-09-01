@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ImageViewer: View {
     let url: URL
+    var saveState: ImageSaveState = .idle
+    var onDownload: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -58,6 +60,7 @@ struct ImageViewer: View {
         }
         .ignoresSafeArea()
         .overlay(alignment: .topLeading) { closeButton }
+        .overlay(alignment: .topTrailing) { downloadControl }
         .onDisappear { reset() }
         #if os(macOS)
         .frame(minWidth: 520, minHeight: 400)
@@ -68,6 +71,67 @@ struct ImageViewer: View {
         Text(text)
             .font(Theme.body)
             .foregroundStyle(Theme.dim)
+    }
+
+    @ViewBuilder
+    private var downloadControl: some View {
+        if let onDownload {
+            VStack(alignment: .trailing, spacing: 8) {
+                Button(action: onDownload) {
+                    downloadGlyph
+                        .frame(width: 34, height: 34)
+                        .background(Theme.surface.opacity(0.85), in: Circle())
+                        .overlay(Circle().stroke(Theme.controlBorder, lineWidth: 1))
+                        .geistHitArea(expandedBy: 5)
+                }
+                .buttonStyle(.geist)
+                .disabled(saveState == .saving)
+                .accessibilityLabel(saveStatus?.text ?? Copy.Message.downloadImage)
+
+                if let status = saveStatus {
+                    Text(status.text)
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(status.tint)
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 9)
+                        .background(Theme.surface.opacity(0.85),
+                                    in: RoundedRectangle(cornerRadius: 6))
+                        .transition(.opacity)
+                }
+            }
+            .animation(Theme.state, value: saveState)
+            .padding(.trailing, Theme.gutter)
+            .padding(.top, 12)
+        }
+    }
+
+    private var saveStatus: (text: String, tint: Color)? {
+        switch saveState {
+        case .idle: return nil
+        case .saving: return (Copy.Message.savingImage, Theme.muted)
+        case .saved(let text): return (text, Theme.fg)
+        case .failed(let text): return (text, Theme.danger)
+        }
+    }
+
+    @ViewBuilder
+    private var downloadGlyph: some View {
+        switch saveState {
+        case .saving:
+            ProgressView().controlSize(.small).tint(Theme.dim)
+        case .saved:
+            Image(systemName: "checkmark")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Theme.fg)
+        case .failed:
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(Theme.danger)
+        case .idle:
+            Image(systemName: "arrow.down.to.line")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Theme.fg)
+        }
     }
 
     private var closeButton: some View {

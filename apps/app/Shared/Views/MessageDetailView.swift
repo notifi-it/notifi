@@ -73,9 +73,9 @@ struct MessageDetailView: View {
             #endif
         }
         #if os(iOS)
-        .fullScreenCover(item: $viewingImage) { ImageViewer(url: $0.url) }
+        .fullScreenCover(item: $viewingImage) { viewer(for: $0) }
         #else
-        .sheet(item: $viewingImage) { ImageViewer(url: $0.url) }
+        .sheet(item: $viewingImage) { viewer(for: $0) }
         #endif
         .alert(message.map { Copy.Inbox.deleteTitle($0.title) } ?? Copy.Inbox.deleteTitleFallback,
                isPresented: $confirmingDelete) {
@@ -84,6 +84,12 @@ struct MessageDetailView: View {
         } message: {
             Text(Copy.Inbox.deleteMessage)
         }
+    }
+
+    private func viewer(for image: ViewedImage) -> some View {
+        ImageViewer(url: image.url,
+                    saveState: imageSave,
+                    onDownload: { downloadImage(image.url, keyID: message?.keyID) })
     }
 
     private var scroll: some View {
@@ -148,6 +154,10 @@ struct MessageDetailView: View {
                     IconButton(systemName: "trash", label: Copy.Common.delete) {
                         confirmingDelete = true
                     }
+
+                    MenuButton(systemName: "ellipsis", label: Copy.Common.moreActions) {
+                        copyMenu(for: message, anyScheme: anyScheme)
+                    }
                 }
             }
         }
@@ -163,6 +173,32 @@ struct MessageDetailView: View {
     private var backButton: some View {
         IconButton(systemName: "chevron.backward",
                    label: Copy.Components.backTo(Copy.Inbox.title)) { goBack() }
+    }
+
+    @ViewBuilder
+    private func copyMenu(for message: Message, anyScheme: Bool) -> some View {
+        Button(Copy.Inbox.copyTitle) { copy(message.title) }
+        if let body = message.body {
+            Button(Copy.Inbox.copyMessage) { copy(body) }
+        }
+        if let link = message.link {
+            Button(Copy.Inbox.copyLink) { copy(link.absoluteString) }
+            #if os(iOS)
+            if LinkPolicy.allows(link, anyScheme: anyScheme) {
+                ShareLink(item: link) { Text(Copy.Message.shareLink) }
+            }
+            #endif
+        }
+        if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
+            Divider()
+            Button(Copy.Message.downloadImage) { downloadImage(url, keyID: message.keyID) }
+        }
+    }
+
+    private func copy(_ text: String) {
+        Clipboard.copy(text)
+        Haptics.success()
+        AccessibilityNotification.Announcement(Copy.Common.copied).post()
     }
 
     private func keyName(for message: Message) -> String? {
@@ -308,6 +344,28 @@ struct MessageDetailView: View {
         .contextMenu {
             Button(Copy.Message.imageLoadWarning(url.host() ?? Copy.Message.imageHost)) {}
                 .disabled(true)
+        }
+    }
+
+    private struct MenuButton<Content: View>: View {
+        let systemName: String
+        let label: String
+        @ViewBuilder let content: () -> Content
+
+        var body: some View {
+            Menu {
+                content()
+            } label: {
+                Image(systemName: systemName)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Theme.fg)
+                    .frame(width: 34, height: 34)
+                    .glassBackground()
+                    .geistHitArea(expandedBy: 5)
+            }
+            .menuStyle(.button)
+            .buttonStyle(.geist)
+            .accessibilityLabel(label)
         }
     }
 
