@@ -127,9 +127,6 @@ final class MenuBarController: NSObject {
     private func present(from button: NSStatusBarButton) {
         NSApp.activate(ignoringOtherApps: true)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-        if let hosting = popover.contentViewController {
-            hosting.view.window?.makeFirstResponder(hosting.view)
-        }
 
         guard let frame = popover.contentViewController?.view.window?.contentView?.superview else {
             return

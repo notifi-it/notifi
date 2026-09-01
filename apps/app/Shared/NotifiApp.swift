@@ -97,6 +97,7 @@ struct RootContentView: View {
             }
         }
         .tint(Theme.brand)
+        .environment(\.grainEnabled, model.grainEnabled)
         .font(.inco(.body))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(StaticField())

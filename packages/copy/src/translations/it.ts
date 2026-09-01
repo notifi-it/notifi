@@ -251,6 +251,8 @@ export const it: Translation = {
   'settings.permissionUnknown': 'Sconosciuta',
 
   'settings.theme': 'Tema',
+  'settings.grain': 'Grana',
+  'settings.grainDetail': 'Grana animata sulla campana e nelle schermate vuote.',
   'settings.themeDark': 'Scuro',
   'settings.themeLight': 'Chiaro',
   'settings.themeSystem': 'Sistema',

@@ -299,6 +299,8 @@ export const de: Translation = {
   'settings.permissionUnknown': 'Unbekannt',
 
   'settings.theme': 'Design',
+  'settings.grain': 'Körnung',
+  'settings.grainDetail': 'Animierte Körnung auf der Glocke und in leeren Ansichten.',
   'settings.themeDark': 'Dunkel',
   'settings.themeLight': 'Hell',
   'settings.themeSystem': 'System',
