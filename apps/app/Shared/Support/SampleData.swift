@@ -72,7 +72,7 @@ enum SampleData {
 
     Plain text with **bold**, `code` and ~~strikethrough~~.
 
-    - Lists, tables and rules
+    - Lists and tables
     - Quotes
     - Links: [API docs](https://notifi.it/docs)
 
@@ -84,8 +84,6 @@ enum SampleData {
     | --- | --- |
     | title | one line |
     | message | Markdown |
-
-    ---
 
     ```
     curl -X POST https://notifi.it/send \\
