@@ -182,8 +182,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .foot a{color:var(--muted);text-decoration:none;padding-block:5px}
 @media (hover:hover){.foot a:hover{color:var(--fg)}}
 .foot .meta{margin-inline-start:auto}
-.soc{display:flex;align-items:center;gap:16px;margin-inline-start:auto}
-.foot .soc a{display:flex;color:var(--dim);transition:color var(--dur-state) var(--ease-out)}
+.soc{display:flex;align-items:center;gap:18px;width:100%;margin-top:14px}
+.foot .soc a{display:flex;color:var(--dim);padding:0;transition:color var(--dur-state) var(--ease-out)}
 @media (hover:hover){.foot .soc a:hover{color:var(--fg)}}
 .soc svg{display:block}
-@media(max-width:620px){.foot .meta{margin-inline-start:0;width:100%}.soc{margin-inline-start:0;width:100%}}
+@media(max-width:620px){.foot .meta{margin-inline-start:0;width:100%}}
