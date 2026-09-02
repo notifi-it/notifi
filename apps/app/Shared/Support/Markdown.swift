@@ -40,8 +40,8 @@ private struct GeistStructuredStyle: StructuredText.Style {
                   .backgroundColor(Theme.surface))
             .strong(.fontWeight(.bold))
             .link(.foregroundColor(Theme.fg), .underlineStyle(.single))
-            .strikethrough(.strikethroughStyle(Text.LineStyle(pattern: .solid, color: Theme.brand)),
-                           .foregroundColor(Theme.brandDim))
+            .strikethrough(.strikethroughStyle(Text.LineStyle(pattern: .solid, color: Theme.dim)),
+                           .foregroundColor(Theme.dim))
     }
 
     var headingStyle: GeistHeadingStyle { GeistHeadingStyle() }
@@ -105,9 +105,9 @@ private struct GeistCodeBlockStyle: StructuredText.CodeBlockStyle {
                 .font(.inco(size: 13, relativeTo: .callout))
                 .foregroundStyle(Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.vertical, 12)
-                .padding(.leading, 12)
-                .padding(.trailing, 48)
+                .padding(.vertical, 16)
+                .padding(.leading, 16)
+                .padding(.trailing, 52)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.surface)

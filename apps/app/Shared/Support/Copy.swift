@@ -25,6 +25,7 @@ enum Copy {
         static var markAsUnread: String { NSLocalizedString("common.markAsUnread", comment: "") }
         static var openLink: String { NSLocalizedString("common.openLink", comment: "") }
         static var never: String { NSLocalizedString("common.never", comment: "") }
+        static var moreActions: String { NSLocalizedString("common.moreActions", comment: "") }
         static var expand: String { NSLocalizedString("common.expand", comment: "") }
         static var collapse: String { NSLocalizedString("common.collapse", comment: "") }
     }
@@ -79,6 +80,11 @@ enum Copy {
         static var notFound: String { NSLocalizedString("message.notFound", comment: "") }
         static var notFoundDetail: String { NSLocalizedString("message.notFoundDetail", comment: "") }
         static var downloadImage: String { NSLocalizedString("message.downloadImage", comment: "") }
+        static var savingImage: String { NSLocalizedString("message.savingImage", comment: "") }
+        static var imageSaved: String { NSLocalizedString("message.imageSaved", comment: "") }
+        static var imageSavedToFile: String { NSLocalizedString("message.imageSavedToFile", comment: "") }
+        static var imageSaveFailed: String { NSLocalizedString("message.imageSaveFailed", comment: "") }
+        static var imageSaveDenied: String { NSLocalizedString("message.imageSaveDenied", comment: "") }
         static func keyFallbackName(_ id: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.keyFallbackName", comment: ""), id) }
         static func sentWithKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.sentWithKey", comment: ""), name) }
         static func openKey(_ name: String) -> String { String.localizedStringWithFormat(NSLocalizedString("message.openKey", comment: ""), name) }
@@ -102,13 +108,11 @@ enum Copy {
         static var refreshFailed: String { NSLocalizedString("keys.refreshFailed", comment: "") }
         static var sectionActive: String { NSLocalizedString("keys.sectionActive", comment: "") }
         static var sectionRevoked: String { NSLocalizedString("keys.sectionRevoked", comment: "") }
-        static var intro: String { NSLocalizedString("keys.intro", comment: "") }
         static var aboutKeys: String { NSLocalizedString("keys.aboutKeys", comment: "") }
         static func sent(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.sent", comment: ""), n) }
         static func rowLastUsed(_ ago: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLastUsed", comment: ""), ago) }
         static var docsLink: String { NSLocalizedString("keys.docsLink", comment: "") }
         static var chipDefault: String { NSLocalizedString("keys.chipDefault", comment: "") }
-        static var chipRevoked: String { NSLocalizedString("keys.chipRevoked", comment: "") }
         static var chipCritical: String { NSLocalizedString("keys.chipCritical", comment: "") }
         static func rowLabel(_ name: String, _ suffix: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLabel", comment: ""), name, suffix) }
         static var rowLabelRevoked: String { NSLocalizedString("keys.rowLabelRevoked", comment: "") }

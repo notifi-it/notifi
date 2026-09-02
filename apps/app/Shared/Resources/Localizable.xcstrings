@@ -911,6 +911,41 @@
         }
       }
     },
+    "common.moreActions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More actions"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más acciones"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weitere Aktionen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus d’actions"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altre azioni"
+          }
+        }
+      }
+    },
     "common.never": {
       "extractionState": "manual",
       "localizations": {
@@ -5241,41 +5276,6 @@
         }
       }
     },
-    "keys.chipRevoked": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revoked"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revocada"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Widerrufen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Révoquée"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revocata"
-          }
-        }
-      }
-    },
     "keys.docsLink": {
       "extractionState": "manual",
       "localizations": {
@@ -5307,41 +5307,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "API docs"
-          }
-        }
-      }
-    },
-    "keys.intro": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keys identify who sent a notification. Use a different key for each script. The default key was made when this device was set up."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Las claves identifican quién envió una notificación. Usa una clave distinta para cada script. La clave predeterminada se creó al configurar este dispositivo."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schlüssel zeigen, wer eine Benachrichtigung gesendet hat. Verwende für jedes Skript einen eigenen Schlüssel. Der Standardschlüssel wurde bei der Einrichtung dieses Geräts erstellt."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les clés identifient qui a envoyé une notification. Utilisez une clé différente pour chaque script. La clé par défaut a été créée lors de la configuration de cet appareil."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le chiavi identificano chi ha inviato una notifica. Usa una chiave diversa per ogni script. La chiave predefinita è stata creata quando questo dispositivo è stato configurato."
           }
         }
       }
@@ -6036,6 +6001,146 @@
         }
       }
     },
+    "message.imageSaved": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved to Photos"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardada en Fotos"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Fotos gesichert"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrée dans Photos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvata in Foto"
+          }
+        }
+      }
+    },
+    "message.imageSaveDenied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi needs permission to add to Photos. Turn it on in Settings."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi necesita permiso para añadir a Fotos. Actívalo en Ajustes."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi braucht die Berechtigung, zu Fotos hinzuzufügen. Aktiviere sie in den Einstellungen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi a besoin de l’autorisation d’ajouter à Photos. Activez-la dans Réglages."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notifi ha bisogno del permesso di aggiungere a Foto. Attivalo in Impostazioni."
+          }
+        }
+      }
+    },
+    "message.imageSavedToFile": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardada"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesichert"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvata"
+          }
+        }
+      }
+    },
+    "message.imageSaveFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the image"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar la imagen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bild konnte nicht gesichert werden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’enregistrer l’image"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile salvare l’immagine"
+          }
+        }
+      }
+    },
     "message.keyFallbackName": {
       "extractionState": "manual",
       "localizations": {
@@ -6312,6 +6417,41 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reimposta lo zoom"
+          }
+        }
+      }
+    },
+    "message.savingImage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardando…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird gesichert …"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvataggio…"
           }
         }
       }

@@ -5,7 +5,6 @@ struct KeysView: View {
     #if os(iOS)
     @State private var showingCreate = false
     #endif
-    @State private var showingInfo = false
     @State private var hasLoaded = false
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }
@@ -28,9 +27,6 @@ struct KeysView: View {
     var body: some View {
         GeistPage(scroll: .page) {
             GeistHeader(title: Copy.Keys.title) {
-                IconButton(systemImage: "info.circle", label: Copy.Keys.aboutKeys, glass: true) {
-                    showingInfo = true
-                }
                 IconButton(systemImage: "plus", label: Copy.Keys.newKey, glass: true) {
                     #if os(iOS)
                     showingCreate = true
@@ -99,10 +95,6 @@ struct KeysView: View {
         }
         .navigationDestination(for: CachedKey.self) { key in
             KeyDetailView(keyID: key.id)
-        }
-        .alert(Copy.Keys.aboutKeys, isPresented: $showingInfo) {
-        } message: {
-            Text(Copy.Keys.intro)
         }
         .refreshable { await model.sync?.refreshKeys() }
         .task {
