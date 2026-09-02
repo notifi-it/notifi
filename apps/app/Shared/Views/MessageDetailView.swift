@@ -408,6 +408,7 @@ private struct ImageBlock: View {
     }
 
     @State private var phase: Phase = .loading
+    @State private var containerWidth: CGFloat = 0
 
     static func filename(of url: URL) -> String {
         let name = url.lastPathComponent
@@ -419,6 +420,9 @@ private struct ImageBlock: View {
         f.countStyle = .binary
         return f
     }()
+
+    private static let maxHeight: CGFloat = 260
+    private static let minWidth: CGFloat = 220
 
     var body: some View {
         VStack(spacing: 0) {
@@ -442,7 +446,7 @@ private struct ImageBlock: View {
                     loaded.image
                         .resizable()
                         .scaledToFit()
-                        .frame(maxHeight: 260)
+                        .frame(maxHeight: Self.maxHeight)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.geist)
@@ -451,9 +455,18 @@ private struct ImageBlock: View {
                 footer(for: loaded)
             }
         }
+        .frame(width: cardWidth)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+        .frame(maxWidth: .infinity)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
         .task(id: url) { await load() }
+    }
+
+    private var cardWidth: CGFloat? {
+        guard case .loaded(let loaded) = phase, containerWidth > 0, loaded.height > 0 else { return nil }
+        let natural = Self.maxHeight * CGFloat(loaded.width) / CGFloat(loaded.height)
+        return min(containerWidth, max(natural, Self.minWidth))
     }
 
     private func footer(for loaded: Loaded) -> some View {
