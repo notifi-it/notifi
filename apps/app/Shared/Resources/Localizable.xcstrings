@@ -7846,6 +7846,111 @@
         }
       }
     },
+    "settings.stayVisible": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications stay visible"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las notificaciones permanecen visibles"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benachrichtigungen bleiben sichtbar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les notifications restent visibles"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le notifiche restano visibili"
+          }
+        }
+      }
+    },
+    "settings.stayVisibleDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A notification stays on screen until you click or dismiss it, instead of leaving after a few seconds. Enable opens System Settings, where you choose notifi’s alert style."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una notificación permanece en pantalla hasta que se pulse o se descarte, en lugar de desaparecer a los pocos segundos. Activar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Benachrichtigung bleibt auf dem Bildschirm, bis du sie anklickst oder schließt, statt nach ein paar Sekunden zu verschwinden. „Aktivieren“ öffnet die Systemeinstellungen, in denen du den Hinweisstil von notifi wählst."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une notification reste à l’écran jusqu’à ce que vous cliquiez dessus ou la fermiez, au lieu de disparaître après quelques secondes. Activer ouvre les Réglages Système, où vous choisissez le style d’alerte de notifi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una notifica resta sullo schermo finché non la clicchi o la chiudi, invece di sparire dopo pochi secondi. Attiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi."
+          }
+        }
+      }
+    },
+    "settings.stayVisibleEnable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktivieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva"
+          }
+        }
+      }
+    },
     "settings.strictSend": {
       "extractionState": "manual",
       "localizations": {
