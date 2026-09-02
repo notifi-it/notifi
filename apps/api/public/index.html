@@ -341,12 +341,8 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 .btn:active{transform:scale(.98)}
 .btn-primary{background:var(--fg);color:#1C1C1E;border-color:var(--fg)}
 @media (hover:hover){.btn-primary:hover{background:#fff;border-color:#fff}}
-/* The download buttons carry two lines — what it is, and which machine it is
-   for — so the reader does not have to guess which of the two is theirs. */
-.btn-get{align-items:center;gap:11px;padding:12px 20px}
-.btn-get svg{width:19px;height:19px;flex:none}
-.btn-get b{display:block;font-size:14px;font-weight:700;line-height:1.25}
-.btn-get span{display:block;font-size:11px;font-weight:400;opacity:.72;line-height:1.35}
+.btn-get{gap:10px;padding:13px 22px 13px 20px;border-radius:999px;font-weight:700}
+.btn-get svg{width:17px;height:17px;flex:none;margin-top:-2px}
 /* ── hero ───────────────────────────────────────────────────── */
 .hero{padding:clamp(28px,5vw,52px) 0 clamp(40px,7vw,72px)}
 .hero h1{margin-bottom:20px}
@@ -388,7 +384,8 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 .hero-mac-note{display:none;font-size:11px}
 /* The flex row-gap already spaces the wrapped line; the negative margin eats
    most of it so the note reads as the button's caption, not a stray line. */
-.cta .meta{width:100%;margin-top:-5px}
+.cta .meta{width:100%;max-width:none;margin-top:-5px}
+.cta .reqs{font-size:11px;margin-top:0}
 
 /* The hero curl fits one line down to about 720px; below that the folded
    form with continuations takes over instead of scrolling sideways. */
@@ -484,7 +481,8 @@ header.docked .bell::after{transform-origin:50% 0;animation:ring-clapper 2.42s e
 
 /* The Homebrew line under the download buttons: the shared terminal, sized
    to the reading measure rather than the column. */
-.term-brew{margin-top:22px;max-width:62ch}
+.brew-lead{margin-top:26px}
+.term-brew{margin-top:8px;max-width:62ch}
 
 /* ── generic section ────────────────────────────────────────── */
 section{padding:clamp(48px,7vw,86px) 0}
@@ -963,6 +961,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 .foot a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:5px}
 @media (hover:hover){.foot a:hover{color:var(--fg)}}
 .foot .meta{margin-inline-start:auto}
+.soc{display:flex;align-items:center;gap:18px;width:100%;margin-top:14px}
+.foot .soc a{display:flex;color:var(--dim);padding:0;transition:color var(--dur-press) var(--ease-out)}
+@media (hover:hover){.foot .soc a:hover{color:var(--fg)}}
+.soc svg{display:block}
 
 /* Reduce Motion asks for less movement, not for none. Killing every transition
    outright turned each of these into a hard cut, which is the jarring change the
@@ -1203,11 +1205,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <div class="cta">
       <a class="btn btn-primary btn-get" href="https://apps.apple.com/app/id1563961135">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
-        <span class="lbl"><b>Download&nbsp;on&nbsp;the&nbsp;App&nbsp;Store</b><span>iPhone and iPad · iOS 17+</span></span>
+        Download&nbsp;for&nbsp;iOS
       </a>
       <a class="btn btn-get" href="/download/mac">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
-        <span class="lbl"><b>Download&nbsp;.dmg</b><span>Apple silicon · macOS 14+</span></span>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+        Download&nbsp;for&nbsp;macOS
       </a>
       <p class="meta hero-mac-note"><a class="src" href="#download-mac">Also available on Mac.</a></p>
     </div>
@@ -1922,10 +1924,6 @@ spec:
     <div class="section-head">
       <p class="eyebrow">Download</p><hr class="rule">
     </div>
-    <p class="lede" style="margin-top:14px;margin-bottom:28px">
-      On the Mac it lives in the menu bar. Each key delivers to one device, so a script
-      pages your phone, your Mac, or both if you give it two keys.
-    </p>
 
     <!-- The Mac link is /download/mac, not a GitHub release URL: the Worker
          redirects to the latest release asset, so the URL here never has to be
@@ -1933,17 +1931,16 @@ spec:
     <div class="cta">
       <a class="btn btn-primary btn-get" href="https://apps.apple.com/app/id1563961135">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
-        <span class="lbl"><b>Download&nbsp;on&nbsp;the&nbsp;App&nbsp;Store</b><span>iPhone and iPad · iOS 17+</span></span>
+        Download&nbsp;for&nbsp;iOS
       </a>
       <a class="btn btn-get" id="download-mac" href="/download/mac">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
-        <span class="lbl"><b>Download&nbsp;the&nbsp;Mac&nbsp;app&nbsp;(.dmg)</b><span>Apple silicon or T2 · macOS 14+</span></span>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+        Download&nbsp;for&nbsp;macOS
       </a>
-      <p class="meta">Both apps are free, with no account to create.</p>
-      <p class="meta">The Mac build updates itself.</p>
-      <p class="meta"><a href="https://brew.sh" class="src">Homebrew</a> works too:</p>
+      <p class="meta reqs">iOS 17 or later. macOS 14 or later, on Apple silicon or a T2 Mac.</p>
     </div>
 
+    <p class="meta brew-lead"><a href="https://brew.sh" class="src">Homebrew</a> works too:</p>
     <div class="term term-brew">
       <div class="term-bar">
         <span class="dot3"><i></i><i></i><i></i></span>
@@ -1995,7 +1992,7 @@ spec:
     <a href="mailto:hello@notifi.it">hello@notifi.it</a>
     <span class="soc">
       <a href="https://github.com/notifi-it/notifi" aria-label="GitHub" title="GitHub"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12C0 17.31 3.435 21.795 8.205 23.385C8.805 23.49 9.03 23.13 9.03 22.815C9.03 22.53 9.015 21.585 9.015 20.58C6 21.135 5.22 19.845 4.98 19.17C4.845 18.825 4.26 17.76 3.75 17.475C3.33 17.25 2.73 16.695 3.735 16.68C4.68 16.665 5.355 17.55 5.58 17.91C6.66 19.725 8.385 19.215 9.075 18.9C9.18 18.12 9.495 17.595 9.84 17.295C7.17 16.995 4.38 15.96 4.38 11.37C4.38 10.065 4.845 8.985 5.61 8.145C5.49 7.845 5.07 6.615 5.73 4.965C5.73 4.965 6.735 4.65 9.03 6.195C9.99 5.925 11.01 5.79 12.03 5.79C13.05 5.79 14.07 5.925 15.03 6.195C17.325 4.635 18.33 4.965 18.33 4.965C18.99 6.615 18.57 7.845 18.45 8.145C19.215 8.985 19.68 10.05 19.68 11.37C19.68 15.975 16.875 16.995 14.205 17.295C14.64 17.67 15.015 18.39 15.015 19.515C15.015 21.12 15 22.41 15 22.815C15 23.13 15.225 23.505 15.825 23.385C18.2072 22.5808 20.2773 21.0498 21.7438 19.0074C23.2103 16.9651 23.9994 14.5143 24 12C24 5.37 18.63 0 12 0Z"/></svg></a>
-      <a href="https://x.com/notifiit" rel="me" aria-label="X" title="X"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/></svg></a>
+      <a href="https://x.com/notifiit" rel="me" aria-label="X" title="X"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg></a>
       <a href="https://instagram.com/notifidotit" rel="me" aria-label="Instagram" title="Instagram"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M7.46494 1.066C8.63828 1.01222 9.01228 1 12 1C14.9883 1 15.3617 1.01283 16.5344 1.066C17.7059 1.11917 18.5059 1.30556 19.2056 1.5775C19.9395 1.85381 20.6043 2.28674 21.1538 2.84617C21.7133 3.3956 22.1463 4.06046 22.4225 4.79439C22.6944 5.49411 22.8802 6.29406 22.934 7.46494C22.9878 8.63828 23 9.01228 23 12C23 14.9877 22.9872 15.3617 22.934 16.5351C22.8808 17.7059 22.6944 18.5059 22.4225 19.2056C22.1414 19.9286 21.7649 20.5427 21.1538 21.1538C20.6044 21.7133 19.9395 22.1463 19.2056 22.4225C18.5059 22.6944 17.7059 22.8802 16.5351 22.934C15.3617 22.9878 14.9877 23 12 23C9.01228 23 8.63828 22.9872 7.46494 22.934C6.29406 22.8808 5.49411 22.6944 4.79439 22.4225C4.07144 22.1414 3.45728 21.7649 2.84617 21.1538C2.28664 20.6044 1.85368 19.9395 1.5775 19.2056C1.30556 18.5059 1.11978 17.7059 1.066 16.5351C1.01222 15.3617 1 14.9883 1 12C1 9.01167 1.01283 8.63828 1.066 7.46556C1.11917 6.29406 1.30556 5.49411 1.5775 4.79439C1.85381 4.06051 2.28674 3.39568 2.84617 2.84617C3.39559 2.28664 4.06045 1.85368 4.79439 1.5775C5.49411 1.30556 6.29406 1.11978 7.46494 1.066ZM16.4452 3.046C15.2853 2.99344 14.937 2.98183 12 2.98183C9.063 2.98183 8.71467 2.99344 7.55478 3.046C6.48228 3.09489 5.89989 3.27394 5.51244 3.42489C4.99911 3.62411 4.63244 3.86244 4.24744 4.24744C3.86306 4.63244 3.62411 4.99911 3.42489 5.51244C3.27394 5.89989 3.09489 6.48228 3.046 7.55478C2.99344 8.71467 2.98183 9.063 2.98183 12C2.98183 14.937 2.99344 15.2853 3.046 16.4452C3.09489 17.5177 3.27394 18.1001 3.42489 18.4876C3.60111 18.9654 3.88219 19.3976 4.24744 19.7526C4.60234 20.1178 5.03461 20.3989 5.51244 20.5751C5.89989 20.7261 6.48228 20.9051 7.55478 20.954C8.71467 21.0066 9.06239 21.0182 12 21.0182C14.9376 21.0182 15.2853 21.0066 16.4452 20.954C17.5177 20.9051 18.1001 20.7261 18.4876 20.5751C19.0009 20.3759 19.3676 20.1376 19.7526 19.7526C20.1178 19.3977 20.3989 18.9654 20.5751 18.4876C20.7261 18.1001 20.9051 17.5177 20.954 16.4452C21.0066 15.2853 21.0182 14.937 21.0182 12C21.0182 9.063 21.0066 8.71467 20.954 7.55478C20.9051 6.48228 20.7261 5.89989 20.5751 5.51244C20.3759 4.99911 20.1376 4.63244 19.7526 4.24744C19.3676 3.86306 19.0009 3.62411 18.4876 3.42489C18.1001 3.27394 17.5177 3.09489 16.4452 3.046ZM10.5955 15.3909C11.0408 15.5754 11.518 15.6703 12 15.6703C12.9735 15.6703 13.907 15.2836 14.5953 14.5953C15.2837 13.907 15.6704 12.9734 15.6704 12C15.6704 11.0266 15.2837 10.093 14.5953 9.40468C13.907 8.71636 12.9735 8.32966 12 8.32966C11.518 8.32966 11.0408 8.4246 10.5955 8.60905C10.1501 8.7935 9.74553 9.06385 9.40471 9.40468C9.06389 9.7455 8.79353 10.1501 8.60908 10.5954C8.42463 11.0407 8.3297 11.518 8.3297 12C8.3297 12.482 8.42463 12.9593 8.60908 13.4046C8.79353 13.8499 9.06389 14.2545 9.40471 14.5953C9.74553 14.9361 10.1501 15.2065 10.5955 15.3909ZM8.00205 8.00201C9.06238 6.94168 10.5005 6.34599 12 6.34599C13.4996 6.34599 14.9377 6.94168 15.998 8.00201C17.0583 9.06234 17.654 10.5005 17.654 12C17.654 13.4995 17.0583 14.9376 15.998 15.998C14.9377 17.0583 13.4996 17.654 12 17.654C10.5005 17.654 9.06238 17.0583 8.00205 15.998C6.94172 14.9376 6.34603 13.4995 6.34603 12C6.34603 10.5005 6.94172 9.06234 8.00205 8.00201ZM18.9077 7.18838C19.1583 6.93773 19.2991 6.59779 19.2991 6.24333C19.2991 5.88886 19.1583 5.54892 18.9077 5.29828C18.657 5.04764 18.3171 4.90683 17.9626 4.90683C17.6082 4.90683 17.2682 5.04764 17.0176 5.29828C16.7669 5.54892 16.6261 5.88886 16.6261 6.24333C16.6261 6.59779 16.7669 6.93773 17.0176 7.18838C17.2682 7.43902 17.6082 7.57983 17.9626 7.57983C18.3171 7.57983 18.657 7.43902 18.9077 7.18838Z"/></svg></a>
       <a href="https://facebook.com/notifidotit" rel="me" aria-label="Facebook" title="Facebook"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M0 12.067C0 18.0335 4.33333 22.9944 10 24V15.3333H7V12H10V9.33332C10 6.33332 11.9333 4.66666 14.6667 4.66666C15.5333 4.66666 16.4667 4.79999 17.3333 4.93332V7.99999H15.8C14.3333 7.99999 14 8.73332 14 9.66666V12H17.2L16.6667 15.3333H14V24C19.6667 22.9944 24 18.0335 24 12.067C24 5.43017 18.6 0 12 0C5.4 0 0 5.43017 0 12.067Z"/></svg></a>
     </span>
