@@ -309,8 +309,17 @@ silently dropped.
 ## A PR that changes the UI attaches screenshots
 
 One per touched screen; before/after when moving something existing. `make
-shots` covers the tabs; sheets and the Mac popover are captured by hand. If
-filing from a CLI that can't upload images, say so and attach via the web UI.
+shots` covers the tabs; sheets and the Mac popover are captured by hand.
+Upload them with `gh` 2.99+ (`brew upgrade gh`), which attaches files to the
+PR body directly — never say "attach via the web UI":
+
+```bash
+gh pr create --attach '/tmp/notifi-shots/settings.png#Settings' --attach '/tmp/notifi-shots/mac-settings.png#Mac settings' ...
+```
+
+`gh pr edit <n> --attach ...` appends to an existing PR, `gh pr comment <n>
+--attach ...` puts them in a comment. The text after `#` is the alt text; up to
+50 files per command.
 
 ## Confirmations are centred alerts
 
