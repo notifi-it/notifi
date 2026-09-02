@@ -1366,41 +1366,6 @@
         }
       }
     },
-    "components.wordmark": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "notifi"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "notifi"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "notifi"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "notifi"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "notifi"
-          }
-        }
-      }
-    },
     "createKey.charCount": {
       "extractionState": "manual",
       "localizations": {
@@ -3456,6 +3421,41 @@
         }
       }
     },
+    "inbox.hasImage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has an image"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiene una imagen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enthält ein Bild"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contient une image"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contiene un’immagine"
+          }
+        }
+      }
+    },
     "inbox.linkTo": {
       "extractionState": "manual",
       "localizations": {
@@ -3592,6 +3592,41 @@
           "stringUnit": {
             "state": "translated",
             "value": "Impossibile raggiungere i server notifi. Controlla la connessione e riprova."
+          }
+        }
+      }
+    },
+    "inbox.offlineBadge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin conexión"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hors ligne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline"
           }
         }
       }
@@ -5791,6 +5826,41 @@
         }
       }
     },
+    "message.image": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bild"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immagine"
+          }
+        }
+      }
+    },
     "message.imageBlocked": {
       "extractionState": "manual",
       "localizations": {
@@ -6001,6 +6071,41 @@
         }
       }
     },
+    "message.linkBlockedNotice": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link blocked"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enlace bloqueado"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link blockiert"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lien bloqué"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link bloccato"
+          }
+        }
+      }
+    },
     "message.load": {
       "extractionState": "manual",
       "localizations": {
@@ -6172,6 +6277,41 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inviato con la chiave %1$@. Aprila."
+          }
+        }
+      }
+    },
+    "message.resetZoom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset zoom"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restablecer el zoom"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom zurücksetzen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser le zoom"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reimposta lo zoom"
           }
         }
       }
@@ -6936,6 +7076,41 @@
         }
       }
     },
+    "settings.grain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grain"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grano"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Körnung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grain"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grana"
+          }
+        }
+      }
+    },
     "settings.installUpdatesAutomatically": {
       "extractionState": "manual",
       "localizations": {
@@ -7667,6 +7842,111 @@
           "stringUnit": {
             "state": "translated",
             "value": "Assistenza"
+          }
+        }
+      }
+    },
+    "settings.stayVisible": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications stay visible"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las notificaciones permanecen visibles"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benachrichtigungen bleiben sichtbar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les notifications restent visibles"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le notifiche restano visibili"
+          }
+        }
+      }
+    },
+    "settings.stayVisibleDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A notification stays on screen until you click or dismiss it, instead of leaving after a few seconds. Enable opens System Settings, where you choose notifi’s alert style."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una notificación permanece en pantalla hasta que se pulse o se descarte, en lugar de desaparecer a los pocos segundos. Activar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Benachrichtigung bleibt auf dem Bildschirm, bis du sie anklickst oder schließt, statt nach ein paar Sekunden zu verschwinden. „Aktivieren“ öffnet die Systemeinstellungen, in denen du den Hinweisstil von notifi wählst."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une notification reste à l’écran jusqu’à ce que vous cliquiez dessus ou la fermiez, au lieu de disparaître après quelques secondes. Activer ouvre les Réglages Système, où vous choisissez le style d’alerte de notifi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una notifica resta sullo schermo finché non la clicchi o la chiudi, invece di sparire dopo pochi secondi. Attiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi."
+          }
+        }
+      }
+    },
+    "settings.stayVisibleEnable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktivieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva"
           }
         }
       }

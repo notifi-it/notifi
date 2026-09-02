@@ -92,6 +92,8 @@ export const it: Translation = {
 
   'inbox.unread': 'Non letta',
   'inbox.critical': 'Critica',
+  'inbox.hasImage': 'Contiene un’immagine',
+  'inbox.offlineBadge': 'Offline',
   'inbox.linkTo': 'Link a {host}',
   'inbox.deleteTitle': 'Eliminare “{title}”?',
   'inbox.deleteTitleFallback': 'Eliminare questa notifica?',
@@ -116,6 +118,9 @@ export const it: Translation = {
   'message.loadImage': 'Carica immagine',
   'message.load': 'Carica',
   'message.imageBlocked': 'bloccata',
+  'message.image': 'Immagine',
+  'message.resetZoom': 'Reimposta lo zoom',
+  'message.linkBlockedNotice': 'Link bloccato',
   'message.sourceHeader': 'Origine',
   'keys.title': 'Chiavi',
   'keys.newKey': 'Nuova chiave',
@@ -247,7 +252,14 @@ export const it: Translation = {
   'settings.permissionNotSet': 'Non impostata',
   'settings.permissionUnknown': 'Sconosciuta',
 
+  'settings.stayVisible': 'Le notifiche restano visibili',
+  'settings.stayVisibleDetail':
+    'Una notifica resta sullo schermo finché non la clicchi o la chiudi, invece di sparire dopo pochi ' +
+    'secondi. Attiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi.',
+  'settings.stayVisibleEnable': 'Attiva',
+
   'settings.theme': 'Tema',
+  'settings.grain': 'Grana',
   'settings.themeDark': 'Scuro',
   'settings.themeLight': 'Chiaro',
   'settings.themeSystem': 'Sistema',
@@ -318,7 +330,6 @@ export const it: Translation = {
   'components.errorLabel': 'Errore. {message}',
   'components.backTo': 'Torna a {label}',
   'components.createKey': 'Crea chiave',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'Impossibile sbloccare notifi',
   'identity.detail':

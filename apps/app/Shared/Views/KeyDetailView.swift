@@ -55,7 +55,7 @@ struct KeyDetailView: View {
                                    glass: true) { openURL(examplesURL(for: key)) }
                     }
                     IconButton(systemImage: "info.circle",
-                               label: Copy.KeyDetail.shownOnceDetail,
+                               label: Copy.Keys.aboutKeys,
                                glass: true) { showingInfo = true }
                 }
             ))

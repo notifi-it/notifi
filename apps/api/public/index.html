@@ -257,9 +257,9 @@ header.docked{
   transition:transform .3s var(--ease-out),opacity .3s var(--ease-out);
 }
 .bar{position:relative;display:flex;align-items:center;gap:14px;height:60px}
-/* The bell alone, no wordmark, at the right end of the bar on wide screens —
-   that is where the hero bell was when the bar arrived to replace it. On
-   small screens the hero bell is centred, so the docked bell centres too. */
+/* The bell sits at the right end of the bar on wide screens — that is where
+   the hero bell was when the bar arrived to replace it. On small screens the
+   hero bell is centred, so the docked bell centres too. */
 .mark{margin-inline-start:auto;display:flex;align-items:center;text-decoration:none}
 nav{display:flex;align-items:center;gap:22px}
 nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
@@ -517,8 +517,6 @@ section{padding:clamp(48px,7vw,86px) 0}
    badge of its own, so removing this overlay is the whole change; the fractions
    that used to be here are still printed by generate-marks.sh for the app,
    which does need them. */
-.lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
-.lockup img{display:block;height:var(--word,20px);width:auto}
 
 /* ── icons ──────────────────────────────────────────────────── */
 .ico{width:19px;height:19px;flex:0 0 auto;color:var(--dim)}
@@ -1984,10 +1982,7 @@ spec:
 <!-- gen:footer -->
 <footer>
   <div class="wrap">
-    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
-      <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
-    </div>
+    <span class="bell" aria-hidden="true" style="--bell:44px;display:block;color:var(--fg);margin-bottom:26px"></span>
   </div>
   <!-- The sticky header already carries the navigation, so the footer holds
        only what is not up there — and never a link to the page you are on. -->

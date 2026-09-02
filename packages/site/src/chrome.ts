@@ -115,9 +115,8 @@ export function header(meta: Meta): string {
   const links = withoutSelf(meta.nav ?? NAV, meta.path);
   return `<header>
   <div class="wrap bar">
-    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+    <a class="mark" href="/" aria-label="notifi" style="--bell:24px">
       <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
     </a>
     <nav>
 ${links.map((link) => `      ${tag(link)}`).join('\n')}
@@ -130,10 +129,7 @@ export function footer(meta: Meta): string {
   const links = withoutSelf(FOOTER, meta.path);
   return `<footer>
   <div class="wrap">
-    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
-      <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
-    </div>
+    <span class="bell" aria-hidden="true" style="--bell:44px;display:block;color:var(--fg);margin-bottom:26px"></span>
   </div>
   <!-- The sticky header already carries the navigation, so the footer holds
        only what is not up there — and never a link to the page you are on. -->

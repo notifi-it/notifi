@@ -47,6 +47,14 @@ struct ImageViewer: View {
                             .onTapGesture(count: 2) { location in
                                 toggleZoom(at: location, in: proxy.size)
                             }
+                            .accessibilityLabel(Copy.Message.image)
+                            .accessibilityAddTraits(.isImage)
+                            .accessibilityZoomAction { action in
+                                stepZoom(direction: action.direction, in: proxy.size)
+                            }
+                            .accessibilityAction(named: Copy.Message.resetZoom) {
+                                withAnimation(settle) { reset() }
+                            }
                     case .failure:
                         message(Copy.Message.imageFailedToLoad)
                     default:
@@ -82,6 +90,9 @@ struct ImageViewer: View {
         }
         .buttonStyle(.geist)
         .accessibilityLabel(Copy.Common.close)
+        #if os(macOS)
+        .keyboardShortcut(.cancelAction)
+        #endif
         .padding(.leading, Theme.gutter)
         .padding(.top, 12)
     }
@@ -127,6 +138,25 @@ struct ImageViewer: View {
                     if settled <= 1 { reset() } else { offset = clamp(combined, in: size) }
                 }
             }
+    }
+
+    private func stepZoom(direction: AccessibilityZoomGestureAction.Direction, in size: CGSize) {
+        withAnimation(settle) {
+            switch direction {
+            case .zoomIn:
+                zoom = min(scale * 2, Self.maxZoom)
+            case .zoomOut:
+                let next = scale / 2
+                if next <= 1 {
+                    reset()
+                    return
+                }
+                zoom = next
+            @unknown default:
+                return
+            }
+            offset = clamp(offset, in: size)
+        }
     }
 
     private func toggleZoom(at location: CGPoint, in size: CGSize) {

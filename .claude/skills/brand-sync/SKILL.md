@@ -50,8 +50,7 @@ Two things that are not interchangeable, both of which have been got wrong:
   the app icon's plate with its corner treatment. `profile.png` is the version
   built for a circular crop.
 
-The lockup's bell badge is white, the standalone avatar's is red — the wordmark
-already ends in a red tittle, and two red discs side by side compete.
+Every image carries the bell alone, badge red, on the same grain plate.
 
 ## GitHub (org `notifi-it`, repo `notifi-it/notifi`)
 
@@ -86,12 +85,12 @@ intended framing. Then no dragging is needed in any of the crop editors:
 
 - **Avatar.** Platforms crop a centred square, so 784x784 out of 1536x784. Size
   the bell to `560/1024` of the capture height to reproduce `profile.png`.
-- **Banner.** X crops 3:1 centred. Scale the lockup by `1536/1500` off
+- **Banner.** X crops 3:1 centred. Scale the bell by `1536/1500` off
   `x-banner.png`'s geometry; for Facebook scale by `1536/1640` off the cover's.
 
-Both compose the same way `generate-social.sh` does — same plate, same
-`WORD_RATIO`, same `-colorspace sRGB -type TrueColorAlpha` between the two reads
-or the wordmark's red tittle goes grey.
+Both compose the same way `generate-social.sh` does — same plate, and the same
+`-colorspace sRGB -type TrueColorAlpha` on the read or the badge's red goes
+grey.
 
 1. Serve the composed images: `python3 -m http.server 8642 --directory <dir>`
    with a wrapper that fills the viewport

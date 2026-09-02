@@ -63,6 +63,8 @@ enum Copy {
         static func bandLabel(_ title: String, _ count: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.bandLabel", comment: ""), title, count) }
         static var unread: String { NSLocalizedString("inbox.unread", comment: "") }
         static var critical: String { NSLocalizedString("inbox.critical", comment: "") }
+        static var hasImage: String { NSLocalizedString("inbox.hasImage", comment: "") }
+        static var offlineBadge: String { NSLocalizedString("inbox.offlineBadge", comment: "") }
         static func linkTo(_ host: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.linkTo", comment: ""), host) }
         static func deleteTitle(_ title: String) -> String { String.localizedStringWithFormat(NSLocalizedString("inbox.deleteTitle", comment: ""), title) }
         static var deleteTitleFallback: String { NSLocalizedString("inbox.deleteTitleFallback", comment: "") }
@@ -89,6 +91,9 @@ enum Copy {
         static var loadImage: String { NSLocalizedString("message.loadImage", comment: "") }
         static var load: String { NSLocalizedString("message.load", comment: "") }
         static var imageBlocked: String { NSLocalizedString("message.imageBlocked", comment: "") }
+        static var image: String { NSLocalizedString("message.image", comment: "") }
+        static var resetZoom: String { NSLocalizedString("message.resetZoom", comment: "") }
+        static var linkBlockedNotice: String { NSLocalizedString("message.linkBlockedNotice", comment: "") }
         static var sourceHeader: String { NSLocalizedString("message.sourceHeader", comment: "") }
     }
     enum Keys {
@@ -187,7 +192,11 @@ enum Copy {
         static var permissionEphemeral: String { NSLocalizedString("settings.permissionEphemeral", comment: "") }
         static var permissionNotSet: String { NSLocalizedString("settings.permissionNotSet", comment: "") }
         static var permissionUnknown: String { NSLocalizedString("settings.permissionUnknown", comment: "") }
+        static var stayVisible: String { NSLocalizedString("settings.stayVisible", comment: "") }
+        static var stayVisibleDetail: String { NSLocalizedString("settings.stayVisibleDetail", comment: "") }
+        static var stayVisibleEnable: String { NSLocalizedString("settings.stayVisibleEnable", comment: "") }
         static var theme: String { NSLocalizedString("settings.theme", comment: "") }
+        static var grain: String { NSLocalizedString("settings.grain", comment: "") }
         static var themeDark: String { NSLocalizedString("settings.themeDark", comment: "") }
         static var themeLight: String { NSLocalizedString("settings.themeLight", comment: "") }
         static var themeSystem: String { NSLocalizedString("settings.themeSystem", comment: "") }
@@ -244,7 +253,6 @@ enum Copy {
         static func errorLabel(_ message: String) -> String { String.localizedStringWithFormat(NSLocalizedString("components.errorLabel", comment: ""), message) }
         static func backTo(_ label: String) -> String { String.localizedStringWithFormat(NSLocalizedString("components.backTo", comment: ""), label) }
         static var createKey: String { NSLocalizedString("components.createKey", comment: "") }
-        static var wordmark: String { NSLocalizedString("components.wordmark", comment: "") }
     }
     enum Identity {
         static var title: String { NSLocalizedString("identity.title", comment: "") }

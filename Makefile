@@ -2,7 +2,7 @@
 	gen-site check-site-html gen-site-md check-site-md check-site gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-metadata app-metadata-check app-screenshots app-resubmit shots doc-shots screens screens-mac \
-	film film-gif check-film
+	film film-gif film-stills check-film
 
 # Random port so parallel worktrees never collide. The signed canonical string
 # binds the host, so --host must carry the same port as --port; the pinned
@@ -98,6 +98,12 @@ check-film:
 
 film-gif:
 	cd sketches/gif && node capture.mjs
+
+# One still per scene, each at the point a click brings the film to rest:
+# typed, delivered, bell upright, both the terminal and that scene's device at
+# full opacity. These are the gallery slides.
+film-stills:
+	cd sketches/gif && node stills.mjs
 
 app-project:
 	cd apps/app && xcodegen generate

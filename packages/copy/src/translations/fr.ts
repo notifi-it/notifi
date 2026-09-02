@@ -93,6 +93,8 @@ export const fr: Translation = {
 
   'inbox.unread': 'Non lu',
   'inbox.critical': 'Critique',
+  'inbox.hasImage': 'Contient une image',
+  'inbox.offlineBadge': 'Hors ligne',
   'inbox.linkTo': 'Lien vers {host}',
   'inbox.deleteTitle': 'Supprimer « {title} » ?',
   'inbox.deleteTitleFallback': 'Supprimer cette notification ?',
@@ -117,6 +119,9 @@ export const fr: Translation = {
   'message.loadImage': "Charger l’image",
   'message.load': 'Charger',
   'message.imageBlocked': 'bloquée',
+  'message.image': 'Image',
+  'message.resetZoom': 'Réinitialiser le zoom',
+  'message.linkBlockedNotice': 'Lien bloqué',
   'message.sourceHeader': 'Source',
   'keys.title': 'Clés',
   'keys.newKey': 'Nouvelle clé',
@@ -250,7 +255,15 @@ export const fr: Translation = {
   'settings.permissionNotSet': 'Non défini',
   'settings.permissionUnknown': 'Inconnue',
 
+  'settings.stayVisible': 'Les notifications restent visibles',
+  'settings.stayVisibleDetail':
+    "Une notification reste à l’écran jusqu’à ce que vous cliquiez dessus ou la fermiez, au lieu de " +
+    "disparaître après quelques secondes. Activer ouvre les Réglages Système, où vous choisissez le style " +
+    "d’alerte de notifi.",
+  'settings.stayVisibleEnable': 'Activer',
+
   'settings.theme': 'Thème',
+  'settings.grain': 'Grain',
   'settings.themeDark': 'Sombre',
   'settings.themeLight': 'Clair',
   'settings.themeSystem': 'Système',
@@ -322,7 +335,6 @@ export const fr: Translation = {
   'components.errorLabel': 'Erreur. {message}',
   'components.backTo': 'Retour à {label}',
   'components.createKey': 'Créer une clé',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'Impossible de déverrouiller notifi',
   'identity.detail':

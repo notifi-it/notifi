@@ -8,6 +8,9 @@ struct SettingsView: View {
 
     @State private var strictSendFailed = false
     @State private var confirmingDeleteAll = false
+    @Query private var messages: [Message]
+
+    private var hasMessages: Bool { !messages.isEmpty }
 
     var body: some View {
         @Bindable var model = model
@@ -35,6 +38,18 @@ struct SettingsView: View {
                         .geistGutter()
                         RowRule()
                     }
+
+                    #if os(macOS)
+                    if !model.notificationsStayVisible {
+                        LabeledRow(title: Copy.Settings.stayVisible, detail: Copy.Settings.stayVisibleDetail) {
+                            OutlineButton(title: Copy.Settings.stayVisibleEnable, fill: false, compact: true) {
+                                model.openSystemNotificationSettings()
+                            }
+                        }
+                        .geistGutter()
+                        RowRule()
+                    }
+                    #endif
 
                     ToggleRow(
                         title: Copy.Settings.loadImages,
@@ -85,6 +100,13 @@ struct SettingsView: View {
                     .geistGutter()
                     RowRule()
 
+                    ToggleRow(
+                        title: Copy.Settings.grain,
+                        isOn: $model.grainEnabled
+                    )
+                    .geistGutter()
+                    RowRule()
+
                     #if os(macOS)
                     ToggleRow(
                         title: Copy.Settings.openAtLogin,
@@ -111,10 +133,22 @@ struct SettingsView: View {
                     Button {
                         Updater.shared.checkForUpdates()
                     } label: {
-                        DisclosureRow {
-                            Text(Copy.Settings.checkForUpdates)
-                                .font(Theme.body)
-                                .foregroundStyle(Updater.shared.canCheck ? Theme.fg : Theme.dim)
+                        Group {
+                            if Updater.shared.canCheck {
+                                DisclosureRow {
+                                    Text(Copy.Settings.checkForUpdates)
+                                        .font(Theme.body)
+                                        .foregroundStyle(Theme.fg)
+                                }
+                            } else {
+                                HStack(spacing: 12) {
+                                    Text(Copy.Settings.checkForUpdates)
+                                        .font(Theme.body)
+                                        .foregroundStyle(Theme.dim)
+                                    Spacer(minLength: 8)
+                                }
+                                .contentShape(Rectangle())
+                            }
                         }
                         .padding(.vertical, Theme.rowPadV)
                     }
@@ -141,14 +175,27 @@ struct SettingsView: View {
                     Button {
                         confirmingDeleteAll = true
                     } label: {
-                        DisclosureRow {
-                            Text(Copy.Settings.deleteAll)
-                                .font(Theme.body)
-                                .foregroundStyle(Theme.danger)
+                        Group {
+                            if hasMessages {
+                                DisclosureRow {
+                                    Text(Copy.Settings.deleteAll)
+                                        .font(Theme.body)
+                                        .foregroundStyle(Theme.danger)
+                                }
+                            } else {
+                                HStack(spacing: 12) {
+                                    Text(Copy.Settings.deleteAll)
+                                        .font(Theme.body)
+                                        .foregroundStyle(Theme.dim)
+                                    Spacer(minLength: 8)
+                                }
+                                .contentShape(Rectangle())
+                            }
                         }
                         .padding(.vertical, Theme.rowPadV)
                     }
                     .buttonStyle(.geistRow)
+                    .disabled(!hasMessages)
                     .geistGutter()
                 }
 

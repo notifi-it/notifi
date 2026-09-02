@@ -81,6 +81,10 @@ final class MenuBarController: NSObject {
         statusItem?.button?.image = MenuBarIconRenderer.bell(
             unread: hasUnread, offline: isOffline, angle: angle, clapperAngle: clapperAngle
         )
+        var label = [Copy.Push.fallbackTitle]
+        if hasUnread { label.append(Copy.Inbox.unread) }
+        if isOffline { label.append(Copy.Inbox.offlineBadge) }
+        statusItem?.button?.setAccessibilityLabel(label.joined(separator: ", "))
     }
 
     @objc private func unreadChanged() {
@@ -92,6 +96,10 @@ final class MenuBarController: NSObject {
     }
 
     @objc private func newMessagesArrived() {
+        guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
+            render(angle: 0)
+            return
+        }
         animator?.stop()
         animator = BellAnimator { [weak self] angle, clapperAngle in
             self?.render(angle: angle, clapperAngle: clapperAngle)
@@ -119,7 +127,6 @@ final class MenuBarController: NSObject {
     private func present(from button: NSStatusBarButton) {
         NSApp.activate(ignoringOtherApps: true)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-        popover.contentViewController?.view.window?.makeFirstResponder(nil)
 
         guard let frame = popover.contentViewController?.view.window?.contentView?.superview else {
             return

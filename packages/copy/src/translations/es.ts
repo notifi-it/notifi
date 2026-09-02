@@ -92,6 +92,8 @@ export const es: Translation = {
 
   'inbox.unread': 'Sin leer',
   'inbox.critical': 'Crítica',
+  'inbox.hasImage': 'Tiene una imagen',
+  'inbox.offlineBadge': 'Sin conexión',
   'inbox.linkTo': 'Enlace a {host}',
   'inbox.deleteTitle': '¿Eliminar "{title}"?',
   'inbox.deleteTitleFallback': '¿Eliminar esta notificación?',
@@ -116,6 +118,9 @@ export const es: Translation = {
   'message.loadImage': 'Cargar imagen',
   'message.load': 'Cargar',
   'message.imageBlocked': 'bloqueada',
+  'message.image': 'Imagen',
+  'message.resetZoom': 'Restablecer el zoom',
+  'message.linkBlockedNotice': 'Enlace bloqueado',
   'message.sourceHeader': 'Origen',
   'keys.title': 'Claves',
   'keys.newKey': 'Nueva clave',
@@ -247,7 +252,14 @@ export const es: Translation = {
   'settings.permissionNotSet': 'Sin definir',
   'settings.permissionUnknown': 'Desconocido',
 
+  'settings.stayVisible': 'Las notificaciones permanecen visibles',
+  'settings.stayVisibleDetail':
+    'Una notificación permanece en pantalla hasta que se pulse o se descarte, en lugar de desaparecer ' +
+    'a los pocos segundos. Activar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi.',
+  'settings.stayVisibleEnable': 'Activar',
+
   'settings.theme': 'Tema',
+  'settings.grain': 'Grano',
   'settings.themeDark': 'Oscuro',
   'settings.themeLight': 'Claro',
   'settings.themeSystem': 'Sistema',
@@ -318,7 +330,6 @@ export const es: Translation = {
   'components.errorLabel': 'Error. {message}',
   'components.backTo': 'Volver a {label}',
   'components.createKey': 'Crear clave',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'No se puede desbloquear notifi',
   'identity.detail':

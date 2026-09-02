@@ -314,12 +314,19 @@ enum SampleData {
                         ? ago(minutes).addingTimeInterval(-Double(index) * 0.437)
                         : nil,
                     isRead: !unread,
-                    isCritical: index == 0
+                    isCritical: Self.criticalTitles.contains(title)
                 )
             )
         }
         try? context.save()
     }
+
+    private static let criticalTitles: Set<String> = [
+        "Water leak detected under the sink",
+        "Certificate for vault.internal.eu-west-2.compute.amazonaws.com expires in 7 days",
+        "Incident INC-2049 postmortem published for the multi-region outage that "
+            + "affected notification delivery for approximately six hours on 29 July",
+    ]
 
     @MainActor
     static func clear(from context: ModelContext) {

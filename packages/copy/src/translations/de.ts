@@ -140,6 +140,8 @@ export const de: Translation = {
 
   'inbox.unread': 'Ungelesen',
   'inbox.critical': 'Kritisch',
+  'inbox.hasImage': 'Enthält ein Bild',
+  'inbox.offlineBadge': 'Offline',
   'inbox.linkTo': 'Link zu {host}',
   'inbox.deleteTitle': '„{title}“ löschen?',
   'inbox.deleteTitleFallback': 'Diese Benachrichtigung löschen?',
@@ -164,6 +166,9 @@ export const de: Translation = {
   'message.loadImage': 'Bild laden',
   'message.load': 'Laden',
   'message.imageBlocked': 'blockiert',
+  'message.image': 'Bild',
+  'message.resetZoom': 'Zoom zurücksetzen',
+  'message.linkBlockedNotice': 'Link blockiert',
   'message.sourceHeader': 'Quelle',
   'keys.title': 'Schlüssel',
   'keys.newKey': 'Neuer Schlüssel',
@@ -295,7 +300,15 @@ export const de: Translation = {
   'settings.permissionNotSet': 'Nicht festgelegt',
   'settings.permissionUnknown': 'Unbekannt',
 
+  'settings.stayVisible': 'Benachrichtigungen bleiben sichtbar',
+  'settings.stayVisibleDetail':
+    'Eine Benachrichtigung bleibt auf dem Bildschirm, bis du sie anklickst oder schließt, statt nach ' +
+    'ein paar Sekunden zu verschwinden. „Aktivieren“ öffnet die Systemeinstellungen, in denen du den ' +
+    'Hinweisstil von notifi wählst.',
+  'settings.stayVisibleEnable': 'Aktivieren',
+
   'settings.theme': 'Design',
+  'settings.grain': 'Körnung',
   'settings.themeDark': 'Dunkel',
   'settings.themeLight': 'Hell',
   'settings.themeSystem': 'System',
@@ -366,7 +379,6 @@ export const de: Translation = {
   'components.errorLabel': 'Fehler. {message}',
   'components.backTo': 'Zurück zu {label}',
   'components.createKey': 'Schlüssel erstellen',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'notifi kann nicht entsperrt werden',
   'identity.detail':

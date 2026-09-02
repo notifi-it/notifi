@@ -169,12 +169,15 @@ struct IconButton: View {
     var glass: Bool = false
     var action: () -> Void
 
+    @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 17
+    @ScaledMetric(relativeTo: .body) private var frameSize: CGFloat = 34
+
     var body: some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: iconSize, weight: .semibold))
                 .foregroundStyle(color)
-                .frame(width: 34, height: 34)
+                .frame(width: frameSize, height: frameSize)
                 .glassBackground(enabled: glass)
                 .geistHitArea(expandedBy: 5)
         }
@@ -207,6 +210,7 @@ struct OutlineButton: View {
     var color: Color = Theme.fg
     var role: ButtonRole?
     var fill: Bool = true
+    var compact: Bool = false
     var action: () -> Void
 
     private var tint: Color { role == .destructive ? Theme.danger : color }
@@ -215,17 +219,18 @@ struct OutlineButton: View {
     var body: some View {
         Button(role: role, action: action) {
             Text(title)
-                .font(.inco(.footnote, weight: .semibold))
+                .font(.inco(compact ? .caption : .footnote, weight: .semibold))
                 .foregroundStyle(tint)
                 .frame(maxWidth: fill ? .infinity : nil)
-                .padding(.horizontal, fill ? 0 : 14)
-                .padding(.vertical, 11)
-                .frame(minHeight: Theme.minTarget)
+                .padding(.horizontal, fill ? 0 : compact ? 12 : 14)
+                .padding(.vertical, compact ? 6 : 11)
+                .frame(minHeight: compact ? nil : Theme.minTarget)
                 .contentShape(Rectangle())
-                .overlay(RoundedRectangle(cornerRadius: 8)
+                .overlay(RoundedRectangle(cornerRadius: compact ? Theme.radius : 8)
                     .stroke(border, lineWidth: 1))
         }
         .buttonStyle(.geist)
+        .geistHitArea(expandedBy: compact ? 8 : 0)
     }
 }
 
@@ -283,44 +288,71 @@ extension FieldRow where Trailing == FieldValue {
     }
 }
 
-struct ToggleRow: View {
+struct RowTitle: View {
     let title: String
     var detail: String?
-    @Binding var isOn: Bool
 
     @ScaledMetric(relativeTo: .subheadline) private var infoIconSize: CGFloat = 14
 
     @State private var showingDetail = false
 
     var body: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 6) {
-                Text(title)
-                    .font(Theme.body)
-                    .foregroundStyle(Theme.fg)
-                    .fixedSize(horizontal: false, vertical: true)
-                if let detail {
-                    Button {
-                        showingDetail = true
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: infoIconSize, weight: .medium))
-                            .foregroundStyle(Theme.dim)
-                    }
-                    .buttonStyle(.geist)
-                    .geistHitArea(expandedBy: 12)
-                    .accessibilityHidden(true)
-                    .popover(isPresented: $showingDetail, arrowEdge: .bottom) {
-                        Text(detail)
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(14)
-                            .frame(idealWidth: 280, maxWidth: 280)
-                            .presentationCompactAdaptation(.popover)
-                    }
+        HStack(spacing: 6) {
+            Text(title)
+                .font(Theme.body)
+                .foregroundStyle(Theme.fg)
+                .fixedSize(horizontal: false, vertical: true)
+            if let detail {
+                Button {
+                    showingDetail = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: infoIconSize, weight: .medium))
+                        .foregroundStyle(Theme.fg)
+                }
+                .buttonStyle(.geist)
+                .geistHitArea(expandedBy: 12)
+                .accessibilityLabel(title)
+                .accessibilityHint(detail)
+                .popover(isPresented: $showingDetail, arrowEdge: .bottom) {
+                    Text(detail)
+                        .font(Theme.body)
+                        .foregroundStyle(Theme.fg)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(14)
+                        .frame(idealWidth: 280, maxWidth: 280)
+                        .presentationCompactAdaptation(.popover)
                 }
             }
+        }
+    }
+}
+
+struct LabeledRow<Trailing: View>: View {
+    let title: String
+    var detail: String?
+    @ViewBuilder var trailing: Trailing
+
+    var body: some View {
+        HStack(spacing: 10) {
+            RowTitle(title: title, detail: detail)
+            Spacer(minLength: 8)
+            trailing
+        }
+        .padding(.vertical, Theme.rowPadV)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(title)
+    }
+}
+
+struct ToggleRow: View {
+    let title: String
+    var detail: String?
+    @Binding var isOn: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            RowTitle(title: title, detail: detail)
             Spacer(minLength: 8)
             Toggle(title, isOn: $isOn)
                 .labelsHidden()
@@ -329,10 +361,22 @@ struct ToggleRow: View {
                 .tint(Theme.brand)
                 .frame(width: Theme.controlWidth, alignment: .trailing)
                 .geistHitArea(expandedBy: 9)
-                .accessibilityHint(detail ?? "")
+                .modifier(OptionalHint(hint: detail))
         }
         .padding(.vertical, Theme.rowPadV)
         .onChange(of: isOn) { Haptics.selection() }
+    }
+}
+
+private struct OptionalHint: ViewModifier {
+    var hint: String?
+
+    func body(content: Content) -> some View {
+        if let hint {
+            content.accessibilityHint(hint)
+        } else {
+            content
+        }
     }
 }
 
@@ -341,19 +385,39 @@ struct SegmentedRow<Option: Hashable>: View {
     let options: [Option]
     let label: (Option) -> String
     @Binding var selection: Option
-
-    private var controlWidth: CGFloat {
-        CGFloat(options.count) * ((Theme.controlWidth + 32) / 2)
-    }
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        HStack(spacing: 10) {
-            Text(title)
-                .font(Theme.body)
-                .foregroundStyle(Theme.fg)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 8)
-            HStack(spacing: 0) {
+        row
+            .padding(.vertical, Theme.rowPadV)
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(title)
+    }
+
+    @ViewBuilder private var row: some View {
+        if typeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 10) {
+                titleText
+                control
+            }
+        } else {
+            HStack(spacing: 10) {
+                titleText
+                Spacer(minLength: 8)
+                control
+            }
+        }
+    }
+
+    private var titleText: some View {
+        Text(title)
+            .font(Theme.body)
+            .foregroundStyle(Theme.fg)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var control: some View {
+        HStack(spacing: 0) {
                 ForEach(Array(options.enumerated()), id: \.element) { index, option in
                     let isSelected = option == selection
                     Button {
@@ -362,12 +426,16 @@ struct SegmentedRow<Option: Hashable>: View {
                         Text(label(option))
                             .font(.inco(.caption, weight: isSelected ? .semibold : .medium))
                             .foregroundStyle(isSelected ? Theme.fg : Theme.dim)
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
+                            .padding(.horizontal, 16)
                             .background(isSelected ? Theme.surface : Color.clear)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.geistRow)
+                    .geistHitArea(expandedBy: 8)
                     .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : .isButton)
 
                     if index < options.count - 1 {
@@ -383,12 +451,7 @@ struct SegmentedRow<Option: Hashable>: View {
                 RoundedRectangle(cornerRadius: Theme.radius)
                     .stroke(Theme.controlBorder, lineWidth: 1)
             }
-            .frame(width: controlWidth, alignment: .trailing)
-            .geistHitArea(expandedBy: 8)
-        }
-        .padding(.vertical, Theme.rowPadV)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(title)
+            .fixedSize(horizontal: true, vertical: false)
     }
 }
 
@@ -499,6 +562,9 @@ struct GeistHeader<Trailing: View>: View {
     var subtitle: String?
     @ViewBuilder var trailing: Trailing
 
+    @ScaledMetric(relativeTo: .title2) private var barHeight: CGFloat = Theme.headerBarHeight
+    @ScaledMetric(relativeTo: .footnote) private var subtitleHeight: CGFloat = Theme.headerSubtitleHeight
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 0) {
@@ -508,22 +574,22 @@ struct GeistHeader<Trailing: View>: View {
                     .foregroundStyle(Theme.fg)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
-                    .frame(height: Theme.headerBarHeight, alignment: .leading)
+                    .frame(minHeight: barHeight, alignment: .leading)
                 ZStack(alignment: .leading) {
-                    Color.clear.frame(width: 0, height: subtitle != nil ? Theme.headerSubtitleHeight : 0)
+                    Color.clear.frame(width: 0, height: subtitle != nil ? subtitleHeight : 0)
                     if let subtitle {
                         Text(subtitle)
                             .font(Theme.meta)
                             .foregroundStyle(Theme.muted)
                     }
                 }
-                .frame(height: subtitle != nil ? Theme.headerSubtitleHeight : 0, alignment: .leading)
+                .frame(minHeight: subtitle != nil ? subtitleHeight : 0, alignment: .leading)
             }
             Spacer(minLength: 8)
             HStack(spacing: Theme.headerActionSpacing) {
                 trailing
             }
-                .frame(height: Theme.headerBarHeight)
+                .frame(minHeight: barHeight)
         }
     }
 }
