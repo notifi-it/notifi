@@ -10,7 +10,7 @@ import { copyFor, fmt, SOURCE_LANGUAGE, type Strings } from '@notifi/copy';
 import { Hono } from 'hono';
 import { push } from '../lib/apns.js';
 import { errBody, t } from '../lib/respond.js';
-import { seal } from '../lib/seal.js';
+import { encrypt } from '../lib/encrypt.js';
 import {
   insertMessageWithinLimits,
   readSendLimitUsage,
@@ -38,7 +38,7 @@ const CRITICAL_ENTITLED = false;
 
 function pushPayload(
   id: number,
-  sealedB64: string,
+  encryptedB64: string,
   keyId: number,
   shouldEscalate: boolean,
   strings: Strings,
@@ -59,7 +59,7 @@ function pushPayload(
       'mutable-content': 1,
       'thread-id': `key-${keyId}`,
     },
-    notifi: { id, sealed: sealedB64 },
+    notifi: { id, sealed: encryptedB64 },
   };
 }
 
@@ -174,7 +174,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
     is_critical: isCritical,
   };
-  const fullSealed = await seal(keyDevice.encryption_public_key, 'content', JSON.stringify(content));
+  const fullEncrypted = await encrypt(keyDevice.encryption_public_key, 'content', JSON.stringify(content));
 
   const expiresAt = nowS + MESSAGE_BACKSTOP_S;
 
@@ -184,7 +184,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     {
       deviceId: keyDevice.device_id,
       keyId: keyDevice.key_id,
-      contentSealed: fullSealed,
+      contentEncrypted: fullEncrypted,
       createdAt,
       expiresAt,
       occurredAt: occurredAt ?? null,
@@ -244,11 +244,11 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const deviceStrings = copyFor(SOURCE_LANGUAGE);
 
-  let payload = pushPayload(messageId, fullSealed, keyDevice.key_id, isCritical, deviceStrings);
+  let payload = pushPayload(messageId, fullEncrypted, keyDevice.key_id, isCritical, deviceStrings);
   for (const candidate of fallbacks) {
     if (payloadBytes(payload) <= PUSH_BUDGET_BYTES) break;
-    const sealed = await seal(keyDevice.encryption_public_key, 'content', JSON.stringify(candidate));
-    payload = pushPayload(messageId, sealed, keyDevice.key_id, isCritical, deviceStrings);
+    const encrypted = await encrypt(keyDevice.encryption_public_key, 'content', JSON.stringify(candidate));
+    payload = pushPayload(messageId, encrypted, keyDevice.key_id, isCritical, deviceStrings);
   }
 
   const wasPushed = await push(

@@ -68,12 +68,12 @@ keys". A script that should reach both screens needs a key from each and
 sends to both.
 
 A third key, P-256 for key agreement rather than signing, only receives:
-the server seals each message to it with HPKE. It lives in a keychain
+the server encrypts each message to it with HPKE. It lives in a keychain
 group shared with the notification service extension, while the signing key
 and the default send key sit in an app-only group the extension does not
 list. The extension parses an attacker-chosen payload and downloads an
 attacker-chosen image, so a foothold there should reach the one key needed
-to unseal a push and no further.
+to decrypt a push and no further.
 
 ### Signing
 
@@ -166,7 +166,7 @@ between), so the client never infers a missing message from a hole.
 
 ## What a send does
 
-`POST /send` checks the key, seals the message to the device's encryption
+`POST /send` checks the key, encrypts the message to the device's encryption
 key, and shrinks the push payload until it fits the APNs budget: full
 message, then a truncated preview, then title only. The copy in D1 never
 shrinks.
@@ -190,7 +190,7 @@ onto a single issue. Over the hourly limit it answers `429 rate_limited`, with
 
 After the write, two transports fire, in parallel, unconditionally:
 
-- **APNs push** — carries the sealed message, because a locked phone must be
+- **APNs push** — carries the encrypted message, because a locked phone must be
   able to show a banner with the app closed. May be all the user ever sees.
 - **Socket frame** — `{"type":"message","latest_id":N}`, nothing else. It
   reaches a running app, which fetches anyway.
@@ -202,9 +202,9 @@ device holding both gets the message twice and dedupes on the id.
 flowchart LR
   S[sender's script<br/>curl · cron · CI] -- "Authorization: Bearer nk_…" --> P
   subgraph P [POST /send]
-    P1[hash the key,<br/>match keys.secret_hash] --> P2[seal to the device's<br/>encryption key] --> P3[insert the row,<br/>its id is the number]
+    P1[hash the key,<br/>match keys.secret_hash] --> P2[encrypt to the device's<br/>encryption key] --> P3[insert the row,<br/>its id is the number]
   end
-  P3 -- both, always --> APNS[APNs push<br/>carries the sealed message]
+  P3 -- both, always --> APNS[APNs push<br/>carries the encrypted message]
   P3 -- both, always --> DO["DeviceSocket.notify(id)"]
   DO -- "{type: message, latest_id: N}" --> D
   APNS --> D
@@ -309,8 +309,8 @@ blink off once per attempt.
 
 Whether a send was actually delivered as an escalated alert — the sender
 asked (`is_critical=1`, or the older `critical=1`, both honoured) and the
-key had the standing — is resolved before sealing and written into the
-sealed content on every message, false included. Absent means the message
+key had the standing — is resolved before encrypting and written into the
+encrypted content on every message, false included. Absent means the message
 predates the field. The sender's request is not stored; only the outcome.
 
 A send that asks and does not have the standing still delivers, and its

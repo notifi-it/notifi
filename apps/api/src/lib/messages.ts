@@ -1,7 +1,7 @@
 export interface NewMessage {
   deviceId: number;
   keyId: number;
-  contentSealed: string;
+  contentEncrypted: string;
   createdAt: number;
   expiresAt: number;
   occurredAt: number | null;
@@ -44,7 +44,7 @@ export async function insertMessageWithinLimits(
     .bind(
       message.deviceId,
       message.keyId,
-      message.contentSealed,
+      message.contentEncrypted,
       message.createdAt,
       message.expiresAt,
       message.occurredAt,

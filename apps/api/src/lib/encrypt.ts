@@ -7,7 +7,7 @@ const suite = new CipherSuite({
   aead: new Aes256Gcm(),
 });
 
-export async function seal(
+export async function encrypt(
   recipientPublicKeyB64: string,
   info: 'content' | 'key_meta',
   plaintext: string,
