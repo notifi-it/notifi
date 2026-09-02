@@ -28,10 +28,6 @@ model devices {
   app_version           String
   created_at            Int
   last_seen_at          Int
-  acked_id              Int     @default(0)
-  seq_counter           Int     @default(0)
-  rl_window_start       Int     @default(0)
-  rl_window_count       Int     @default(0)
   strict_send           Int     @default(0)
 
   keys     keys[]
@@ -44,8 +40,6 @@ model keys {
   meta_sealed     String
   secret_hash     String  @unique
   sent_count      Int     @default(0)
-  rl_window_start Int     @default(0)
-  rl_window_count Int     @default(0)
   created_at      Int
   last_used_at    Int?
   revoked_at      Int?
@@ -64,7 +58,6 @@ model messages {
   expires_at     Int
   occurred_at    Int?
   collected_at   Int?
-  device_seq     Int    @default(0)
 
   device devices @relation(fields: [device_id], references: [id], onDelete: Cascade)
   key    keys?   @relation(fields: [key_id], references: [id], onDelete: SetNull)

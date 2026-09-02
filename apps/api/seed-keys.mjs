@@ -45,7 +45,7 @@ const out = {};
 for (const k of keys) {
   const meta = await seal('key_meta', JSON.stringify({ id: k.id, name: k.name, prefix: k.prefix }));
   const hash = await sha256hex(k.key);
-  sql += `INSERT INTO keys (id, device_id, meta_sealed, secret_hash, sent_count, rl_window_start, rl_window_count, created_at) VALUES (${k.id}, ${deviceId}, '${meta}', '${hash}', 0, 0, 0, ${now});\n`;
+  sql += `INSERT INTO keys (id, device_id, meta_sealed, secret_hash, sent_count, created_at) VALUES (${k.id}, ${deviceId}, '${meta}', '${hash}', 0, ${now});\n`;
   out[k.name] = k.key;
 }
 writeFileSync('/tmp/notifi-seed.sql', sql);
