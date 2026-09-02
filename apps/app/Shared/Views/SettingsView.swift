@@ -253,6 +253,18 @@ struct SettingsView: View {
                     .geistGutter()
                     RowRule()
 
+                    Link(destination: URL(string: "https://notifi.it/docs")!) {
+                        DisclosureRow {
+                            Text(Copy.Settings.docs)
+                                .font(Theme.body)
+                                .foregroundStyle(Theme.fg)
+                        }
+                        .padding(.vertical, Theme.rowPadV)
+                    }
+                    .buttonStyle(.geistRow)
+                    .geistGutter()
+                    RowRule()
+
                     FieldRow(Copy.Settings.version, AppModel.appVersion)
                         .geistGutter()
                 }

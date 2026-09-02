@@ -63,10 +63,10 @@ export const fr: Translation = {
 
   'age.now': 'à l’instant',
   'age.justNow': 'à l’instant',
-  'age.minutes': '{n} min',
-  'age.hours': '{n} h',
-  'age.days': '{n} j',
-  'age.weeks': '{n} sem.',
+  'age.minutes': '{n}min',
+  'age.hours': '{n}h',
+  'age.days': '{n}j',
+  'age.weeks': '{n}sem.',
   'age.ago': 'il y a {relative}',
   'inbox.title': 'Inbox',
   'inbox.offline':
@@ -255,9 +255,9 @@ export const fr: Translation = {
 
   'settings.stayVisible': 'Les notifications restent visibles',
   'settings.stayVisibleDetail':
-    "Une notification reste à l’écran jusqu’à ce que vous cliquiez dessus ou la fermiez, au lieu de " +
-    "disparaître après quelques secondes. Activer ouvre les Réglages Système, où vous choisissez le style " +
-    "d’alerte de notifi.",
+    "Garde une notification à l’écran jusqu’à ce que vous cliquiez dessus ou la fermiez.\n\n" +
+    "Désactivé, elle disparaît après quelques secondes.\n\n" +
+    "Activer ouvre les Réglages Système, où vous choisissez le style d’alerte de notifi.",
   'settings.stayVisibleEnable': 'Activer',
 
   'settings.theme': 'Thème',
@@ -268,13 +268,16 @@ export const fr: Translation = {
 
   'settings.loadImages': 'Charger les images automatiquement',
   'settings.loadImagesDetail':
-    "Récupère chaque image dès l’arrivée de la notification, ce qui révèle votre adresse IP à son " +
-    "hôte. Désactivé, les images ne se chargent qu’au toucher.",
+    "Récupère chaque image dès l’arrivée de sa notification.\n\n" +
+    "L’hôte de l’image voit alors votre adresse IP.\n\n" +
+    "Désactivé, une image ne se charge que lorsque vous la touchez.",
 
   'settings.strictSend': 'Rejeter les envois invalides',
   'settings.strictSendDetail':
-    "Renvoie 422 invalid_content et ne stocke rien lorsqu’un titre ou un corps dépasse la " +
-    "longueur autorisée. Désactivé, /send raccourcit le champ et renvoie 202 avec un tableau warnings.",
+    "Refuse un envoi dont le titre ou le corps dépasse la longueur autorisée : /send répond " +
+    "422 invalid_content et ne stocke rien.\n\n" +
+    "Désactivé, le champ est raccourci et l’envoi est accepté avec un tableau warnings.\n\n" +
+    "[Lire la documentation](https://notifi.it/docs#response)",
   'settings.strictSendFailed': 'Échec de PATCH /devices/settings. Vérifiez votre connexion et réessayez.',
 
   'settings.testTitle': 'Hello from notifi',
@@ -303,6 +306,7 @@ export const fr: Translation = {
   'settings.feedback': 'Avis',
   'settings.privacyPolicy': 'Politique de confidentialité',
   'settings.website': 'notifi.it',
+  'settings.docs': 'Documentation',
 
   'empty.sampleTitle': 'Hello from notifi',
   'empty.sampleMessage': 'Votre première notification.',

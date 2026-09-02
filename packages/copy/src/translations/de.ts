@@ -111,10 +111,10 @@ export const de: Translation = {
 
   'age.now': 'jetzt',
   'age.justNow': 'gerade eben',
-  'age.minutes': '{n} Min.',
-  'age.hours': '{n} Std.',
-  'age.days': '{n} T',
-  'age.weeks': '{n} W',
+  'age.minutes': '{n}min',
+  'age.hours': '{n}h',
+  'age.days': '{n}T',
+  'age.weeks': '{n}W',
   'age.ago': 'vor {relative}',
   'inbox.title': 'Inbox',
   'inbox.offline': 'notifi-Server nicht erreichbar. Verbindung prüfen und erneut versuchen.',
@@ -300,9 +300,9 @@ export const de: Translation = {
 
   'settings.stayVisible': 'Benachrichtigungen bleiben sichtbar',
   'settings.stayVisibleDetail':
-    'Eine Benachrichtigung bleibt auf dem Bildschirm, bis du sie anklickst oder schließt, statt nach ' +
-    'ein paar Sekunden zu verschwinden. „Aktivieren“ öffnet die Systemeinstellungen, in denen du den ' +
-    'Hinweisstil von notifi wählst.',
+    'Hält eine Benachrichtigung auf dem Bildschirm, bis du sie anklickst oder schließt.\n\n' +
+    'Aus, verschwindet sie nach ein paar Sekunden.\n\n' +
+    '„Aktivieren“ öffnet die Systemeinstellungen, in denen du den Hinweisstil von notifi wählst.',
   'settings.stayVisibleEnable': 'Aktivieren',
 
   'settings.theme': 'Design',
@@ -313,13 +313,16 @@ export const de: Translation = {
 
   'settings.loadImages': 'Bilder automatisch laden',
   'settings.loadImagesDetail':
-    'Ruft jedes Bild ab, sobald die Benachrichtigung ankommt, was dem Host deine IP-Adresse verrät. ' +
-    'Aus, Bilder laden erst bei Antippen.',
+    'Ruft jedes Bild ab, sobald seine Benachrichtigung ankommt.\n\n' +
+    'Der Host des Bildes sieht dabei deine IP-Adresse.\n\n' +
+    'Aus, lädt ein Bild erst, wenn du es antippst.',
 
   'settings.strictSend': 'Ungültige Sendungen ablehnen',
   'settings.strictSendDetail':
-    'Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist. ' +
-    'Aus, /send kürzt das Feld und gibt 202 mit einem warnings-Array zurück.',
+    'Lehnt einen Send ab, dessen Titel oder Text zu lang ist: /send antwortet mit 422 invalid_content ' +
+    'und speichert nichts.\n\n' +
+    'Aus, wird das Feld gekürzt und der Send mit einem warnings-Array angenommen.\n\n' +
+    '[Zur Dokumentation](https://notifi.it/docs#response)',
   'settings.strictSendFailed': 'PATCH /devices/settings fehlgeschlagen. Verbindung prüfen und erneut versuchen.',
 
   'settings.testTitle': 'Hello from notifi',
@@ -347,6 +350,7 @@ export const de: Translation = {
   'settings.feedback': 'Feedback',
   'settings.privacyPolicy': 'Datenschutzerklärung',
   'settings.website': 'notifi.it',
+  'settings.docs': 'Dokumentation',
 
   'empty.sampleTitle': 'Hello from notifi',
   'empty.sampleMessage': 'Deine erste Benachrichtigung.',
