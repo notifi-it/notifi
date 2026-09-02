@@ -911,6 +911,41 @@
         }
       }
     },
+    "common.moreActions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More actions"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más acciones"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weitere Aktionen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus d’actions"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altre azioni"
+          }
+        }
+      }
+    },
     "common.never": {
       "extractionState": "manual",
       "localizations": {
@@ -5171,41 +5206,6 @@
         }
       }
     },
-    "keys.chipRevoked": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revoked"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revocada"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Widerrufen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Révoquée"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revocata"
-          }
-        }
-      }
-    },
     "keys.docsLink": {
       "extractionState": "manual",
       "localizations": {
@@ -5237,41 +5237,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "API docs"
-          }
-        }
-      }
-    },
-    "keys.intro": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keys identify who sent a notification. Use a different key for each script. The default key was made when this device was set up."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Las claves identifican quién envió una notificación. Usa una clave distinta para cada script. La clave predeterminada se creó al configurar este dispositivo."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schlüssel zeigen, wer eine Benachrichtigung gesendet hat. Verwende für jedes Skript einen eigenen Schlüssel. Der Standardschlüssel wurde bei der Einrichtung dieses Geräts erstellt."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les clés identifient qui a envoyé une notification. Utilisez une clé différente pour chaque script. La clé par défaut a été créée lors de la configuration de cet appareil."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le chiavi identificano chi ha inviato una notifica. Usa una chiave diversa per ogni script. La chiave predefinita è stata creata quando questo dispositivo è stato configurato."
           }
         }
       }

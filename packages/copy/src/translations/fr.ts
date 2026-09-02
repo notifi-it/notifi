@@ -54,6 +54,7 @@ export const fr: Translation = {
   'common.markAsUnread': 'Marquer comme non lu',
   'common.openLink': 'Ouvrir le lien',
   'common.never': 'Jamais',
+  'common.moreActions': 'Plus d’actions',
   'common.expand': 'Déplier',
   'common.collapse': 'Replier',
 
@@ -126,15 +127,11 @@ export const fr: Translation = {
   'keys.refreshFailed': "Impossible d’actualiser les clés. Affichage de la dernière liste connue.",
   'keys.sectionActive': 'Actives',
   'keys.sectionRevoked': 'Révoquées',
-  'keys.intro':
-    'Les clés identifient qui a envoyé une notification. Utilisez une clé différente pour chaque script. ' +
-    'La clé par défaut a été créée lors de la configuration de cet appareil.',
   'keys.aboutKeys': 'À propos des clés',
   'keys.sent': { one: '1 envoi', other: '{n} envois' },
   'keys.rowLastUsed': 'utilisée {ago}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Par défaut',
-  'keys.chipRevoked': 'Révoquée',
   'keys.chipCritical': 'Critique',
   'keys.rowLabel': 'Clé, {name}, se termine par {suffix}',
   'keys.rowLabelRevoked': ', révoquée',
