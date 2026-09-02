@@ -407,6 +407,8 @@ private struct ImageBlock: View {
     @ScaledMetric(relativeTo: .subheadline) private var failedIconSize: CGFloat = 15
     @ScaledMetric(relativeTo: .footnote) private var downloadIconSize: CGFloat = 13
     @ScaledMetric(relativeTo: .caption) private var expandIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var downloadWell: CGFloat = 26
+    @State private var downloadHovered = false
 
     private struct Loaded {
         let image: Image
@@ -485,13 +487,23 @@ private struct ImageBlock: View {
                 Button(action: onDownload) {
                     Image(systemName: "arrow.down.to.line")
                         .font(.system(size: downloadIconSize, weight: .medium))
-                        .foregroundStyle(Theme.fg)
+                        .foregroundStyle(downloading ? Theme.brand : Theme.fg)
+                        .frame(width: downloadWell, height: downloadWell)
+                        .background {
+                            Circle()
+                                .fill(Theme.chip)
+                                .opacity(downloadHovered && !downloading ? 1 : 0)
+                        }
                 }
                 .buttonStyle(.geist)
                 .disabled(downloading)
+                .onHover { downloadHovered = $0 }
+                .animation(Theme.state, value: downloadHovered)
+                .animation(Theme.state, value: downloading)
                 .accessibilityLabel(Copy.Message.downloadImage)
-                .geistHitArea(expandedBy: 16)
+                .geistHitArea(expandedBy: 10)
 
+                #if os(iOS)
                 Button(action: onExpand) {
                     Image(systemName: "arrow.up.left.and.arrow.down.right")
                         .font(.system(size: expandIconSize, weight: .medium))
@@ -500,6 +512,7 @@ private struct ImageBlock: View {
                 .buttonStyle(.geist)
                 .accessibilityLabel(Copy.Message.viewImageFullScreen)
                 .geistHitArea(expandedBy: 16)
+                #endif
             }
             .padding(.vertical, 7)
             .padding(.horizontal, 12)
