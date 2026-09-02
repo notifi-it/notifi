@@ -444,7 +444,6 @@ final class AppModel {
         if SampleData.isEnabled {
             notificationStatus = .authorized
             criticalAlertStatus = .enabled
-            notificationsStayVisible = true
             return
         }
         #endif
