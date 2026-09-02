@@ -70,13 +70,13 @@ enum SampleData {
     private static let showcaseBody = """
     ## A heading
 
-    Plain text with **bold**, `code` and ~~strikethrough~~, sent in one HTTP request.
+    Plain text with **bold**, `code` and ~~strikethrough~~.
 
     - Lists
-    - Quotes and [links](https://notifi.it/docs)
+    - Quotes
     - Tables and rules
 
-    > Rendered on the device, from a body only the device can read.
+    > Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
     | Field | Holds |
     | --- | --- |
@@ -87,7 +87,9 @@ enum SampleData {
     ---
 
     ```
-    POST notifi.it/send
+    curl -X POST https://notifi.it/send \\
+      -H "Authorization: Bearer $NOTIFI_KEY" \\
+      -d "title=Rendered from Markdown"
     ```
     """
 
