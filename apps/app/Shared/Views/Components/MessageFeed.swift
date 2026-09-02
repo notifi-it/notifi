@@ -115,6 +115,12 @@ struct MessageFeed<Empty: View>: View {
             .tint(Theme.danger)
         }
         #endif
+        .accessibilityAction(named: message.isRead ? Copy.Common.markAsUnread : Copy.Common.markAsRead) {
+            toggleRead(message)
+        }
+        .accessibilityAction(named: Copy.Common.delete) {
+            pendingDelete = message
+        }
         .contextMenu { menu(for: message) }
     }
 
@@ -376,7 +382,7 @@ private struct MessageRow: View {
     private var content: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(Self.clock.string(from: basis))
-                .font(.inco(size: 12, weight: textWeight))
+                .font(.inco(size: 12, weight: textWeight, relativeTo: .footnote))
                 .monospacedDigit()
                 .underline(message.isCritical, pattern: .solid)
                 .foregroundStyle(isEscalated ? Theme.brandText
@@ -481,7 +487,7 @@ private struct MessageRow: View {
         if let link = message.link, let host = link.host() {
             parts.append(Copy.Inbox.linkTo(host))
         }
-        if message.imageURL != nil { parts.append("Has an image") }
+        if message.imageURL != nil { parts.append(Copy.Inbox.hasImage) }
         parts.append(Self.clock.string(from: basis))
         return parts.joined(separator: ", ")
     }

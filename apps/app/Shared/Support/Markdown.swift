@@ -18,13 +18,15 @@ struct MarkdownText: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .textual.textSelection(.enabled)
         .environment(\.openURL, OpenURLAction { url in
-            LinkPolicy.allows(url, anyScheme: allowAnyScheme) ? .systemAction : .discarded
+            if LinkPolicy.allows(url, anyScheme: allowAnyScheme) { return .systemAction }
+            AccessibilityNotification.Announcement(Copy.Message.linkBlockedNotice).post()
+            return .discarded
         })
     }
 
     private var markdown: some View {
         StructuredText(markdown: source)
-            .font(.custom("Karla", size: 15))
+            .font(.karla(size: 15, relativeTo: .body))
             .foregroundStyle(Theme.muted)
             .textual.structuredTextStyle(GeistStructuredStyle())
     }
@@ -33,7 +35,7 @@ struct MarkdownText: View {
 private struct GeistStructuredStyle: StructuredText.Style {
     var inlineStyle: InlineStyle {
         InlineStyle()
-            .code(.font(.custom("Recursive Mono", size: 13)),
+            .code(.font(.inco(size: 13, relativeTo: .callout)),
                   .foregroundColor(Theme.fg),
                   .backgroundColor(Theme.surface))
             .strong(.fontWeight(.bold))
@@ -59,13 +61,14 @@ private struct GeistHeadingStyle: StructuredText.HeadingStyle {
     private static let weights: [Font.Weight] = [.bold, .semibold, .semibold, .semibold, .medium, .medium]
     private static let tops: [CGFloat] = [24, 22, 20, 18, 16, 16]
     private static let bottoms: [CGFloat] = [8, 6, 6, 4, 4, 4]
+    private static let styles: [Font.TextStyle] = [.title, .title2, .title3, .headline, .body, .callout]
 
     func makeBody(configuration: Configuration) -> some View {
         let level = min(max(configuration.headingLevel, 1), 6)
 
         configuration.label
             .tracking(0.5)
-            .font(.custom("Recursive Mono", size: Self.sizes[level - 1]))
+            .font(.inco(size: Self.sizes[level - 1], relativeTo: Self.styles[level - 1]))
             .fontWeight(Self.weights[level - 1])
             .foregroundStyle(Theme.fg)
             .textual.blockSpacing(StructuredText.BlockSpacing(top: Self.tops[level - 1],
@@ -99,7 +102,7 @@ private struct GeistCodeBlockStyle: StructuredText.CodeBlockStyle {
         Overflow {
             configuration.label
                 .textual.lineSpacing(.fontScaled(0.2))
-                .font(.custom("Recursive Mono", size: 13))
+                .font(.inco(size: 13, relativeTo: .callout))
                 .foregroundStyle(Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.vertical, 16)

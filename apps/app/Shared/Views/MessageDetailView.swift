@@ -222,6 +222,8 @@ struct MessageDetailView: View {
             Text(message.title)
                 .font(.inco(.title, weight: .bold))
                 .foregroundStyle(Theme.fg)
+                .accessibilityLabel(message.isCritical
+                    ? "\(Copy.Inbox.critical), \(message.title)" : message.title)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
                 .multilineTextAlignment(.center)
@@ -281,12 +283,12 @@ struct MessageDetailView: View {
                 if let name {
                     keyGlyph(11, Theme.dim)
                     Text(name)
-                        .font(.karla(size: 13, weight: .semibold))
+                        .font(.karla(size: 13, weight: .semibold, relativeTo: .footnote))
                         .foregroundStyle(Theme.muted)
                     Text("·").foregroundStyle(Theme.chip)
                 }
                 Text(age)
-                    .font(.karla(size: 13, weight: .semibold))
+                    .font(.karla(size: 13, weight: .semibold, relativeTo: .footnote))
                     .foregroundStyle(Theme.muted)
             }
             Text(stamp)
@@ -319,10 +321,11 @@ struct MessageDetailView: View {
             Button { model.path.append(key) } label: { label() }
                 .buttonStyle(.geist)
                 .accessibilityLabel(Copy.Message.openKey(name))
+        } else if let name = keyName(for: message) {
+            label()
+                .accessibilityLabel(Copy.Message.sentWithKey(name))
         } else {
             label()
-                .accessibilityLabel(keyName(for: message)
-                    .map { Copy.Message.sentWithKey($0) } ?? "")
         }
     }
 
@@ -517,6 +520,8 @@ private struct ImageBlock: View {
     @ScaledMetric(relativeTo: .subheadline) private var failedIconSize: CGFloat = 15
     @ScaledMetric(relativeTo: .footnote) private var downloadIconSize: CGFloat = 13
     @ScaledMetric(relativeTo: .caption) private var expandIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var downloadWell: CGFloat = 26
+    @State private var downloadHovered = false
 
     private struct Loaded {
         let image: Image
@@ -554,7 +559,7 @@ private struct ImageBlock: View {
             case .loading:
                 Theme.surface
                     .frame(maxWidth: .infinity)
-                    .frame(height: 160)
+                    .frame(minHeight: 160)
             case .failed:
                 VStack(spacing: 6) {
                     Image(systemName: "xmark")
@@ -564,7 +569,7 @@ private struct ImageBlock: View {
                 }
                 .foregroundStyle(Theme.dim)
                 .frame(maxWidth: .infinity)
-                .frame(height: 120)
+                .frame(minHeight: 120)
             case .loaded(let loaded):
                 Button(action: onExpand) {
                     loaded.image
@@ -615,13 +620,21 @@ private struct ImageBlock: View {
 
                 Button(action: onDownload) {
                     downloadGlyph
-                        .frame(width: downloadIconSize + 5, height: downloadIconSize + 5)
+                        .frame(width: downloadWell, height: downloadWell)
+                        .background {
+                            Circle()
+                                .fill(Theme.chip)
+                                .opacity(downloadHovered && saveState == .idle ? 1 : 0)
+                        }
                 }
                 .buttonStyle(.geist)
                 .disabled(saveState == .saving)
+                .onHover { downloadHovered = $0 }
+                .animation(Theme.state, value: downloadHovered)
                 .accessibilityLabel(saveStatus?.text ?? Copy.Message.downloadImage)
                 .geistHitArea(expandedBy: 10)
 
+                #if os(iOS)
                 Button(action: onExpand) {
                     Image(systemName: "arrow.up.left.and.arrow.down.right")
                         .font(.system(size: expandIconSize, weight: .medium))
@@ -629,7 +642,8 @@ private struct ImageBlock: View {
                 }
                 .buttonStyle(.geist)
                 .accessibilityLabel(Copy.Message.viewImageFullScreen)
-                .geistHitArea(expandedBy: 10)
+                .geistHitArea(expandedBy: 16)
+                #endif
             }
             .padding(.vertical, 7)
             .padding(.horizontal, 12)

@@ -157,6 +157,7 @@ struct InboxView: View {
             #if os(macOS)
             if !messages.isEmpty, showingSearch {
                 SearchField(text: $searchText, focused: $searchFocused)
+                    .onExitCommand { closeSearch() }
             }
             #endif
         }
