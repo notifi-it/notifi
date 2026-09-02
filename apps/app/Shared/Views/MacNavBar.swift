@@ -21,6 +21,7 @@ struct MacNavBar<Trailing: View>: View {
                     .font(.inco(.subheadline, weight: .medium))
             }
             .buttonStyle(.geist)
+            .keyboardShortcut("[", modifiers: .command)
             .accessibilityLabel(Copy.Components.backTo(backTitle))
 
             Spacer(minLength: 0)

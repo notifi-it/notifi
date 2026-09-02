@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8123", "-d", "apps/api/public"],
       "port": 8123
+    },
+    {
+      "name": "api-local",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["-C", "apps/api", "exec", "wrangler", "dev", "--port", "8787", "--host", "localhost:8787"],
+      "port": 8787
     }
   ]
 }

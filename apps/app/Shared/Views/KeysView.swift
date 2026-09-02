@@ -91,7 +91,7 @@ struct KeysView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.geist)
-                .geistHitArea(expandedBy: 15)
+                .geistHitArea(expandedBy: 17)
                 .padding(.top, 14)
                 .padding(.bottom, 40)
                 .geistGutter()
@@ -168,6 +168,11 @@ private struct KeyRow: View {
             Copy.Keys.rowLabel(key.name, String(key.prefix.suffix(4)))
             + (key.isRevoked ? Copy.Keys.rowLabelRevoked : "")
             + (key.isCritical && !key.isRevoked ? Copy.Keys.rowLabelCritical : "")
+        )
+        .accessibilityValue(
+            [sent, key.lastUsedDate.map { Copy.Keys.rowLastUsed(RelativeAge.agoString(since: $0)) }]
+                .compactMap { $0 }
+                .joined(separator: ", ")
         )
     }
 }

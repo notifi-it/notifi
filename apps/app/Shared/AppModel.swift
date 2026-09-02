@@ -101,6 +101,9 @@ final class AppModel {
     var appearance: Appearance {
         didSet { UserDefaults.standard.set(appearance.rawValue, forKey: Self.appearanceKey) }
     }
+    var grainEnabled: Bool {
+        didSet { UserDefaults.standard.set(grainEnabled, forKey: Self.grainKey) }
+    }
     private(set) var keysAllowingAnyLink: Set<Int>
     var presentingCreateKey = false
 
@@ -128,11 +131,13 @@ final class AppModel {
     private static let realTokenKey = "lastRealAPNSToken"
     #endif
     private static let appearanceKey = "appearance"
+    private static let grainKey = "grain"
 
     init() {
         remoteImagesEnabled = RemoteImages.isEnabled
         appearance = Appearance(rawValue: UserDefaults.standard.string(forKey: Self.appearanceKey) ?? "")
             ?? .dark
+        grainEnabled = UserDefaults.standard.object(forKey: Self.grainKey) as? Bool ?? true
         keysAllowingAnyLink = LocalDev.isActive ? [] : LinkPolicy.allowedKeyIDs()
     }
 

@@ -151,6 +151,8 @@ export const copy = {
 
     unread: 'Unread',
     critical: 'Critical',
+    hasImage: 'Has an image',
+    offlineBadge: 'Offline',
     linkTo: 'Link to {host}',
     deleteTitle: 'Delete “{title}”?',
     deleteTitleFallback: 'Delete this notification?',
@@ -179,6 +181,9 @@ export const copy = {
     loadImage: 'Load image',
     load: 'Load',
     imageBlocked: 'blocked',
+    image: 'Image',
+    resetZoom: 'Reset zoom',
+    linkBlockedNotice: 'Link blocked',
     sourceHeader: 'Source',
   },
 
@@ -326,6 +331,7 @@ export const copy = {
     stayVisibleEnable: 'Enable',
 
     theme: 'Theme',
+    grain: 'Grain',
     themeDark: 'Dark',
     themeLight: 'Light',
     themeSystem: 'System',

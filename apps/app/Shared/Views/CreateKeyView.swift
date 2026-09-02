@@ -248,6 +248,7 @@ struct CreateKeyView: View {
         errorMessage = nil
         nameFocused = false
         phase = .creating
+        AccessibilityNotification.Announcement(Copy.CreateKey.creating).post()
         do {
             let response = try await api.createKey(
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines))

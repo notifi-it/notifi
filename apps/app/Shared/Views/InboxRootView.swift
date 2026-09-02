@@ -93,6 +93,7 @@ struct InboxRootView: View {
                 Label(Copy.Tabs.inbox,
                       image: model.hasUnread ? "BellTabUnread" : "BellTab")
                     .labelStyle(.iconOnly)
+                    .accessibilityValue(model.hasUnread ? Copy.Inbox.unread : "")
             }
 
             Tab(value: AppTab.keys) {
@@ -133,6 +134,7 @@ struct InboxRootView: View {
                     Label(Copy.Tabs.inbox,
                           image: model.hasUnread ? "BellTabUnread" : "BellTab")
                         .labelStyle(.iconOnly)
+                        .accessibilityValue(model.hasUnread ? Copy.Inbox.unread : "")
                 }
                 .tag(AppTab.inbox)
 

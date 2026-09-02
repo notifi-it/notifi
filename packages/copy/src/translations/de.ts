@@ -138,6 +138,8 @@ export const de: Translation = {
 
   'inbox.unread': 'Ungelesen',
   'inbox.critical': 'Kritisch',
+  'inbox.hasImage': 'Enthält ein Bild',
+  'inbox.offlineBadge': 'Offline',
   'inbox.linkTo': 'Link zu {host}',
   'inbox.deleteTitle': '„{title}“ löschen?',
   'inbox.deleteTitleFallback': 'Diese Benachrichtigung löschen?',
@@ -162,6 +164,9 @@ export const de: Translation = {
   'message.loadImage': 'Bild laden',
   'message.load': 'Laden',
   'message.imageBlocked': 'blockiert',
+  'message.image': 'Bild',
+  'message.resetZoom': 'Zoom zurücksetzen',
+  'message.linkBlockedNotice': 'Link blockiert',
   'message.sourceHeader': 'Quelle',
   'keys.title': 'Schlüssel',
   'keys.newKey': 'Neuer Schlüssel',
@@ -301,6 +306,7 @@ export const de: Translation = {
   'settings.stayVisibleEnable': 'Aktivieren',
 
   'settings.theme': 'Design',
+  'settings.grain': 'Körnung',
   'settings.themeDark': 'Dunkel',
   'settings.themeLight': 'Hell',
   'settings.themeSystem': 'System',

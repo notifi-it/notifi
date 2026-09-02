@@ -100,6 +100,7 @@ struct RootContentView: View {
         .font(.inco(.body))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(StaticField())
+        .environment(\.grainEnabled, model.grainEnabled)
         .preferredColorScheme(model.appearance.colorScheme)
         #if os(macOS)
         .overlay {
