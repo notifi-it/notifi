@@ -72,17 +72,18 @@ enum SampleData {
 
     Plain text with **bold**, `code` and ~~strikethrough~~.
 
-    - Lists
+    - Lists, tables and rules
     - Quotes
-    - Tables and rules
+    - Links: [API docs](https://notifi.it/docs)
 
     > Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+    ### A smaller heading
 
     | Field | Holds |
     | --- | --- |
     | title | one line |
     | message | Markdown |
-    | image | a URL |
 
     ---
 
