@@ -6,6 +6,8 @@ export const fr: Translation = {
 
   'api.rateLimitedIP': 'Trop de requêtes depuis cette adresse IP.',
   'api.rateLimitedAccount': 'Limite de débit dépassée. Trop de notifications cette heure-ci.',
+  'api.tooManyUncollected':
+    'Non envoyée. Cet appareil a {max} notifications non récupérées en attente ; il doit les récupérer avant de pouvoir en recevoir une autre.',
 
   'api.badSignature': 'Signature de requête invalide.',
   'api.staleTimestamp': "L’horodatage de la requête est hors de la fenêtre autorisée.",

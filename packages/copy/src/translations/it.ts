@@ -6,6 +6,8 @@ export const it: Translation = {
 
   'api.rateLimitedIP': 'Troppe richieste da questo IP.',
   'api.rateLimitedAccount': 'Limite superato. Troppe notifiche in questa ora.',
+  'api.tooManyUncollected':
+    'Non inviata. Questo dispositivo ha {max} notifiche non ritirate in attesa; deve ritirarle prima di poterne ricevere un’altra.',
 
   'api.badSignature': 'Firma della richiesta non valida.',
   'api.staleTimestamp': 'Il timestamp della richiesta è fuori dalla finestra consentita.',

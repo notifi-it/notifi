@@ -89,10 +89,10 @@ export interface Group {
   group?: string;
 }
 
-function tabButton(prefix: string, item: Group, selected: boolean): string {
+function tabButton(prefix: string, item: Group, isSelected: boolean): string {
   const label = item.label.replace(/ /g, '&nbsp;');
   const glyph = item.icon ? brand(item.icon) : '';
-  return `<button class="tab" role="tab" aria-selected="${selected}" aria-controls="${prefix}p-${item.id}" id="${prefix}t-${item.id}">${glyph}<span>${label}</span></button>`;
+  return `<button class="tab" role="tab" aria-selected="${isSelected}" aria-controls="${prefix}p-${item.id}" id="${prefix}t-${item.id}">${glyph}<span>${label}</span></button>`;
 }
 
 function tabRow(prefix: string, items: Group[]): string {

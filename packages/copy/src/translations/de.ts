@@ -6,6 +6,8 @@ export const de: Translation = {
 
   'api.rateLimitedIP': 'Zu viele Anfragen von dieser IP.',
   'api.rateLimitedAccount': 'Limit erreicht. Zu viele Benachrichtigungen in dieser Stunde.',
+  'api.tooManyUncollected':
+    'Nicht gesendet. Auf diesem Gerät warten {max} nicht abgeholte Benachrichtigungen; es muss sie abholen, bevor eine weitere gesendet werden kann.',
 
   'api.badSignature': 'Ungültige Anfragesignatur.',
   'api.staleTimestamp': 'Der Zeitstempel der Anfrage liegt außerhalb des zulässigen Fensters.',

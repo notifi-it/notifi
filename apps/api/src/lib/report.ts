@@ -19,11 +19,11 @@ function tagValue(value: string | number | boolean): string {
   return s.length > 200 ? `${s.slice(0, 197)}...` : s;
 }
 
-let reporting = false;
+let isReporting = false;
 
 function report(args: readonly unknown[]): void {
-  if (reporting) return;
-  reporting = true;
+  if (isReporting) return;
+  isReporting = true;
   try {
     const first = args[0];
     const key = typeof first === 'string' && KEY.test(first) ? first : null;
@@ -58,7 +58,7 @@ function report(args: readonly unknown[]): void {
     });
   } catch {
   } finally {
-    reporting = false;
+    isReporting = false;
   }
 }
 

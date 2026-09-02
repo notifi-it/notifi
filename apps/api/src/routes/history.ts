@@ -22,26 +22,24 @@ history.get('/history', async (c) => {
   const limit = parsed.data.limit ?? 50;
 
   const rows = await c.env.DB.prepare(
-    `SELECT device_seq AS id, content_sealed, key_id, created_at, occurred_at
-     FROM messages WHERE device_id = ? AND device_seq > ? ORDER BY device_seq ASC LIMIT ?`,
+    `SELECT id, content_sealed, key_id, created_at, occurred_at
+     FROM messages WHERE device_id = ? AND id > ? AND collected_at IS NULL
+     ORDER BY id ASC LIMIT ?`,
   )
     .bind(device.id, since, limit)
     .all<HistoryMessage>();
 
-  const results = rows.results;
-  const latest = results.length > 0 ? results[results.length - 1]!.id : null;
+  const messages = rows.results;
+  const latestId = messages.length > 0 ? messages[messages.length - 1]!.id : null;
 
-  if (since > device.acked_id) {
-    await c.env.DB.batch([
-      c.env.DB.prepare(
-        'UPDATE devices SET acked_id = MAX(acked_id, ?), last_seen_at = ? WHERE id = ?',
-      ).bind(since, nowS, device.id),
-      c.env.DB.prepare('DELETE FROM messages WHERE device_id = ? AND device_seq <= ?').bind(
-        device.id,
-        since,
-      ),
-    ]);
+  if (since > 0) {
+    await c.env.DB.prepare(
+      `UPDATE messages SET content_sealed = '', collected_at = ?
+       WHERE device_id = ? AND id <= ? AND collected_at IS NULL`,
+    )
+      .bind(nowS, device.id, since)
+      .run();
   }
 
-  return c.json({ messages: results, latest_id: latest });
+  return c.json({ messages, latest_id: latestId });
 });

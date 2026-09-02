@@ -1,8 +1,14 @@
 import type { PublicErrorCode } from '@notifi/contract';
-import { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX } from '@notifi/contract';
+import {
+  IMAGE_URL_MAX,
+  LINK_URL_MAX,
+  MESSAGE_MAX,
+  TITLE_MAX,
+  UNCOLLECTED_MAX,
+} from '@notifi/contract';
 import type { Lang } from './shikify.js';
 
-export { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX };
+export { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX, UNCOLLECTED_MAX };
 
 export interface Param {
   name: string;
@@ -175,6 +181,15 @@ export const errors: ErrorRow[] = [
     summary: 'Over the hourly device limit or the per-minute IP limit.',
     detail: 'Carries a Retry-After header with the seconds until the window resets.',
   },
+  {
+    code: 'too_many_uncollected',
+    status: 507,
+    reason: 'Insufficient Storage',
+    message: `Not sent. This device has ${UNCOLLECTED_MAX} uncollected notifications waiting; it has to collect them before it can be sent another.`,
+    summary: 'The device already has the most uncollected notifications it can hold.',
+    detail:
+      'Every notification the device has not collected yet counts, across every key on it. The count falls as the device collects, so a later send succeeds without any change to the key.',
+  },
   { code: 'not_found', status: 404, reason: 'Not Found', message: 'No such path.', summary: 'No such path.', detail: '' },
   {
     code: 'internal_error',
@@ -190,10 +205,17 @@ export const limits: string[] = [
   `${SENDS_PER_HOUR} notifications an hour per device, shared across every key on it.`,
   `${KEYS_PER_DEVICE} active send keys per device, one of which is the app’s own default.`,
   `${REQUESTS_PER_MINUTE} requests a minute per IP address, across every endpoint.`,
+  `${UNCOLLECTED_MAX} uncollected notifications per device, across every key on it. Over the limit answers 507 until the device collects what is waiting.`,
   'Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.',
 ];
 
-export const OPERATION_ERRORS = ['invalid_request', 'unknown_key', 'invalid_content', 'rate_limited'];
+export const OPERATION_ERRORS = [
+  'invalid_request',
+  'unknown_key',
+  'invalid_content',
+  'rate_limited',
+  'too_many_uncollected',
+];
 
 export const INTEGRATION_SURFACE =
   'There is no MCP server, no webhook API and no OAuth. One endpoint and a bearer token is the whole integration surface. Anything claiming otherwise is not notifi.';

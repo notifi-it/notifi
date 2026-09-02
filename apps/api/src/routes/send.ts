@@ -4,6 +4,7 @@ import {
   OCCURRED_AT_MAX_SKEW_MS,
   sendParams,
   TITLE_MAX,
+  UNCOLLECTED_MAX,
 } from '@notifi/contract';
 import { copyFor, fmt, SOURCE_LANGUAGE, type Strings } from '@notifi/copy';
 import { Hono } from 'hono';
@@ -11,13 +12,7 @@ import { push } from '../lib/apns.js';
 import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
 import { hashKey } from '../lib/sendkey.js';
-import {
-  MESSAGE_BACKSTOP_S,
-  now,
-  PER_DEVICE_WINDOW_S,
-  perDeviceLimit,
-  windowStart,
-} from '../lib/time.js';
+import { MESSAGE_BACKSTOP_S, now, PER_DEVICE_WINDOW_S, perDeviceLimit } from '../lib/time.js';
 import type { AppEnv } from '../types.js';
 
 const PUSH_BUDGET_BYTES = 4000;
@@ -40,10 +35,10 @@ function pushPayload(
   id: number,
   sealedB64: string,
   keyId: number,
-  escalate: boolean,
+  shouldEscalate: boolean,
   strings: Strings,
 ): object {
-  const escalation = escalate
+  const escalation = shouldEscalate
     ? CRITICAL_ENTITLED
       ? {
           sound: { critical: 1, name: 'default', volume: 1 },
@@ -116,7 +111,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   const input = parsed.data;
 
   const secretHash = await hashKey(input.key);
-  const row = await c.env.DB.prepare(
+  const keyDevice = await c.env.DB.prepare(
     `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.is_critical AS is_critical,
             d.id AS device_id, d.apns_token AS apns_token,
             d.encryption_public_key AS encryption_public_key,
@@ -127,44 +122,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     .bind(secretHash)
     .first<KeyDeviceRow>();
 
-  if (!row || row.revoked_at !== null) {
-    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
-  }
-
-  const w = windowStart(nowS);
-  const allowed = await c.env.DB.prepare(
-    `UPDATE devices SET
-       rl_window_count = CASE WHEN rl_window_start = ? THEN rl_window_count + 1 ELSE 1 END,
-       rl_window_start = ?,
-       seq_counter     = seq_counter + 1
-     WHERE id = ?
-       AND (rl_window_start != ? OR rl_window_count < ?)
-     RETURNING seq_counter`,
-  )
-    .bind(w, w, row.device_id, w, perDeviceLimit(c.env))
-    .first<{ seq_counter: number }>();
-
-  if (!allowed) {
-    const still = await c.env.DB.prepare('SELECT id FROM devices WHERE id = ?')
-      .bind(row.device_id)
-      .first<{ id: number }>();
-    if (!still) {
-      return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
-    }
-    c.header('Retry-After', String(w + PER_DEVICE_WINDOW_S - nowS));
-    return c.json(errBody('rate_limited', t(c).api.rateLimitedAccount), 429);
-  }
-  const deviceSeq = allowed.seq_counter;
-
-  const keyLive = await c.env.DB.prepare(
-    `UPDATE keys SET sent_count = sent_count + 1, last_used_at = ?
-     WHERE id = ? AND revoked_at IS NULL
-     RETURNING id`,
-  )
-    .bind(nowS, row.key_id)
-    .first<{ id: number }>();
-
-  if (!keyLive) {
+  if (!keyDevice || keyDevice.revoked_at !== null) {
     return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
   }
 
@@ -178,8 +136,8 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     );
   }
 
-  const asked = input.is_critical === true;
-  const critical = asked && row.is_critical === 1;
+  const isCriticalAsked = input.is_critical === true;
+  const isCritical = isCriticalAsked && keyDevice.is_critical === 1;
 
   const warnings: string[] = [];
 
@@ -197,7 +155,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const image = input.image;
 
-  if (row.strict_send === 1 && warnings.length > 0) {
+  if (keyDevice.strict_send === 1 && warnings.length > 0) {
     return c.json(errBody('invalid_content', t(c).api.strictContentRejected), 422);
   }
 
@@ -206,73 +164,112 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     ...(message !== undefined ? { message } : {}),
     ...(input.link !== undefined ? { link: input.link } : {}),
     ...(image !== undefined ? { image } : {}),
-    key_id: row.key_id,
+    key_id: keyDevice.key_id,
     created_at: createdAt,
     ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
-    is_critical: critical,
+    is_critical: isCritical,
   };
-  const fullSealed = await seal(row.encryption_public_key, 'content', JSON.stringify(content));
+  const fullSealed = await seal(keyDevice.encryption_public_key, 'content', JSON.stringify(content));
 
   const expiresAt = nowS + MESSAGE_BACKSTOP_S;
 
-  await c.env.DB.prepare(
+  const hourStartS = nowS - PER_DEVICE_WINDOW_S;
+  const inserted = await c.env.DB.prepare(
     `INSERT INTO messages
-       (device_id, device_seq, key_id, content_sealed, created_at, expires_at, occurred_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       (device_id, key_id, content_sealed, created_at, expires_at, occurred_at)
+     SELECT ?, ?, ?, ?, ?, ?
+     WHERE (SELECT COUNT(*) FROM messages WHERE device_id = ? AND created_at > ?) < ?
+       AND (SELECT COUNT(*) FROM messages WHERE device_id = ? AND collected_at IS NULL) < ?
+     RETURNING id`,
   )
     .bind(
-      row.device_id,
-      deviceSeq,
-      row.key_id,
+      keyDevice.device_id,
+      keyDevice.key_id,
       fullSealed,
       createdAt,
       expiresAt,
       occurredAt ?? null,
+      keyDevice.device_id,
+      hourStartS,
+      perDeviceLimit(c.env),
+      keyDevice.device_id,
+      UNCOLLECTED_MAX,
     )
-    .run();
+    .first<{ id: number }>();
 
-  const messageId = deviceSeq;
+  if (!inserted) {
+    const usage = await c.env.DB.prepare(
+      `SELECT
+         MIN(CASE WHEN created_at > ? THEN created_at END) AS oldest_in_hour,
+         SUM(collected_at IS NULL) AS uncollected_count
+       FROM messages WHERE device_id = ?`,
+    )
+      .bind(hourStartS, keyDevice.device_id)
+      .first<{ oldest_in_hour: number | null; uncollected_count: number }>();
+    if (usage && usage.uncollected_count >= UNCOLLECTED_MAX) {
+      console.error('send.uncollected_limit', {
+        device_id: keyDevice.device_id,
+        key_id: keyDevice.key_id,
+        uncollected_count: usage.uncollected_count,
+        limit: UNCOLLECTED_MAX,
+      });
+      return c.json(
+        errBody('too_many_uncollected', fmt(t(c).api.tooManyUncollected, { max: UNCOLLECTED_MAX })),
+        507,
+      );
+    }
+    if (usage && usage.oldest_in_hour !== null) {
+      c.header('Retry-After', String(usage.oldest_in_hour + PER_DEVICE_WINDOW_S - nowS));
+      return c.json(errBody('rate_limited', t(c).api.rateLimitedAccount), 429);
+    }
+    return c.json(errBody('internal_error', t(c).api.unexpected), 500);
+  }
+  const messageId = inserted.id;
+
+  await c.env.DB.prepare('UPDATE keys SET sent_count = sent_count + 1, last_used_at = ? WHERE id = ?')
+    .bind(nowS, keyDevice.key_id)
+    .run();
 
   const fallbacks: MessageContent[] = [
     {
       title,
       ...(message !== undefined ? { message: message.slice(0, PREVIEW_MESSAGE_MAX) } : {}),
       ...(image !== undefined ? { image } : {}),
-      key_id: row.key_id,
+      key_id: keyDevice.key_id,
       created_at: createdAt,
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
-      is_critical: critical,
+      is_critical: isCritical,
     },
     {
       title,
       ...(message !== undefined ? { message: message.slice(0, MINIMAL_MESSAGE_MAX) } : {}),
-      key_id: row.key_id,
+      key_id: keyDevice.key_id,
       created_at: createdAt,
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
-      is_critical: critical,
+      is_critical: isCritical,
     },
     {
       title,
-      key_id: row.key_id,
+      key_id: keyDevice.key_id,
       created_at: createdAt,
       ...(occurredAt !== undefined ? { occurred_at: occurredAt } : {}),
-      is_critical: critical,
+      is_critical: isCritical,
     },
   ];
 
   const deviceStrings = copyFor(SOURCE_LANGUAGE);
 
-  let payload = pushPayload(messageId, fullSealed, row.key_id, critical, deviceStrings);
+  let payload = pushPayload(messageId, fullSealed, keyDevice.key_id, isCritical, deviceStrings);
   for (const candidate of fallbacks) {
     if (payloadBytes(payload) <= PUSH_BUDGET_BYTES) break;
-    const sealed = await seal(row.encryption_public_key, 'content', JSON.stringify(candidate));
-    payload = pushPayload(messageId, sealed, row.key_id, critical, deviceStrings);
+    const sealed = await seal(keyDevice.encryption_public_key, 'content', JSON.stringify(candidate));
+    payload = pushPayload(messageId, sealed, keyDevice.key_id, isCritical, deviceStrings);
   }
 
-  const pushed = await push(
+  const wasPushed = await push(
     c.env,
     c.env.DB,
-    { id: row.device_id, apns_token: row.apns_token },
+    { id: keyDevice.device_id, apns_token: keyDevice.apns_token },
     payload,
     expiresAt,
     nowS,
@@ -280,14 +277,14 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   );
   const wake = (async () => {
     try {
-      const id = c.env.DEVICE_SOCKET.idFromName(String(row.device_id));
-      await c.env.DEVICE_SOCKET.get(id).notify(deviceSeq, pushed);
+      const id = c.env.DEVICE_SOCKET.idFromName(String(keyDevice.device_id));
+      await c.env.DEVICE_SOCKET.get(id).notify(messageId, wasPushed);
     } catch {
     }
   })();
   c.executionCtx.waitUntil(wake);
 
-  if (asked && !critical) warnings.push(t(c).api.criticalNotAllowed);
+  if (isCriticalAsked && !isCritical) warnings.push(t(c).api.criticalNotAllowed);
 
   return c.json(
     warnings.length > 0 ? { ok: true as const, warnings } : { ok: true as const },

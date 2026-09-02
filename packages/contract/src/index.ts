@@ -6,6 +6,7 @@ export const errorCode = z.enum([
   'unknown_device',
   'unknown_key',
   'rate_limited',
+  'too_many_uncollected',
   'invalid_request',
   'invalid_content',
   'not_found',
@@ -38,6 +39,7 @@ const sendFlag = z
 export const TITLE_MAX = 200;
 export const MESSAGE_MAX = 16000;
 export const IMAGE_URL_MAX = 2048;
+export const UNCOLLECTED_MAX = 500;
 export const LINK_URL_MAX = 2048;
 
 export const sendFields = z.object({

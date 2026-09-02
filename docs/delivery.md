@@ -148,33 +148,45 @@ thing to revisit if abuse appears.
 
 ## The bookmark
 
-The server numbers each device's messages 1, 2, 3… (`device_seq`). The app
-stores one number — the highest it has saved — and every sync asks for
-everything above it, saves what comes back, then moves it up.
+Every message has an id that only ever goes up (`messages.id`, one counter
+for the whole table). The app stores one number — the highest id it has saved
+— and every sync asks for everything above it, saves what comes back, then
+moves it up.
 
 The bookmark is also the receipt: `/history` treats the `since` it is given
-as an acknowledgement, and the server deletes anything at or below it. So
+as an acknowledgement, and the server blanks the content of every row at or
+below it and stamps `collected_at`. So
 the bookmark must never get ahead of the store, and `SyncEngine.sync()`
 moves it only after `context.save()` returns. A crash between the two
 leaves the bookmark behind, which refetches and dedupes — the safe
 direction.
 
-Gaps in the numbering are normal (a failed send burns a number), so the
-client never infers a missing message from a hole.
+Gaps in the numbering are normal (every other device's messages sit in
+between), so the client never infers a missing message from a hole.
 
 ## What a send does
 
-`POST /send` checks the key, spends the per-account rate limit, seals the
-message to the device's encryption key, and shrinks the push payload until
-it fits the APNs budget: full message, then a truncated preview, then title
-only. The copy in D1 never shrinks.
+`POST /send` checks the key, seals the message to the device's encryption
+key, and shrinks the push payload until it fits the APNs budget: full
+message, then a truncated preview, then title only. The copy in D1 never
+shrinks.
 
-Then one D1 batch writes the row *and* its number together — the insert
-reads `seq_counter` itself. Numbering in one statement and inserting in
-another opens a window where a number is taken but its row does not exist;
-a read landing there moves the bookmark past the missing row and the
-message is never delivered, then swept. With the batch there is no window:
-a number exists only once its row does, and concurrent sends serialise.
+The write is one `INSERT … SELECT … WHERE` with the two limits as its
+conditions: fewer than 60 rows for the device created in the last hour, and
+fewer than 500 rows for the device with no `collected_at`. Both are counts
+over `messages`, which is the only record of either fact — a collected row
+keeps its `created_at` for the hour, with its content blanked, so the send
+still counts. Nothing on `devices` is bumped, and the statement is atomic, so
+two sends racing at 499 cannot both land. The row's id is its number: the
+insert returns it, so a number exists only once its row does.
+
+When the insert is refused, one follow-up read says which limit it was. Over
+the uncollected ceiling the send answers `507 too_many_uncollected`, with no
+`Retry-After` — the count falls when the device collects, not on a timer —
+and logs `send.uncollected_limit`, which the console capture in
+`lib/report.ts` sends to Sentry as one event per refused send, fingerprinted
+onto a single issue. Over the hourly limit it answers `429 rate_limited`, with
+`Retry-After` counted from the oldest send still inside the hour.
 
 After the write, two transports fire, in parallel, unconditionally:
 
@@ -184,16 +196,16 @@ After the write, two transports fire, in parallel, unconditionally:
   reaches a running app, which fetches anyway.
 
 Neither waits for the other; a failure in either cannot fail the send. A
-device holding both gets the message twice and dedupes on `device_seq`.
+device holding both gets the message twice and dedupes on the id.
 
 ```mermaid
 flowchart LR
   S[sender's script<br/>curl · cron · CI] -- "Authorization: Bearer nk_…" --> P
   subgraph P [POST /send]
-    P1[hash the key,<br/>match keys.secret_hash] --> P2[seal to the device's<br/>encryption key] --> P3[D1 batch:<br/>row + device_seq]
+    P1[hash the key,<br/>match keys.secret_hash] --> P2[seal to the device's<br/>encryption key] --> P3[insert the row,<br/>its id is the number]
   end
   P3 -- both, always --> APNS[APNs push<br/>carries the sealed message]
-  P3 -- both, always --> DO["DeviceSocket.notify(seq)"]
+  P3 -- both, always --> DO["DeviceSocket.notify(id)"]
   DO -- "{type: message, latest_id: N}" --> D
   APNS --> D
   D[device: either one means<br/>'something may have changed']
@@ -309,11 +321,13 @@ and a key switched off months ago would otherwise page quietly forever.
 ## Deletion
 
 The server is a relay, not an archive; the device's store is the only
-lasting copy. A cron sweep (daily, 03:00 UTC) deletes messages at or below
-each device's ack — collected, so done with. Nothing else: an uncollected message waits, encrypted, for as
-long as its device takes to come back, and a device stays registered until
-its owner deletes the app's data. `expires_at` is still written, but it is
-only the APNs retry deadline now.
+lasting copy. Collecting a message blanks its content on the spot; the row
+stays with no content, so the hourly limit can count it. A cron sweep (daily,
+04:00 UTC) deletes collected rows once their hour is up, and uncollected rows
+past `expires_at` — 90 days after the send, the retention the privacy policy
+promises. Until then an uncollected message waits, encrypted, for as long as
+its device takes to come back, and a device stays registered until its owner
+deletes the app's data.
 
 Deleting a message in the app is local: there is no server call to make,
 and the row cannot come back because `/history` only returns rows above

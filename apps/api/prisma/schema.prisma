@@ -63,12 +63,13 @@ model messages {
   created_at     Int
   expires_at     Int
   occurred_at    Int?
+  collected_at   Int?
   device_seq     Int    @default(0)
 
   device devices @relation(fields: [device_id], references: [id], onDelete: Cascade)
   key    keys?   @relation(fields: [key_id], references: [id], onDelete: SetNull)
 
-  @@unique([device_id, device_seq], map: "idx_messages_device_seq")
+  @@index([device_id], map: "idx_messages_device")
   @@index([expires_at], map: "idx_messages_expiry")
 }
 

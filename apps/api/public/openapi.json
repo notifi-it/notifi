@@ -88,6 +88,9 @@
           "429": {
             "$ref": "#/components/responses/RateLimited"
           },
+          "507": {
+            "$ref": "#/components/responses/TooManyUncollected"
+          },
           "default": {
             "$ref": "#/components/responses/UnexpectedError"
           }
@@ -158,6 +161,9 @@
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          },
+          "507": {
+            "$ref": "#/components/responses/TooManyUncollected"
           },
           "default": {
             "$ref": "#/components/responses/UnexpectedError"
@@ -360,6 +366,7 @@
                 "enum": [
                   "unknown_key",
                   "rate_limited",
+                  "too_many_uncollected",
                   "invalid_request",
                   "invalid_content",
                   "not_found",
@@ -480,6 +487,22 @@
             "description": "Seconds until the window resets.",
             "schema": {
               "type": "integer"
+            }
+          }
+        }
+      },
+      "TooManyUncollected": {
+        "description": "The device already has the most uncollected notifications it can hold. Every notification the device has not collected yet counts, across every key on it. The count falls as the device collects, so a later send succeeds without any change to the key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "too_many_uncollected",
+                "message": "Not sent. This device has 500 uncollected notifications waiting; it has to collect them before it can be sent another."
+              }
             }
           }
         }

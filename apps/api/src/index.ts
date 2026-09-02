@@ -2,7 +2,7 @@ import { negotiate } from '@notifi/copy';
 import { instrumentDurableObjectWithSentry, withSentry } from '@sentry/cloudflare';
 import { Hono } from 'hono';
 import { errBody, t } from './lib/respond.js';
-import { now } from './lib/time.js';
+import { now, PER_DEVICE_WINDOW_S } from './lib/time.js';
 import { ipLimiter } from './middleware.js';
 import { devices } from './routes/devices.js';
 import { downloads } from './routes/downloads.js';
@@ -62,7 +62,13 @@ app.onError((err, c) => {
 export default withSentry(sentryOptions, {
   fetch: app.fetch,
   scheduled: async (_controller, env: Env) => {
-    await env.DB.prepare('DELETE FROM messages WHERE expires_at <= ?').bind(now()).run();
+    const nowS = now();
+    await env.DB.prepare(
+      `DELETE FROM messages
+       WHERE expires_at <= ? OR (collected_at IS NOT NULL AND created_at <= ?)`,
+    )
+      .bind(nowS, nowS - PER_DEVICE_WINDOW_S)
+      .run();
   },
 });
 
