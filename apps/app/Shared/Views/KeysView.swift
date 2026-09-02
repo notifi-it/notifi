@@ -60,6 +60,7 @@ struct KeysView: View {
                                 StaticField(level: .raised, fillsScreen: false)
                             }
                         }
+                        .hoverHighlight()
                         Hairline()
                     }
                 }
@@ -73,6 +74,7 @@ struct KeysView: View {
                         }
                         .buttonStyle(.geistRow)
                         .geistGutter()
+                        .hoverHighlight()
                         Hairline()
                     }
                 }

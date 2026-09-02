@@ -340,7 +340,6 @@ private struct MessageRow: View {
 
     @State private var isHovered = false
     @State private var isLinkHovered = false
-    @State private var hoverTask: Task<Void, Never>?
 
     static let drawsRules = false
 
@@ -415,26 +414,7 @@ private struct MessageRow: View {
         .padding(.horizontal, 18)
         .padding(.vertical, 13)
         .frame(minHeight: 44)
-        #if os(macOS)
-        .background {
-            if isHovered {
-                StaticField(level: .hover, fillsScreen: false)
-            }
-        }
-        .animation(.easeOut(duration: 0.12), value: isHovered)
-        .onHover { hovering in
-            hoverTask?.cancel()
-            guard hovering else {
-                isHovered = false
-                return
-            }
-            hoverTask = Task {
-                try? await Task.sleep(for: .milliseconds(100))
-                guard !Task.isCancelled else { return }
-                isHovered = true
-            }
-        }
-        #endif
+        .hoverHighlight { isHovered = $0 }
     }
 
     @ViewBuilder
