@@ -319,6 +319,12 @@ export const copy = {
     permissionNotSet: 'Not set',
     permissionUnknown: 'Unknown',
 
+    stayVisible: 'Notifications stay visible',
+    stayVisibleDetail:
+      'A notification stays on screen until you click or dismiss it, instead of leaving after ' +
+      'a few seconds. Enable opens System Settings, where you choose notifi’s alert style.',
+    stayVisibleEnable: 'Enable',
+
     theme: 'Theme',
     themeDark: 'Dark',
     themeLight: 'Light',

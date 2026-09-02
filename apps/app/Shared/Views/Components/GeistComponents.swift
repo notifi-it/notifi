@@ -207,6 +207,7 @@ struct OutlineButton: View {
     var color: Color = Theme.fg
     var role: ButtonRole?
     var fill: Bool = true
+    var compact: Bool = false
     var action: () -> Void
 
     private var tint: Color { role == .destructive ? Theme.danger : color }
@@ -215,17 +216,18 @@ struct OutlineButton: View {
     var body: some View {
         Button(role: role, action: action) {
             Text(title)
-                .font(.inco(.footnote, weight: .semibold))
+                .font(.inco(compact ? .caption : .footnote, weight: .semibold))
                 .foregroundStyle(tint)
                 .frame(maxWidth: fill ? .infinity : nil)
-                .padding(.horizontal, fill ? 0 : 14)
-                .padding(.vertical, 11)
-                .frame(minHeight: Theme.minTarget)
+                .padding(.horizontal, fill ? 0 : compact ? 12 : 14)
+                .padding(.vertical, compact ? 6 : 11)
+                .frame(minHeight: compact ? nil : Theme.minTarget)
                 .contentShape(Rectangle())
-                .overlay(RoundedRectangle(cornerRadius: 8)
+                .overlay(RoundedRectangle(cornerRadius: compact ? Theme.radius : 8)
                     .stroke(border, lineWidth: 1))
         }
         .buttonStyle(.geist)
+        .geistHitArea(expandedBy: compact ? 8 : 0)
     }
 }
 
@@ -283,44 +285,70 @@ extension FieldRow where Trailing == FieldValue {
     }
 }
 
-struct ToggleRow: View {
+struct RowTitle: View {
     let title: String
     var detail: String?
-    @Binding var isOn: Bool
 
     @ScaledMetric(relativeTo: .subheadline) private var infoIconSize: CGFloat = 14
 
     @State private var showingDetail = false
 
     var body: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 6) {
-                Text(title)
-                    .font(Theme.body)
-                    .foregroundStyle(Theme.fg)
-                    .fixedSize(horizontal: false, vertical: true)
-                if let detail {
-                    Button {
-                        showingDetail = true
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: infoIconSize, weight: .medium))
-                            .foregroundStyle(Theme.dim)
-                    }
-                    .buttonStyle(.geist)
-                    .geistHitArea(expandedBy: 12)
-                    .accessibilityHidden(true)
-                    .popover(isPresented: $showingDetail, arrowEdge: .bottom) {
-                        Text(detail)
-                            .font(Theme.body)
-                            .foregroundStyle(Theme.fg)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(14)
-                            .frame(idealWidth: 280, maxWidth: 280)
-                            .presentationCompactAdaptation(.popover)
-                    }
+        HStack(spacing: 6) {
+            Text(title)
+                .font(Theme.body)
+                .foregroundStyle(Theme.fg)
+                .fixedSize(horizontal: false, vertical: true)
+            if let detail {
+                Button {
+                    showingDetail = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: infoIconSize, weight: .medium))
+                        .foregroundStyle(Theme.dim)
+                }
+                .buttonStyle(.geist)
+                .geistHitArea(expandedBy: 12)
+                .accessibilityHidden(true)
+                .popover(isPresented: $showingDetail, arrowEdge: .bottom) {
+                    Text(detail)
+                        .font(Theme.body)
+                        .foregroundStyle(Theme.fg)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(14)
+                        .frame(idealWidth: 280, maxWidth: 280)
+                        .presentationCompactAdaptation(.popover)
                 }
             }
+        }
+    }
+}
+
+struct LabeledRow<Trailing: View>: View {
+    let title: String
+    var detail: String?
+    @ViewBuilder var trailing: Trailing
+
+    var body: some View {
+        HStack(spacing: 10) {
+            RowTitle(title: title, detail: detail)
+            Spacer(minLength: 8)
+            trailing
+        }
+        .padding(.vertical, Theme.rowPadV)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(title)
+    }
+}
+
+struct ToggleRow: View {
+    let title: String
+    var detail: String?
+    @Binding var isOn: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            RowTitle(title: title, detail: detail)
             Spacer(minLength: 8)
             Toggle(title, isOn: $isOn)
                 .labelsHidden()

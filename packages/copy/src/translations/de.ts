@@ -293,6 +293,13 @@ export const de: Translation = {
   'settings.permissionNotSet': 'Nicht festgelegt',
   'settings.permissionUnknown': 'Unbekannt',
 
+  'settings.stayVisible': 'Benachrichtigungen bleiben sichtbar',
+  'settings.stayVisibleDetail':
+    'Eine Benachrichtigung bleibt auf dem Bildschirm, bis du sie anklickst oder schließt, statt nach ' +
+    'ein paar Sekunden zu verschwinden. „Aktivieren“ öffnet die Systemeinstellungen, in denen du den ' +
+    'Hinweisstil von notifi wählst.',
+  'settings.stayVisibleEnable': 'Aktivieren',
+
   'settings.theme': 'Design',
   'settings.themeDark': 'Dunkel',
   'settings.themeLight': 'Hell',
