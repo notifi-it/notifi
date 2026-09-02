@@ -42,31 +42,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ d"
+            "value": "%1$@d"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ d"
+            "value": "%1$@d"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ T"
+            "value": "%1$@T"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ j"
+            "value": "%1$@j"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ g"
+            "value": "%1$@g"
           }
         }
       }
@@ -77,31 +77,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ hr"
+            "value": "%1$@h"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ h"
+            "value": "%1$@h"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ Std."
+            "value": "%1$@h"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ h"
+            "value": "%1$@h"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ h"
+            "value": "%1$@h"
           }
         }
       }
@@ -147,31 +147,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ min"
+            "value": "%1$@m"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ min"
+            "value": "%1$@min"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ Min."
+            "value": "%1$@min"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ min"
+            "value": "%1$@min"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ min"
+            "value": "%1$@min"
           }
         }
       }
@@ -217,31 +217,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ w"
+            "value": "%1$@w"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ sem"
+            "value": "%1$@sem"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ W"
+            "value": "%1$@W"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ sem."
+            "value": "%1$@sem."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ sett"
+            "value": "%1$@sett"
           }
         }
       }
@@ -7181,6 +7181,41 @@
         }
       }
     },
+    "settings.docs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Docs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documentación"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dokumentation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documentation"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documentazione"
+          }
+        }
+      }
+    },
     "settings.feedback": {
       "extractionState": "manual",
       "localizations": {
@@ -7397,31 +7432,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetches each image as the notification arrives, which tells its host your IP address. Off, images load only when tapped."
+            "value": "Fetches each image the moment its notification arrives.\n\nThe image’s host sees your IP address when that happens.\n\nOff, an image loads only when you tap it."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obtiene cada imagen al llegar la notificación, lo que informa tu dirección IP a su host. Desactivado, las imágenes solo se cargan al pulsarlas."
+            "value": "Obtiene cada imagen en cuanto llega su notificación.\n\nEl host de la imagen ve tu dirección IP cuando eso ocurre.\n\nDesactivado, una imagen solo se carga al pulsarla."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ruft jedes Bild ab, sobald die Benachrichtigung ankommt, was dem Host deine IP-Adresse verrät. Aus, Bilder laden erst bei Antippen."
+            "value": "Ruft jedes Bild ab, sobald seine Benachrichtigung ankommt.\n\nDer Host des Bildes sieht dabei deine IP-Adresse.\n\nAus, lädt ein Bild erst, wenn du es antippst."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récupère chaque image dès l’arrivée de la notification, ce qui révèle votre adresse IP à son hôte. Désactivé, les images ne se chargent qu’au toucher."
+            "value": "Récupère chaque image dès l’arrivée de sa notification.\n\nL’hôte de l’image voit alors votre adresse IP.\n\nDésactivé, une image ne se charge que lorsque vous la touchez."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recupera ogni immagine all'arrivo della notifica, il che comunica al suo host il tuo indirizzo IP. Disattivato, le immagini si caricano solo quando vengono toccate."
+            "value": "Recupera ogni immagine non appena arriva la sua notifica.\n\nL'host dell'immagine vede il tuo indirizzo IP quando succede.\n\nDisattivato, un'immagine si carica solo quando la tocchi."
           }
         }
       }
@@ -8027,31 +8062,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A notification stays on screen until you click or dismiss it, instead of leaving after a few seconds. Enable opens System Settings, where you choose notifi’s alert style."
+            "value": "Keeps a notification on screen until you click or dismiss it.\n\nOff, it slides away after a few seconds.\n\nEnable opens System Settings, where you pick notifi’s alert style."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Una notificación permanece en pantalla hasta que se pulse o se descarte, en lugar de desaparecer a los pocos segundos. Activar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi."
+            "value": "Mantiene una notificación en pantalla hasta que la pulses o la descartes.\n\nDesactivado, desaparece a los pocos segundos.\n\nActivar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eine Benachrichtigung bleibt auf dem Bildschirm, bis du sie anklickst oder schließt, statt nach ein paar Sekunden zu verschwinden. „Aktivieren“ öffnet die Systemeinstellungen, in denen du den Hinweisstil von notifi wählst."
+            "value": "Hält eine Benachrichtigung auf dem Bildschirm, bis du sie anklickst oder schließt.\n\nAus, verschwindet sie nach ein paar Sekunden.\n\n„Aktivieren“ öffnet die Systemeinstellungen, in denen du den Hinweisstil von notifi wählst."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une notification reste à l’écran jusqu’à ce que vous cliquiez dessus ou la fermiez, au lieu de disparaître après quelques secondes. Activer ouvre les Réglages Système, où vous choisissez le style d’alerte de notifi."
+            "value": "Garde une notification à l’écran jusqu’à ce que vous cliquiez dessus ou la fermiez.\n\nDésactivé, elle disparaît après quelques secondes.\n\nActiver ouvre les Réglages Système, où vous choisissez le style d’alerte de notifi."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Una notifica resta sullo schermo finché non la clicchi o la chiudi, invece di sparire dopo pochi secondi. Attiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi."
+            "value": "Tiene una notifica sullo schermo finché non la clicchi o la chiudi.\n\nDisattivato, sparisce dopo pochi secondi.\n\nAttiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi."
           }
         }
       }
@@ -8132,31 +8167,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Returns 422 invalid_content and stores nothing when a title or body is over length. Off, /send crops the field and returns 202 with a warnings array."
+            "value": "Refuses a send whose title or body is over length: /send answers 422 invalid_content and stores nothing.\n\nOff, the field is cropped and the send is accepted with a warnings array.\n\n[Read the docs](https://notifi.it/docs#response)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Devuelve 422 invalid_content y no guarda nada cuando un título o cuerpo supera la longitud. Desactivado, /send recorta el campo y devuelve 202 con un array de avisos."
+            "value": "Rechaza un envío cuyo título o cuerpo supera la longitud: /send responde 422 invalid_content y no guarda nada.\n\nDesactivado, el campo se recorta y el envío se acepta con un array warnings.\n\n[Leer la documentación](https://notifi.it/docs#response)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist. Aus, /send kürzt das Feld und gibt 202 mit einem warnings-Array zurück."
+            "value": "Lehnt einen Send ab, dessen Titel oder Text zu lang ist: /send antwortet mit 422 invalid_content und speichert nichts.\n\nAus, wird das Feld gekürzt und der Send mit einem warnings-Array angenommen.\n\n[Zur Dokumentation](https://notifi.it/docs#response)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Renvoie 422 invalid_content et ne stocke rien lorsqu’un titre ou un corps dépasse la longueur autorisée. Désactivé, /send raccourcit le champ et renvoie 202 avec un tableau warnings."
+            "value": "Refuse un envoi dont le titre ou le corps dépasse la longueur autorisée : /send répond 422 invalid_content et ne stocke rien.\n\nDésactivé, le champ est raccourci et l’envoi est accepté avec un tableau warnings.\n\n[Lire la documentation](https://notifi.it/docs#response)"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un corpo supera la lunghezza consentita. Disattivato, /send abbrevia il campo e restituisce 202 con un array di warnings."
+            "value": "Rifiuta un invio il cui titolo o corpo supera la lunghezza consentita: /send risponde 422 invalid_content e non memorizza nulla.\n\nDisattivato, il campo viene abbreviato e l'invio è accettato con un array warnings.\n\n[Leggi la documentazione](https://notifi.it/docs#response)"
           }
         }
       }

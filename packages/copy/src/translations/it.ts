@@ -64,10 +64,10 @@ export const it: Translation = {
 
   'age.now': 'ora',
   'age.justNow': 'proprio ora',
-  'age.minutes': '{n} min',
-  'age.hours': '{n} h',
-  'age.days': '{n} g',
-  'age.weeks': '{n} sett',
+  'age.minutes': '{n}min',
+  'age.hours': '{n}h',
+  'age.days': '{n}g',
+  'age.weeks': '{n}sett',
   'age.ago': '{relative} fa',
   'inbox.title': 'Inbox',
   'inbox.offline': 'Impossibile raggiungere i server notifi. Controlla la connessione e riprova.',
@@ -254,8 +254,9 @@ export const it: Translation = {
 
   'settings.stayVisible': 'Le notifiche restano visibili',
   'settings.stayVisibleDetail':
-    'Una notifica resta sullo schermo finché non la clicchi o la chiudi, invece di sparire dopo pochi ' +
-    'secondi. Attiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi.',
+    'Tiene una notifica sullo schermo finché non la clicchi o la chiudi.\n\n' +
+    'Disattivato, sparisce dopo pochi secondi.\n\n' +
+    'Attiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi.',
   'settings.stayVisibleEnable': 'Attiva',
 
   'settings.theme': 'Tema',
@@ -266,13 +267,16 @@ export const it: Translation = {
 
   'settings.loadImages': 'Carica le immagini automaticamente',
   'settings.loadImagesDetail':
-    'Recupera ogni immagine all\'arrivo della notifica, il che comunica al suo host il tuo indirizzo IP. ' +
-    'Disattivato, le immagini si caricano solo quando vengono toccate.',
+    'Recupera ogni immagine non appena arriva la sua notifica.\n\n' +
+    'L\'host dell\'immagine vede il tuo indirizzo IP quando succede.\n\n' +
+    'Disattivato, un\'immagine si carica solo quando la tocchi.',
 
   'settings.strictSend': 'Rifiuta invii non validi',
   'settings.strictSendDetail':
-    'Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un corpo supera la ' +
-    'lunghezza consentita. Disattivato, /send abbrevia il campo e restituisce 202 con un array di warnings.',
+    'Rifiuta un invio il cui titolo o corpo supera la lunghezza consentita: /send risponde ' +
+    '422 invalid_content e non memorizza nulla.\n\n' +
+    'Disattivato, il campo viene abbreviato e l\'invio è accettato con un array warnings.\n\n' +
+    '[Leggi la documentazione](https://notifi.it/docs#response)',
   'settings.strictSendFailed': 'PATCH /devices/settings non riuscito. Controlla la connessione e riprova.',
 
   'settings.testTitle': 'Hello from notifi',
@@ -300,6 +304,7 @@ export const it: Translation = {
   'settings.feedback': 'Feedback',
   'settings.privacyPolicy': 'Informativa sulla privacy',
   'settings.website': 'notifi.it',
+  'settings.docs': 'Documentazione',
 
   'empty.sampleTitle': 'Hello from notifi',
   'empty.sampleMessage': 'La tua prima notifica.',

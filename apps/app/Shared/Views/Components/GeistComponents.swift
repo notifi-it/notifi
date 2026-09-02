@@ -296,6 +296,14 @@ struct RowTitle: View {
 
     @State private var showingDetail = false
 
+    private var detailText: AttributedString {
+        guard let detail else { return AttributedString() }
+        let options = AttributedString.MarkdownParsingOptions(
+            interpretedSyntax: .inlineOnlyPreservingWhitespace
+        )
+        return (try? AttributedString(markdown: detail, options: options)) ?? AttributedString(detail)
+    }
+
     var body: some View {
         HStack(spacing: 6) {
             Text(title)
@@ -315,8 +323,9 @@ struct RowTitle: View {
                 .accessibilityLabel(title)
                 .accessibilityHint(detail)
                 .popover(isPresented: $showingDetail, arrowEdge: .bottom) {
-                    Text(detail)
+                    Text(detailText)
                         .font(Theme.body)
+                        .tint(Theme.brand)
                         .foregroundStyle(Theme.fg)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(14)

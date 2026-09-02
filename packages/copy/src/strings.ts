@@ -122,10 +122,10 @@ export const copy = {
   age: {
     now: 'now',
     justNow: 'just now',
-    minutes: '{n} min',
-    hours: '{n} hr',
-    days: '{n} d',
-    weeks: '{n} w',
+    minutes: '{n}m',
+    hours: '{n}h',
+    days: '{n}d',
+    weeks: '{n}w',
     ago: '{relative} ago',
   },
 
@@ -328,8 +328,9 @@ export const copy = {
 
     stayVisible: 'Notifications stay visible',
     stayVisibleDetail:
-      'A notification stays on screen until you click or dismiss it, instead of leaving after ' +
-      'a few seconds. Enable opens System Settings, where you choose notifi’s alert style.',
+      'Keeps a notification on screen until you click or dismiss it.\n\n' +
+      'Off, it slides away after a few seconds.\n\n' +
+      'Enable opens System Settings, where you pick notifi’s alert style.',
     stayVisibleEnable: 'Enable',
 
     theme: 'Theme',
@@ -340,13 +341,16 @@ export const copy = {
 
     loadImages: 'Load images automatically',
     loadImagesDetail:
-      'Fetches each image as the notification arrives, which tells its host your IP address. ' +
-      'Off, images load only when tapped.',
+      'Fetches each image the moment its notification arrives.\n\n' +
+      'The image’s host sees your IP address when that happens.\n\n' +
+      'Off, an image loads only when you tap it.',
 
     strictSend: 'Reject invalid sends',
     strictSendDetail:
-      'Returns 422 invalid_content and stores nothing when a title or body is over ' +
-      'length. Off, /send crops the field and returns 202 with a warnings array.',
+      'Refuses a send whose title or body is over length: /send answers 422 invalid_content ' +
+      'and stores nothing.\n\n' +
+      'Off, the field is cropped and the send is accepted with a warnings array.\n\n' +
+      '[Read the docs](https://notifi.it/docs#response)',
     strictSendFailed: 'PATCH /devices/settings failed. Check your connection and try again.',
 
     testTitle: 'Hello from notifi',
@@ -372,6 +376,7 @@ export const copy = {
     feedback: 'Feedback',
     privacyPolicy: 'Privacy policy',
     website: 'notifi.it',
+    docs: 'Docs',
   },
 
   empty: {

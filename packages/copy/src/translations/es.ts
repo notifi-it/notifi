@@ -64,10 +64,10 @@ export const es: Translation = {
 
   'age.now': 'ahora',
   'age.justNow': 'ahora mismo',
-  'age.minutes': '{n} min',
-  'age.hours': '{n} h',
-  'age.days': '{n} d',
-  'age.weeks': '{n} sem',
+  'age.minutes': '{n}min',
+  'age.hours': '{n}h',
+  'age.days': '{n}d',
+  'age.weeks': '{n}sem',
   'age.ago': 'hace {relative}',
   'inbox.title': 'Inbox',
   'inbox.offline': 'No se puede conectar con los servidores de notifi. Comprueba tu conexión e inténtalo de nuevo.',
@@ -254,8 +254,9 @@ export const es: Translation = {
 
   'settings.stayVisible': 'Las notificaciones permanecen visibles',
   'settings.stayVisibleDetail':
-    'Una notificación permanece en pantalla hasta que se pulse o se descarte, en lugar de desaparecer ' +
-    'a los pocos segundos. Activar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi.',
+    'Mantiene una notificación en pantalla hasta que la pulses o la descartes.\n\n' +
+    'Desactivado, desaparece a los pocos segundos.\n\n' +
+    'Activar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi.',
   'settings.stayVisibleEnable': 'Activar',
 
   'settings.theme': 'Tema',
@@ -266,13 +267,16 @@ export const es: Translation = {
 
   'settings.loadImages': 'Cargar imágenes automáticamente',
   'settings.loadImagesDetail':
-    'Obtiene cada imagen al llegar la notificación, lo que informa tu dirección IP a su host. ' +
-    'Desactivado, las imágenes solo se cargan al pulsarlas.',
+    'Obtiene cada imagen en cuanto llega su notificación.\n\n' +
+    'El host de la imagen ve tu dirección IP cuando eso ocurre.\n\n' +
+    'Desactivado, una imagen solo se carga al pulsarla.',
 
   'settings.strictSend': 'Rechazar envíos no válidos',
   'settings.strictSendDetail':
-    'Devuelve 422 invalid_content y no guarda nada cuando un título o cuerpo supera la ' +
-    'longitud. Desactivado, /send recorta el campo y devuelve 202 con un array de avisos.',
+    'Rechaza un envío cuyo título o cuerpo supera la longitud: /send responde 422 invalid_content ' +
+    'y no guarda nada.\n\n' +
+    'Desactivado, el campo se recorta y el envío se acepta con un array warnings.\n\n' +
+    '[Leer la documentación](https://notifi.it/docs#response)',
   'settings.strictSendFailed': 'PATCH /devices/settings falló. Comprueba tu conexión e inténtalo de nuevo.',
 
   'settings.testTitle': 'Hello from notifi',
@@ -300,6 +304,7 @@ export const es: Translation = {
   'settings.feedback': 'Comentarios',
   'settings.privacyPolicy': 'Política de privacidad',
   'settings.website': 'notifi.it',
+  'settings.docs': 'Documentación',
 
   'empty.sampleTitle': 'Hello from notifi',
   'empty.sampleMessage': 'Tu primera notificación.',
