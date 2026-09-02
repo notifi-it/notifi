@@ -11,6 +11,11 @@ import { Hono } from 'hono';
 import { push } from '../lib/apns.js';
 import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
+import {
+  insertMessageWithinLimits,
+  readSendLimitUsage,
+  recordKeyUse,
+} from '../lib/messages.js';
 import { hashKey } from '../lib/sendkey.js';
 import { MESSAGE_BACKSTOP_S, now, PER_DEVICE_WINDOW_S, perDeviceLimit } from '../lib/time.js';
 import type { AppEnv } from '../types.js';
@@ -174,43 +179,26 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   const expiresAt = nowS + MESSAGE_BACKSTOP_S;
 
   const hourStartS = nowS - PER_DEVICE_WINDOW_S;
-  const inserted = await c.env.DB.prepare(
-    `INSERT INTO messages
-       (device_id, key_id, content_sealed, created_at, expires_at, occurred_at)
-     SELECT ?, ?, ?, ?, ?, ?
-     WHERE (SELECT COUNT(*) FROM messages WHERE device_id = ? AND created_at > ?) < ?
-       AND (SELECT COUNT(*) FROM messages WHERE device_id = ? AND collected_at IS NULL) < ?
-     RETURNING id`,
-  )
-    .bind(
-      keyDevice.device_id,
-      keyDevice.key_id,
-      fullSealed,
+  const messageId = await insertMessageWithinLimits(
+    c.env.DB,
+    {
+      deviceId: keyDevice.device_id,
+      keyId: keyDevice.key_id,
+      contentSealed: fullSealed,
       createdAt,
       expiresAt,
-      occurredAt ?? null,
-      keyDevice.device_id,
-      hourStartS,
-      perDeviceLimit(c.env),
-      keyDevice.device_id,
-      UNCOLLECTED_MAX,
-    )
-    .first<{ id: number }>();
+      occurredAt: occurredAt ?? null,
+    },
+    { hourStartS, sendsPerHour: perDeviceLimit(c.env), uncollectedMax: UNCOLLECTED_MAX },
+  );
 
-  if (!inserted) {
-    const usage = await c.env.DB.prepare(
-      `SELECT
-         MIN(CASE WHEN created_at > ? THEN created_at END) AS oldest_in_hour,
-         SUM(collected_at IS NULL) AS uncollected_count
-       FROM messages WHERE device_id = ?`,
-    )
-      .bind(hourStartS, keyDevice.device_id)
-      .first<{ oldest_in_hour: number | null; uncollected_count: number }>();
-    if (usage && usage.uncollected_count >= UNCOLLECTED_MAX) {
+  if (messageId === null) {
+    const usage = await readSendLimitUsage(c.env.DB, keyDevice.device_id, hourStartS);
+    if (usage && usage.uncollectedCount >= UNCOLLECTED_MAX) {
       console.error('send.uncollected_limit', {
         device_id: keyDevice.device_id,
         key_id: keyDevice.key_id,
-        uncollected_count: usage.uncollected_count,
+        uncollected_count: usage.uncollectedCount,
         limit: UNCOLLECTED_MAX,
       });
       return c.json(
@@ -218,17 +206,14 @@ send.on(['GET', 'POST'], '/send', async (c) => {
         507,
       );
     }
-    if (usage && usage.oldest_in_hour !== null) {
-      c.header('Retry-After', String(usage.oldest_in_hour + PER_DEVICE_WINDOW_S - nowS));
+    if (usage && usage.oldestSendInHour !== null) {
+      c.header('Retry-After', String(usage.oldestSendInHour + PER_DEVICE_WINDOW_S - nowS));
       return c.json(errBody('rate_limited', t(c).api.rateLimitedAccount), 429);
     }
     return c.json(errBody('internal_error', t(c).api.unexpected), 500);
   }
-  const messageId = inserted.id;
 
-  await c.env.DB.prepare('UPDATE keys SET sent_count = sent_count + 1, last_used_at = ? WHERE id = ?')
-    .bind(nowS, keyDevice.key_id)
-    .run();
+  await recordKeyUse(c.env.DB, keyDevice.key_id, nowS);
 
   const fallbacks: MessageContent[] = [
     {

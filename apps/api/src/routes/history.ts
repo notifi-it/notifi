@@ -1,5 +1,6 @@
 import { type HistoryMessage, historyQuery } from '@notifi/contract';
 import { Hono } from 'hono';
+import { markCollectedUpTo } from '../lib/messages.js';
 import { errBody, t } from '../lib/respond.js';
 import { now } from '../lib/time.js';
 import { getDevice, signatureAuth } from '../middleware.js';
@@ -32,14 +33,7 @@ history.get('/history', async (c) => {
   const messages = rows.results;
   const latestId = messages.length > 0 ? messages[messages.length - 1]!.id : null;
 
-  if (since > 0) {
-    await c.env.DB.prepare(
-      `UPDATE messages SET content_sealed = '', collected_at = ?
-       WHERE device_id = ? AND id <= ? AND collected_at IS NULL`,
-    )
-      .bind(nowS, device.id, since)
-      .run();
-  }
+  if (since > 0) await markCollectedUpTo(c.env.DB, device.id, since, nowS);
 
   return c.json({ messages, latest_id: latestId });
 });
