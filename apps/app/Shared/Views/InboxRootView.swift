@@ -59,7 +59,7 @@ struct InboxRootView: View {
         SampleData.seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
         if SampleData.opensSampleMessage {
             try? await Task.sleep(for: .milliseconds(400))
-            model.path.append(SampleData.serverID(at: 1))
+            model.path.append(SampleData.showcaseID)
         }
         if let index = SampleData.launchKeyIndex, index < SampleData.keys.count {
             try? await Task.sleep(for: .milliseconds(400))

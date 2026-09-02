@@ -61,6 +61,36 @@ enum SampleData {
         ProcessInfo.processInfo.environment["NOTIFI_OPEN_SAMPLE_MESSAGE"] == "1"
     }
 
+    static let showcaseID = idFloor - 1_000
+
+    private static var demoBase: String {
+        ProcessInfo.processInfo.environment["NOTIFI_DEMO_BASE"] ?? "https://notifi.it/demo"
+    }
+
+    private static let showcaseBody = """
+    ## A heading
+
+    Plain text with **bold**, `code` and ~~strikethrough~~, sent in one HTTP request.
+
+    - Lists
+    - Quotes and [links](https://notifi.it/docs)
+    - Tables and rules
+
+    > Rendered on the device, from a body only the device can read.
+
+    | Field | Holds |
+    | --- | --- |
+    | title | one line |
+    | message | Markdown |
+    | image | a URL |
+
+    ---
+
+    ```
+    POST notifi.it/send
+    ```
+    """
+
     @MainActor
     static func screenDidAppear() {
         guard !opensSampleMessage else { return }
@@ -107,7 +137,7 @@ enum SampleData {
         let now = Date()
         func ago(_ minutes: Int) -> Date { now.addingTimeInterval(-Double(minutes) * 60) }
 
-        let demo = "https://notifi.it/demo"
+        let demo = demoBase
 
         #if os(macOS)
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
@@ -315,6 +345,22 @@ enum SampleData {
                         : nil,
                     isRead: !unread,
                     isCritical: Self.criticalTitles.contains(title)
+                )
+            )
+        }
+        if opensSampleMessage {
+            context.insert(
+                Message(
+                    serverID: showcaseID,
+                    title: "Rendered from Markdown",
+                    body: showcaseBody,
+                    link: URL(string: "https://notifi.it/docs"),
+                    imageURL: URL(string: "\(demo)/placeholder.png"),
+                    keyID: keyIDs.dropFirst().first,
+                    createdAt: ago(3),
+                    occurredAt: nil,
+                    isRead: false,
+                    isCritical: false
                 )
             )
         }
