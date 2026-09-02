@@ -252,7 +252,6 @@ export const es: Translation = {
 
   'settings.theme': 'Tema',
   'settings.grain': 'Grano',
-  'settings.grainDetail': 'Grano animado en la campana y las pantallas vacías.',
   'settings.themeDark': 'Oscuro',
   'settings.themeLight': 'Claro',
   'settings.themeSystem': 'Sistema',

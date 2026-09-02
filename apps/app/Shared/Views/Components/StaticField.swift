@@ -8,12 +8,18 @@ struct StaticField: View {
     var fillsScreen = true
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.grainEnabled) private var grainEnabled
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         let frames = StaticNoise.frames(for: colorScheme, level: level)
-        if reduceMotion {
+        if !grainEnabled {
+            Color(white: StaticNoise.ground(for: colorScheme, level: level))
+                .ignoresSafeArea(edges: fillsScreen ? .all : [])
+                .accessibilityHidden(true)
+                .allowsHitTesting(false)
+        } else if reduceMotion {
             tile(frames[0])
         } else {
             TimelineView(.periodic(from: .now, by: StaticNoise.frameDuration)) { context in
@@ -49,20 +55,24 @@ private enum StaticNoise {
 
     private static var cache: [String: [CGImage]] = [:]
 
+    static func ground(for scheme: ColorScheme, level: StaticField.Level) -> Double {
+        let dark = scheme == .dark
+        let step = dark ? darkStep : lightStep
+        let base = dark ? darkGround : lightGround
+        switch level {
+        case .ground: return base
+        case .raised: return base + step
+        case .hover: return base + step * 2
+        }
+    }
+
     static func frames(for scheme: ColorScheme, level: StaticField.Level) -> [CGImage] {
         let dark = scheme == .dark
         let key = "\(dark)-\(level)"
         if let hit = cache[key] { return hit }
-        let step = dark ? darkStep : lightStep
-        let base = dark ? darkGround : lightGround
-        let ground: Double
-        switch level {
-        case .ground: ground = base
-        case .raised: ground = base + step
-        case .hover: ground = base + step * 2
-        }
         let made = (0..<frameCount).compactMap { _ in
-            makeTile(ground: ground, amplitude: dark ? darkAmplitude : lightAmplitude)
+            makeTile(ground: ground(for: scheme, level: level),
+                     amplitude: dark ? darkAmplitude : lightAmplitude)
         }
         cache[key] = made
         return made

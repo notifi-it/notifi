@@ -324,11 +324,10 @@ struct GrainGlyph: ViewModifier {
     var shiftScale: CGFloat
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.grainEnabled) private var grainEnabled
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if active && !reduceMotion && grainEnabled {
+        if active && !reduceMotion {
             TimelineView(.animation) { context in
                 let time = context.date.timeIntervalSinceReferenceDate
                 let shift = Self.chromaShift(at: time) * shiftScale
@@ -362,7 +361,6 @@ struct GrainBurst: ViewModifier {
     var duration: TimeInterval
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.grainEnabled) private var grainEnabled
     @State private var burstEnds: Date?
 
     @ViewBuilder
@@ -386,7 +384,7 @@ struct GrainBurst: ViewModifier {
             }
         }
         .onChange(of: active) { _, hovering in
-            guard hovering, !reduceMotion, grainEnabled else { return }
+            guard hovering, !reduceMotion else { return }
             burstEnds = Date(timeIntervalSinceNow: duration)
         }
     }

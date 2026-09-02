@@ -90,7 +90,6 @@ struct SettingsView: View {
 
                     ToggleRow(
                         title: Copy.Settings.grain,
-                        detail: Copy.Settings.grainDetail,
                         isOn: $model.grainEnabled
                     )
                     .geistGutter()

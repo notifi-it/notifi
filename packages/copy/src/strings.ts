@@ -326,7 +326,6 @@ export const copy = {
 
     theme: 'Theme',
     grain: 'Grain',
-    grainDetail: 'Animated grain on the bell and empty screens.',
     themeDark: 'Dark',
     themeLight: 'Light',
     themeSystem: 'System',

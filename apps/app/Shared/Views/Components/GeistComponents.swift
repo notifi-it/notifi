@@ -306,9 +306,9 @@ struct ToggleRow: View {
                     Button {
                         showingDetail = true
                     } label: {
-                        Image(systemName: "info.circle")
+                        Image(systemName: "questionmark.circle")
                             .font(.system(size: infoIconSize, weight: .medium))
-                            .foregroundStyle(Theme.dim)
+                            .foregroundStyle(Theme.fg)
                     }
                     .buttonStyle(.geist)
                     .geistHitArea(expandedBy: 12)

@@ -194,7 +194,6 @@ enum Copy {
         static var permissionUnknown: String { NSLocalizedString("settings.permissionUnknown", comment: "") }
         static var theme: String { NSLocalizedString("settings.theme", comment: "") }
         static var grain: String { NSLocalizedString("settings.grain", comment: "") }
-        static var grainDetail: String { NSLocalizedString("settings.grainDetail", comment: "") }
         static var themeDark: String { NSLocalizedString("settings.themeDark", comment: "") }
         static var themeLight: String { NSLocalizedString("settings.themeLight", comment: "") }
         static var themeSystem: String { NSLocalizedString("settings.themeSystem", comment: "") }

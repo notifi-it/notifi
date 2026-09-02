@@ -255,7 +255,6 @@ export const fr: Translation = {
 
   'settings.theme': 'Thème',
   'settings.grain': 'Grain',
-  'settings.grainDetail': 'Grain animé sur la cloche et les écrans vides.',
   'settings.themeDark': 'Sombre',
   'settings.themeLight': 'Clair',
   'settings.themeSystem': 'Système',
