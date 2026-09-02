@@ -460,7 +460,7 @@ struct MessageDetailView: View {
             return
         }
         do {
-            try await PHPhotoLibrary.shared().performChanges {
+            try await PHPhotoLibrary.shared().performChanges { @Sendable in
                 PHAssetCreationRequest.forAsset().addResource(with: .photo, data: data, options: nil)
             }
             settle(.saved(Copy.Message.imageSaved))
