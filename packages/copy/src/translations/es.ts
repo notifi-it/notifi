@@ -245,6 +245,12 @@ export const es: Translation = {
   'settings.permissionNotSet': 'Sin definir',
   'settings.permissionUnknown': 'Desconocido',
 
+  'settings.stayVisible': 'Las notificaciones permanecen visibles',
+  'settings.stayVisibleDetail':
+    'Una notificación permanece en pantalla hasta que se pulse o se descarte, en lugar de desaparecer ' +
+    'a los pocos segundos. Activar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi.',
+  'settings.stayVisibleEnable': 'Activar',
+
   'settings.theme': 'Tema',
   'settings.themeDark': 'Oscuro',
   'settings.themeLight': 'Claro',

@@ -187,6 +187,9 @@ enum Copy {
         static var permissionEphemeral: String { NSLocalizedString("settings.permissionEphemeral", comment: "") }
         static var permissionNotSet: String { NSLocalizedString("settings.permissionNotSet", comment: "") }
         static var permissionUnknown: String { NSLocalizedString("settings.permissionUnknown", comment: "") }
+        static var stayVisible: String { NSLocalizedString("settings.stayVisible", comment: "") }
+        static var stayVisibleDetail: String { NSLocalizedString("settings.stayVisibleDetail", comment: "") }
+        static var stayVisibleEnable: String { NSLocalizedString("settings.stayVisibleEnable", comment: "") }
         static var theme: String { NSLocalizedString("settings.theme", comment: "") }
         static var themeDark: String { NSLocalizedString("settings.themeDark", comment: "") }
         static var themeLight: String { NSLocalizedString("settings.themeLight", comment: "") }

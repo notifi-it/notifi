@@ -93,6 +93,7 @@ final class AppModel {
     var selectedTab: AppTab = AppTab.launchOverride ?? .inbox
     var notificationStatus: UNAuthorizationStatus = .notDetermined
     var criticalAlertStatus: UNNotificationSetting = .notSupported
+    var notificationsStayVisible = false
     var remoteImagesEnabled: Bool {
         didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
     }
@@ -443,19 +444,26 @@ final class AppModel {
         if SampleData.isEnabled {
             notificationStatus = .authorized
             criticalAlertStatus = .enabled
+            notificationsStayVisible = true
             return
         }
         #endif
-        let settings: (UNAuthorizationStatus, UNNotificationSetting) =
+        let settings: (UNAuthorizationStatus, UNNotificationSetting, Bool) =
             await withCheckedContinuation { continuation in
                 UNUserNotificationCenter.current().getNotificationSettings { settings in
+                    #if os(macOS)
+                    let staysVisible = settings.alertStyle == .alert
+                    #else
+                    let staysVisible = false
+                    #endif
                     continuation.resume(
-                        returning: (settings.authorizationStatus, settings.criticalAlertSetting)
+                        returning: (settings.authorizationStatus, settings.criticalAlertSetting, staysVisible)
                     )
                 }
             }
         notificationStatus = settings.0
         criticalAlertStatus = settings.1
+        notificationsStayVisible = settings.2
     }
 
     func requestNotificationPermission() async {

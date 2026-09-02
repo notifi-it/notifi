@@ -61,6 +61,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         macAppModel.startLiveUpdates()
     }
 
+    func applicationDidBecomeActive(_ notification: Notification) {
+        Task {
+            await macAppModel.refreshPermission()
+        }
+    }
+
     func application(
         _ application: NSApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data

@@ -36,6 +36,22 @@ struct SettingsView: View {
                         RowRule()
                     }
 
+                    #if os(macOS)
+                    LabeledRow(title: Copy.Settings.stayVisible, detail: Copy.Settings.stayVisibleDetail) {
+                        if model.notificationsStayVisible {
+                            Text(Copy.Settings.permissionEnabled)
+                                .font(.inco(.subheadline, weight: .medium))
+                                .foregroundStyle(Theme.muted)
+                        } else {
+                            OutlineButton(title: Copy.Settings.stayVisibleEnable, fill: false, compact: true) {
+                                model.openSystemNotificationSettings()
+                            }
+                        }
+                    }
+                    .geistGutter()
+                    RowRule()
+                    #endif
+
                     ToggleRow(
                         title: Copy.Settings.loadImages,
                         detail: Copy.Settings.loadImagesDetail,

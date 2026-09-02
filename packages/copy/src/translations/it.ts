@@ -245,6 +245,12 @@ export const it: Translation = {
   'settings.permissionNotSet': 'Non impostata',
   'settings.permissionUnknown': 'Sconosciuta',
 
+  'settings.stayVisible': 'Le notifiche restano visibili',
+  'settings.stayVisibleDetail':
+    'Una notifica resta sullo schermo finché non la clicchi o la chiudi, invece di sparire dopo pochi ' +
+    'secondi. Attiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi.',
+  'settings.stayVisibleEnable': 'Attiva',
+
   'settings.theme': 'Tema',
   'settings.themeDark': 'Scuro',
   'settings.themeLight': 'Chiaro',
