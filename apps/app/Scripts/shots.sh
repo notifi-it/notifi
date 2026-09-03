@@ -16,14 +16,14 @@ KEY_INDEX=${KEY_INDEX:-2}
 OUT=${OUT:-/tmp/notifi-shots}
 DERIVED=${DERIVED:-/tmp/notifi-derived}
 
-UDID=$(xcrun simctl list devices booted -j | python3 -c '
+UDID=$(xcrun simctl list devices booted -j | "${PYTHON:-python3}" -c '
 import json,sys
 for runtime in json.load(sys.stdin)["devices"].values():
     for d in runtime:
         print(d["udid"]); raise SystemExit
 ')
 if [ -z "$UDID" ]; then
-  UDID=$(xcrun simctl list devices available -j | python3 -c "
+  UDID=$(xcrun simctl list devices available -j | "${PYTHON:-python3}" -c "
 import json,sys
 for runtime in json.load(sys.stdin)['devices'].values():
     for d in runtime:

@@ -72,7 +72,7 @@ screencapture -x -o -l"$WINDOW_ID" "$OUT/mac.png"
 # arrow sits off the panel's centre. The arrow is slid along the panel's top
 # edge to the panel's centre (the edge is uniform, so the move is seamless),
 # then the panel is centred.
-python3 - "$OUT" "$SITE" <<'EOF'
+"${PYTHON:-python3}" - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 

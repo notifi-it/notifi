@@ -735,11 +735,14 @@ enum BodyLinks {
         for match in regex.matches(in: source,
                                    range: NSRange(location: 0, length: ns.length)) {
             guard let whole = Range(match.range, in: source),
+                  let textRange = Range(match.range(at: 1), in: source),
                   let urlRange = Range(match.range(at: 2), in: source),
                   let url = URL(string: String(source[urlRange])) else { continue }
             out += source[cursor..<whole.upperBound]
             let host = url.host() ?? url.absoluteString
-            out += " \(host)"
+            if !source[textRange].localizedCaseInsensitiveContains(host) {
+                out += " \(host)"
+            }
             links.append(url)
             cursor = whole.upperBound
         }
