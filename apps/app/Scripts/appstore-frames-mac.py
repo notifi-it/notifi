@@ -1,9 +1,9 @@
 """Compose the Mac App Store screenshots from the popover captures.
 
-Same type as appstore-frames.py, turned landscape and dark: Recursive Mono
-title, Karla description, one red accent, on the landing page's grainy --bg.
+Same type as appstore-frames.py, turned landscape: Recursive Mono title,
+Karla description, the same soft ground ramp.
 Three frames mirror the iOS set -- inbox, message, keys -- and each hangs the
-popover from the landing page's own menu bar (.mac-bar: frosted dark, Apple
+popover from the landing page's own menu bar (.mac-bar in the light palette: Apple
 mark, then bell, Wi-Fi, battery and clock, the glyphs read out of index.html
 and the bell out of bell-body.svg and bell-clapper.svg), with the bell over
 the popover's arrow. Output is 2560x1600, one of the sizes App Store Connect
@@ -34,13 +34,14 @@ with open(f"{REPO}/apps/app/fastlane/screenshot-copy.json") as fh:
     CAPTIONS = json.load(fh)
 
 W, H = 2560, 1600
-# The site's dark palette: --bg, --fg, --muted, --line, --brand.
-BG, FG, MUTED, LINE, BRAND = (0x1C, 0x1C, 0x1E), "#EDEDED", "#A1A1A1", (0x33, 0x33, 0x33), "#BC2122"
+# The iOS frames' palette: their ground ramp, ink and muted text, one red.
+FG, MUTED, BRAND = "#0A0A0A", "#5A5A5A", "#BC2122"
+GROUND_TOP, GROUND_BOTTOM = (0xE8, 0xE8, 0xEB), (0xFC, 0xFC, 0xFD)
+LINE = (0xD6, 0xD6, 0xDA)
 BRAND_RGB = (0xBC, 0x21, 0x22)
-FG_RGB = (0xED, 0xED, 0xED)
+FG_RGB = (0x0A, 0x0A, 0x0A)
 GUTTER = 170
 TITLE_SIZE, DESC_SIZE = 108, 54
-RULE_W, RULE_H = 190, 9
 # The caption owns the left half of the page and the popover the right; the
 # split is fixed so every locale's frame lines up on the listing.
 TEXT_W = 1150
@@ -100,23 +101,20 @@ def wrap(draw, text, font, width):
 
 
 def ground(popover_box):
-    page = Image.new("RGBA", (W, H), BG + (255,))
-    # The site's ground is --bg under a film of grain; noise at a few levels
-    # of alpha reads the same way without a texture file.
-    import random
-    rng = random.Random(7)
-    grain = Image.new("L", (W // 2, H // 2))
-    grain.putdata([rng.randint(0, 255) for _ in range(grain.width * grain.height)])
-    grain = grain.resize((W, H), Image.NEAREST)
-    film = Image.new("RGBA", (W, H), (255, 255, 255, 0))
-    film.putalpha(grain.point(lambda v: v * 9 // 255))
-    page.alpha_composite(film)
+    ramp = Image.new("RGB", (1, H))
+    px = ramp.load()
+    for y in range(H):
+        t = y / (H - 1)
+        px[0, y] = tuple(
+            round(a + (b - a) * t) for a, b in zip(GROUND_TOP, GROUND_BOTTOM)
+        )
+    page = ramp.resize((W, H), Image.BICUBIC).convert("RGBA")
 
     bloom = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(bloom).ellipse(
         [popover_box[0] - 220, popover_box[3] - 260,
          popover_box[2] + 220, popover_box[3] + 200],
-        fill=BRAND_RGB + (34,),
+        fill=BRAND_RGB + (26,),
     )
     page.alpha_composite(bloom.filter(ImageFilter.GaussianBlur(160)))
     return page
@@ -197,16 +195,16 @@ def slide_arrow(popover, to_x):
 
 
 def menu_bar(canvas, desk, out_dir):
-    """The site's .mac-bar across the top of its .mac-desk: frosted dark
-    over the ground, a 6% white hairline underneath, the Apple mark at the
+    """The site's .mac-bar across the top of its .mac-desk, in the light
+    palette: frosted white over the ground, a hairline underneath, the Apple mark at the
     left, and .mac-status right-aligned -- bell, Wi-Fi, battery, clock.
     Returns the bell's centre x, which the popover's arrow then meets."""
     x0, y0, x1, _ = desk
     width = x1 - x0
-    bar = Image.new("RGBA", (width, BAR_H), (28, 28, 30, 153))
+    bar = Image.new("RGBA", (width, BAR_H), (255, 255, 255, 170))
     canvas.alpha_composite(bar, (x0, y0))
     d = ImageDraw.Draw(canvas)
-    d.line([(x0, y0 + BAR_H - 1), (x1, y0 + BAR_H - 1)], fill=(255, 255, 255, 15), width=1)
+    d.line([(x0, y0 + BAR_H - 1), (x1, y0 + BAR_H - 1)], fill=(0, 0, 0, 28), width=1)
 
     pad = round(2.9 * CQW)
     apple = rasterize(site_svg("mac-apple"), round(5.06 * CQW), FG_RGB, out_dir, "apple")
@@ -277,17 +275,14 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
         title_lines += wrap(d, para, tf, TEXT_W)
     desc_lines = wrap(d, captions[desc_key], df, TEXT_W)
     block_h = (len(title_lines) * round(TITLE_SIZE * 1.14)
-               + 34 + RULE_H + 34
+               + 56
                + len(desc_lines) * round(DESC_SIZE * 1.48))
     y = (H - block_h) // 2
 
     for line in title_lines:
         d.text((GUTTER, y), line, font=tf, fill=FG)
         y += round(TITLE_SIZE * 1.14)
-    y += 34
-    d.rounded_rectangle([GUTTER, y, GUTTER + RULE_W, y + RULE_H],
-                        radius=RULE_H // 2, fill=BRAND)
-    y += RULE_H + 34
+    y += 56
     for line in desc_lines:
         d.text((GUTTER, y), line, font=df, fill=MUTED)
         y += round(DESC_SIZE * 1.48)
@@ -312,8 +307,8 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     # .mac-wall .mac-shot: drop-shadow(0 18px 36px rgba(0,0,0,.55)), at 2x,
     # following the popover's own alpha, arrow and all.
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    silhouette = Image.new("RGBA", popover.size, (0, 0, 0, 140))
-    silhouette.putalpha(popover.getchannel("A").point(lambda v: v * 140 // 255))
+    silhouette = Image.new("RGBA", popover.size, (18, 18, 24, 96))
+    silhouette.putalpha(popover.getchannel("A").point(lambda v: v * 96 // 255))
     shadow.alpha_composite(silhouette, (left, top + 36))
     canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(36)))
     canvas.alpha_composite(popover, (left, top))
