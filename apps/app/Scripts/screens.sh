@@ -154,6 +154,10 @@ for pair in "en:en-GB" "es:es-ES" "de:de-DE" "fr:fr-FR" "it:it"; do
   LOCALE="$LOCALE" SHOTS="$OUT" "${PYTHON:-python3}" apps/app/Scripts/appstore-frames.py
   IPAD=1 LOCALE="$LOCALE" SHOTS="$OUT" "${PYTHON:-python3}" apps/app/Scripts/appstore-frames.py
 done
+# en-US shares en-GB's English the way fastlane/metadata does; a hand-copied
+# set went stale for a month.
+rm -rf apps/app/fastlane/screenshots/en-US
+cp -R apps/app/fastlane/screenshots/en-GB apps/app/fastlane/screenshots/en-US
 
 # The website is English only, so its four shots are captured after the loop
 # rather than reusing the loop's last pass — which is Italian. Settings is on
