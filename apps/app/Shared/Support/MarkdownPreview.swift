@@ -7,6 +7,7 @@ enum MarkdownPreview {
             .map { line -> String in
                 var trimmed = line.trimmingCharacters(in: .whitespaces)
                 if trimmed.hasPrefix("```") { return "" }
+                if trimmed.hasPrefix("|") { return "" }
                 while let first = trimmed.first, first == "#" || first == ">" {
                     trimmed = String(trimmed.dropFirst()).trimmingCharacters(in: .whitespaces)
                 }

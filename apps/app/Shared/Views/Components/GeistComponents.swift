@@ -16,11 +16,7 @@ struct SearchField: View {
 
             TextField(placeholder, text: $text)
                 .textFieldStyle(.plain)
-                #if os(macOS)
-                .font(.inco(.body, weight: .medium))
-                #else
                 .font(Theme.body)
-                #endif
                 .foregroundStyle(Theme.fg)
                 .tint(Theme.brand)
                 .focused(focused)
