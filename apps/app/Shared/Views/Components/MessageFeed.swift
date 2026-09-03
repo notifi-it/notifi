@@ -153,14 +153,14 @@ struct MessageFeed<Empty: View>: View {
         if let body = message.body {
             Button(Copy.Inbox.copyMessage) { Clipboard.copy(body) }
         }
-        if let link = message.link {
+        if let link = message.link,
+           LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
+            Button(Copy.Common.openLink) { open(link, keyID: message.keyID) }
+            #if os(iOS)
+            ShareLink(item: link) { Text(Copy.Message.shareLink) }
+            #else
             Button(Copy.Inbox.copyLink) { Clipboard.copy(link.absoluteString) }
-            if LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
-                Button(Copy.Common.openLink) { open(link, keyID: message.keyID) }
-                #if os(iOS)
-                ShareLink(item: link) { Text(Copy.Message.shareLink) }
-                #endif
-            }
+            #endif
         }
         Divider()
         Button(Copy.Common.delete, role: .destructive) { pendingDelete = message }
@@ -358,7 +358,7 @@ private struct MessageRow: View {
     }
 
     private var previewColor: Color {
-        message.isRead && !isHovered ? Theme.muted : Theme.read
+        message.isRead && !isHovered ? Theme.dim : Theme.read
     }
 
     private var isEscalated: Bool { !message.isRead }
@@ -403,7 +403,7 @@ private struct MessageRow: View {
 
                 if let preview {
                     Text(preview)
-                        .font(.karla(size: 12.5, weight: textWeight, relativeTo: .footnote))
+                        .font(.karla(size: 12.5, relativeTo: .footnote))
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .frame(maxWidth: .infinity, alignment: .leading)

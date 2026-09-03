@@ -56,7 +56,7 @@ struct InboxRootView: View {
         #if DEBUG
         let env = ProcessInfo.processInfo.environment
         guard env["NOTIFI_SEED_SAMPLE"] == "1" else { return }
-        SampleData.seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
+        SampleData.seedOnce(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
         if SampleData.opensSampleMessage {
             try? await Task.sleep(for: .milliseconds(400))
             model.path.append(SampleData.showcaseID)
