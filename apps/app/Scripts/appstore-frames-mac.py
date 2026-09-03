@@ -182,8 +182,8 @@ def slide_arrow(popover, to_x):
     apex_y = next(y for y in range(h) if span(y))
     panel_top = next(y for y in range(apex_y, h)
                      if (sp := span(y)) and sp[1] - sp[0] > w * 0.5)
-    ax0, ax1 = span(apex_y + (panel_top - apex_y) // 2)
-    pad = 6
+    ax0, ax1 = span(panel_top - 1)
+    pad = 10
     box = (ax0 - pad, apex_y, ax1 + pad + 1, panel_top)
     arrow = popover.crop(box)
     panel = popover.getpixel(((ax0 + ax1) // 2, panel_top + 4))[:3]
