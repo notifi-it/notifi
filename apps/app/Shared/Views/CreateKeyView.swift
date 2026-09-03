@@ -228,7 +228,7 @@ struct CreateKeyView: View {
     }
 
     private var isReserved: Bool {
-        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "default"
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "device"
     }
 
     private var isNameTaken: Bool {

@@ -1792,31 +1792,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "“default” is reserved. Your device already has one."
+            "value": "“device” is reserved. Your device already has one."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "\"default\" está reservado. Tu dispositivo ya tiene uno."
+            "value": "\"device\" está reservado. Tu dispositivo ya tiene uno."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "„default“ ist reserviert. Dein Gerät hat bereits einen."
+            "value": "„device“ ist reserviert. Dein Gerät hat bereits einen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "« default » est réservé. Votre appareil en a déjà une."
+            "value": "« device » est réservé. Votre appareil en a déjà une."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "“default” è riservato. Il tuo dispositivo ne ha già uno."
+            "value": "“device” è riservato. Il tuo dispositivo ne ha già uno."
           }
         }
       }
@@ -2107,31 +2107,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose another name. “default” is your device’s own key."
+            "value": "Choose another name. “device” is your device’s own key."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige otro nombre. \"default\" es la clave propia de tu dispositivo."
+            "value": "Elige otro nombre. \"device\" es la clave propia de tu dispositivo."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle einen anderen Namen. „default“ ist der Schlüssel deines Geräts."
+            "value": "Wähle einen anderen Namen. „device“ ist der Schlüssel deines Geräts."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez un autre nom. « default » est la clé de votre appareil."
+            "value": "Choisissez un autre nom. « device » est la clé de votre appareil."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scegli un altro nome. “default” è la chiave del tuo dispositivo."
+            "value": "Scegli un altro nome. “device” è la chiave del tuo dispositivo."
           }
         }
       }
@@ -5247,31 +5247,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Default"
+            "value": "Device"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Predeterminada"
+            "value": "Dispositivo"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Standard"
+            "value": "Gerät"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Par défaut"
+            "value": "Appareil"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Predefinita"
+            "value": "Dispositivo"
           }
         }
       }
