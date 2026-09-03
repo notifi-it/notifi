@@ -34,13 +34,12 @@ with open(f"{REPO}/apps/app/fastlane/screenshot-copy.json") as fh:
     CAPTIONS = json.load(fh)
 
 W, H = 2560, 1600
-# The landing page's dark palette on the right of the split; the red field
-# on the left carries its own white ink.
-FG, MUTED, BRAND = "#EDEDED", "#A1A1A1", "#BC2122"
-GROUND_TOP, GROUND_BOTTOM = (0x24, 0x24, 0x27), (0x14, 0x14, 0x16)
-LINE = (0x33, 0x33, 0x33)
+# The iOS frames' light ground on the right of the split; the red field on
+# the left carries its own white ink, and the popover its own dark one.
+FG, MUTED, BRAND = "#0A0A0A", "#5A5A5A", "#BC2122"
+GROUND_TOP, GROUND_BOTTOM = (0xE8, 0xE8, 0xEB), (0xFC, 0xFC, 0xFD)
 BRAND_RGB = (0xBC, 0x21, 0x22)
-FG_RGB = (0xED, 0xED, 0xED)
+FG_RGB = (0x0A, 0x0A, 0x0A)
 GUTTER = 170
 TITLE_SIZE, DESC_SIZE = 108, 54
 # The red field owns the left of the page and the popover the right; the
@@ -114,7 +113,7 @@ def ground(popover_box):
     ImageDraw.Draw(bloom).ellipse(
         [popover_box[0] - 220, popover_box[3] - 260,
          popover_box[2] + 220, popover_box[3] + 200],
-        fill=BRAND_RGB + (34,),
+        fill=BRAND_RGB + (26,),
     )
     page.alpha_composite(bloom.filter(ImageFilter.GaussianBlur(160)))
     return page
@@ -199,16 +198,16 @@ def slide_arrow(popover, to_x):
 
 
 def menu_bar(canvas, desk, out_dir):
-    """The site's .mac-bar across the top of its .mac-desk: frosted dark over
+    """The site's .mac-bar across the top of the popover: frosted white over
     the ground, a hairline underneath, the Apple mark at the
     left, and .mac-status right-aligned -- bell, Wi-Fi, battery, clock.
     Returns the bell's centre x, which the popover's arrow then meets."""
     x0, y0, x1, _ = desk
     width = x1 - x0
-    bar = Image.new("RGBA", (width, BAR_H), (28, 28, 30, 153))
+    bar = Image.new("RGBA", (width, BAR_H), (255, 255, 255, 170))
     canvas.alpha_composite(bar, (x0, y0))
     d = ImageDraw.Draw(canvas)
-    d.line([(x0, y0 + BAR_H - 1), (x1, y0 + BAR_H - 1)], fill=(255, 255, 255, 15), width=1)
+    d.line([(x0, y0 + BAR_H - 1), (x1, y0 + BAR_H - 1)], fill=(0, 0, 0, 28), width=1)
 
     pad = round(2.9 * CQW)
     apple = rasterize(site_svg("mac-apple"), round(5.06 * CQW), FG_RGB, out_dir, "apple")
@@ -247,12 +246,11 @@ MARK = 150
 
 
 def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
-    # The site's .mac-desk: a hairline-bordered, rounded card the popover is
-    # 94% of, the bar across its top and 26px (a 2x 13) of ground under the
-    # popover. Centred on the right half of the page.
+    # The bar and the popover, nothing around them: the desk is the site's
+    # .mac-desk width so the bar keeps its proportions, but it carries no
+    # border and no ground below the popover. Centred on the right half.
     desk_w = round(popover.width / 0.94)
-    desk_pad = round(26 * SCALE)
-    desk_h = BAR_H + popover.height + desk_pad
+    desk_h = BAR_H + popover.height
     desk_x = POPOVER_CENTER_X - desk_w // 2
     desk_y = (H - desk_h) // 2
     desk = [desk_x, desk_y, desk_x + desk_w, desk_y + desk_h]
@@ -263,7 +261,7 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     canvas = ground(box)
     d = ImageDraw.Draw(canvas)
     # The left field is the brand red, edge to edge, carrying the mark and
-    # the caption in white; the popover keeps the dark ground on the right.
+    # the caption in white; the popover keeps the light ground on the right.
     d.rectangle([0, 0, SPLIT, H], fill=RED_RGB + (255,))
 
     mono = dehinted("RecursiveMono-SemiBold", out_dir)
@@ -304,17 +302,7 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
         d.text((GUTTER, y), line, font=df, fill=(255, 222, 222))
         y += round(DESC_SIZE * 1.48)
 
-    radius = round(2.3 * CQW)
-    desk_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(desk_layer).rounded_rectangle(desk, radius=radius, outline=LINE + (255,), width=2)
-    bar_clip = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(bar_clip).rounded_rectangle(desk, radius=radius, fill=255)
-
-    bar_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    bell_x = menu_bar(bar_layer, desk, out_dir)
-    bar_layer.putalpha(Image.composite(bar_layer.getchannel("A"), Image.new("L", (W, H), 0), bar_clip))
-    canvas.alpha_composite(bar_layer)
-    canvas.alpha_composite(desk_layer)
+    bell_x = menu_bar(canvas, desk, out_dir)
 
     popover = slide_arrow(popover, bell_x - left)
 
