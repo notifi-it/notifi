@@ -141,6 +141,29 @@ def ground():
     return page
 
 
+MARK = 110 if os.environ.get("IPAD") else 84
+MARK_TOP = (TOP - MARK) // 2
+
+
+def mark():
+    """The site's bell, drawn in the brand red above the caption: bell-body.svg
+    and bell-clapper.svg stacked, both cropped by the same box by
+    generate-marks.sh, rasterized the way the CSS mask-image does it."""
+    import subprocess
+    art = Image.new("RGBA", (MARK, MARK), (0, 0, 0, 0))
+    for part in ("bell-body", "bell-clapper"):
+        path = f"{OUT}/.{part}.png"
+        svg = open(f"{REPO}/apps/api/public/{part}.svg").read()
+        subprocess.run(["rsvg-convert", "-w", str(MARK), "-o", path],
+                       input=svg.encode(), check=True)
+        layer = Image.open(path).convert("RGBA")
+        os.remove(path)
+        tint = Image.new("RGBA", layer.size, BRAND_RGB + (0,))
+        tint.putalpha(layer.getchannel("A"))
+        art.alpha_composite(tint, (0, (MARK - layer.height) // 2))
+    return art
+
+
 def rounded(img, radius):
     mask = Image.new("L", img.size, 0)
     ImageDraw.Draw(mask).rounded_rectangle([0, 0, *[v - 1 for v in img.size]],
@@ -161,6 +184,7 @@ def frame(shot_name, title, desc, out_name):
         print(f"skipped {out_name}: no {SHOTS}/{shot_name}")
         return
     canvas = ground()
+    canvas.alpha_composite(mark(), (GUTTER, MARK_TOP))
     d = ImageDraw.Draw(canvas)
 
     # ── title

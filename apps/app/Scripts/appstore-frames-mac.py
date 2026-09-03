@@ -226,7 +226,7 @@ def menu_bar(canvas, desk, out_dir):
     text = "Sat 29 Aug 14:07"
     tb = d.textbbox((0, 0), text, font=clock)
     cluster = (icon.width + gap + wifi.width + gap + batt.width + gap
-               + round(0.92 * CQW) + (tb[2] - tb[0]))
+               + (tb[2] - tb[0]))
 
     x = x1 - pad - cluster
     bell_x = x + icon.width / 2
@@ -235,7 +235,7 @@ def menu_bar(canvas, desk, out_dir):
     canvas.alpha_composite(wifi, (x, y0 + (BAR_H - wifi.height) // 2))
     x += wifi.width + gap
     canvas.alpha_composite(batt, (x, y0 + (BAR_H - batt.height) // 2))
-    x += batt.width + gap + round(0.92 * CQW)
+    x += batt.width + gap
     d.text((x, y0 + (BAR_H - (tb[3] - tb[1])) // 2 - tb[1]), text, font=clock, fill=FG)
     return bell_x
 
