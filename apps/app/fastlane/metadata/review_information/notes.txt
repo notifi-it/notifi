@@ -1,7 +1,7 @@
 No account, no sign-in. The app mints a send key on first launch, so a reviewer
 can test it without credentials from us.
 
-To see a notification arrive:
+iPhone and iPad. To see a notification arrive:
 
 1. Open the app. The empty inbox shows two numbered steps. Step 1 is "Allow
    notifications" — tap "Enable notifications" and accept the system prompt.
@@ -10,6 +10,12 @@ To see a notification arrive:
    push arrives within a few seconds and appears in the list.
 3. "Copy" puts the same command on the clipboard, so it can also be run from any
    terminal to send from outside the app.
+
+Mac. The app is a menu bar item with no Dock icon and no main window. After
+launch, click the bell in the menu bar to open the panel. The empty panel shows
+the same two steps: "Enable notifications" asks for the system permission, and
+"Send a test" sends a request with this Mac's own key. The notification arrives
+within a few seconds, both as a banner and in the panel's list.
 
 Message content is encrypted with your public key. We cannot read it, and
 neither can Apple.

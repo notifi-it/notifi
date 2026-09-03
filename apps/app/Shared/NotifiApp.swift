@@ -132,7 +132,7 @@ struct RootContentView: View {
                 #if os(iOS)
                 Haptics.prepare()
                 model.startLiveUpdates()
-                #else
+                #elseif canImport(Sparkle)
                 Updater.shared.checkInBackground()
                 #endif
             } else {

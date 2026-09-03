@@ -1,4 +1,4 @@
-#if os(macOS)
+#if os(macOS) && canImport(Sparkle)
 import Sparkle
 import SwiftUI
 

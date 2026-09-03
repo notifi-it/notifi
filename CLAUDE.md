@@ -391,6 +391,21 @@ a test framework; say plainly what was and wasn't exercised.
 
 ## Releasing to the App Store
 
+- **macOS ships through two channels.** The Developer ID DMG (`make app-dmg`,
+  the `notifi-macOS` target, Sparkle) and the Mac App Store (`make
+  app-submit-mac`, the `notifi-macOS-AppStore` target — no Sparkle, no
+  temporary-exception entitlements, `.pkg` export). Both share the bundle id;
+  Sparkle code compiles out of the store target via `canImport(Sparkle)`, so
+  never add the Sparkle package to it. Mac listing text pushes with `make
+  app-metadata-mac` (same `fastlane/metadata` tree as iOS); Mac screenshots
+  live in `fastlane/screenshots-macos`, rendered by `make screens-mac-store`
+  and pushed with `make app-screenshots-mac`. A `v*` tag does the whole Mac
+  store release from CI (the `mac-app-store` job): it uploads the pkg, then
+  runs `fastlane mac submit_uploaded`, which creates the version, pushes the
+  listing and screenshots, attaches the build and submits for review.
+  `make app-submit-uploaded-mac` reruns that half by hand and
+  `make app-submit-mac` does it with a local build.
+
 - **Tag first, submit second, metadata last.** A `v*` tag runs CI (TestFlight +
   DMG). `MARKETING_VERSION=X.Y make app-submit` (local) *creates* the App Store
   version; `make app-metadata` before that retries "Cannot find edit app store

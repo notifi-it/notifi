@@ -51,8 +51,11 @@ settings:
       API_BASE_URL: "https://notifi.it"
 
 # Sparkle is the auto-updater for the direct-download macOS build. It is attached
-# to the macOS app target only: iOS updates through the App Store and must not
-# link it. Everything that imports Sparkle in Shared/ is behind #if os(macOS).
+# to the notifi-macOS target only: iOS updates through the App Store and must not
+# link it, and notifi-macOS-AppStore must not either -- the Mac App Store rejects
+# self-updating apps and Sparkle's temporary-exception entitlements outright.
+# Everything that imports Sparkle in Shared/ is behind canImport(Sparkle), so the
+# store target compiles the updater out simply by not depending on the package.
 # Pinned exactly, not a range. Package.resolved lives inside the generated
 # notifi.xcodeproj, which is gitignored, so a range would let CI and a fresh
 # checkout silently resolve a different Sparkle than the one that was verified --
@@ -116,6 +119,32 @@ targets:
       - package: Sparkle
       - package: Textual
 
+  # The Mac App Store variant of notifi-macOS: same bundle id (one App Store
+  # Connect record, universal purchase with iOS), same sources, but no Sparkle,
+  # no temporary-exception entitlements, and an Info.plist without the SU* keys.
+  notifi-macOS-AppStore:
+    type: application
+    platform: macOS
+    sources:
+      - path: Shared
+      - path: Support/Privacy/App/PrivacyInfo.xcprivacy
+    settings:
+      base:
+        PRODUCT_NAME: notifi
+        PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
+        INFOPLIST_FILE: Support/Info/App-macOS-AppStore-Info.plist
+        ENABLE_HARDENED_RUNTIME: "YES"
+        PROVISIONING_PROFILE_SPECIFIER: ${MAC_APP_PROFILE}
+        CODE_SIGN_IDENTITY: ${MAC_CODE_SIGN_IDENTITY}
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-AppStore-Debug.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-AppStore-Release.entitlements
+    dependencies:
+      - target: NotificationService-macOS
+      - package: Textual
+
   NotificationService-iOS:
     type: app-extension
     platform: iOS
@@ -171,6 +200,8 @@ targets:
       base:
         PRODUCT_NAME: NotificationService
         PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.nse
+        PROVISIONING_PROFILE_SPECIFIER: ${MAC_NSE_PROFILE}
+        CODE_SIGN_IDENTITY: ${MAC_CODE_SIGN_IDENTITY}
         INFOPLIST_FILE: Support/Info/NotificationService-Info.plist
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/NotificationService-macOS.entitlements
         ENABLE_HARDENED_RUNTIME: "YES"
@@ -188,6 +219,14 @@ schemes:
     build:
       targets:
         notifi-macOS: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+  notifi-macOS-AppStore:
+    build:
+      targets:
+        notifi-macOS-AppStore: all
     run:
       config: Debug
     archive:

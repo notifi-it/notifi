@@ -2,12 +2,14 @@
 # xcodegen first and bridges the Keychain creds into ASC_KEY_ID / ASC_ISSUER_ID /
 # ASC_KEY_PATH.
 #
-#   make app-testflight -> fastlane ios beta
-#   make app-submit     -> fastlane ios submit
-#   make app-dmg        -> fastlane mac dmg
+#   make app-testflight  -> fastlane ios beta
+#   make app-submit      -> fastlane ios submit
+#   make app-dmg         -> fastlane mac dmg
+#   make app-submit-mac  -> fastlane mac submit
 #
-# The two platforms ship differently on purpose: iOS goes to the App Store,
-# macOS is a direct-download Developer ID DMG and is never uploaded to the store.
+# macOS ships through two channels: the direct-download Developer ID DMG (the
+# notifi-macOS target, with Sparkle) and the Mac App Store (the
+# notifi-macOS-AppStore target, without it). iOS goes to the App Store only.
 
 require "shellwords"
 
@@ -98,7 +100,7 @@ end
 # a second if that ever stops being true, or if the two platforms disagree on a
 # bundle id they share.
 def assert_export_compliance_declared
-  declared = %w[App-iOS-Info.plist App-macOS-Info.plist].to_h do |name|
+  declared = %w[App-iOS-Info.plist App-macOS-Info.plist App-macOS-AppStore-Info.plist].to_h do |name|
     path = File.expand_path("../Support/Info/#{name}", __dir__)
     [name, `/usr/libexec/PlistBuddy -c "Print :ITSAppUsesNonExemptEncryption" #{path.shellescape} 2>&1`.strip]
   end
@@ -113,7 +115,7 @@ def assert_export_compliance_declared
   end
 
   if declared.values.uniq.size > 1
-    UI.user_error!("iOS and macOS disagree on ITSAppUsesNonExemptEncryption (#{declared.map { |k, v| "#{k}=#{v}" }.join(', ')}). They are one App Store Connect record; the answer has to match.")
+    UI.user_error!("The Info.plists disagree on ITSAppUsesNonExemptEncryption (#{declared.map { |k, v| "#{k}=#{v}" }.join(', ')}). They are one App Store Connect record; the answer has to match.")
   end
 
   UI.message("Export compliance: ITSAppUsesNonExemptEncryption = #{declared.values.first}")
@@ -253,8 +255,9 @@ platform :ios do
       precheck_include_in_app_purchases: false, # API-key auth cannot read IAP, and there are none
       submission_information: {
         # No ad SDKs and nothing that touches the IDFA -- the only packages the
-        # app links are Sparkle and MarkdownUI. Export compliance is answered by
-        # ITSAppUsesNonExemptEncryption in the Info.plist, checked above.
+        # app links are Textual and (direct-download macOS only) Sparkle. Export
+        # compliance is answered by ITSAppUsesNonExemptEncryption in the
+        # Info.plist, checked above.
         add_id_info_uses_idfa: false
       }
     )
@@ -268,7 +271,7 @@ platform :ios do
   # Submitting in that gap is refused with "not in valid state", whose associated
   # error is the one that names the cause: "The build associated with
   # appStoreVersions ... was not found". Wait for processing, then attach.
-  def attach_uploaded_build(version_string)
+  def attach_uploaded_build(version_string, platform: Spaceship::ConnectAPI::Platform::IOS)
     app = Spaceship::ConnectAPI::App.find(CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier))
     states = Spaceship::ConnectAPI::Build::ProcessingState
     deadline = Time.now + 30 * 60
@@ -278,7 +281,7 @@ platform :ios do
       build = Spaceship::ConnectAPI::Build.all(
         app_id: app.id,
         version: version_string,
-        platform: Spaceship::ConnectAPI::Platform::IOS,
+        platform: platform,
         sort: "-uploadedDate",
         limit: 1
       ).first
@@ -296,7 +299,7 @@ platform :ios do
       sleep(30)
     end
 
-    version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    version = app.get_edit_app_store_version(platform: platform)
     UI.user_error!("No editable App Store version to attach a build to.") if version.nil?
     version.select_build(build_id: build.id)
     UI.success("Attached build #{build.version} to #{version.version_string}.")
@@ -311,14 +314,14 @@ platform :ios do
   # associatedErrors -- one line per actual blocker. That is the only place they
   # appear; the age-rating questionnaire gains required fields over time, and an
   # unanswered one surfaces here and nowhere else.
-  def submit_for_review_via_review_submissions
+  def submit_for_review_via_review_submissions(platform: Spaceship::ConnectAPI::Platform::IOS)
     app = Spaceship::ConnectAPI::App.find(CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier))
-    version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    version = app.get_edit_app_store_version(platform: platform)
     UI.user_error!("No editable App Store version to submit.") if version.nil?
 
     states = Spaceship::ConnectAPI::ReviewSubmission::ReviewSubmissionState
     existing = app.get_review_submissions(
-      filter: { platform: Spaceship::ConnectAPI::Platform::IOS }
+      filter: { platform: platform }
     ).reject { |s| [states::COMPLETE, states::CANCELING].include?(s.state) }.first
 
     # Re-running after the upload half succeeded is normal; re-submitting an
@@ -328,7 +331,7 @@ platform :ios do
       UI.user_error!("#{version.version_string} is already submitted (#{existing.state}). Cancel it in App Store Connect to submit again.")
     end
 
-    submission = existing || app.create_review_submission(platform: Spaceship::ConnectAPI::Platform::IOS)
+    submission = existing || app.create_review_submission(platform: platform)
 
     Spaceship::ConnectAPI.post_review_submission_item(
       review_submission_id: submission.id,
@@ -364,14 +367,14 @@ platform :ios do
   # and retries five times per screenshot set, so the run spends fifty doomed
   # requests to report a state that one request answers. Text metadata is still
   # writable in these states, which is why only this lane checks.
-  def refuse_screenshots_after_submission
+  def refuse_screenshots_after_submission(platform: Spaceship::ConnectAPI::Platform::IOS)
     # Spaceship is only authorised as a side effect of asc_key, and the lanes
     # that read the API elsewhere all run after upload_to_app_store has called
     # it. This one runs first, so it has to ask for the key itself.
     asc_key
 
     app = Spaceship::ConnectAPI::App.find(CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier))
-    version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    version = app.get_edit_app_store_version(platform: platform)
     UI.user_error!("No editable App Store version to upload screenshots to.") if version.nil?
 
     states = Spaceship::ConnectAPI::AppStoreVersion::AppVersionState
@@ -563,6 +566,135 @@ platform :mac do
     # the release-macos job, which is also the thing that has a token.
     UI.success("==> #{updates}/#{File.basename(dmg)}")
     UI.success("==> #{appcast}")
+  end
+
+  # The Mac App Store channel. Same App Store Connect record as iOS (universal
+  # purchase on it.notifi.notifi), so these lanes are the iOS ones pointed at
+  # the MAC_OS platform and the notifi-macOS-AppStore scheme -- which links no
+  # Sparkle and carries no temporary-exception entitlements. The export is a
+  # .pkg, cloud-signed with Mac App Distribution / Mac Installer Distribution,
+  # which (unlike Developer ID) the API key may manage, so automatic signing
+  # works locally and on CI alike.
+  def mac_store_platform
+    Spaceship::ConnectAPI::Platform::MAC_OS
+  end
+
+  def mac_screenshots_path
+    File.expand_path("screenshots-macos", __dir__)
+  end
+
+  def build_mac_appstore
+    generate_project
+    build_mac_app(
+      project: "notifi.xcodeproj",
+      scheme: "notifi-macOS-AppStore",
+      configuration: "Release",
+      output_directory: "build",
+      output_name: "notifi-appstore",
+      export_method: "app-store",
+      export_options: { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+      # No export_xcargs -- same reason as build_ios_release.
+      xcargs: "#{provisioning_xcargs} #{marketing_version_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
+    )
+  end
+
+  desc "Build the Mac App Store pkg, attach it to the macOS App Store version, and submit for review"
+  lane :submit do
+    assert_export_compliance_declared
+    enable_beta_screenshot_sync
+
+    build_mac_appstore
+
+    if ENV["SKIP_UPLOAD"]
+      UI.important("SKIP_UPLOAD set - nothing was uploaded and nothing was submitted")
+      next
+    end
+
+    upload_to_app_store(
+      api_key: asc_key,
+      platform: "osx",
+      app_version: release_version("notifi-macOS-AppStore"),
+      pkg: lane_context[SharedValues::PKG_OUTPUT_PATH],
+      screenshots_path: mac_screenshots_path,
+      skip_screenshots: false,
+      sync_screenshots: true,
+      # Same reason as the iOS lane: deliver's own submit posts to an endpoint
+      # App Store Connect no longer accepts. Upload here, submit below.
+      submit_for_review: false,
+      automatic_release: true,
+      force: true, # no HTML preview to confirm; this runs unattended
+      run_precheck_before_submit: true,
+      precheck_include_in_app_purchases: false, # API-key auth cannot read IAP, and there are none
+      submission_information: {
+        add_id_info_uses_idfa: false
+      }
+    )
+
+    attach_uploaded_build(release_version("notifi-macOS-AppStore"), platform: mac_store_platform)
+    submit_for_review_via_review_submissions(platform: mac_store_platform)
+  end
+
+  # The tag workflow's mac-app-store job uploads the pkg; this is the half that
+  # cannot run there. It creates the App Store version, syncs the Mac
+  # screenshots, attaches the build CI uploaded once it has processed, and
+  # submits -- `submit` above with the build step taken out.
+  desc "Attach the build CI uploaded for MARKETING_VERSION to the macOS App Store version and submit"
+  lane :submit_uploaded do
+    version = ENV["MARKETING_VERSION"] || UI.user_error!("MARKETING_VERSION is required: the version the tag built")
+    enable_beta_screenshot_sync
+
+    upload_to_app_store(
+      api_key: asc_key,
+      platform: "osx",
+      app_version: version,
+      skip_binary_upload: true,
+      screenshots_path: mac_screenshots_path,
+      skip_screenshots: false,
+      sync_screenshots: true,
+      submit_for_review: false,
+      automatic_release: true,
+      force: true,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false
+    )
+
+    attach_uploaded_build(version, platform: mac_store_platform)
+    submit_for_review_via_review_submissions(platform: mac_store_platform)
+  end
+
+  desc "Submit the current macOS App Store version for review without building"
+  lane :resubmit do
+    asc_key
+    submit_for_review_via_review_submissions(platform: mac_store_platform)
+  end
+
+  desc "Push fastlane/metadata to the macOS side of the App Store listing"
+  lane :metadata do
+    # One listing text for both platforms: the same fastlane/metadata tree the
+    # iOS lane pushes, aimed at the macOS platform version.
+    upload_to_app_store(
+      api_key: asc_key,
+      platform: "osx",
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_app_version_update: true,
+      precheck_include_in_app_purchases: false,
+      force: true # no HTML preview to confirm; this runs unattended
+    )
+  end
+
+  desc "Push fastlane/screenshots-macos to App Store Connect"
+  lane :screenshots do
+    refuse_screenshots_after_submission(platform: mac_store_platform)
+
+    upload_to_app_store(
+      api_key: asc_key,
+      platform: "osx",
+      skip_binary_upload: true,
+      skip_metadata: true,
+      screenshots_path: mac_screenshots_path,
+      **sync_screenshots_options
+    )
   end
 
   # A DMG that passes spctl can still be undistributable, because spctl consults

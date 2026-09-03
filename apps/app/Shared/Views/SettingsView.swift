@@ -119,6 +119,7 @@ struct SettingsView: View {
                     .geistGutter()
                     RowRule()
 
+                    #if canImport(Sparkle)
                     ToggleRow(
                         title: Copy.Settings.installUpdatesAutomatically,
                         detail: Copy.Settings.installUpdatesAutomaticallyDetail,
@@ -156,6 +157,7 @@ struct SettingsView: View {
                     .disabled(!Updater.shared.canCheck)
                     .geistGutter()
                     RowRule()
+                    #endif
                     #endif
 
                     Button {
@@ -309,7 +311,9 @@ struct SettingsView: View {
             await model.refreshPermission()
             #if os(macOS)
             LoginItem.shared.refresh()
+            #if canImport(Sparkle)
             Updater.shared.refresh()
+            #endif
             #endif
         }
     }
