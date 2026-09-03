@@ -128,12 +128,16 @@ so read `error.code` and not `code`:
 ```
 
 The codes are `invalid_request` (400), `unknown_key` (401), `invalid_content`
-(422, the device refuses sends that would arrive with a warning) and
-`rate_limited` (429, which carries `Retry-After`).
+(422, the device refuses sends that would arrive with a warning), `rate_limited`
+(429, which carries `Retry-After`) and `too_many_uncollected` (507, the device
+has 500 notifications it has not collected yet).
 
 60 sends an hour per device, shared across every key on it. Five active keys per
-device. Delivery is not guaranteed, so do not make notifi the only path for
-anything where a missed notification causes harm.
+device. 500 uncollected notifications per device, across every key on it: over
+that, a send answers 507 until the device collects what is waiting, and it
+clears when the device next opens rather than on a timer. Delivery is not
+guaranteed, so do not make notifi the only path for anything where a missed
+notification causes harm.
 
 ## Recipe: Claude Code
 

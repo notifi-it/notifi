@@ -93,8 +93,9 @@ product has no addresses.
   undelivered one is "uncollected". The privacy policy leans on this pair.
 - **pager** and **relay** — the two sanctioned metaphors, used as-is: "a
   pager for your own systems", "a relay, not a mailbox". Don't coin others.
-- **encrypted** — the copy's word. "Seal" is the code's name (`seal.ts`) and
-  stays internal.
+- **encrypted** — the one word, in copy and in code (`encrypt.ts`). "Seal"
+  survives only in wire and column names (`content_sealed`, `notifi.sealed`)
+  and in Apple's `SealedBox`.
 
 ## Every page in apps/api/public is generated
 

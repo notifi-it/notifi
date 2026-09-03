@@ -15,7 +15,7 @@ export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
 };
 
 export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
-  if (c.get('signatureChecked')) return next();
+  if (c.get('isSignatureChecked')) return next();
 
   const rawBody = await c.req.arrayBuffer();
   const result = await verifyDeviceSignature(c.req.raw, rawBody, now());
@@ -25,7 +25,7 @@ export const signatureAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
     return c.json(errBody(result.code, message), 401);
   }
 
-  c.set('signatureChecked', true);
+  c.set('isSignatureChecked', true);
   c.set('rawBody', rawBody);
   c.set('publicKey', result.publicKey);
   return next();

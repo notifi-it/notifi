@@ -618,6 +618,7 @@ Accept-Language: en-GB
       <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-401" id="r-t-401"><span>401</span></button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-422" id="r-t-422"><span>422</span></button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-429" id="r-t-429"><span>429</span></button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="r-p-507" id="r-t-507"><span>507</span></button>
     </div>
 
     <div class="term">
@@ -656,6 +657,12 @@ Content-Type<span class="f">:</span> <span class="s">application/json; charset=u
 Retry-After<span class="f">:</span> <span class="s">42</span>
 
 {<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;rate_limited&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Too many notifications. Try again shortly.&quot;</span>}}</pre>
+      </div>
+      <div class="panel" id="r-p-507" role="tabpanel" tabindex="0" aria-labelledby="r-t-507" data-name="too_many_uncollected" data-label="507" hidden>
+<pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">507</span> <span class="s">Insufficient Storage</span>
+Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
+
+{<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;too_many_uncollected&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Not sent. This device has 500 uncollected notifications waiting; it has to collect them before it can be sent another.&quot;</span>}}</pre>
       </div>
     </div>
     <p>
@@ -740,6 +747,11 @@ Content-Type: application/json; charset=utf-8
             <td>Over the hourly device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets.</td>
           </tr>
           <tr>
+            <td><code>507</code></td>
+            <td><code>too_many_uncollected</code></td>
+            <td>The device already has the most uncollected notifications it can hold. Every notification the device has not collected yet counts, across every key on it. The count falls as the device collects, so a later send succeeds without any change to the key.</td>
+          </tr>
+          <tr>
             <td><code>404</code></td>
             <td><code>not_found</code></td>
             <td>No such path.</td>
@@ -760,12 +772,18 @@ Content-Type: application/json; charset=utf-8
       <li>60 notifications an hour per device, shared across every key on it.</li>
       <li>5 active send keys per device, one of which is the app’s own default.</li>
       <li>100 requests a minute per IP address, across every endpoint.</li>
+      <li>500 uncollected notifications per device, across every key on it. Over the limit answers 507 until the device collects what is waiting.</li>
       <li>Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.</li>
     </ul>
     <p>
       A <code>429</code> carries <code>Retry-After</code> in seconds. The device limit is
       60 an hour across all 5 keys; the address limit is
       100 requests a minute and covers every endpoint.
+    </p>
+    <p>
+      A <code>507</code> is the separate standing limit: 500 notifications the
+      device has not collected yet, across every key on it. It has no <code>Retry-After</code>,
+      because it clears when the device next collects, not on a timer.
     </p>
   </section>
 

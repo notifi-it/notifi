@@ -43,7 +43,8 @@ A successful send answers `202` with `{"ok":true}`. The key can also be passed a
 
 ### How much can I send?
 
-- **60 sends an hour per device**, shared by every key on that device rather than counted per key. Over the limit answers `429` with a `Retry-After` header.
+- **60 sends an hour per device**, shared by every key on that device rather than counted per key. The hour is the last sixty minutes, not the clock hour. Over the limit answers `429` with a `Retry-After` header.
+- **500 uncollected notifications per device**, again across every key. A device that hasn't been open for 500 notifications: new sends answer `507` until the app is opened again.
 - **Five active send keys per device**, one of which is the app’s own default key.
 - There is also a per-IP ceiling of 100 requests a minute on every endpoint.
 
@@ -75,7 +76,7 @@ It is the weaker option. A query string lands in Cloudflare’s edge logs, your 
 
 ### How long are notifications kept?
 
-A notification is deleted as soon as your device confirms it has it. One your device never collects stays, encrypted, until it does — there is no time limit. Revoked send keys are kept forever, as hashes, so that a revoked key can never be reused.
+A notification's content is deleted as soon as your device confirms it has it; only the fact that one was sent, and when, stays for up to a day. One your device never collects stays, encrypted, until it does, for at most 90 days. Revoked send keys are kept forever, as hashes, so that a revoked key can never be reused.
 
 ### What happens if I delete the app?
 

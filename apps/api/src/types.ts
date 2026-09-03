@@ -36,14 +36,12 @@ export interface DeviceRow {
   app_version: string;
   created_at: number;
   last_seen_at: number;
-  acked_id: number;
-  seq_counter: number;
 }
 
 export interface Variables {
   rawBody: ArrayBuffer;
   publicKey: string;
-  signatureChecked: boolean;
+  isSignatureChecked: boolean;
   language: LanguageCode;
 }
 

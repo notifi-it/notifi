@@ -6,7 +6,7 @@ import {
 } from '@notifi/contract';
 import { Hono } from 'hono';
 import { errBody, t } from '../lib/respond.js';
-import { seal } from '../lib/seal.js';
+import { encrypt } from '../lib/encrypt.js';
 import { generateSendKey } from '../lib/sendkey.js';
 import { now } from '../lib/time.js';
 import { bumpLastSeenIfStale, getDevice, signatureAuth } from '../middleware.js';
@@ -65,10 +65,10 @@ keys.post('/keys', async (c) => {
 
   const id = inserted.id;
   const meta: KeyMeta = { id, name: parsed.name, prefix: generated.prefix };
-  const metaSealed = await seal(device.encryption_public_key, 'key_meta', JSON.stringify(meta));
+  const metaEncrypted = await encrypt(device.encryption_public_key, 'key_meta', JSON.stringify(meta));
 
   await c.env.DB.prepare('UPDATE keys SET meta_sealed = ?, revoked_at = NULL WHERE id = ?')
-    .bind(metaSealed, id)
+    .bind(metaEncrypted, id)
     .run();
 
   await bumpLastSeenIfStale(c.env, device, nowS);

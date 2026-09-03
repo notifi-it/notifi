@@ -63,7 +63,7 @@ Because the sender and the recipient both talk to the same server, that server i
 
 ## How long it is kept
 
-- **Notifications** are deleted from the server as soon as your device confirms it has collected them.
+- **Notifications** have their content deleted from the server as soon as your device confirms it has collected them. What stays, for up to a day, is only that a notification was sent to your device and when; the hourly send limit is counted from that.
 - **Uncollected notifications** are kept, encrypted, until your device collects them, for at most 90 days. A daily job removes anything older.
 - **Devices** are kept as long as they are registered. When Apple’s push service reports that the app has been removed from a device, the next send to it deletes the registration and everything under it — keys and uncollected notifications included. A device that is never sent to again can keep its row until a deletion request removes it; email [hello@notifi.it](mailto:hello@notifi.it) with the device’s public key.
 - **Send keys** are kept while the device exists, including revoked ones, so that a revoked key cannot be reused.

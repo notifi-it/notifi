@@ -104,6 +104,15 @@ Retry-After: 42
 {"error":{"code":"rate_limited","message":"Too many notifications. Try again shortly."}}
 ```
 
+### 507
+
+```
+HTTP/1.1 507 Insufficient Storage
+Content-Type: application/json; charset=utf-8
+
+{"error":{"code":"too_many_uncollected","message":"Not sent. This device has 500 uncollected notifications waiting; it has to collect them before it can be sent another."}}
+```
+
 A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, or a critical alert delivered as an ordinary notification. The status is still `202`; the notification was sent, in the altered form each warning describes.
 
 ```http
@@ -147,6 +156,7 @@ Every error nests the code one level down. Read `error.code`, not `code`. The `m
 | `401` | `unknown_key` | The key is unknown or has been revoked. |
 | `422` | `invalid_content` | The device is set to refuse a notification it cannot deliver as written. |
 | `429` | `rate_limited` | Over the hourly device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets. |
+| `507` | `too_many_uncollected` | The device already has the most uncollected notifications it can hold. Every notification the device has not collected yet counts, across every key on it. The count falls as the device collects, so a later send succeeds without any change to the key. |
 | `404` | `not_found` | No such path. |
 | `500` | `internal_error` | Something broke on our side. |
 
@@ -155,9 +165,12 @@ Every error nests the code one level down. Read `error.code`, not `code`. The `m
 - 60 notifications an hour per device, shared across every key on it.
 - 5 active send keys per device, one of which is the app’s own default.
 - 100 requests a minute per IP address, across every endpoint.
+- 500 uncollected notifications per device, across every key on it. Over the limit answers 507 until the device collects what is waiting.
 - Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.
 
 A `429` carries `Retry-After` in seconds. The device limit is 60 an hour across all 5 keys; the address limit is 100 requests a minute and covers every endpoint.
+
+A `507` is the separate standing limit: 500 notifications the device has not collected yet, across every key on it. It has no `Retry-After`, because it clears when the device next collects, not on a timer.
 
 ## Clients and import
 

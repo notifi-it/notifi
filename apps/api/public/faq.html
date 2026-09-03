@@ -278,7 +278,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h2>Limits</h2>
     <h3>How much can I send?</h3>
     <ul>
-      <li><strong>60 sends an hour per device</strong>, shared by every key on that device rather than counted per key. Over the limit answers <code>429</code> with a <code>Retry-After</code> header.</li>
+      <li><strong>60 sends an hour per device</strong>, shared by every key on that device rather than counted per key. The hour is the last sixty minutes, not the clock hour. Over the limit answers <code>429</code> with a <code>Retry-After</code> header.</li>
+      <li><strong>500 uncollected notifications per device</strong>, again across every key. A device that hasn't been open for 500 notifications: new sends answer <code>507</code> until the app is opened again.</li>
       <li><strong>Five active send keys per device</strong>, one of which is the app’s own default key.</li>
       <li>There is also a per-IP ceiling of 100 requests a minute on every endpoint.</li>
     </ul>
@@ -302,7 +303,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <h3>Is it safe to put the key in the URL?</h3>
     <p>It is the weaker option. A query string lands in Cloudflare’s edge logs, your shell history and any proxy in between, in the clear, before the encryption happens. Use it only for a quick test, and rotate the key afterwards. Send the key as a <code>Authorization: Bearer</code> header and the body in a <code>POST</code> body where you can.</p>
     <h3>How long are notifications kept?</h3>
-    <p>A notification is deleted as soon as your device confirms it has it. One your device never collects stays, encrypted, until it does — there is no time limit. Revoked send keys are kept forever, as hashes, so that a revoked key can never be reused.</p>
+    <p>A notification's content is deleted as soon as your device confirms it has it; only the fact that one was sent, and when, stays for up to a day. One your device never collects stays, encrypted, until it does, for at most 90 days. Revoked send keys are kept forever, as hashes, so that a revoked key can never be reused.</p>
     <h3>What happens if I delete the app?</h3>
     <p>Your notifications, your keys and your identity go with it. None of it is recoverable, and every send key you created stops working.</p>
     <h3>Do you track me?</h3>

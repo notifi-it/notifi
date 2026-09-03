@@ -4,6 +4,7 @@ import {
   AUTH,
   DESCRIPTION,
   ENDPOINT,
+  OPERATION_ERRORS,
   ORIGIN,
   REQUESTS_PER_MINUTE,
   SENDS_PER_HOUR,
@@ -42,7 +43,6 @@ function assertErrorTableMatchesContract(): void {
   }
 }
 
-const OPERATION_ERRORS = ['invalid_request', 'unknown_key', 'invalid_content', 'rate_limited'];
 
 function responseName(code: string): string {
   return code

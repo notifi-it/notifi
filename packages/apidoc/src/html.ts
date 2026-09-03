@@ -8,6 +8,7 @@ import {
   ORIGIN,
   REQUESTS_PER_MINUTE,
   SENDS_PER_HOUR,
+  UNCOLLECTED_MAX,
   TITLE_MAX,
   errors,
   limits,
@@ -366,6 +367,11 @@ ${limits.map((l) => `      <li>${escape(l)}</li>`).join('\n')}
       A <code>429</code> carries <code>Retry-After</code> in seconds. The device limit is
       ${SENDS_PER_HOUR} an hour across all ${KEYS_PER_DEVICE} keys; the address limit is
       ${REQUESTS_PER_MINUTE} requests a minute and covers every endpoint.
+    </p>
+    <p>
+      A <code>507</code> is the separate standing limit: ${UNCOLLECTED_MAX} notifications the
+      device has not collected yet, across every key on it. It has no <code>Retry-After</code>,
+      because it clears when the device next collects, not on a timer.
     </p>
   </section>
 

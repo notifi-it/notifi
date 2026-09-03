@@ -21,7 +21,7 @@
 <!-- Kept under ~60 characters: a result page truncates past that, and the
      differentiator sits at the end where it would be the part cut. -->
 <title>notifi: Push notifications</title>
-<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, open source, and the notification is sealed so neither we nor Apple can read it.">
+<meta name="description" content="Download notifi for iPhone, iPad and Mac. One HTTP request from any script and a native push lands on your device. No account, open source, and the notification is encrypted so neither we nor Apple can read it.">
 <meta name="theme-color" content="#1C1C1E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -1850,7 +1850,7 @@ spec:
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>
         <div>
           <p>Notifications are
-             <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">encrypted</a>
+             <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/encrypt.ts" class="src">encrypted</a>
              with your public key before they are stored, so the server only ever holds
              encrypted text. Apple relays an alert that just says <code>notifi</code>,
              and your phone

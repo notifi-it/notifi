@@ -58,14 +58,14 @@ function card(lines: string[]): string {
 export function render(body: string): string {
   const lines = body.split('\n');
   const out: string[] = [];
-  let open = false;
-  let lede = false;
+  let isSectionOpen = false;
+  let hasLede = false;
   let i = 0;
 
-  const indent = () => (open ? '    ' : '  ');
+  const indent = () => (isSectionOpen ? '    ' : '  ');
   const close = () => {
-    if (open) out.push('  </section>');
-    open = false;
+    if (isSectionOpen) out.push('  </section>');
+    isSectionOpen = false;
   };
 
   while (i < lines.length) {
@@ -96,7 +96,7 @@ export function render(body: string): string {
       } else if (level === 2) {
         close();
         out.push('', '  <section>', `    <h2>${text}</h2>`);
-        open = true;
+        isSectionOpen = true;
       } else {
         out.push(`    <h3>${text}</h3>`);
       }
@@ -110,8 +110,8 @@ export function render(body: string): string {
         quoted.push((lines[i] as string).replace(/^>\s?/, ''));
         i++;
       }
-      if (!lede) {
-        lede = true;
+      if (!hasLede) {
+        hasLede = true;
         out.push(`${indent()}<p class="lede">${inline(quoted.join(' ').trim())}</p>`);
         continue;
       }
