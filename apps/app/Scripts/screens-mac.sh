@@ -67,10 +67,10 @@ SWIFT
   screencapture -x -o -l"$window_id" "$OUT/$name.png"
 }
 
-# The store frames are dark, like the site the popover figure sits on; the
-# site's own figure keeps the appearance it has always had. NOTIFI_APPEARANCE
-# is written to UserDefaults, which the Debug build shares with the installed
-# app (same bundle id), so the setting is put back the way it was found.
+# The store frames are the iOS set's: dark app on a light ground. The site's figure keeps
+# the appearance it has always had. NOTIFI_APPEARANCE is written to
+# UserDefaults, which the Debug build shares with the installed app (same
+# bundle id), so the setting is put back the way it was found.
 SAVED_APPEARANCE=$(defaults read it.notifi.notifi appearance 2>/dev/null || true)
 restore_appearance() {
   if [ -n "$SAVED_APPEARANCE" ]; then defaults write it.notifi.notifi appearance "$SAVED_APPEARANCE"

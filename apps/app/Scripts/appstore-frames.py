@@ -85,7 +85,6 @@ TOP = 150
 DEVICE_TOP = 840
 DEVICE_BOTTOM = 76
 TITLE_SIZE, DESC_SIZE = 82, 45
-RULE_W, RULE_H = 150, 7
 RADIUS_RATIO = 0.058
 # Both captures carry the aspect ratio of the canvas they are framed on, so a
 # caption above the device and a device at full width cannot both be had: every
@@ -101,7 +100,6 @@ if os.environ.get("IPAD"):
     # page regardless.
     TOP = 190
     DEVICE_TOP = 900
-    RULE_W, RULE_H = 190, 9
     # Only the top corners are on the page, and at 1808px wide the phone's
     # ratio rounds them far harder than the hardware does.
     RADIUS_RATIO = 0.031
@@ -181,11 +179,7 @@ def frame(shot_name, title, desc, out_name):
             d.text((GUTTER, y), line, font=tf, fill=FG)
             y += round(TITLE_SIZE * 1.14)
 
-    # ── the accent, between title and description
     y += 34
-    d.rounded_rectangle([GUTTER, y, GUTTER + RULE_W, y + RULE_H],
-                        radius=RULE_H // 2, fill=BRAND)
-    y += RULE_H
 
     # ── description
     df = ImageFont.truetype(SANS, DESC_SIZE)
