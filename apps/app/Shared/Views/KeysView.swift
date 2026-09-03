@@ -140,18 +140,16 @@ private struct KeyRow: View {
                             .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
                             .lineLimit(1)
                     }
-                    HStack(spacing: 10) {
-                        Text(key.maskedValue)
-                            .font(Theme.meta)
-                            .foregroundStyle(Theme.muted)
-                        Text(sent)
+                    Text(key.maskedValue)
+                        .font(Theme.meta)
+                        .foregroundStyle(Theme.muted)
+                    Text(sent)
+                        .font(Theme.metaSmall)
+                        .foregroundStyle(Theme.dim)
+                    if let used = key.lastUsedDate {
+                        Text(Copy.Keys.rowLastUsed(RelativeAge.agoString(since: used)))
                             .font(Theme.metaSmall)
                             .foregroundStyle(Theme.dim)
-                        if let used = key.lastUsedDate {
-                            Text(Copy.Keys.rowLastUsed(RelativeAge.agoString(since: used)))
-                                .font(Theme.metaSmall)
-                                .foregroundStyle(Theme.dim)
-                        }
                     }
                 }
             }
