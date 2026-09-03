@@ -383,7 +383,6 @@ private struct MessageRow: View {
             Text(Self.clock.string(from: basis))
                 .font(.inco(size: 12, weight: textWeight, relativeTo: .footnote))
                 .monospacedDigit()
-                .underline(message.isCritical, pattern: .solid)
                 .foregroundStyle(isEscalated ? Theme.brandText
                                  : isHovered ? Theme.muted : Theme.dim)
                 .lineLimit(1)
@@ -396,7 +395,7 @@ private struct MessageRow: View {
                                          relativeTo: .footnote))
                         .foregroundStyle(textColor)
 
-                    slot(present: message.isCritical, systemName: "bolt")
+                    slot(present: message.isCritical, systemName: "bolt", tint: Theme.brand)
                     linkSlot
                     slot(present: message.imageURL != nil, systemName: "photo")
                 }
@@ -446,10 +445,11 @@ private struct MessageRow: View {
     }
 
     @ViewBuilder
-    private func slot(present: Bool, systemName: String) -> some View {
+    private func slot(present: Bool, systemName: String,
+                      tint: Color = Theme.dim) -> some View {
         if present {
             glyph(systemName)
-                .foregroundStyle(Theme.dim)
+                .foregroundStyle(tint)
                 .accessibilityHidden(true)
         }
     }

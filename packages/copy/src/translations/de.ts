@@ -68,7 +68,7 @@ export const de: Translation = {
   'store.shotInboxTitleIpad': 'Eine Anfrage.\nDirekt auf deine Geräte.',
   'store.shotInboxBody':
     'Push-Benachrichtigungen für deine Skripte und Server. Eine HTTP-Anfrage an notifi.it, ' +
-    'und sie kommt einen Moment später an. Kein Account.',
+    'und sie kommt einen Moment später an.',
   'store.shotMessageTitle': 'Bilder, Links,\nMarkdown.',
   'store.shotMessageBody':
     'Ein Titel, ein Text, ein Bild und ein Link. Überschriften, Listen, Zitate und ' +
@@ -77,8 +77,7 @@ export const de: Translation = {
   'store.shotKeysTitle': 'Ein Schlüssel\npro Quelle.',
   'store.shotKeysBody':
     'Gib dem Deploy-Bot einen Schlüssel und der Türklingel einen anderen. Widerrufe ' +
-    'einen, und der Rest funktioniert weiter. Jeder Schlüssel führt seine eigene ' +
-    'Sendeanzahl, und es ist kein Account nötig.',
+    'einen, und der Rest funktioniert weiter.',
 
   'push.fallbackTitle': 'notifi',
   'push.fallbackBody': 'notifi öffnen, um es anzuzeigen',

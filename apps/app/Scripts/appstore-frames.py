@@ -75,14 +75,14 @@ MONO = dehinted("RecursiveMono-SemiBold")
 SANS = dehinted("Karla")
 
 GUTTER = 96
-TOP = 150
+TOP = 220
 # Fixed, not text-relative: the three frames sit side by side on the listing,
 # and a device that starts at a different height on each reads as a mistake.
 # The whole device is on the page now, so its height and the gap below it are
 # what fix it in place — a bleed only had to name where it started.
 # 920 is set by the longest caption, not by taste: the French message frame
 # runs to five lines and ends at 864.
-DEVICE_TOP = 840
+DEVICE_TOP = 910
 DEVICE_BOTTOM = 76
 TITLE_SIZE, DESC_SIZE = 82, 45
 RADIUS_RATIO = 0.058
@@ -98,8 +98,8 @@ if os.environ.get("IPAD"):
     # The iPad caption wraps to five lines in German, so its device starts
     # lower than the phone's. Height is free here — the device runs off the
     # page regardless.
-    TOP = 190
-    DEVICE_TOP = 900
+    TOP = 264
+    DEVICE_TOP = 974
     # Only the top corners are on the page, and at 1808px wide the phone's
     # ratio rounds them far harder than the hardware does.
     RADIUS_RATIO = 0.031
@@ -141,6 +141,31 @@ def ground():
     return page
 
 
+MARK = 110 if os.environ.get("IPAD") else 84
+# The mark sits a mark's height in from the top, and the title a gap under it;
+# TOP already counts both, so the caption keeps its distance from the device.
+MARK_TOP = TOP - MARK - (44 if os.environ.get("IPAD") else 40)
+
+
+def mark():
+    """The site's bell, drawn in the brand red above the caption: bell-body.svg
+    and bell-clapper.svg stacked, both cropped by the same box by
+    generate-marks.sh, rasterized the way the CSS mask-image does it."""
+    import subprocess
+    art = Image.new("RGBA", (MARK, MARK), (0, 0, 0, 0))
+    for part in ("bell-body", "bell-clapper"):
+        path = f"{OUT}/.{part}.png"
+        svg = open(f"{REPO}/apps/api/public/{part}.svg").read()
+        subprocess.run(["rsvg-convert", "-w", str(MARK), "-o", path],
+                       input=svg.encode(), check=True)
+        layer = Image.open(path).convert("RGBA")
+        os.remove(path)
+        tint = Image.new("RGBA", layer.size, BRAND_RGB + (0,))
+        tint.putalpha(layer.getchannel("A"))
+        art.alpha_composite(tint, (0, (MARK - layer.height) // 2))
+    return art
+
+
 def rounded(img, radius):
     mask = Image.new("L", img.size, 0)
     ImageDraw.Draw(mask).rounded_rectangle([0, 0, *[v - 1 for v in img.size]],
@@ -161,6 +186,7 @@ def frame(shot_name, title, desc, out_name):
         print(f"skipped {out_name}: no {SHOTS}/{shot_name}")
         return
     canvas = ground()
+    canvas.alpha_composite(mark(), (GUTTER, MARK_TOP))
     d = ImageDraw.Draw(canvas)
 
     # ── title

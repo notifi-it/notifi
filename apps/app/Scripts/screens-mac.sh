@@ -67,8 +67,8 @@ SWIFT
   screencapture -x -o -l"$window_id" "$OUT/$name.png"
 }
 
-# The store frames are the iOS set's: dark app on a light ground. The site's figure keeps
-# the appearance it has always had. NOTIFI_APPEARANCE is written to
+# The store frames show the dark popover; the site figure is light.
+# NOTIFI_APPEARANCE is written to
 # UserDefaults, which the Debug build shares with the installed app (same
 # bundle id), so the setting is put back the way it was found.
 SAVED_APPEARANCE=$(defaults read it.notifi.notifi appearance 2>/dev/null || true)
@@ -81,7 +81,7 @@ capture mac-inbox --env NOTIFI_APPEARANCE=dark
 capture mac-detail --env NOTIFI_APPEARANCE=dark --env NOTIFI_OPEN_SAMPLE_MESSAGE=1
 capture mac-keys --env NOTIFI_APPEARANCE=dark --env NOTIFI_START_TAB=keys
 restore_appearance
-capture mac
+capture mac --env NOTIFI_APPEARANCE=light
 
 # Published at the capture's own pixels, cropped to the popover's own edges
 # and lossless: index.html declares half the pixel size, so a 2x display
@@ -121,11 +121,11 @@ panel_top = next(
     y for y in range(apex_y, im.height)
     if (s := row_span(y)) and s[1] - s[0] > im.width * 0.5
 )
-ax0, ax1 = row_span(apex_y + (panel_top - apex_y) // 2)
+ax0, ax1 = row_span(panel_top - 1)
 p = row_span(min(panel_top + 40, im.height - 1))
 panel_cx = (p[0] + p[1]) / 2
 
-pad = 6
+pad = 10
 box = (ax0 - pad, apex_y, ax1 + pad + 1, panel_top)
 arrow = im.crop(box)
 im.paste((0, 0, 0, 0), box)

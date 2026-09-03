@@ -72,15 +72,14 @@ export const copy = {
     shotInboxTitleIpad: 'One request.\nStraight to your devices.',
     shotInboxBody:
       'Push notifications for your scripts and servers. One HTTP request to notifi.it and ' +
-      'it arrives a moment later. No account.',
+      'it arrives a moment later.',
     shotMessageTitle: 'Images, links,\nMarkdown.',
     shotMessageBody:
       'A title, a body, an image and a link. Headings, lists, quotes and code blocks are ' +
       'rendered on the device. Encrypted with your public key, so we cannot read your notifications.',
     shotKeysTitle: 'One key\nper source.',
     shotKeysBody:
-      'Give the deploy bot one key and the doorbell another. Revoke one and the rest keep ' +
-      'working. Each key carries its own send count, and there is no account to make first.',
+      'Give the deploy bot one key and the doorbell another. Revoke one and the rest keep working.',
   },
 
   push: {
