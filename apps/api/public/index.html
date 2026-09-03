@@ -884,9 +884,13 @@ section{padding:clamp(48px,7vw,86px) 0}
 /* ── the Mac, hanging from its menu bar ─────────────────────── */
 /* Same construction as the iOS shot — hairline border, surface ground — but
    the popover is shown attached to the thing that anchors it. The bar is drawn
-   in HTML rather than captured, so it carries no real desktop; the bell sits
-   dead centre because the popover's arrow is at the centre of the screenshot
-   below it, and the two must line up or the figure reads as broken. */
+   in HTML rather than captured, so it carries no real desktop. The popover's
+   arrow is at the centre of the screenshot and the bell sits wherever the
+   status group leaves it, so the shot is slid sideways until the two line up —
+   see the script at the end of the page. Without it the figure reads as broken:
+   a popover hanging from nothing. The offset is not a constant fraction of the
+   figure, because the clock is text and text does not scale linearly with its
+   font-size, which is why it is measured rather than written here. */
 /* The bar copies the film's Mac at the aspect it is seen at: in the film the
    bar (50 units) sits beside a 708-unit notification card, and here it sits
    beside the popover, so the bar is 50/708 of the popover's width and every
@@ -2122,6 +2126,32 @@ document.querySelectorAll('.tabs').forEach(list => {
   document.querySelectorAll('[data-copy]').forEach(el => {
     el.dataset.copy = slots.reduce((s, slot) => s.split(slot).join(key), el.dataset.copy);
   });
+})();
+</script>
+
+<script>
+// The Mac figure's popover hangs from the bell in the bar above it: the arrow
+// is at the centre of the screenshot, the bell is wherever the status group
+// puts it, and the shot is slid until the two agree. Measured rather than
+// computed — everything in the bar scales with cqw except the clock, which is
+// text, so the bell's offset is not a fixed fraction of the figure. With
+// scripting off the shot stays centred, which is where it was drawn.
+(function(){
+  var bar = document.querySelector(".mac-bar");
+  var bell = bar && bar.querySelector(".bell");
+  var shot = document.querySelector(".mac-shot");
+  if (!bell || !shot) return;
+
+  function align(){
+    shot.style.translate = "";
+    var b = bell.getBoundingClientRect(), s = shot.getBoundingClientRect();
+    if (!b.width || !s.width) return;
+    shot.style.translate = ((b.left + b.width / 2) - (s.left + s.width / 2)).toFixed(2) + "px";
+  }
+
+  align();
+  if (window.ResizeObserver) new ResizeObserver(align).observe(bar);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(align);
 })();
 </script>
 
