@@ -42,9 +42,8 @@ BRAND_RGB = (0xBC, 0x21, 0x22)
 FG_RGB = (0x0A, 0x0A, 0x0A)
 GUTTER = 170
 TITLE_SIZE, DESC_SIZE = 108, 54
-# The caption owns the left half of the page and the popover the right; the
+# The red field owns the left of the page and the popover the right; the
 # split is fixed so every locale's frame lines up on the listing.
-TEXT_W = 1150
 POPOVER_CENTER_X = 1910
 POPOVER_H = 1320
 SCALE = POPOVER_H / 1452
@@ -237,6 +236,11 @@ def menu_bar(canvas, desk, out_dir):
     return bell_x
 
 
+SPLIT = 1200
+RED_RGB = (0xBC, 0x21, 0x22)
+MARK = 150
+
+
 def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     # The site's .mac-desk: a hairline-bordered, rounded card the popover is
     # 94% of, the bar across its top and 26px (a 2x 13) of ground under the
@@ -253,6 +257,9 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
 
     canvas = ground(box)
     d = ImageDraw.Draw(canvas)
+    # The left field is the brand red, edge to edge, carrying the mark and
+    # the caption in white; the popover keeps the light ground on the right.
+    d.rectangle([0, 0, SPLIT, H], fill=RED_RGB + (255,))
 
     mono = dehinted("RecursiveMono-SemiBold", out_dir)
     sans = dehinted("Karla", out_dir)
@@ -268,27 +275,29 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     except OSError:
         pass
 
-    # Measure the caption first so the block centres on the page vertically,
-    # which is what a landscape frame wants where the portrait one stacks.
+    mark = Image.new("RGBA", (MARK, MARK), (0, 0, 0, 0))
+    for part in ("bell-body", "bell-clapper"):
+        layer = rasterize(open(f"{SITE}/{part}.svg").read(), MARK, (255, 255, 255), out_dir, part)
+        mark.alpha_composite(layer, (0, (MARK - layer.height) // 2))
+
     title_lines = []
     for para in captions[title_key].split("\n"):
-        title_lines += wrap(d, para, tf, TEXT_W)
-    desc_lines = wrap(d, captions[desc_key], df, TEXT_W)
-    block_h = (len(title_lines) * round(TITLE_SIZE * 1.14)
+        title_lines += wrap(d, para, tf, SPLIT - GUTTER * 2)
+    desc_lines = wrap(d, captions[desc_key], df, SPLIT - GUTTER * 2)
+    block_h = (MARK + 64
+               + len(title_lines) * round(TITLE_SIZE * 1.14)
                + 56
                + len(desc_lines) * round(DESC_SIZE * 1.48))
     y = (H - block_h) // 2
-
+    canvas.alpha_composite(mark, (GUTTER, y))
+    y += MARK + 64
     for line in title_lines:
-        d.text((GUTTER, y), line, font=tf, fill=FG)
+        d.text((GUTTER, y), line, font=tf, fill="#FFFFFF")
         y += round(TITLE_SIZE * 1.14)
     y += 56
     for line in desc_lines:
-        d.text((GUTTER, y), line, font=df, fill=MUTED)
+        d.text((GUTTER, y), line, font=df, fill=(255, 222, 222))
         y += round(DESC_SIZE * 1.48)
-
-    if GUTTER + TEXT_W > box[0] - 60:
-        print(f"WARNING {locale}/{out_name}: caption column runs into the popover")
 
     radius = round(2.3 * CQW)
     desk_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
