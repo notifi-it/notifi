@@ -3,7 +3,7 @@
 Same type as appstore-frames.py, turned landscape: Recursive Mono title,
 Karla description, the same soft ground ramp.
 Three frames mirror the iOS set -- inbox, message, keys -- and each hangs the
-popover from the landing page's own menu bar (.mac-bar in the light palette: Apple
+popover from the landing page's own menu bar (.mac-bar: Apple
 mark, then bell, Wi-Fi, battery and clock, the glyphs read out of index.html
 and the bell out of bell-body.svg and bell-clapper.svg), with the bell over
 the popover's arrow. Output is 2560x1600, one of the sizes App Store Connect
@@ -34,12 +34,13 @@ with open(f"{REPO}/apps/app/fastlane/screenshot-copy.json") as fh:
     CAPTIONS = json.load(fh)
 
 W, H = 2560, 1600
-# The iOS frames' palette: their ground ramp, ink and muted text, one red.
-FG, MUTED, BRAND = "#0A0A0A", "#5A5A5A", "#BC2122"
-GROUND_TOP, GROUND_BOTTOM = (0xE8, 0xE8, 0xEB), (0xFC, 0xFC, 0xFD)
-LINE = (0xD6, 0xD6, 0xDA)
+# The landing page's dark palette on the right of the split; the red field
+# on the left carries its own white ink.
+FG, MUTED, BRAND = "#EDEDED", "#A1A1A1", "#BC2122"
+GROUND_TOP, GROUND_BOTTOM = (0x24, 0x24, 0x27), (0x14, 0x14, 0x16)
+LINE = (0x33, 0x33, 0x33)
 BRAND_RGB = (0xBC, 0x21, 0x22)
-FG_RGB = (0x0A, 0x0A, 0x0A)
+FG_RGB = (0xED, 0xED, 0xED)
 GUTTER = 170
 TITLE_SIZE, DESC_SIZE = 108, 54
 # The red field owns the left of the page and the popover the right; the
@@ -113,7 +114,7 @@ def ground(popover_box):
     ImageDraw.Draw(bloom).ellipse(
         [popover_box[0] - 220, popover_box[3] - 260,
          popover_box[2] + 220, popover_box[3] + 200],
-        fill=BRAND_RGB + (26,),
+        fill=BRAND_RGB + (34,),
     )
     page.alpha_composite(bloom.filter(ImageFilter.GaussianBlur(160)))
     return page
@@ -186,6 +187,10 @@ def slide_arrow(popover, to_x):
     pad = 6
     box = (ax0 - pad, apex_y, ax1 + pad + 1, panel_top)
     arrow = popover.crop(box)
+    panel = popover.getpixel(((ax0 + ax1) // 2, panel_top + 4))[:3]
+    tint = Image.new("RGBA", arrow.size, panel + (255,))
+    tint.putalpha(arrow.getchannel("A"))
+    arrow = tint
     moved = popover.copy()
     moved.paste((0, 0, 0, 0), box)
     dx = round(to_x - (ax0 + ax1 + 1) / 2)
@@ -194,16 +199,16 @@ def slide_arrow(popover, to_x):
 
 
 def menu_bar(canvas, desk, out_dir):
-    """The site's .mac-bar across the top of its .mac-desk, in the light
-    palette: frosted white over the ground, a hairline underneath, the Apple mark at the
+    """The site's .mac-bar across the top of its .mac-desk: frosted dark over
+    the ground, a hairline underneath, the Apple mark at the
     left, and .mac-status right-aligned -- bell, Wi-Fi, battery, clock.
     Returns the bell's centre x, which the popover's arrow then meets."""
     x0, y0, x1, _ = desk
     width = x1 - x0
-    bar = Image.new("RGBA", (width, BAR_H), (255, 255, 255, 170))
+    bar = Image.new("RGBA", (width, BAR_H), (28, 28, 30, 153))
     canvas.alpha_composite(bar, (x0, y0))
     d = ImageDraw.Draw(canvas)
-    d.line([(x0, y0 + BAR_H - 1), (x1, y0 + BAR_H - 1)], fill=(0, 0, 0, 28), width=1)
+    d.line([(x0, y0 + BAR_H - 1), (x1, y0 + BAR_H - 1)], fill=(255, 255, 255, 15), width=1)
 
     pad = round(2.9 * CQW)
     apple = rasterize(site_svg("mac-apple"), round(5.06 * CQW), FG_RGB, out_dir, "apple")
@@ -258,7 +263,7 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     canvas = ground(box)
     d = ImageDraw.Draw(canvas)
     # The left field is the brand red, edge to edge, carrying the mark and
-    # the caption in white; the popover keeps the light ground on the right.
+    # the caption in white; the popover keeps the dark ground on the right.
     d.rectangle([0, 0, SPLIT, H], fill=RED_RGB + (255,))
 
     mono = dehinted("RecursiveMono-SemiBold", out_dir)

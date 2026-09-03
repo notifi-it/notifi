@@ -67,8 +67,8 @@ SWIFT
   screencapture -x -o -l"$window_id" "$OUT/$name.png"
 }
 
-# The store frames show the light popover, as the site does. The site's figure keeps
-# the appearance it has always had. NOTIFI_APPEARANCE is written to
+# The store frames show the dark popover; the site figure is light.
+# NOTIFI_APPEARANCE is written to
 # UserDefaults, which the Debug build shares with the installed app (same
 # bundle id), so the setting is put back the way it was found.
 SAVED_APPEARANCE=$(defaults read it.notifi.notifi appearance 2>/dev/null || true)
@@ -77,11 +77,11 @@ restore_appearance() {
   else defaults delete it.notifi.notifi appearance 2>/dev/null || true; fi
 }
 trap restore_appearance EXIT
-capture mac-inbox --env NOTIFI_APPEARANCE=light
-capture mac-detail --env NOTIFI_APPEARANCE=light --env NOTIFI_OPEN_SAMPLE_MESSAGE=1
-capture mac-keys --env NOTIFI_APPEARANCE=light --env NOTIFI_START_TAB=keys
+capture mac-inbox --env NOTIFI_APPEARANCE=dark
+capture mac-detail --env NOTIFI_APPEARANCE=dark --env NOTIFI_OPEN_SAMPLE_MESSAGE=1
+capture mac-keys --env NOTIFI_APPEARANCE=dark --env NOTIFI_START_TAB=keys
 restore_appearance
-capture mac
+capture mac --env NOTIFI_APPEARANCE=light
 
 # Published at the capture's own pixels, cropped to the popover's own edges
 # and lossless: index.html declares half the pixel size, so a 2x display
