@@ -214,6 +214,11 @@ jobs:
           </dict>
           </plist>
           PLIST
+      - uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # v1.299.0
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+          working-directory: apps/app
       - name: Archive and upload macOS
         working-directory: apps/app
         env:
@@ -233,6 +238,20 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      # Unlike iOS, the Mac channel submits from here: the lane creates the
+      # App Store version, pushes the listing and Mac screenshots, waits for
+      # the upload above to process, attaches it and submits for review.
+      # Withdrawing is a click in App Store Connect if a tag was a mistake.
+      - name: Submit for review
+        working-directory: apps/app
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
+        run: |
+          export ASC_KEY_PATH="$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8"
+          bundle exec fastlane mac submit_uploaded
 
   # A `v*` tag publishes the macOS build as a GitHub Release: notarized DMG plus
   # the Sparkle appcast. This is not cosmetic -- notifi.it/download/appcast.xml
