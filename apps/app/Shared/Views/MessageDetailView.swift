@@ -1,5 +1,6 @@
 import OSLog
 #if os(iOS)
+import Photos
 import StoreKit
 #endif
 import SwiftData
@@ -21,9 +22,13 @@ struct MessageDetailView: View {
     @Query private var messages: [Message]
     private let log = Logger(subsystem: "it.notifi.app", category: "store")
 
+    @ScaledMetric(relativeTo: .caption2) private var stampSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var chipIconSize: CGFloat = 11
+
     @State private var confirmingDelete = false
     @State private var revealedImage = false
     @State private var viewingImage: ViewedImage?
+    @State private var imageSave: ImageSaveState = .idle
 
     private struct ViewedImage: Identifiable {
         let url: URL
@@ -68,9 +73,9 @@ struct MessageDetailView: View {
             #endif
         }
         #if os(iOS)
-        .fullScreenCover(item: $viewingImage) { ImageViewer(url: $0.url) }
+        .fullScreenCover(item: $viewingImage) { viewer(for: $0) }
         #else
-        .sheet(item: $viewingImage) { ImageViewer(url: $0.url) }
+        .sheet(item: $viewingImage) { viewer(for: $0) }
         #endif
         .alert(message.map { Copy.Inbox.deleteTitle($0.title) } ?? Copy.Inbox.deleteTitleFallback,
                isPresented: $confirmingDelete) {
@@ -79,6 +84,12 @@ struct MessageDetailView: View {
         } message: {
             Text(Copy.Inbox.deleteMessage)
         }
+    }
+
+    private func viewer(for image: ViewedImage) -> some View {
+        ImageViewer(url: image.url,
+                    saveState: imageSave,
+                    onDownload: { downloadImage(image.url, keyID: message?.keyID) })
     }
 
     private var scroll: some View {
@@ -143,6 +154,10 @@ struct MessageDetailView: View {
                     IconButton(systemName: "trash", label: Copy.Common.delete) {
                         confirmingDelete = true
                     }
+
+                    MenuButton(systemName: "ellipsis", label: Copy.Common.moreActions) {
+                        copyMenu(for: message, anyScheme: anyScheme)
+                    }
                 }
             }
         }
@@ -158,6 +173,31 @@ struct MessageDetailView: View {
     private var backButton: some View {
         IconButton(systemName: "chevron.backward",
                    label: Copy.Components.backTo(Copy.Inbox.title)) { goBack() }
+    }
+
+    @ViewBuilder
+    private func copyMenu(for message: Message, anyScheme: Bool) -> some View {
+        Button(Copy.Inbox.copyTitle) { copy(message.title) }
+        if let body = message.body {
+            Button(Copy.Inbox.copyMessage) { copy(body) }
+        }
+        if let link = message.link, LinkPolicy.allows(link, anyScheme: anyScheme) {
+            #if os(iOS)
+            ShareLink(item: link) { Text(Copy.Message.shareLink) }
+            #else
+            Button(Copy.Inbox.copyLink) { copy(link.absoluteString) }
+            #endif
+        }
+        if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
+            Divider()
+            Button(Copy.Message.downloadImage) { downloadImage(url, keyID: message.keyID) }
+        }
+    }
+
+    private func copy(_ text: String) {
+        Clipboard.copy(text)
+        Haptics.success()
+        AccessibilityNotification.Announcement(Copy.Common.copied).post()
     }
 
     private func keyName(for message: Message) -> String? {
@@ -180,7 +220,9 @@ struct MessageDetailView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(message.title)
                 .font(.inco(.title, weight: .bold))
-                .foregroundStyle(message.isCritical ? Theme.brandText : Theme.fg)
+                .foregroundStyle(Theme.fg)
+                .accessibilityLabel(message.isCritical
+                    ? "\(Copy.Inbox.critical), \(message.title)" : message.title)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
                 .multilineTextAlignment(.center)
@@ -194,6 +236,7 @@ struct MessageDetailView: View {
                 Group {
                     if showsImage {
                         ImageBlock(url: url,
+                                   saveState: imageSave,
                                    onExpand: { viewingImage = ViewedImage(url: url) },
                                    onDownload: { downloadImage(url, keyID: message.keyID) })
                     } else {
@@ -225,22 +268,30 @@ struct MessageDetailView: View {
             .accessibilityHidden(true)
     }
 
-    private func quietLine(_ name: String?, age: String, stamp: String) -> some View {
+    private func quietLine(_ name: String?, age: String, stamp: String,
+                           critical: Bool) -> some View {
         VStack(spacing: 5) {
             HStack(spacing: 6) {
+                if critical {
+                    Image(systemName: "bolt")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Theme.dim)
+                        .accessibilityLabel(Copy.Inbox.critical)
+                    Text("·").foregroundStyle(Theme.chip)
+                }
                 if let name {
                     keyGlyph(11, Theme.dim)
                     Text(name)
-                        .font(.karla(size: 13, weight: .semibold))
+                        .font(.karla(size: 13, weight: .semibold, relativeTo: .footnote))
                         .foregroundStyle(Theme.muted)
                     Text("·").foregroundStyle(Theme.chip)
                 }
                 Text(age)
-                    .font(.karla(size: 13, weight: .semibold))
+                    .font(.karla(size: 13, weight: .semibold, relativeTo: .footnote))
                     .foregroundStyle(Theme.muted)
             }
             Text(stamp)
-                .font(.system(size: 11, weight: .regular, design: .monospaced))
+                .font(.system(size: stampSize, weight: .regular, design: .monospaced))
                 .tracking(1.4)
                 .foregroundStyle(Theme.dim)
         }
@@ -257,7 +308,8 @@ struct MessageDetailView: View {
         tappableKey(message) {
             quietLine(keyName(for: message),
                       age: Self.age(of: message),
-                      stamp: stamp)
+                      stamp: stamp,
+                      critical: message.isCritical)
         }
     }
 
@@ -268,10 +320,11 @@ struct MessageDetailView: View {
             Button { model.path.append(key) } label: { label() }
                 .buttonStyle(.geist)
                 .accessibilityLabel(Copy.Message.openKey(name))
+        } else if let name = keyName(for: message) {
+            label()
+                .accessibilityLabel(Copy.Message.sentWithKey(name))
         } else {
             label()
-                .accessibilityLabel(keyName(for: message)
-                    .map { Copy.Message.sentWithKey($0) } ?? "")
         }
     }
 
@@ -279,7 +332,7 @@ struct MessageDetailView: View {
         Button { revealedImage = true } label: {
             HStack(spacing: 8) {
                 Image(systemName: "photo")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: chipIconSize, weight: .medium))
                     .foregroundStyle(Theme.dim)
                     .accessibilityHidden(true)
                 Text("\(ImageBlock.filename(of: url)) · \(Copy.Message.imageBlocked)")
@@ -302,6 +355,28 @@ struct MessageDetailView: View {
         .contextMenu {
             Button(Copy.Message.imageLoadWarning(url.host() ?? Copy.Message.imageHost)) {}
                 .disabled(true)
+        }
+    }
+
+    private struct MenuButton<Content: View>: View {
+        let systemName: String
+        let label: String
+        @ViewBuilder let content: () -> Content
+
+        var body: some View {
+            Menu {
+                content()
+            } label: {
+                Image(systemName: systemName)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Theme.fg)
+                    .frame(width: 34, height: 34)
+                    .glassBackground()
+                    .geistHitArea(expandedBy: 5)
+            }
+            .menuStyle(.button)
+            .buttonStyle(.geist)
+            .accessibilityLabel(label)
         }
     }
 
@@ -337,46 +412,115 @@ struct MessageDetailView: View {
         #endif
     }
 
+    @MainActor
     fileprivate func downloadImage(_ url: URL, keyID: Int?) {
         guard LinkPolicy.allows(url, anyScheme: model.allowsAnyLink(keyID: keyID)) else { return }
+        guard imageSave != .saving else { return }
+        imageSave = .saving
         Task {
-            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
-            #if os(iOS)
-            guard let image = UIImage(data: data) else { return }
-            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-            #else
-            await MainActor.run {
-                NSApp.activate(ignoringOtherApps: true)
-
-                let panel = NSSavePanel()
-                panel.nameFieldStringValue = url.lastPathComponent
-                panel.directoryURL = try? FileManager.default.url(
-                    for: .downloadsDirectory, in: .userDomainMask,
-                    appropriateFor: nil, create: false)
-                panel.level = .modalPanel
-
-                macMenuBar.holdOpen()
-                panel.begin { response in
-                    if response == .OK, let target = panel.url {
-                        do {
-                            try data.write(to: target)
-                            NSWorkspace.shared.activateFileViewerSelecting([target])
-                        } catch {
-                            log.error("image save failed: \(String(describing: error), privacy: .public)")
-                        }
-                    }
-                    macMenuBar.releaseHold()
-                }
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else {
+                settle(.failed(Copy.Message.imageSaveFailed))
+                return
             }
+            #if os(iOS)
+            await saveToPhotos(data)
+            #else
+            await saveToFile(data, named: url.lastPathComponent)
             #endif
         }
     }
+
+    @MainActor
+    private func settle(_ state: ImageSaveState) {
+        imageSave = state
+        switch state {
+        case .saved(let text):
+            Haptics.success()
+            AccessibilityNotification.Announcement(text).post()
+        case .failed(let text):
+            Haptics.error()
+            AccessibilityNotification.Announcement(text).post()
+        case .idle, .saving:
+            break
+        }
+        guard state != .idle else { return }
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            if imageSave == state { imageSave = .idle }
+        }
+    }
+
+    #if os(iOS)
+    @MainActor
+    private func saveToPhotos(_ data: Data) async {
+        var status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        if status == .notDetermined {
+            status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        }
+        guard status == .authorized || status == .limited else {
+            settle(.failed(Copy.Message.imageSaveDenied))
+            return
+        }
+        do {
+            try await PHPhotoLibrary.shared().performChanges { @Sendable in
+                PHAssetCreationRequest.forAsset().addResource(with: .photo, data: data, options: nil)
+            }
+            settle(.saved(Copy.Message.imageSaved))
+        } catch {
+            log.error("image save failed: \(String(describing: error), privacy: .public)")
+            settle(.failed(Copy.Message.imageSaveFailed))
+        }
+    }
+    #else
+    @MainActor
+    private func saveToFile(_ data: Data, named name: String) async {
+        NSApp.activate(ignoringOtherApps: true)
+
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = name
+        panel.directoryURL = try? FileManager.default.url(
+            for: .downloadsDirectory, in: .userDomainMask,
+            appropriateFor: nil, create: false)
+        panel.level = .modalPanel
+
+        macMenuBar.holdOpen()
+        panel.begin { response in
+            if response == .OK, let target = panel.url {
+                do {
+                    try data.write(to: target)
+                    NSWorkspace.shared.activateFileViewerSelecting([target])
+                    settle(.saved(Copy.Message.imageSavedToFile))
+                } catch {
+                    log.error("image save failed: \(String(describing: error), privacy: .public)")
+                    settle(.failed(Copy.Message.imageSaveFailed))
+                }
+            } else {
+                imageSave = .idle
+            }
+            macMenuBar.releaseHold()
+        }
+    }
+    #endif
+}
+
+enum ImageSaveState: Equatable {
+    case idle
+    case saving
+    case saved(String)
+    case failed(String)
 }
 
 private struct ImageBlock: View {
     let url: URL
+    let saveState: ImageSaveState
     let onExpand: () -> Void
     let onDownload: () -> Void
+
+    @ScaledMetric(relativeTo: .subheadline) private var failedIconSize: CGFloat = 15
+    @ScaledMetric(relativeTo: .footnote) private var downloadIconSize: CGFloat = 13
+    @ScaledMetric(relativeTo: .caption) private var expandIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var downloadWell: CGFloat = 26
+    @State private var downloadHovered = false
 
     private struct Loaded {
         let image: Image
@@ -392,6 +536,7 @@ private struct ImageBlock: View {
     }
 
     @State private var phase: Phase = .loading
+    @State private var containerWidth: CGFloat = 0
 
     static func filename(of url: URL) -> String {
         let name = url.lastPathComponent
@@ -404,29 +549,32 @@ private struct ImageBlock: View {
         return f
     }()
 
+    private static let maxHeight: CGFloat = 260
+    private static let minWidth: CGFloat = 220
+
     var body: some View {
         VStack(spacing: 0) {
             switch phase {
             case .loading:
                 Theme.surface
                     .frame(maxWidth: .infinity)
-                    .frame(height: 160)
+                    .frame(minHeight: 160)
             case .failed:
                 VStack(spacing: 6) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.system(size: failedIconSize, weight: .medium))
                     Text(Copy.Message.imageFailedToLoad)
                         .font(Theme.metaSmall)
                 }
                 .foregroundStyle(Theme.dim)
                 .frame(maxWidth: .infinity)
-                .frame(height: 120)
+                .frame(minHeight: 120)
             case .loaded(let loaded):
                 Button(action: onExpand) {
                     loaded.image
                         .resizable()
                         .scaledToFit()
-                        .frame(maxHeight: 260)
+                        .frame(maxHeight: Self.maxHeight)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.geist)
@@ -435,43 +583,101 @@ private struct ImageBlock: View {
                 footer(for: loaded)
             }
         }
+        .frame(width: cardWidth)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.chip, lineWidth: 1))
+        .frame(maxWidth: .infinity)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
         .task(id: url) { await load() }
+    }
+
+    private var cardWidth: CGFloat? {
+        guard case .loaded(let loaded) = phase, containerWidth > 0, loaded.height > 0 else { return nil }
+        let natural = Self.maxHeight * CGFloat(loaded.width) / CGFloat(loaded.height)
+        return min(containerWidth, max(natural, Self.minWidth))
     }
 
     private func footer(for loaded: Loaded) -> some View {
         VStack(spacing: 0) {
             Hairline()
             HStack(spacing: 14) {
-                Text("\(Self.filename(of: url)) · \(loaded.width)×\(loaded.height) · \(Self.bytes.string(fromByteCount: Int64(loaded.bytes)))")
-                    .foregroundStyle(Theme.dim)
-                    .font(.inco(size: 10, relativeTo: .caption2))
-                    .tracking(0.6)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Group {
+                    if let status = saveStatus {
+                        Text(status.text)
+                            .foregroundStyle(status.tint)
+                    } else {
+                        Text("\(Self.filename(of: url)) · \(loaded.width)×\(loaded.height) · \(Self.bytes.string(fromByteCount: Int64(loaded.bytes)))")
+                            .foregroundStyle(Theme.dim)
+                    }
+                }
+                .font(.inco(size: 10, relativeTo: .caption2))
+                .tracking(0.6)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .animation(Theme.state, value: saveState)
 
                 Button(action: onDownload) {
-                    Image(systemName: "arrow.down.to.line")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Theme.fg)
+                    downloadGlyph
+                        .frame(width: downloadWell, height: downloadWell)
+                        .background {
+                            Circle()
+                                .fill(Theme.chip)
+                                .opacity(downloadHovered && saveState == .idle ? 1 : 0)
+                        }
                 }
                 .buttonStyle(.geist)
-                .accessibilityLabel(Copy.Message.downloadImage)
+                .disabled(saveState == .saving)
+                .onHover { downloadHovered = $0 }
+                .animation(Theme.state, value: downloadHovered)
+                .accessibilityLabel(saveStatus?.text ?? Copy.Message.downloadImage)
                 .geistHitArea(expandedBy: 10)
 
+                #if os(iOS)
                 Button(action: onExpand) {
                     Image(systemName: "arrow.up.left.and.arrow.down.right")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: expandIconSize, weight: .medium))
                         .foregroundStyle(Theme.dim)
                 }
                 .buttonStyle(.geist)
                 .accessibilityLabel(Copy.Message.viewImageFullScreen)
-                .geistHitArea(expandedBy: 10)
+                .geistHitArea(expandedBy: 16)
+                #endif
             }
             .padding(.vertical, 7)
             .padding(.horizontal, 12)
+        }
+    }
+
+    private var saveStatus: (text: String, tint: Color)? {
+        switch saveState {
+        case .idle: return nil
+        case .saving: return (Copy.Message.savingImage, Theme.dim)
+        case .saved(let text): return (text, Theme.fg)
+        case .failed(let text): return (text, Theme.danger)
+        }
+    }
+
+    @ViewBuilder
+    private var downloadGlyph: some View {
+        switch saveState {
+        case .saving:
+            ProgressView()
+                .controlSize(.mini)
+                .tint(Theme.dim)
+        case .saved:
+            Image(systemName: "checkmark")
+                .font(.system(size: downloadIconSize, weight: .semibold))
+                .foregroundStyle(Theme.fg)
+                .transition(.opacity)
+        case .failed:
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: downloadIconSize, weight: .medium))
+                .foregroundStyle(Theme.danger)
+        case .idle:
+            Image(systemName: "arrow.down.to.line")
+                .font(.system(size: downloadIconSize, weight: .medium))
+                .foregroundStyle(Theme.fg)
         }
     }
 
@@ -528,11 +734,15 @@ enum BodyLinks {
         for match in regex.matches(in: source,
                                    range: NSRange(location: 0, length: ns.length)) {
             guard let whole = Range(match.range, in: source),
+                  let textRange = Range(match.range(at: 1), in: source),
                   let urlRange = Range(match.range(at: 2), in: source),
                   let url = URL(string: String(source[urlRange])) else { continue }
             out += source[cursor..<whole.upperBound]
             let host = url.host() ?? url.absoluteString
-            out += " \(host)"
+            let own = host == "notifi.it" || host.hasSuffix(".notifi.it")
+            if !own, !source[textRange].localizedCaseInsensitiveContains(host) {
+                out += " \(host)"
+            }
             links.append(url)
             cursor = whole.upperBound
         }

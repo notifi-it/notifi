@@ -3,7 +3,22 @@
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-submit-mac app-resubmit-mac app-metadata-mac app-screenshots-mac screens-mac-store \
 	app-metadata app-metadata-check app-screenshots app-resubmit shots doc-shots screens screens-mac \
-	film film-gif check-film
+	film film-gif film-stills check-film
+
+# The capture scripts need a python3 with Pillow and fontTools, and the
+# fastlane lanes need the bundler version Gemfile.lock pins. Neither is what a
+# bare `python3` or `bundle` resolves to on every shell -- a login shell that
+# puts /usr/bin first hands the system interpreters over, and a run then fails
+# after the captures, on the framing step. So the Makefile picks each by what
+# it can do and exports the choice; the scripts fall back to the bare name
+# when run outside make.
+PYTHON := $(shell for p in python3 /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 \
+	/opt/homebrew/bin/python3 /usr/local/bin/python3; do \
+	"$$p" -c 'import PIL, fontTools' >/dev/null 2>&1 && { echo "$$p"; break; }; done)
+BUNDLE := $(shell want=$$(awk '/BUNDLED WITH/{getline; print $$1}' apps/app/Gemfile.lock); \
+	for b in bundle /opt/homebrew/opt/ruby/bin/bundle; do \
+	"$$b" --version 2>/dev/null | grep -q " $$want$$" && { echo "$$b"; break; }; done)
+export PYTHON BUNDLE
 
 # Random port so parallel worktrees never collide. The signed canonical string
 # binds the host, so --host must carry the same port as --port; the pinned
@@ -100,6 +115,12 @@ check-film:
 film-gif:
 	cd sketches/gif && node capture.mjs
 
+# One still per scene, each at the point a click brings the film to rest:
+# typed, delivered, bell upright, both the terminal and that scene's device at
+# full opacity. These are the gallery slides.
+film-stills:
+	cd sketches/gif && node stills.mjs
+
 app-project:
 	cd apps/app && xcodegen generate
 
@@ -113,7 +134,7 @@ app-preflight:
 #
 # The direct-download macOS channel: a Developer ID DMG with Sparkle updates.
 app-dmg:
-	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac dmg
+	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane mac dmg
 
 # The Mac App Store channel: the notifi-macOS-AppStore target (no Sparkle, no
 # temporary-exception entitlements), exported as a pkg and submitted to the
@@ -142,14 +163,14 @@ screens-mac-store:
 # version for review. SKIP_UPLOAD=1 works on both: it builds and signs without
 # uploading or submitting anything.
 app-testflight:
-	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios beta
+	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane ios beta
 
 # Submitting for review is not undoable from here -- withdrawing a submission is a
 # click in App Store Connect -- so it gets its own target rather than a flag on the
 # TestFlight one. Push the listing copy with `app-metadata` first if it changed:
 # this lane attaches the binary and submits, it does not upload metadata.
 app-submit:
-	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios submit
+	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane ios submit
 
 # `app-appstore` used to mean TestFlight, which stopped being an honest name once
 # a real submission target existed. Refuse rather than guess: one of the two
@@ -165,21 +186,21 @@ app-appstore:
 # typed into a web form. Screenshots are not managed here -- see the metadata
 # lane in the Fastfile for why.
 app-metadata-check:
-	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios metadata_check
+	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane ios metadata_check
 
 app-metadata:
-	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios metadata
+	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane ios metadata
 
 # Screenshots are their own target because Apple locks them once a version is
 # submitted while it leaves the listing text writable -- one target for both
 # means a copy fix after submission fails on a half it did not need to touch.
 app-screenshots:
-	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios screenshots
+	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane ios screenshots
 
 # Puts the current version back in review with no new build, for a listing that
 # changed after it was submitted. Cancel the open submission first.
 app-resubmit:
-	apps/app/Scripts/with-credentials.sh bundle exec fastlane ios resubmit
+	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane ios resubmit
 
 # Verifying a layout change: one command, one screenshot per tab, from a
 # Simulator that stays booted between runs. SKIP_BUILD=1 when no Swift changed.
@@ -191,7 +212,7 @@ shots:
 # the figure quietly starts showing the wrong part of the screen.
 doc-shots:
 	TABS="settings key" apps/app/Scripts/shots.sh
-	python3 apps/app/Scripts/doc-shots.py
+	$(PYTHON) apps/app/Scripts/doc-shots.py
 
 # Every published iOS screenshot from one command: both App Store sets (the
 # iPad one is required — ASC refuses a submission without ipadPro129) and the

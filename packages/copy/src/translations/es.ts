@@ -54,6 +54,7 @@ export const es: Translation = {
   'common.markAsUnread': 'Marcar como no leído',
   'common.openLink': 'Abrir enlace',
   'common.never': 'Nunca',
+  'common.moreActions': 'Más acciones',
   'common.expand': 'Expandir',
   'common.collapse': 'Contraer',
 
@@ -63,10 +64,10 @@ export const es: Translation = {
 
   'age.now': 'ahora',
   'age.justNow': 'ahora mismo',
-  'age.minutes': '{n} min',
-  'age.hours': '{n} h',
-  'age.days': '{n} d',
-  'age.weeks': '{n} sem',
+  'age.minutes': '{n}min',
+  'age.hours': '{n}h',
+  'age.days': '{n}d',
+  'age.weeks': '{n}sem',
   'age.ago': 'hace {relative}',
   'inbox.title': 'Inbox',
   'inbox.offline': 'No se puede conectar con los servidores de notifi. Comprueba tu conexión e inténtalo de nuevo.',
@@ -90,6 +91,8 @@ export const es: Translation = {
 
   'inbox.unread': 'Sin leer',
   'inbox.critical': 'Crítica',
+  'inbox.hasImage': 'Tiene una imagen',
+  'inbox.offlineBadge': 'Sin conexión',
   'inbox.linkTo': 'Enlace a {host}',
   'inbox.deleteTitle': '¿Eliminar "{title}"?',
   'inbox.deleteTitleFallback': '¿Eliminar esta notificación?',
@@ -102,6 +105,11 @@ export const es: Translation = {
   'message.notFound': 'Notificación no encontrada',
   'message.notFoundDetail': 'Puede que se haya eliminado en este dispositivo.',
   'message.downloadImage': 'Descargar imagen',
+  'message.savingImage': 'Guardando…',
+  'message.imageSaved': 'Guardada en Fotos',
+  'message.imageSavedToFile': 'Guardada',
+  'message.imageSaveFailed': 'No se pudo guardar la imagen',
+  'message.imageSaveDenied': 'notifi necesita permiso para añadir a Fotos. Actívalo en Ajustes.',
   'message.keyFallbackName': 'Clave {id}',
   'message.sentWithKey': 'Enviado con la clave {name}',
   'message.openKey': 'Enviado con la clave {name}. Ábrela.',
@@ -114,21 +122,20 @@ export const es: Translation = {
   'message.loadImage': 'Cargar imagen',
   'message.load': 'Cargar',
   'message.imageBlocked': 'bloqueada',
+  'message.image': 'Imagen',
+  'message.resetZoom': 'Restablecer el zoom',
+  'message.linkBlockedNotice': 'Enlace bloqueado',
   'message.sourceHeader': 'Origen',
   'keys.title': 'Claves',
   'keys.newKey': 'Nueva clave',
   'keys.refreshFailed': 'No se pudieron actualizar las claves. Mostrando la última lista conocida.',
   'keys.sectionActive': 'Activas',
   'keys.sectionRevoked': 'Revocadas',
-  'keys.intro':
-    'Las claves identifican quién envió una notificación. Usa una clave distinta para cada script. ' +
-    'La clave predeterminada se creó al configurar este dispositivo.',
   'keys.aboutKeys': 'Acerca de las claves',
   'keys.sent': { one: '1 enviada', other: '{n} enviadas' },
   'keys.rowLastUsed': 'usada {ago}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Predeterminada',
-  'keys.chipRevoked': 'Revocada',
   'keys.chipCritical': 'Crítica',
   'keys.rowLabel': 'Clave, {name}, termina en {suffix}',
   'keys.rowLabelRevoked': ', revocada',
@@ -245,19 +252,31 @@ export const es: Translation = {
   'settings.permissionNotSet': 'Sin definir',
   'settings.permissionUnknown': 'Desconocido',
 
+  'settings.stayVisible': 'Las notificaciones permanecen visibles',
+  'settings.stayVisibleDetail':
+    'Mantiene una notificación en pantalla hasta que la pulses o la descartes.\n\n' +
+    'Desactivado, desaparece a los pocos segundos.\n\n' +
+    'Activar abre Ajustes del Sistema, donde se elige el estilo de alerta de notifi.',
+  'settings.stayVisibleEnable': 'Activar',
+
   'settings.theme': 'Tema',
+  'settings.grain': 'Grano',
   'settings.themeDark': 'Oscuro',
   'settings.themeLight': 'Claro',
+  'settings.themeSystem': 'Sistema',
 
   'settings.loadImages': 'Cargar imágenes automáticamente',
   'settings.loadImagesDetail':
-    'Obtiene cada imagen al llegar la notificación, lo que informa tu dirección IP a su host. ' +
-    'Desactivado, las imágenes solo se cargan al pulsarlas.',
+    'Obtiene cada imagen en cuanto llega su notificación.\n\n' +
+    'El host de la imagen ve tu dirección IP cuando eso ocurre.\n\n' +
+    'Desactivado, una imagen solo se carga al pulsarla.',
 
   'settings.strictSend': 'Rechazar envíos no válidos',
   'settings.strictSendDetail':
-    'Devuelve 422 invalid_content y no guarda nada cuando un título o cuerpo supera la ' +
-    'longitud. Desactivado, /send recorta el campo y devuelve 202 con un array de avisos.',
+    'Rechaza un envío cuyo título o cuerpo supera la longitud: /send responde 422 invalid_content ' +
+    'y no guarda nada.\n\n' +
+    'Desactivado, el campo se recorta y el envío se acepta con un array warnings.\n\n' +
+    '[Leer la documentación](https://notifi.it/docs#response)',
   'settings.strictSendFailed': 'PATCH /devices/settings falló. Comprueba tu conexión e inténtalo de nuevo.',
 
   'settings.testTitle': 'Hello from notifi',
@@ -279,11 +298,13 @@ export const es: Translation = {
   'settings.checkForUpdates': 'Buscar actualizaciones',
   'settings.deleteAll': 'Eliminar todas las notificaciones',
   'settings.deleteAllTitle': '¿Eliminar todas las notificaciones?',
+  'settings.deleteAllConfirm': 'Eliminar todas',
   'settings.deleteAllMessage': 'Esto no se puede deshacer.',
   'settings.support': 'Informar de un problema',
   'settings.feedback': 'Comentarios',
   'settings.privacyPolicy': 'Política de privacidad',
   'settings.website': 'notifi.it',
+  'settings.docs': 'Documentación',
 
   'empty.sampleTitle': 'Hello from notifi',
   'empty.sampleMessage': 'Tu primera notificación.',
@@ -314,7 +335,6 @@ export const es: Translation = {
   'components.errorLabel': 'Error. {message}',
   'components.backTo': 'Volver a {label}',
   'components.createKey': 'Crear clave',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'No se puede desbloquear notifi',
   'identity.detail':

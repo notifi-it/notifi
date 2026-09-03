@@ -33,6 +33,10 @@ MC_SB=('<div class="sbar mb" style="left:6.8%;right:8%;top:3.4%;height:4.6%;--fs
        '<span class="dt" data-clock="menubar">Tue 11 Aug 10:24</span></span></div>')
 
 CLAUDE_ORANGE='#D97757'
+# The reply sits in the same two-column grid as the prompts above it: one
+# character of gutter, then this gap. Both read it, so the text edges line up.
+CGAP='1.561cqw'
+CDOT='1.35cqw'
 MASCOT=("""<svg class="mascot" viewBox="0 0 52 40" aria-hidden="true">
       <rect x="2" y="0" width="48" height="27" rx="3" fill="%s"/>
       <rect x="12" y="8" width="6" height="9" rx="1.2" fill="#1C1C1E"/>
@@ -129,47 +133,79 @@ def lnspans(n):
     step=(LN1-LN0)/n
     return [(round(LN0+i*step,3),round(LN0+(i+1)*step,3)) for i in range(n)]
 OPA=[.35,.5,.65,.8,1]
-RS,RL=19.6,12.6   # ring window; longer hold after it before the pass fades
-# ring tracks lifted from film.js (RING_BODY/RING_CLAP)
+# Curves. E_OUT is the site's own --ease-out (easeOutQuint) and carries every
+# arrival; E_SOFT recedes without pulling the eye; E_IN takes things off.
+# The loop runs linear at the top level so steps() typing stays honest, so
+# each curve is declared inside the keyframe that starts its segment.
+E_OUT='cubic-bezier(.23,1,.32,1)'
+E_SOFT='cubic-bezier(.4,0,.2,1)'
+E_IN='cubic-bezier(.3,0,1,1)'
+# The send beat is written in wall-clock and converted, so lengthening the
+# loop buys reading time without slowing the delivery it pays off with.
+T_MS=21000
+MS=lambda ms: round(ms*100/T_MS,3)
+DOT_STAG,DOT_IN=MS(90),MS(150)
+REPLY_END,REPLY_MS=16.2,400   # Claude's answer lands before the send, unhurried
+HOLD_AT=31.8                  # a click comes to rest here: typed, delivered, bell upright
+SEND=16.5                     # the request leaves; the caret goes with it
+# A bell rings at the speed it rings at, not at a fraction of the loop. The
+# durations and the ease are the header bell's in index.html, where the
+# clapper settles before the body — that gap is what makes it read as a bell.
+RING_BODY_MS,RING_CLAP_MS=2585,2420
+RS=18+MS(300)     # rings as the notification lands
+# The app is the bell. These are bellSwing/clapperSwing from Theme.swift —
+# same angles, same stop times as a percentage of each track's own duration.
+# Change one and change the other, or the site rings a different bell.
 BF=[0,4.26,12.96,21.66,30.37,39.07,47.78,56.48,65.18,73.89,82.59,91.30,100]
 BV=[0,-20,18,-16,14,-13,12,-10,8,-6,4,-2,0]
 CF=[0,2.48,7.02,16.32,25.62,34.92,44.21,53.51,62.81,72.11,81.40,90.70,100]
 CV=[0,0,-30,27,-24,20,-18,15,-12,9,-6,3,0]
 kf=[]
 for p in range(3):
-    kf.append(f"@keyframes vis{p}{{0%,{g(p,0.5)}%{{opacity:0}} {g(p,2)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+    kf.append(f"@keyframes vis{p}{{0%,{g(p,0.5)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,2)}%,{g(p,32.2)}%{{opacity:1;animation-timing-function:{E_IN}}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     if PASSES[p].get('claude'):
         spans=[(3,7.6),(7.6,11.4),(11.4,14)]
         for i,(a,b) in enumerate(spans):
             n=len(CPROMPT[i])
             kf.append(f"@keyframes type{p}_{i}{{0%,{g(p,a)}%{{width:0;animation-timing-function:steps({n},end)}} {g(p,b)}%,100%{{width:{n}ch}}}}")
             last=(i==len(spans)-1)
-            end=32.2 if last else b
+            end=REPLY_END-MS(REPLY_MS) if last else b
             kf.append(f"@keyframes car{p}_{i}{{0%,{g(p,a)}%{{opacity:0}} {g(p,a+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
-        kf.append(f"@keyframes reply{p}{{0%,{g(p,15.2)}%{{opacity:0}} {g(p,16.2)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+        kf.append(f"@keyframes reply{p}{{0%,{g(p,REPLY_END-MS(REPLY_MS))}%{{opacity:0;animation-timing-function:{E_SOFT}}} {g(p,REPLY_END)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     elif PASSES[p].get('typed'):
         spans=lnspans(len(PASSES[p]['lines']))
         for i,(s,e) in enumerate(spans):
             n=vislen(PASSES[p]['lines'][i])
             kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps({n},end)}} {g(p,e)}%,100%{{width:{n}ch}}}}")
             last=(i==len(spans)-1)
-            end=32.2 if last else e
+            end=SEND if last else e
             kf.append(f"@keyframes lcar{p}_{i}{{0%,{g(p,s)}%{{opacity:0}} {g(p,s+.01)}%,{g(p,end)}%{{opacity:1}} {g(p,end+.01)}%,100%{{opacity:0}}}}")
     else:
         for i,(s,e) in enumerate(lnspans(len(PASSES[p]['lines']))):
             kf.append(f"@keyframes ln{p}_{i}{{0%,{g(p,s)}%{{width:0;animation-timing-function:steps(30,end)}} {g(p,e)}%,100%{{width:100%}}}}")
     if not PASSES[p].get('claude') and not PASSES[p].get('noresp'):
-        kf.append(f"@keyframes rs{p}{{0%,{g(p,16.5)}%{{opacity:0}} {g(p,17.5)}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
+        kf.append(f"@keyframes rs{p}{{0%,{g(p,SEND)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,SEND+MS(150))}%,{g(p,32.2)}%{{opacity:1}} {g(p,33.3)}%,100%{{opacity:0}}}}")
     for k in range(5):
-        st,on,off,gone=16.5+k*.6,17.5+k*.6,21.5+k*.25,23+k*.25
-        kf.append(f"@keyframes d{p}_{k}{{0%,{g(p,st)}%{{opacity:0}} {g(p,on)}%,{g(p,off)}%{{opacity:{OPA[k]}}} {g(p,gone)}%,100%{{opacity:0}}}}")
+        st=SEND+k*DOT_STAG; on=st+DOT_IN; off,gone=21.5+k*.25,23+k*.25
+        kf.append(f"@keyframes d{p}_{k}{{0%,{g(p,st)}%{{opacity:0;animation-timing-function:{E_OUT}}} {g(p,on)}%,{g(p,off)}%{{opacity:{OPA[k]};animation-timing-function:{E_SOFT}}} {g(p,gone)}%,100%{{opacity:0}}}}")
     if p<2:
-        kf.append(f"@keyframes sp{p}{{0%,{g(p,17.8)}%{{opacity:0;transform:scale(.8)}} {g(p,18)}%{{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)}} {g(p,20)}%,{g(p,32.2)}%{{opacity:1;transform:scale(1)}} {g(p,33.3)}%,100%{{opacity:0;transform:scale(1)}}}}")
+        kf.append(f"@keyframes sp{p}{{0%,{g(p,17.8)}%{{opacity:0;transform:scale(.8)}} {g(p,18)}%{{opacity:1;transform:scale(.8);animation-timing-function:cubic-bezier(.2,1.4,.4,1)}} {g(p,18+MS(300))}%,{g(p,32.2)}%{{opacity:1;transform:scale(1)}} {g(p,33.3)}%,100%{{opacity:0;transform:scale(1)}}}}")
     else:
-        kf.append(f"@keyframes sp2{{0%,{g(2,17.6)}%{{opacity:0;transform:translateX(165%)}} {g(2,18)}%{{opacity:1;transform:translateX(165%);animation-timing-function:cubic-bezier(.17,.84,.44,1)}} {g(2,21)}%,{g(2,32.2)}%{{opacity:1;transform:translateX(0)}} {g(2,33.3)}%,100%{{opacity:0;transform:translateX(0)}}}}")
-    for nm,F,V in (('rb',BF,BV),('rc',CF,CV)):
-        stops="".join(f" {g(p,RS+f/100*RL)}%{{transform:rotate({v}deg)}}" for f,v in zip(F,V))
-        kf.append(f"@keyframes {nm}{p}{{0%,{g(p,RS)}%{{transform:rotate(0deg)}}{stops} {g(p,RS+RL)}%,100%{{transform:rotate(0deg)}}}}")
+        kf.append(f"@keyframes sp2{{0%,{g(2,17.6)}%{{opacity:0;transform:translateX(165%)}} {g(2,18)}%{{opacity:1;transform:translateX(165%);animation-timing-function:cubic-bezier(.17,.84,.44,1)}} {g(2,18+MS(450))}%,{g(2,32.2)}%{{opacity:1;transform:translateX(0)}} {g(2,33.3)}%,100%{{opacity:0;transform:translateX(0)}}}}")
+    for nm,F,V,ms in (('rb',BF,BV,RING_BODY_MS),('rc',CF,CV,RING_CLAP_MS)):
+        RL=MS(ms)
+        stops="".join(f" {g(p,RS+f/100*RL)}%{{transform:rotate({v}deg);animation-timing-function:ease-in-out}}" for f,v in zip(F,V))
+        kf.append(f"@keyframes {nm}{p}{{0%,{g(p,RS)}%{{transform:rotate(0deg);animation-timing-function:ease-in-out}}{stops} {g(p,RS+RL)}%,100%{{transform:rotate(0deg)}}}}")
+FT_ON,FT_OFF="opacity:1","opacity:.6"
+FR_ON,FR_OFF="opacity:1","opacity:.5"
+focT=["0%{"+FT_OFF+"}"]
+for p in range(3):
+    focT.append(f"{g(p,0.5)}%{{{FT_OFF};animation-timing-function:{E_OUT}}} "
+                f"{g(p,2)}%,{g(p,SEND+MS(60))}%{{{FT_ON};animation-timing-function:{E_SOFT}}} "
+                f"{g(p,SEND+MS(60)+MS(380))}%,{g(p,32.2)}%{{{FT_OFF}}}")
+    kf.append(f"@keyframes focR{p}{{0%,{g(p,SEND)}%{{{FR_OFF};animation-timing-function:{E_OUT}}} "
+              f"{g(p,SEND+MS(240))}%,100%{{{FR_ON}}}}}")
+kf.append("@keyframes focT{"+" ".join(focT)+" 100%{"+FT_OFF+"}}")
 ON,OFF="background:var(--chip);color:var(--fg)","background:#222224;color:var(--dim)"
 kf+=[f"@keyframes tabA{{0%,32.9%{{{ON}}} 33.5%,99.6%{{{OFF}}} 100%{{{ON}}}}}",
      f"@keyframes tabB{{0%,32.9%{{{OFF}}} 33.5%,66.2%{{{ON}}} 66.8%,100%{{{OFF}}}}}",
@@ -206,6 +242,7 @@ for p,P in enumerate(PASSES):
     th.append(f'<div class="trail tr{p}">{dots}</div>')
     hh.append(f'<div class="head hd{p}"><div class="l1">{P["head"][0]}</div><div class="l2">{P["head"][1]}</div></div>')
     tih.append(f'<span class="title ti{p}">{P["title"]}</span>')
+rgt=[f'<div class="rgt rg{p}" data-lift="{p}">'+dh[p]+th[p]+ch[p]+'</div>' for p in range(3)]
 geo=[]
 for p,P in enumerate(PASSES):
     geo.append(f".dv{p}{{{DEV[p]}}}")
@@ -257,6 +294,8 @@ for p in range(3):
     for k in range(5): anim.append(f".dt{p}_{k}{{animation-name:d{p}_{k}}}")
     anim.append(f".sc{p}{{animation-name:sp{p}}}")
     anim.append(f".sc{p} .bb{{animation-name:rb{p}}}.sc{p} .bc{{animation-name:rc{p}}}")
+    anim.append(f".rg{p}{{animation-name:focR{p}}}")
+anim.append(".term{animation-name:focT}")
 sel=[]
 for p,P in enumerate(PASSES):
     sel+=[f".hd{p}",f".bg{p}",f".dv{p}",f".ti{p}",f".sc{p}"]
@@ -269,7 +308,7 @@ for p,P in enumerate(PASSES):
         if P.get('typed'): sel+=[f".lc{p}_{i}" for i in range(len(P['lines']))]
         sel.append(f".r{p}")
     if P['clip']: sel.append(f".cl{p}")
-ANIMSEL=",".join(sel)+",.trail i,.tabs button,.bell i"
+ANIMSEL=",".join(sel)+",.trail i,.tabs button,.bell i,.term,.rgt"
 NL=chr(10)
 html=f"""<!doctype html>
 <html lang="en">
@@ -281,7 +320,7 @@ html=f"""<!doctype html>
 @font-face{{font-family:'Recursive Mono';font-style:normal;font-weight:300 800;font-display:block;src:url({RECUR}) format('woff2')}}
 @font-face{{font-family:'Karla';font-style:normal;font-weight:400 500;font-display:block;src:url({KARLA}) format('woff2')}}
 :root{{--bg:#1C1C1E;--surface:#262628;--line:#333;--chip:#3C3C3C;--fg:#EDEDED;--muted:#A1A1A1;--dim:#8A8A8A;--red:#DB4A4B;--blue:#7FA8E0;--stroke:#EDEDED;--stroke2:#55555A;
---mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:15s}}
+--mono:'Recursive Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Karla',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',system-ui,'Karla',sans-serif;--T:{T_MS/1000:g}s}}
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{background:#161618;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:var(--sans);color:var(--fg)}}
 .stage{{position:relative;width:min(96vw,1600px);aspect-ratio:2160/960;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;container-type:inline-size}}
@@ -319,16 +358,17 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .cmeta{{--fs:2.732;line-height:1.5}}
 .cmeta b{{font-weight:700;color:var(--fg)}}
 .crule{{height:1px;background:var(--line);margin:1.301cqw 0}}
-.cinput{{display:flex;align-items:baseline;gap:1.561cqw;padding:0.911cqw 0;white-space:pre}}
-.cchev{{color:var(--dim);flex:none}}
+.cinput{{display:flex;align-items:baseline;gap:{CGAP};padding:0.911cqw 0;white-space:pre}}
+.cchev{{color:var(--dim);flex:none;width:1ch}}
 .ctype{{display:inline-block;width:0;overflow:hidden;white-space:pre;vertical-align:bottom}}
 .ccar{{display:inline-block;width:1.613cqw;height:3.253cqw;background:var(--fg);opacity:0;flex:none;align-self:center}}
 .body div.shline{{width:auto;overflow:visible;display:flex;align-items:center}}
 .shline .ltype{{display:inline-block;width:0;overflow:hidden;white-space:pre}}
 .cinput+.cinput{{margin-top:-0.260cqw}}
-.creply{{margin-top:2.342cqw;opacity:0;white-space:normal}}
-.cdot{{display:inline-block;width:1.35cqw;height:1.35cqw;border-radius:50%;background:#D97757;vertical-align:middle;margin-right:1.0cqw;position:relative;top:-0.1cqw}}
+.creply{{position:relative;margin-top:2.342cqw;padding-inline-start:calc(1ch + {CGAP});opacity:0;white-space:normal}}
+.cdot{{position:absolute;inset-inline-start:calc((1ch - {CDOT}) / 2);top:calc((1.7em - {CDOT}) / 2);width:{CDOT};height:{CDOT};border-radius:50%;background:#D97757}}
 .c{{color:var(--dim)}}.k{{color:var(--red)}}.s{{color:var(--blue)}}.f{{color:#B48EAD}}.fn{{color:#8FBCBB}}.n{{color:#A3BE8C}}.r{{color:var(--dim)}}
+.rgt{{position:absolute;inset:0;pointer-events:none}}
 .dev{{position:absolute;opacity:0;container-type:inline-size}}
 .dev svg{{display:block;width:100%;height:100%;overflow:visible}}
 .o{{fill:none;stroke:var(--stroke);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke}}
@@ -339,13 +379,13 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .lock{{position:absolute;text-align:center;font-family:var(--ui);color:var(--fg)}}
 .lock .ldate{{font-weight:600;opacity:.9;letter-spacing:.01em}}
 .lock .ltime{{font-weight:600;line-height:1.02;letter-spacing:-.02em;margin-top:.25em}}
-.sbar.ph .icons{{gap:1.838cqw;margin-right:1.730cqw}}
+.sbar.ph .icons{{gap:1.838cqw;margin-inline-end:1.730cqw}}
 .sbar.mb .icons{{gap:1.425cqw}}
 .sbar.ph>span:first-child{{flex:0 0 28.3%;text-align:center}}
 .sbar svg.ic{{display:block;width:calc(1cqw * var(--w));height:auto;fill:currentColor;overflow:visible}}
 .sbar svg.st path{{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}}
 .sbar svg.st circle.fl{{fill:currentColor;stroke:none}}
-.sbar .dt{{--fs:1.563;font-weight:400;color:var(--muted);margin-left:0.460cqw}}
+.sbar .dt{{--fs:1.563;font-weight:400;color:var(--muted);margin-inline-start:0.460cqw}}
 .mbell{{width:1.85cqw;height:1.85cqw;transform:translateY(-0.02cqw);background:var(--fg);-webkit-mask:url({BELL}) center/contain no-repeat;mask:url({BELL}) center/contain no-repeat}}
 .sbar svg.amark{{width:2.529cqw;height:2.529cqw;display:block;fill:var(--fg);opacity:.85;flex:none}}
 .trail{{position:absolute;display:flex;align-items:center;justify-content:space-between;transform:translateY(-50%)}}
@@ -359,7 +399,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .bell .bc{{-webkit-mask-image:url({CLAP});mask-image:url({CLAP})}}
 .scard .t{{--fs:1.05;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
 .scard .b{{--fs:.95;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}}
-.scard .thumb{{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-left:auto;background:var(--chip)}}
+.scard .thumb{{width:calc(1cqw * var(--k,1) * 3.6);height:calc(1cqw * var(--k,1) * 3.6);border-radius:calc(1cqw * var(--k,1) * 0.5);object-fit:cover;flex:none;margin-inline-start:auto;background:var(--chip)}}
 {NL.join(geo)}
 {NL.join(anim)}
 {VERTICAL}
@@ -371,16 +411,14 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 <!--STAGE-->
 <div class="stage">
   {NL.join(hh)}
-  <div class="term">
+  <div class="term" data-lift="term">
     <div class="bar"><i></i><i></i><i></i>{"".join(tih)}</div>
     <div class="tabs"><button type="button" class="tabA" data-pass="0" aria-label="Play the run.sh scene">~/run.sh</button><button type="button" class="tabB" data-pass="1" aria-label="Play the Claude Hook scene">Claude Hook</button><button type="button" class="tabC" data-pass="2" aria-label="Play the train.py scene">~/train.py</button></div>
     <div class="bodywrap">
       {NL.join(bh)}
     </div>
   </div>
-  {NL.join(th)}
-  {NL.join(dh)}
-  {NL.join(ch)}
+  {NL.join(rgt)}
 <script>
 (function () {{
   var film = document.currentScript.parentElement;
@@ -402,14 +440,58 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
   }}
   try {{ setClocks(); setInterval(setClocks, 30000); }} catch (err) {{}}
   if (!film.getAnimations) return;
+  // A click holds the scene still and whole so it can be read; a second click
+  // plays it once and lets it come to rest in that same frame. It never runs
+  // on into the next scene, and never loops.
+  // Coming to rest lifts the dim off. Opacity here is animation-controlled and
+  // an animated value outranks a plain declaration — pausing does not release
+  // it either — so the animation comes off the element before the value is
+  // moved by transition; release puts it back and the film is seekable again.
+  var restTimer = null;
+  var lifted = ['term', 0, 1, 2];
+  var release = function () {{
+    lifted.forEach(function (k) {{
+      var el = film.querySelector('[data-lift="' + k + '"]');
+      if (!el) return;
+      el.style.transition = '';
+      el.style.opacity = '';
+      el.style.animationName = '';
+    }});
+    film.offsetWidth;
+  }};
   film.addEventListener('click', function (e) {{
     var btn = e.target.closest('[data-pass]');
     if (!btn) return;
-    var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || 15000;
-    var at = (+btn.dataset.pass) * (T / 3);
-    film.getAnimations({{ subtree: true }}).forEach(function (a) {{
-      try {{ a.currentTime = at; a.play(); }} catch (err) {{}}
-    }});
+    var pass = +btn.dataset.pass;
+    var T = parseFloat(getComputedStyle(film).getPropertyValue('--T')) * 1000 || {T_MS};
+    var at = pass * (T / 3), rest = at + {HOLD_AT} / 100 * T;
+    var each = function (fn) {{
+      film.getAnimations({{ subtree: true }}).forEach(function (a) {{
+        try {{ fn(a); }} catch (err) {{}}
+      }});
+    }};
+    // Seeking rather than trusting the timer means a throttled background tab
+    // comes to rest on the right frame regardless of when it fires.
+    var settle = function () {{
+      restTimer = null;
+      each(function (a) {{ a.currentTime = rest; a.pause(); }});
+      ['term', pass].forEach(function (k) {{
+        var el = film.querySelector('[data-lift="' + k + '"]');
+        if (!el) return;
+        var from = getComputedStyle(el).opacity;
+        if (from === '1') return;
+        el.style.transition = 'none';
+        el.style.animationName = 'none';
+        el.style.opacity = from;
+        el.offsetWidth;
+        el.style.transition = 'opacity .32s cubic-bezier(.23,1,.32,1)';
+        el.style.opacity = '1';
+      }});
+    }};
+    release();
+    if (restTimer) {{ clearTimeout(restTimer); restTimer = null; }}
+    each(function (a) {{ a.currentTime = at; a.play(); }});
+    restTimer = setTimeout(settle, rest - at);
   }});
 }})();
 </script>

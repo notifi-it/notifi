@@ -293,16 +293,26 @@ function slice(html, open, close) {
 function footerLinks(html) {
   const foot = slice(html, '<div class="wrap foot">', "</div>");
   if (!foot) throw new Error("no footer");
-  const links = [...foot.matchAll(/<a\s+href="([^"]+)"[^>]*>([^<]+)<\/a>/g)];
-  return links.map(([, href, label]) => `- [${spaces(decode(label))}](${absolute(href)})`).join("\n");
+  // The social links are icon-only in the HTML, so their name is in the
+  // aria-label rather than between the tags. Dropping them left the agent-facing
+  // copy with no GitHub or X at all, which is the one thing this file is for.
+  const links = [...foot.matchAll(/<a\s+href="([^"]+)"([^>]*)>([\s\S]*?)<\/a>/g)];
+  return links
+    .map(([, href, attrs, inner]) => {
+      const text = inner.replace(/<[^>]*>/g, "").trim();
+      const label = text || (attrs.match(/aria-label="([^"]+)"/) ?? [])[1];
+      if (!label) throw new Error(`footer link ${href} has no label`);
+      return `- [${spaces(decode(label))}](${absolute(href)})`;
+    })
+    .join("\n");
 }
 
-// The opening tag is matched on its prefix, not in full: a page that adds a
-// modifier class to it — docs.html carries `api` — is still a doc page, and
-// matching the whole tag silently dropped it from the agent-facing copy
-// instead of failing.
+// The opening tag is matched on the class alone, not in full: a page that adds
+// a modifier class to it — docs.html carries `api` — or another attribute
+// beside it — the skip link's `id` — is still a doc page, and matching the
+// whole tag silently dropped it from the agent-facing copy instead of failing.
 function sliceMain(html) {
-  const open = /<main class="wrap doc[^"]*">/.exec(html);
+  const open = /<main\b[^>]*\bclass="wrap doc[^"]*"[^>]*>/.exec(html);
   if (!open) return null;
   const end = html.indexOf("</main>", open.index);
   if (end === -1) throw new Error("missing </main>");

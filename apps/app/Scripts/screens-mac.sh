@@ -59,12 +59,20 @@ EOF
 
 screencapture -x -o -l"$WINDOW_ID" "$OUT/mac.png"
 
-# Scale to the size index.html declares, as webp — after squaring the figure
-# with the site: the bar draws its bell at 50%, but a real capture clamps the
-# popover against the screen edge, so its arrow sits off the panel's centre.
-# The arrow is slid along the panel's top edge to the panel's centre (the
-# edge is uniform, so the move is seamless), then the panel is centred.
-python3 - "$OUT" "$SITE" <<'EOF'
+# Published at the capture's own pixels, cropped to the popover's own edges
+# and lossless: index.html declares half the pixel size, so a 2x display
+# paints the capture 1:1 and nothing is resampled before the browser. The
+# script prints that size; the <img> width and height must match it. The earlier 840-wide lossy file was softer
+# twice over — a 0.86 resize, then WebP smearing the ground's grain — and at
+# this size lossless is smaller than lossy q90 anyway (337 KB against 403),
+# because the grain is noise and noise costs a lossy encoder more.
+#
+# Before that the figure is squared with the site: the bar draws its bell at
+# 50%, but a real capture clamps the popover against the screen edge, so its
+# arrow sits off the panel's centre. The arrow is slid along the panel's top
+# edge to the panel's centre (the edge is uniform, so the move is seamless),
+# then the panel is centred.
+"${PYTHON:-python3}" - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 
@@ -73,8 +81,8 @@ sys.path.insert(0, "apps/app/Scripts")
 from publish_image import publish
 
 out, site = sys.argv[1], sys.argv[2]
-W, H = 840, 1296
 im = Image.open(f"{out}/mac.png").convert("RGBA")
+W, H = im.size
 # `screencapture -o` leaves everything outside the window transparent, so the
 # window's own shape is the alpha channel — which is both how the popover is
 # measured here and what mac-cut.webp carries to the site.
@@ -100,20 +108,20 @@ im.paste((0, 0, 0, 0), box)
 dx = round(panel_cx - (ax0 + ax1 + 1) / 2)
 im.paste(arrow, (box[0] + dx, box[1]))
 
-scale = max(W / im.width, H / im.height)
-im = im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS)
-at = (W // 2 - round(panel_cx * scale), (H - im.height) // 2)
+at = (W // 2 - round(panel_cx), 0)
 
 # Two files, one capture. The page hangs the cut-out over its own ground and
 # casts a shadow that follows the popover's alpha; mac.webp is the same figure
 # flattened onto black, for anywhere a plate is wanted instead of a cut-out.
 cut = Image.new("RGBA", (W, H), (0, 0, 0, 0))
 cut.paste(im, at)
-publish(cut, f"{site}/mac-cut.webp", "WEBP", quality=82, method=6)
+cut = cut.crop(cut.getchannel("A").getbbox())
+publish(cut, f"{site}/mac-cut.webp", "WEBP", lossless=True, method=6)
 
-canvas = Image.new("RGB", (W, H), (0, 0, 0))
-canvas.paste(im, at, im)
-publish(canvas, f"{site}/mac.webp", "WEBP", quality=82, method=6)
+canvas = Image.new("RGB", cut.size, (0, 0, 0))
+canvas.paste(cut, (0, 0), cut)
+publish(canvas, f"{site}/mac.webp", "WEBP", lossless=True, method=6)
+print(f"declare in index.html: width={cut.width // 2} height={cut.height // 2}")
 EOF
 
 # A Debug build shares the push identity with the installed app and has

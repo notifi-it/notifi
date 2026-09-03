@@ -61,6 +61,44 @@ enum SampleData {
         ProcessInfo.processInfo.environment["NOTIFI_OPEN_SAMPLE_MESSAGE"] == "1"
     }
 
+    static let showcaseID = idFloor - 1_000
+
+    private static var demoBase: String {
+        ProcessInfo.processInfo.environment["NOTIFI_DEMO_BASE"] ?? "https://notifi.it/demo"
+    }
+
+    private static let showcaseBody = """
+    # Header 1
+    ## Header 2
+
+    Text, **bold**, _italic_, `code`, ~~strikethrough~~, [links](https://notifi.it/docs) and bullets:
+
+    - foo
+    - bar
+
+    Tables:
+
+    | foo | bar |
+    | --- | --- |
+    | baz | qux |
+
+    Code:
+
+    ```
+    curl -X POST https://notifi.it/send \\
+      -H "Authorization: Bearer $NOTIFI_KEY" \\
+      -d "title=Markdown"
+    ```
+
+    Quotes:
+
+    > Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    >
+    > Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    >
+    > Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+    """
+
     @MainActor
     static func screenDidAppear() {
         guard !opensSampleMessage else { return }
@@ -88,7 +126,16 @@ enum SampleData {
         guard isEnabled else { return }
         if let appearance = launchAppearance { model.appearance = appearance }
         model.remoteImagesEnabled = true
-        seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
+        seedOnce(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
+    }
+
+    @MainActor private static var didSeed = false
+
+    @MainActor
+    static func seedOnce(into context: ModelContext, keyIDs: [Int] = []) {
+        guard !didSeed else { return }
+        didSeed = true
+        seed(into: context, keyIDs: keyIDs)
     }
 
     @MainActor private static var didPushLaunchMessage = false
@@ -107,7 +154,7 @@ enum SampleData {
         let now = Date()
         func ago(_ minutes: Int) -> Date { now.addingTimeInterval(-Double(minutes) * 60) }
 
-        let demo = "https://notifi.it/demo"
+        let demo = demoBase
 
         #if os(macOS)
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
@@ -314,12 +361,35 @@ enum SampleData {
                         ? ago(minutes).addingTimeInterval(-Double(index) * 0.437)
                         : nil,
                     isRead: !unread,
-                    isCritical: index == 0
+                    isCritical: Self.criticalTitles.contains(title)
+                )
+            )
+        }
+        if opensSampleMessage {
+            context.insert(
+                Message(
+                    serverID: showcaseID,
+                    title: "Markdown",
+                    body: showcaseBody,
+                    link: URL(string: "https://notifi.it/docs"),
+                    imageURL: URL(string: "\(demo)/placeholder.png"),
+                    keyID: nil,
+                    createdAt: ago(3),
+                    occurredAt: nil,
+                    isRead: false,
+                    isCritical: false
                 )
             )
         }
         try? context.save()
     }
+
+    private static let criticalTitles: Set<String> = [
+        "Water leak detected under the sink",
+        "Certificate for vault.internal.eu-west-2.compute.amazonaws.com expires in 7 days",
+        "Incident INC-2049 postmortem published for the multi-region outage that "
+            + "affected notification delivery for approximately six hours on 29 July",
+    ]
 
     @MainActor
     static func clear(from context: ModelContext) {

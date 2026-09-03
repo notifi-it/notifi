@@ -22,10 +22,23 @@ enum BootState {
 enum Appearance: String, CaseIterable {
     case dark
     case light
+    case system
 
-    var colorScheme: ColorScheme { self == .dark ? .dark : .light }
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .dark: .dark
+        case .light: .light
+        case .system: nil
+        }
+    }
 
-    var title: String { self == .dark ? Copy.Settings.themeDark : Copy.Settings.themeLight }
+    var title: String {
+        switch self {
+        case .dark: Copy.Settings.themeDark
+        case .light: Copy.Settings.themeLight
+        case .system: Copy.Settings.themeSystem
+        }
+    }
 }
 
 enum AppRoute: Hashable {
@@ -80,12 +93,16 @@ final class AppModel {
     var selectedTab: AppTab = AppTab.launchOverride ?? .inbox
     var notificationStatus: UNAuthorizationStatus = .notDetermined
     var criticalAlertStatus: UNNotificationSetting = .notSupported
+    var notificationsStayVisible = false
     var remoteImagesEnabled: Bool {
         didSet { RemoteImages.setEnabled(remoteImagesEnabled) }
     }
     private(set) var strictSend = false
     var appearance: Appearance {
         didSet { UserDefaults.standard.set(appearance.rawValue, forKey: Self.appearanceKey) }
+    }
+    var grainEnabled: Bool {
+        didSet { UserDefaults.standard.set(grainEnabled, forKey: Self.grainKey) }
     }
     private(set) var keysAllowingAnyLink: Set<Int>
     var presentingCreateKey = false
@@ -114,11 +131,13 @@ final class AppModel {
     private static let realTokenKey = "lastRealAPNSToken"
     #endif
     private static let appearanceKey = "appearance"
+    private static let grainKey = "grain"
 
     init() {
         remoteImagesEnabled = RemoteImages.isEnabled
         appearance = Appearance(rawValue: UserDefaults.standard.string(forKey: Self.appearanceKey) ?? "")
             ?? .dark
+        grainEnabled = UserDefaults.standard.object(forKey: Self.grainKey) as? Bool ?? true
         keysAllowingAnyLink = LocalDev.isActive ? [] : LinkPolicy.allowedKeyIDs()
     }
 
@@ -196,6 +215,11 @@ final class AppModel {
         do {
             let identity = try DeviceIdentity.loadOrCreate()
             finishBoot(with: identity)
+            #if os(macOS)
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .notifiOpenPanel, object: nil)
+            }
+            #endif
         } catch NotifiError.unsupportedDevice {
             bootState = .unsupported
         } catch {
@@ -428,16 +452,22 @@ final class AppModel {
             return
         }
         #endif
-        let settings: (UNAuthorizationStatus, UNNotificationSetting) =
+        let settings: (UNAuthorizationStatus, UNNotificationSetting, Bool) =
             await withCheckedContinuation { continuation in
                 UNUserNotificationCenter.current().getNotificationSettings { settings in
+                    #if os(macOS)
+                    let staysVisible = settings.alertStyle == .alert
+                    #else
+                    let staysVisible = false
+                    #endif
                     continuation.resume(
-                        returning: (settings.authorizationStatus, settings.criticalAlertSetting)
+                        returning: (settings.authorizationStatus, settings.criticalAlertSetting, staysVisible)
                     )
                 }
             }
         notificationStatus = settings.0
         criticalAlertStatus = settings.1
+        notificationsStayVisible = settings.2
     }
 
     func requestNotificationPermission() async {

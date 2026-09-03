@@ -102,6 +102,7 @@ export const de: Translation = {
   'common.markAsUnread': 'Als ungelesen markieren',
   'common.openLink': 'Link öffnen',
   'common.never': 'Nie',
+  'common.moreActions': 'Weitere Aktionen',
   'common.expand': 'Erweitern',
   'common.collapse': 'Einklappen',
 
@@ -111,10 +112,10 @@ export const de: Translation = {
 
   'age.now': 'jetzt',
   'age.justNow': 'gerade eben',
-  'age.minutes': '{n} Min.',
-  'age.hours': '{n} Std.',
-  'age.days': '{n} T',
-  'age.weeks': '{n} W',
+  'age.minutes': '{n}min',
+  'age.hours': '{n}h',
+  'age.days': '{n}T',
+  'age.weeks': '{n}W',
   'age.ago': 'vor {relative}',
   'inbox.title': 'Inbox',
   'inbox.offline': 'notifi-Server nicht erreichbar. Verbindung prüfen und erneut versuchen.',
@@ -138,6 +139,8 @@ export const de: Translation = {
 
   'inbox.unread': 'Ungelesen',
   'inbox.critical': 'Kritisch',
+  'inbox.hasImage': 'Enthält ein Bild',
+  'inbox.offlineBadge': 'Offline',
   'inbox.linkTo': 'Link zu {host}',
   'inbox.deleteTitle': '„{title}“ löschen?',
   'inbox.deleteTitleFallback': 'Diese Benachrichtigung löschen?',
@@ -150,6 +153,11 @@ export const de: Translation = {
   'message.notFound': 'Benachrichtigung nicht gefunden',
   'message.notFoundDetail': 'Sie wurde möglicherweise auf diesem Gerät gelöscht.',
   'message.downloadImage': 'Bild herunterladen',
+  'message.savingImage': 'Wird gesichert …',
+  'message.imageSaved': 'In Fotos gesichert',
+  'message.imageSavedToFile': 'Gesichert',
+  'message.imageSaveFailed': 'Bild konnte nicht gesichert werden',
+  'message.imageSaveDenied': 'notifi braucht die Berechtigung, zu Fotos hinzuzufügen. Aktiviere sie in den Einstellungen.',
   'message.keyFallbackName': 'Schlüssel {id}',
   'message.sentWithKey': 'Gesendet mit Schlüssel {name}',
   'message.openKey': 'Gesendet mit Schlüssel {name}. Öffnen.',
@@ -162,21 +170,20 @@ export const de: Translation = {
   'message.loadImage': 'Bild laden',
   'message.load': 'Laden',
   'message.imageBlocked': 'blockiert',
+  'message.image': 'Bild',
+  'message.resetZoom': 'Zoom zurücksetzen',
+  'message.linkBlockedNotice': 'Link blockiert',
   'message.sourceHeader': 'Quelle',
   'keys.title': 'Schlüssel',
   'keys.newKey': 'Neuer Schlüssel',
   'keys.refreshFailed': 'Schlüssel konnten nicht aktualisiert werden. Letzte bekannte Liste wird angezeigt.',
   'keys.sectionActive': 'Aktiv',
   'keys.sectionRevoked': 'Widerrufen',
-  'keys.intro':
-    'Schlüssel zeigen, wer eine Benachrichtigung gesendet hat. Verwende für jedes Skript einen eigenen Schlüssel. ' +
-    'Der Standardschlüssel wurde bei der Einrichtung dieses Geräts erstellt.',
   'keys.aboutKeys': 'Über Schlüssel',
   'keys.sent': { one: '1 gesendet', other: '{n} gesendet' },
   'keys.rowLastUsed': 'genutzt {ago}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Standard',
-  'keys.chipRevoked': 'Widerrufen',
   'keys.chipCritical': 'Kritisch',
   'keys.rowLabel': 'Schlüssel, {name}, endet auf {suffix}',
   'keys.rowLabelRevoked': ', widerrufen',
@@ -293,19 +300,31 @@ export const de: Translation = {
   'settings.permissionNotSet': 'Nicht festgelegt',
   'settings.permissionUnknown': 'Unbekannt',
 
+  'settings.stayVisible': 'Benachrichtigungen bleiben sichtbar',
+  'settings.stayVisibleDetail':
+    'Hält eine Benachrichtigung auf dem Bildschirm, bis du sie anklickst oder schließt.\n\n' +
+    'Aus, verschwindet sie nach ein paar Sekunden.\n\n' +
+    '„Aktivieren“ öffnet die Systemeinstellungen, in denen du den Hinweisstil von notifi wählst.',
+  'settings.stayVisibleEnable': 'Aktivieren',
+
   'settings.theme': 'Design',
+  'settings.grain': 'Körnung',
   'settings.themeDark': 'Dunkel',
   'settings.themeLight': 'Hell',
+  'settings.themeSystem': 'System',
 
   'settings.loadImages': 'Bilder automatisch laden',
   'settings.loadImagesDetail':
-    'Ruft jedes Bild ab, sobald die Benachrichtigung ankommt, was dem Host deine IP-Adresse verrät. ' +
-    'Aus, Bilder laden erst bei Antippen.',
+    'Ruft jedes Bild ab, sobald seine Benachrichtigung ankommt.\n\n' +
+    'Der Host des Bildes sieht dabei deine IP-Adresse.\n\n' +
+    'Aus, lädt ein Bild erst, wenn du es antippst.',
 
   'settings.strictSend': 'Ungültige Sendungen ablehnen',
   'settings.strictSendDetail':
-    'Gibt 422 invalid_content zurück und speichert nichts, wenn ein Titel oder ein Text zu lang ist. ' +
-    'Aus, /send kürzt das Feld und gibt 202 mit einem warnings-Array zurück.',
+    'Lehnt einen Send ab, dessen Titel oder Text zu lang ist: /send antwortet mit 422 invalid_content ' +
+    'und speichert nichts.\n\n' +
+    'Aus, wird das Feld gekürzt und der Send mit einem warnings-Array angenommen.\n\n' +
+    '[Zur Dokumentation](https://notifi.it/docs#response)',
   'settings.strictSendFailed': 'PATCH /devices/settings fehlgeschlagen. Verbindung prüfen und erneut versuchen.',
 
   'settings.testTitle': 'Hello from notifi',
@@ -327,11 +346,13 @@ export const de: Translation = {
   'settings.checkForUpdates': 'Nach Updates suchen',
   'settings.deleteAll': 'Alle Benachrichtigungen löschen',
   'settings.deleteAllTitle': 'Alle Benachrichtigungen löschen?',
+  'settings.deleteAllConfirm': 'Alle löschen',
   'settings.deleteAllMessage': 'Das kann nicht rückgängig gemacht werden.',
   'settings.support': 'Problem melden',
   'settings.feedback': 'Feedback',
   'settings.privacyPolicy': 'Datenschutzerklärung',
   'settings.website': 'notifi.it',
+  'settings.docs': 'Dokumentation',
 
   'empty.sampleTitle': 'Hello from notifi',
   'empty.sampleMessage': 'Deine erste Benachrichtigung.',
@@ -362,7 +383,6 @@ export const de: Translation = {
   'components.errorLabel': 'Fehler. {message}',
   'components.backTo': 'Zurück zu {label}',
   'components.createKey': 'Schlüssel erstellen',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'notifi kann nicht entsperrt werden',
   'identity.detail':

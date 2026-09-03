@@ -13,6 +13,13 @@
 #
 # The Mac popover shot is `make screens-mac` — a separate command because it
 # builds and drives the macOS app.
+#
+# The images the seeded notifications carry are fetched from notifi.it/demo,
+# so a new one has to be deployed before it can appear in a capture. Until it
+# is, NOTIFI_DEMO_BASE points the seed at another HTTPS origin that serves the
+# same bytes — the pushed branch does:
+#
+#   NOTIFI_DEMO_BASE=https://raw.githubusercontent.com/notifi-it/notifi/<branch>/apps/api/public/demo make screens
 set -euo pipefail
 
 cd "$(dirname "$0")/../../.."
@@ -36,7 +43,7 @@ APP=$(find "$DERIVED/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.
 [ -n "$APP" ] || { echo "no .app in $DERIVED" >&2; exit 1; }
 
 named() { # name
-  xcrun simctl list devices available -j | python3 -c "
+  xcrun simctl list devices available -j | "${PYTHON:-python3}" -c "
 import json,sys
 for runtime in json.load(sys.stdin)['devices'].values():
     for d in runtime:
@@ -61,13 +68,27 @@ xcrun simctl install "$IPAD" "$APP"
 # Apple's own 09:41 on a full battery and full bars. Without it the captures
 # carry whatever the clock said, and the three frames sit side by side on the
 # listing with three different times.
+# Text size is named too. The simulator keeps whatever the last session set
+# (one left the phone on medium), and a set captured a step smaller than the
+# committed one differs on every frame while looking right on its own.
 for udid in "$PHONE" "$IPAD"; do
+  xcrun simctl ui "$udid" content_size large
   xcrun simctl status_bar "$udid" override \
     --time "09:41" \
     --dataNetwork wifi --wifiMode active --wifiBars 3 \
     --cellularMode active --cellularBars 4 \
     --batteryState discharging --batteryLevel 100
 done
+
+# An unanswered notification-permission alert belongs to SpringBoard, so it
+# outlives relaunches and reinstalls and sits in the middle of every capture
+# (a run after a hand launch of the app came back with it on all six iPad
+# frames). Restarting SpringBoard clears it; the launches below never raise
+# a new one, because SampleData suppresses the request.
+for udid in "$PHONE" "$IPAD"; do
+  xcrun simctl spawn "$udid" launchctl kickstart -k system/com.apple.SpringBoard >/dev/null 2>&1 || true
+done
+sleep 5
 
 mkdir -p "$OUT"
 
@@ -89,6 +110,7 @@ shoot() { # udid outfile extra-env...
   # without touching the simulator's own settings. Capturing every locale off
   # one English boot would ship a Spanish listing showing an English app.
   env "$@" SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 SIMCTL_CHILD_NOTIFI_SEED_SAMPLE=1 \
+    ${NOTIFI_DEMO_BASE:+SIMCTL_CHILD_NOTIFI_DEMO_BASE="$NOTIFI_DEMO_BASE"} \
     xcrun simctl launch "$udid" "$BUNDLE_ID" \
     -AppleLanguages "($LANG_CODE)" -AppleLocale "$LANG_CODE" >/dev/null
   # Wait for the app to say the screen is up, rather than for a number of
@@ -129,8 +151,8 @@ for pair in "en:en-GB" "es:es-ES" "de:de-DE" "fr:fr-FR" "it:it"; do
   capture_set "$PHONE" ""
   capture_set "$IPAD" "ipad-"
 
-  LOCALE="$LOCALE" SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
-  IPAD=1 LOCALE="$LOCALE" SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
+  LOCALE="$LOCALE" SHOTS="$OUT" "${PYTHON:-python3}" apps/app/Scripts/appstore-frames.py
+  IPAD=1 LOCALE="$LOCALE" SHOTS="$OUT" "${PYTHON:-python3}" apps/app/Scripts/appstore-frames.py
 done
 
 # The website is English only, so its four shots are captured after the loop
@@ -146,7 +168,7 @@ shoot "$PHONE" "settings.png" SIMCTL_CHILD_NOTIFI_START_TAB=settings \
 # lossy webp. 2x because the ground's grain lives at device-pixel scale:
 # downscaling to 1x averaged it into flat black, and no webp quality brings
 # back what the resize removed. The filenames are what index.html references.
-python3 - "$OUT" "$SITE" <<'EOF'
+"${PYTHON:-python3}" - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 

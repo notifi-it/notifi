@@ -66,6 +66,7 @@ struct SearchView: View {
                                  border: Theme.muted.opacity(0.5))
                         }
                         .buttonStyle(.geist)
+                        .geistHitArea(expandedBy: 16)
                     }
                 }
             }

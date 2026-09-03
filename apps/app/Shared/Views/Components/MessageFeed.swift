@@ -92,7 +92,8 @@ struct MessageFeed<Empty: View>: View {
             model.path.append(message.serverID)
         } label: {
             MessageRow(message: message, now: now,
-                       showsRule: showsRule)
+                       showsRule: showsRule,
+                       openLink: openAction(for: message))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.geistRow)
@@ -114,7 +115,20 @@ struct MessageFeed<Empty: View>: View {
             .tint(Theme.danger)
         }
         #endif
+        .accessibilityAction(named: message.isRead ? Copy.Common.markAsUnread : Copy.Common.markAsRead) {
+            toggleRead(message)
+        }
+        .accessibilityAction(named: Copy.Common.delete) {
+            pendingDelete = message
+        }
         .contextMenu { menu(for: message) }
+    }
+
+    private func openAction(for message: Message) -> (() -> Void)? {
+        guard let link = message.link,
+              LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID))
+        else { return nil }
+        return { open(link, keyID: message.keyID) }
     }
 
     private var bands: [BandedMessages] {
@@ -139,12 +153,14 @@ struct MessageFeed<Empty: View>: View {
         if let body = message.body {
             Button(Copy.Inbox.copyMessage) { Clipboard.copy(body) }
         }
-        if let link = message.link {
+        if let link = message.link,
+           LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
+            Button(Copy.Common.openLink) { open(link, keyID: message.keyID) }
+            #if os(iOS)
+            ShareLink(item: link) { Text(Copy.Message.shareLink) }
+            #else
             Button(Copy.Inbox.copyLink) { Clipboard.copy(link.absoluteString) }
-            if LinkPolicy.allows(link, anyScheme: model.allowsAnyLink(keyID: message.keyID)) {
-                Button(Copy.Common.openLink) { open(link, keyID: message.keyID) }
-                ShareLink(item: link) { Label(Copy.Message.shareLink, systemImage: "square.and.arrow.up") }
-            }
+            #endif
         }
         Divider()
         Button(Copy.Common.delete, role: .destructive) { pendingDelete = message }
@@ -318,9 +334,12 @@ private struct MessageRow: View {
     let message: Message
     let now: Date
     let showsRule: Bool
+    var openLink: (() -> Void)?
+
+    @ScaledMetric(relativeTo: .caption2) private var slotIconSize: CGFloat = 11
 
     @State private var isHovered = false
-    @State private var hoverTask: Task<Void, Never>?
+    @State private var isLinkHovered = false
 
     static let drawsRules = false
 
@@ -332,7 +351,17 @@ private struct MessageRow: View {
 
     private var basis: Date { message.occurredAt ?? message.createdAt }
 
-    private var isEscalated: Bool { !message.isRead || message.isCritical }
+    private var textWeight: Font.Weight { message.isRead ? .light : .regular }
+
+    private var textColor: Color {
+        message.isRead && !isHovered ? Theme.read : Theme.fg
+    }
+
+    private var previewColor: Color {
+        message.isRead && !isHovered ? Theme.dim : Theme.read
+    }
+
+    private var isEscalated: Bool { !message.isRead }
 
     private var preview: String? {
         guard let body = message.body else { return nil }
@@ -352,8 +381,9 @@ private struct MessageRow: View {
     private var content: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(Self.clock.string(from: basis))
-                .font(.inco(size: 12, weight: isEscalated ? .semibold : .regular))
+                .font(.inco(size: 12, weight: textWeight, relativeTo: .footnote))
                 .monospacedDigit()
+                .underline(message.isCritical, pattern: .solid)
                 .foregroundStyle(isEscalated ? Theme.brandText
                                  : isHovered ? Theme.muted : Theme.dim)
                 .lineLimit(1)
@@ -362,53 +392,64 @@ private struct MessageRow: View {
             VStack(alignment: .leading, spacing: 5) {
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     MonoLine(text: message.title,
-                             font: .inco(size: 13.5, weight: isEscalated ? .bold : .regular,
+                             font: .inco(size: 13.5, weight: textWeight,
                                          relativeTo: .footnote))
-                        .foregroundStyle(message.isCritical ? Theme.brandText
-                                         : message.isRead && !isHovered ? Theme.read : Theme.fg)
+                        .foregroundStyle(textColor)
 
-                    slot(present: message.link != nil, systemName: "globe")
+                    slot(present: message.isCritical, systemName: "bolt")
+                    linkSlot
                     slot(present: message.imageURL != nil, systemName: "photo")
                 }
 
                 if let preview {
-                    MonoLine(text: preview, font: Theme.metaSmall)
-                        .foregroundStyle(isHovered ? Theme.dim : Theme.mark)
+                    Text(preview)
+                        .font(.karla(size: 12.5, relativeTo: .footnote))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(previewColor)
                 }
             }
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 13)
         .frame(minHeight: 44)
+        .hoverHighlight { isHovered = $0 }
+    }
+
+    @ViewBuilder
+    private var linkSlot: some View {
         #if os(macOS)
-        .background {
-            if isHovered {
-                StaticField(level: .hover, fillsScreen: false)
+        if message.link != nil, let openLink {
+            Button(action: openLink) {
+                glyph("globe")
+                    .foregroundStyle(isLinkHovered ? Theme.brandText : Theme.dim)
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .animation(.easeOut(duration: 0.12), value: isLinkHovered)
+            .onHover { isLinkHovered = $0 }
+            .help(Copy.Common.openLink)
+            .accessibilityLabel(Copy.Common.openLink)
+        } else {
+            slot(present: message.link != nil, systemName: "globe")
         }
-        .animation(.easeOut(duration: 0.12), value: isHovered)
-        .onHover { hovering in
-            hoverTask?.cancel()
-            guard hovering else {
-                isHovered = false
-                return
-            }
-            hoverTask = Task {
-                try? await Task.sleep(for: .milliseconds(100))
-                guard !Task.isCancelled else { return }
-                isHovered = true
-            }
-        }
+        #else
+        slot(present: message.link != nil, systemName: "globe")
         #endif
+    }
+
+    private func glyph(_ systemName: String) -> some View {
+        Image(systemName: systemName)
+            .font(.system(size: slotIconSize, weight: .medium))
+            .frame(width: slotIconSize + 1)
     }
 
     @ViewBuilder
     private func slot(present: Bool, systemName: String) -> some View {
         if present {
-            Image(systemName: systemName)
-                .font(.system(size: 11, weight: .medium))
+            glyph(systemName)
                 .foregroundStyle(Theme.dim)
-                .frame(width: 12)
                 .accessibilityHidden(true)
         }
     }
@@ -426,7 +467,7 @@ private struct MessageRow: View {
         if let link = message.link, let host = link.host() {
             parts.append(Copy.Inbox.linkTo(host))
         }
-        if message.imageURL != nil { parts.append("Has an image") }
+        if message.imageURL != nil { parts.append(Copy.Inbox.hasImage) }
         parts.append(Self.clock.string(from: basis))
         return parts.joined(separator: ", ")
     }

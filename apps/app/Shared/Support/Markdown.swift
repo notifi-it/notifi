@@ -18,13 +18,15 @@ struct MarkdownText: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .textual.textSelection(.enabled)
         .environment(\.openURL, OpenURLAction { url in
-            LinkPolicy.allows(url, anyScheme: allowAnyScheme) ? .systemAction : .discarded
+            if LinkPolicy.allows(url, anyScheme: allowAnyScheme) { return .systemAction }
+            AccessibilityNotification.Announcement(Copy.Message.linkBlockedNotice).post()
+            return .discarded
         })
     }
 
     private var markdown: some View {
         StructuredText(markdown: source)
-            .font(.custom("Karla", size: 15))
+            .font(.karla(size: 15, relativeTo: .body))
             .foregroundStyle(Theme.muted)
             .textual.structuredTextStyle(GeistStructuredStyle())
     }
@@ -33,13 +35,14 @@ struct MarkdownText: View {
 private struct GeistStructuredStyle: StructuredText.Style {
     var inlineStyle: InlineStyle {
         InlineStyle()
-            .code(.font(.custom("Recursive Mono", size: 13)),
+            .code(.font(.inco(size: 13, relativeTo: .callout)),
                   .foregroundColor(Theme.fg),
                   .backgroundColor(Theme.surface))
             .strong(.fontWeight(.bold))
+            .emphasis(.font(.custom("Karla Italic", size: 15)))
             .link(.foregroundColor(Theme.fg), .underlineStyle(.single))
-            .strikethrough(.strikethroughStyle(Text.LineStyle(pattern: .solid, color: Theme.brand)),
-                           .foregroundColor(Theme.brandDim))
+            .strikethrough(.strikethroughStyle(Text.LineStyle(pattern: .solid, color: Theme.dim)),
+                           .foregroundColor(Theme.dim))
     }
 
     var headingStyle: GeistHeadingStyle { GeistHeadingStyle() }
@@ -59,13 +62,14 @@ private struct GeistHeadingStyle: StructuredText.HeadingStyle {
     private static let weights: [Font.Weight] = [.bold, .semibold, .semibold, .semibold, .medium, .medium]
     private static let tops: [CGFloat] = [24, 22, 20, 18, 16, 16]
     private static let bottoms: [CGFloat] = [8, 6, 6, 4, 4, 4]
+    private static let styles: [Font.TextStyle] = [.title, .title2, .title3, .headline, .body, .callout]
 
     func makeBody(configuration: Configuration) -> some View {
         let level = min(max(configuration.headingLevel, 1), 6)
 
         configuration.label
             .tracking(0.5)
-            .font(.custom("Recursive Mono", size: Self.sizes[level - 1]))
+            .font(.inco(size: Self.sizes[level - 1], relativeTo: Self.styles[level - 1]))
             .fontWeight(Self.weights[level - 1])
             .foregroundStyle(Theme.fg)
             .textual.blockSpacing(StructuredText.BlockSpacing(top: Self.tops[level - 1],
@@ -99,12 +103,12 @@ private struct GeistCodeBlockStyle: StructuredText.CodeBlockStyle {
         Overflow {
             configuration.label
                 .textual.lineSpacing(.fontScaled(0.2))
-                .font(.custom("Recursive Mono", size: 13))
+                .font(.inco(size: 13, relativeTo: .callout))
                 .foregroundStyle(Theme.fg)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.vertical, 12)
-                .padding(.leading, 12)
-                .padding(.trailing, 48)
+                .padding(.vertical, 16)
+                .padding(.leading, 16)
+                .padding(.trailing, 52)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.surface)
@@ -125,6 +129,9 @@ private struct GeistCodeBlockStyle: StructuredText.CodeBlockStyle {
 
 private struct CodeCopyButton: View {
     let codeBlock: StructuredText.CodeBlockProxy
+
+    @ScaledMetric(relativeTo: .caption2) private var iconSize: CGFloat = 10
+
     @State private var copied = false
 
     var body: some View {
@@ -137,14 +144,14 @@ private struct CodeCopyButton: View {
             }
         } label: {
             SwiftUI.Image(systemName: copied ? "checkmark" : "doc.on.doc")
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: iconSize, weight: .medium))
                 .foregroundStyle(copied ? Theme.fg : Theme.dim)
                 .padding(6)
-                .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.radius))
-                .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.chip, lineWidth: 1))
+                .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.innerRadius))
+                .overlay(RoundedRectangle(cornerRadius: Theme.innerRadius).stroke(Theme.chip, lineWidth: 1))
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
         .padding(6)
         .accessibilityLabel(copied ? Copy.Common.copied : Copy.Common.copy)
     }
@@ -209,7 +216,8 @@ private struct BlockedImageAttachment: Attachment {
     var body: some View {
         HStack(spacing: 7) {
             SwiftUI.Image(systemName: "photo")
-                .font(.system(size: 12, weight: .medium))
+                .font(.inco(.footnote))
+                .accessibilityHidden(true)
             Text(Copy.Message.imageHidden)
                 .font(.inco(.footnote))
         }

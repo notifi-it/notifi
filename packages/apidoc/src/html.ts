@@ -203,7 +203,7 @@ function contents(): string {
 }
 
 export function docsBody(): string {
-  return `<main class="wrap doc api">
+  return `<main id="main" class="wrap doc api">
 
   <p class="eyebrow">API reference</p>
   <h1>notifi API documentation</h1>

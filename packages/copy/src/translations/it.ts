@@ -54,6 +54,7 @@ export const it: Translation = {
   'common.markAsUnread': 'Segna come non letto',
   'common.openLink': 'Apri link',
   'common.never': 'Mai',
+  'common.moreActions': 'Altre azioni',
   'common.expand': 'Espandi',
   'common.collapse': 'Comprimi',
 
@@ -63,10 +64,10 @@ export const it: Translation = {
 
   'age.now': 'ora',
   'age.justNow': 'proprio ora',
-  'age.minutes': '{n} min',
-  'age.hours': '{n} h',
-  'age.days': '{n} g',
-  'age.weeks': '{n} sett',
+  'age.minutes': '{n}min',
+  'age.hours': '{n}h',
+  'age.days': '{n}g',
+  'age.weeks': '{n}sett',
   'age.ago': '{relative} fa',
   'inbox.title': 'Inbox',
   'inbox.offline': 'Impossibile raggiungere i server notifi. Controlla la connessione e riprova.',
@@ -90,6 +91,8 @@ export const it: Translation = {
 
   'inbox.unread': 'Non letta',
   'inbox.critical': 'Critica',
+  'inbox.hasImage': 'Contiene un’immagine',
+  'inbox.offlineBadge': 'Offline',
   'inbox.linkTo': 'Link a {host}',
   'inbox.deleteTitle': 'Eliminare “{title}”?',
   'inbox.deleteTitleFallback': 'Eliminare questa notifica?',
@@ -102,33 +105,37 @@ export const it: Translation = {
   'message.notFound': 'Notifica non trovata',
   'message.notFoundDetail': 'Potrebbe essere stato eliminato su questo dispositivo.',
   'message.downloadImage': 'Scarica immagine',
+  'message.savingImage': 'Salvataggio…',
+  'message.imageSaved': 'Salvata in Foto',
+  'message.imageSavedToFile': 'Salvata',
+  'message.imageSaveFailed': 'Impossibile salvare l’immagine',
+  'message.imageSaveDenied': 'notifi ha bisogno del permesso di aggiungere a Foto. Attivalo in Impostazioni.',
   'message.keyFallbackName': 'Chiave {id}',
   'message.sentWithKey': 'Inviato con la chiave {name}',
   'message.openKey': 'Inviato con la chiave {name}. Aprila.',
   'message.viewImageFullScreen': 'Visualizza immagine a schermo intero',
   'message.shareLink': 'Condividi link',
-  'message.imageFailedToLoad': "Caricamento dell'immagine non riuscito",
+  'message.imageFailedToLoad': "Caricamento dell’immagine non riuscito",
   'message.imageHidden': 'Immagine nascosta',
   'message.imageHost': 'un altro host',
   'message.imageLoadWarning': 'Caricandola contatterai {host}.',
   'message.loadImage': 'Carica immagine',
   'message.load': 'Carica',
   'message.imageBlocked': 'bloccata',
+  'message.image': 'Immagine',
+  'message.resetZoom': 'Reimposta lo zoom',
+  'message.linkBlockedNotice': 'Link bloccato',
   'message.sourceHeader': 'Origine',
   'keys.title': 'Chiavi',
   'keys.newKey': 'Nuova chiave',
-  'keys.refreshFailed': "Impossibile aggiornare le chiavi. Mostro l'ultimo elenco noto.",
+  'keys.refreshFailed': "Impossibile aggiornare le chiavi. Mostro l’ultimo elenco noto.",
   'keys.sectionActive': 'Attive',
   'keys.sectionRevoked': 'Revocate',
-  'keys.intro':
-    'Le chiavi identificano chi ha inviato una notifica. Usa una chiave diversa per ogni script. ' +
-    'La chiave predefinita è stata creata quando questo dispositivo è stato configurato.',
   'keys.aboutKeys': 'Informazioni sulle chiavi',
   'keys.sent': { one: '1 inviata', other: '{n} inviate' },
   'keys.rowLastUsed': 'usata {ago}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Predefinita',
-  'keys.chipRevoked': 'Revocata',
   'keys.chipCritical': 'Critica',
   'keys.rowLabel': 'Chiave, {name}, termina con {suffix}',
   'keys.rowLabelRevoked': ', revocata',
@@ -245,19 +252,31 @@ export const it: Translation = {
   'settings.permissionNotSet': 'Non impostata',
   'settings.permissionUnknown': 'Sconosciuta',
 
+  'settings.stayVisible': 'Le notifiche restano visibili',
+  'settings.stayVisibleDetail':
+    'Tiene una notifica sullo schermo finché non la clicchi o la chiudi.\n\n' +
+    'Disattivato, sparisce dopo pochi secondi.\n\n' +
+    'Attiva apre Impostazioni di Sistema, dove scegli lo stile di avviso di notifi.',
+  'settings.stayVisibleEnable': 'Attiva',
+
   'settings.theme': 'Tema',
+  'settings.grain': 'Grana',
   'settings.themeDark': 'Scuro',
   'settings.themeLight': 'Chiaro',
+  'settings.themeSystem': 'Sistema',
 
   'settings.loadImages': 'Carica le immagini automaticamente',
   'settings.loadImagesDetail':
-    'Recupera ogni immagine all\'arrivo della notifica, il che comunica al suo host il tuo indirizzo IP. ' +
-    'Disattivato, le immagini si caricano solo quando vengono toccate.',
+    'Recupera ogni immagine non appena arriva la sua notifica.\n\n' +
+    'L\'host dell\'immagine vede il tuo indirizzo IP quando succede.\n\n' +
+    'Disattivato, un\'immagine si carica solo quando la tocchi.',
 
   'settings.strictSend': 'Rifiuta invii non validi',
   'settings.strictSendDetail':
-    'Restituisce 422 invalid_content e non memorizza nulla quando un titolo o un corpo supera la ' +
-    'lunghezza consentita. Disattivato, /send abbrevia il campo e restituisce 202 con un array di warnings.',
+    'Rifiuta un invio il cui titolo o corpo supera la lunghezza consentita: /send risponde ' +
+    '422 invalid_content e non memorizza nulla.\n\n' +
+    'Disattivato, il campo viene abbreviato e l\'invio è accettato con un array warnings.\n\n' +
+    '[Leggi la documentazione](https://notifi.it/docs#response)',
   'settings.strictSendFailed': 'PATCH /devices/settings non riuscito. Controlla la connessione e riprova.',
 
   'settings.testTitle': 'Hello from notifi',
@@ -279,11 +298,13 @@ export const it: Translation = {
   'settings.checkForUpdates': 'Verifica aggiornamenti',
   'settings.deleteAll': 'Elimina tutte le notifiche',
   'settings.deleteAllTitle': 'Eliminare tutte le notifiche?',
+  'settings.deleteAllConfirm': 'Elimina tutte',
   'settings.deleteAllMessage': 'Questa azione non può essere annullata.',
   'settings.support': 'Segnala un problema',
   'settings.feedback': 'Feedback',
   'settings.privacyPolicy': 'Informativa sulla privacy',
   'settings.website': 'notifi.it',
+  'settings.docs': 'Documentazione',
 
   'empty.sampleTitle': 'Hello from notifi',
   'empty.sampleMessage': 'La tua prima notifica.',
@@ -314,7 +335,6 @@ export const it: Translation = {
   'components.errorLabel': 'Errore. {message}',
   'components.backTo': 'Torna a {label}',
   'components.createKey': 'Crea chiave',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'Impossibile sbloccare notifi',
   'identity.detail':

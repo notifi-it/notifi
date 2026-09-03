@@ -14,8 +14,12 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
     @ViewBuilder var trailing: () -> Trailing
     @ViewBuilder var accessory: () -> Accessory
 
+    @ScaledMetric(relativeTo: .title2) private var titleHeight: CGFloat = Theme.headerBarHeight
+    @ScaledMetric(relativeTo: .footnote) private var subtitleRowHeight: CGFloat = Theme.headerSubtitleHeight
+    @ScaledMetric(relativeTo: .body) private var menuGlyphSize: CGFloat = 17
+
     private var subtitleHeight: CGFloat {
-        subtitle != nil || showsAccessory ? Theme.headerSubtitleHeight : 0
+        subtitle != nil || showsAccessory ? subtitleRowHeight : 0
     }
 
     var body: some View {
@@ -27,7 +31,7 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
                     .foregroundStyle(Theme.fg)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
-                    .frame(height: Theme.headerBarHeight, alignment: .leading)
+                    .frame(minHeight: titleHeight, alignment: .leading)
                 ZStack(alignment: .leading) {
                     Color.clear.frame(width: 0, height: subtitleHeight)
                     if let subtitle {
@@ -39,15 +43,14 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
                         accessory().fixedSize()
                     }
                 }
-                .frame(height: subtitleHeight, alignment: .leading)
-                .clipped()
+                .frame(minHeight: subtitleHeight, alignment: .leading)
             }
             Spacer(minLength: 8)
             HStack(spacing: Theme.headerActionSpacing) {
                 trailing()
                 overflowMenu
             }
-                .frame(height: Theme.headerBarHeight)
+                .frame(minHeight: titleHeight)
         }
     }
     private var overflowMenu: some View {
@@ -86,7 +89,7 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
             #endif
         } label: {
             Image(systemName: "ellipsis")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: menuGlyphSize, weight: .semibold))
                 .foregroundStyle(filterKeyID == nil ? Theme.fg : Theme.brand)
                 .frame(width: 34, height: 34)
                 .glassBackground(enabled: true)
@@ -94,10 +97,16 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
                 .geistHitArea(expandedBy: 5)
         }
         .menuStyle(.button)
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
         .menuIndicator(.hidden)
         .fixedSize()
         .accessibilityLabel(Copy.Inbox.more)
+        .accessibilityValue(filteredKeyName.map { Copy.Inbox.filteredToKey($0) } ?? "")
+    }
+
+    private var filteredKeyName: String? {
+        guard let filterKeyID else { return nil }
+        return keys.first(where: { $0.id == filterKeyID })?.name
     }
 
     private var keys: [CachedKey] { model.sync?.keys ?? [] }

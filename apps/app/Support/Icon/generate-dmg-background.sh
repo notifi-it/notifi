@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 OUT="../../Shared/Resources/dmg-background"
-WORDMARK="../../../api/public/wordmark.svg"
+MASTER="notifi-logo.svg"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -13,22 +13,32 @@ ICON_Y=214
 APP_X=170
 FOLDER_X=490
 
-MARK_W=170
-MARK_H=$(python3 -c "print(f'{$MARK_W * 1000 / 3450:.2f}')")
+MARK_W=72
 MARK_X=$(python3 -c "print(f'{($W - $MARK_W) / 2:.2f}')")
-MARK_Y=64
+MARK_Y=62
 
 TRAIL_FROM=$((APP_X + 76))
 TRAIL_TO=$((FOLDER_X - 76))
 
-python3 - "$WORDMARK" "$TMP" <<PY
+python3 - "$MASTER" "$TMP" <<PY
 import re, sys
-wordmark, tmp = sys.argv[1], sys.argv[2]
-body = open(wordmark).read()
+master, tmp = sys.argv[1], sys.argv[2]
+body = open(master).read()
 
-inner = body.split(">", 1)[1].rsplit("</svg>", 1)[0]
-inner = re.sub(r"<title>.*?</title>", "", inner, flags=re.S)
+# Path index 1 is the badge and the rest are the bell, the order generate-icons.sh
+# depends on. Red badge because the mark stands alone here.
+BRAND = "rgb(73.699951%, 12.89978%, 13.299561%)"
+LIGHT = "#EDEDED"
+RED   = "rgb(85.9%, 29%, 29.4%)"
+inner = body.split("<svg", 1)[1].split(">", 1)[1].rsplit("</svg>", 1)[0]
 inner = re.sub(r"<!--.*?-->", "", inner, flags=re.S)
+out, cursor = [], 0
+for i, m in enumerate(re.finditer(r"<path[^>]*>", inner)):
+    out.append(inner[cursor:m.start()])
+    out.append(m.group(0).replace(BRAND, RED if i == 1 else LIGHT))
+    cursor = m.end()
+out.append(inner[cursor:])
+inner = "".join(out)
 
 first, last, n = $TRAIL_FROM, $TRAIL_TO - 2, 9
 trail = "\n  ".join(
@@ -62,7 +72,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="$W" height="$H" viewBox
   <rect width="$W" height="$H" fill="url(#ramp)"/>
   <rect width="$W" height="$H" fill="url(#pool)"/>
 
-  <g transform="translate($MARK_X, $MARK_Y) scale({$MARK_W/3450})" fill="#EDEDED">
+  <g transform="translate($MARK_X, $MARK_Y) scale({$MARK_W/32})">
     {inner}
   </g>
 

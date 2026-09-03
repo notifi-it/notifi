@@ -1,4 +1,5 @@
 import { EMAIL, GITHUB, ORIGIN, OG_IMAGE, OG_IMAGE_ALT, SOCIAL, THEME_COLOR } from './constants.js';
+import { brand, type BrandName } from './icons.js';
 
 export interface Link {
   href: string;
@@ -21,6 +22,9 @@ export const FOOTER: Link[] = [
   { href: '/terms', label: 'Terms' },
   { href: '/llms.txt', label: 'llms.txt' },
   { href: `mailto:${EMAIL}`, label: EMAIL },
+];
+
+export const FOOTER_BRANDS: Link[] = [
   { href: GITHUB, label: 'GitHub' },
   ...SOCIAL.map((s) => ({ href: s.url, label: s.name, rel: 'me' })),
 ];
@@ -44,6 +48,14 @@ const FONT_NOTE = `Self-hosted, so the page has no third-party request at all. L
 function tag(link: Link): string {
   const rel = link.rel ? ` rel="${link.rel}"` : '';
   return `<a href="${link.href}"${rel}>${link.label}</a>`;
+}
+
+function brandTag(link: Link): string {
+  const rel = link.rel ? ` rel="${link.rel}"` : '';
+  return (
+    `<a href="${link.href}"${rel} aria-label="${link.label}" title="${link.label}">` +
+    `${brand(link.label as BrandName)}</a>`
+  );
 }
 
 function withoutSelf(links: Link[], path: string): Link[] {
@@ -103,9 +115,8 @@ export function header(meta: Meta): string {
   const links = withoutSelf(meta.nav ?? NAV, meta.path);
   return `<header>
   <div class="wrap bar">
-    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+    <a class="mark" href="/" aria-label="notifi" style="--bell:24px">
       <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
     </a>
     <nav>
 ${links.map((link) => `      ${tag(link)}`).join('\n')}
@@ -118,15 +129,15 @@ export function footer(meta: Meta): string {
   const links = withoutSelf(FOOTER, meta.path);
   return `<footer>
   <div class="wrap">
-    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
-      <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
-    </div>
+    <span class="bell" aria-hidden="true" style="--bell:44px;display:block;color:var(--fg);margin-bottom:26px"></span>
   </div>
   <!-- The sticky header already carries the navigation, so the footer holds
        only what is not up there — and never a link to the page you are on. -->
   <div class="wrap foot">
 ${links.map((link) => `    ${tag(link)}`).join('\n')}
+    <span class="soc">
+${FOOTER_BRANDS.map((link) => `      ${brandTag(link)}`).join('\n')}
+    </span>
   </div>
 </footer>`;
 }
@@ -148,6 +159,7 @@ export function document(page: Page, tokens: string, site: string): string {
   const extra = page.script ? `\n<script>${page.script}</script>` : '';
   return `${head(page.meta, style)}
 <body${attrs}>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="static" aria-hidden="true"></canvas>
 
 ${header(page.meta)}

@@ -37,6 +37,7 @@ struct GeistTabBar: View {
                         icon: item.icon,
                         templated: item.templated,
                         isSelected: selection == item.tab,
+                        unread: item.tab == .inbox && model.hasUnread,
                         shake: item.tab == .inbox ? shake : 0,
                         clapper: item.clapper
                     ) {
@@ -44,8 +45,8 @@ struct GeistTabBar: View {
                     }
                 }
             }
-            .padding(.top, 8)
-            .padding(.bottom, 10)
+            .padding(.top, 2)
+            .padding(.bottom, 4)
         }
         .background(Theme.bg)
         .onReceive(NotificationCenter.default.publisher(for: .notifiNewMessages)) { _ in
@@ -60,6 +61,7 @@ private struct TabButton: View {
     let icon: String
     let templated: Bool
     let isSelected: Bool
+    var unread = false
     var shake = 0
     var clapper: String?
     let action: () -> Void
@@ -93,16 +95,17 @@ private struct TabButton: View {
                 .grainBurst(on: hovering, cell: 2, shiftScale: 0.7)
                 .padding(.vertical, 4)
                 .foregroundStyle(tint)
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: Theme.minTarget)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.geist)
         .overlay {
             HoverZone { hovering = $0 }
                 .frame(width: 28, height: 28)
         }
         .help(title)
         .accessibilityLabel(title)
+        .accessibilityValue(unread ? Copy.Inbox.unread : "")
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }

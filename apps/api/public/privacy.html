@@ -86,11 +86,12 @@
 *{box-sizing:border-box;margin:0}
 /* scroll-padding-top clears the 60px sticky header, which would otherwise sit
    on top of whatever an in-page anchor just jumped to. */
-html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px;scroll-behavior:smooth}
+html{-webkit-text-size-adjust:100%;color-scheme:dark;scroll-padding-top:76px}
 body{
   background:var(--bg);color:var(--fg);
   font-family:var(--sans);font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
 }
 /* Television static over the ground.
@@ -105,7 +106,7 @@ body{
   pointer-events:none;
   display:block;width:100%;height:100%;
 }
-body>*:not(#static){position:relative;z-index:1}
+body>*:not(#static):not(.skip){position:relative;z-index:1}
 /* Scroll reveal: the text resolves out of the static, letter by letter.
    The arrival is faded rather than snapped. Each letter carries its own long
    ease, so what travels down a paragraph is a soft front a few characters wide
@@ -127,6 +128,16 @@ body>*:not(#static){position:relative;z-index:1}
 ::selection{background:var(--brand);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand-text);outline-offset:3px;border-radius:3px}
+/* First focusable element on every page, off-canvas until it takes focus. */
+.skip{
+  position:fixed;left:var(--gutter);top:8px;z-index:30;
+  font-family:var(--mono);font-size:13px;
+  padding:9px 14px;border-radius:6px;
+  background:var(--surface);color:var(--fg);
+  border:1px solid var(--control-border);text-decoration:none;
+  transform:translateY(calc(-100% - 16px));
+}
+.skip:focus-visible{transform:none}
 
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
 .rule{height:1px;background:var(--line);border:0}
@@ -136,7 +147,7 @@ h1{font-size:clamp(30px,5.4vw,48px)}
 h2{font-size:clamp(21px,3vw,27px)}
 h3{font-size:16px;letter-spacing:-.02em}
 p,li{max-width:70ch}
-.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.55;text-wrap:pretty}
 .meta{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 .eyebrow{
   font-family:var(--mono);font-size:11px;font-weight:600;
@@ -146,10 +157,9 @@ p,li{max-width:70ch}
 header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:14px;height:60px}
 .mark{display:flex;align-items:center;gap:9px;text-decoration:none}
-.mark img{height:17px;width:auto;display:block}
-nav{margin-left:auto;display:flex;align-items:center;gap:22px}
-nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none}
-nav a:hover{color:var(--fg)}
+nav{margin-inline-start:auto;display:flex;align-items:center;gap:22px}
+nav a{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;padding-block:9px}
+@media (hover:hover){nav a:hover{color:var(--fg)}}
 
 .bell{position:relative;flex:0 0 auto;width:var(--bell,24px);height:var(--bell,24px)}
 .bell::before{
@@ -157,8 +167,6 @@ nav a:hover{color:var(--fg)}
   -webkit-mask:url(/bell.svg) center/contain no-repeat;
           mask:url(/bell.svg) center/contain no-repeat;
 }
-.lockup{display:flex;align-items:center;gap:var(--lockgap,12px);color:var(--fg)}
-.lockup img{display:block;height:var(--word,20px);width:auto}
 
 .doc{padding-block:clamp(44px,7vw,80px) clamp(50px,8vw,90px)}
 .doc h1{margin-bottom:16px}
@@ -176,7 +184,7 @@ nav a:hover{color:var(--fg)}
 .doc code{font-family:var(--mono);font-size:.94em;color:var(--fg)}
 .doc strong{color:var(--fg);font-weight:500}
 .doc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px}
-.doc a:hover{text-decoration-color:var(--fg)}
+@media (hover:hover){.doc a:hover{text-decoration-color:var(--fg)}}
 
 /* GrainyBell at link scale: the 404 glyph's decay on the content links, built
    by the link-glitch block in site.js (which also says which links are left
@@ -200,7 +208,8 @@ a.glitch .gsolid{
   -webkit-text-fill-color:transparent;
   text-decoration:underline;text-decoration-color:var(--chip);text-underline-offset:3px;
 }
-a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+a.glitch:focus-visible .gsolid{text-decoration-color:var(--fg)}
+@media (hover:hover){a.glitch:hover .gsolid{text-decoration-color:var(--fg)}}
 
 .card{
   border:1px solid var(--line);border-radius:10px;background:var(--surface);
@@ -209,24 +218,26 @@ a.glitch:hover .gsolid,a.glitch:focus-visible .gsolid{text-decoration-color:var(
 .card p:first-child{margin-top:0}
 
 footer{border-top:1px solid var(--line);padding:40px 0 56px}
-.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+.foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;
   font-family:var(--mono);font-size:13px;color:var(--dim)}
-.foot a{color:var(--muted);text-decoration:none}
-.foot a:hover{color:var(--fg)}
-.foot .meta{margin-left:auto}
-@media(max-width:620px){.foot .meta{margin-left:0;width:100%}}
-
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.foot a{color:var(--muted);text-decoration:none;padding-block:5px}
+@media (hover:hover){.foot a:hover{color:var(--fg)}}
+.foot .meta{margin-inline-start:auto}
+.soc{display:flex;align-items:center;gap:18px;width:100%;margin-top:14px}
+.foot .soc a{display:flex;color:var(--dim);padding:0;transition:color var(--dur-state) var(--ease-out)}
+@media (hover:hover){.foot .soc a:hover{color:var(--fg)}}
+.soc svg{display:block}
+@media(max-width:620px){.foot .meta{margin-inline-start:0;width:100%}}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="static" aria-hidden="true"></canvas>
 
 <header>
   <div class="wrap bar">
-    <a class="mark lockup" href="/" aria-label="notifi" style="--bell:24px;--word:19px;--lockgap:10px">
+    <a class="mark" href="/" aria-label="notifi" style="--bell:24px">
       <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
     </a>
     <nav>
       <a href="/">Home</a>
@@ -237,7 +248,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   </div>
 </header>
 
-<main class="wrap doc">
+<main id="main" class="wrap doc">
 
   <p class="eyebrow">Privacy</p>
   <h1>Privacy policy</h1>
@@ -273,15 +284,15 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </ul>
     <h3>Your notifications</h3>
     <ul>
-      <li>The notification, encrypted to your device's public key at the moment it arrives.</li>
+      <li>The notification, encrypted to your device’s public key at the moment it arrives.</li>
       <li>Which key sent it, when the server received it, and the event time the sender supplied, if any.</li>
     </ul>
   </section>
 
   <section>
     <h2>What the server cannot read</h2>
-    <p>Notification content (the title, body, link and image URL) is encrypted to your device's public key before it is written to the database, using HPKE (P-256 / HKDF-SHA256 / AES-256-GCM). The server holds no private key that can undo this. A full copy of the database, together with every server secret, does not reveal the contents of a single notification. Your send key names are encrypted the same way.</p>
-    <p>One moment sits before that encryption: a <code>/send</code> request arrives at the server as plaintext, and for the instant between arrival and encryption the content passes through the server's memory in the clear. It is encrypted before it is stored, it is not written to notifi's error reports, and — if you send with a <code>POST</code> body rather than the URL — it is not written to logs either. "Neither we nor Apple can read your notifications" is a claim about stored and delivered notifications, and that is its exact scope.</p>
+    <p>Notification content (the title, body, link and image URL) is encrypted to your device’s public key before it is written to the database, using HPKE (P-256 / HKDF-SHA256 / AES-256-GCM). The server holds no private key that can undo this. A full copy of the database, together with every server secret, does not reveal the contents of a single notification. Your send key names are encrypted the same way.</p>
+    <p>One moment sits before that encryption: a <code>/send</code> request arrives at the server as plaintext, and for the instant between arrival and encryption the content passes through the server’s memory in the clear. It is encrypted before it is stored, it is not written to notifi’s error reports, and — if you send with a <code>POST</code> body rather than the URL — it is not written to logs either. "Neither we nor Apple can read your notifications" is a claim about stored and delivered notifications, and that is its exact scope.</p>
   </section>
 
   <section>
@@ -302,7 +313,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <ul>
       <li><strong>Notifications</strong> are deleted from the server as soon as your device confirms it has collected them.</li>
       <li><strong>Uncollected notifications</strong> are kept, encrypted, until your device collects them, for at most 90 days. A daily job removes anything older.</li>
-      <li><strong>Devices</strong> are kept as long as they are registered. When Apple's push service reports that the app has been removed from a device, the next send to it deletes the registration and everything under it — keys and uncollected notifications included. A device that is never sent to again can keep its row until a deletion request removes it; email <a href="mailto:hello@notifi.it">hello@notifi.it</a> with the device's public key.</li>
+      <li><strong>Devices</strong> are kept as long as they are registered. When Apple’s push service reports that the app has been removed from a device, the next send to it deletes the registration and everything under it — keys and uncollected notifications included. A device that is never sent to again can keep its row until a deletion request removes it; email <a href="mailto:hello@notifi.it">hello@notifi.it</a> with the device’s public key.</li>
       <li><strong>Send keys</strong> are kept while the device exists, including revoked ones, so that a revoked key cannot be reused.</li>
     </ul>
     <p>notifi is a relay, not a mailbox. Once your device has a notification, the server copy is gone and the only copy is the one on your device.</p>
@@ -310,12 +321,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>Server logs</h2>
-    <p>The service runs on Cloudflare Workers, and its requests are logged twice. Cloudflare records the metadata of requests reaching its network, including source IP address, timestamp and the full request URL; those logs are Cloudflare's own. notifi additionally enables Cloudflare's request-log stream for the Worker, which records the same metadata and is readable by notifi; Cloudflare retains it for a matter of days. Neither log contains notification content — unless you put it in the URL, which is the next paragraph.</p>
+    <p>The service runs on Cloudflare Workers, and its requests are logged twice. Cloudflare records the metadata of requests reaching its network, including source IP address, timestamp and the full request URL; those logs are Cloudflare’s own. notifi additionally enables Cloudflare’s request-log stream for the Worker, which records the same metadata and is readable by notifi; Cloudflare retains it for a matter of days. Neither log contains notification content — unless you put it in the URL, which is the next paragraph.</p>
     <div class="card">
       <p><strong>Do not put the key in a URL.</strong> The <code>/send</code> endpoint accepts a key and a body as URL query parameters, which is convenient for a one-off <code>curl</code>. Anything placed in a URL appears in both logs in the clear, before it is ever encrypted, and also in your shell history and in any proxy between you and Cloudflare.</p>
       <p>Send the key as an <code>Authorization: Bearer</code> header and the body in a <code>POST</code> body instead. Neither is logged.</p>
     </div>
-    <p>When the server hits an error it cannot handle, a report of that error is sent to Sentry, an error-tracking service, so that it can be fixed. A report carries the failure itself — what broke, and where in the code — along with the request's method and route. It does not carry notification contents, request bodies, headers, the source IP address, or any identifier of your device or your notifications. A send key involved in a failed request is replaced, before the report leaves the server, by a short one-way fingerprint of itself. The fingerprint shows that several reports concern the same key and cannot be reversed to recover the key.</p>
+    <p>When the server hits an error it cannot handle, a report of that error is sent to Sentry, an error-tracking service, so that it can be fixed. A report carries the failure itself — what broke, and where in the code — along with the request’s method and route. It does not carry notification contents, request bodies, headers, the source IP address, or any identifier of your device or your notifications. A send key involved in a failed request is replaced, before the report leaves the server, by a short one-way fingerprint of itself. The fingerprint shows that several reports concern the same key and cannot be reversed to recover the key.</p>
   </section>
 
   <section>
@@ -327,7 +338,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>On your device</h2>
     <ul>
-      <li>Collected notifications are stored locally and protected by the device's own encryption. They are readable only after the device has been unlocked at least once since it started.</li>
+      <li>Collected notifications are stored locally and protected by the device’s own encryption. They are readable only after the device has been unlocked at least once since it started.</li>
       <li>Private keys are in the Secure Enclave and the keychain, marked as not backed up and not synced.</li>
       <li>Deleting a notification in the app deletes it from the device. The server copy is already gone.</li>
       <li>Deleting the app deletes the notifications, the keys and the identity. None of it can be recovered afterwards, and any send keys you had created stop working.</li>
@@ -336,8 +347,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>Tracking, analytics and third parties</h2>
-    <p>The app contains no analytics, no crash reporting and no advertising identifiers — the error reporting described under <strong>Server logs</strong> above is the server's own, and the app takes no part in it. It talks to <code>notifi.it</code> and to Apple's push service, and to an image host only when you ask it to load an image. The Mac app additionally embeds Sparkle, an open-source updater, which periodically asks <code>notifi.it</code> for the latest release and is redirected to <code>github.com</code> to fetch it; each check exposes your IP address and its timing to those two hosts and carries nothing else about you.</p>
-    <p>This website sets no cookies and serves its fonts from <code>notifi.it</code>. Cloudflare, which hosts the site, injects its Web Analytics script into the pages: it counts visits without cookies, without a persistent identifier and without following you to other sites, and the counts are read by notifi as daily totals. It is the site's one analytics tool and its one third-party request. Because nothing on the site tracks you across sites or over time, a Do Not Track signal changes nothing: there is no tracking to turn off, and no third party collects data about your activity elsewhere through this site.</p>
+    <p>The app contains no analytics, no crash reporting and no advertising identifiers — the error reporting described under <strong>Server logs</strong> above is the server’s own, and the app takes no part in it. It talks to <code>notifi.it</code> and to Apple’s push service, and to an image host only when you ask it to load an image. The Mac app additionally embeds Sparkle, an open-source updater, which periodically asks <code>notifi.it</code> for the latest release and is redirected to <code>github.com</code> to fetch it; each check exposes your IP address and its timing to those two hosts and carries nothing else about you.</p>
+    <p>This website sets no cookies and serves its fonts from <code>notifi.it</code>. Cloudflare, which hosts the site, injects its Web Analytics script into the pages: it counts visits without cookies, without a persistent identifier and without following you to other sites, and the counts are read by notifi as daily totals. It is the site’s one analytics tool and its one third-party request. Because nothing on the site tracks you across sites or over time, a Do Not Track signal changes nothing: there is no tracking to turn off, and no third party collects data about your activity elsewhere through this site.</p>
     <p>The parties that touch data in the ordinary running of the service are Cloudflare (hosting, logs, site analytics), Apple (push delivery), Sentry (error reports, as limited above) and GitHub (serving Mac app updates). No data is sold, rented or shared with anyone else, and nothing here is used to build a profile or to advertise.</p>
     <p>One more dataset the service holds: public App Store reviews of notifi — reviewer name, country, rating and text — are fetched from Apple and shown on this site. They are already public on the App Store; asking Apple to remove a review removes it here too.</p>
   </section>
@@ -349,22 +360,22 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>Where the data lives</h2>
-    <p>Cloudflare answers requests at whichever of its data centres is nearest, which may be outside the UK or the EEA; the database is a single Cloudflare D1 instance. Sentry (Functional Software, Inc.) is a US company. Both are certified under the EU-US Data Privacy Framework and its UK extension, and both process data under their standard data-processing agreements (<a href="https://www.cloudflare.com/cloudflare-customer-dpa/">Cloudflare's</a>, <a href="https://sentry.io/legal/dpa/">Sentry's</a>), which include EU standard contractual clauses and the UK addendum as fallback.</p>
+    <p>Cloudflare answers requests at whichever of its data centres is nearest, which may be outside the UK or the EEA; the database is a single Cloudflare D1 instance. Sentry (Functional Software, Inc.) is a US company. Both are certified under the EU-US Data Privacy Framework and its UK extension, and both process data under their standard data-processing agreements (<a href="https://www.cloudflare.com/cloudflare-customer-dpa/">Cloudflare’s</a>, <a href="https://sentry.io/legal/dpa/">Sentry’s</a>), which include EU standard contractual clauses and the UK addendum as fallback.</p>
   </section>
 
   <section>
     <h2>Your rights</h2>
-    <p>UK and EU law gives you rights over data held about you: access, correction, erasure, restriction, portability and objection. The server cannot tell which records are yours without your device's public key — that is the design, not an obstacle — so a request should include it; the app can show it. Requests go to <a href="mailto:hello@notifi.it">hello@notifi.it</a>. Deleting the app is the faster and more complete route for everything except the device row itself. You can also complain to the <a href="https://ico.org.uk">Information Commissioner's Office</a> or the supervisory authority where you live.</p>
+    <p>UK and EU law gives you rights over data held about you: access, correction, erasure, restriction, portability and objection. The server cannot tell which records are yours without your device’s public key — that is the design, not an obstacle — so a request should include it; the app can show it. Requests go to <a href="mailto:hello@notifi.it">hello@notifi.it</a>. Deleting the app is the faster and more complete route for everything except the device row itself. You can also complain to the <a href="https://ico.org.uk">Information Commissioner’s Office</a> or the supervisory authority where you live.</p>
   </section>
 
   <section>
     <h2>Children</h2>
-    <p>notifi is not directed at children. It has no accounts and no profiles; the closest things to identifiers it handles are an IP address and a device's public key, described above, and they are handled the same way for everyone.</p>
+    <p>notifi is not directed at children. It has no accounts and no profiles; the closest things to identifiers it handles are an IP address and a device’s public key, described above, and they are handled the same way for everyone.</p>
   </section>
 
   <section>
     <h2>Changes and contact</h2>
-    <p>This policy may change to reflect changes in the law, in Apple's requirements, or in what the service does. When it changes, the date at the top changes with it, the previous versions remain in the public git history of the project, and a material change is announced on this site before it takes effect.</p>
+    <p>This policy may change to reflect changes in the law, in Apple’s requirements, or in what the service does. When it changes, the date at the top changes with it, the previous versions remain in the public git history of the project, and a material change is announced on this site before it takes effect.</p>
     <p>Questions about privacy, or a request to delete data held about a device, can be raised at <a href="mailto:hello@notifi.it">hello@notifi.it</a> or <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.</p>
   </section>
 
@@ -372,10 +383,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
 <footer>
   <div class="wrap">
-    <div class="lockup" style="--bell:44px;--word:36px;--lockgap:16px;margin-bottom:26px">
-      <span class="bell" aria-hidden="true"></span>
-      <img src="/wordmark.svg" alt="notifi">
-    </div>
+    <span class="bell" aria-hidden="true" style="--bell:44px;display:block;color:var(--fg);margin-bottom:26px"></span>
   </div>
   <!-- The sticky header already carries the navigation, so the footer holds
        only what is not up there — and never a link to the page you are on. -->
@@ -386,10 +394,12 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <a href="/terms">Terms</a>
     <a href="/llms.txt">llms.txt</a>
     <a href="mailto:hello@notifi.it">hello@notifi.it</a>
-    <a href="https://github.com/notifi-it/notifi">GitHub</a>
-    <a href="https://x.com/notifiit" rel="me">X</a>
-    <a href="https://instagram.com/notifidotit" rel="me">Instagram</a>
-    <a href="https://facebook.com/notifidotit" rel="me">Facebook</a>
+    <span class="soc">
+      <a href="https://github.com/notifi-it/notifi" aria-label="GitHub" title="GitHub"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12C0 17.31 3.435 21.795 8.205 23.385C8.805 23.49 9.03 23.13 9.03 22.815C9.03 22.53 9.015 21.585 9.015 20.58C6 21.135 5.22 19.845 4.98 19.17C4.845 18.825 4.26 17.76 3.75 17.475C3.33 17.25 2.73 16.695 3.735 16.68C4.68 16.665 5.355 17.55 5.58 17.91C6.66 19.725 8.385 19.215 9.075 18.9C9.18 18.12 9.495 17.595 9.84 17.295C7.17 16.995 4.38 15.96 4.38 11.37C4.38 10.065 4.845 8.985 5.61 8.145C5.49 7.845 5.07 6.615 5.73 4.965C5.73 4.965 6.735 4.65 9.03 6.195C9.99 5.925 11.01 5.79 12.03 5.79C13.05 5.79 14.07 5.925 15.03 6.195C17.325 4.635 18.33 4.965 18.33 4.965C18.99 6.615 18.57 7.845 18.45 8.145C19.215 8.985 19.68 10.05 19.68 11.37C19.68 15.975 16.875 16.995 14.205 17.295C14.64 17.67 15.015 18.39 15.015 19.515C15.015 21.12 15 22.41 15 22.815C15 23.13 15.225 23.505 15.825 23.385C18.2072 22.5808 20.2773 21.0498 21.7438 19.0074C23.2103 16.9651 23.9994 14.5143 24 12C24 5.37 18.63 0 12 0Z"/></svg></a>
+      <a href="https://x.com/notifiit" rel="me" aria-label="X" title="X"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg></a>
+      <a href="https://instagram.com/notifidotit" rel="me" aria-label="Instagram" title="Instagram"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M7.46494 1.066C8.63828 1.01222 9.01228 1 12 1C14.9883 1 15.3617 1.01283 16.5344 1.066C17.7059 1.11917 18.5059 1.30556 19.2056 1.5775C19.9395 1.85381 20.6043 2.28674 21.1538 2.84617C21.7133 3.3956 22.1463 4.06046 22.4225 4.79439C22.6944 5.49411 22.8802 6.29406 22.934 7.46494C22.9878 8.63828 23 9.01228 23 12C23 14.9877 22.9872 15.3617 22.934 16.5351C22.8808 17.7059 22.6944 18.5059 22.4225 19.2056C22.1414 19.9286 21.7649 20.5427 21.1538 21.1538C20.6044 21.7133 19.9395 22.1463 19.2056 22.4225C18.5059 22.6944 17.7059 22.8802 16.5351 22.934C15.3617 22.9878 14.9877 23 12 23C9.01228 23 8.63828 22.9872 7.46494 22.934C6.29406 22.8808 5.49411 22.6944 4.79439 22.4225C4.07144 22.1414 3.45728 21.7649 2.84617 21.1538C2.28664 20.6044 1.85368 19.9395 1.5775 19.2056C1.30556 18.5059 1.11978 17.7059 1.066 16.5351C1.01222 15.3617 1 14.9883 1 12C1 9.01167 1.01283 8.63828 1.066 7.46556C1.11917 6.29406 1.30556 5.49411 1.5775 4.79439C1.85381 4.06051 2.28674 3.39568 2.84617 2.84617C3.39559 2.28664 4.06045 1.85368 4.79439 1.5775C5.49411 1.30556 6.29406 1.11978 7.46494 1.066ZM16.4452 3.046C15.2853 2.99344 14.937 2.98183 12 2.98183C9.063 2.98183 8.71467 2.99344 7.55478 3.046C6.48228 3.09489 5.89989 3.27394 5.51244 3.42489C4.99911 3.62411 4.63244 3.86244 4.24744 4.24744C3.86306 4.63244 3.62411 4.99911 3.42489 5.51244C3.27394 5.89989 3.09489 6.48228 3.046 7.55478C2.99344 8.71467 2.98183 9.063 2.98183 12C2.98183 14.937 2.99344 15.2853 3.046 16.4452C3.09489 17.5177 3.27394 18.1001 3.42489 18.4876C3.60111 18.9654 3.88219 19.3976 4.24744 19.7526C4.60234 20.1178 5.03461 20.3989 5.51244 20.5751C5.89989 20.7261 6.48228 20.9051 7.55478 20.954C8.71467 21.0066 9.06239 21.0182 12 21.0182C14.9376 21.0182 15.2853 21.0066 16.4452 20.954C17.5177 20.9051 18.1001 20.7261 18.4876 20.5751C19.0009 20.3759 19.3676 20.1376 19.7526 19.7526C20.1178 19.3977 20.3989 18.9654 20.5751 18.4876C20.7261 18.1001 20.9051 17.5177 20.954 16.4452C21.0066 15.2853 21.0182 14.937 21.0182 12C21.0182 9.063 21.0066 8.71467 20.954 7.55478C20.9051 6.48228 20.7261 5.89989 20.5751 5.51244C20.3759 4.99911 20.1376 4.63244 19.7526 4.24744C19.3676 3.86306 19.0009 3.62411 18.4876 3.42489C18.1001 3.27394 17.5177 3.09489 16.4452 3.046ZM10.5955 15.3909C11.0408 15.5754 11.518 15.6703 12 15.6703C12.9735 15.6703 13.907 15.2836 14.5953 14.5953C15.2837 13.907 15.6704 12.9734 15.6704 12C15.6704 11.0266 15.2837 10.093 14.5953 9.40468C13.907 8.71636 12.9735 8.32966 12 8.32966C11.518 8.32966 11.0408 8.4246 10.5955 8.60905C10.1501 8.7935 9.74553 9.06385 9.40471 9.40468C9.06389 9.7455 8.79353 10.1501 8.60908 10.5954C8.42463 11.0407 8.3297 11.518 8.3297 12C8.3297 12.482 8.42463 12.9593 8.60908 13.4046C8.79353 13.8499 9.06389 14.2545 9.40471 14.5953C9.74553 14.9361 10.1501 15.2065 10.5955 15.3909ZM8.00205 8.00201C9.06238 6.94168 10.5005 6.34599 12 6.34599C13.4996 6.34599 14.9377 6.94168 15.998 8.00201C17.0583 9.06234 17.654 10.5005 17.654 12C17.654 13.4995 17.0583 14.9376 15.998 15.998C14.9377 17.0583 13.4996 17.654 12 17.654C10.5005 17.654 9.06238 17.0583 8.00205 15.998C6.94172 14.9376 6.34603 13.4995 6.34603 12C6.34603 10.5005 6.94172 9.06234 8.00205 8.00201ZM18.9077 7.18838C19.1583 6.93773 19.2991 6.59779 19.2991 6.24333C19.2991 5.88886 19.1583 5.54892 18.9077 5.29828C18.657 5.04764 18.3171 4.90683 17.9626 4.90683C17.6082 4.90683 17.2682 5.04764 17.0176 5.29828C16.7669 5.54892 16.6261 5.88886 16.6261 6.24333C16.6261 6.59779 16.7669 6.93773 17.0176 7.18838C17.2682 7.43902 17.6082 7.57983 17.9626 7.57983C18.3171 7.57983 18.657 7.43902 18.9077 7.18838Z"/></svg></a>
+      <a href="https://facebook.com/notifidotit" rel="me" aria-label="Facebook" title="Facebook"><svg class="soc-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M0 12.067C0 18.0335 4.33333 22.9944 10 24V15.3333H7V12H10V9.33332C10 6.33332 11.9333 4.66666 14.6667 4.66666C15.5333 4.66666 16.4667 4.79999 17.3333 4.93332V7.99999H15.8C14.3333 7.99999 14 8.73332 14 9.66666V12H17.2L16.6667 15.3333H14V24C19.6667 22.9944 24 18.0335 24 12.067C24 5.43017 18.6 0 12 0C5.4 0 0 5.43017 0 12.067Z"/></svg></a>
+    </span>
   </div>
 </footer>
 
@@ -659,8 +669,10 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       a.style.setProperty("--gchroma", "0");
       a.style.setProperty("--glow", "1");
     }
-    a.addEventListener("mouseenter", start);
-    a.addEventListener("mouseleave", stop);
+    if (window.matchMedia("(hover: hover)").matches){
+      a.addEventListener("mouseenter", start);
+      a.addEventListener("mouseleave", stop);
+    }
     a.addEventListener("focus", start);
     a.addEventListener("blur", stop);
 

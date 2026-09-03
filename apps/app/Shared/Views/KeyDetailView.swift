@@ -55,7 +55,7 @@ struct KeyDetailView: View {
                                    glass: true) { openURL(examplesURL(for: key)) }
                     }
                     IconButton(systemImage: "info.circle",
-                               label: Copy.KeyDetail.shownOnceDetail,
+                               label: Copy.Keys.aboutKeys,
                                glass: true) { showingInfo = true }
                 }
             ))
@@ -95,11 +95,12 @@ struct KeyDetailView: View {
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text(key.name)
                     .font(.inco(.title, weight: .bold))
-                    .foregroundStyle(Theme.fg)
+                    .strikethrough(key.isRevoked, color: Theme.dim)
+                    .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
                     .fixedSize(horizontal: false, vertical: true)
-                if key.isRevoked {
-                    Chip(text: Copy.Keys.chipRevoked, color: Theme.dim)
-                }
+                    .accessibilityLabel(key.isRevoked
+                                        ? key.name + Copy.Keys.rowLabelRevoked
+                                        : key.name)
                 Spacer(minLength: 0)
             }
             .padding(.top, 6)
@@ -202,9 +203,9 @@ struct KeyDetailView: View {
 
     private func examplesURL(for key: CachedKey) -> URL {
         if key.isDefault, let full = model.defaultKeyValue {
-            return URL(string: "https://notifi.it/?key=\(full)#send")!
+            return URL(string: "https://notifi.it/?key=\(full)#api")!
         }
-        return URL(string: "https://notifi.it/#send")!
+        return URL(string: "https://notifi.it/#api")!
     }
 
     private func flash() {

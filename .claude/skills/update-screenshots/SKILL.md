@@ -23,6 +23,14 @@ Builds the app and writes:
 Seeding uses `NOTIFI_SEED_SAMPLE` / `NOTIFI_OPEN_SAMPLE_MESSAGE` (DEBUG only),
 no tapping.
 
+The seeded notifications fetch their images from `notifi.it/demo`. A new or
+changed image is not there until the branch is merged and deployed, so capture
+it from the pushed branch instead, which serves the same bytes:
+
+```bash
+NOTIFI_DEMO_BASE=https://raw.githubusercontent.com/notifi-it/notifi/<branch>/apps/api/public/demo make screens
+```
+
 ## 2. macOS: the website's menu bar popover shot
 
 ```bash

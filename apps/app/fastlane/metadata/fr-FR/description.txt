@@ -1,17 +1,17 @@
 Notifications push pour vos scripts et serveurs.
 
-Créez une clé d'envoi et envoyez un titre et un corps à notifi.it en une seule requête HTTP. La notification arrive sur votre iPhone ou Mac. Tout ce qui peut faire une requête HTTP peut en envoyer une, par exemple un script shell, une tâche cron, un pipeline CI.
+Créez une clé d’envoi et envoyez un titre et un corps à notifi.it en une seule requête HTTP. La notification arrive sur votre iPhone ou Mac. Tout ce qui peut faire une requête HTTP peut en envoyer une, par exemple un script shell, une tâche cron, un pipeline CI.
 
 https://notifi.it/send?title=hello+world
 
 CE QUE CONTIENT UNE NOTIFICATION
-Un titre, un corps, une image et un lien. Le corps est en Markdown : titres, listes, citations, liens et blocs de code sont rendus sur l'appareil.
+Un titre, un corps, une image et un lien. Le corps est en Markdown : titres, listes, citations, liens et blocs de code sont rendus sur l’appareil.
 
 CHIFFRÉ
-Votre appareil détient la seule clé privée. Le contenu des notifications est chiffré avec votre clé publique à l'ingestion, si bien que nous ne pouvons pas lire vos notifications. Chaque notification est supprimée du serveur une fois que votre appareil l'a confirmée.
+Votre appareil détient la seule clé privée. Le contenu des notifications est chiffré avec votre clé publique à l’ingestion, si bien que nous ne pouvons pas lire vos notifications. Chaque notification est supprimée du serveur une fois que votre appareil l’a confirmée.
 
 PAS DE COMPTE
-Pas d'inscription, pas de connexion, pas de liaison d'appareil. L'application génère une clé d'envoi au premier lancement. Les clés peuvent être renommées, suspendues et révoquées par source.
+Pas d’inscription, pas de connexion, pas de liaison d’appareil. L’application génère une clé d’envoi au premier lancement. Les clés peuvent être renommées, suspendues et révoquées par source.
 
 ALERTES URGENTES
 Marquez une clé comme urgente et ses notifications franchissent Focus et arrivent sur l'écran verrouillé.

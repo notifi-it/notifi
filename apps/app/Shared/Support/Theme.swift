@@ -12,7 +12,7 @@ enum Theme {
     static let fg = grey(light: 0.102, dark: 0.929)
     static let read = grey(light: 0.28, dark: 0.72)
     static let muted = grey(light: 0.36, dark: 0.631)
-    static let dim = grey(light: 0.44, dark: 0.54)
+    static let dim = grey(light: 0.40, dark: 0.54)
     static let mark = grey(light: 0.63, dark: 0.355)
     static let line = grey(light: 0.878, dark: 0.20)
     static let chip = grey(light: 0.82, dark: 0.235)
@@ -95,6 +95,7 @@ enum Theme {
 
     static let controlWidth: CGFloat = 88
     static let radius: CGFloat = 6
+    static let innerRadius: CGFloat = 3
     static let thumb: CGFloat = 42
 
     static let minTarget: CGFloat = 44
@@ -121,6 +122,8 @@ enum Theme {
     static let state = Animation.easeOut(duration: 0.2)
 
     static let reveal = Animation.easeOut(duration: 0.25)
+
+    static let settle = Animation.spring(duration: 0.4, bounce: 0.2)
 
     static var reduceMotion: Bool {
         #if os(iOS)
@@ -309,6 +312,10 @@ extension View {
     func grainBurst(on active: Bool, cell: CGFloat = 3, shiftScale: CGFloat = 1, duration: TimeInterval = 0.65) -> some View {
         modifier(GrainBurst(active: active, cell: cell, shiftScale: shiftScale, duration: duration))
     }
+}
+
+extension EnvironmentValues {
+    @Entry var grainEnabled = true
 }
 
 struct GrainGlyph: ViewModifier {

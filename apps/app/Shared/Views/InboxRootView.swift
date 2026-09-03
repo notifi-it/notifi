@@ -56,10 +56,10 @@ struct InboxRootView: View {
         #if DEBUG
         let env = ProcessInfo.processInfo.environment
         guard env["NOTIFI_SEED_SAMPLE"] == "1" else { return }
-        SampleData.seed(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
+        SampleData.seedOnce(into: context, keyIDs: model.sync?.keys.map(\.id) ?? [])
         if SampleData.opensSampleMessage {
             try? await Task.sleep(for: .milliseconds(400))
-            model.path.append(SampleData.serverID(at: 1))
+            model.path.append(SampleData.showcaseID)
         }
         if let index = SampleData.launchKeyIndex, index < SampleData.keys.count {
             try? await Task.sleep(for: .milliseconds(400))
@@ -93,6 +93,7 @@ struct InboxRootView: View {
                 Label(Copy.Tabs.inbox,
                       image: model.hasUnread ? "BellTabUnread" : "BellTab")
                     .labelStyle(.iconOnly)
+                    .accessibilityValue(model.hasUnread ? Copy.Inbox.unread : "")
             }
 
             Tab(value: AppTab.keys) {
@@ -133,6 +134,7 @@ struct InboxRootView: View {
                     Label(Copy.Tabs.inbox,
                           image: model.hasUnread ? "BellTabUnread" : "BellTab")
                         .labelStyle(.iconOnly)
+                        .accessibilityValue(model.hasUnread ? Copy.Inbox.unread : "")
                 }
                 .tag(AppTab.inbox)
 

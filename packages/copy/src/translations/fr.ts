@@ -8,28 +8,28 @@ export const fr: Translation = {
   'api.rateLimitedAccount': 'Limite de débit dépassée. Trop de notifications cette heure-ci.',
 
   'api.badSignature': 'Signature de requête invalide.',
-  'api.staleTimestamp': "L'horodatage de la requête est hors de la fenêtre autorisée.",
+  'api.staleTimestamp': "L’horodatage de la requête est hors de la fenêtre autorisée.",
 
-  'api.unknownDevice': "L'appareil n'est pas enregistré.",
+  'api.unknownDevice': "L’appareil n’est pas enregistré.",
   'api.unknownKey': 'Clé inconnue ou révoquée.',
   'api.keyNotFound': 'Clé introuvable.',
   'api.activeKeyLimit': 'Limite de clés actives atteinte.',
 
-  'api.invalidDeviceBody': "Corps d'enregistrement de l'appareil invalide.",
+  'api.invalidDeviceBody': "Corps d’enregistrement de l’appareil invalide.",
   'api.publicKeyMismatch': 'public_key doit correspondre à la clé publique de signature.',
-  'api.invalidEncryptionKey': "encryption_public_key n'est pas un point P-256 valide.",
+  'api.invalidEncryptionKey': "encryption_public_key n’est pas un point P-256 valide.",
   'api.invalidCreateKeyBody': 'Corps de création de clé invalide.',
   'api.invalidUpdateKeyBody': 'Corps de mise à jour de clé invalide.',
-  'api.invalidDeviceSettingsBody': "Corps des réglages de l'appareil invalide.",
-  'api.invalidHistoryQuery': "Requête d'historique invalide.",
-  'api.invalidSendParams': "Paramètres d'envoi invalides.",
+  'api.invalidDeviceSettingsBody': "Corps des réglages de l’appareil invalide.",
+  'api.invalidHistoryQuery': "Requête d’historique invalide.",
+  'api.invalidSendParams': "Paramètres d’envoi invalides.",
   'api.occurredAtTooFuture': 'occurred_at est trop loin dans le futur.',
   'api.criticalNotAllowed':
     'Envoyée comme notification normale : les alertes critiques sont désactivées pour cette clé.',
   'api.titleCropped': 'Envoyé avec un titre raccourci : il dépassait {max} caractères.',
   'api.messageCropped': 'Envoyé avec une notification raccourcie : elle dépassait {max} caractères.',
   'api.strictContentRejected':
-    "Non envoyé. Cet appareil est configuré pour refuser une notification qu'il ne peut pas livrer telle quelle.",
+    "Non envoyé. Cet appareil est configuré pour refuser une notification qu’il ne peut pas livrer telle quelle.",
 
 
   'push.fallbackTitle': 'notifi',
@@ -54,6 +54,7 @@ export const fr: Translation = {
   'common.markAsUnread': 'Marquer comme non lu',
   'common.openLink': 'Ouvrir le lien',
   'common.never': 'Jamais',
+  'common.moreActions': 'Plus d’actions',
   'common.expand': 'Déplier',
   'common.collapse': 'Replier',
 
@@ -63,10 +64,10 @@ export const fr: Translation = {
 
   'age.now': 'à l’instant',
   'age.justNow': 'à l’instant',
-  'age.minutes': '{n} min',
-  'age.hours': '{n} h',
-  'age.days': '{n} j',
-  'age.weeks': '{n} sem.',
+  'age.minutes': '{n}min',
+  'age.hours': '{n}h',
+  'age.days': '{n}j',
+  'age.weeks': '{n}sem.',
   'age.ago': 'il y a {relative}',
   'inbox.title': 'Inbox',
   'inbox.offline':
@@ -82,15 +83,17 @@ export const fr: Translation = {
   'inbox.copyTitle': 'Copier le titre',
   'inbox.copyMessage': 'Copier la notification',
   'inbox.copyLink': 'Copier le lien',
-  'inbox.seedSampleData': "Générer des données d'exemple",
-  'inbox.clearSampleData': "Effacer les données d'exemple",
+  'inbox.seedSampleData': "Générer des données d’exemple",
+  'inbox.clearSampleData': "Effacer les données d’exemple",
 
-  'inbox.bandToday': "Aujourd'hui",
+  'inbox.bandToday': "Aujourd’hui",
   'inbox.bandYesterday': 'Hier',
   'inbox.bandLabel': '{title}, {count}',
 
   'inbox.unread': 'Non lu',
   'inbox.critical': 'Critique',
+  'inbox.hasImage': 'Contient une image',
+  'inbox.offlineBadge': 'Hors ligne',
   'inbox.linkTo': 'Lien vers {host}',
   'inbox.deleteTitle': 'Supprimer « {title} » ?',
   'inbox.deleteTitleFallback': 'Supprimer cette notification ?',
@@ -102,34 +105,38 @@ export const fr: Translation = {
 
   'message.notFound': 'Notification introuvable',
   'message.notFoundDetail': 'Elle a peut-être été supprimée sur cet appareil.',
-  'message.downloadImage': "Télécharger l'image",
+  'message.downloadImage': "Télécharger l’image",
+  'message.savingImage': 'Enregistrement…',
+  'message.imageSaved': 'Enregistrée dans Photos',
+  'message.imageSavedToFile': 'Enregistrée',
+  'message.imageSaveFailed': 'Impossible d’enregistrer l’image',
+  'message.imageSaveDenied': 'notifi a besoin de l’autorisation d’ajouter à Photos. Activez-la dans Réglages.',
   'message.keyFallbackName': 'Clé {id}',
   'message.sentWithKey': 'Envoyé avec la clé {name}',
   'message.openKey': 'Envoyé avec la clé {name}. Ouvrir.',
-  'message.viewImageFullScreen': "Voir l'image en plein écran",
+  'message.viewImageFullScreen': "Voir l’image en plein écran",
   'message.shareLink': 'Partager le lien',
-  'message.imageFailedToLoad': "Échec du chargement de l'image",
+  'message.imageFailedToLoad': "Échec du chargement de l’image",
   'message.imageHidden': 'Image masquée',
   'message.imageHost': 'un autre hôte',
   'message.imageLoadWarning': 'Le charger contacte {host}.',
-  'message.loadImage': "Charger l'image",
+  'message.loadImage': "Charger l’image",
   'message.load': 'Charger',
   'message.imageBlocked': 'bloquée',
+  'message.image': 'Image',
+  'message.resetZoom': 'Réinitialiser le zoom',
+  'message.linkBlockedNotice': 'Lien bloqué',
   'message.sourceHeader': 'Source',
   'keys.title': 'Clés',
   'keys.newKey': 'Nouvelle clé',
-  'keys.refreshFailed': "Impossible d'actualiser les clés. Affichage de la dernière liste connue.",
+  'keys.refreshFailed': "Impossible d’actualiser les clés. Affichage de la dernière liste connue.",
   'keys.sectionActive': 'Actives',
   'keys.sectionRevoked': 'Révoquées',
-  'keys.intro':
-    'Les clés identifient qui a envoyé une notification. Utilisez une clé différente pour chaque script. ' +
-    'La clé par défaut a été créée lors de la configuration de cet appareil.',
   'keys.aboutKeys': 'À propos des clés',
   'keys.sent': { one: '1 envoi', other: '{n} envois' },
   'keys.rowLastUsed': 'utilisée {ago}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Par défaut',
-  'keys.chipRevoked': 'Révoquée',
   'keys.chipCritical': 'Critique',
   'keys.rowLabel': 'Clé, {name}, se termine par {suffix}',
   'keys.rowLabelRevoked': ', révoquée',
@@ -155,28 +162,28 @@ export const fr: Translation = {
     'notifi conserve celle-ci sur votre appareil, vous pouvez donc la copier à nouveau ' +
     'quand vous en avez besoin, ou la régénérer ci-dessous.',
   'keyDetail.shownOnceDetail':
-    "La valeur n'a été affichée qu'une fois, à la création de cette clé. Elle n'est pas stockée sur l'appareil.",
+    "La valeur n’a été affichée qu’une fois, à la création de cette clé. Elle n’est pas stockée sur l’appareil.",
 
   'keyDetail.sectionUsage': 'Utilisation',
   'keyDetail.fieldSent': 'Envois',
   'keyDetail.fieldCreated': 'Créée le',
   'keyDetail.fieldLastUsed': 'Dernière utilisation',
 
-  'keyDetail.openAnyLink': "Ouvrir n'importe quel lien",
+  'keyDetail.openAnyLink': "Ouvrir n’importe quel lien",
   'keyDetail.openAnyLinkDetail':
     'Désactivé, seuls les liens https s’ouvrent. Activé, d’autres schémas s’ouvrent aussi, ' +
     'y compris ceux qui lancent d’autres applications sur cet appareil.',
 
   'keyDetail.criticalAlerts': 'Alertes critiques',
 
-  'keyDetail.revokedNotice': "Cette clé est révoquée et n'accepte plus d'envois.",
+  'keyDetail.revokedNotice': "Cette clé est révoquée et n’accepte plus d’envois.",
 
   'keyDetail.sectionDanger': 'Zone de danger',
   'keyDetail.regenerate': 'Régénérer la clé',
   'keyDetail.regenerating': 'Régénération…',
   'keyDetail.regenerateDetail':
-    "Régénérer émet une nouvelle valeur et retire l'ancienne. Tout ce qui envoie encore " +
-    "avec l'ancienne valeur sera rejeté.",
+    "Régénérer émet une nouvelle valeur et retire l’ancienne. Tout ce qui envoie encore " +
+    "avec l’ancienne valeur sera rejeté.",
   'keyDetail.revoke': 'Révoquer la clé',
   'keyDetail.revoking': 'Révocation…',
   'keyDetail.revokeDetail':
@@ -194,7 +201,7 @@ export const fr: Translation = {
     "La valeur actuelle cesse de fonctionner immédiatement, et tout ce qui envoie encore " +
     "avec elle sera rejeté.",
 
-  'keyDetail.regeneratedAnnouncement': "Clé régénérée. L'ancienne valeur ne fonctionne plus.",
+  'keyDetail.regeneratedAnnouncement': "Clé régénérée. L’ancienne valeur ne fonctionne plus.",
   'keyDetail.regenerateFailed':
     "Impossible de régénérer la clé. Vérifiez votre connexion et réessayez.",
   'keyDetail.revokedAnnouncement': 'Clé révoquée.',
@@ -230,7 +237,7 @@ export const fr: Translation = {
   'createKey.revealWarning':
     'Traitez-la comme un mot de passe. Si vous la perdez, révoquez la clé et créez-en une nouvelle.',
 
-  'createKey.leaveTitle': "Vous ne l'avez pas copiée ?",
+  'createKey.leaveTitle': "Vous ne l’avez pas copiée ?",
   'createKey.leaveCopyAndClose': 'Copier et fermer',
   'createKey.leaveCloseAndRevoke': 'Fermer et révoquer',
   'createKey.leaveMessage': 'Cette clé ne sera plus jamais affichée.',
@@ -248,19 +255,31 @@ export const fr: Translation = {
   'settings.permissionNotSet': 'Non défini',
   'settings.permissionUnknown': 'Inconnue',
 
+  'settings.stayVisible': 'Les notifications restent visibles',
+  'settings.stayVisibleDetail':
+    "Garde une notification à l’écran jusqu’à ce que vous cliquiez dessus ou la fermiez.\n\n" +
+    "Désactivé, elle disparaît après quelques secondes.\n\n" +
+    "Activer ouvre les Réglages Système, où vous choisissez le style d’alerte de notifi.",
+  'settings.stayVisibleEnable': 'Activer',
+
   'settings.theme': 'Thème',
+  'settings.grain': 'Grain',
   'settings.themeDark': 'Sombre',
   'settings.themeLight': 'Clair',
+  'settings.themeSystem': 'Système',
 
   'settings.loadImages': 'Charger les images automatiquement',
   'settings.loadImagesDetail':
-    "Récupère chaque image dès l'arrivée de la notification, ce qui révèle votre adresse IP à son " +
-    "hôte. Désactivé, les images ne se chargent qu'au toucher.",
+    "Récupère chaque image dès l’arrivée de sa notification.\n\n" +
+    "L’hôte de l’image voit alors votre adresse IP.\n\n" +
+    "Désactivé, une image ne se charge que lorsque vous la touchez.",
 
   'settings.strictSend': 'Rejeter les envois invalides',
   'settings.strictSendDetail':
-    "Renvoie 422 invalid_content et ne stocke rien lorsqu'un titre ou un corps dépasse la " +
-    "longueur autorisée. Désactivé, /send raccourcit le champ et renvoie 202 avec un tableau warnings.",
+    "Refuse un envoi dont le titre ou le corps dépasse la longueur autorisée : /send répond " +
+    "422 invalid_content et ne stocke rien.\n\n" +
+    "Désactivé, le champ est raccourci et l’envoi est accepté avec un tableau warnings.\n\n" +
+    "[Lire la documentation](https://notifi.it/docs#response)",
   'settings.strictSendFailed': 'Échec de PATCH /devices/settings. Vérifiez votre connexion et réessayez.',
 
   'settings.testTitle': 'Hello from notifi',
@@ -268,26 +287,28 @@ export const fr: Translation = {
 
   'settings.macApp': 'Télécharger pour Mac',
 
-  'settings.iosApp': "Télécharger dans l'App Store",
+  'settings.iosApp': "Télécharger dans l’App Store",
 
   'settings.sectionSupport': 'Assistance',
   'settings.sectionApplication': 'Application',
   'settings.sectionAbout': 'À propos',
   'settings.version': 'Version',
-  'settings.openAtLogin': "Ouvrir à l'ouverture de session",
+  'settings.openAtLogin': "Ouvrir à l’ouverture de session",
   'settings.openAtLoginDetail':
     "Démarre notifi dans la barre des menus lorsque vous ouvrez une session sur ce Mac.",
   'settings.installUpdatesAutomatically': 'Installer les mises à jour automatiquement',
   'settings.installUpdatesAutomaticallyDetail':
-    "Télécharge et installe les nouvelles versions sans demander. notifi redémarre lorsqu'il se met à jour.",
+    "Télécharge et installe les nouvelles versions sans demander. notifi redémarre lorsqu’il se met à jour.",
   'settings.checkForUpdates': 'Rechercher des mises à jour',
   'settings.deleteAll': 'Supprimer toutes les notifications',
   'settings.deleteAllTitle': 'Supprimer toutes les notifications ?',
+  'settings.deleteAllConfirm': 'Tout supprimer',
   'settings.deleteAllMessage': 'Cette action est irréversible.',
   'settings.support': 'Signaler un problème',
   'settings.feedback': 'Avis',
   'settings.privacyPolicy': 'Politique de confidentialité',
   'settings.website': 'notifi.it',
+  'settings.docs': 'Documentation',
 
   'empty.sampleTitle': 'Hello from notifi',
   'empty.sampleMessage': 'Votre première notification.',
@@ -303,7 +324,7 @@ export const fr: Translation = {
   'empty.sendTest': 'Envoyer un test',
   'empty.sending': 'Envoi…',
   'empty.sent': 'Envoyée. Elle arrive ici et sur votre écran verrouillé dans un instant.',
-  'empty.sendFailed': "Échec de l'envoi. Vérifiez votre connexion et réessayez.",
+  'empty.sendFailed': "Échec de l’envoi. Vérifiez votre connexion et réessayez.",
 
   'empty.makingKey': 'Création de votre clé…',
   'empty.makeKeyFailed': "Impossible de créer une clé. Vérifiez votre connexion et réessayez.",
@@ -318,17 +339,16 @@ export const fr: Translation = {
   'components.errorLabel': 'Erreur. {message}',
   'components.backTo': 'Retour à {label}',
   'components.createKey': 'Créer une clé',
-  'components.wordmark': 'notifi',
 
   'identity.title': 'Impossible de déverrouiller notifi',
   'identity.detail':
-    "notifi n'a pas pu lire sa clé d'identité dans le trousseau. Cela se résout généralement " +
-    "une fois l'appareil déverrouillé. Vos notifications et clés d'envoi ne sont pas affectées.",
+    "notifi n’a pas pu lire sa clé d’identité dans le trousseau. Cela se résout généralement " +
+    "une fois l’appareil déverrouillé. Vos notifications et clés d’envoi ne sont pas affectées.",
 
   'unsupported.title': 'Mac non pris en charge',
   'unsupported.detail':
-    "notifi nécessite un Mac avec puce Apple silicon ou puce T2. Ce Mac n'a pas d'Enclave " +
-    "sécurisée, que notifi utilise pour protéger votre clé d'identité.",
+    "notifi nécessite un Mac avec puce Apple silicon ou puce T2. Ce Mac n’a pas d’Enclave " +
+    "sécurisée, que notifi utilise pour protéger votre clé d’identité.",
 
   'store.name': 'notifi : notifications push',
   'store.subtitle': 'Pour scripts et serveurs',
@@ -340,21 +360,21 @@ export const fr: Translation = {
     'monitor',
   'store.description':
     'Notifications push pour vos scripts et serveurs.\n\n' +
-    "Créez une clé d'envoi et envoyez un titre et un corps à notifi.it en une seule " +
+    "Créez une clé d’envoi et envoyez un titre et un corps à notifi.it en une seule " +
     'requête HTTP. La notification arrive sur votre iPhone ou Mac. Tout ce qui peut faire ' +
     'une requête HTTP peut en envoyer une, par exemple un script shell, une tâche cron, un ' +
     'pipeline CI.\n\n' +
     'https://notifi.it/send?title=hello+world\n\n' +
     "CE QUE CONTIENT UNE NOTIFICATION\n" +
     'Un titre, un corps, une image et un lien. Le corps est en Markdown : titres, listes, ' +
-    "citations, liens et blocs de code sont rendus sur l'appareil.\n\n" +
+    "citations, liens et blocs de code sont rendus sur l’appareil.\n\n" +
     'CHIFFRÉ\n' +
     'Votre appareil détient la seule clé privée. Le contenu des notifications est chiffré avec ' +
-    "votre clé publique à l'ingestion, si bien que nous ne pouvons pas lire vos notifications. " +
-    "Chaque notification est supprimée du serveur une fois que votre appareil l'a confirmée.\n\n" +
+    "votre clé publique à l’ingestion, si bien que nous ne pouvons pas lire vos notifications. " +
+    "Chaque notification est supprimée du serveur une fois que votre appareil l’a confirmée.\n\n" +
     'PAS DE COMPTE\n' +
-    "Pas d'inscription, pas de connexion, pas de liaison d'appareil. L'application génère " +
-    "une clé d'envoi au premier lancement. Les clés peuvent être renommées, suspendues et " +
+    "Pas d’inscription, pas de connexion, pas de liaison d’appareil. L’application génère " +
+    "une clé d’envoi au premier lancement. Les clés peuvent être renommées, suspendues et " +
     'révoquées par source.\n\n' +
     'ALERTES URGENTES\n' +
     'Marquez une clé comme urgente et ses notifications franchissent Focus et arrivent sur ' +
@@ -373,21 +393,21 @@ export const fr: Translation = {
   'store.shotKeysTitle': 'Une clé\npar source.',
   'store.shotKeysBody':
     "Donnez une clé au bot de déploiement et une autre à la sonnette. Révoquez-en une, les " +
-    "autres continuent de fonctionner. Chaque clé porte son propre nombre d'envois, sans " +
+    "autres continuent de fonctionner. Chaque clé porte son propre nombre d’envois, sans " +
     'aucun compte à créer au préalable.',
 
   'restore.title': 'Cela ressemble à un nouvel appareil',
   'restore.detail':
     'Vos anciennes notifications ont été restaurées depuis une sauvegarde, mais pas vos clés. Les ' +
-    "clés sont liées à l'appareil sur lequel elles ont été créées et ne peuvent pas être " +
+    "clés sont liées à l’appareil sur lequel elles ont été créées et ne peuvent pas être " +
     "déplacées. Tout ce qui envoie encore vers vos anciennes clés sera désormais rejeté. " +
     'Créez de nouvelles clés pour continuer à recevoir des notifications.',
 
-  'clientErrors.unauthorized': "Cette clé n'est plus acceptée. Créez-en une nouvelle dans Clés.",
-  'clientErrors.notFound': "Ce n'est plus sur le serveur. Actualisez et réessayez.",
+  'clientErrors.unauthorized': "Cette clé n’est plus acceptée. Créez-en une nouvelle dans Clés.",
+  'clientErrors.notFound': "Ce n’est plus sur le serveur. Actualisez et réessayez.",
   'clientErrors.rateLimited': 'Trop de requêtes à l’instant. Réessayez dans un moment.',
   'clientErrors.server': 'Le serveur rencontre un problème. Réessayez dans un moment.',
-  'clientErrors.generic': "La requête n'a pas abouti. Réessayez.",
+  'clientErrors.generic': "La requête n’a pas abouti. Réessayez.",
   'clientErrors.transport': "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
   'clientErrors.decoding': 'Le serveur a renvoyé une réponse inattendue. Réessayez dans un moment.',
 };
