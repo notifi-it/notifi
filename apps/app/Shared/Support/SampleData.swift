@@ -20,7 +20,7 @@ enum SampleData {
         func hours(_ count: Int) -> Int { now - count * 3_600 }
 
         let rows: [(String, String, Int, Int, Int?, Int?, Bool)] = [
-            ("Default", "nk_a4Qm", 128, days(420), hours(2), nil, false),
+            ("Device", "nk_a4Qm", 128, days(420), hours(2), nil, false),
             ("Deploy bot", "nk_u7Pg", 1_842, days(310), hours(1), nil, false),
             ("Doorbell", "nk_k2Vd", 63, days(96), hours(9), nil, true),
             ("Backups", "nk_z9Rt", 704, days(88), days(1), nil, false),

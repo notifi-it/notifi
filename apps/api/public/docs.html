@@ -491,7 +491,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <p>
       Install notifi on <a href="https://apps.apple.com/app/id1563961135">iPhone or iPad</a>
       or <a href="/download/mac">on the Mac</a>, allow notifications, open the Keys tab and
-      copy the <code>Default</code> key. It starts with <code>nk_</code>.
+      copy the <code>Device</code> key. It starts with <code>nk_</code>.
     </p>
     <pre data-lang="bash">curl -X POST https://notifi.it/send \
   -H &quot;Authorization: Bearer $NOTIFI_KEY&quot; \
@@ -758,7 +758,7 @@ Content-Type: application/json; charset=utf-8
     <h2>Rate limits</h2>
     <ul>
       <li>60 notifications an hour per device, shared across every key on it.</li>
-      <li>5 active send keys per device, one of which is the app’s own default.</li>
+      <li>5 active send keys per device, one of which is the app’s own device key.</li>
       <li>100 requests a minute per IP address, across every endpoint.</li>
       <li>Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.</li>
     </ul>

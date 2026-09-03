@@ -44,7 +44,7 @@ A successful send answers `202` with `{"ok":true}`. The key can also be passed a
 ### How much can I send?
 
 - **60 sends an hour per device**, shared by every key on that device rather than counted per key. Over the limit answers `429` with a `Retry-After` header.
-- **Five active send keys per device**, one of which is the app’s own default key.
+- **Five active send keys per device**, one of which is the app’s own device key.
 - There is also a per-IP ceiling of 100 requests a minute on every endpoint.
 
 ### How long can a notification be?

@@ -227,7 +227,7 @@ export function docsBody(): string {
     <p>
       Install notifi on <a href="https://apps.apple.com/app/id1563961135">iPhone or iPad</a>
       or <a href="/download/mac">on the Mac</a>, allow notifications, open the Keys tab and
-      copy the <code>Default</code> key. It starts with <code>nk_</code>.
+      copy the <code>Device</code> key. It starts with <code>nk_</code>.
     </p>
     ${pre(QUICKSTART, 'bash')}
   </section>

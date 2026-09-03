@@ -268,7 +268,7 @@ final class AppModel {
             return
         }
         do {
-            let created = try await api.createKey(name: "default")
+            let created = try await api.createKey(name: "device")
             DeviceIdentity.storeDefaultKey(created.key)
             await sync.refreshKeys()
         } catch {
@@ -298,7 +298,7 @@ final class AppModel {
     func regenerateDefaultKey() async throws {
         guard let api, let sync else { throw NotifiError.identityMissing }
         let superseded = sync.keys.filter { $0.isDefault && !$0.isRevoked }
-        let created = try await api.createKey(name: "default")
+        let created = try await api.createKey(name: "device")
         DeviceIdentity.storeDefaultKey(created.key)
         for key in superseded {
             do {

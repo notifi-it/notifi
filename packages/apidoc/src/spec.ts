@@ -188,7 +188,7 @@ export const errors: ErrorRow[] = [
 
 export const limits: string[] = [
   `${SENDS_PER_HOUR} notifications an hour per device, shared across every key on it.`,
-  `${KEYS_PER_DEVICE} active send keys per device, one of which is the app’s own default.`,
+  `${KEYS_PER_DEVICE} active send keys per device, one of which is the app’s own device key.`,
   `${REQUESTS_PER_MINUTE} requests a minute per IP address, across every endpoint.`,
   'Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.',
 ];

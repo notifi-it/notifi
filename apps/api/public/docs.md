@@ -6,7 +6,7 @@ _[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi
 
 ## Quickstart
 
-Install notifi on [iPhone or iPad](https://apps.apple.com/app/id1563961135) or [on the Mac](https://notifi.it/download/mac), allow notifications, open the Keys tab and copy the `Default` key. It starts with `nk_`.
+Install notifi on [iPhone or iPad](https://apps.apple.com/app/id1563961135) or [on the Mac](https://notifi.it/download/mac), allow notifications, open the Keys tab and copy the `Device` key. It starts with `nk_`.
 
 ```bash
 curl -X POST https://notifi.it/send \
@@ -153,7 +153,7 @@ Every error nests the code one level down. Read `error.code`, not `code`. The `m
 ## Rate limits
 
 - 60 notifications an hour per device, shared across every key on it.
-- 5 active send keys per device, one of which is the app’s own default.
+- 5 active send keys per device, one of which is the app’s own device key.
 - 100 requests a minute per IP address, across every endpoint.
 - Revoking a key in the app takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity and every old key stops working; there is no migration.
 

@@ -70,7 +70,7 @@ here you can do from a shell. Give the human the link.
 
 ## Getting the key
 
-The app makes a key named "Default" the first time it launches and keeps it on
+The app makes a key named "Device" the first time it launches and keeps it on
 the device, so it can be copied again whenever it is needed. There is no
 create-a-key step to walk anyone through.
 
@@ -78,10 +78,10 @@ Two things need a human at the device. Ask for both at once:
 
 > notifi is installed and open. Two things I can't do myself:
 >   1. Allow notifications when it asks.
->   2. Open the Keys tab, pick "Default", press "Copy key".
+>   2. Open the Keys tab, pick "Device", press "Copy key".
 > Then paste the key here. It starts with nk_.
 
-Prefer that Default key. A key someone creates by hand is shown once, at
+Prefer that Device key. A key someone creates by hand is shown once, at
 creation, and is never recoverable — if it is lost, the only fix is a new key.
 
 Put the key in the environment, not in a file that gets committed:

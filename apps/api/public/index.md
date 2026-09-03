@@ -31,7 +31,7 @@ best-effort.
    (iOS 17 or later) or [Mac](https://notifi.it/download/mac) (macOS 14 or
    later, also `brew install --cask notifi-it/tap/notifi`).
 2. Allow notifications when the app asks.
-3. Open the Keys tab, pick `Default`, press **Copy key**. It starts with `nk_`.
+3. Open the Keys tab, pick `Device`, press **Copy key**. It starts with `nk_`.
 4. Send something:
 
 ```
