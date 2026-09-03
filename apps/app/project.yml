@@ -134,6 +134,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
         INFOPLIST_FILE: Support/Info/App-macOS-AppStore-Info.plist
         ENABLE_HARDENED_RUNTIME: "YES"
+        PROVISIONING_PROFILE_SPECIFIER: ${MAC_APP_PROFILE}
+        CODE_SIGN_IDENTITY: ${MAC_CODE_SIGN_IDENTITY}
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-AppStore-Debug.entitlements
@@ -198,6 +200,8 @@ targets:
       base:
         PRODUCT_NAME: NotificationService
         PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.nse
+        PROVISIONING_PROFILE_SPECIFIER: ${MAC_NSE_PROFILE}
+        CODE_SIGN_IDENTITY: ${MAC_CODE_SIGN_IDENTITY}
         INFOPLIST_FILE: Support/Info/NotificationService-Info.plist
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/NotificationService-macOS.entitlements
         ENABLE_HARDENED_RUNTIME: "YES"

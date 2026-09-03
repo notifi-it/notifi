@@ -399,7 +399,11 @@ a test framework; say plainly what was and wasn't exercised.
   never add the Sparkle package to it. Mac listing text pushes with `make
   app-metadata-mac` (same `fastlane/metadata` tree as iOS); Mac screenshots
   live in `fastlane/screenshots-macos`, rendered by `make screens-mac-store`
-  and pushed with `make app-screenshots-mac`.
+  and pushed with `make app-screenshots-mac`. A `v*` tag also builds and
+  uploads the store pkg from CI (the `mac-app-store` job);
+  `MARKETING_VERSION=X.Y make app-submit-uploaded-mac` then creates the
+  version, attaches that build and submits. `make app-submit-mac` is the
+  same thing with a local build.
 
 - **Tag first, submit second, metadata last.** A `v*` tag runs CI (TestFlight +
   DMG). `MARKETING_VERSION=X.Y make app-submit` (local) *creates* the App Store

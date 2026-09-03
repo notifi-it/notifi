@@ -1,7 +1,7 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
 	gen-site check-site-html gen-site-md check-site-md check-site gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
-	app-submit-mac app-resubmit-mac app-metadata-mac app-screenshots-mac screens-mac-store \
+	app-submit-mac app-submit-uploaded-mac app-resubmit-mac app-metadata-mac app-screenshots-mac screens-mac-store \
 	app-metadata app-metadata-check app-screenshots app-resubmit shots doc-shots screens screens-mac \
 	film film-gif film-stills check-film
 
@@ -142,6 +142,10 @@ app-dmg:
 # and its appcast are untouched by this.
 app-submit-mac:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac submit
+
+# After a `v*` tag: CI has uploaded the pkg, this attaches it and submits.
+app-submit-uploaded-mac:
+	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac submit_uploaded
 
 app-resubmit-mac:
 	apps/app/Scripts/with-credentials.sh bundle exec fastlane mac resubmit
