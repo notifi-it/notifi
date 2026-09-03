@@ -128,16 +128,8 @@ def load_popover(name):
         sys.exit(f"{path} is missing -- run `make screens-mac` first")
     shot = Image.open(path).convert("RGBA")
     # The capture carries its own shape in the alpha channel -- rounded panel
-    # plus the arrow -- so no rounding or bezel ring is drawn here. The arrow
-    # sits wherever the screen edge pushed it, so its apex is measured from
-    # the alpha rather than assumed to be centred; the bell goes over it.
-    alpha = shot.getchannel("A").load()
-    apex_y = next(y for y in range(shot.height)
-                  if any(alpha[x, y] > 8 for x in range(shot.width)))
-    xs = [x for x in range(shot.width) if alpha[x, apex_y] > 8]
-    apex_x = (min(xs) + max(xs)) / 2
-    target_w = round(shot.width * SCALE)
-    return shot.resize((target_w, POPOVER_H), Image.LANCZOS), apex_x * SCALE
+    # plus the arrow -- so no rounding or bezel ring is drawn here.
+    return shot.resize((round(shot.width * SCALE), POPOVER_H), Image.LANCZOS)
 
 
 def rasterize(svg, width, tint, out_dir, name):
@@ -179,50 +171,86 @@ def bell(out_dir):
     return icon
 
 
-def menu_bar(canvas, bell_x, out_dir):
-    # .mac-wall .mac-bar: rgba(28,28,30,.6) frosted over the ground, with a
-    # 6% white hairline underneath.
-    bar = Image.new("RGBA", (W, BAR_H), (28, 28, 30, 153))
-    canvas.alpha_composite(bar, (0, 0))
+def slide_arrow(popover, to_x):
+    """screens-mac.sh does the same for the site: the arrow sits wherever the
+    screen edge pushed it, and the panel's top edge is uniform, so the arrow
+    can be moved along it seamlessly to sit under the bell."""
+    alpha = popover.getchannel("A").load()
+    w, h = popover.size
+
+    def span(y):
+        xs = [x for x in range(w) if alpha[x, y] > 8]
+        return (min(xs), max(xs)) if xs else None
+
+    apex_y = next(y for y in range(h) if span(y))
+    panel_top = next(y for y in range(apex_y, h)
+                     if (sp := span(y)) and sp[1] - sp[0] > w * 0.5)
+    ax0, ax1 = span(apex_y + (panel_top - apex_y) // 2)
+    pad = 6
+    box = (ax0 - pad, apex_y, ax1 + pad + 1, panel_top)
+    arrow = popover.crop(box)
+    moved = popover.copy()
+    moved.paste((0, 0, 0, 0), box)
+    dx = round(to_x - (ax0 + ax1 + 1) / 2)
+    moved.paste(arrow, (box[0] + dx, box[1]), arrow)
+    return moved
+
+
+def menu_bar(canvas, desk, out_dir):
+    """The site's .mac-bar across the top of its .mac-desk: frosted dark
+    over the ground, a 6% white hairline underneath, the Apple mark at the
+    left, and .mac-status right-aligned -- bell, Wi-Fi, battery, clock.
+    Returns the bell's centre x, which the popover's arrow then meets."""
+    x0, y0, x1, _ = desk
+    width = x1 - x0
+    bar = Image.new("RGBA", (width, BAR_H), (28, 28, 30, 153))
+    canvas.alpha_composite(bar, (x0, y0))
     d = ImageDraw.Draw(canvas)
-    d.line([(0, BAR_H - 1), (W, BAR_H - 1)], fill=(255, 255, 255, 15), width=1)
+    d.line([(x0, y0 + BAR_H - 1), (x1, y0 + BAR_H - 1)], fill=(255, 255, 255, 15), width=1)
 
     pad = round(2.9 * CQW)
     apple = rasterize(site_svg("mac-apple"), round(5.06 * CQW), FG_RGB, out_dir, "apple")
     apple.putalpha(apple.getchannel("A").point(lambda v: v * 85 // 100))
-    canvas.alpha_composite(apple, (pad, (BAR_H - apple.height) // 2))
+    canvas.alpha_composite(apple, (x0 + pad, y0 + (BAR_H - apple.height) // 2))
 
-    # .mac-status, gap 2.85cqw: bell, wifi, battery, clock. The bell is the
-    # anchor and sits over the popover's arrow; the rest run to its right.
     gap = round(2.85 * CQW)
     icon = bell(out_dir)
-    x = round(bell_x - icon.width / 2)
-    canvas.alpha_composite(icon, (x, (BAR_H - icon.height) // 2))
-    x += icon.width + gap
-
     wifi = rasterize(site_svg("mac-wifi"), round(4.6 * CQW), FG_RGB, out_dir, "wifi")
-    canvas.alpha_composite(wifi, (x, (BAR_H - wifi.height) // 2))
-    x += wifi.width + gap
-
     batt = rasterize(site_svg("mac-batt"), round(6.44 * CQW), FG_RGB, out_dir, "batt")
-    canvas.alpha_composite(batt, (x, (BAR_H - batt.height) // 2))
-    x += batt.width + gap + round(0.92 * CQW)
-
     clock = ImageFont.truetype(SYSTEM_FONT, round(3.13 * CQW))
     try:
         clock.set_variation_by_name("Medium")
     except OSError:
         pass
     text = "Sat 29 Aug 14:07"
-    box = d.textbbox((0, 0), text, font=clock)
-    d.text((x, (BAR_H - (box[3] - box[1])) // 2 - box[1]), text, font=clock, fill=FG)
-    if x + (box[2] - box[0]) > W - pad:
-        print("WARNING: the clock runs off the bar")
+    tb = d.textbbox((0, 0), text, font=clock)
+    cluster = (icon.width + gap + wifi.width + gap + batt.width + gap
+               + round(0.92 * CQW) + (tb[2] - tb[0]))
+
+    x = x1 - pad - cluster
+    bell_x = x + icon.width / 2
+    canvas.alpha_composite(icon, (x, y0 + (BAR_H - icon.height) // 2))
+    x += icon.width + gap
+    canvas.alpha_composite(wifi, (x, y0 + (BAR_H - wifi.height) // 2))
+    x += wifi.width + gap
+    canvas.alpha_composite(batt, (x, y0 + (BAR_H - batt.height) // 2))
+    x += batt.width + gap + round(0.92 * CQW)
+    d.text((x, y0 + (BAR_H - (tb[3] - tb[1])) // 2 - tb[1]), text, font=clock, fill=FG)
+    return bell_x
 
 
-def frame(locale, captions, title_key, desc_key, popover, apex_x, out_dir, out_name):
-    left = POPOVER_CENTER_X - popover.width // 2
-    top = BAR_H
+def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
+    # The site's .mac-desk: a hairline-bordered, rounded card the popover is
+    # 94% of, the bar across its top and 26px (a 2x 13) of ground under the
+    # popover. Centred on the right half of the page.
+    desk_w = round(popover.width / 0.94)
+    desk_pad = round(26 * SCALE)
+    desk_h = BAR_H + popover.height + desk_pad
+    desk_x = POPOVER_CENTER_X - desk_w // 2
+    desk_y = (H - desk_h) // 2
+    desk = [desk_x, desk_y, desk_x + desk_w, desk_y + desk_h]
+    left = desk_x + (desk_w - popover.width) // 2
+    top = desk_y + BAR_H
     box = [left, top, left + popover.width, top + popover.height]
 
     canvas = ground(box)
@@ -242,8 +270,8 @@ def frame(locale, captions, title_key, desc_key, popover, apex_x, out_dir, out_n
     except OSError:
         pass
 
-    # Measure the caption first so the block centres in the space under the
-    # bar, which is what a landscape frame wants where the portrait one stacks.
+    # Measure the caption first so the block centres on the page vertically,
+    # which is what a landscape frame wants where the portrait one stacks.
     title_lines = []
     for para in captions[title_key].split("\n"):
         title_lines += wrap(d, para, tf, TEXT_W)
@@ -251,7 +279,7 @@ def frame(locale, captions, title_key, desc_key, popover, apex_x, out_dir, out_n
     block_h = (len(title_lines) * round(TITLE_SIZE * 1.14)
                + 34 + RULE_H + 34
                + len(desc_lines) * round(DESC_SIZE * 1.48))
-    y = BAR_H + (H - BAR_H - block_h) // 2
+    y = (H - block_h) // 2
 
     for line in title_lines:
         d.text((GUTTER, y), line, font=tf, fill=FG)
@@ -267,6 +295,20 @@ def frame(locale, captions, title_key, desc_key, popover, apex_x, out_dir, out_n
     if GUTTER + TEXT_W > box[0] - 60:
         print(f"WARNING {locale}/{out_name}: caption column runs into the popover")
 
+    radius = round(2.3 * CQW)
+    desk_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(desk_layer).rounded_rectangle(desk, radius=radius, outline=LINE + (255,), width=2)
+    bar_clip = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(bar_clip).rounded_rectangle(desk, radius=radius, fill=255)
+
+    bar_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    bell_x = menu_bar(bar_layer, desk, out_dir)
+    bar_layer.putalpha(Image.composite(bar_layer.getchannel("A"), Image.new("L", (W, H), 0), bar_clip))
+    canvas.alpha_composite(bar_layer)
+    canvas.alpha_composite(desk_layer)
+
+    popover = slide_arrow(popover, bell_x - left)
+
     # .mac-wall .mac-shot: drop-shadow(0 18px 36px rgba(0,0,0,.55)), at 2x,
     # following the popover's own alpha, arrow and all.
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -274,7 +316,6 @@ def frame(locale, captions, title_key, desc_key, popover, apex_x, out_dir, out_n
     silhouette.putalpha(popover.getchannel("A").point(lambda v: v * 140 // 255))
     shadow.alpha_composite(silhouette, (left, top + 36))
     canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(36)))
-    menu_bar(canvas, left + apex_x, out_dir)
     canvas.alpha_composite(popover, (left, top))
 
     publish(canvas.convert("RGB"), f"{out_dir}/{out_name}", "PNG")
@@ -293,6 +334,5 @@ for locale, caption_key in [("en-US", "en-GB"), ("en-GB", "en-GB"),
     if os.path.exists(stale):
         os.remove(stale)
     for raw, title_key, desc_key, out_name in FRAMES:
-        popover, apex_x = popovers[raw]
         frame(locale, CAPTIONS[caption_key], title_key, desc_key,
-              popover, apex_x, out_dir, out_name)
+              popovers[raw], out_dir, out_name)
