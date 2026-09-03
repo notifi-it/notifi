@@ -268,7 +268,10 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     field = Image.new("RGB", (SPLIT, H), RED_RGB)
     # Drawn at half size and doubled: a one-pixel grain at 2560 wide is gone
     # the moment the listing scales the frame down.
-    grain = Image.effect_noise((SPLIT // 2, H // 2), 22)
+    grain = Image.effect_noise((SPLIT // 2, H // 2), 26)
+    # Only the specks above the midpoint are kept, so the field is flecked
+    # lighter and never darker.
+    grain = grain.point(lambda v: max(v, 128))
     grain = grain.resize((SPLIT, H), Image.NEAREST).convert("RGB")
     field = ImageChops.overlay(field, grain)
     canvas.paste(field, (0, 0))
