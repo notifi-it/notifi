@@ -221,9 +221,13 @@ jobs:
           working-directory: apps/app
       - name: Archive and upload macOS
         working-directory: apps/app
+        # XcodeGen writes ${MAC_*} into the project verbatim; Xcode resolves
+        # them from this step's environment, so the identity is set here too.
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          CODE_SIGN_STYLE: Manual
+          MAC_CODE_SIGN_IDENTITY: Apple Distribution
         run: |
           xcodebuild archive \
             -scheme notifi-macOS-AppStore \

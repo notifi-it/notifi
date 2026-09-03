@@ -445,6 +445,22 @@ end
 platform :mac do
   desc "Build a Developer ID app, notarize it, and package a stapled DMG"
   lane :dmg do
+    # On CI the archive signs manually with the Developer ID profiles, not
+    # only the export: an automatic archive mints a Development certificate
+    # on every clean runner, and the account hit its cap on the tenth tag.
+    # XcodeGen writes the ${MAC_*} references into the project verbatim and
+    # Xcode resolves them from the environment at build time, so these must
+    # be exported before the archive, not only before xcodegen.
+    export_options = if ENV["CI"]
+                       options = developer_id_export_options
+                       ENV["CODE_SIGN_STYLE"] = "Manual"
+                       ENV["MAC_CODE_SIGN_IDENTITY"] = "Developer ID Application"
+                       ENV["MAC_APP_PROFILE"] = options[:provisioningProfiles]["it.notifi.notifi"]
+                       ENV["MAC_NSE_PROFILE"] = options[:provisioningProfiles]["it.notifi.notifi.nse"]
+                       options
+                     else
+                       { signingStyle: "automatic", teamID: "Z28DW76Y3W" }
+                     end
     generate_project
     build_mac_app(
       project: "notifi.xcodeproj",
@@ -457,8 +473,7 @@ platform :mac do
       # Locally, automatic: the signed-in Xcode account may cloud-manage
       # Developer ID. On CI there is no account and Apple does not extend that
       # to API keys, so the export goes manual — see developer_id_export_options.
-      export_options: ENV["CI"] ? developer_id_export_options
-                                : { signingStyle: "automatic", teamID: "Z28DW76Y3W" },
+      export_options: export_options,
       # No export_xcargs -- same reason as build_ios_release.
       xcargs: "#{provisioning_xcargs} #{marketing_version_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
     )
@@ -643,6 +658,26 @@ platform :mac do
     version = ENV["MARKETING_VERSION"] || UI.user_error!("MARKETING_VERSION is required: the version the tag built")
     enable_beta_screenshot_sync
 
+    # A version deliver has just created gets its primary-locale localization
+    # from App Store Connect a moment later; deliver's own create then fails
+    # with "Entity with locale: en-US already exists". The second pass sees it
+    # and updates.
+    attempts = 0
+    begin
+      attempts += 1
+      upload_mac_listing(version)
+    rescue => e
+      raise unless attempts == 1 && e.message.include?("already exists")
+      UI.important("App Store Connect created the primary localization first; retrying")
+      sleep(15)
+      retry
+    end
+
+    attach_uploaded_build(version, platform: mac_store_platform)
+    submit_for_review_via_review_submissions(platform: mac_store_platform)
+  end
+
+  def upload_mac_listing(version)
     upload_to_app_store(
       api_key: asc_key,
       platform: "osx",
@@ -657,9 +692,6 @@ platform :mac do
       run_precheck_before_submit: false,
       precheck_include_in_app_purchases: false
     )
-
-    attach_uploaded_build(version, platform: mac_store_platform)
-    submit_for_review_via_review_submissions(platform: mac_store_platform)
   end
 
   desc "Submit the current macOS App Store version for review without building"
