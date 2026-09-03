@@ -1,10 +1,12 @@
 """Compose the Mac App Store screenshots from the popover captures.
 
-Same visual language as appstore-frames.py, turned landscape: Recursive Mono
-title, Karla description, one red accent, a soft ground ramp. Three frames
-mirror the iOS set -- inbox, message, keys -- and each hangs the popover from a
-menu bar drawn across the top, with the app's own bell sitting over the
-popover's arrow. Output is 2560x1600, one of the sizes App Store Connect
+Same type as appstore-frames.py, turned landscape and dark: Recursive Mono
+title, Karla description, one red accent, on the landing page's grainy --bg.
+Three frames mirror the iOS set -- inbox, message, keys -- and each hangs the
+popover from the landing page's own menu bar (.mac-bar: frosted dark, Apple
+mark, then bell, Wi-Fi, battery and clock, the glyphs read out of index.html
+and the bell out of bell-body.svg and bell-clapper.svg), with the bell over
+the popover's arrow. Output is 2560x1600, one of the sizes App Store Connect
 accepts for macOS, written to fastlane/screenshots-macos/<locale>/.
 
 The popover artwork comes from `make screens-mac`, which drives the real Mac
@@ -32,9 +34,10 @@ with open(f"{REPO}/apps/app/fastlane/screenshot-copy.json") as fh:
     CAPTIONS = json.load(fh)
 
 W, H = 2560, 1600
-FG, MUTED, BRAND = "#0A0A0A", "#5A5A5A", "#BC2122"
-GROUND_TOP, GROUND_BOTTOM = (0xE8, 0xE8, 0xEB), (0xFC, 0xFC, 0xFD)
+# The site's dark palette: --bg, --fg, --muted, --line, --brand.
+BG, FG, MUTED, LINE, BRAND = (0x1C, 0x1C, 0x1E), "#EDEDED", "#A1A1A1", (0x33, 0x33, 0x33), "#BC2122"
 BRAND_RGB = (0xBC, 0x21, 0x22)
+FG_RGB = (0xED, 0xED, 0xED)
 GUTTER = 170
 TITLE_SIZE, DESC_SIZE = 108, 54
 RULE_W, RULE_H = 190, 9
@@ -43,13 +46,15 @@ RULE_W, RULE_H = 190, 9
 TEXT_W = 1150
 POPOVER_CENTER_X = 1910
 POPOVER_H = 1320
-# The frame stands in for a 1280x800 screen at 2x, where the menu bar is 48px
-# tall; the popover is scaled by the same factor the capture is, so the two
-# keep their real proportion. Menu text is 13pt on that bar.
 SCALE = POPOVER_H / 1452
-BAR_H = round(48 * SCALE * 1.1)
-BAR_FONT = round(26 * SCALE * 1.1)
-BAR_TINT = (0x1D, 0x1D, 0x1F)
+# The bar is the landing page's .mac-bar, whose sizes are container-query
+# units of the desk the popover hangs in (the popover is 94% of that desk).
+# One cqw here is one percent of that desk, so the bar and every glyph on it
+# keep the site's proportions against the popover.
+CQW = (972 * SCALE / 0.94) / 100
+BAR_H = round(5.83 * CQW)
+SITE = f"{REPO}/apps/api/public"
+SYSTEM_FONT = "/System/Library/Fonts/SFNS.ttf"
 
 FRAMES = [
     ("mac-inbox.png", "inboxTitleIpad", "inboxBody", "01_inbox.png"),
@@ -95,20 +100,23 @@ def wrap(draw, text, font, width):
 
 
 def ground(popover_box):
-    ramp = Image.new("RGB", (1, H))
-    px = ramp.load()
-    for y in range(H):
-        t = y / (H - 1)
-        px[0, y] = tuple(
-            round(a + (b - a) * t) for a, b in zip(GROUND_TOP, GROUND_BOTTOM)
-        )
-    page = ramp.resize((W, H), Image.BICUBIC).convert("RGBA")
+    page = Image.new("RGBA", (W, H), BG + (255,))
+    # The site's ground is --bg under a film of grain; noise at a few levels
+    # of alpha reads the same way without a texture file.
+    import random
+    rng = random.Random(7)
+    grain = Image.new("L", (W // 2, H // 2))
+    grain.putdata([rng.randint(0, 255) for _ in range(grain.width * grain.height)])
+    grain = grain.resize((W, H), Image.NEAREST)
+    film = Image.new("RGBA", (W, H), (255, 255, 255, 0))
+    film.putalpha(grain.point(lambda v: v * 9 // 255))
+    page.alpha_composite(film)
 
     bloom = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(bloom).ellipse(
         [popover_box[0] - 220, popover_box[3] - 260,
          popover_box[2] + 220, popover_box[3] + 200],
-        fill=BRAND_RGB + (26,),
+        fill=BRAND_RGB + (34,),
     )
     page.alpha_composite(bloom.filter(ImageFilter.GaussianBlur(160)))
     return page
@@ -132,75 +140,84 @@ def load_popover(name):
     return shot.resize((target_w, POPOVER_H), Image.LANCZOS), apex_x * SCALE
 
 
-def tinted(name, size, tint):
-    imageset, file = name.split("/")
-    art = Image.open(f"{ASSETS}/{imageset}.imageset/{file}.png")
-    art = art.convert("RGBA").resize((size, size), Image.LANCZOS)
-    layer = Image.new("RGBA", (size, size), tint + (0,))
+def rasterize(svg, width, tint, out_dir, name):
+    """rsvg-convert renders an SVG string at a pixel width; the result is
+    used as a mask and filled with the tint, which is what the site's CSS
+    mask-image does with the same files."""
+    import subprocess
+    path = f"{out_dir}/.{name}.png"
+    subprocess.run(["rsvg-convert", "-w", str(width), "-o", path],
+                   input=svg.encode(), check=True)
+    art = Image.open(path).convert("RGBA")
+    os.remove(path)
+    layer = Image.new("RGBA", art.size, tint + (0,))
     layer.putalpha(art.getchannel("A"))
     return layer
 
 
-def bell(size):
+def site_svg(cls):
+    """The bar's marks are the landing page's own: the inline SVGs the
+    .mac-apple, .mac-wifi and .mac-batt classes carry in index.html."""
+    import re
+    html = open(f"{SITE}/index.html").read()
+    m = re.search(rf'<svg class="{cls}"[^>]*>.*?</svg>', html, re.S)
+    if not m:
+        sys.exit(f"index.html no longer carries an <svg class=\"{cls}\">")
+    svg = m.group(0).replace('fill="currentColor"', 'fill="#fff"')
+    svg = svg.replace('stroke="currentColor"', 'stroke="#fff"')
+    return svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ', 1)
+
+
+def bell(out_dir):
+    """The site's .bell: bell-body.svg and bell-clapper.svg stacked, both
+    cropped by the same box by generate-marks.sh."""
+    size = round(3.7 * CQW)
     icon = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    icon.alpha_composite(tinted("menu_icon/menu", size, BAR_TINT))
-    icon.alpha_composite(tinted("menu_dot/dot", size, BRAND_RGB))
-    icon.alpha_composite(tinted("menu_clapper/clapper", size, BAR_TINT))
+    for part in ("bell-body", "bell-clapper"):
+        layer = rasterize(open(f"{SITE}/{part}.svg").read(), size, FG_RGB, out_dir, part)
+        icon.alpha_composite(layer, (0, (size - layer.height) // 2))
     return icon
 
 
-def menu_bar(canvas, sans, bell_x):
-    bar = Image.new("RGBA", (W, BAR_H), (255, 255, 255, 190))
+def menu_bar(canvas, bell_x, out_dir):
+    # .mac-wall .mac-bar: rgba(28,28,30,.6) frosted over the ground, with a
+    # 6% white hairline underneath.
+    bar = Image.new("RGBA", (W, BAR_H), (28, 28, 30, 153))
     canvas.alpha_composite(bar, (0, 0))
     d = ImageDraw.Draw(canvas)
-    d.line([(0, BAR_H - 1), (W, BAR_H - 1)], fill=(0, 0, 0, 34), width=1)
+    d.line([(0, BAR_H - 1), (W, BAR_H - 1)], fill=(255, 255, 255, 15), width=1)
 
-    bold = ImageFont.truetype(sans, BAR_FONT)
-    regular = ImageFont.truetype(sans, BAR_FONT)
+    pad = round(2.9 * CQW)
+    apple = rasterize(site_svg("mac-apple"), round(5.06 * CQW), FG_RGB, out_dir, "apple")
+    apple.putalpha(apple.getchannel("A").point(lambda v: v * 85 // 100))
+    canvas.alpha_composite(apple, (pad, (BAR_H - apple.height) // 2))
+
+    # .mac-status, gap 2.85cqw: bell, wifi, battery, clock. The bell is the
+    # anchor and sits over the popover's arrow; the rest run to its right.
+    gap = round(2.85 * CQW)
+    icon = bell(out_dir)
+    x = round(bell_x - icon.width / 2)
+    canvas.alpha_composite(icon, (x, (BAR_H - icon.height) // 2))
+    x += icon.width + gap
+
+    wifi = rasterize(site_svg("mac-wifi"), round(4.6 * CQW), FG_RGB, out_dir, "wifi")
+    canvas.alpha_composite(wifi, (x, (BAR_H - wifi.height) // 2))
+    x += wifi.width + gap
+
+    batt = rasterize(site_svg("mac-batt"), round(6.44 * CQW), FG_RGB, out_dir, "batt")
+    canvas.alpha_composite(batt, (x, (BAR_H - batt.height) // 2))
+    x += batt.width + gap + round(0.92 * CQW)
+
+    clock = ImageFont.truetype(SYSTEM_FONT, round(3.13 * CQW))
     try:
-        bold.set_variation_by_name("Bold")
-        regular.set_variation_by_name("Regular")
+        clock.set_variation_by_name("Medium")
     except OSError:
         pass
-    text_y = (BAR_H - BAR_FONT) // 2 - round(2 * SCALE)
-
-    # The left half is a generic menu: the app has no Dock icon or menus of
-    # its own, so whatever is frontmost owns this side.
-    x = round(40 * SCALE)
-    for i, title in enumerate(["Finder", "File", "Edit", "View", "Go", "Window", "Help"]):
-        font = bold if i == 0 else regular
-        d.text((x, text_y), title, font=font, fill=BAR_TINT)
-        x += d.textlength(title, font=font) + round(34 * SCALE)
-
-    # System items, right-aligned; the bell sits over the popover's arrow.
-    clock = "Wed 3 Sep  09:41"
-    right = W - round(32 * SCALE)
-    right -= d.textlength(clock, font=regular)
-    d.text((right, text_y), clock, font=regular, fill=BAR_TINT)
-
-    right -= round(38 * SCALE)
-    bw, bh = round(50 * SCALE), round(24 * SCALE)
-    bx, by = right - bw, (BAR_H - bh) // 2
-    d.rounded_rectangle([bx, by, bx + bw, by + bh], radius=round(6 * SCALE),
-                        outline=BAR_TINT + (140,), width=round(3 * SCALE))
-    d.rounded_rectangle([bx + round(5 * SCALE), by + round(5 * SCALE),
-                         bx + bw - round(12 * SCALE), by + bh - round(5 * SCALE)],
-                        radius=round(3 * SCALE), fill=BAR_TINT)
-    d.rounded_rectangle([bx + bw + round(2 * SCALE), by + bh // 2 - round(5 * SCALE),
-                         bx + bw + round(5 * SCALE), by + bh // 2 + round(5 * SCALE)],
-                        radius=round(2 * SCALE), fill=BAR_TINT + (140,))
-
-    right = bx - round(40 * SCALE)
-    r = round(30 * SCALE)
-    cx, cy = right - r // 2, BAR_H // 2 + round(9 * SCALE)
-    for k, radius in enumerate([r, r * 0.66, r * 0.33]):
-        d.pieslice([cx - radius, cy - radius, cx + radius, cy + radius],
-                   225, 315, fill=BAR_TINT if k == 2 else None,
-                   outline=BAR_TINT, width=round(3.5 * SCALE))
-
-    size = round(40 * SCALE)
-    icon = bell(size)
-    canvas.alpha_composite(icon, (round(bell_x - size / 2), (BAR_H - size) // 2))
+    text = "Sat 29 Aug 14:07"
+    box = d.textbbox((0, 0), text, font=clock)
+    d.text((x, (BAR_H - (box[3] - box[1])) // 2 - box[1]), text, font=clock, fill=FG)
+    if x + (box[2] - box[0]) > W - pad:
+        print("WARNING: the clock runs off the bar")
 
 
 def frame(locale, captions, title_key, desc_key, popover, apex_x, out_dir, out_name):
@@ -250,13 +267,14 @@ def frame(locale, captions, title_key, desc_key, popover, apex_x, out_dir, out_n
     if GUTTER + TEXT_W > box[0] - 60:
         print(f"WARNING {locale}/{out_name}: caption column runs into the popover")
 
+    # .mac-wall .mac-shot: drop-shadow(0 18px 36px rgba(0,0,0,.55)), at 2x,
+    # following the popover's own alpha, arrow and all.
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).rounded_rectangle(
-        [box[0] + 26, box[1] + 54, box[2] - 26, box[3] + 30],
-        radius=36, fill=(18, 18, 24, 96),
-    )
-    canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(46)))
-    menu_bar(canvas, sans, left + apex_x)
+    silhouette = Image.new("RGBA", popover.size, (0, 0, 0, 140))
+    silhouette.putalpha(popover.getchannel("A").point(lambda v: v * 140 // 255))
+    shadow.alpha_composite(silhouette, (left, top + 36))
+    canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(36)))
+    menu_bar(canvas, left + apex_x, out_dir)
     canvas.alpha_composite(popover, (left, top))
 
     publish(canvas.convert("RGB"), f"{out_dir}/{out_name}", "PNG")

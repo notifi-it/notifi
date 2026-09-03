@@ -67,6 +67,22 @@ enum SampleData {
         ProcessInfo.processInfo.environment["NOTIFI_DEMO_BASE"] ?? "https://notifi.it/demo"
     }
 
+    #if os(macOS)
+    private static let showcaseBody = """
+    ## Header
+
+    Text, **bold**, _italic_, `code`, ~~strikethrough~~, [links](https://notifi.it/docs) and bullets:
+
+    - foo
+    - bar
+
+    ```
+    curl -X POST https://notifi.it/send \\
+      -H "Authorization: Bearer $NOTIFI_KEY" \\
+      -d "title=Markdown"
+    ```
+    """
+    #else
     private static let showcaseBody = """
     # Header 1
     ## Header 2
@@ -98,6 +114,7 @@ enum SampleData {
     >
     > Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
     """
+    #endif
 
     @MainActor
     static func screenDidAppear() {
