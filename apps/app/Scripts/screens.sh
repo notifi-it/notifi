@@ -43,7 +43,7 @@ APP=$(find "$DERIVED/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.
 [ -n "$APP" ] || { echo "no .app in $DERIVED" >&2; exit 1; }
 
 named() { # name
-  xcrun simctl list devices available -j | python3 -c "
+  xcrun simctl list devices available -j | "${PYTHON:-python3}" -c "
 import json,sys
 for runtime in json.load(sys.stdin)['devices'].values():
     for d in runtime:
@@ -151,8 +151,8 @@ for pair in "en:en-GB" "es:es-ES" "de:de-DE" "fr:fr-FR" "it:it"; do
   capture_set "$PHONE" ""
   capture_set "$IPAD" "ipad-"
 
-  LOCALE="$LOCALE" SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
-  IPAD=1 LOCALE="$LOCALE" SHOTS="$OUT" python3 apps/app/Scripts/appstore-frames.py
+  LOCALE="$LOCALE" SHOTS="$OUT" "${PYTHON:-python3}" apps/app/Scripts/appstore-frames.py
+  IPAD=1 LOCALE="$LOCALE" SHOTS="$OUT" "${PYTHON:-python3}" apps/app/Scripts/appstore-frames.py
 done
 
 # The website is English only, so its four shots are captured after the loop
@@ -168,7 +168,7 @@ shoot "$PHONE" "settings.png" SIMCTL_CHILD_NOTIFI_START_TAB=settings \
 # lossy webp. 2x because the ground's grain lives at device-pixel scale:
 # downscaling to 1x averaged it into flat black, and no webp quality brings
 # back what the resize removed. The filenames are what index.html references.
-python3 - "$OUT" "$SITE" <<'EOF'
+"${PYTHON:-python3}" - "$OUT" "$SITE" <<'EOF'
 import sys
 from PIL import Image
 

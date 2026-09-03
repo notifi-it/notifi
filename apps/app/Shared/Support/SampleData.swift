@@ -68,27 +68,27 @@ enum SampleData {
     }
 
     private static let showcaseBody = """
-    ## A heading
+    ## Heading
 
-    Plain text with **bold**, `code` and ~~strikethrough~~.
+    Text, **bold**, `code`, ~~strikethrough~~ and [notifi.it/docs](https://notifi.it/docs).
 
-    - Lists and tables
-    - Quotes
-    - Links: [API docs](https://notifi.it/docs)
+    - foo
+    - bar
 
-    > Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    > Lorem ipsum dolor sit amet,\\
+    > consectetur adipiscing elit,\\
+    > sed do eiusmod tempor.
 
-    ### A smaller heading
+    ### Subheading
 
-    | Field | Holds |
+    | foo | bar |
     | --- | --- |
-    | title | one line |
-    | message | Markdown |
+    | baz | qux |
 
     ```
     curl -X POST https://notifi.it/send \\
       -H "Authorization: Bearer $NOTIFI_KEY" \\
-      -d "title=Rendered from Markdown"
+      -d "title=Markdown notification"
     ```
     """
 
@@ -353,11 +353,11 @@ enum SampleData {
             context.insert(
                 Message(
                     serverID: showcaseID,
-                    title: "Rendered from Markdown",
+                    title: "Markdown notification",
                     body: showcaseBody,
                     link: URL(string: "https://notifi.it/docs"),
                     imageURL: URL(string: "\(demo)/placeholder.png"),
-                    keyID: keyIDs.dropFirst().first,
+                    keyID: keys.first(where: { $0.name == "Grafana" })?.id,
                     createdAt: ago(3),
                     occurredAt: nil,
                     isRead: false,
