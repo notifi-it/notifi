@@ -384,7 +384,7 @@ export const fr: Translation = {
   'store.shotInboxTitleIpad': 'Une requête.\nDroit sur vos appareils.',
   'store.shotInboxBody':
     'Notifications push pour vos scripts et serveurs. Une requête HTTP vers notifi.it et ' +
-    'elle arrive un instant plus tard. Pas de compte.',
+    'elle arrive un instant plus tard.',
   'store.shotMessageTitle': 'Images, liens,\nMarkdown.',
   'store.shotMessageBody':
     'Un titre, un corps, une image et un lien. Titres, listes, citations et blocs de code ' +
@@ -393,8 +393,7 @@ export const fr: Translation = {
   'store.shotKeysTitle': 'Une clé\npar source.',
   'store.shotKeysBody':
     "Donnez une clé au bot de déploiement et une autre à la sonnette. Révoquez-en une, les " +
-    "autres continuent de fonctionner. Chaque clé porte son propre nombre d’envois, sans " +
-    'aucun compte à créer au préalable.',
+    'autres continuent de fonctionner.',
 
   'restore.title': 'Cela ressemble à un nouvel appareil',
   'restore.detail':

@@ -393,7 +393,7 @@ export const it: Translation = {
   'store.shotInboxTitleIpad': 'Una richiesta.\nDritta sui tuoi dispositivi.',
   'store.shotInboxBody':
     'Notifiche push per i tuoi script e server. Una richiesta HTTP a notifi.it e arriva un ' +
-    'momento dopo. Niente account.',
+    'momento dopo.',
   'store.shotMessageTitle': 'Immagini, link,\nMarkdown.',
   'store.shotMessageBody':
     'Un titolo, un corpo, un\'immagine e un link. Titoli, elenchi, citazioni e blocchi di codice ' +
@@ -402,6 +402,5 @@ export const it: Translation = {
   'store.shotKeysTitle': 'Una chiave\nper fonte.',
   'store.shotKeysBody':
     'Dai al bot di deploy una chiave e al campanello un\'altra. Revocane una e le altre ' +
-    'continuano a funzionare. Ogni chiave ha il proprio conteggio di invii, senza alcun account ' +
-    'da creare prima.',
+    'continuano a funzionare.',
 };
