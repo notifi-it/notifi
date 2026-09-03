@@ -199,7 +199,7 @@ def slide_arrow(popover, to_x):
 
 def menu_bar(canvas, desk, out_dir):
     """The site's .mac-bar across the top of the popover: frosted white over
-    the ground, a hairline underneath, the Apple mark at the
+    the ground, the Apple mark at the
     left, and .mac-status right-aligned -- bell, Wi-Fi, battery, clock.
     Returns the bell's centre x, which the popover's arrow then meets."""
     x0, y0, x1, _ = desk
@@ -207,7 +207,6 @@ def menu_bar(canvas, desk, out_dir):
     bar = Image.new("RGBA", (width, BAR_H), (255, 255, 255, 170))
     canvas.alpha_composite(bar, (x0, y0))
     d = ImageDraw.Draw(canvas)
-    d.line([(x0, y0 + BAR_H - 1), (x1, y0 + BAR_H - 1)], fill=(0, 0, 0, 28), width=1)
 
     pad = round(2.9 * CQW)
     apple = rasterize(site_svg("mac-apple"), round(5.06 * CQW), FG_RGB, out_dir, "apple")
