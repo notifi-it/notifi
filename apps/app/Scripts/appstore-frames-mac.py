@@ -1,15 +1,15 @@
-"""Compose the Mac App Store screenshots from the popover capture.
+"""Compose the Mac App Store screenshots from the popover captures.
 
 Same visual language as appstore-frames.py, turned landscape: Recursive Mono
-title, Karla description, one red accent, a soft ground ramp, and the popover
-floating on it. Output is 2560x1600, one of the sizes App Store Connect
+title, Karla description, one red accent, a soft ground ramp. Three frames
+mirror the iOS set -- inbox, message, keys -- and each hangs the popover from a
+menu bar drawn across the top, with the app's own bell sitting over the
+popover's arrow. Output is 2560x1600, one of the sizes App Store Connect
 accepts for macOS, written to fastlane/screenshots-macos/<locale>/.
 
 The popover artwork comes from `make screens-mac`, which drives the real Mac
-app and needs a human at the machine. This script prefers the raw capture that
-run leaves at /tmp/notifi-screens/mac.png and falls back to the committed site
-asset apps/api/public/screens/mac-cut.webp, so the store frames can be
-re-rendered without recapturing.
+app and needs a human at the machine; it leaves the three raw captures in
+/tmp/notifi-screens as mac-inbox.png, mac-detail.png and mac-keys.png.
 
     python3 apps/app/Scripts/appstore-frames-mac.py
 
@@ -25,8 +25,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from publish_image import publish
 
 REPO = os.environ.get("REPO", os.getcwd())
-RAW = "/tmp/notifi-screens/mac.png"
-FALLBACK = f"{REPO}/apps/api/public/screens/mac-cut.webp"
+RAW = os.environ.get("RAW", "/tmp/notifi-screens")
+ASSETS = f"{REPO}/apps/app/Shared/Assets.xcassets"
 
 with open(f"{REPO}/apps/app/fastlane/screenshot-copy.json") as fh:
     CAPTIONS = json.load(fh)
@@ -42,6 +42,20 @@ RULE_W, RULE_H = 190, 9
 # split is fixed so every locale's frame lines up on the listing.
 TEXT_W = 1150
 POPOVER_CENTER_X = 1910
+POPOVER_H = 1320
+# The frame stands in for a 1280x800 screen at 2x, where the menu bar is 48px
+# tall; the popover is scaled by the same factor the capture is, so the two
+# keep their real proportion. Menu text is 13pt on that bar.
+SCALE = POPOVER_H / 1452
+BAR_H = round(48 * SCALE * 1.1)
+BAR_FONT = round(26 * SCALE * 1.1)
+BAR_TINT = (0x1D, 0x1D, 0x1F)
+
+FRAMES = [
+    ("mac-inbox.png", "inboxTitleIpad", "inboxBody", "01_inbox.png"),
+    ("mac-detail.png", "messageTitle", "messageBody", "02_message.png"),
+    ("mac-keys.png", "keysTitle", "keysBody", "03_keys.png"),
+]
 
 
 def dehinted(name, out_dir):
@@ -100,20 +114,98 @@ def ground(popover_box):
     return page
 
 
-def load_popover():
-    src = RAW if os.path.exists(RAW) else FALLBACK
-    shot = Image.open(src).convert("RGBA")
+def load_popover(name):
+    path = f"{RAW}/{name}"
+    if not os.path.exists(path):
+        sys.exit(f"{path} is missing -- run `make screens-mac` first")
+    shot = Image.open(path).convert("RGBA")
     # The capture carries its own shape in the alpha channel -- rounded panel
-    # plus the arrow -- so no rounding or bezel ring is drawn here. Scaled to a
-    # fixed height so every locale frames the identical popover.
-    target_h = 1320
-    target_w = round(shot.width * target_h / shot.height)
-    return shot.resize((target_w, target_h), Image.LANCZOS), src
+    # plus the arrow -- so no rounding or bezel ring is drawn here. The arrow
+    # sits wherever the screen edge pushed it, so its apex is measured from
+    # the alpha rather than assumed to be centred; the bell goes over it.
+    alpha = shot.getchannel("A").load()
+    apex_y = next(y for y in range(shot.height)
+                  if any(alpha[x, y] > 8 for x in range(shot.width)))
+    xs = [x for x in range(shot.width) if alpha[x, apex_y] > 8]
+    apex_x = (min(xs) + max(xs)) / 2
+    target_w = round(shot.width * SCALE)
+    return shot.resize((target_w, POPOVER_H), Image.LANCZOS), apex_x * SCALE
 
 
-def frame(locale, captions, popover, out_dir):
+def tinted(name, size, tint):
+    imageset, file = name.split("/")
+    art = Image.open(f"{ASSETS}/{imageset}.imageset/{file}.png")
+    art = art.convert("RGBA").resize((size, size), Image.LANCZOS)
+    layer = Image.new("RGBA", (size, size), tint + (0,))
+    layer.putalpha(art.getchannel("A"))
+    return layer
+
+
+def bell(size):
+    icon = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    icon.alpha_composite(tinted("menu_icon/menu", size, BAR_TINT))
+    icon.alpha_composite(tinted("menu_dot/dot", size, BRAND_RGB))
+    icon.alpha_composite(tinted("menu_clapper/clapper", size, BAR_TINT))
+    return icon
+
+
+def menu_bar(canvas, sans, bell_x):
+    bar = Image.new("RGBA", (W, BAR_H), (255, 255, 255, 190))
+    canvas.alpha_composite(bar, (0, 0))
+    d = ImageDraw.Draw(canvas)
+    d.line([(0, BAR_H - 1), (W, BAR_H - 1)], fill=(0, 0, 0, 34), width=1)
+
+    bold = ImageFont.truetype(sans, BAR_FONT)
+    regular = ImageFont.truetype(sans, BAR_FONT)
+    try:
+        bold.set_variation_by_name("Bold")
+        regular.set_variation_by_name("Regular")
+    except OSError:
+        pass
+    text_y = (BAR_H - BAR_FONT) // 2 - round(2 * SCALE)
+
+    # The left half is a generic menu: the app has no Dock icon or menus of
+    # its own, so whatever is frontmost owns this side.
+    x = round(40 * SCALE)
+    for i, title in enumerate(["Finder", "File", "Edit", "View", "Go", "Window", "Help"]):
+        font = bold if i == 0 else regular
+        d.text((x, text_y), title, font=font, fill=BAR_TINT)
+        x += d.textlength(title, font=font) + round(34 * SCALE)
+
+    # System items, right-aligned; the bell sits over the popover's arrow.
+    clock = "Wed 3 Sep  09:41"
+    right = W - round(32 * SCALE)
+    right -= d.textlength(clock, font=regular)
+    d.text((right, text_y), clock, font=regular, fill=BAR_TINT)
+
+    right -= round(38 * SCALE)
+    bw, bh = round(50 * SCALE), round(24 * SCALE)
+    bx, by = right - bw, (BAR_H - bh) // 2
+    d.rounded_rectangle([bx, by, bx + bw, by + bh], radius=round(6 * SCALE),
+                        outline=BAR_TINT + (140,), width=round(3 * SCALE))
+    d.rounded_rectangle([bx + round(5 * SCALE), by + round(5 * SCALE),
+                         bx + bw - round(12 * SCALE), by + bh - round(5 * SCALE)],
+                        radius=round(3 * SCALE), fill=BAR_TINT)
+    d.rounded_rectangle([bx + bw + round(2 * SCALE), by + bh // 2 - round(5 * SCALE),
+                         bx + bw + round(5 * SCALE), by + bh // 2 + round(5 * SCALE)],
+                        radius=round(2 * SCALE), fill=BAR_TINT + (140,))
+
+    right = bx - round(40 * SCALE)
+    r = round(30 * SCALE)
+    cx, cy = right - r // 2, BAR_H // 2 + round(9 * SCALE)
+    for k, radius in enumerate([r, r * 0.66, r * 0.33]):
+        d.pieslice([cx - radius, cy - radius, cx + radius, cy + radius],
+                   225, 315, fill=BAR_TINT if k == 2 else None,
+                   outline=BAR_TINT, width=round(3.5 * SCALE))
+
+    size = round(40 * SCALE)
+    icon = bell(size)
+    canvas.alpha_composite(icon, (round(bell_x - size / 2), (BAR_H - size) // 2))
+
+
+def frame(locale, captions, title_key, desc_key, popover, apex_x, out_dir, out_name):
     left = POPOVER_CENTER_X - popover.width // 2
-    top = (H - popover.height) // 2
+    top = BAR_H
     box = [left, top, left + popover.width, top + popover.height]
 
     canvas = ground(box)
@@ -133,16 +225,16 @@ def frame(locale, captions, popover, out_dir):
     except OSError:
         pass
 
-    # Measure the caption first so the block centres on the page vertically,
-    # which is what a landscape frame wants where the portrait one stacks.
+    # Measure the caption first so the block centres in the space under the
+    # bar, which is what a landscape frame wants where the portrait one stacks.
     title_lines = []
-    for para in captions.get("inboxTitleIpad", captions["inboxTitle"]).split("\n"):
+    for para in captions[title_key].split("\n"):
         title_lines += wrap(d, para, tf, TEXT_W)
-    desc_lines = wrap(d, captions["inboxBody"], df, TEXT_W)
+    desc_lines = wrap(d, captions[desc_key], df, TEXT_W)
     block_h = (len(title_lines) * round(TITLE_SIZE * 1.14)
                + 34 + RULE_H + 34
                + len(desc_lines) * round(DESC_SIZE * 1.48))
-    y = (H - block_h) // 2
+    y = BAR_H + (H - BAR_H - block_h) // 2
 
     for line in title_lines:
         d.text((GUTTER, y), line, font=tf, fill=FG)
@@ -156,7 +248,7 @@ def frame(locale, captions, popover, out_dir):
         y += round(DESC_SIZE * 1.48)
 
     if GUTTER + TEXT_W > box[0] - 60:
-        print(f"WARNING {locale}: caption column runs into the popover")
+        print(f"WARNING {locale}/{out_name}: caption column runs into the popover")
 
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(shadow).rounded_rectangle(
@@ -164,19 +256,25 @@ def frame(locale, captions, popover, out_dir):
         radius=36, fill=(18, 18, 24, 96),
     )
     canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(46)))
+    menu_bar(canvas, sans, left + apex_x)
     canvas.alpha_composite(popover, (left, top))
 
-    publish(canvas.convert("RGB"), f"{out_dir}/01_popover.png", "PNG")
+    publish(canvas.convert("RGB"), f"{out_dir}/{out_name}", "PNG")
 
     for tmp in (mono, sans):
         os.remove(tmp)
 
 
-popover, src = load_popover()
-print(f"popover source: {src}")
+popovers = {raw: load_popover(raw) for raw, _, _, _ in FRAMES}
 for locale, caption_key in [("en-US", "en-GB"), ("en-GB", "en-GB"),
                             ("de-DE", "de-DE"), ("es-ES", "es-ES"),
                             ("fr-FR", "fr-FR"), ("it", "it")]:
     out_dir = f"{REPO}/apps/app/fastlane/screenshots-macos/{locale}"
     os.makedirs(out_dir, exist_ok=True)
-    frame(locale, CAPTIONS[caption_key], popover, out_dir)
+    stale = f"{out_dir}/01_popover.png"
+    if os.path.exists(stale):
+        os.remove(stale)
+    for raw, title_key, desc_key, out_name in FRAMES:
+        popover, apex_x = popovers[raw]
+        frame(locale, CAPTIONS[caption_key], title_key, desc_key,
+              popover, apex_x, out_dir, out_name)
