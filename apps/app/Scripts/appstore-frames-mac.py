@@ -185,17 +185,29 @@ def slide_arrow(popover, to_x):
                      if (sp := span(y)) and sp[1] - sp[0] > w * 0.5)
     ax0, ax1 = span(panel_top - 1)
     pad = 10
-    box = (ax0 - pad, apex_y, ax1 + pad + 1, panel_top)
+    # The panel's own first row carries the junction with the arrow, baked in
+    # where the arrow met it, so it travels with the arrow; the row it leaves
+    # behind is repaired with a stretch of plain panel edge from beside it.
+    box = (ax0 - pad, apex_y, ax1 + pad + 1, panel_top + 1)
     arrow = popover.crop(box)
+    width = box[2] - box[0]
+    clean_x = box[0] - width - 30 if box[0] - width - 30 > 0 else box[2] + 30
+    edge = popover.crop((clean_x, panel_top, clean_x + width, panel_top + 1))
+    # The arrow is translucent, so the capture baked the wallpaper behind it
+    # into its colour. Only its solid core is repainted with the panel's own
+    # colour; the soft edge is the window's shadow and is left as captured.
     panel = popover.getpixel(((ax0 + ax1) // 2, panel_top + 4))[:3]
-    tint = Image.new("RGBA", arrow.size, panel + (255,))
-    tint.putalpha(arrow.getchannel("A"))
-    arrow = tint
+    alpha_band = arrow.getchannel("A")
+    core = alpha_band.point(lambda v: 255 if v > 200 else 0)
+    arrow = Image.composite(Image.new("RGBA", arrow.size, panel + (255,)),
+                            arrow, core)
+    arrow.putalpha(alpha_band)
     moved = popover.copy()
     moved.paste((0, 0, 0, 0), box)
+    moved.paste(edge, (box[0], panel_top))
     dx = round(to_x - (ax0 + ax1 + 1) / 2)
     moved.paste(arrow, (box[0] + dx, box[1]), arrow)
-    return moved
+    return moved, panel_top
 
 
 def menu_bar(canvas, desk, out_dir):
@@ -316,13 +328,17 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
 
     bell_x = menu_bar(canvas, desk, out_dir)
 
-    popover = slide_arrow(popover, bell_x - left)
+    popover, panel_row = slide_arrow(popover, bell_x - left)
 
     # .mac-wall .mac-shot: drop-shadow(0 18px 36px rgba(0,0,0,.55)), at 2x,
     # following the popover's own alpha, arrow and all.
+    # Cast from the panel alone, not the arrow: blurred by 36 the arrow's own
+    # shadow rises above the panel edge and haloes the arrow.
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     silhouette = Image.new("RGBA", popover.size, (18, 18, 24, 96))
-    silhouette.putalpha(popover.getchannel("A").point(lambda v: v * 96 // 255))
+    body = popover.getchannel("A").point(lambda v: v * 96 // 255)
+    body.paste(0, (0, 0, popover.width, panel_row))
+    silhouette.putalpha(body)
     shadow.alpha_composite(silhouette, (left, top + 36))
     canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(36)))
     canvas.alpha_composite(popover, (left, top))
