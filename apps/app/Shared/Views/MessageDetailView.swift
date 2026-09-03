@@ -181,12 +181,11 @@ struct MessageDetailView: View {
         if let body = message.body {
             Button(Copy.Inbox.copyMessage) { copy(body) }
         }
-        if let link = message.link {
-            Button(Copy.Inbox.copyLink) { copy(link.absoluteString) }
+        if let link = message.link, LinkPolicy.allows(link, anyScheme: anyScheme) {
             #if os(iOS)
-            if LinkPolicy.allows(link, anyScheme: anyScheme) {
-                ShareLink(item: link) { Text(Copy.Message.shareLink) }
-            }
+            ShareLink(item: link) { Text(Copy.Message.shareLink) }
+            #else
+            Button(Copy.Inbox.copyLink) { copy(link.absoluteString) }
             #endif
         }
         if let url = message.imageURL, LinkPolicy.allows(url, anyScheme: anyScheme) {
@@ -740,7 +739,8 @@ enum BodyLinks {
                   let url = URL(string: String(source[urlRange])) else { continue }
             out += source[cursor..<whole.upperBound]
             let host = url.host() ?? url.absoluteString
-            if !source[textRange].localizedCaseInsensitiveContains(host) {
+            let own = host == "notifi.it" || host.hasSuffix(".notifi.it")
+            if !own, !source[textRange].localizedCaseInsensitiveContains(host) {
                 out += " \(host)"
             }
             links.append(url)

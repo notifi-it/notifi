@@ -39,6 +39,7 @@ private struct GeistStructuredStyle: StructuredText.Style {
                   .foregroundColor(Theme.fg),
                   .backgroundColor(Theme.surface))
             .strong(.fontWeight(.bold))
+            .emphasis(.font(.custom("Karla Italic", size: 15)))
             .link(.foregroundColor(Theme.fg), .underlineStyle(.single))
             .strikethrough(.strikethroughStyle(Text.LineStyle(pattern: .solid, color: Theme.dim)),
                            .foregroundColor(Theme.dim))

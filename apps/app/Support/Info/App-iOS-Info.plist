@@ -37,6 +37,7 @@
 		<string>RecursiveMono-ExtraBold.ttf</string>
 		<string>RecursiveMono-Black.ttf</string>
 			<string>Karla.ttf</string>
+			<string>Karla-Italic.ttf</string>
 	</array>
 	<!-- The app seals notification bodies with HPKE (P256_SHA256_AES_GCM_256) and
 	     signs requests with a Secure Enclave P-256 key, but every one of those
