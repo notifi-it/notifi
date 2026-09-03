@@ -266,8 +266,11 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     # run, overlaid at half strength so it reads as paper, not as dither.
     random.seed(7)
     field = Image.new("RGB", (SPLIT, H), RED_RGB)
-    grain = Image.effect_noise((SPLIT, H), 7).convert("RGB")
-    field = Image.blend(field, ImageChops.overlay(field, grain), 0.5)
+    # Drawn at half size and doubled: a one-pixel grain at 2560 wide is gone
+    # the moment the listing scales the frame down.
+    grain = Image.effect_noise((SPLIT // 2, H // 2), 22)
+    grain = grain.resize((SPLIT, H), Image.NEAREST).convert("RGB")
+    field = ImageChops.overlay(field, grain)
     canvas.paste(field, (0, 0))
 
     mono = dehinted("RecursiveMono-SemiBold", out_dir)
