@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# The Mac popover shot: build the macOS app, open the popover with sample
-# data, photograph just that window, and write
-# apps/api/public/screens/mac-cut.webp and mac.webp.
+# The Mac popover shots: build the macOS app, open the popover with sample
+# data in three states, photograph just that window each time, and write
+# apps/api/public/screens/mac-cut.webp and mac.webp from the inbox one. The
+# three raw captures stay in /tmp/notifi-screens for appstore-frames-mac.py.
 #
 #   make screens-mac
 #
@@ -28,36 +29,49 @@ xcodebuild -project apps/app/notifi.xcodeproj -scheme notifi-macOS \
 APP="$DERIVED/Build/Products/Debug/notifi.app"
 [ -d "$APP" ] || { echo "no notifi.app in $DERIVED" >&2; exit 1; }
 
-# A running copy would keep its own popover state; start clean.
-pkill -x notifi 2>/dev/null || true
-sleep 1
+# One capture per popover state. The store frames want three, like the iOS
+# set: the inbox, a message, and the Keys tab. Each state is a fresh launch
+# with the DEBUG flags the Simulator shots use; NOTIFI_STICKY keeps the
+# .transient popover from dismissing the moment focus moves to the screenshot
+# tooling. `open`, not a backgrounded exec: a process spawned from a shell that
+# exits is killed with it.
+capture() {
+  local name=$1; shift
+  # A running copy would keep its own popover state; start clean.
+  pkill -x notifi 2>/dev/null || true
+  sleep 1
+  open --env NOTIFI_STICKY=1 --env NOTIFI_SAMPLE_DATA=1 --env NOTIFI_SEED_SAMPLE=1 "$@" "$APP"
+  sleep 4
 
-# `open`, not a backgrounded exec: a process spawned from a shell that exits
-# is killed with it. NOTIFI_STICKY keeps the .transient popover from
-# dismissing the moment focus moves to the screenshot tooling.
-open --env NOTIFI_STICKY=1 --env NOTIFI_SAMPLE_DATA=1 \
-     --env NOTIFI_SEED_SAMPLE=1 "$APP"
-sleep 4
+  # One click opens it; the item toggles, so exactly one.
+  osascript -e 'tell application "System Events" to tell process "notifi" to click menu bar item 1 of menu bar 2' >/dev/null
+  sleep 3
 
-# One click opens it; the item toggles, so exactly one.
-osascript -e 'tell application "System Events" to tell process "notifi" to click menu bar item 1 of menu bar 2' >/dev/null
-sleep 3
-
-# The popover window sits at layer 25; the tiny layer<0 entries are the
-# status item itself. System python has no PyObjC, so ask Swift.
-WINDOW_ID=$(swift - <<'EOF'
+  # The popover window sits at layer 25; the tiny layer<0 entries are the
+  # status item itself. System python has no PyObjC, so ask Swift.
+  local window_id
+  # The click leaves the pointer over the panel, which paints a hover
+  # highlight on whatever row is under it; park it off the popover first.
+  window_id=$(swift - <<'SWIFT'
 import CoreGraphics
+CGWarpMouseCursorPosition(CGPoint(x: 200, y: 600))
 let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as! [[String: Any]]
 for w in list where (w["kCGWindowOwnerName"] as? String) == "notifi"
     && (w["kCGWindowLayer"] as? Int) == 25 {
     print(w["kCGWindowNumber"] as! Int)
     break
 }
-EOF
-)
-[ -n "$WINDOW_ID" ] || { echo "popover window not found — is it open?" >&2; exit 1; }
+SWIFT
+  )
+  [ -n "$window_id" ] || { echo "popover window not found for $name — is it open?" >&2; exit 1; }
+  screencapture -x -o -l"$window_id" "$OUT/$name.png"
+}
 
-screencapture -x -o -l"$WINDOW_ID" "$OUT/mac.png"
+capture mac-inbox
+capture mac-detail --env NOTIFI_OPEN_SAMPLE_MESSAGE=1
+capture mac-keys --env NOTIFI_START_TAB=keys
+# The site's figure is the inbox; the store frames read all three.
+cp "$OUT/mac-inbox.png" "$OUT/mac.png"
 
 # Published at the capture's own pixels, cropped to the popover's own edges
 # and lossless: index.html declares half the pixel size, so a 2x display
