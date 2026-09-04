@@ -43,6 +43,13 @@ enum SampleData {
         }
     }
 
+    static var anchor: Date {
+        guard let raw = ProcessInfo.processInfo.environment["NOTIFI_SAMPLE_NOW"],
+              let seconds = TimeInterval(raw)
+        else { return Date() }
+        return Date(timeIntervalSince1970: seconds)
+    }
+
     static var launchMessageIndex: Int? {
         ProcessInfo.processInfo.environment["NOTIFI_START_MESSAGE"].flatMap(Int.init)
     }
@@ -133,6 +140,12 @@ enum SampleData {
         guard isEnabled else { return }
         let documents = FileManager.default.urls(for: .documentDirectory,
                                                  in: .userDomainMask)[0]
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_GB")
+        formatter.dateFormat = "HH:mm"
+        try? formatter.string(from: anchor)
+            .data(using: .utf8)?
+            .write(to: documents.appending(path: "shot-clock"))
         try? Data().write(to: documents.appending(path: "shot-ready"))
     }
 
@@ -168,7 +181,7 @@ enum SampleData {
     static func seed(into context: ModelContext, keyIDs: [Int] = []) {
         clear(from: context)
 
-        let now = Date()
+        let now = anchor
         func ago(_ minutes: Int) -> Date { now.addingTimeInterval(-Double(minutes) * 60) }
 
         let demo = demoBase
@@ -235,6 +248,8 @@ enum SampleData {
             ("Welcome to notifi",
              "This is what a notification looks like. Send one with your first key.",
              nil, nil, 400 * 24 * 60, false),
+
+            (Copy.Empty.sampleTitle, Copy.Empty.sampleMessage, nil, nil, 0, true),
         ]
         #else
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
@@ -360,6 +375,8 @@ enum SampleData {
             ("Welcome to notifi",
              "This is what a notification looks like. Send one with your first key.",
              nil, nil, 400 * 24 * 60, false),
+
+            (Copy.Empty.sampleTitle, Copy.Empty.sampleMessage, nil, nil, 0, true),
         ]
         #endif
 
@@ -382,22 +399,20 @@ enum SampleData {
                 )
             )
         }
-        if opensSampleMessage {
-            context.insert(
-                Message(
-                    serverID: showcaseID,
-                    title: "Markdown",
-                    body: showcaseBody,
-                    link: URL(string: "https://notifi.it/docs"),
-                    imageURL: URL(string: "\(demo)/placeholder.png"),
-                    keyID: nil,
-                    createdAt: ago(3),
-                    occurredAt: nil,
-                    isRead: false,
-                    isCritical: false
-                )
+        context.insert(
+            Message(
+                serverID: showcaseID,
+                title: "Markdown",
+                body: showcaseBody,
+                link: URL(string: "https://notifi.it/docs"),
+                imageURL: URL(string: "\(demo)/placeholder.png"),
+                keyID: nil,
+                createdAt: ago(3),
+                occurredAt: nil,
+                isRead: false,
+                isCritical: true
             )
-        }
+        )
         try? context.save()
     }
 

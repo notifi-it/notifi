@@ -26,6 +26,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from publish_image import publish
+import banner
 
 REPO = os.environ.get("REPO", os.getcwd())
 RAW = os.environ.get("RAW", "/tmp/notifi-screens")
@@ -57,10 +58,28 @@ BAR_H = round(5.83 * CQW)
 SITE = f"{REPO}/apps/api/public"
 SYSTEM_FONT = "/System/Library/Fonts/SFNS.ttf"
 
+# The banner is drawn rather than exported -- see banner.py for why. It sits on
+# the red field under the caption rather than on the desktop beside the Mac:
+# there it is read with the words that explain it, and the Mac keeps the height
+# it was giving up to make room. Light, because the field behind it is dark
+# enough that a dark banner would disappear into it.
+BANNER_MODE = "light"
+# The system's own word, left in English like the clock beside it: it is macOS
+# chrome rather than the product's copy, and there is no key for it to come from.
+BANNER_WHEN = "now"
+BANNER_ICON = f"{ASSETS}/AppIcon.appiconset/mac-1024.png"
+# The air between the caption and the banner under it.
+BANNER_GAP = 72
+POPOVER_PT = 461
+
+# The fifth field says whether the frame carries a banner above its bar. Only
+# the first frame does -- it is the shot that has to say what the app does, and
+# on the other two the banner would push the screen being shown off centre for
+# nothing.
 FRAMES = [
-    ("mac-inbox.png", "inboxTitleIpad", "inboxBody", "01_inbox.png"),
-    ("mac-detail.png", "messageTitle", "messageBody", "02_message.png"),
-    ("mac-keys.png", "keysTitle", "keysBody", "03_keys.png"),
+    ("mac-inbox.png", "inboxTitleIpad", "inboxBody", "01_inbox.png", True),
+    ("mac-detail.png", "messageTitle", "messageBody", "02_message.png", False),
+    ("mac-keys.png", "keysTitle", "keysBody", "03_keys.png", False),
 ]
 
 
@@ -210,6 +229,17 @@ def slide_arrow(popover, to_x):
     return moved, panel_top
 
 
+def bar_time():
+    """The time on the bar is the time the popover under it was captured, which
+    screens-mac.sh writes down beside the captures. A hard-coded clock said
+    14:07 over an inbox whose newest notification was stamped 15:05, and beside
+    a banner saying "now"."""
+    path = f"{RAW}/clock.txt"
+    if not os.path.exists(path):
+        sys.exit(f"{path} is missing -- run `make screens-mac` first")
+    return open(path).read().strip()
+
+
 def menu_bar(canvas, desk, out_dir):
     """The site's .mac-bar across the top of the popover: frosted white over
     the ground, the Apple mark at the
@@ -235,7 +265,7 @@ def menu_bar(canvas, desk, out_dir):
         clock.set_variation_by_name("Medium")
     except OSError:
         pass
-    text = "Sat 29 Aug 14:07"
+    text = bar_time()
     tb = d.textbbox((0, 0), text, font=clock)
     cluster = (icon.width + gap + wifi.width + gap + batt.width + gap
                + (tb[2] - tb[0]))
@@ -257,13 +287,18 @@ RED_RGB = (0xBC, 0x21, 0x22)
 MARK = 150
 
 
-def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
+def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name,
+          with_banner):
     # The bar and the popover, nothing around them: the desk is the site's
     # .mac-desk width so the bar keeps its proportions, but it carries no
     # border and no ground below the popover. Centred on the right half.
     desk_w = round(popover.width / 0.94)
     desk_h = BAR_H + popover.height
     desk_x = POPOVER_CENTER_X - desk_w // 2
+    # The banner stands above the bar rather than over the screen, so it is
+    # part of the stack and not something laid on top of one: the desk drops by
+    # the banner's height and the pair is centred together, which keeps the
+    # popover off the frame's edge whatever the banner's aspect turns out to be.
     desk_y = (H - desk_h) // 2
     desk = [desk_x, desk_y, desk_x + desk_w, desk_y + desk_h]
     left = desk_x + (desk_w - popover.width) // 2
@@ -311,10 +346,13 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     for para in captions[title_key].split("\n"):
         title_lines += wrap(d, para, tf, SPLIT - GUTTER * 2)
     desc_lines = wrap(d, captions[desc_key], df, SPLIT - GUTTER * 2)
+    banner_w = SPLIT - GUTTER * 2
     block_h = (MARK + 64
                + len(title_lines) * round(TITLE_SIZE * 1.14)
                + 56
                + len(desc_lines) * round(DESC_SIZE * 1.48))
+    if with_banner:
+        block_h += BANNER_GAP + banner.height_for(banner_w)
     y = (H - block_h) // 2
     canvas.alpha_composite(mark, (GUTTER, y))
     y += MARK + 64
@@ -325,6 +363,11 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     for line in desc_lines:
         d.text((GUTTER, y), line, font=df, fill=(255, 222, 222))
         y += round(DESC_SIZE * 1.48)
+
+    if with_banner:
+        banner.draw(canvas, GUTTER, y + BANNER_GAP, banner_w, BANNER_MODE,
+                    captions["bannerTitle"], captions["bannerBody"],
+                    BANNER_WHEN, BANNER_ICON)
 
     bell_x = menu_bar(canvas, desk, out_dir)
 
@@ -349,7 +392,7 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
         os.remove(tmp)
 
 
-popovers = {raw: load_popover(raw) for raw, _, _, _ in FRAMES}
+popovers = {raw: load_popover(raw) for raw, _, _, _, _ in FRAMES}
 for locale, caption_key in [("en-US", "en-GB"), ("en-GB", "en-GB"),
                             ("de-DE", "de-DE"), ("es-ES", "es-ES"),
                             ("fr-FR", "fr-FR"), ("it", "it")]:
@@ -358,6 +401,6 @@ for locale, caption_key in [("en-US", "en-GB"), ("en-GB", "en-GB"),
     stale = f"{out_dir}/01_popover.png"
     if os.path.exists(stale):
         os.remove(stale)
-    for raw, title_key, desc_key, out_name in FRAMES:
+    for raw, title_key, desc_key, out_name, with_banner in FRAMES:
         frame(locale, CAPTIONS[caption_key], title_key, desc_key,
-              popovers[raw], out_dir, out_name)
+              popovers[raw], out_dir, out_name, with_banner)

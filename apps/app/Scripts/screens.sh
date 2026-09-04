@@ -65,8 +65,15 @@ IPAD=$(named "$IPAD_NAME")
 xcrun simctl bootstatus "$IPAD" -b >/dev/null
 xcrun simctl install "$IPAD" "$APP"
 
-# Apple's own 09:41 on a full battery and full bars. Without it the captures
-# carry whatever the clock said, and the three frames sit side by side on the
+# One clock for the whole run: the status bar and the seeded fixture are set
+# from the same second, so the newest notification in the inbox carries the time
+# the phone above it is showing. Apple's 09:41 was a lie the moment a banner
+# saying "now" appeared beside a message stamped something else.
+ANCHOR=$(date +%s)
+export ANCHOR
+
+# Full battery and full bars. Without the override the captures carry whatever
+# the simulator's clock said, and the three frames sit side by side on the
 # listing with three different times.
 # Text size is named too. The simulator keeps whatever the last session set
 # (one left the phone on medium), and a set captured a step smaller than the
@@ -74,7 +81,6 @@ xcrun simctl install "$IPAD" "$APP"
 for udid in "$PHONE" "$IPAD"; do
   xcrun simctl ui "$udid" content_size large
   xcrun simctl status_bar "$udid" override \
-    --time "09:41" \
     --dataNetwork wifi --wifiMode active --wifiBars 3 \
     --cellularMode active --cellularBars 4 \
     --batteryState discharging --batteryLevel 100
@@ -103,13 +109,15 @@ shoot() { # udid outfile extra-env...
   # must be its own step with a beat in between.
   xcrun simctl terminate "$udid" "$BUNDLE_ID" 2>/dev/null || true
   sleep 1
-  local marker
-  marker="$(xcrun simctl get_app_container "$udid" "$BUNDLE_ID" data)/Documents/shot-ready"
-  rm -f "$marker"
+  local documents marker
+  documents="$(xcrun simctl get_app_container "$udid" "$BUNDLE_ID" data)/Documents"
+  marker="$documents/shot-ready"
+  rm -f "$marker" "$documents/shot-clock"
   # -AppleLanguages is read at launch, so the app comes up in LANG's language
   # without touching the simulator's own settings. Capturing every locale off
   # one English boot would ship a Spanish listing showing an English app.
   env "$@" SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 SIMCTL_CHILD_NOTIFI_SEED_SAMPLE=1 \
+    SIMCTL_CHILD_NOTIFI_SAMPLE_NOW="$ANCHOR" \
     ${NOTIFI_DEMO_BASE:+SIMCTL_CHILD_NOTIFI_DEMO_BASE="$NOTIFI_DEMO_BASE"} \
     xcrun simctl launch "$udid" "$BUNDLE_ID" \
     -AppleLanguages "($LANG_CODE)" -AppleLocale "$LANG_CODE" >/dev/null
@@ -127,6 +135,13 @@ shoot() { # udid outfile extra-env...
   # iOS 26 fades the home indicator about two seconds after a screen appears
   # and does not bring it back without a swipe. Counted from the marker this is
   # a wait for one known animation, not a guess at how long a launch takes.
+  # The status bar is set from the time the app says it seeded, not from a value
+  # computed out here. Two clocks that are meant to agree will not, and a phone
+  # showing one time above an inbox stamped another is the whole reason any of
+  # this exists.
+  if [ -s "$documents/shot-clock" ]; then
+    xcrun simctl status_bar "$udid" override --time "$(cat "$documents/shot-clock")"
+  fi
   sleep 3
   xcrun simctl io "$udid" screenshot --type=png "$OUT/$outfile" >/dev/null
   echo "$OUT/$outfile"
