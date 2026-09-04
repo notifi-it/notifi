@@ -65,8 +65,16 @@ IPAD=$(named "$IPAD_NAME")
 xcrun simctl bootstatus "$IPAD" -b >/dev/null
 xcrun simctl install "$IPAD" "$APP"
 
-# Apple's own 09:41 on a full battery and full bars. Without it the captures
-# carry whatever the clock said, and the three frames sit side by side on the
+# One clock for the whole run: the status bar and the seeded fixture are set
+# from the same second, so the newest notification in the inbox carries the time
+# the phone above it is showing. Apple's 09:41 was a lie the moment a banner
+# saying "now" appeared beside a message stamped something else.
+ANCHOR=$(date +%s)
+ANCHOR_TIME=$(date -r "$ANCHOR" +%H:%M)
+export ANCHOR ANCHOR_TIME
+
+# Full battery and full bars. Without the override the captures carry whatever
+# the simulator's clock said, and the three frames sit side by side on the
 # listing with three different times.
 # Text size is named too. The simulator keeps whatever the last session set
 # (one left the phone on medium), and a set captured a step smaller than the
@@ -74,7 +82,7 @@ xcrun simctl install "$IPAD" "$APP"
 for udid in "$PHONE" "$IPAD"; do
   xcrun simctl ui "$udid" content_size large
   xcrun simctl status_bar "$udid" override \
-    --time "09:41" \
+    --time "$ANCHOR_TIME" \
     --dataNetwork wifi --wifiMode active --wifiBars 3 \
     --cellularMode active --cellularBars 4 \
     --batteryState discharging --batteryLevel 100
@@ -110,6 +118,7 @@ shoot() { # udid outfile extra-env...
   # without touching the simulator's own settings. Capturing every locale off
   # one English boot would ship a Spanish listing showing an English app.
   env "$@" SIMCTL_CHILD_NOTIFI_SAMPLE_DATA=1 SIMCTL_CHILD_NOTIFI_SEED_SAMPLE=1 \
+    SIMCTL_CHILD_NOTIFI_SAMPLE_NOW="$ANCHOR" \
     ${NOTIFI_DEMO_BASE:+SIMCTL_CHILD_NOTIFI_DEMO_BASE="$NOTIFI_DEMO_BASE"} \
     xcrun simctl launch "$udid" "$BUNDLE_ID" \
     -AppleLanguages "($LANG_CODE)" -AppleLocale "$LANG_CODE" >/dev/null

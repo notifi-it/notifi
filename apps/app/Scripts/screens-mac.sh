@@ -22,6 +22,12 @@ mkdir -p "$SITE"
 OUT=${OUT:-/tmp/notifi-screens}
 mkdir -p "$OUT"
 
+# The clock the frames draw and the clock the fixture is seeded from are the
+# same second, written down so appstore-frames-mac.py can set the menu bar to
+# the time the popover under it is showing.
+ANCHOR=$(date +%s)
+date -r "$ANCHOR" "+%a %-d %b %H:%M" > "$OUT/clock.txt"
+
 xcodebuild -project apps/app/notifi.xcodeproj -scheme notifi-macOS \
   -configuration Debug -derivedDataPath "$DERIVED" \
   DEVELOPMENT_TEAM=Z28DW76Y3W build | tail -3
@@ -40,7 +46,8 @@ capture() {
   # A running copy would keep its own popover state; start clean.
   pkill -x notifi 2>/dev/null || true
   sleep 1
-  open --env NOTIFI_STICKY=1 --env NOTIFI_SAMPLE_DATA=1 --env NOTIFI_SEED_SAMPLE=1 "$@" "$APP"
+  open --env NOTIFI_STICKY=1 --env NOTIFI_SAMPLE_DATA=1 --env NOTIFI_SEED_SAMPLE=1 \
+    --env NOTIFI_SAMPLE_NOW="$ANCHOR" "$@" "$APP"
   sleep 4
 
   # One click opens it; the item toggles, so exactly one.

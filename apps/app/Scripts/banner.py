@@ -87,17 +87,22 @@ def _tracked(draw, xy, text, font, fill, tracking):
     """PIL has no letter-spacing, and Apple's is negative at this size -- over a
     word it is the difference between the real thing and something close.
 
+    Each glyph is placed at its position in the whole string, not at the sum of
+    the ones before it: a character's width on its own is not its width after
+    the character before it, and advancing by that sum throws the font's kerning
+    away and reads as cramped.
+
     Drawn from the baseline, so a change of weight or optical size moves the
     glyphs' own shapes and not the line they sit on."""
     x, y = xy
-    for ch in text:
-        draw.text((x, y), ch, font=font, fill=fill, anchor="ls")
-        x += draw.textlength(ch, font=font) + tracking
-    return x
+    for i, ch in enumerate(text):
+        draw.text((x + draw.textlength(text[:i], font=font) + i * tracking, y),
+                  ch, font=font, fill=fill, anchor="ls")
+    return x + draw.textlength(text, font=font) + len(text) * tracking
 
 
 def _tracked_width(draw, text, font, tracking):
-    return sum(draw.textlength(c, font=font) for c in text) + tracking * len(text)
+    return draw.textlength(text, font=font) + tracking * (len(text) - 1)
 
 
 def icon_art(path, size):
