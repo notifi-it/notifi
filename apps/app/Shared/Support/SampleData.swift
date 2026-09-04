@@ -235,6 +235,8 @@ enum SampleData {
             ("Welcome to notifi",
              "This is what a notification looks like. Send one with your first key.",
              nil, nil, 400 * 24 * 60, false),
+
+            (Copy.Empty.sampleTitle, Copy.Empty.sampleMessage, nil, nil, 1, true),
         ]
         #else
         let rows: [(String, String?, String?, String?, Int, Bool)] = [
@@ -360,6 +362,8 @@ enum SampleData {
             ("Welcome to notifi",
              "This is what a notification looks like. Send one with your first key.",
              nil, nil, 400 * 24 * 60, false),
+
+            (Copy.Empty.sampleTitle, Copy.Empty.sampleMessage, nil, nil, 1, true),
         ]
         #endif
 
