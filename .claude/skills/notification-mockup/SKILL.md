@@ -91,10 +91,18 @@ blue minus red.
 
 ## Putting it in the Mac App Store frames
 
-`appstore-frames-mac.py` composites it over the first frame only, at
-`Scripts/assets/notification-banner.png`. It measures the PNG's opaque core at
-run time and positions by that, so the shadow padding may change between
-exports, but the banner's own width and margins may not.
+`appstore-frames-mac.py` puts it on the first frame only, at
+`Scripts/assets/notification-banner.png`. It stands above the menu bar rather
+than over the popover: laid on the app's own screen it reads as part of the
+app's interface, and a notification is the system's.
+
+The script crops the PNG to its opaque core and casts the shadow itself, the
+way it already does for the popover. That is not tidiness. At desk width the
+export's baked shadow wants 73px above the artwork -- even cropped to where it
+is invisible -- and the bar leaves about 150px for the whole banner, so a
+banner wide enough to span the desk cannot carry its exported shadow without a
+grey band running off the top of the frame. The core is measured rather than
+written down, so re-exporting at a different scale changes nothing.
 
 **A new export will not reach the frames on its own.** `publish_image.py` only
 rewrites a frame when enough pixels differ by more than `EPS = 48`, and a
