@@ -67,12 +67,19 @@ BANNER = f"{REPO}/apps/app/Scripts/assets/notification-banner.png"
 # keeps the pair at the ratio a real screen shows them at, whatever POPOVER_H
 # is set to.
 BANNER_PT, POPOVER_PT = 344, 461
-# Where the system puts it: under the bar, in from the right edge.
-BANNER_TOP_PT, BANNER_RIGHT_PT = 8, 12
+# The gap between the banner and the bar below it, in points of the scale the
+# popover is drawn at. It has to clear the banner's own cast shadow.
+BANNER_GAP_PT = 18
+# The banner's shadow, cast here rather than exported: at this width the
+# export's baked padding wants 73px above the artwork and the bar leaves about
+# 150px for the whole banner, so a banner wide enough to span the desk could
+# not carry its own shadow without running off the top of the frame.
+BANNER_SHADOW_DY, BANNER_SHADOW_BLUR, BANNER_SHADOW_A = 14, 18, 86
 
-# The fourth field says whether a banner is laid over the popover. Only the
-# first frame gets one -- it is the shot that has to say what the app does, and
-# on the other two the banner would cover the thing being shown.
+# The fifth field says whether the frame carries a banner above its bar. Only
+# the first frame does -- it is the shot that has to say what the app does, and
+# on the other two the banner would push the screen being shown off centre for
+# nothing.
 FRAMES = [
     ("mac-inbox.png", "inboxTitleIpad", "inboxBody", "01_inbox.png", True),
     ("mac-detail.png", "messageTitle", "messageBody", "02_message.png", False),
@@ -268,36 +275,31 @@ def menu_bar(canvas, desk, out_dir):
     return bell_x
 
 
-def banner(canvas, desk, popover_w):
-    """Lay the notification over the popover's top right, where the system
-    draws it -- a banner is above everything, so it covers the inbox's first
-    rows rather than making room in them."""
+def banner_art(desk_w):
+    """The banner, cropped to its artwork and scaled to span the desk.
+
+    The opaque core is measured rather than written down: re-exporting at a
+    different scale changes the padding around it, and a hard-coded inset would
+    move the banner instead of failing."""
     if not os.path.exists(BANNER):
         sys.exit(f"{BANNER} is missing -- see .claude/skills/notification-mockup")
     art = Image.open(BANNER).convert("RGBA")
-
-    # The export carries its drop shadow, so its edges are not the banner's.
-    # The opaque core is measured rather than written down: re-exporting at a
-    # different scale changes the padding, and a hard-coded inset would move
-    # the banner instead of failing.
     core = art.getchannel("A").point(lambda v: 255 if v > 200 else 0).getbbox()
     if not core:
         sys.exit(f"{BANNER} has no opaque core -- is it the right file?")
-    core_w = core[2] - core[0]
 
-    px_per_pt = popover_w / POPOVER_PT
-    scale = (BANNER_PT * px_per_pt) / core_w
-    art = art.resize((round(art.width * scale), round(art.height * scale)),
-                     Image.LANCZOS)
+    art = art.crop(core)
+    return art.resize(
+        (desk_w, round(art.height * desk_w / art.width)), Image.LANCZOS)
 
-    # Position by the core's edges, not the image's, so the shadow hangs
-    # outside the margin the way it does on screen.
-    right = desk[2] - round(BANNER_RIGHT_PT * px_per_pt)
-    top = desk[1] + BAR_H + round(BANNER_TOP_PT * px_per_pt)
-    canvas.alpha_composite(
-        art,
-        (right - round(core[2] * scale), top - round(core[1] * scale)),
-    )
+
+def cast(canvas, art, at, dy, blur, alpha):
+    """The same shadow the popover gets, following the artwork's own alpha."""
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    silhouette = Image.new("RGBA", art.size, (18, 18, 24, alpha))
+    silhouette.putalpha(art.getchannel("A").point(lambda v: v * alpha // 255))
+    layer.alpha_composite(silhouette, (at[0], at[1] + dy))
+    canvas.alpha_composite(layer.filter(ImageFilter.GaussianBlur(blur)))
 
 
 SPLIT = 1200
@@ -313,7 +315,14 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name,
     desk_w = round(popover.width / 0.94)
     desk_h = BAR_H + popover.height
     desk_x = POPOVER_CENTER_X - desk_w // 2
-    desk_y = (H - desk_h) // 2
+    # The banner stands above the bar rather than over the screen, so it is
+    # part of the stack and not something laid on top of one: the desk drops by
+    # the banner's height and the pair is centred together, which keeps the
+    # popover off the frame's edge whatever the banner's aspect turns out to be.
+    art = banner_art(desk_w) if with_banner else None
+    gap = round(BANNER_GAP_PT * popover.width / POPOVER_PT)
+    lead = art.height + gap if with_banner else 0
+    desk_y = (H - desk_h - lead) // 2 + lead
     desk = [desk_x, desk_y, desk_x + desk_w, desk_y + desk_h]
     left = desk_x + (desk_w - popover.width) // 2
     top = desk_y + BAR_H
@@ -393,7 +402,10 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name,
     canvas.alpha_composite(popover, (left, top))
 
     if with_banner:
-        banner(canvas, desk, popover.width)
+        at = (desk_x, desk_y - gap - art.height)
+        cast(canvas, art, at, BANNER_SHADOW_DY, BANNER_SHADOW_BLUR,
+             BANNER_SHADOW_A)
+        canvas.alpha_composite(art, at)
 
     publish(canvas.convert("RGB"), f"{out_dir}/{out_name}", "PNG")
 
