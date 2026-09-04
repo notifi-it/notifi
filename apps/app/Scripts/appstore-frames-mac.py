@@ -57,10 +57,26 @@ BAR_H = round(5.83 * CQW)
 SITE = f"{REPO}/apps/api/public"
 SYSTEM_FONT = "/System/Library/Fonts/SFNS.ttf"
 
+# The banner is drawn in Apple's own macOS UI kit and exported from Figma --
+# see .claude/skills/notification-mockup. It is a mockup because the alternative
+# is photographing a real banner, which lasts about five seconds and takes the
+# desk behind it with it.
+BANNER = f"{REPO}/apps/app/Scripts/assets/notification-banner.png"
+# A macOS banner is 344pt wide and the popover is 461pt, the width index.html
+# gives .mac-shot. Sizing the banner against the popover rather than the frame
+# keeps the pair at the ratio a real screen shows them at, whatever POPOVER_H
+# is set to.
+BANNER_PT, POPOVER_PT = 344, 461
+# Where the system puts it: under the bar, in from the right edge.
+BANNER_TOP_PT, BANNER_RIGHT_PT = 8, 12
+
+# The fourth field says whether a banner is laid over the popover. Only the
+# first frame gets one -- it is the shot that has to say what the app does, and
+# on the other two the banner would cover the thing being shown.
 FRAMES = [
-    ("mac-inbox.png", "inboxTitleIpad", "inboxBody", "01_inbox.png"),
-    ("mac-detail.png", "messageTitle", "messageBody", "02_message.png"),
-    ("mac-keys.png", "keysTitle", "keysBody", "03_keys.png"),
+    ("mac-inbox.png", "inboxTitleIpad", "inboxBody", "01_inbox.png", True),
+    ("mac-detail.png", "messageTitle", "messageBody", "02_message.png", False),
+    ("mac-keys.png", "keysTitle", "keysBody", "03_keys.png", False),
 ]
 
 
@@ -252,12 +268,45 @@ def menu_bar(canvas, desk, out_dir):
     return bell_x
 
 
+def banner(canvas, desk, popover_w):
+    """Lay the notification over the popover's top right, where the system
+    draws it -- a banner is above everything, so it covers the inbox's first
+    rows rather than making room in them."""
+    if not os.path.exists(BANNER):
+        sys.exit(f"{BANNER} is missing -- see .claude/skills/notification-mockup")
+    art = Image.open(BANNER).convert("RGBA")
+
+    # The export carries its drop shadow, so its edges are not the banner's.
+    # The opaque core is measured rather than written down: re-exporting at a
+    # different scale changes the padding, and a hard-coded inset would move
+    # the banner instead of failing.
+    core = art.getchannel("A").point(lambda v: 255 if v > 200 else 0).getbbox()
+    if not core:
+        sys.exit(f"{BANNER} has no opaque core -- is it the right file?")
+    core_w = core[2] - core[0]
+
+    px_per_pt = popover_w / POPOVER_PT
+    scale = (BANNER_PT * px_per_pt) / core_w
+    art = art.resize((round(art.width * scale), round(art.height * scale)),
+                     Image.LANCZOS)
+
+    # Position by the core's edges, not the image's, so the shadow hangs
+    # outside the margin the way it does on screen.
+    right = desk[2] - round(BANNER_RIGHT_PT * px_per_pt)
+    top = desk[1] + BAR_H + round(BANNER_TOP_PT * px_per_pt)
+    canvas.alpha_composite(
+        art,
+        (right - round(core[2] * scale), top - round(core[1] * scale)),
+    )
+
+
 SPLIT = 1200
 RED_RGB = (0xBC, 0x21, 0x22)
 MARK = 150
 
 
-def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
+def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name,
+          with_banner):
     # The bar and the popover, nothing around them: the desk is the site's
     # .mac-desk width so the bar keeps its proportions, but it carries no
     # border and no ground below the popover. Centred on the right half.
@@ -343,13 +392,16 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name):
     canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(36)))
     canvas.alpha_composite(popover, (left, top))
 
+    if with_banner:
+        banner(canvas, desk, popover.width)
+
     publish(canvas.convert("RGB"), f"{out_dir}/{out_name}", "PNG")
 
     for tmp in (mono, sans):
         os.remove(tmp)
 
 
-popovers = {raw: load_popover(raw) for raw, _, _, _ in FRAMES}
+popovers = {raw: load_popover(raw) for raw, _, _, _, _ in FRAMES}
 for locale, caption_key in [("en-US", "en-GB"), ("en-GB", "en-GB"),
                             ("de-DE", "de-DE"), ("es-ES", "es-ES"),
                             ("fr-FR", "fr-FR"), ("it", "it")]:
@@ -358,6 +410,6 @@ for locale, caption_key in [("en-US", "en-GB"), ("en-GB", "en-GB"),
     stale = f"{out_dir}/01_popover.png"
     if os.path.exists(stale):
         os.remove(stale)
-    for raw, title_key, desc_key, out_name in FRAMES:
+    for raw, title_key, desc_key, out_name, with_banner in FRAMES:
         frame(locale, CAPTIONS[caption_key], title_key, desc_key,
-              popovers[raw], out_dir, out_name)
+              popovers[raw], out_dir, out_name, with_banner)
