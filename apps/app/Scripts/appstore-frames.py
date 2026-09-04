@@ -24,6 +24,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from publish_image import publish
+import banner
 
 REPO = os.environ.get("REPO", os.getcwd())
 SHOTS = os.environ.get("SHOTS", "shots")
@@ -84,6 +85,21 @@ TOP = 220
 # runs to five lines and ends at 864.
 DEVICE_TOP = 910
 DEVICE_BOTTOM = 76
+# The banner stands above the device rather than over its screen: laid on the
+# screen it reads as part of the app, and a notification is the system's. It is
+# dark here because the phone below it is, where the Mac frame's is light
+# against a pale desktop. Only the inbox frame carries one -- on the other two
+# it would cost the screen being shown its height for nothing.
+BANNER_MODE = "dark"
+BANNER_WHEN = "now"
+# The masked icon, not icon-1024: that one is the unmasked square macOS and
+# iOS both round themselves, and pasting it gives a hard-cornered tile.
+BANNER_ICON = f"{REPO}/apps/app/Shared/Assets.xcassets/AppIcon.appiconset/mac-1024.png"
+# Room reserved above the device for the banner and the air around it. The
+# device is what gives it back: there is no slack between caption and device,
+# so a banner here is paid for in device height.
+BANNER_BLOCK = 250
+BANNER_GAP = 96
 TITLE_SIZE, DESC_SIZE = 82, 45
 RADIUS_RATIO = 0.058
 # Both captures carry the aspect ratio of the canvas they are framed on, so a
@@ -179,7 +195,7 @@ PREFIX = "ipad_" if os.environ.get("IPAD") else ""
 SHOT_PREFIX = "ipad-" if os.environ.get("IPAD") else ""
 
 
-def frame(shot_name, title, desc, out_name):
+def frame(shot_name, title, desc, out_name, with_banner=False):
     shot_name = SHOT_PREFIX + shot_name
     out_name = PREFIX + out_name
     if not os.path.exists(f"{SHOTS}/{shot_name}"):
@@ -221,8 +237,9 @@ def frame(shot_name, title, desc, out_name):
     # A caption that runs into the device is the one failure this layout can
     # produce silently: the device sits at a fixed height so the three frames
     # line up, and a longer translation just keeps going.
-    if y > DEVICE_TOP - 40:
-        print(f"WARNING {out_name}: caption ends at {y}, device starts at {DEVICE_TOP}")
+    ceiling = DEVICE_TOP + (BANNER_BLOCK - BANNER_GAP if with_banner else 0)
+    if y > ceiling - 40:
+        print(f"WARNING {out_name}: caption ends at {y}, next block starts at {ceiling}")
 
     # ── the device: whole and floating on the phone, bled off the bottom on
     # the iPad
@@ -232,18 +249,27 @@ def frame(shot_name, title, desc, out_name):
     # edge, and filling the gap with ground read as a mistake — a frame without
     # a drawn bezel has nothing else to stand in for the device's own inset.
     # screens.sh overrides it to 09:41 first, so it is the same on every shot.
+    device_top = DEVICE_TOP + (BANNER_BLOCK if with_banner else 0)
     if BLEED:
         target_w = W - GUTTER * 2
         target_h = round(shot.height * target_w / shot.width)
     else:
-        target_h = H - DEVICE_TOP - DEVICE_BOTTOM
+        target_h = H - device_top - DEVICE_BOTTOM
         target_w = round(shot.width * target_h / shot.height)
     shot = shot.resize((target_w, target_h), Image.LANCZOS)
     # Proportional, so a device rounds by an amount of its own width rather
     # than by the same number of pixels at either size.
     radius = round(target_w * RADIUS_RATIO)
     left = (W - target_w) // 2
-    box = [left, DEVICE_TOP, left + target_w, DEVICE_TOP + target_h]
+    box = [left, device_top, left + target_w, device_top + target_h]
+
+    # Drawn before the device so the caption check above still governs the top
+    # of the block, and after the ground because the glass blurs what is behind.
+    if with_banner:
+        banner.draw(canvas, left, device_top - BANNER_GAP
+                    - banner.height_for(target_w), target_w, BANNER_MODE,
+                    CAPTIONS["bannerTitle"], CAPTIONS["bannerBody"],
+                    BANNER_WHEN, BANNER_ICON)
 
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(shadow).rounded_rectangle(
@@ -253,7 +279,7 @@ def frame(shot_name, title, desc, out_name):
     canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(46)))
 
     card = rounded(shot, radius)
-    canvas.paste(card, (left, DEVICE_TOP), card)
+    canvas.paste(card, (left, device_top), card)
     # The ring is the bezel. Without it a dark capture on a light page has no
     # edge of its own, and the corners read as torn rather than cut.
     d.rounded_rectangle(box, radius=radius, outline=(10, 10, 10, 46), width=3)
@@ -261,7 +287,7 @@ def frame(shot_name, title, desc, out_name):
 
 
 INBOX_TITLE = CAPTIONS["inboxTitleIpad"] if os.environ.get("IPAD") else CAPTIONS["inboxTitle"]
-frame("inbox.png", INBOX_TITLE, CAPTIONS["inboxBody"], "01_inbox.png")
+frame("inbox.png", INBOX_TITLE, CAPTIONS["inboxBody"], "01_inbox.png", True)
 frame("detail.png", CAPTIONS["messageTitle"], CAPTIONS["messageBody"], "02_message.png")
 frame("keys.png", CAPTIONS["keysTitle"], CAPTIONS["keysBody"], "03_keys.png")
 

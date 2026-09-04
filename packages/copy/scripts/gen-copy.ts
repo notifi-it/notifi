@@ -242,6 +242,7 @@ function storeOutputs(): Array<{ path: string; contents: string; label: string }
   for (const code of LANGUAGE_CODES) {
     const locale = STORE_LOCALES[code];
     const s = copyFor(code).store;
+    const empty = copyFor(code).empty;
     const dir = join(appRoot, 'fastlane', 'metadata', locale);
 
     const files: Record<string, string> = {
@@ -274,6 +275,8 @@ function storeOutputs(): Array<{ path: string; contents: string; label: string }
       messageBody: s.shotMessageBody,
       keysTitle: s.shotKeysTitle,
       keysBody: s.shotKeysBody,
+      bannerTitle: empty.sampleTitle,
+      bannerBody: empty.sampleMessage,
     };
   }
 

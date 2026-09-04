@@ -26,6 +26,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from publish_image import publish
+import banner
 
 REPO = os.environ.get("REPO", os.getcwd())
 RAW = os.environ.get("RAW", "/tmp/notifi-screens")
@@ -57,24 +58,18 @@ BAR_H = round(5.83 * CQW)
 SITE = f"{REPO}/apps/api/public"
 SYSTEM_FONT = "/System/Library/Fonts/SFNS.ttf"
 
-# The banner is drawn in Apple's own macOS UI kit and exported from Figma --
-# see .claude/skills/notification-mockup. It is a mockup because the alternative
-# is photographing a real banner, which lasts about five seconds and takes the
-# desk behind it with it.
-BANNER = f"{REPO}/apps/app/Scripts/assets/notification-banner.png"
-# A macOS banner is 344pt wide and the popover is 461pt, the width index.html
-# gives .mac-shot. Sizing the banner against the popover rather than the frame
-# keeps the pair at the ratio a real screen shows them at, whatever POPOVER_H
-# is set to.
-BANNER_PT, POPOVER_PT = 344, 461
+# The banner is drawn rather than exported -- see banner.py for why. Light,
+# because the right of the frame is a pale desktop: a dark banner there is the
+# heaviest thing in the picture and competes with the app it is announcing.
+BANNER_MODE = "light"
+# The system's own word, left in English like the clock beside it: it is macOS
+# chrome rather than the product's copy, and there is no key for it to come from.
+BANNER_WHEN = "now"
+BANNER_ICON = f"{ASSETS}/AppIcon.appiconset/mac-1024.png"
 # The gap between the banner and the bar below it, in points of the scale the
 # popover is drawn at. It has to clear the banner's own cast shadow.
 BANNER_GAP_PT = 18
-# The banner's shadow, cast here rather than exported: at this width the
-# export's baked padding wants 73px above the artwork and the bar leaves about
-# 150px for the whole banner, so a banner wide enough to span the desk could
-# not carry its own shadow without running off the top of the frame.
-BANNER_SHADOW_DY, BANNER_SHADOW_BLUR, BANNER_SHADOW_A = 14, 18, 86
+POPOVER_PT = 461
 
 # The fifth field says whether the frame carries a banner above its bar. Only
 # the first frame does -- it is the shot that has to say what the app does, and
@@ -275,33 +270,6 @@ def menu_bar(canvas, desk, out_dir):
     return bell_x
 
 
-def banner_art(desk_w):
-    """The banner, cropped to its artwork and scaled to span the desk.
-
-    The opaque core is measured rather than written down: re-exporting at a
-    different scale changes the padding around it, and a hard-coded inset would
-    move the banner instead of failing."""
-    if not os.path.exists(BANNER):
-        sys.exit(f"{BANNER} is missing -- see .claude/skills/notification-mockup")
-    art = Image.open(BANNER).convert("RGBA")
-    core = art.getchannel("A").point(lambda v: 255 if v > 200 else 0).getbbox()
-    if not core:
-        sys.exit(f"{BANNER} has no opaque core -- is it the right file?")
-
-    art = art.crop(core)
-    return art.resize(
-        (desk_w, round(art.height * desk_w / art.width)), Image.LANCZOS)
-
-
-def cast(canvas, art, at, dy, blur, alpha):
-    """The same shadow the popover gets, following the artwork's own alpha."""
-    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    silhouette = Image.new("RGBA", art.size, (18, 18, 24, alpha))
-    silhouette.putalpha(art.getchannel("A").point(lambda v: v * alpha // 255))
-    layer.alpha_composite(silhouette, (at[0], at[1] + dy))
-    canvas.alpha_composite(layer.filter(ImageFilter.GaussianBlur(blur)))
-
-
 SPLIT = 1200
 RED_RGB = (0xBC, 0x21, 0x22)
 MARK = 150
@@ -319,9 +287,8 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name,
     # part of the stack and not something laid on top of one: the desk drops by
     # the banner's height and the pair is centred together, which keeps the
     # popover off the frame's edge whatever the banner's aspect turns out to be.
-    art = banner_art(desk_w) if with_banner else None
     gap = round(BANNER_GAP_PT * popover.width / POPOVER_PT)
-    lead = art.height + gap if with_banner else 0
+    lead = banner.height_for(desk_w) + gap if with_banner else 0
     desk_y = (H - desk_h - lead) // 2 + lead
     desk = [desk_x, desk_y, desk_x + desk_w, desk_y + desk_h]
     left = desk_x + (desk_w - popover.width) // 2
@@ -402,10 +369,10 @@ def frame(locale, captions, title_key, desc_key, popover, out_dir, out_name,
     canvas.alpha_composite(popover, (left, top))
 
     if with_banner:
-        at = (desk_x, desk_y - gap - art.height)
-        cast(canvas, art, at, BANNER_SHADOW_DY, BANNER_SHADOW_BLUR,
-             BANNER_SHADOW_A)
-        canvas.alpha_composite(art, at)
+        banner.draw(canvas, desk_x,
+                    desk_y - gap - banner.height_for(desk_w), desk_w,
+                    BANNER_MODE, captions["bannerTitle"], captions["bannerBody"],
+                    BANNER_WHEN, BANNER_ICON)
 
     publish(canvas.convert("RGB"), f"{out_dir}/{out_name}", "PNG")
 
