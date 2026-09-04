@@ -140,6 +140,12 @@ enum SampleData {
         guard isEnabled else { return }
         let documents = FileManager.default.urls(for: .documentDirectory,
                                                  in: .userDomainMask)[0]
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_GB")
+        formatter.dateFormat = "HH:mm"
+        try? formatter.string(from: anchor)
+            .data(using: .utf8)?
+            .write(to: documents.appending(path: "shot-clock"))
         try? Data().write(to: documents.appending(path: "shot-ready"))
     }
 

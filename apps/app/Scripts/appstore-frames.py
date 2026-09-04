@@ -85,12 +85,14 @@ TOP = 220
 # runs to five lines and ends at 864.
 DEVICE_TOP = 910
 DEVICE_BOTTOM = 76
-# The banner stands above the device rather than over its screen: laid on the
-# screen it reads as part of the app, and a notification is the system's. It is
-# dark here because the phone below it is, where the Mac frame's is light
-# against a pale desktop. Only the inbox frame carries one -- on the other two
-# it would cost the screen being shown its height for nothing.
-BANNER_MODE = "dark"
+# The banner sits under the caption, in the caption's own measure, rather than
+# over the device: laid on the screen it reads as part of the app, and a
+# notification is the system's. Light, so it stays with the copy above it
+# instead of competing with the phone below -- on the Mac frame the same
+# reasoning gives light too, there because the field behind it is dark red.
+# Only the inbox frame carries one; on the other two it would cost the screen
+# being shown its height for nothing.
+BANNER_MODE = "light"
 BANNER_WHEN = "now"
 # The masked icon, not icon-1024: that one is the unmasked square macOS and
 # iOS both round themselves, and pasting it gives a hard-cornered tile.
@@ -266,10 +268,11 @@ def frame(shot_name, title, desc, out_name, with_banner=False):
     # Drawn before the device so the caption check above still governs the top
     # of the block, and after the ground because the glass blurs what is behind.
     if with_banner:
-        banner.draw(canvas, left, device_top - BANNER_GAP
-                    - banner.height_for(target_w), target_w, BANNER_MODE,
-                    CAPTIONS["bannerTitle"], CAPTIONS["bannerBody"],
-                    BANNER_WHEN, BANNER_ICON)
+        bw = W - GUTTER * 2
+        banner.draw(canvas, GUTTER,
+                    device_top - BANNER_GAP - banner.height_for(bw), bw,
+                    BANNER_MODE, CAPTIONS["bannerTitle"],
+                    CAPTIONS["bannerBody"], BANNER_WHEN, BANNER_ICON)
 
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(shadow).rounded_rectangle(
@@ -283,6 +286,7 @@ def frame(shot_name, title, desc, out_name, with_banner=False):
     # The ring is the bezel. Without it a dark capture on a light page has no
     # edge of its own, and the corners read as torn rather than cut.
     d.rounded_rectangle(box, radius=radius, outline=(10, 10, 10, 46), width=3)
+
     publish(canvas.convert("RGB"), f"{OUT}/{out_name}", "PNG")
 
 

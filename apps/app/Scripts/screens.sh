@@ -70,8 +70,7 @@ xcrun simctl install "$IPAD" "$APP"
 # the phone above it is showing. Apple's 09:41 was a lie the moment a banner
 # saying "now" appeared beside a message stamped something else.
 ANCHOR=$(date +%s)
-ANCHOR_TIME=$(date -r "$ANCHOR" +%H:%M)
-export ANCHOR ANCHOR_TIME
+export ANCHOR
 
 # Full battery and full bars. Without the override the captures carry whatever
 # the simulator's clock said, and the three frames sit side by side on the
@@ -82,7 +81,6 @@ export ANCHOR ANCHOR_TIME
 for udid in "$PHONE" "$IPAD"; do
   xcrun simctl ui "$udid" content_size large
   xcrun simctl status_bar "$udid" override \
-    --time "$ANCHOR_TIME" \
     --dataNetwork wifi --wifiMode active --wifiBars 3 \
     --cellularMode active --cellularBars 4 \
     --batteryState discharging --batteryLevel 100
@@ -111,9 +109,10 @@ shoot() { # udid outfile extra-env...
   # must be its own step with a beat in between.
   xcrun simctl terminate "$udid" "$BUNDLE_ID" 2>/dev/null || true
   sleep 1
-  local marker
-  marker="$(xcrun simctl get_app_container "$udid" "$BUNDLE_ID" data)/Documents/shot-ready"
-  rm -f "$marker"
+  local documents marker
+  documents="$(xcrun simctl get_app_container "$udid" "$BUNDLE_ID" data)/Documents"
+  marker="$documents/shot-ready"
+  rm -f "$marker" "$documents/shot-clock"
   # -AppleLanguages is read at launch, so the app comes up in LANG's language
   # without touching the simulator's own settings. Capturing every locale off
   # one English boot would ship a Spanish listing showing an English app.
@@ -136,6 +135,13 @@ shoot() { # udid outfile extra-env...
   # iOS 26 fades the home indicator about two seconds after a screen appears
   # and does not bring it back without a swipe. Counted from the marker this is
   # a wait for one known animation, not a guess at how long a launch takes.
+  # The status bar is set from the time the app says it seeded, not from a value
+  # computed out here. Two clocks that are meant to agree will not, and a phone
+  # showing one time above an inbox stamped another is the whole reason any of
+  # this exists.
+  if [ -s "$documents/shot-clock" ]; then
+    xcrun simctl status_bar "$udid" override --time "$(cat "$documents/shot-clock")"
+  fi
   sleep 3
   xcrun simctl io "$udid" screenshot --type=png "$OUT/$outfile" >/dev/null
   echo "$OUT/$outfile"
