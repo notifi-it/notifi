@@ -36,19 +36,48 @@ dark one argument rather than two files.
    definition; `Dark Example` and `Light Example` below it are instances on a
    wallpaper. Read numbers off an instance.
 
-Select a part and read the right-hand panel — that is where every figure in
-`banner.py` came from:
+Select a part and read the right-hand panel — but **do not stop there**. The
+panel describes the file, not the picture. The App Icon node reads 32x32, yet
+what a reader sees is a 30pt squircle at x 15.3: the node sits at +4 inside its
+frame and holds artwork inset within itself. Taking the panel at its word put
+the icon 2pt too big and 3pt too far left.
 
-| Panel | Value |
+So export the banner once and measure the export. Panel values are the starting
+guess; the export is the answer.
+
+| From the panel | Measured off the export |
 |---|---|
-| Notification frame | W 344, H 56, padding 10 / 12 / 14 / 12, gap 8 |
-| App Icon | 32 x 32 |
-| Title | SF Pro Bold 13, line height 16, letter spacing -2% |
-| Description | SF Pro Regular 13, line height 16, letter spacing -0.8% |
+| Notification 344 x 56, padding 10/12/14/12, gap 8 | card 344 x 56, corner radius 18 |
+| App Icon 32 x 32 | 30pt squircle at x 15.3, y 13 |
+| Title SF Pro Bold 13/16, tracking -2% | glyph ink at x 59.2, baseline 25.0 |
+| Description SF Pro Regular 13/16, -0.8% | second baseline at 41.0 |
+| (not in the panel) | timestamp 11pt, 15.3 in from the right |
 
-The corner radius is not in the panel for a component instance. Export once and
-measure it — 18pt — rather than guessing; the rest of the geometry hangs off the
-card's shape.
+`banner.py` places text on its baselines rather than by a line box, because a
+baseline is the one horizontal in a font that does not move when the size, the
+weight or the optical cut changes.
+
+### Checking it
+
+Export once and diff against it — it is the only way to catch the errors above,
+all of which looked fine until measured. The export is deliberately not kept in
+the repo: it would drift from the kit and start being trusted. Re-export when
+you need to check. Render the banner at the
+export's exact width on the export's own ground, then compare ink extents per
+element:
+
+```
+title  ref   59.2.. 128.1 (w  68.9) | ours   59.2.. 128.8 (w  69.5) | dx +0.0 dw +0.7
+body   ref   59.2.. 155.4 (w  96.1) | ours   59.2.. 157.4 (w  98.1) | dx +0.0 dw +2.0
+now    ref  309.4.. 328.7 (w  19.3) | ours  308.4.. 328.0 (w  19.6) | dx -1.0 dw +0.3
+```
+
+A `dx` is a placement bug and should go to zero. The residual `dw` is the font,
+not the geometry: SF Pro's Optical Size axis floors at 17 and the banner sets
+copy at 13, so the closest cut the system font can give is about 1% wide on a
+title and 2% on a body line. Closing that means shipping a font file, which is
+not worth a font. Do not chase it with tracking — that fits one string and
+breaks the next.
 
 Editing text in the kit prompts for Apple's SF Pro licence. That is a person's
 decision to accept, not an agent's.
@@ -76,8 +105,11 @@ chrome, not our copy.
 squircle themselves, so pasting it gives a hard-cornered tile. The `mac-` icons
 are masked but carry the transparent margin macOS composites them with, which
 lands the artwork at 86% of the slot and reads as small beside Apple's own
-icons. `banner.icon_art` takes the masked one and crops to its alpha, which is
-the only combination that is both round and full.
+icons — and the margin is a *shadow*, so cropping to any alpha at all keeps it:
+that landed the squircle at 93% of the slot, sitting high, casting a second
+shadow inside a banner that already has one. `banner.icon_art` takes the masked
+icon and crops to its **opaque** bounds, which is the only combination that is
+round, full and unshadowed.
 
 ## Re-rendering
 

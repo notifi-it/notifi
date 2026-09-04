@@ -19,9 +19,18 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 SYSTEM_FONT = "/System/Library/Fonts/SFNS.ttf"
 
+# Measured off Apple's export rather than read off the panel: the App Icon node
+# is 32pt but sits at +4 inside its frame and holds artwork inset within itself,
+# so what a reader sees is a 30pt squircle at 15.3, not a 32pt one at 12. The
+# text is placed on its baselines, which is the one horizontal line in a font
+# that does not move when the size or the cut changes.
 W_PT, H_PT, RADIUS_PT = 344, 56, 18
-ICON_PT, ICON_X_PT, ICON_Y_PT, ICON_GAP_PT = 32, 12, 10, 8
-TEXT_PT, LINE_PT, RIGHT_PT = 13, 16, 12
+ICON_PT, ICON_X_PT, ICON_Y_PT = 30, 15.3, 13
+TEXT_X_PT, TITLE_BASE_PT, LINE_PT = 58.2, 25.0, 16
+TEXT_PT = 13
+# The timestamp is smaller than the copy and sits the icon's own inset in from
+# the right, so the card is padded alike on both sides.
+WHEN_PT, RIGHT_PT = 11, 15.3
 
 # The glass: how far it blurs what is behind it, and how much of its own tint it
 # lays over that. Tuned so the ground still reads through as a wash rather than
@@ -32,9 +41,9 @@ BLUR_PT, TINT_A = 11, 0.80
 # Light and dark are the same drawing with different ink. The muted alpha is
 # Apple's secondary label, which is what the timestamp is.
 MODES = {
-    "light": {"tint": (255, 255, 255), "ink": (0, 0, 0), "muted": 0.55,
+    "light": {"tint": (255, 255, 255), "ink": (0, 0, 0), "muted": 0.45,
               "edge": (255, 255, 255, 150), "shadow_a": 60},
-    "dark": {"tint": (30, 30, 32), "ink": (255, 255, 255), "muted": 0.55,
+    "dark": {"tint": (30, 30, 32), "ink": (255, 255, 255), "muted": 0.45,
              "edge": (255, 255, 255, 28), "shadow_a": 96},
 }
 
@@ -45,21 +54,44 @@ def height_for(width):
     return round(width * H_PT / W_PT)
 
 
-def _font(size, weight):
-    font = ImageFont.truetype(SYSTEM_FONT, size)
+# SF Pro is one variable font covering Text and Display. Its Optical Size axis
+# defaults to 28, so asking for a weight by name and nothing else renders 13pt
+# copy in the Display cut -- thinner strokes and tighter spacing than the Text
+# cut macOS actually sets a notification in. The axis is driven by the design
+# size in points, not by the pixel size we happen to be rasterising at.
+#
+# The axis floors at 17, and the banner sets copy at 13, so the closest cut the
+# system font can give is still a little wider than the one macOS itself uses --
+# about 1% over a title and 2% over a body line, measured against Apple's own
+# export. Closing that would mean shipping a font file rather than reading the
+# one on the machine, and it is not worth a font.
+OPTICAL_MIN = 17
+WEIGHTS = {"Regular": 400, "Medium": 510, "Semibold": 590, "Bold": 700}
+
+
+def _font(px, weight, design_pt):
+    font = ImageFont.truetype(SYSTEM_FONT, px)
     try:
-        font.set_variation_by_name(weight)
-    except OSError:
-        pass
+        width, optical, grad, _ = (a["default"] for a in font.get_variation_axes())
+        font.set_variation_by_axes(
+            [width, max(OPTICAL_MIN, design_pt), grad, WEIGHTS[weight]])
+    except (OSError, ValueError, KeyError):
+        try:
+            font.set_variation_by_name(weight)
+        except OSError:
+            pass
     return font
 
 
 def _tracked(draw, xy, text, font, fill, tracking):
     """PIL has no letter-spacing, and Apple's is negative at this size -- over a
-    word it is the difference between the real thing and something close."""
+    word it is the difference between the real thing and something close.
+
+    Drawn from the baseline, so a change of weight or optical size moves the
+    glyphs' own shapes and not the line they sit on."""
     x, y = xy
     for ch in text:
-        draw.text((x, y), ch, font=font, fill=fill)
+        draw.text((x, y), ch, font=font, fill=fill, anchor="ls")
         x += draw.textlength(ch, font=font) + tracking
     return x
 
@@ -77,7 +109,11 @@ def icon_art(path, size):
     86% of the slot and reads as small beside Apple's own icons. Cropping the
     masked one to its alpha gives a squircle that fills the slot."""
     art = Image.open(path).convert("RGBA")
-    box = art.getchannel("A").getbbox()
+    # The opaque artwork, not everything with any alpha at all: the macOS icon
+    # carries its own drop shadow, and cropping to that lands the squircle at
+    # 93% of the slot, sitting high, casting a second shadow inside a banner
+    # that already has one.
+    box = art.getchannel("A").point(lambda v: 255 if v > 128 else 0).getbbox()
     return art.crop(box).resize((size, size), Image.LANCZOS)
 
 
@@ -129,18 +165,19 @@ def draw(canvas, x, y, width, mode, title, body, when, icon_path):
     ink = look["ink"]
     muted = ink + (round(255 * look["muted"]),)
     size = round(TEXT_PT * pt)
-    title_font, body_font = _font(size, "Bold"), _font(size, "Regular")
+    title_font = _font(size, "Bold", TEXT_PT)
+    body_font = _font(size, "Regular", TEXT_PT)
 
-    text_x = x + round((ICON_X_PT + ICON_PT + ICON_GAP_PT) * pt)
+    text_x = x + round(TEXT_X_PT * pt)
+    base = y + round(TITLE_BASE_PT * pt)
     line = round(LINE_PT * pt)
-    # The 13pt glyphs sit on a 16pt line; centring the pair in that box is what
-    # puts them level with the icon rather than a pixel or two above it.
-    top = y + round(ICON_Y_PT * pt) + (line - size) // 2
 
-    when_font = _font(size, "Regular")
-    when_w = _tracked_width(d, when, when_font, -0.008 * size)
-    _tracked(d, (x + width - round(RIGHT_PT * pt) - when_w, top), when,
-             when_font, muted, -0.008 * size)
+    when_size = round(WHEN_PT * pt)
+    when_font = _font(when_size, "Regular", WHEN_PT)
+    when_track = -0.008 * when_size
+    when_w = _tracked_width(d, when, when_font, when_track)
+    _tracked(d, (x + width - round(RIGHT_PT * pt) - when_w, base), when,
+             when_font, muted, when_track)
 
-    _tracked(d, (text_x, top), title, title_font, ink + (255,), -0.02 * size)
-    _tracked(d, (text_x, top + line), body, body_font, ink + (255,), -0.008 * size)
+    _tracked(d, (text_x, base), title, title_font, ink + (255,), -0.02 * size)
+    _tracked(d, (text_x, base + line), body, body_font, ink + (255,), -0.008 * size)
