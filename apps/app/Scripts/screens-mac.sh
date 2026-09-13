@@ -32,8 +32,8 @@ xcodebuild -project apps/app/notifi.xcodeproj -scheme notifi-macOS \
   -configuration Debug -derivedDataPath "$DERIVED" \
   DEVELOPMENT_TEAM=Z28DW76Y3W build | tail -3
 
-APP="$DERIVED/Build/Products/Debug/notifi.app"
-[ -d "$APP" ] || { echo "no notifi.app in $DERIVED" >&2; exit 1; }
+APP="$DERIVED/Build/Products/Debug/notifi dev.app"
+[ -d "$APP" ] || { echo "no notifi dev.app in $DERIVED" >&2; exit 1; }
 
 # One capture per popover state. The store frames want three, like the iOS
 # set: the inbox, a message, and the Keys tab. Each state is a fresh launch
@@ -44,14 +44,14 @@ APP="$DERIVED/Build/Products/Debug/notifi.app"
 capture() {
   local name=$1; shift
   # A running copy would keep its own popover state; start clean.
-  pkill -x notifi 2>/dev/null || true
+  pkill -x "notifi dev" 2>/dev/null || true
   sleep 1
   open --env NOTIFI_STICKY=1 --env NOTIFI_SAMPLE_DATA=1 --env NOTIFI_SEED_SAMPLE=1 \
     --env NOTIFI_SAMPLE_NOW="$ANCHOR" "$@" "$APP"
   sleep 4
 
   # One click opens it; the item toggles, so exactly one.
-  osascript -e 'tell application "System Events" to tell process "notifi" to click menu bar item 1 of menu bar 2' >/dev/null
+  osascript -e 'tell application "System Events" to tell process "notifi dev" to click menu bar item 1 of menu bar 2' >/dev/null
   sleep 3
 
   # The popover window sits at layer 25; the tiny layer<0 entries are the
@@ -63,7 +63,7 @@ capture() {
 import CoreGraphics
 CGWarpMouseCursorPosition(CGPoint(x: 200, y: 600))
 let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as! [[String: Any]]
-for w in list where (w["kCGWindowOwnerName"] as? String) == "notifi"
+for w in list where (w["kCGWindowOwnerName"] as? String) == "notifi dev"
     && (w["kCGWindowLayer"] as? Int) == 25 {
     print(w["kCGWindowNumber"] as! Int)
     break
@@ -78,10 +78,10 @@ SWIFT
 # NOTIFI_APPEARANCE is written to
 # UserDefaults, which the Debug build shares with the installed app (same
 # bundle id), so the setting is put back the way it was found.
-SAVED_APPEARANCE=$(defaults read it.notifi.notifi appearance 2>/dev/null || true)
+SAVED_APPEARANCE=$(defaults read it.notifi.notifi.dev appearance 2>/dev/null || true)
 restore_appearance() {
-  if [ -n "$SAVED_APPEARANCE" ]; then defaults write it.notifi.notifi appearance "$SAVED_APPEARANCE"
-  else defaults delete it.notifi.notifi appearance 2>/dev/null || true; fi
+  if [ -n "$SAVED_APPEARANCE" ]; then defaults write it.notifi.notifi.dev appearance "$SAVED_APPEARANCE"
+  else defaults delete it.notifi.notifi.dev appearance 2>/dev/null || true; fi
 }
 trap restore_appearance EXIT
 capture mac-inbox --env NOTIFI_APPEARANCE=dark
@@ -155,8 +155,4 @@ publish(canvas, f"{site}/mac.webp", "WEBP", lossless=True, method=6)
 print(f"declare in index.html: width={cut.width // 2} height={cut.height // 2}")
 EOF
 
-# A Debug build shares the push identity with the installed app and has
-# clobbered its APNs token by running. Kill it; relaunch the installed app
-# afterwards so pushes keep arriving.
-pkill -x notifi 2>/dev/null || true
-echo "Debug build quit — relaunch your installed notifi so Mac push re-registers."
+pkill -x "notifi dev" 2>/dev/null || true

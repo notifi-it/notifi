@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../../.."
 
-BUNDLE_ID=${BUNDLE_ID:-it.notifi.notifi}
+BUNDLE_ID=${BUNDLE_ID:-it.notifi.notifi.dev}
 DEVICE=${DEVICE:-iPhone 17 Pro}
 TABS=${TABS:-inbox keys settings message key}
 # Which seeded message the "message" shot opens. 0 is the richest one — long

@@ -24,7 +24,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../../.."
 
-BUNDLE_ID=${BUNDLE_ID:-it.notifi.notifi}
+BUNDLE_ID=${BUNDLE_ID:-it.notifi.notifi.dev}
 DERIVED=${DERIVED:-/tmp/notifi-derived}
 OUT=${OUT:-/tmp/notifi-screens}
 SITE=apps/api/public/screens

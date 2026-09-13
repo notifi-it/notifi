@@ -80,7 +80,9 @@ targets:
     settings:
       base:
         PRODUCT_NAME: notifi
+        PRODUCT_MODULE_NAME: notifi
         PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: Support/Info/App-iOS-Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
         PROVISIONING_PROFILE_SPECIFIER: ${IOS_APP_PROFILE}
@@ -91,6 +93,9 @@ targets:
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-iOS-Debug.entitlements
+          PRODUCT_NAME: notifi dev
+          PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.dev
+          ASSETCATALOG_COMPILER_APPICON_NAME: AppIconDev
         Release:
           CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-iOS-Release.entitlements
     dependencies:
@@ -106,7 +111,9 @@ targets:
     settings:
       base:
         PRODUCT_NAME: notifi
+        PRODUCT_MODULE_NAME: notifi
         PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: Support/Info/App-macOS-Info.plist
         ENABLE_HARDENED_RUNTIME: "YES"
         PROVISIONING_PROFILE_SPECIFIER: ${MAC_APP_PROFILE}
@@ -114,6 +121,9 @@ targets:
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-Debug.entitlements
+          PRODUCT_NAME: notifi dev
+          PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.dev
+          ASSETCATALOG_COMPILER_APPICON_NAME: AppIconDev
         Release:
           CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-Release.entitlements
     dependencies:
@@ -133,7 +143,9 @@ targets:
     settings:
       base:
         PRODUCT_NAME: notifi
+        PRODUCT_MODULE_NAME: notifi
         PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: Support/Info/App-macOS-AppStore-Info.plist
         ENABLE_HARDENED_RUNTIME: "YES"
         PROVISIONING_PROFILE_SPECIFIER: ${MAC_APP_PROFILE}
@@ -141,6 +153,9 @@ targets:
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-AppStore-Debug.entitlements
+          PRODUCT_NAME: notifi dev
+          PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.dev
+          ASSETCATALOG_COMPILER_APPICON_NAME: AppIconDev
         Release:
           CODE_SIGN_ENTITLEMENTS: Support/Entitlements/notifi-macOS-AppStore-Release.entitlements
     dependencies:
@@ -176,6 +191,9 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/NotificationService-iOS.entitlements
         PROVISIONING_PROFILE_SPECIFIER: ${IOS_NSE_PROFILE}
         CODE_SIGN_IDENTITY: ${IOS_CODE_SIGN_IDENTITY}
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.dev.nse
 
   NotificationService-macOS:
     type: app-extension
@@ -207,6 +225,9 @@ targets:
         INFOPLIST_FILE: Support/Info/NotificationService-Info.plist
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/NotificationService-macOS.entitlements
         ENABLE_HARDENED_RUNTIME: "YES"
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.dev.nse
 
 schemes:
   notifi-iOS:
