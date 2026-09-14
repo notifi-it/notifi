@@ -9,8 +9,15 @@ import http from 'node:http'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const PUBLIC = path.resolve(HERE, '../../apps/api/public')
 const OUT = path.join(HERE, 'out')
-const FPS = 20
-const WIDTH = 1200
+// WIDE=1 is the version for places that take a video rather than a page: a
+// 16:9 frame at 2560x1440, no grain, the heading centred in a band above the
+// scene, and 50fps so the GIF can take every second frame at an exact 4cs
+// delay. The default is the site's own shape, for checking the film itself.
+const WIDE = process.env.WIDE === '1'
+const FPS = WIDE ? 50 : 20
+const WIDTH = WIDE ? 2560 : 1200
+const GIF_WIDTH = WIDE ? 1920 : WIDTH
+const NAME = WIDE ? 'notifi-wide' : 'notifi'
 
 execFileSync('python3', ['gen.py'], { cwd: HERE, stdio: 'inherit' })
 
@@ -36,12 +43,35 @@ const frames = mkdtempSync(path.join(tmpdir(), 'notifi-gif-'))
 mkdirSync(OUT, { recursive: true })
 
 const browser = await chromium.launch()
-const page = await browser.newPage({ viewport: { width: WIDTH, height: 720 }, deviceScaleFactor: 2 })
+const page = await browser.newPage({ viewport: { width: WIDE ? 1280 : WIDTH, height: 720 }, deviceScaleFactor: 2 })
 await page.goto(`http://127.0.0.1:${server.address().port}/__film`, { waitUntil: 'networkidle' })
 await page.evaluate(() => document.fonts.ready)
 await page.evaluate(() => document.querySelector('.stage').classList.add('gif'))
 
-await page.evaluate(() => {
+// The scene is laid out in percentages of a 2160x960 stage. Stretching that
+// to 16:9 adds height below, so every vertical position is rescaled by the
+// ratio of the two heights and then pushed down by the band the centred
+// heading takes. The numbers come off the page, so a move in gen.py follows.
+if (WIDE) await page.evaluate(() => {
+  const k = (960 / 2160) / (9 / 16)
+  const band = 13
+  const stageH = document.querySelector('.stage').clientHeight
+  const moves = []
+  for (const el of document.querySelectorAll('.term,.dev,.cardpos,.trail,.clip')) {
+    const cs = getComputedStyle(el)
+    const top = parseFloat(cs.top) / stageH * 100
+    let decl = `top:${(top * k + band).toFixed(2)}%`
+    if (el.matches('.term,.clip')) decl += `;height:${(parseFloat(cs.height) / stageH * 100 * k).toFixed(2)}%`
+    moves.push([el, decl])
+  }
+  for (const [el, decl] of moves) el.style.cssText += ';' + decl
+  const st = document.createElement('style')
+  st.textContent = '.stage{aspect-ratio:16/9;border:0;border-radius:0}'
+    + '.head{left:0;width:100%;text-align:center;top:3.5%}'
+  document.head.appendChild(st)
+})
+
+if (!WIDE) await page.evaluate(() => {
   const stage = document.querySelector('.stage')
   const cv = document.createElement('canvas')
   cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'
@@ -84,12 +114,17 @@ const ffmpeg = args => new Promise((res, rej) => {
 const src = ['-framerate', String(FPS), '-i', path.join(frames, 'f%04d.png')]
 const pal = path.join(frames, 'pal.png')
 
-await ffmpeg([...src, '-vf', `scale=${WIDTH}:-1:flags=lanczos,palettegen=stats_mode=diff`, pal])
-await ffmpeg([...src, '-i', pal, '-lavfi',
-  `scale=${WIDTH}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle`,
-  '-loop', '0', path.join(OUT, 'notifi.gif')])
+// The grainy page build dithers; the flat wide build must not, or every frame
+// carries a different dither pattern and the GIF crawls.
+const gifIn = `fps=${WIDE ? FPS / 2 : FPS},scale=${GIF_WIDTH}:-1:flags=lanczos`
+const gifOut = WIDE ? 'paletteuse=dither=none:diff_mode=rectangle'
+  : 'paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle'
+await ffmpeg([...src, '-vf', `${gifIn},palettegen=stats_mode=diff`, pal])
+await ffmpeg([...src, '-i', pal, '-lavfi', `${gifIn}[x];[x][1:v]${gifOut}`,
+  '-loop', '0', path.join(OUT, `${NAME}.gif`)])
 await ffmpeg([...src, '-vf', `scale=${WIDTH}:-2:flags=lanczos,format=yuv420p`,
-  '-c:v', 'libx264', '-crf', '18', '-movflags', '+faststart', path.join(OUT, 'notifi.mp4')])
+  '-c:v', 'libx264', '-crf', WIDE ? '16' : '18', '-preset', 'slow', '-r', String(FPS),
+  '-movflags', '+faststart', path.join(OUT, `${NAME}.mp4`)])
 
 rmSync(frames, { recursive: true, force: true })
-console.log(`wrote ${OUT}/notifi.gif and ${OUT}/notifi.mp4`)
+console.log(`wrote ${OUT}/${NAME}.gif and ${OUT}/${NAME}.mp4`)
