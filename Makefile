@@ -115,6 +115,12 @@ check-film:
 film-gif:
 	cd sketches/gif && node capture.mjs
 
+# The same film cut for YouTube and the listings that take a video: 16:9 at
+# 2560x1440, heading centred above the scene, no grain, 50fps. Writes
+# sketches/gif/out/notifi-wide.{mp4,gif}; the GIF is 1920x1080 at 25fps.
+film-wide:
+	cd sketches/gif && WIDE=1 node capture.mjs
+
 # One still per scene, each at the point a click brings the film to rest:
 # typed, delivered, bell upright, both the terminal and that scene's device at
 # full opacity. These are the gallery slides.
