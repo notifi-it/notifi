@@ -127,6 +127,7 @@ struct ReaderView: View {
             ReaderPaneView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .environment(\.contentMeasure, Theme.readerMeasure)
+                .environment(\.grainEnabled, false)
         }
         .environment(\.isReaderWindow, true)
         .geistSurface(model)
