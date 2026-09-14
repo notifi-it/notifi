@@ -200,6 +200,13 @@ enum MenuBarIconRenderer {
                 }.draw(in: rect)
             }
 
+            #if DEBUG
+            NSGraphicsContext.saveGraphicsState()
+            let flip = NSAffineTransform()
+            flip.translateX(by: 0, yBy: rect.height)
+            flip.scaleX(by: 1, yBy: -1)
+            flip.concat()
+            #endif
             rotated(by: angle) {
                 layer("menu_icon", tint: .labelColor)
                 layer("menu_dot", tint: unread ? NSColor(Theme.brand) : .labelColor)
@@ -207,6 +214,9 @@ enum MenuBarIconRenderer {
             rotated(by: clapperAngle) {
                 layer("menu_clapper", tint: .labelColor)
             }
+            #if DEBUG
+            NSGraphicsContext.restoreGraphicsState()
+            #endif
 
             if offline {
                 let start = NSPoint(x: rect.minX + 3, y: rect.maxY - 3)

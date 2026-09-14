@@ -273,12 +273,9 @@ over the socket, and the banner comes from the app's own unpushed announce.
 
 Point a DEBUG build at it with `NOTIFI_BASE_URL=http://localhost:<port>`.
 Setting it flips the app into local-dev isolation (`LocalDev.isActive`): the
-message store goes in-memory, and because the sync cursor lives *inside* the
-store (`SyncState`), it dies with it — the link-policy allow-list and key
-cache are simply not read or persisted. Without that isolation the Debug
-build shares the installed app's store, whose cursor sits at the production
-sequence, so history from a fresh local D1 (seq 1..n) is permanently
-invisible — sends look accepted but never appear.
+message store goes in-memory, and `SyncState` dies with it — the link-policy
+allow-list and key cache are simply not read or persisted — so a local D1
+wiped between runs never leaves the app holding history it cannot see.
 
 Seed sendable keys with `apps/api/seed-keys.mjs` (prints the secrets, writes
 `/tmp/notifi-seed.sql` to apply with `wrangler d1 execute --local`), using the
@@ -294,6 +291,26 @@ xcodebuild -project apps/app/notifi.xcodeproj -scheme notifi-iOS -configuration 
 `cd apps/app && xcodegen generate` first if `project.yml` changed. Schemes:
 `notifi-iOS`, `notifi-macOS`. Verify on the Simulator, not a device over Wi-Fi
 (installs fail silently and can't be screenshotted).
+
+A Debug build is a separate app, **notifi dev** (`it.notifi.notifi.dev`, the
+extension `it.notifi.notifi.dev.nse`, the inverted `AppIconDev`), with its own
+container, UserDefaults and device row on the server. It never opens the
+installed app's SwiftData store — a Debug build from a branch with a newer
+`@Model` once migrated the shared store forward, and the installed release
+crashed on every launch until updated, because SwiftData does not migrate back.
+`PRODUCT_MODULE_NAME` stays `notifi` so `notifi.IconButton`-style
+qualifications compile in both. Its menu bar bell is drawn upside
+down (`MenuBarIconRenderer`, DEBUG only). The dev app starts empty; seed
+keys for it with `seed-keys.mjs` against its own device row, with a base id
+above the default key the app creates on first launch.
+
+The Mac Debug entitlements carry no `aps-environment` and no Time Sensitive:
+both are restricted, a restricted entitlement needs a profile whose App ID has
+the capability, and no `.dev` App ID is registered. The build signs with the
+wildcard team profile instead. The dev app registers with a nil token — the
+server accepts that — and arrivals reach it over the socket, which is all local
+APNs could ever do on the stub key. iOS Debug keeps its entitlements; the
+Simulator does not provision.
 
 ## Verifying a visual change: `make shots`
 
