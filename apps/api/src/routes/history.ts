@@ -1,4 +1,4 @@
-import { type HistoryMessage, historyQuery } from '@notifi/contract';
+import { HISTORY_LIMIT_DEFAULT, type HistoryMessage, historyQuery } from '@notifi/contract';
 import { Hono } from 'hono';
 import { errBody, t } from '../lib/respond.js';
 import { now } from '../lib/time.js';
@@ -19,7 +19,7 @@ history.get('/history', async (c) => {
     return c.json(errBody('invalid_request', t(c).api.invalidHistoryQuery), 400);
   }
   const ack = parsed.data.ack ?? 0;
-  const limit = parsed.data.limit ?? 50;
+  const limit = parsed.data.limit ?? HISTORY_LIMIT_DEFAULT;
 
   if (ack > 0 && ack <= device.seq_counter) {
     const [, deleted] = await c.env.DB.batch([

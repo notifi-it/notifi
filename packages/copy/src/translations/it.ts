@@ -30,6 +30,7 @@ export const it: Translation = {
   'api.messageCropped': 'Inviata con una notifica abbreviata: superava {max} caratteri.',
   'api.strictContentRejected':
     'Non inviata. Questo dispositivo è impostato per rifiutare una notifica che non può consegnare così com\'è scritta.',
+  'api.keyFailed': '{key}: {reason}',
 
 
   'push.fallbackTitle': 'notifi',
@@ -212,7 +213,7 @@ export const it: Translation = {
   'createKey.creating': 'Creazione…',
 
   'createKey.validationEmpty': 'Inserisci un nome per questa chiave.',
-  'createKey.validationTooLong': 'Usa 64 caratteri o meno.',
+  'createKey.validationTooLong': 'Usa {max} caratteri o meno.',
 
   'createKey.revealTitle': 'Copia subito la tua chiave',
   'createKey.revealDetail': 'Non verrà mostrata di nuovo.',

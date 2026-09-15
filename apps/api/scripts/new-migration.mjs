@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { migrationIndex, migrationSequence } from '../../../scripts/migration-sequence.mjs';
 
 const name = process.argv[2];
 if (!name || !/^[a-z0-9]+(_[a-z0-9]+)*$/.test(name)) {
@@ -64,7 +65,7 @@ const last = readdirSync(MIGRATIONS)
   .filter((f) => f.endsWith('.sql'))
   .sort()
   .at(-1);
-const next = String(Number(last.slice(0, 4)) + 1).padStart(4, '0');
+const next = migrationSequence(migrationIndex(last) + 1);
 const file = join(MIGRATIONS, `${next}_${name}.sql`);
 
 writeFileSync(file, `${sql}\n`);

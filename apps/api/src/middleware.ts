@@ -1,3 +1,4 @@
+import { IP_WINDOW_S } from '@notifi/contract';
 import type { Context, MiddlewareHandler } from 'hono';
 import { errBody, t } from './lib/respond.js';
 import { resolveDevice, verifyDeviceSignature } from './lib/signature.js';
@@ -8,7 +9,7 @@ export const ipLimiter: MiddlewareHandler<AppEnv> = async (c, next) => {
   const ip = c.req.header('CF-Connecting-IP') ?? '';
   const { success } = await c.env.SEND_IP_LIMIT.limit({ key: ip });
   if (!success) {
-    c.header('Retry-After', '60');
+    c.header('Retry-After', String(IP_WINDOW_S));
     return c.json(errBody('rate_limited', t(c).api.rateLimitedIP), 429);
   }
   return next();

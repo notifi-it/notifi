@@ -1,9 +1,10 @@
+import { GITHUB } from '@notifi/contract';
 import { Hono } from 'hono';
 import type { AppEnv } from '../types.js';
 
 export const downloads = new Hono<AppEnv>();
 
-const RELEASES = 'https://github.com/notifi-it/notifi/releases';
+const RELEASES = `${GITHUB}/releases`;
 
 async function latestTag(): Promise<string | null> {
   try {

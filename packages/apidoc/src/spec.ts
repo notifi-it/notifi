@@ -1,8 +1,30 @@
 import type { PublicErrorCode } from '@notifi/contract';
-import { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX, UNCOLLECTED_MAX } from '@notifi/contract';
+import {
+  IMAGE_URL_MAX,
+  KEY_PREFIX,
+  KEYS_PER_DEVICE,
+  LINK_URL_MAX,
+  MESSAGE_MAX,
+  ORIGIN,
+  REQUESTS_PER_MINUTE,
+  SEND_KEYS_MAX,
+  SENDS_PER_HOUR,
+  TITLE_MAX,
+  UNCOLLECTED_MAX,
+} from '@notifi/contract';
 import type { Lang } from './shikify.js';
 
-export { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX };
+export {
+  IMAGE_URL_MAX,
+  KEY_PREFIX,
+  KEYS_PER_DEVICE,
+  LINK_URL_MAX,
+  MESSAGE_MAX,
+  ORIGIN,
+  REQUESTS_PER_MINUTE,
+  SENDS_PER_HOUR,
+  TITLE_MAX,
+};
 
 export interface Param {
   name: string;
@@ -39,13 +61,11 @@ export interface Resource {
   summary: string;
 }
 
-export const ORIGIN = 'https://notifi.it';
 export const ENDPOINT = '/send';
-export const KEY_PREFIX = 'nk_';
 export const URL_MAX = LINK_URL_MAX;
-export const SENDS_PER_HOUR = 60;
-export const KEYS_PER_DEVICE = 5;
-export const REQUESTS_PER_MINUTE = 100;
+export const EXAMPLE_KEY = `${KEY_PREFIX}yourkey`;
+export const EXAMPLE_LINK = `${ORIGIN}/docs`;
+export const EXAMPLE_IMAGE = `${ORIGIN}/anaglyph-bell.png`;
 
 export const SUMMARY =
   'Push notifications to an iPhone, iPad or Mac from one HTTP request.';
@@ -58,11 +78,10 @@ export const DESCRIPTION = [
 ].join('\n\n');
 
 export const AUTH = {
-  header: 'Authorization: Bearer nk_yourkey',
+  header: `Authorization: Bearer ${EXAMPLE_KEY}`,
   summary:
-    'Use a bearer token. A key parameter works too, but ends up in server logs. Use it for a quick test only, then rotate the key.',
-  bearerDescription:
-    'The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history.',
+    'Use a bearer token. A key parameter works too, but ends up in server logs. Use it for a quick test only, then rotate the key. Two keys separated by a comma, in either place, send the same notification to both devices.',
+  bearerDescription: `The send key from the app’s Keys tab, as Authorization: Bearer ${EXAMPLE_KEY}. Preferred: a header is not written to edge logs or shell history.`,
   parameterDescription:
     'The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option. Use it only for a quick test, and rotate the key afterwards.',
 };
@@ -72,18 +91,18 @@ export const params: Param[] = [
     name: 'key',
     type: 'string',
     required: true,
-    limit: 'nk_…',
+    limit: `${KEY_PREFIX}…`,
     summary: 'The send key, if it is not sent as a bearer token.',
     detail:
-      'Required unless sent as a bearer token. The key picks the device that receives the notification.',
-    openapi: { pattern: '^nk_' },
-    example: 'nk_yourkey',
+      'Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys separated by a comma send to both devices; each is checked and limited on its own, and a key that fails while the other is accepted is reported in warnings.',
+    openapi: { pattern: `^${KEY_PREFIX}` },
+    example: EXAMPLE_KEY,
   },
   {
     name: 'title',
     type: 'string',
     required: true,
-    limit: '1–200 chars',
+    limit: `1–${TITLE_MAX} chars`,
     summary: 'The notification title.',
     detail: 'A longer title is delivered cropped, with a warning in the response.',
     openapi: {},
@@ -93,7 +112,7 @@ export const params: Param[] = [
     name: 'message',
     type: 'string',
     required: false,
-    limit: '≤ 16,000 chars',
+    limit: `≤ ${MESSAGE_MAX.toLocaleString('en-GB')} chars`,
     summary: 'The notification body, in Markdown.',
     detail: 'A longer body is delivered cropped, with a warning.',
     openapi: {},
@@ -103,23 +122,23 @@ export const params: Param[] = [
     name: 'link',
     type: 'string (uri)',
     required: false,
-    limit: '≤ 2,048 chars',
+    limit: `≤ ${LINK_URL_MAX.toLocaleString('en-GB')} chars`,
     summary: 'A link to a website or internal app.',
     detail:
       'Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.',
     openapi: {},
-    example: 'https://notifi.it/docs',
+    example: EXAMPLE_LINK,
   },
   {
     name: 'image',
     type: 'string (uri)',
     required: false,
-    limit: '≤ 2,048 chars',
+    limit: `≤ ${IMAGE_URL_MAX.toLocaleString('en-GB')} chars`,
     summary: 'URL of an image shown with the notification.',
     detail:
       'Fetched by the receiving device, never by the server; by default the app loads it only when tapped.',
     openapi: { format: 'uri' },
-    example: 'https://notifi.it/anaglyph-bell.png',
+    example: EXAMPLE_IMAGE,
   },
   {
     name: 'occurred_at',
@@ -199,6 +218,7 @@ export const limits: string[] = [
   `${KEYS_PER_DEVICE} active send keys per device, one of which is the device key.`,
   `${REQUESTS_PER_MINUTE} requests a minute per IP, across every endpoint.`,
   `${UNCOLLECTED_MAX} uncollected notifications per device. Past that, sends are refused until the device collects.`,
+  `${SEND_KEYS_MAX} keys per request. Each counts against its own device's limits.`,
   'Revoking a key takes effect on the next send. Reinstalling the app, or moving device, makes a new identity and every old key stops working. No migration.',
 ];
 

@@ -194,24 +194,24 @@ struct KeyDetailView: View {
 
     private func examplesURL(for key: CachedKey) -> URL {
         if key.isDefault, let full = model.defaultKeyValue {
-            return URL(string: "https://notifi.it/?key=\(full)#api")!
+            return Contract.web("/?key=\(full)#api")
         }
-        return URL(string: "https://notifi.it/#api")!
+        return Contract.web("/#api")
     }
 
     private func flash() {
-        withAnimation(.easeOut(duration: 0.15)) { copied = true }
+        withAnimation(Theme.flash) { copied = true }
         Task {
-            try? await Task.sleep(for: .seconds(1.6))
-            withAnimation(.easeOut(duration: 0.2)) { copied = false }
+            try? await Task.sleep(for: Theme.copiedDwell)
+            withAnimation(Theme.state) { copied = false }
         }
     }
 
     private func flashCurl() {
-        withAnimation(.easeOut(duration: 0.15)) { copiedCurl = true }
+        withAnimation(Theme.flash) { copiedCurl = true }
         Task {
-            try? await Task.sleep(for: .seconds(1.6))
-            withAnimation(.easeOut(duration: 0.2)) { copiedCurl = false }
+            try? await Task.sleep(for: Theme.copiedDwell)
+            withAnimation(Theme.state) { copiedCurl = false }
         }
     }
 

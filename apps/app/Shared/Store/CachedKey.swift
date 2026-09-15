@@ -14,7 +14,9 @@ struct CachedKey: Codable, Identifiable, Hashable, Sendable {
 
     var isCritical: Bool { isCriticalFlag == true }
 
-    var isDefault: Bool { name.lowercased() == "device" }
+    static let defaultName = "device"
+
+    var isDefault: Bool { name.lowercased() == Self.defaultName }
 
     var maskedValue: String { Copy.Keys.maskedValue(prefix) }
 

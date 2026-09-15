@@ -2,6 +2,7 @@ import {
   createKeyBody,
   type KeyMeta,
   type KeySummary,
+  KEYS_PER_DEVICE,
   updateKeyBody,
 } from '@notifi/contract';
 import { Hono } from 'hono';
@@ -11,8 +12,6 @@ import { generateSendKey } from '../lib/sendkey.js';
 import { now } from '../lib/time.js';
 import { bumpLastSeenIfStale, getDevice, signatureAuth } from '../middleware.js';
 import type { AppEnv } from '../types.js';
-
-const MAX_ACTIVE_KEYS = 5;
 
 export const keys = new Hono<AppEnv>();
 
@@ -56,7 +55,7 @@ keys.post('/keys', async (c) => {
      WHERE (SELECT COUNT(*) FROM keys WHERE device_id = ? AND revoked_at IS NULL) < ?
      RETURNING id`,
   )
-    .bind(device.id, generated.secretHash, nowS, nowS, device.id, MAX_ACTIVE_KEYS)
+    .bind(device.id, generated.secretHash, nowS, nowS, device.id, KEYS_PER_DEVICE)
     .first<{ id: number }>();
 
   if (!inserted) {

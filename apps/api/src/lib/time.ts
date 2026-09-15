@@ -1,14 +1,17 @@
+import { SEND_WINDOW_S, SENDS_PER_HOUR } from '@notifi/contract';
+
 export function now(): number {
   return Math.floor(Date.now() / 1000);
 }
 
+export const PER_DEVICE_WINDOW_S = SEND_WINDOW_S;
+export const PER_DEVICE_LIMIT = SENDS_PER_HOUR;
+
 export function windowStart(nowS: number): number {
-  return Math.floor(nowS / 3600) * 3600;
+  return Math.floor(nowS / PER_DEVICE_WINDOW_S) * PER_DEVICE_WINDOW_S;
 }
 
 export const MESSAGE_BACKSTOP_S = 7776000;
-export const PER_DEVICE_WINDOW_S = 3600;
-export const PER_DEVICE_LIMIT = 60;
 
 export function perDeviceLimit(env: { PER_DEVICE_LIMIT?: string }): number {
   const raw = Number(env.PER_DEVICE_LIMIT);

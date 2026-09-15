@@ -22,9 +22,9 @@ struct KeysView: View {
 
     private var docsURL: URL {
         guard let full = model.defaultKeyValue else {
-            return URL(string: "https://notifi.it/#api")!
+            return Contract.web("/#api")
         }
-        return URL(string: "https://notifi.it/?key=\(full)#api")!
+        return Contract.web("/?key=\(full)#api")
     }
 
     var body: some View {

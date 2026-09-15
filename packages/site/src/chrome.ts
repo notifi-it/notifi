@@ -1,5 +1,8 @@
+import { pngSize } from '@notifi/apidoc';
 import { EMAIL, GITHUB, ORIGIN, OG_IMAGE, OG_IMAGE_ALT, SOCIAL, THEME_COLOR } from './constants.js';
 import { brand, type BrandName } from './icons.js';
+
+const OG_IMAGE_SIZE = pngSize(new URL('../../../apps/api/public/og.png', import.meta.url));
 
 export interface Link {
   href: string;
@@ -94,8 +97,8 @@ ${markdown}
 <meta property="og:site_name" content="notifi">
 <meta property="og:locale" content="en_GB">
 <meta property="og:image" content="${OG_IMAGE}">
-<meta property="og:image:width" content="2400">
-<meta property="og:image:height" content="1260">
+<meta property="og:image:width" content="${OG_IMAGE_SIZE.width}">
+<meta property="og:image:height" content="${OG_IMAGE_SIZE.height}">
 <meta property="og:image:alt" content="${OG_IMAGE_ALT}">
 
 <meta name="twitter:card" content="summary_large_image">

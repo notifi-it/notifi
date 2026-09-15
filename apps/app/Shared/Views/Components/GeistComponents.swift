@@ -102,7 +102,7 @@ struct SectionLabel: View {
         HStack(spacing: 10) {
             Text(text.uppercased())
                 .font(Theme.sectionLabel)
-                .tracking(1.4)
+                .tracking(Theme.sectionLabelTracking)
                 .foregroundStyle(Theme.read)
             Spacer(minLength: 0)
             if let trailing {

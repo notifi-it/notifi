@@ -20,7 +20,7 @@ enum SampleData {
         func hours(_ count: Int) -> Int { now - count * 3_600 }
 
         let rows: [(String, String, Int, Int, Int?, Int?, Bool)] = [
-            ("Device", "nk_a4Qm", 128, days(420), hours(2), nil, false),
+            (CachedKey.defaultName.capitalized, "nk_a4Qm", 128, days(420), hours(2), nil, false),
             ("Deploy bot", "nk_u7Pg", 1_842, days(310), hours(1), nil, false),
             ("Doorbell", "nk_k2Vd", 63, days(96), hours(9), nil, true),
             ("Backups", "nk_z9Rt", 704, days(88), days(1), nil, false),
@@ -71,7 +71,7 @@ enum SampleData {
     static let showcaseID = idFloor - 1_000
 
     private static var demoBase: String {
-        ProcessInfo.processInfo.environment["NOTIFI_DEMO_BASE"] ?? "https://notifi.it/demo"
+        ProcessInfo.processInfo.environment["NOTIFI_DEMO_BASE"] ?? Contract.web("/demo").absoluteString
     }
 
     #if os(macOS)
@@ -404,7 +404,7 @@ enum SampleData {
                 serverID: showcaseID,
                 title: "Markdown",
                 body: showcaseBody,
-                link: URL(string: "https://notifi.it/docs"),
+                link: Contract.web("/docs"),
                 imageURL: URL(string: "\(demo)/placeholder.png"),
                 keyID: nil,
                 createdAt: ago(3),

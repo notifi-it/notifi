@@ -57,6 +57,9 @@ importers:
       '@notifi/contract':
         specifier: workspace:*
         version: link:../contract
+      '@notifi/copy':
+        specifier: workspace:*
+        version: link:../copy
       zod:
         specifier: ^4.5.1
         version: 4.5.1
@@ -97,6 +100,10 @@ importers:
         version: 5.9.3
 
   packages/copy:
+    dependencies:
+      '@notifi/contract':
+        specifier: workspace:*
+        version: link:../contract
     devDependencies:
       '@types/node':
         specifier: ^20.16.5
@@ -113,6 +120,9 @@ importers:
       '@notifi/apidoc':
         specifier: workspace:*
         version: link:../apidoc
+      '@notifi/contract':
+        specifier: workspace:*
+        version: link:../contract
     devDependencies:
       '@types/node':
         specifier: ^20.16.5
