@@ -1,5 +1,6 @@
 import {
   type ApiError,
+  keyPrefix,
   MESSAGE_MAX,
   type MessageContent,
   OCCURRED_AT_MAX_SKEW_MS,
@@ -13,7 +14,7 @@ import type { Context } from 'hono';
 import { push } from '../lib/apns.js';
 import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
-import { hashKey, keyPrefix } from '../lib/sendkey.js';
+import { hashKey } from '../lib/sendkey.js';
 import {
   MESSAGE_BACKSTOP_S,
   now,
@@ -26,6 +27,7 @@ import type { AppEnv } from '../types.js';
 const PUSH_BUDGET_BYTES = 4000;
 const PREVIEW_MESSAGE_MAX = 1000;
 const MINIMAL_MESSAGE_MAX = 200;
+const BEARER = 'bearer ';
 
 interface KeyDeviceRow {
   key_id: number;
@@ -78,7 +80,7 @@ function payloadBytes(payload: object): number {
   return new TextEncoder().encode(JSON.stringify(payload)).length;
 }
 
-async function deliver(
+async function deliverToKey(
   c: Context<AppEnv>,
   key: string,
   draft: Draft,
@@ -109,7 +111,7 @@ async function deliver(
     return { status: 422, body: errBody('invalid_content', t(c).api.strictContentRejected) };
   }
 
-  const w = windowStart(nowS);
+  const windowStartS = windowStart(nowS);
   const allowed = await c.env.DB.prepare(
     `UPDATE devices SET
        rl_window_count = CASE WHEN rl_window_start = ? THEN rl_window_count + 1 ELSE 1 END,
@@ -119,7 +121,7 @@ async function deliver(
        AND (rl_window_start != ? OR rl_window_count < ?)
      RETURNING seq_counter`,
   )
-    .bind(w, w, row.device_id, w, perDeviceLimit(c.env))
+    .bind(windowStartS, windowStartS, row.device_id, windowStartS, perDeviceLimit(c.env))
     .first<{ seq_counter: number }>();
 
   if (!allowed) {
@@ -132,7 +134,7 @@ async function deliver(
     return {
       status: 429,
       body: errBody('rate_limited', t(c).api.rateLimitedAccount),
-      retryAfter: w + PER_DEVICE_WINDOW_S - nowS,
+      retryAfter: windowStartS + PER_DEVICE_WINDOW_S - nowS,
     };
   }
   const deviceSeq = allowed.seq_counter;
@@ -295,7 +297,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
 
   const auth = c.req.header('authorization');
   const bearer =
-    auth && auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : undefined;
+    auth && auth.toLowerCase().startsWith(BEARER) ? auth.slice(BEARER.length).trim() : undefined;
   if (merged.key === undefined && bearer) merged.key = bearer;
 
   const parsed = sendParams.safeParse(merged);
@@ -336,14 +338,14 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   const failures: { key: string; failure: Failure }[] = [];
   let delivered = 0;
   for (const key of input.key) {
-    const failure = await deliver(c, key, draft, nowS);
+    const failure = await deliverToKey(c, key, draft, nowS);
     if (failure === null) delivered += 1;
     else failures.push({ key, failure });
   }
 
-  const first = failures[0];
-  if (delivered === 0 && first !== undefined) {
-    const { failure } = first;
+  const firstFailure = failures[0];
+  if (delivered === 0 && firstFailure !== undefined) {
+    const { failure } = firstFailure;
     if (failure.retryAfter !== undefined) c.header('Retry-After', String(failure.retryAfter));
     return c.json(failure.body, failure.status);
   }

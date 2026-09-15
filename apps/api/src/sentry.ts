@@ -1,19 +1,21 @@
 import type { CloudflareOptions, ErrorEvent, Event } from '@sentry/cloudflare';
 import { installConsoleCapture } from './lib/report.js';
+import { SEND_KEY_PATTERN as SEND_KEY } from './lib/sendkey.js';
 import type { Env } from './types.js';
 
 installConsoleCapture();
 
-const SEND_KEY = /nk_[A-Za-z0-9_-]{8,}/g;
+const TOKEN_HEX_CHARS = 8;
+const MAX_WALK_DEPTH = 8;
 
 async function token(key: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key));
   const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
-  return `key#${hex.slice(0, 8)}`;
+  return `key#${hex.slice(0, TOKEN_HEX_CHARS)}`;
 }
 
 function walk(value: unknown, onString: (s: string) => string | void, depth = 0): unknown {
-  if (depth > 8) return value;
+  if (depth > MAX_WALK_DEPTH) return value;
   if (typeof value === 'string') return onString(value) ?? value;
   if (Array.isArray(value)) return value.map((item) => walk(item, onString, depth + 1));
   if (typeof value === 'object' && value !== null) {

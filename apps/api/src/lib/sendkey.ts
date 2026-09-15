@@ -1,3 +1,4 @@
+import { KEY_BYTES, KEY_PREFIX, keyPrefix } from '@notifi/contract';
 import { b64urlBytes, toHex } from './bytes.js';
 
 export interface GeneratedKey {
@@ -6,17 +7,13 @@ export interface GeneratedKey {
   secretHash: string;
 }
 
-const KEY_PREFIX = 'nk_';
-const PREFIX_BODY_CHARS = 4;
+const KEY_BODY_CHARS = Math.ceil((KEY_BYTES * 4) / 3);
 
-export function keyPrefix(key: string): string {
-  return key.slice(0, KEY_PREFIX.length + PREFIX_BODY_CHARS);
-}
+export const SEND_KEY_PATTERN = new RegExp(`${KEY_PREFIX}[A-Za-z0-9_-]{${KEY_BODY_CHARS},}`, 'g');
 
 export async function generateSendKey(): Promise<GeneratedKey> {
-  const random = crypto.getRandomValues(new Uint8Array(32));
-  const body = b64urlBytes(random);
-  const key = `${KEY_PREFIX}${body}`;
+  const random = crypto.getRandomValues(new Uint8Array(KEY_BYTES));
+  const key = `${KEY_PREFIX}${b64urlBytes(random)}`;
   const secretHash = await hashKey(key);
   return { key, prefix: keyPrefix(key), secretHash };
 }

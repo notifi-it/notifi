@@ -14,7 +14,7 @@ struct HoverHighlight: ViewModifier {
                     StaticField(level: .hover, fillsScreen: false)
                 }
             }
-            .animation(.easeOut(duration: 0.12), value: isHovered)
+            .animation(Theme.press, value: isHovered)
             .onHover { hovering in
                 hoverTask?.cancel()
                 guard hovering else {

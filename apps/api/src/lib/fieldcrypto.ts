@@ -1,6 +1,8 @@
 import type { Env } from '../types.js';
 import { fromB64, fromHex, toB64 } from './bytes.js';
 
+const IV_BYTES = 12;
+
 let cachedKey: CryptoKey | null = null;
 
 async function aesKey(env: Env): Promise<CryptoKey> {
@@ -15,7 +17,7 @@ async function aesKey(env: Env): Promise<CryptoKey> {
 
 export async function encryptField(env: Env, plaintext: string): Promise<string> {
   const key = await aesKey(env);
-  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
   const ct = new Uint8Array(
     await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext)),
   );
@@ -28,8 +30,8 @@ export async function encryptField(env: Env, plaintext: string): Promise<string>
 export async function decryptField(env: Env, stored: string): Promise<string> {
   const key = await aesKey(env);
   const blob = fromB64(stored);
-  const iv = blob.subarray(0, 12);
-  const ct = blob.subarray(12);
+  const iv = blob.subarray(0, IV_BYTES);
+  const ct = blob.subarray(IV_BYTES);
   const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
   return new TextDecoder().decode(pt);
 }

@@ -213,7 +213,7 @@ export const it: Translation = {
   'createKey.creating': 'Creazione…',
 
   'createKey.validationEmpty': 'Inserisci un nome per questa chiave.',
-  'createKey.validationTooLong': 'Usa 64 caratteri o meno.',
+  'createKey.validationTooLong': 'Usa {max} caratteri o meno.',
 
   'createKey.revealTitle': 'Copia subito la tua chiave',
   'createKey.revealDetail': 'Non verrà mostrata di nuovo.',

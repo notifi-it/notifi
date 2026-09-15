@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { migrationSequence } from './migration-sequence.mjs';
 
 const MIGRATIONS = 'apps/api/migrations';
 const SCHEMA = 'apps/api/prisma/schema.prisma';
@@ -10,7 +11,7 @@ const problems = [];
 const files = readdirSync(MIGRATIONS).filter((f) => f.endsWith('.sql')).sort();
 
 for (const [i, file] of files.entries()) {
-  const expected = String(i + 1).padStart(4, '0');
+  const expected = migrationSequence(i + 1);
   if (!file.startsWith(`${expected}_`)) {
     problems.push(`${MIGRATIONS}/${file}: expected the sequence to reach ${expected} here`);
   }

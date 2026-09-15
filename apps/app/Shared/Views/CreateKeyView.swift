@@ -111,7 +111,7 @@ struct CreateKeyView: View {
                 .autocorrectionDisabled()
                 #endif
                 .padding(.horizontal, 13)
-                .frame(minHeight: 44)
+                .frame(minHeight: Theme.minTarget)
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: 9))
                 .overlay(
                     RoundedRectangle(cornerRadius: 9)
@@ -120,12 +120,12 @@ struct CreateKeyView: View {
                 )
                 .accessibilityLabel(Copy.CreateKey.nameLabel)
 
-            if trimmedCount >= 48 {
+            if trimmedCount >= Self.charCountThreshold {
                 HStack {
                     Spacer(minLength: 8)
-                    Text(Copy.CreateKey.charCount("\(trimmedCount)", "64"))
+                    Text(Copy.CreateKey.charCount("\(trimmedCount)", "\(Contract.keyNameMax)"))
                         .font(Theme.metaSmall)
-                        .foregroundStyle(trimmedCount >= 64 ? Theme.danger : Theme.dim)
+                        .foregroundStyle(trimmedCount >= Contract.keyNameMax ? Theme.danger : Theme.dim)
                 }
                 .padding(.top, 8)
             }
@@ -222,14 +222,18 @@ struct CreateKeyView: View {
     private var validationProblem: String? {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty { return Copy.CreateKey.validationEmpty }
-        if trimmed.count > 64 { return Copy.CreateKey.validationTooLong }
+        if trimmed.count > Contract.keyNameMax {
+            return Copy.CreateKey.validationTooLong("\(Contract.keyNameMax)")
+        }
         if isReserved { return Copy.CreateKey.nameReserved }
         if isNameTaken { return Copy.CreateKey.nameTaken }
         return nil
     }
 
+    private static let charCountThreshold = Contract.keyNameMax - 16
+
     private var isReserved: Bool {
-        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "device"
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == CachedKey.defaultName
     }
 
     private var isNameTaken: Bool {

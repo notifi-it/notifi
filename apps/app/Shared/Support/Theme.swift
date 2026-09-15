@@ -90,15 +90,11 @@ enum Theme {
     static let headerSubtitleHeight: CGFloat = 22
     static let headerActionSpacing: CGFloat = 8
 
-    static let headerBarGap: CGFloat = 20
-    static let rowGap: CGFloat = 13
-
     static let rowPadV: CGFloat = 12
 
     static let controlWidth: CGFloat = 88
     static let radius: CGFloat = 6
     static let innerRadius: CGFloat = 3
-    static let thumb: CGFloat = 42
 
     static let minTarget: CGFloat = 44
 
@@ -121,7 +117,11 @@ enum Theme {
 
     static let press = Animation.easeOut(duration: 0.12)
 
+    static let flash = Animation.easeOut(duration: 0.15)
+
     static let state = Animation.easeOut(duration: 0.2)
+
+    static let copiedDwell: Duration = .seconds(1.6)
 
     static let reveal = Animation.easeOut(duration: 0.25)
 
@@ -145,6 +145,7 @@ enum Theme {
     static var label: Font { .inco(.caption2, weight: .medium) }
     static var screenTitle: Font { .inco(.title, weight: .semibold) }
     static let screenTitleTracking: CGFloat = 1
+    static let sectionLabelTracking: CGFloat = 1.4
     static var sectionLabel: Font { .inco(.caption2, weight: .semibold) }
 }
 
@@ -200,7 +201,7 @@ struct ScrolledTopFade: ViewModifier {
                 .overlay(alignment: .top) {
                     GroundFade()
                         .opacity(scrolled ? 1 : 0)
-                        .animation(.easeOut(duration: 0.15), value: scrolled)
+                        .animation(Theme.flash, value: scrolled)
                 }
         } else {
             content

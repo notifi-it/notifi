@@ -121,7 +121,8 @@ fails on drift.
 | The /docs reference | `packages/apidoc/src` (see below) |
 | The landing page's body | `apps/api/public/index.html`, between its `<!-- gen:… -->` markers |
 | Header, footer, `<head>`, shared CSS or JS | `packages/site/src/` |
-| A social URL, the contact address, the App Store link, the author | `packages/site/src/constants.ts` |
+| A social URL, the author | `packages/site/src/constants.ts` |
+| The origin, the contact address, the GitHub URL, the App Store id, the key prefix, every limit | `packages/contract/src/index.ts` (mirrored by `enum Contract` in `ContractModels.swift`) |
 | The schema.org Organization node | `packages/site/src/schema.ts` |
 
 The five prose pages are Markdown in, HTML *and* Markdown out. The dialect is

@@ -215,7 +215,7 @@ export const fr: Translation = {
   'createKey.creating': 'Création…',
 
   'createKey.validationEmpty': 'Entrez un nom pour cette clé.',
-  'createKey.validationTooLong': 'Utilisez 64 caractères ou moins.',
+  'createKey.validationTooLong': 'Utilisez {max} caractères ou moins.',
 
   'createKey.revealTitle': 'Copiez votre clé maintenant',
   'createKey.revealDetail': 'Elle ne sera plus affichée.',

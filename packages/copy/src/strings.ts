@@ -309,7 +309,7 @@ export const copy = {
     validationEmpty:
       'Enter a name.',
     validationTooLong:
-      '64 characters or fewer.',
+      '{max} characters or fewer.',
 
     revealTitle:
       'Copy your key',

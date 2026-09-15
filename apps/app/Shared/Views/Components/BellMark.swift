@@ -9,7 +9,7 @@ struct BellMark: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private static let badgeCentre = CGPoint(x: 0.7006, y: 0.1498)
-    private static let badgeDiameter: CGFloat = 0.2835
+    private static let badgeDiameter: CGFloat = 0.2703
 
     var body: some View {
         ZStack {
@@ -42,7 +42,7 @@ struct BellMark: View {
                 guard !reduceMotion else { return }
                 shake &+= 1
             }
-            .animation(.easeOut(duration: 0.2), value: hasUnread)
+            .animation(Theme.state, value: hasUnread)
             .accessibilityHidden(true)
     }
 }

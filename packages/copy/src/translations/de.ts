@@ -260,7 +260,7 @@ export const de: Translation = {
   'createKey.creating': 'Wird erstellt…',
 
   'createKey.validationEmpty': 'Gib einen Namen für diesen Schlüssel ein.',
-  'createKey.validationTooLong': 'Verwende höchstens 64 Zeichen.',
+  'createKey.validationTooLong': 'Verwende höchstens {max} Zeichen.',
 
   'createKey.revealTitle': 'Kopiere deinen Schlüssel jetzt',
   'createKey.revealDetail': 'Er wird nicht noch einmal angezeigt.',

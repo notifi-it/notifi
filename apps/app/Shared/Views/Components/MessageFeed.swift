@@ -359,7 +359,7 @@ private struct BandHeader: View {
         HStack(spacing: 10) {
             Text(title.uppercased())
                 .font(Theme.sectionLabel)
-                .tracking(1.4)
+                .tracking(Theme.sectionLabelTracking)
                 .foregroundStyle(Theme.fg)
                 .lineLimit(1)
             Rectangle()
@@ -523,7 +523,7 @@ private struct MessageRow: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 13)
-        .frame(minHeight: 44)
+        .frame(minHeight: Theme.minTarget)
         .hoverHighlight { isHovered = $0 }
     }
 
@@ -537,7 +537,7 @@ private struct MessageRow: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .animation(.easeOut(duration: 0.12), value: isLinkHovered)
+            .animation(Theme.press, value: isLinkHovered)
             .onHover { isLinkHovered = $0 }
             .help(Copy.Common.openLink)
             .accessibilityLabel(Copy.Common.openLink)

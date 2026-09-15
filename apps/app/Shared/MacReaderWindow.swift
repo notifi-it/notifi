@@ -213,7 +213,7 @@ private struct ReaderPaneView: View {
                     .transition(reduceMotion ? .opacity : .move(edge: .bottom))
             }
         }
-        .animation(.easeOut(duration: 0.2), value: model.readerPresentingCreateKey)
+        .animation(Theme.state, value: model.readerPresentingCreateKey)
     }
 }
 

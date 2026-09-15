@@ -168,7 +168,7 @@ enum Copy {
         static var create: String { NSLocalizedString("createKey.create", comment: "") }
         static var creating: String { NSLocalizedString("createKey.creating", comment: "") }
         static var validationEmpty: String { NSLocalizedString("createKey.validationEmpty", comment: "") }
-        static var validationTooLong: String { NSLocalizedString("createKey.validationTooLong", comment: "") }
+        static func validationTooLong(_ max: String) -> String { String.localizedStringWithFormat(NSLocalizedString("createKey.validationTooLong", comment: ""), max) }
         static var revealTitle: String { NSLocalizedString("createKey.revealTitle", comment: "") }
         static var revealDetail: String { NSLocalizedString("createKey.revealDetail", comment: "") }
         static var revealLabel: String { NSLocalizedString("createKey.revealLabel", comment: "") }

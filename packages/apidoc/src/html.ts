@@ -1,8 +1,13 @@
+import { APP_STORE, EMAIL } from '@notifi/contract';
 import {
   AUTH,
   INTEGRATION_SURFACE,
   OPERATION_ERRORS,
   ENDPOINT,
+  EXAMPLE_IMAGE,
+  EXAMPLE_KEY,
+  EXAMPLE_LINK,
+  KEY_PREFIX,
   KEYS_PER_DEVICE,
   MESSAGE_MAX,
   ORIGIN,
@@ -28,11 +33,19 @@ export function escape(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
+const PNG_IHDR_WIDTH_OFFSET = 16;
+const PNG_DIMENSION_BYTES = 4;
+
+export function pngSize(file: URL): { width: number; height: number } {
+  const header = readFileSync(file).subarray(
+    PNG_IHDR_WIDTH_OFFSET,
+    PNG_IHDR_WIDTH_OFFSET + PNG_DIMENSION_BYTES * 2,
+  );
+  return { width: header.readUInt32BE(0), height: header.readUInt32BE(PNG_DIMENSION_BYTES) };
+}
+
 function figure(src: string, alt: string, caption: string): string {
-  const file = new URL(`../../../apps/api/public${src}`, import.meta.url);
-  const header = readFileSync(file).subarray(16, 24);
-  const width = header.readUInt32BE(0);
-  const height = header.readUInt32BE(4);
+  const { width, height } = pngSize(new URL(`../../../apps/api/public${src}`, import.meta.url));
   return `    <figure>
       <img src="${src}" width="${width}" height="${height}" alt="${escape(alt)}">
       <figcaption>${escape(caption)}</figcaption>
@@ -52,8 +65,8 @@ const QUICKSTART = `curl -X POST ${ORIGIN}${ENDPOINT} \\
   -H "Authorization: Bearer $NOTIFI_KEY" \\
   -d "title=Hello from notifi" \\
   -d "message=Your first notification." \\
-  -d "link=https://notifi.it/docs" \\
-  -d "image=https://notifi.it/anaglyph-bell.png"`;
+  -d "link=${EXAMPLE_LINK}" \\
+  -d "image=${EXAMPLE_IMAGE}"`;
 
 const WARNINGS_RESPONSE = `HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
@@ -62,11 +75,11 @@ Content-Type: application/json; charset=utf-8
 
 const RAW_REQUEST = `POST /send HTTP/1.1
 Host: notifi.it
-Authorization: Bearer nk_yourkey
+Authorization: Bearer ${EXAMPLE_KEY}
 Content-Type: application/json
 Accept-Language: en-GB
 
-{"title":"Hello from notifi","message":"Your first notification.","link":"https://notifi.it/docs","image":"https://notifi.it/anaglyph-bell.png"}`;
+{"title":"Hello from notifi","message":"Your first notification.","link":"${EXAMPLE_LINK}","image":"${EXAMPLE_IMAGE}"}`;
 
 function responseBody(status: number, reason: string, body: string, retry = false): string {
   const head = [
@@ -142,8 +155,8 @@ http -f POST ${ORIGIN}${ENDPOINT} \\
   "Authorization:Bearer $NOTIFI_KEY" \\
   title="Hello from notifi" \\
   message="Your first notification." \\
-  link="https://notifi.it/docs" \\
-  image="https://notifi.it/anaglyph-bell.png"`,
+  link="${EXAMPLE_LINK}" \\
+  image="${EXAMPLE_IMAGE}"`,
   },
   {
     id: 'generate',
@@ -224,9 +237,9 @@ export function docsBody(): string {
   <section id="quickstart">
     <h2>Quickstart</h2>
     <p>
-      Install notifi on <a href="https://apps.apple.com/app/id1563961135">iPhone or iPad</a>
+      Install notifi on <a href="${APP_STORE}">iPhone or iPad</a>
       or <a href="/download/mac">Mac</a>, allow notifications, open Keys and copy the
-      <code>Device</code> key. It starts with <code>nk_</code>.
+      <code>Device</code> key. It starts with <code>${KEY_PREFIX}</code>.
     </p>
     ${pre(QUICKSTART, 'bash')}
   </section>
@@ -240,12 +253,12 @@ export function docsBody(): string {
         <tbody>
           <tr>
             <td>Bearer token</td>
-            <td><code>Authorization: Bearer nk_yourkey</code></td>
+            <td><code>Authorization: Bearer ${EXAMPLE_KEY}</code></td>
             <td>${escape(AUTH.bearerDescription)}</td>
           </tr>
           <tr>
             <td>Parameter</td>
-            <td><code>key=nk_yourkey</code></td>
+            <td><code>key=${EXAMPLE_KEY}</code></td>
             <td>${escape(AUTH.parameterDescription)}</td>
           </tr>
         </tbody>
@@ -395,7 +408,7 @@ ${terminalGroup('', 'Examples', samples)}
     <h2>Questions</h2>
     <p>
       The <a href="/faq">FAQ</a> covers cost, limits, what the server can read and what happens
-      when you delete the app. If yours isn't there, write to <a href="mailto:hello@notifi.it">hello@notifi.it</a>.
+      when you delete the app. If yours isn't there, write to <a href="mailto:${EMAIL}">${EMAIL}</a>.
     </p>
   </section>
 

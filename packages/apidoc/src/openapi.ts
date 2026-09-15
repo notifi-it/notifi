@@ -1,4 +1,5 @@
-import { publicErrorCode, sendFields, sendResponse } from '@notifi/contract';
+import { EMAIL, GITHUB, publicErrorCode, sendFields, sendResponse, TITLE_MAX } from '@notifi/contract';
+import { copyFor, fmt, SOURCE_LANGUAGE } from '@notifi/copy';
 import { z } from 'zod';
 import {
   AUTH,
@@ -96,9 +97,7 @@ function errorResponses(): Record<string, unknown> {
             deliveredWithWarnings: {
               value: {
                 ok: true,
-                warnings: [
-                  'Title shortened to 200 characters.',
-                ],
+                warnings: [fmt(copyFor(SOURCE_LANGUAGE).api.titleCropped, { max: TITLE_MAX })],
               },
             },
           },
@@ -166,9 +165,9 @@ export function openapi(): Record<string, unknown> {
       termsOfService: `${ORIGIN}/terms`,
       license: {
         name: 'MIT',
-        url: 'https://github.com/notifi-it/notifi/blob/main/LICENSE',
+        url: `${GITHUB}/blob/main/LICENSE`,
       },
-      contact: { name: 'notifi', url: ORIGIN, email: 'hello@notifi.it' },
+      contact: { name: 'notifi', url: ORIGIN, email: EMAIL },
     },
     externalDocs: { description: 'notifi API documentation', url: `${ORIGIN}/docs` },
     servers: [{ url: ORIGIN, description: 'Production' }],

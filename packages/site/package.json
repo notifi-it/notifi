@@ -14,7 +14,8 @@
     "check-site-html": "tsx scripts/gen-site.ts --check"
   },
   "dependencies": {
-    "@notifi/apidoc": "workspace:*"
+    "@notifi/apidoc": "workspace:*",
+    "@notifi/contract": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.16.5",

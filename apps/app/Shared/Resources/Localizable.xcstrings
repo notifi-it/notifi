@@ -2072,31 +2072,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "64 characters or fewer."
+            "value": "%1$@ characters or fewer."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usa 64 caracteres o menos."
+            "value": "Usa %1$@ caracteres o menos."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verwende höchstens 64 Zeichen."
+            "value": "Verwende höchstens %1$@ Zeichen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utilisez 64 caractères ou moins."
+            "value": "Utilisez %1$@ caractères ou moins."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usa 64 caratteri o meno."
+            "value": "Usa %1$@ caratteri o meno."
           }
         }
       }

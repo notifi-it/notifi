@@ -1,4 +1,5 @@
 import {
+  AUTH,
   ENDPOINT,
   MESSAGE_MAX,
   ORIGIN,
@@ -22,7 +23,7 @@ export function highlight(code: string, lang: Lang): string {
 }
 
 const NOTES: Record<string, string> = {
-  key: 'The key from the app. It picks which device gets the push. Send it as a header, <code>Authorization: Bearer nk_yourkey</code>, which keeps it out of logs; or pass it as this parameter.',
+  key: `The key from the app. It picks which device gets the push. Send it as a header, <code>${AUTH.header}</code>, which keeps it out of logs; or pass it as this parameter.`,
   title: `The notification title. Up to ${TITLE_MAX} characters.`,
   message: `The notification body. Markdown, up to ${MESSAGE_MAX.toLocaleString('en-GB')} characters.`,
   link: `A link to a website or internal app. Up to ${URL_MAX.toLocaleString('en-GB')} characters.`,

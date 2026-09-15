@@ -1,5 +1,28 @@
 import { z } from 'zod';
 
+export const ORIGIN = 'https://notifi.it';
+export const EMAIL = 'hello@notifi.it';
+export const GITHUB = 'https://github.com/notifi-it/notifi';
+export const APP_STORE_ID = '1563961135';
+export const APP_STORE = `https://apps.apple.com/app/id${APP_STORE_ID}`;
+
+export const KEY_PREFIX = 'nk_';
+export const KEY_PREFIX_BODY_CHARS = 4;
+export const KEY_BYTES = 32;
+
+export function keyPrefix(key: string): string {
+  return key.slice(0, KEY_PREFIX.length + KEY_PREFIX_BODY_CHARS);
+}
+
+export const KEY_NAME_MAX = 64;
+export const KEYS_PER_DEVICE = 5;
+export const SENDS_PER_HOUR = 60;
+export const SEND_WINDOW_S = 3600;
+export const REQUESTS_PER_MINUTE = 100;
+export const IP_WINDOW_S = 60;
+export const HISTORY_LIMIT_DEFAULT = 50;
+export const HISTORY_LIMIT_MAX = 200;
+
 export const errorCode = z.enum([
   'bad_signature',
   'stale_timestamp',
@@ -59,19 +82,26 @@ export const sendFields = z.object({
 
 export const SEND_KEYS_MAX = 2;
 
-const sendKeys = z
+const KEY_SEPARATOR = ',';
+
+const sendKeyList = z
   .union([z.string(), z.array(z.string())])
-  .transform((v) => {
-    const parts = (Array.isArray(v) ? v : [v]).flatMap((s) => s.split(','));
-    return [...new Set(parts.map((s) => s.trim()).filter((s) => s !== ''))];
+  .transform((given) => {
+    const pieces = (Array.isArray(given) ? given : [given]).flatMap((entry) =>
+      entry.split(KEY_SEPARATOR),
+    );
+    const trimmed = pieces.map((piece) => piece.trim()).filter((piece) => piece !== '');
+    return [...new Set(trimmed)];
   })
   .pipe(z.array(z.string()).min(1).max(SEND_KEYS_MAX));
 
+export const CROP_TOLERANCE = { title: 5, message: 4, image: 2 };
+
 export const sendParams = sendFields.extend({
-  key: sendKeys,
-  title: z.string().min(1).max(TITLE_MAX * 5),
-  message: z.string().max(MESSAGE_MAX * 4).optional(),
-  image: z.string().max(IMAGE_URL_MAX * 2).optional(),
+  key: sendKeyList,
+  title: z.string().min(1).max(TITLE_MAX * CROP_TOLERANCE.title),
+  message: z.string().max(MESSAGE_MAX * CROP_TOLERANCE.message).optional(),
+  image: z.string().max(IMAGE_URL_MAX * CROP_TOLERANCE.image).optional(),
   is_critical: sendFlag.optional(),
 });
 export type SendParams = z.infer<typeof sendParams>;
@@ -124,7 +154,7 @@ export const listKeysResponse = z.object({
 export type ListKeysResponse = z.infer<typeof listKeysResponse>;
 
 export const createKeyBody = z.strictObject({
-  name: z.string().min(1).max(64),
+  name: z.string().min(1).max(KEY_NAME_MAX),
 });
 export type CreateKeyBody = z.infer<typeof createKeyBody>;
 
@@ -147,7 +177,7 @@ export type UpdateDeviceSettingsBody = z.infer<typeof updateDeviceSettingsBody>;
 
 export const historyQuery = z.object({
   ack: z.coerce.number().int().nonnegative().optional(),
-  limit: z.coerce.number().int().min(1).max(200).optional(),
+  limit: z.coerce.number().int().min(1).max(HISTORY_LIMIT_MAX).optional(),
 });
 export type HistoryQuery = z.infer<typeof historyQuery>;
 

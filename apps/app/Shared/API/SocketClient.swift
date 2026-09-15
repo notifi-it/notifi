@@ -16,7 +16,7 @@ final class SocketClient {
 
     private let api: APIClient
     private let onWake: (Int?) async -> Void
-    private let log = Logger(subsystem: "it.notifi.notifi", category: "socket")
+    private let log = Logger.notifi(category: "socket")
 
     private var task: URLSessionWebSocketTask?
     private var runLoop: Task<Void, Never>?
