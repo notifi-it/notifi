@@ -270,7 +270,7 @@
           "key": {
             "type": "string",
             "pattern": "^nk_",
-            "description": "The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification.",
+            "description": "The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys separated by a comma send to both devices; each is checked and limited on its own, and a key that fails while the other is accepted is reported in warnings.",
             "examples": [
               "nk_yourkey"
             ]
@@ -338,7 +338,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body."
+            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body, or one of two keys that failed."
           }
         }
       },

@@ -234,7 +234,7 @@ export function openapi(): Record<string, unknown> {
             warnings: {
               ...responseProperties.warnings,
               description:
-                'Present only when the notification was delivered differently from what was asked: a cropped title or body.',
+                'Present only when the notification was delivered differently from what was asked: a cropped title or body, or one of two keys that failed.',
             },
           },
         },

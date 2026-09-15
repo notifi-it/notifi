@@ -1,4 +1,5 @@
 import {
+  type ApiError,
   MESSAGE_MAX,
   type MessageContent,
   OCCURRED_AT_MAX_SKEW_MS,
@@ -8,6 +9,7 @@ import {
 } from '@notifi/contract';
 import { copyFor, fmt, SOURCE_LANGUAGE, type Strings } from '@notifi/copy';
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import { push } from '../lib/apns.js';
 import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
@@ -24,6 +26,7 @@ import type { AppEnv } from '../types.js';
 const PUSH_BUDGET_BYTES = 4000;
 const PREVIEW_MESSAGE_MAX = 1000;
 const MINIMAL_MESSAGE_MAX = 200;
+const KEY_PREFIX_LENGTH = 7;
 
 interface KeyDeviceRow {
   key_id: number;
@@ -37,6 +40,18 @@ interface KeyDeviceRow {
   encryption_public_key: string;
   strict_send: number;
 }
+
+interface Draft {
+  title: string;
+  message: string | undefined;
+  link: string | undefined;
+  image: string | undefined;
+  occurredAt: number | undefined;
+  wantsCritical: boolean;
+  cropped: boolean;
+}
+
+type Failure = { status: 401 | 422 | 429; body: ApiError; retryAfter?: number };
 
 function pushPayload(
   id: number,
@@ -64,55 +79,13 @@ function payloadBytes(payload: object): number {
   return new TextEncoder().encode(JSON.stringify(payload)).length;
 }
 
-export const send = new Hono<AppEnv>();
-
-send.use('/send', async (c, next) => {
-  c.header('Access-Control-Allow-Origin', '*');
-  c.header('Cache-Control', 'no-store');
-  return next();
-});
-
-send.options('/send', (c) => {
-  c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  c.header('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-  return c.body(null, 204);
-});
-
-send.on(['GET', 'POST'], '/send', async (c) => {
-  const nowS = now();
-
-  let bodyParams: Record<string, unknown> = {};
-  if (c.req.method === 'POST') {
-    const contentType = c.req.header('content-type') ?? '';
-    if (contentType.includes('application/json')) {
-      try {
-        bodyParams = (await c.req.json()) as Record<string, unknown>;
-      } catch {
-        bodyParams = {};
-      }
-    } else {
-      try {
-        bodyParams = (await c.req.parseBody()) as Record<string, unknown>;
-      } catch {
-        bodyParams = {};
-      }
-    }
-  }
-
-  const merged: Record<string, unknown> = { ...bodyParams, ...c.req.query() };
-
-  const auth = c.req.header('authorization');
-  const bearer =
-    auth && auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : undefined;
-  if (merged.key === undefined && bearer) merged.key = bearer;
-
-  const parsed = sendParams.safeParse(merged);
-  if (!parsed.success) {
-    return c.json(errBody('invalid_request', t(c).api.invalidSendParams), 400);
-  }
-  const input = parsed.data;
-
-  const secretHash = await hashKey(input.key);
+async function deliver(
+  c: Context<AppEnv>,
+  key: string,
+  draft: Draft,
+  nowS: number,
+): Promise<Failure | null> {
+  const secretHash = await hashKey(key);
   const row = await c.env.DB.prepare(
     `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.is_critical AS is_critical,
             d.id AS device_id, d.seq_counter AS seq_counter, d.acked_id AS acked_id,
@@ -126,11 +99,15 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     .first<KeyDeviceRow>();
 
   if (!row || row.revoked_at !== null) {
-    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
+    return { status: 401, body: errBody('unknown_key', t(c).api.unknownKey) };
   }
 
   if (row.seq_counter - row.acked_id >= UNCOLLECTED_MAX) {
-    return c.json(errBody('uncollected_limit', t(c).api.uncollectedLimit), 429);
+    return { status: 429, body: errBody('uncollected_limit', t(c).api.uncollectedLimit) };
+  }
+
+  if (row.strict_send === 1 && draft.cropped) {
+    return { status: 422, body: errBody('invalid_content', t(c).api.strictContentRejected) };
   }
 
   const w = windowStart(nowS);
@@ -151,10 +128,13 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       .bind(row.device_id)
       .first<{ id: number }>();
     if (!still) {
-      return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
+      return { status: 401, body: errBody('unknown_key', t(c).api.unknownKey) };
     }
-    c.header('Retry-After', String(w + PER_DEVICE_WINDOW_S - nowS));
-    return c.json(errBody('rate_limited', t(c).api.rateLimitedAccount), 429);
+    return {
+      status: 429,
+      body: errBody('rate_limited', t(c).api.rateLimitedAccount),
+      retryAfter: w + PER_DEVICE_WINDOW_S - nowS,
+    };
   }
   const deviceSeq = allowed.seq_counter;
 
@@ -167,45 +147,17 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     .first<{ id: number }>();
 
   if (!keyLive) {
-    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
+    return { status: 401, body: errBody('unknown_key', t(c).api.unknownKey) };
   }
 
   const createdAt = nowS;
-
-  const occurredAt = input.occurred_at;
-  if (occurredAt !== undefined && occurredAt > nowS * 1000 + OCCURRED_AT_MAX_SKEW_MS) {
-    return c.json(
-      errBody('invalid_request', t(c).api.occurredAtTooFuture),
-      400,
-    );
-  }
-
-  const critical = input.is_critical === true && row.is_critical === 1;
-
-  const warnings: string[] = [];
-
-  let title = input.title;
-  if (title.length > TITLE_MAX) {
-    title = title.slice(0, TITLE_MAX);
-    warnings.push(fmt(t(c).api.titleCropped, { max: TITLE_MAX }));
-  }
-
-  let message = input.message;
-  if (message !== undefined && message.length > MESSAGE_MAX) {
-    message = message.slice(0, MESSAGE_MAX);
-    warnings.push(fmt(t(c).api.messageCropped, { max: MESSAGE_MAX }));
-  }
-
-  const image = input.image;
-
-  if (row.strict_send === 1 && warnings.length > 0) {
-    return c.json(errBody('invalid_content', t(c).api.strictContentRejected), 422);
-  }
+  const { title, message, link, image, occurredAt } = draft;
+  const critical = draft.wantsCritical && row.is_critical === 1;
 
   const content: MessageContent = {
     title,
     ...(message !== undefined ? { message } : {}),
-    ...(input.link !== undefined ? { link: input.link } : {}),
+    ...(link !== undefined ? { link } : {}),
     ...(image !== undefined ? { image } : {}),
     key_id: row.key_id,
     created_at: createdAt,
@@ -301,6 +253,110 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     }
   })();
   c.executionCtx.waitUntil(wake);
+
+  return null;
+}
+
+export const send = new Hono<AppEnv>();
+
+send.use('/send', async (c, next) => {
+  c.header('Access-Control-Allow-Origin', '*');
+  c.header('Cache-Control', 'no-store');
+  return next();
+});
+
+send.options('/send', (c) => {
+  c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  c.header('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  return c.body(null, 204);
+});
+
+send.on(['GET', 'POST'], '/send', async (c) => {
+  const nowS = now();
+
+  let bodyParams: Record<string, unknown> = {};
+  if (c.req.method === 'POST') {
+    const contentType = c.req.header('content-type') ?? '';
+    if (contentType.includes('application/json')) {
+      try {
+        bodyParams = (await c.req.json()) as Record<string, unknown>;
+      } catch {
+        bodyParams = {};
+      }
+    } else {
+      try {
+        bodyParams = (await c.req.parseBody()) as Record<string, unknown>;
+      } catch {
+        bodyParams = {};
+      }
+    }
+  }
+
+  const merged: Record<string, unknown> = { ...bodyParams, ...c.req.query() };
+
+  const auth = c.req.header('authorization');
+  const bearer =
+    auth && auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : undefined;
+  if (merged.key === undefined && bearer) merged.key = bearer;
+
+  const parsed = sendParams.safeParse(merged);
+  if (!parsed.success) {
+    return c.json(errBody('invalid_request', t(c).api.invalidSendParams), 400);
+  }
+  const input = parsed.data;
+
+  const occurredAt = input.occurred_at;
+  if (occurredAt !== undefined && occurredAt > nowS * 1000 + OCCURRED_AT_MAX_SKEW_MS) {
+    return c.json(errBody('invalid_request', t(c).api.occurredAtTooFuture), 400);
+  }
+
+  const warnings: string[] = [];
+
+  let title = input.title;
+  if (title.length > TITLE_MAX) {
+    title = title.slice(0, TITLE_MAX);
+    warnings.push(fmt(t(c).api.titleCropped, { max: TITLE_MAX }));
+  }
+
+  let message = input.message;
+  if (message !== undefined && message.length > MESSAGE_MAX) {
+    message = message.slice(0, MESSAGE_MAX);
+    warnings.push(fmt(t(c).api.messageCropped, { max: MESSAGE_MAX }));
+  }
+
+  const draft: Draft = {
+    title,
+    message,
+    link: input.link,
+    image: input.image,
+    occurredAt,
+    wantsCritical: input.is_critical === true,
+    cropped: warnings.length > 0,
+  };
+
+  const failures: { key: string; failure: Failure }[] = [];
+  let delivered = 0;
+  for (const key of input.key) {
+    const failure = await deliver(c, key, draft, nowS);
+    if (failure === null) delivered += 1;
+    else failures.push({ key, failure });
+  }
+
+  const first = failures[0];
+  if (delivered === 0 && first !== undefined) {
+    const { failure } = first;
+    if (failure.retryAfter !== undefined) c.header('Retry-After', String(failure.retryAfter));
+    return c.json(failure.body, failure.status);
+  }
+
+  for (const { key, failure } of failures) {
+    warnings.push(
+      fmt(t(c).api.keyFailed, {
+        key: key.slice(0, KEY_PREFIX_LENGTH),
+        reason: failure.body.error.message,
+      }),
+    );
+  }
 
   return c.json(
     warnings.length > 0 ? { ok: true as const, warnings } : { ok: true as const },

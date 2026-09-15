@@ -30,6 +30,7 @@ export const it: Translation = {
   'api.messageCropped': 'Inviata con una notifica abbreviata: superava {max} caratteri.',
   'api.strictContentRejected':
     'Non inviata. Questo dispositivo è impostato per rifiutare una notifica che non può consegnare così com\'è scritta.',
+  'api.keyFailed': '{key}: {reason}',
 
 
   'push.fallbackTitle': 'notifi',

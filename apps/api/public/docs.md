@@ -19,7 +19,7 @@ curl -X POST https://notifi.it/send \
 
 ## Authentication
 
-Use a bearer token. A key parameter works too, but ends up in server logs. Use it for a quick test only, then rotate the key.
+Use a bearer token. A key parameter works too, but ends up in server logs. Use it for a quick test only, then rotate the key. Two keys separated by a comma, in either place, send the same notification to both devices.
 
 | Method | Sent as | Notes |
 | --- | --- | --- |
@@ -46,7 +46,7 @@ Accept-Language: en-GB
 
 | Name | Type | Required | Limit | Description |
 | --- | --- | --- | --- | --- |
-| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification. |
+| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys separated by a comma send to both devices; each is checked and limited on its own, and a key that fails while the other is accepted is reported in warnings. |
 | `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
 | `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. A longer body is delivered cropped, with a warning. |
 | `link` | string (uri) | optional | `≤ 2,048 chars` | A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden. |
@@ -166,6 +166,7 @@ Every error nests the code one level down: read `error.code`. The `message` is t
 - 5 active send keys per device, one of which is the device key.
 - 100 requests a minute per IP, across every endpoint.
 - 500 uncollected notifications per device. Past that, sends are refused until the device collects.
+- 2 keys per request. Each counts against its own device's limits.
 - Revoking a key takes effect on the next send. Reinstalling the app, or moving device, makes a new identity and every old key stops working. No migration.
 
 A `429` carries `Retry-After` in seconds.

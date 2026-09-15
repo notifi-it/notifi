@@ -57,7 +57,18 @@ export const sendFields = z.object({
   is_critical: z.boolean().optional(),
 });
 
+export const SEND_KEYS_MAX = 2;
+
+const sendKeys = z
+  .union([z.string(), z.array(z.string())])
+  .transform((v) => {
+    const parts = (Array.isArray(v) ? v : [v]).flatMap((s) => s.split(','));
+    return [...new Set(parts.map((s) => s.trim()).filter((s) => s !== ''))];
+  })
+  .pipe(z.array(z.string()).min(1).max(SEND_KEYS_MAX));
+
 export const sendParams = sendFields.extend({
+  key: sendKeys,
   title: z.string().min(1).max(TITLE_MAX * 5),
   message: z.string().max(MESSAGE_MAX * 4).optional(),
   image: z.string().max(IMAGE_URL_MAX * 2).optional(),

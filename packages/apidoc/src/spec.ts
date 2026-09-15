@@ -1,5 +1,12 @@
 import type { PublicErrorCode } from '@notifi/contract';
-import { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX, UNCOLLECTED_MAX } from '@notifi/contract';
+import {
+  IMAGE_URL_MAX,
+  LINK_URL_MAX,
+  MESSAGE_MAX,
+  SEND_KEYS_MAX,
+  TITLE_MAX,
+  UNCOLLECTED_MAX,
+} from '@notifi/contract';
 import type { Lang } from './shikify.js';
 
 export { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX };
@@ -60,7 +67,7 @@ export const DESCRIPTION = [
 export const AUTH = {
   header: 'Authorization: Bearer nk_yourkey',
   summary:
-    'Use a bearer token. A key parameter works too, but ends up in server logs. Use it for a quick test only, then rotate the key.',
+    'Use a bearer token. A key parameter works too, but ends up in server logs. Use it for a quick test only, then rotate the key. Two keys separated by a comma, in either place, send the same notification to both devices.',
   bearerDescription:
     'The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history.',
   parameterDescription:
@@ -75,7 +82,7 @@ export const params: Param[] = [
     limit: 'nk_…',
     summary: 'The send key, if it is not sent as a bearer token.',
     detail:
-      'Required unless sent as a bearer token. The key picks the device that receives the notification.',
+      'Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys separated by a comma send to both devices; each is checked and limited on its own, and a key that fails while the other is accepted is reported in warnings.',
     openapi: { pattern: '^nk_' },
     example: 'nk_yourkey',
   },
@@ -199,6 +206,7 @@ export const limits: string[] = [
   `${KEYS_PER_DEVICE} active send keys per device, one of which is the device key.`,
   `${REQUESTS_PER_MINUTE} requests a minute per IP, across every endpoint.`,
   `${UNCOLLECTED_MAX} uncollected notifications per device. Past that, sends are refused until the device collects.`,
+  `${SEND_KEYS_MAX} keys per request. Each counts against its own device's limits.`,
   'Revoking a key takes effect on the next send. Reinstalling the app, or moving device, makes a new identity and every old key stops working. No migration.',
 ];
 
