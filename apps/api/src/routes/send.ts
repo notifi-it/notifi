@@ -13,7 +13,7 @@ import type { Context } from 'hono';
 import { push } from '../lib/apns.js';
 import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
-import { hashKey } from '../lib/sendkey.js';
+import { hashKey, keyPrefix } from '../lib/sendkey.js';
 import {
   MESSAGE_BACKSTOP_S,
   now,
@@ -26,7 +26,6 @@ import type { AppEnv } from '../types.js';
 const PUSH_BUDGET_BYTES = 4000;
 const PREVIEW_MESSAGE_MAX = 1000;
 const MINIMAL_MESSAGE_MAX = 200;
-const KEY_PREFIX_LENGTH = 7;
 
 interface KeyDeviceRow {
   key_id: number;
@@ -352,7 +351,7 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   for (const { key, failure } of failures) {
     warnings.push(
       fmt(t(c).api.keyFailed, {
-        key: key.slice(0, KEY_PREFIX_LENGTH),
+        key: keyPrefix(key),
         reason: failure.body.error.message,
       }),
     );

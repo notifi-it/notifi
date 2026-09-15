@@ -6,13 +6,19 @@ export interface GeneratedKey {
   secretHash: string;
 }
 
+const KEY_PREFIX = 'nk_';
+const PREFIX_BODY_CHARS = 4;
+
+export function keyPrefix(key: string): string {
+  return key.slice(0, KEY_PREFIX.length + PREFIX_BODY_CHARS);
+}
+
 export async function generateSendKey(): Promise<GeneratedKey> {
   const random = crypto.getRandomValues(new Uint8Array(32));
   const body = b64urlBytes(random);
-  const key = `nk_${body}`;
-  const prefix = `nk_${body.slice(0, 4)}`;
+  const key = `${KEY_PREFIX}${body}`;
   const secretHash = await hashKey(key);
-  return { key, prefix, secretHash };
+  return { key, prefix: keyPrefix(key), secretHash };
 }
 
 export async function hashKey(key: string): Promise<string> {
