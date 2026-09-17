@@ -73,7 +73,10 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
 
             #if os(macOS)
             Divider()
-            if !isReader {
+            if isReader {
+                Button(Copy.Reader.openInMenuBar) { macMenuBar.showPanel() }
+                    .keyboardShortcut("o", modifiers: [.command, .shift])
+            } else {
                 Button(Copy.Reader.openInWindow) { macMenuBar.showReader() }
                     .keyboardShortcut("o", modifiers: [.command, .shift])
             }

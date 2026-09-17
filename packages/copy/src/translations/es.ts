@@ -98,6 +98,7 @@ export const es: Translation = {
   'inbox.deleteMessage': 'Esto no se puede deshacer.',
 
   'reader.openInWindow': 'Abrir en una ventana',
+  'reader.openInMenuBar': 'Abrir en la barra de menús',
   'reader.selectPrompt': 'Selecciona una notificación',
   'reader.deleteSelectedTitle': '¿Eliminar {count}?',
 

@@ -176,6 +176,7 @@ export const copy = {
 
   reader: {
     openInWindow: 'Open in window',
+    openInMenuBar: 'Open in menu bar',
     selectPrompt: 'Select a notification',
     deleteSelectedTitle: 'Delete {count}?',
   },

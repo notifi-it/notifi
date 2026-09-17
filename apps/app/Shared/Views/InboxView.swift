@@ -125,6 +125,14 @@ struct InboxView: View {
         }
     }
 
+    private var openMenuBarButton: some View {
+        IconButton(systemImage: "arrow.down.right.and.arrow.up.left",
+                   label: Copy.Reader.openInMenuBar,
+                   glass: true) {
+            macMenuBar.showPanel()
+        }
+    }
+
     private var searchShown: Bool { !messages.isEmpty && showingSearch }
 
     private var searchToggle: some View {
@@ -163,7 +171,7 @@ struct InboxView: View {
                 #if os(macOS)
                 if isReader { ReaderSwitch() }
                 if !messages.isEmpty { searchToggle }
-                if !isReader { openWindowButton }
+                if isReader { openMenuBarButton } else { openWindowButton }
                 #endif
             }
             .padding(.bottom, hasHeaderControls ? 14 : 0)

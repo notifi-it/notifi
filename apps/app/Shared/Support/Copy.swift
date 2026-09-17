@@ -72,6 +72,7 @@ enum Copy {
     }
     enum Reader {
         static var openInWindow: String { NSLocalizedString("reader.openInWindow", comment: "") }
+        static var openInMenuBar: String { NSLocalizedString("reader.openInMenuBar", comment: "") }
         static var selectPrompt: String { NSLocalizedString("reader.selectPrompt", comment: "") }
         static func deleteSelectedTitle(_ count: String) -> String { String.localizedStringWithFormat(NSLocalizedString("reader.deleteSelectedTitle", comment: ""), count) }
     }

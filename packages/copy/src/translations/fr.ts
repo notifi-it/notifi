@@ -98,6 +98,7 @@ export const fr: Translation = {
   'inbox.deleteMessage': 'Cette action est irréversible.',
 
   'reader.openInWindow': 'Ouvrir dans une fenêtre',
+  'reader.openInMenuBar': 'Ouvrir dans la barre des menus',
   'reader.selectPrompt': 'Sélectionnez une notification',
   'reader.deleteSelectedTitle': 'Supprimer {count} ?',
 
