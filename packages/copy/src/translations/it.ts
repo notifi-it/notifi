@@ -98,6 +98,7 @@ export const it: Translation = {
   'inbox.deleteMessage': "Questa azione non può essere annullata.",
 
   'reader.openInWindow': 'Apri in una finestra',
+  'reader.openInMenuBar': 'Apri nella barra dei menu',
   'reader.selectPrompt': 'Seleziona una notifica',
   'reader.deleteSelectedTitle': 'Eliminare {count}?',
 

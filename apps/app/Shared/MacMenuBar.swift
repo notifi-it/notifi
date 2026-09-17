@@ -88,6 +88,14 @@ final class MenuBarController: NSObject {
         reader.show()
     }
 
+    func showPanel() {
+        reader.close()
+        DispatchQueue.main.async { [weak self] in
+            guard let self, !popover.isShown, let button = statusItem?.button else { return }
+            present(from: button)
+        }
+    }
+
     func closeReaderForQuitShortcut() -> Bool {
         guard reader.isKey, let event = NSApp.currentEvent, event.type == .keyDown,
               event.modifierFlags.contains(.command),
@@ -134,10 +142,6 @@ final class MenuBarController: NSObject {
     }
 
     @objc private func openPanel() {
-        if reader.isVisible {
-            reader.show()
-            return
-        }
         guard !popover.isShown, let button = statusItem?.button else { return }
         present(from: button)
     }
@@ -148,12 +152,12 @@ final class MenuBarController: NSObject {
             showReader()
             return
         }
-        if reader.isOnScreen {
-            if !reader.isInFront { reader.show() }
-            return
-        }
         if popover.isShown {
             popover.performClose(sender)
+            return
+        }
+        if reader.isOnScreen {
+            if !reader.isInFront { reader.show() }
             return
         }
         guard let button = statusItem?.button else { return }

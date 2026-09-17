@@ -113,9 +113,9 @@ final class ReaderWindowController: NSObject, NSWindowDelegate {
 struct ReaderView: View {
     @Environment(AppModel.self) private var model
     @Query(sort: \Message.createdAt, order: .reverse) private var messages: [Message]
-    @AppStorage("readerSidebarWidth") private var sidebarWidth = 340.0
+    @AppStorage("readerSidebarWidth") private var sidebarWidth = 360.0
 
-    static let sidebarRange: ClosedRange<Double> = 320...440
+    static let sidebarRange: ClosedRange<Double> = 360...440
 
     var body: some View {
         @Bindable var model = model

@@ -145,6 +145,7 @@ export const de: Translation = {
   'inbox.deleteMessage': 'Das kann nicht rückgängig gemacht werden.',
 
   'reader.openInWindow': 'Im Fenster öffnen',
+  'reader.openInMenuBar': 'In der Menüleiste öffnen',
   'reader.selectPrompt': 'Wähle eine Benachrichtigung',
   'reader.deleteSelectedTitle': '{count} löschen?',
 
