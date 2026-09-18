@@ -2,6 +2,12 @@ import {
   MESSAGE_MAX,
   type MessageContent,
   OCCURRED_AT_MAX_SKEW_MS,
+  type PublicErrorCode,
+  SEND_KEYS_MAX,
+  SEND_KEYS_SEPARATOR,
+  type SendParams,
+  type SendResponse,
+  type SendResult,
   sendParams,
   TITLE_MAX,
   UNCOLLECTED_MAX,
@@ -11,7 +17,7 @@ import { Hono } from 'hono';
 import { push } from '../lib/apns.js';
 import { errBody, t } from '../lib/respond.js';
 import { seal } from '../lib/seal.js';
-import { hashKey } from '../lib/sendkey.js';
+import { hashKey, keyPrefix } from '../lib/sendkey.js';
 import {
   MESSAGE_BACKSTOP_S,
   now,
@@ -20,6 +26,7 @@ import {
   windowStart,
 } from '../lib/time.js';
 import type { AppEnv } from '../types.js';
+import type { Context } from 'hono';
 
 const PUSH_BUDGET_BYTES = 4000;
 const PREVIEW_MESSAGE_MAX = 1000;
@@ -36,6 +43,46 @@ interface KeyDeviceRow {
   apns_token_hmac: string;
   encryption_public_key: string;
   strict_send: number;
+  platform: string;
+}
+
+interface Failure {
+  status: 400 | 401 | 422 | 429;
+  code: PublicErrorCode;
+  message: string;
+  retryAfter?: number;
+}
+
+interface Delivery {
+  ok: true;
+  warnings: string[];
+}
+
+function failure(status: Failure['status'], code: PublicErrorCode, message: string): Failure {
+  return { status, code, message };
+}
+
+function parseKeys(raw: string): string[] | undefined {
+  const keys = raw.split(SEND_KEYS_SEPARATOR).map((k) => k.trim());
+  if (keys.length > SEND_KEYS_MAX) return undefined;
+  if (keys.some((k) => k === '')) return undefined;
+  if (new Set(keys).size !== keys.length) return undefined;
+  return keys;
+}
+
+async function lookupKey(c: Context<AppEnv>, key: string): Promise<KeyDeviceRow | null> {
+  const secretHash = await hashKey(key);
+  return c.env.DB.prepare(
+    `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.is_critical AS is_critical,
+            d.id AS device_id, d.seq_counter AS seq_counter, d.acked_id AS acked_id,
+            d.apns_token AS apns_token, d.apns_token_hmac AS apns_token_hmac,
+            d.encryption_public_key AS encryption_public_key,
+            d.strict_send AS strict_send, d.platform AS platform
+     FROM keys k JOIN devices d ON d.id = k.device_id
+     WHERE k.secret_hash = ?`,
+  )
+    .bind(secretHash)
+    .first<KeyDeviceRow>();
 }
 
 function pushPayload(
@@ -112,25 +159,91 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   }
   const input = parsed.data;
 
-  const secretHash = await hashKey(input.key);
-  const row = await c.env.DB.prepare(
-    `SELECT k.id AS key_id, k.revoked_at AS revoked_at, k.is_critical AS is_critical,
-            d.id AS device_id, d.seq_counter AS seq_counter, d.acked_id AS acked_id,
-            d.apns_token AS apns_token, d.apns_token_hmac AS apns_token_hmac,
-            d.encryption_public_key AS encryption_public_key,
-            d.strict_send AS strict_send
-     FROM keys k JOIN devices d ON d.id = k.device_id
-     WHERE k.secret_hash = ?`,
-  )
-    .bind(secretHash)
-    .first<KeyDeviceRow>();
-
-  if (!row || row.revoked_at !== null) {
-    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
+  const keys = parseKeys(input.key);
+  if (!keys) {
+    return c.json(
+      errBody('invalid_request', fmt(t(c).api.invalidSendKeys, { max: SEND_KEYS_MAX })),
+      400,
+    );
   }
 
+  const occurredAt = input.occurred_at;
+  if (occurredAt !== undefined && occurredAt > nowS * 1000 + OCCURRED_AT_MAX_SKEW_MS) {
+    return c.json(errBody('invalid_request', t(c).api.occurredAtTooFuture), 400);
+  }
+
+  const rows = await Promise.all(keys.map((key) => lookupKey(c, key)));
+  const live = rows.filter((row): row is KeyDeviceRow => row !== null && row.revoked_at === null);
+  if (new Set(live.map((row) => row.platform)).size !== live.length) {
+    return c.json(
+      errBody('invalid_request', fmt(t(c).api.invalidSendKeys, { max: SEND_KEYS_MAX })),
+      400,
+    );
+  }
+
+  const warnings: string[] = [];
+
+  let title = input.title;
+  if (title.length > TITLE_MAX) {
+    title = title.slice(0, TITLE_MAX);
+    warnings.push(fmt(t(c).api.titleCropped, { max: TITLE_MAX }));
+  }
+
+  let message = input.message;
+  if (message !== undefined && message.length > MESSAGE_MAX) {
+    message = message.slice(0, MESSAGE_MAX);
+    warnings.push(fmt(t(c).api.messageCropped, { max: MESSAGE_MAX }));
+  }
+
+  const results: SendResult[] = [];
+  const failures: Failure[] = [];
+  for (const [i, key] of keys.entries()) {
+    const row = rows[i];
+    const outcome =
+      row && row.revoked_at === null
+        ? await deliver(c, row, { ...input, title, message }, warnings, nowS)
+        : failure(401, 'unknown_key', t(c).api.unknownKey);
+    if ('ok' in outcome) {
+      results.push({
+        key: keyPrefix(key),
+        ok: true,
+        ...(outcome.warnings.length > 0 ? { warnings: outcome.warnings } : {}),
+      });
+    } else {
+      failures.push(outcome);
+      results.push({
+        key: keyPrefix(key),
+        ok: false,
+        error: { code: outcome.code, message: outcome.message },
+      });
+    }
+  }
+
+  const sent = results.length - failures.length;
+  const fanout = results.length > 1 ? { sent, results } : {};
+  const first = failures[0];
+  if (first && sent === 0) {
+    if (first.retryAfter !== undefined) c.header('Retry-After', String(first.retryAfter));
+    return c.json({ ...errBody(first.code, first.message), ...fanout }, first.status);
+  }
+  const allWarnings = [...new Set(results.flatMap((r) => r.warnings ?? []))];
+  const body: SendResponse = {
+    ok: true,
+    ...fanout,
+    ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
+  };
+  return c.json(body, 202);
+});
+
+async function deliver(
+  c: Context<AppEnv>,
+  row: KeyDeviceRow,
+  input: SendParams,
+  shared: string[],
+  nowS: number,
+): Promise<Delivery | Failure> {
   if (row.seq_counter - row.acked_id >= UNCOLLECTED_MAX) {
-    return c.json(errBody('uncollected_limit', t(c).api.uncollectedLimit), 429);
+    return failure(429, 'uncollected_limit', t(c).api.uncollectedLimit);
   }
 
   const w = windowStart(nowS);
@@ -151,10 +264,12 @@ send.on(['GET', 'POST'], '/send', async (c) => {
       .bind(row.device_id)
       .first<{ id: number }>();
     if (!still) {
-      return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
+      return failure(401, 'unknown_key', t(c).api.unknownKey);
     }
-    c.header('Retry-After', String(w + PER_DEVICE_WINDOW_S - nowS));
-    return c.json(errBody('rate_limited', t(c).api.rateLimitedAccount), 429);
+    return {
+      ...failure(429, 'rate_limited', t(c).api.rateLimitedAccount),
+      retryAfter: w + PER_DEVICE_WINDOW_S - nowS,
+    };
   }
   const deviceSeq = allowed.seq_counter;
 
@@ -167,39 +282,21 @@ send.on(['GET', 'POST'], '/send', async (c) => {
     .first<{ id: number }>();
 
   if (!keyLive) {
-    return c.json(errBody('unknown_key', t(c).api.unknownKey), 401);
+    return failure(401, 'unknown_key', t(c).api.unknownKey);
   }
 
   const createdAt = nowS;
-
   const occurredAt = input.occurred_at;
-  if (occurredAt !== undefined && occurredAt > nowS * 1000 + OCCURRED_AT_MAX_SKEW_MS) {
-    return c.json(
-      errBody('invalid_request', t(c).api.occurredAtTooFuture),
-      400,
-    );
-  }
+  const { title, message, image } = input;
 
   const critical = input.is_critical === true && row.is_critical === 1;
-
-  const warnings: string[] = [];
-
-  let title = input.title;
-  if (title.length > TITLE_MAX) {
-    title = title.slice(0, TITLE_MAX);
-    warnings.push(fmt(t(c).api.titleCropped, { max: TITLE_MAX }));
+  const warnings = [...shared];
+  if (input.is_critical === true && !critical) {
+    warnings.push(t(c).api.criticalNotAllowed);
   }
-
-  let message = input.message;
-  if (message !== undefined && message.length > MESSAGE_MAX) {
-    message = message.slice(0, MESSAGE_MAX);
-    warnings.push(fmt(t(c).api.messageCropped, { max: MESSAGE_MAX }));
-  }
-
-  const image = input.image;
 
   if (row.strict_send === 1 && warnings.length > 0) {
-    return c.json(errBody('invalid_content', t(c).api.strictContentRejected), 422);
+    return failure(422, 'invalid_content', t(c).api.strictContentRejected);
   }
 
   const content: MessageContent = {
@@ -302,8 +399,5 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   })();
   c.executionCtx.waitUntil(wake);
 
-  return c.json(
-    warnings.length > 0 ? { ok: true as const, warnings } : { ok: true as const },
-    202,
-  );
-});
+  return { ok: true, warnings };
+}

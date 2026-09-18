@@ -60,6 +60,15 @@ Content-Type: application/json; charset=utf-8
 
 {"ok":true,"warnings":["Title shortened to ${TITLE_MAX} characters."]}`;
 
+const TWO_KEYS_REQUEST = `curl -X POST ${ORIGIN}${ENDPOINT} \\
+  -H "Authorization: Bearer $NOTIFI_KEY_PHONE,$NOTIFI_KEY_MAC" \\
+  -d "title=Deploy finished"`;
+
+const TWO_KEYS_RESPONSE = `HTTP/1.1 202 Accepted
+Content-Type: application/json; charset=utf-8
+
+{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true},{"key":"nk_wxyz","ok":false,"error":{"code":"rate_limited","message":"Rate limit exceeded. Too many notifications this hour."}}]}`;
+
 const RAW_REQUEST = `POST /send HTTP/1.1
 Host: notifi.it
 Authorization: Bearer nk_yourkey
@@ -289,10 +298,24 @@ ${parameterRows()}
 ${terminalGroup('r-', 'Responses', RESPONSES)}
     <p>
       A <code>warnings</code> array is present only when the notification was delivered
-      differently from what was asked: a cropped title or body. The status is still
-      <code>202</code>; the notification was sent, in the altered form each warning describes.
+      differently from what was asked: a cropped title or body, or <code>is_critical</code>
+      on a key without urgent alerts. The status is still <code>202</code>; the notification
+      was sent, in the altered form each warning describes.
     </p>
 ${pre(WARNINGS_RESPONSE, 'http')}
+
+    <h3 id="two-devices">Two devices in one request</h3>
+    <p>
+      Join two keys with a comma to send to both, one per platform: an iPhone or iPad
+      and a Mac. Each device is delivered to separately, with its own rate limit. The
+      response then carries <code>sent</code>, how many devices received it, and
+      <code>results</code>, one entry per key named by the prefix the Keys tab shows.
+      The status is <code>202</code> if at least one device received the notification,
+      otherwise the first error's. Two keys on the same platform answer
+      <code>400 invalid_request</code>.
+    </p>
+${pre(TWO_KEYS_REQUEST, 'bash')}
+${pre(TWO_KEYS_RESPONSE, 'http')}
 
     <h3>Over-length text is cropped</h3>
     <p>

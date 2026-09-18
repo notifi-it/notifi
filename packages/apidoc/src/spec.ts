@@ -75,7 +75,7 @@ export const params: Param[] = [
     limit: 'nk_…',
     summary: 'The send key, if it is not sent as a bearer token.',
     detail:
-      'Required unless sent as a bearer token. The key picks the device that receives the notification.',
+      'Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform.',
     openapi: { pattern: '^nk_' },
     example: 'nk_yourkey',
   },

@@ -30,6 +30,10 @@ export const es: Translation = {
   'api.messageCropped': 'Enviado con una notificación acortada: superaba los {max} caracteres.',
   'api.strictContentRejected':
     'No enviado. Este dispositivo está configurado para rechazar una notificación que no puede entregar tal como está escrita.',
+  'api.invalidSendKeys':
+    'Envía como máximo a {max} claves, separadas por comas, cada una en una plataforma distinta.',
+  'api.criticalNotAllowed':
+    'Enviada como notificación normal: esta clave no tiene alertas críticas.',
 
 
   'push.fallbackTitle': 'notifi',

@@ -1,5 +1,5 @@
 .PHONY: dev deploy migration migrate check-migrations migrate-remote typecheck lint gen-vectors gen-copy check-copy \
-	gen-site check-site-html gen-site-md check-site-md check-site gen-api check-api \
+	gen-site check-site-html gen-site-md check-site-md check-site check-send gen-api check-api \
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-submit-mac app-submit-uploaded-mac app-resubmit-mac app-metadata-mac app-screenshots-mac screens-mac-store \
 	app-metadata app-metadata-check app-screenshots app-resubmit shots doc-shots screens screens-mac \
@@ -102,6 +102,9 @@ check-site-md:
 # to check a local `make dev` before deploying.
 check-site:
 	node scripts/check-site.mjs $(BASE)
+
+check-send:
+	node scripts/check-send.mjs $(BASE)
 
 # The landing page's launch animation. sketches/gif/gen.py is the scene;
 # build.py injects it between the gf: markers in index.html, and the injected

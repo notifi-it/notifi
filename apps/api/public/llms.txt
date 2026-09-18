@@ -120,8 +120,11 @@ quick test and rotate the key afterwards.
 | `occurred_at` | Unix milliseconds. Changes the timestamp shown in the app; defaults to when the server receives the request. |
 | `is_critical` | Breaks through Focus. The key must also have urgent alerts switched on in the app, or an ordinary notification is delivered. |
 
-`202` with `{"ok":true}` on success. Every error nests the code one level down,
-so read `error.code` and not `code`:
+`202` with `{"ok":true}` on success. Two keys joined by a comma, one per
+platform (an iPhone or iPad and a Mac), send to both devices in one request;
+the response then adds `sent`, how many devices got it, and `results`, one
+entry per key, and the status is `202` if at least one device got it. Every
+error nests the code one level down, so read `error.code` and not `code`:
 
 ```json
 {"error":{"code":"unknown_key","message":"Unknown or revoked key."}}

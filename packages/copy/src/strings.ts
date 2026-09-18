@@ -53,6 +53,10 @@ export const copy = {
       'Body shortened to {max} characters.',
     strictContentRejected:
       'Not sent. This device is set to refuse a notification it cannot deliver as written.',
+    invalidSendKeys:
+      'Send to at most {max} keys, comma-separated, each on a different platform.',
+    criticalNotAllowed:
+      'Sent as an ordinary notification: this key has no urgent alerts.',
 
   },
 
