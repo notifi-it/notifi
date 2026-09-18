@@ -6,6 +6,7 @@ import sys
 import time
 from collections import Counter
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 import jwt
 import requests
@@ -17,6 +18,8 @@ D1_QUERY = (
 )
 CF_GRAPHQL = "https://api.cloudflare.com/client/v4/graphql"
 AE_SQL = "https://api.cloudflare.com/client/v4/accounts/{account}/analytics_engine/sql"
+# Apple keys a daily sales report on the Pacific calendar day.
+APPLE_REPORT_TZ = ZoneInfo("America/Los_Angeles")
 IOS_FIRST_INSTALL = {"1", "1F", "1T"}
 MAC_FIRST_INSTALL = {"F1"}
 WEEK = 604800
@@ -71,6 +74,12 @@ def first_installs_on(token, day):
         platforms[platform] += units
         countries[row["Country Code"]] += units
     return platforms, countries
+
+
+def report_window(last_day, days):
+    end = datetime(last_day.year, last_day.month, last_day.day, tzinfo=APPLE_REPORT_TZ)
+    end += timedelta(days=1)
+    return int((end - timedelta(days=days)).timestamp()), int(end.timestamp())
 
 
 def split(platforms):
@@ -200,7 +209,9 @@ def compose_notification():
     # Apple publishes a day's sales report in the early US-Pacific morning,
     # after this workflow's 08:00 UTC run, and may revise it shortly after.
     # Two days back is the newest date that is reliably published and stable,
-    # so the headline covers that day and the weekly windows shift with it.
+    # so the headline covers that day, and the weekly windows and the device
+    # counts shift with it: a device registers on first launch, so counting
+    # it over the same Pacific day as the report makes the two comparable.
     report_day = today - timedelta(days=2)
     reports = [
         first_installs_on(token, (today - timedelta(days=n)).strftime("%Y-%m-%d"))
@@ -248,10 +259,14 @@ def compose_notification():
         if oldest
         else None
     }
+    day_start, day_end = report_window(report_day, 1)
+    week_start, _ = report_window(report_day, 7)
     devices = query_production_d1(
         "SELECT COUNT(*) AS total,"
-        " SUM(CASE WHEN created_at >= unixepoch()-86400 THEN 1 ELSE 0 END) AS day,"
-        " SUM(CASE WHEN created_at >= unixepoch()-604800 THEN 1 ELSE 0 END) AS week"
+        f" SUM(CASE WHEN created_at >= {day_start} AND created_at < {day_end}"
+        " THEN 1 ELSE 0 END) AS day,"
+        f" SUM(CASE WHEN created_at >= {week_start} AND created_at < {day_end}"
+        " THEN 1 ELSE 0 END) AS week"
         " FROM devices"
     )
     reviews = query_production_d1(
@@ -299,7 +314,7 @@ def compose_notification():
         + (f" · **{day['failed']}** failed to push" if day["failed"] else ""),
         f"- Collected **{day_collected['collected']}** by {senders(day_collected['collectors'])}",
         downloads_line,
-        f"- Devices **+{devices['day']}**",
+        f"- Devices ({weekday}) **+{devices['day']}**",
         f"- Site **{humans_yday}** measured humans · {site_yday_u} IPs · {site_yday_v} loads",
         "",
         "**This week**",
