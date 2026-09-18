@@ -30,6 +30,10 @@ export const de: Translation = {
   'api.messageCropped': 'Mit gekürzter Benachrichtigung gesendet: Sie war länger als {max} Zeichen.',
   'api.strictContentRejected':
     'Nicht gesendet. Dieses Gerät ist so eingestellt, dass es eine nicht wie geschrieben zustellbare Benachrichtigung ablehnt.',
+  'api.invalidSendKeys':
+    'Sende an höchstens {max} Schlüssel, durch Komma getrennt, jeder auf einer anderen Plattform.',
+  'api.criticalNotAllowed':
+    'Als gewöhnliche Benachrichtigung gesendet: Dieser Schlüssel hat keine kritischen Benachrichtigungen.',
 
 
   'store.name': 'notifi: Benachrichtigungen',

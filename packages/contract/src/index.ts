@@ -30,6 +30,8 @@ export const apiError = z.object({
 export type ApiError = z.infer<typeof apiError>;
 
 export const UNCOLLECTED_MAX = 500;
+export const SEND_KEYS_MAX = 2;
+export const SEND_KEYS_SEPARATOR = ',';
 
 export const OCCURRED_AT_MIN_MS = 946_684_800_000;
 export const OCCURRED_AT_MAX_SKEW_MS = 24 * 60 * 60 * 1000;
@@ -162,8 +164,18 @@ export const socketFrame = z.object({
 });
 export type SocketFrame = z.infer<typeof socketFrame>;
 
+export const sendResult = z.object({
+  key: z.string(),
+  ok: z.boolean(),
+  error: apiError.shape.error.optional(),
+  warnings: z.array(z.string()).optional(),
+});
+export type SendResult = z.infer<typeof sendResult>;
+
 export const sendResponse = z.object({
   ok: z.literal(true),
+  sent: z.number().int(),
+  results: z.array(sendResult).max(SEND_KEYS_MAX),
   warnings: z.array(z.string()).optional(),
 });
 export type SendResponse = z.infer<typeof sendResponse>;

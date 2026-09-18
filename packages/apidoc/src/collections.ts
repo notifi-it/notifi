@@ -42,7 +42,7 @@ export function postman(): Record<string, unknown> {
             ),
             options: { raw: { language: 'json' } },
           },
-          description: `Answers 202 with {"ok":true} once the server has accepted the notification. See ${ORIGIN}/docs.`,
+          description: `Answers 202 with {"ok":true,"sent":1,...} once the server has accepted the notification. See ${ORIGIN}/docs.`,
         },
         response: [],
       },
@@ -102,7 +102,7 @@ docs {
   ${SUMMARY}
 
   Set NOTIFI_KEY to the send key from the app's Keys tab, then send. A 202 with
-  {"ok":true} means the server accepted it, not that it was delivered.
+  {"ok":true,"sent":1,...} means the server accepted it, not that it was delivered.
 
   Reference: ${ORIGIN}/docs
 }

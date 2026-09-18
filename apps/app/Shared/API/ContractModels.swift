@@ -114,8 +114,17 @@ struct SocketFrame: Codable, Sendable {
     }
 }
 
+struct SendResult: Codable, Sendable {
+    let key: String
+    let ok: Bool
+    let error: APIErrorEnvelope.Body?
+    let warnings: [String]?
+}
+
 struct SendResponse: Codable, Sendable {
     let ok: Bool
+    let sent: Int
+    let results: [SendResult]
     let warnings: [String]?
 }
 

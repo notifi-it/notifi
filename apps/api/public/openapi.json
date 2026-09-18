@@ -270,7 +270,7 @@
           "key": {
             "type": "string",
             "pattern": "^nk_",
-            "description": "The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification.",
+            "description": "The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform.",
             "examples": [
               "nk_yourkey"
             ]
@@ -326,19 +326,81 @@
       "SendResponse": {
         "type": "object",
         "required": [
-          "ok"
+          "ok",
+          "sent",
+          "results"
         ],
         "properties": {
           "ok": {
             "type": "boolean",
             "const": true
           },
+          "sent": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "description": "How many devices received the notification."
+          },
+          "results": {
+            "maxItems": 2,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "ok": {
+                  "type": "boolean"
+                },
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "bad_signature",
+                        "stale_timestamp",
+                        "unknown_device",
+                        "unknown_key",
+                        "rate_limited",
+                        "uncollected_limit",
+                        "invalid_request",
+                        "invalid_content",
+                        "not_found",
+                        "internal_error"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                },
+                "warnings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "key",
+                "ok"
+              ],
+              "additionalProperties": false
+            },
+            "description": "One entry per key, in the order given, named by the key prefix the Keys tab shows."
+          },
           "warnings": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body."
+            "description": "Present only when the notification was delivered differently from what was asked: a cropped title or body, or is_critical on a key without urgent alerts."
           }
         }
       },
@@ -388,14 +450,51 @@
             "examples": {
               "delivered": {
                 "value": {
-                  "ok": true
+                  "ok": true,
+                  "sent": 1,
+                  "results": [
+                    {
+                      "key": "nk_abcd",
+                      "ok": true
+                    }
+                  ]
                 }
               },
               "deliveredWithWarnings": {
                 "value": {
                   "ok": true,
+                  "sent": 1,
+                  "results": [
+                    {
+                      "key": "nk_abcd",
+                      "ok": true,
+                      "warnings": [
+                        "Title shortened to 200 characters."
+                      ]
+                    }
+                  ],
                   "warnings": [
                     "Title shortened to 200 characters."
+                  ]
+                }
+              },
+              "deliveredToOneOfTwo": {
+                "value": {
+                  "ok": true,
+                  "sent": 1,
+                  "results": [
+                    {
+                      "key": "nk_abcd",
+                      "ok": true
+                    },
+                    {
+                      "key": "nk_wxyz",
+                      "ok": false,
+                      "error": {
+                        "code": "rate_limited",
+                        "message": "Rate limit exceeded. Too many notifications this hour."
+                      }
+                    }
                   ]
                 }
               }

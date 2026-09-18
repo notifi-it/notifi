@@ -92,12 +92,33 @@ function errorResponses(): Record<string, unknown> {
         'application/json': {
           schema: { $ref: '#/components/schemas/SendResponse' },
           examples: {
-            delivered: { value: { ok: true } },
+            delivered: {
+              value: { ok: true, sent: 1, results: [{ key: 'nk_abcd', ok: true }] },
+            },
             deliveredWithWarnings: {
               value: {
                 ok: true,
-                warnings: [
-                  'Title shortened to 200 characters.',
+                sent: 1,
+                results: [
+                  { key: 'nk_abcd', ok: true, warnings: ['Title shortened to 200 characters.'] },
+                ],
+                warnings: ['Title shortened to 200 characters.'],
+              },
+            },
+            deliveredToOneOfTwo: {
+              value: {
+                ok: true,
+                sent: 1,
+                results: [
+                  { key: 'nk_abcd', ok: true },
+                  {
+                    key: 'nk_wxyz',
+                    ok: false,
+                    error: {
+                      code: 'rate_limited',
+                      message: 'Rate limit exceeded. Too many notifications this hour.',
+                    },
+                  },
                 ],
               },
             },
@@ -228,13 +249,22 @@ export function openapi(): Record<string, unknown> {
         },
         SendResponse: {
           type: 'object',
-          required: ['ok'],
+          required: ['ok', 'sent', 'results'],
           properties: {
             ok: responseProperties.ok,
+            sent: {
+              ...responseProperties.sent,
+              description: 'How many devices received the notification.',
+            },
+            results: {
+              ...responseProperties.results,
+              description:
+                'One entry per key, in the order given, named by the key prefix the Keys tab shows.',
+            },
             warnings: {
               ...responseProperties.warnings,
               description:
-                'Present only when the notification was delivered differently from what was asked: a cropped title or body.',
+                'Present only when the notification was delivered differently from what was asked: a cropped title or body, or is_critical on a key without urgent alerts.',
             },
           },
         },

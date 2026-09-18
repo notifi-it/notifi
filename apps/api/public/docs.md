@@ -46,7 +46,7 @@ Accept-Language: en-GB
 
 | Name | Type | Required | Limit | Description |
 | --- | --- | --- | --- | --- |
-| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification. |
+| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform. |
 | `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
 | `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. A longer body is delivered cropped, with a warning. |
 | `link` | string (uri) | optional | `≤ 2,048 chars` | A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden. |
@@ -64,7 +64,7 @@ Accept-Language: en-GB
 HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{"ok":true}
+{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true}]}
 ```
 
 ### 400
@@ -113,13 +113,30 @@ Content-Type: application/json; charset=utf-8
 {"error":{"code":"uncollected_limit","message":"Not sent. This device has too many uncollected notifications. New ones are accepted once it collects."}}
 ```
 
-A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body. The status is still `202`; the notification was sent, in the altered form each warning describes.
+`sent` counts the devices that received the notification and `results` has one entry per key, named by the prefix the Keys tab shows. A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, or `is_critical` on a key without urgent alerts. The status is still `202`; the notification was sent, in the altered form each warning describes.
 
 ```http
 HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{"ok":true,"warnings":["Title shortened to 200 characters."]}
+{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true,"warnings":["Title shortened to 200 characters."]}],"warnings":["Title shortened to 200 characters."]}
+```
+
+### Two devices in one request
+
+Join two keys with a comma to send to both, one per platform: an iPhone or iPad and a Mac. Each device is delivered to separately, with its own rate limit and its own entry in `results`. The status is `202` if at least one device received the notification, otherwise the first error's. Two keys on the same platform answer `400 invalid_request`.
+
+```bash
+curl -X POST https://notifi.it/send \
+  -H "Authorization: Bearer $NOTIFI_KEY_PHONE,$NOTIFI_KEY_MAC" \
+  -d "title=Deploy finished"
+```
+
+```http
+HTTP/1.1 202 Accepted
+Content-Type: application/json; charset=utf-8
+
+{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true},{"key":"nk_wxyz","ok":false,"error":{"code":"rate_limited","message":"Rate limit exceeded. Too many notifications this hour."}}]}
 ```
 
 ### Over-length text is cropped
