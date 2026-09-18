@@ -14,9 +14,12 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Error);
 }
 
+const TAG_MAX = 200;
+const ELLIPSIS = '...';
+
 function tagValue(value: string | number | boolean): string {
   const s = String(value);
-  return s.length > 200 ? `${s.slice(0, 197)}...` : s;
+  return s.length > TAG_MAX ? `${s.slice(0, TAG_MAX - ELLIPSIS.length)}${ELLIPSIS}` : s;
 }
 
 let reporting = false;

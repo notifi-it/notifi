@@ -10,7 +10,7 @@ final class SyncEngine {
     private let api: APIClient
     private let identity: DeviceIdentity
     private let context: ModelContext
-    private let log = Logger(subsystem: "it.notifi.notifi", category: "sync")
+    private let log = Logger.notifi(category: "sync")
 
     var keys: [CachedKey]
     var keysRefreshFailed = false
@@ -18,7 +18,7 @@ final class SyncEngine {
     private(set) var unread = 0
 
     private static let unreadableGraceSeconds: TimeInterval = 14 * 24 * 60 * 60
-    private static let pageSize = 200
+    private static let pageSize = Contract.historyLimitMax
     private static let maxPagesPerSync = 50
 
     init(api: APIClient, identity: DeviceIdentity, context: ModelContext) {

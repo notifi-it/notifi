@@ -139,7 +139,7 @@ private struct CodeCopyButton: View {
             codeBlock.copyToPasteboard()
             copied = true
             Task {
-                try? await Task.sleep(for: .seconds(1.5))
+                try? await Task.sleep(for: Theme.copiedDwell)
                 copied = false
             }
         } label: {

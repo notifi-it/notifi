@@ -33,8 +33,7 @@ struct EmptyStateView: View {
     }
 
     private static func displayKey(_ key: String) -> String {
-        guard key.count > 16 else { return key }
-        return "\(key.prefix(9))…\(key.suffix(4))"
+        Copy.Keys.maskedValue(Contract.keyDisplayPrefix(key))
     }
 
     private func command(key: String) -> String {

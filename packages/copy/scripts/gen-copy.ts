@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ORIGIN } from '@notifi/contract';
 import { LANGUAGE_CODES, SOURCE_LANGUAGE, type LanguageCode } from '../src/languages.js';
 import { copyFor } from '../src/index.js';
 import { copy, socials } from '../src/strings.js';
@@ -222,9 +223,9 @@ const STORE_LOCALES: Record<LanguageCode, string[]> = {
 };
 
 const STORE_SHARED: Record<string, string> = {
-  'marketing_url.txt': 'https://notifi.it',
-  'privacy_url.txt': 'https://notifi.it/privacy',
-  'support_url.txt': 'https://notifi.it',
+  'marketing_url.txt': ORIGIN,
+  'privacy_url.txt': `${ORIGIN}/privacy`,
+  'support_url.txt': ORIGIN,
 };
 
 const STORE_LIMITS: Record<string, number> = {

@@ -109,7 +109,11 @@ delivery. Ask the human whether the notification arrived.
 `POST https://notifi.it/send`, JSON or form-encoded. `GET` works for a quick
 test. Authenticate with `Authorization: Bearer nk_...`. A `key` parameter also
 works, but puts the key in edge logs and shell history, so use it only for a
-quick test and rotate the key afterwards.
+quick test and rotate the key afterwards. Two keys separated by a comma, in
+either place, send the same notification to both devices. Each key is checked
+and rate-limited on its own. If one is accepted and the other fails, the
+response is `202` with the failure in `warnings`, prefixed by the first seven
+characters of the key it names. If both fail, the first failure is the error.
 
 | Parameter | Notes |
 | --- | --- |

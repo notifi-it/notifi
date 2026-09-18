@@ -1,4 +1,4 @@
-import type { Sample } from './spec.js';
+import { ENDPOINT, EXAMPLE_IMAGE, EXAMPLE_KEY, EXAMPLE_LINK, ORIGIN, type Sample } from './spec.js';
 
 export const samples: Sample[] = [
   {
@@ -8,12 +8,12 @@ export const samples: Sample[] = [
     icon: 'siCurl',
     label: 'curl',
     file: 'send.sh',
-    code: `curl -X POST https://notifi.it/send \\
+    code: `curl -X POST ${ORIGIN}${ENDPOINT} \\
   -H "Authorization: Bearer $NOTIFI_KEY" \\
   -d "title=Hello from notifi" \\
   -d "message=Your first notification." \\
-  -d "link=https://notifi.it/docs" \\
-  -d "image=https://notifi.it/anaglyph-bell.png"`,
+  -d "link=${EXAMPLE_LINK}" \\
+  -d "image=${EXAMPLE_IMAGE}"`,
   },
   {
     id: 'js',
@@ -22,7 +22,7 @@ export const samples: Sample[] = [
     icon: 'siJavascript',
     label: 'JavaScript',
     file: 'send.js',
-    code: `await fetch("https://notifi.it/send", {
+    code: `await fetch("${ORIGIN}${ENDPOINT}", {
   method: "POST",
   headers: {
     "Authorization": \`Bearer \${process.env.NOTIFI_KEY}\`,
@@ -31,8 +31,8 @@ export const samples: Sample[] = [
   body: JSON.stringify({
     title: "Hello from notifi",
     message: "Your first notification.",
-    link: "https://notifi.it/docs",
-    image: "https://notifi.it/anaglyph-bell.png",
+    link: "${EXAMPLE_LINK}",
+    image: "${EXAMPLE_IMAGE}",
   }),
 });`,
   },
@@ -46,13 +46,13 @@ export const samples: Sample[] = [
     code: `import os, requests
 
 requests.post(
-    "https://notifi.it/send",
+    "${ORIGIN}${ENDPOINT}",
     headers={"Authorization": f"Bearer {os.environ['NOTIFI_KEY']}"},
     json={
         "title": "Hello from notifi",
         "message": "Your first notification.",
-        "link": "https://notifi.it/docs",
-        "image": "https://notifi.it/anaglyph-bell.png",
+        "link": "${EXAMPLE_LINK}",
+        "image": "${EXAMPLE_IMAGE}",
     },
 )`,
   },
@@ -76,10 +76,10 @@ func main() {
 	form := url.Values{
 		"title":   {"Hello from notifi"},
 		"message": {"Your first notification."},
-		"link":    {"https://notifi.it/docs"},
-		"image":   {"https://notifi.it/anaglyph-bell.png"},
+		"link":    {"${EXAMPLE_LINK}"},
+		"image":   {"${EXAMPLE_IMAGE}"},
 	}
-	req, _ := http.NewRequest("POST", "https://notifi.it/send",
+	req, _ := http.NewRequest("POST", "${ORIGIN}${ENDPOINT}",
 		strings.NewReader(form.Encode()))
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("NOTIFI_KEY"))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -95,15 +95,15 @@ func main() {
     file: 'Send.swift',
     code: `import Foundation
 
-var request = URLRequest(url: URL(string: "https://notifi.it/send")!)
+var request = URLRequest(url: URL(string: "${ORIGIN}${ENDPOINT}")!)
 request.httpMethod = "POST"
 request.setValue("Bearer \\(key)", forHTTPHeaderField: "Authorization")
 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 request.httpBody = try JSONEncoder().encode([
     "title": "Hello from notifi",
     "message": "Your first notification.",
-    "link": "https://notifi.it/docs",
-    "image": "https://notifi.it/anaglyph-bell.png",
+    "link": "${EXAMPLE_LINK}",
+    "image": "${EXAMPLE_IMAGE}",
 ])
 
 _ = try await URLSession.shared.data(for: request)`,
@@ -117,14 +117,14 @@ _ = try await URLSession.shared.data(for: request)`,
     file: 'send.rb',
     code: `require "net/http"
 
-uri = URI("https://notifi.it/send")
+uri = URI("${ORIGIN}${ENDPOINT}")
 req = Net::HTTP::Post.new(uri)
 req["Authorization"] = "Bearer #{ENV['NOTIFI_KEY']}"
 req.set_form_data(
   "title" => "Hello from notifi",
   "message" => "Your first notification.",
-  "link" => "https://notifi.it/docs",
-  "image" => "https://notifi.it/anaglyph-bell.png"
+  "link" => "${EXAMPLE_LINK}",
+  "image" => "${EXAMPLE_IMAGE}"
 )
 
 Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }`,
@@ -137,15 +137,15 @@ Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }`
     label: 'PHP',
     file: 'send.php',
     code: `<?php
-$ch = curl_init("https://notifi.it/send");
+$ch = curl_init("${ORIGIN}${ENDPOINT}");
 curl_setopt_array($ch, [
     CURLOPT_POST       => true,
     CURLOPT_HTTPHEADER => ["Authorization: Bearer " . getenv("NOTIFI_KEY")],
     CURLOPT_POSTFIELDS => [
         "title"   => "Hello from notifi",
         "message" => "Your first notification.",
-        "link"    => "https://notifi.it/docs",
-        "image"   => "https://notifi.it/anaglyph-bell.png",
+        "link"    => "${EXAMPLE_LINK}",
+        "image"   => "${EXAMPLE_IMAGE}",
     ],
 ]);
 curl_exec($ch);`,
@@ -161,13 +161,13 @@ curl_exec($ch);`,
 let key = std::env::var("NOTIFI_KEY")?;
 
 reqwest::Client::new()
-    .post("https://notifi.it/send")
+    .post("${ORIGIN}${ENDPOINT}")
     .bearer_auth(key)
     .form(&[
         ("title", "Hello from notifi"),
         ("message", "Your first notification."),
-        ("link", "https://notifi.it/docs"),
-        ("image", "https://notifi.it/anaglyph-bell.png"),
+        ("link", "${EXAMPLE_LINK}"),
+        ("image", "${EXAMPLE_IMAGE}"),
     ])
     .send()
     .await?;`,
@@ -192,10 +192,10 @@ BiFunction<String, String, String> field = (k, v) -> k + "=" + URLEncoder.encode
 var body = String.join("&",
     field.apply("title", "Hello from notifi"),
     field.apply("message", "Your first notification."),
-    field.apply("link", "https://notifi.it/docs"),
-    field.apply("image", "https://notifi.it/anaglyph-bell.png"));
+    field.apply("link", "${EXAMPLE_LINK}"),
+    field.apply("image", "${EXAMPLE_IMAGE}"));
 
-var request = HttpRequest.newBuilder(URI.create("https://notifi.it/send"))
+var request = HttpRequest.newBuilder(URI.create("${ORIGIN}${ENDPOINT}"))
     .header("Authorization", "Bearer " + System.getenv("NOTIFI_KEY"))
     .header("Content-Type", "application/x-www-form-urlencoded")
     .POST(HttpRequest.BodyPublishers.ofString(body))
@@ -216,7 +216,7 @@ HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding())
     "Stop": [{
       "hooks": [{
         "type": "command",
-        "command": "curl -s https://notifi.it/send \\
+        "command": "curl -s ${ORIGIN}${ENDPOINT} \\
                      -H \\"Authorization: Bearer $NOTIFI_KEY\\" \\
                      -d \\"title=Claude finished\\" \\
                      -d \\"message=$CLAUDE_PROJECT_DIR\\""
@@ -236,7 +236,7 @@ HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding())
 - name: Tell me it broke
   if: failure()
   run: |
-    curl -s https://notifi.it/send \\
+    curl -s ${ORIGIN}${ENDPOINT} \\
       -H "Authorization: Bearer $NOTIFI_KEY" \\
       -d "title=$GITHUB_WORKFLOW failed" \\
       -d "message=$GITHUB_REF_NAME at $(git log -1 --format=%s)" \\
@@ -259,7 +259,7 @@ _notifi_start() { _NOTIFI_T=$SECONDS; _NOTIFI_CMD=$1 }
 _notifi_end() {
   local code=$? secs=$(( SECONDS - \${_NOTIFI_T:-SECONDS} ))
   (( secs < 60 )) && return
-  curl -s https://notifi.it/send \\
+  curl -s ${ORIGIN}${ENDPOINT} \\
     -H "Authorization: Bearer $NOTIFI_KEY" \\
     -d "title=$([[ $code == 0 ]] && echo ok || echo failed) after \${secs}s" \\
     -d "message=$_NOTIFI_CMD" >/dev/null
@@ -280,7 +280,7 @@ add-zsh-hook precmd  _notifi_end`,
 PATH=/usr/local/bin:/usr/bin:/bin
 NOTIFI_KEY=...
 
-0 3 * * * backup.sh >/tmp/backup.log 2>&1; curl -s https://notifi.it/send -H "Authorization: Bearer $NOTIFI_KEY" -d "title=backup $([ $? = 0 ] && echo ok || echo failed) on $(hostname)" --data-urlencode "message=$(tail -c 800 /tmp/backup.log)"`,
+0 3 * * * backup.sh >/tmp/backup.log 2>&1; curl -s ${ORIGIN}${ENDPOINT} -H "Authorization: Bearer $NOTIFI_KEY" -d "title=backup $([ $? = 0 ] && echo ok || echo failed) on $(hostname)" --data-urlencode "message=$(tail -c 800 /tmp/backup.log)"`,
   },
   {
     id: 'systemd',
@@ -298,7 +298,7 @@ Description=Push a notification when %i fails
 [Service]
 Type=oneshot
 EnvironmentFile=/etc/notifi.env
-ExecStart=/usr/bin/curl -s https://notifi.it/send \\
+ExecStart=/usr/bin/curl -s ${ORIGIN}${ENDPOINT} \\
   -H "Authorization: Bearer $NOTIFI_KEY" \\
   -d "title=%i failed on %H" \\
   --data-urlencode "message=$(systemctl status %i --lines=10 --no-pager)"`,
@@ -329,7 +329,7 @@ spec:
             args:
             - |
               ./backup.sh &&
-              curl -s https://notifi.it/send \\
+              curl -s ${ORIGIN}${ENDPOINT} \\
                 -H "Authorization: Bearer $NOTIFI_KEY" \\
                 -d "title=Backup complete"
             env:

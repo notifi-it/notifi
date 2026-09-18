@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 import UserNotifications
 
-private let delegateLog = Logger(subsystem: "it.notifi.notifi", category: "delegate")
+private let delegateLog = Logger.notifi(category: "delegate")
 private let notificationDelegate = NotificationDelegate()
 
 #if os(iOS)

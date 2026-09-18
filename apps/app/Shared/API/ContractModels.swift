@@ -1,5 +1,26 @@
 import Foundation
 
+enum Contract {
+    static let origin = URL(string: "https://notifi.it")!
+    static let host = origin.host()!
+    static let appStoreID = "1563961135"
+    static let appStore = URL(string: "https://apps.apple.com/app/id\(appStoreID)")!
+    static let appStoreReview = URL(string: "\(appStore.absoluteString)?action=write-review")!
+
+    static let keyPrefix = "nk_"
+    static let keyPrefixBodyChars = 4
+    static let keyNameMax = 64
+    static let historyLimitMax = 200
+
+    static func web(_ pathAndFragment: String) -> URL {
+        URL(string: pathAndFragment, relativeTo: origin)!
+    }
+
+    static func keyDisplayPrefix(_ key: String) -> String {
+        String(key.prefix(keyPrefix.count + keyPrefixBodyChars))
+    }
+}
+
 struct RegisterDeviceBody: Codable, Sendable {
     let publicKey: String
     let encryptionPublicKey: String

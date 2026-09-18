@@ -1,9 +1,8 @@
-export const ORIGIN = 'https://notifi.it';
-export const EMAIL = 'hello@notifi.it';
+import { APP_STORE, EMAIL, GITHUB, ORIGIN } from '@notifi/contract';
+
+export { APP_STORE, EMAIL, GITHUB, ORIGIN };
 export const AUTHOR = 'Maximilian Mitchell';
-export const GITHUB = 'https://github.com/notifi-it/notifi';
 export const GITHUB_ISSUES = `${GITHUB}/issues`;
-export const APP_STORE = 'https://apps.apple.com/app/id1563961135';
 export const MAC_DOWNLOAD = '/download/mac';
 export const COUNTRY = 'GB';
 

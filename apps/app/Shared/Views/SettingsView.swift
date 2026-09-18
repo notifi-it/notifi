@@ -206,7 +206,7 @@ struct SettingsView: View {
 
                 GeistGroup {
                     #if os(macOS)
-                    Link(destination: URL(string: "https://apps.apple.com/app/id1563961135")!) {
+                    Link(destination: Contract.appStore) {
                         DisclosureRow {
                             Text(Copy.Settings.iosApp)
                                 .font(Theme.body)
@@ -218,7 +218,7 @@ struct SettingsView: View {
                     .geistGutter()
                     RowRule()
                     #else
-                    Link(destination: URL(string: "https://notifi.it/#download")!) {
+                    Link(destination: Contract.web("/#download")) {
                         DisclosureRow {
                             Text(Copy.Settings.macApp)
                                 .font(Theme.body)
@@ -231,7 +231,7 @@ struct SettingsView: View {
                     RowRule()
                     #endif
 
-                    Link(destination: URL(string: "https://notifi.it/privacy")!) {
+                    Link(destination: Contract.web("/privacy")) {
                         DisclosureRow {
                             Text(Copy.Settings.privacyPolicy)
                                 .font(Theme.body)
@@ -243,7 +243,7 @@ struct SettingsView: View {
                     .geistGutter()
                     RowRule()
 
-                    Link(destination: URL(string: "https://notifi.it")!) {
+                    Link(destination: Contract.origin) {
                         DisclosureRow {
                             Text(Copy.Settings.website)
                                 .font(Theme.body)
@@ -255,7 +255,7 @@ struct SettingsView: View {
                     .geistGutter()
                     RowRule()
 
-                    Link(destination: URL(string: "https://notifi.it/docs")!) {
+                    Link(destination: Contract.web("/docs")) {
                         DisclosureRow {
                             Text(Copy.Settings.docs)
                                 .font(Theme.body)
@@ -287,7 +287,7 @@ struct SettingsView: View {
                     .geistGutter()
                     RowRule()
 
-                    Link(destination: URL(string: "https://apps.apple.com/app/id1563961135?action=write-review")!) {
+                    Link(destination: Contract.appStoreReview) {
                         DisclosureRow {
                             Text(Copy.Settings.feedback)
                                 .font(Theme.body)

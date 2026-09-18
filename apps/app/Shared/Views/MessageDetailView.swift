@@ -330,7 +330,7 @@ struct MessageDetailView: View {
             }
             Text(stamp)
                 .font(.system(size: stampSize, weight: .regular, design: .monospaced))
-                .tracking(1.4)
+                .tracking(Theme.sectionLabelTracking)
                 .foregroundStyle(Theme.dim)
         }
         .lineLimit(1)
@@ -777,7 +777,7 @@ enum BodyLinks {
                   let url = URL(string: String(source[urlRange])) else { continue }
             out += source[cursor..<whole.upperBound]
             let host = url.host() ?? url.absoluteString
-            let own = host == "notifi.it" || host.hasSuffix(".notifi.it")
+            let own = host == Contract.host || host.hasSuffix(".\(Contract.host)")
             if !own, !source[textRange].localizedCaseInsensitiveContains(host) {
                 out += " \(host)"
             }

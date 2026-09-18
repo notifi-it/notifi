@@ -52,7 +52,7 @@ One endpoint: `GET` or `POST https://notifi.it/send`, JSON or form-encoded.
 Authenticate with `Authorization: Bearer nk_yourkey`, or pass `key` as a
 parameter.
 
-- `key` — required unless sent as a bearer token. Picks the device that gets the notification.
+- `key` — required unless sent as a bearer token. Picks the device that gets the notification. Two keys separated by a comma send to both devices.
 - `title` — required, 1 to 200 characters.
 - `message` — the body, Markdown, up to 16,000 characters.
 - `link` — a link to a website or internal app, up to 2,048 characters.

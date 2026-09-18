@@ -107,7 +107,7 @@ struct RootContentView: View {
                     .transition(reduceMotion ? .opacity : .move(edge: .bottom))
             }
         }
-        .animation(.easeOut(duration: 0.2), value: model.presentingCreateKey)
+        .animation(Theme.state, value: model.presentingCreateKey)
         #endif
         .task {
             model.bootstrap(context: modelContext)

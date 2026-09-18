@@ -30,6 +30,7 @@ export const de: Translation = {
   'api.messageCropped': 'Mit gekürzter Benachrichtigung gesendet: Sie war länger als {max} Zeichen.',
   'api.strictContentRejected':
     'Nicht gesendet. Dieses Gerät ist so eingestellt, dass es eine nicht wie geschrieben zustellbare Benachrichtigung ablehnt.',
+  'api.keyFailed': '{key}: {reason}',
 
 
   'store.name': 'notifi: Benachrichtigungen',
@@ -260,7 +261,7 @@ export const de: Translation = {
   'createKey.creating': 'Wird erstellt…',
 
   'createKey.validationEmpty': 'Gib einen Namen für diesen Schlüssel ein.',
-  'createKey.validationTooLong': 'Verwende höchstens 64 Zeichen.',
+  'createKey.validationTooLong': 'Verwende höchstens {max} Zeichen.',
 
   'createKey.revealTitle': 'Kopiere deinen Schlüssel jetzt',
   'createKey.revealDetail': 'Er wird nicht noch einmal angezeigt.',

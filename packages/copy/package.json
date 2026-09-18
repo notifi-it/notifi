@@ -13,6 +13,9 @@
     "gen-copy": "tsx scripts/gen-copy.ts",
     "check-copy": "tsx scripts/gen-copy.ts --check"
   },
+  "dependencies": {
+    "@notifi/contract": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^20.16.5",
     "tsx": "^4.19.2",

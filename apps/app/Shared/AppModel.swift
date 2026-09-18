@@ -146,7 +146,7 @@ final class AppModel {
     private var registrationChain: Task<Void, Never>?
     private var hasRegistered = false
     private var lastRegisteredToken: String?
-    private let log = Logger(subsystem: "it.notifi.notifi", category: "app")
+    private let log = Logger.notifi(category: "app")
 
     #if DEBUG
     private static let realTokenKey = "lastRealAPNSToken.debug"
@@ -186,7 +186,7 @@ final class AppModel {
            let url = URL(string: raw), url.host != nil {
             return url
         }
-        return URL(string: "https://notifi.it")!
+        return Contract.origin
     }
 
     func bootstrap(context: ModelContext) {
@@ -291,7 +291,7 @@ final class AppModel {
             return
         }
         do {
-            let created = try await api.createKey(name: "device")
+            let created = try await api.createKey(name: CachedKey.defaultName)
             DeviceIdentity.storeDefaultKey(created.key)
             await sync.refreshKeys()
         } catch {
@@ -316,7 +316,7 @@ final class AppModel {
     func regenerateDefaultKey() async throws {
         guard let api, let sync else { throw NotifiError.identityMissing }
         let superseded = sync.keys.filter { $0.isDefault && !$0.isRevoked }
-        let created = try await api.createKey(name: "device")
+        let created = try await api.createKey(name: CachedKey.defaultName)
         DeviceIdentity.storeDefaultKey(created.key)
         for key in superseded {
             do {
@@ -542,8 +542,8 @@ final class AppModel {
         #endif
     }
 
-    static let sampleLink = "https://notifi.it/docs"
-    static let sampleImage = "https://notifi.it/anaglyph-bell.png"
+    static let sampleLink = Contract.web("/docs").absoluteString
+    static let sampleImage = Contract.web("/anaglyph-bell.png").absoluteString
 
     func sendTestNotification(
         title: String = Copy.Settings.testTitle,

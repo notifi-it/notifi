@@ -53,6 +53,7 @@ export const copy = {
       'Body shortened to {max} characters.',
     strictContentRejected:
       'Not sent. This device is set to refuse a notification it cannot deliver as written.',
+    keyFailed: '{key}: {reason}',
 
   },
 
@@ -309,7 +310,7 @@ export const copy = {
     validationEmpty:
       'Enter a name.',
     validationTooLong:
-      '64 characters or fewer.',
+      '{max} characters or fewer.',
 
     revealTitle:
       'Copy your key',
