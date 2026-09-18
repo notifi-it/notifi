@@ -64,7 +64,7 @@ Accept-Language: en-GB
 HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true}]}
+{"ok":true}
 ```
 
 ### 400
@@ -113,18 +113,18 @@ Content-Type: application/json; charset=utf-8
 {"error":{"code":"uncollected_limit","message":"Not sent. This device has too many uncollected notifications. New ones are accepted once it collects."}}
 ```
 
-`sent` counts the devices that received the notification and `results` has one entry per key, named by the prefix the Keys tab shows. A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, or `is_critical` on a key without urgent alerts. The status is still `202`; the notification was sent, in the altered form each warning describes.
+A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, or `is_critical` on a key without urgent alerts. The status is still `202`; the notification was sent, in the altered form each warning describes.
 
 ```http
 HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true,"warnings":["Title shortened to 200 characters."]}],"warnings":["Title shortened to 200 characters."]}
+{"ok":true,"warnings":["Title shortened to 200 characters."]}
 ```
 
 ### Two devices in one request
 
-Join two keys with a comma to send to both, one per platform: an iPhone or iPad and a Mac. Each device is delivered to separately, with its own rate limit and its own entry in `results`. The status is `202` if at least one device received the notification, otherwise the first error's. Two keys on the same platform answer `400 invalid_request`.
+Join two keys with a comma to send to both, one per platform: an iPhone or iPad and a Mac. Each device is delivered to separately, with its own rate limit. The response then carries `sent`, how many devices received it, and `results`, one entry per key named by the prefix the Keys tab shows. The status is `202` if at least one device received the notification, otherwise the first error's. Two keys on the same platform answer `400 invalid_request`.
 
 ```bash
 curl -X POST https://notifi.it/send \

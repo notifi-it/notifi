@@ -56,7 +56,7 @@
             }
           }
         },
-        "description": "Answers 202 with {\"ok\":true,\"sent\":1,...} once the server has accepted the notification. See https://notifi.it/docs."
+        "description": "Answers 202 with {\"ok\":true} once the server has accepted the notification. See https://notifi.it/docs."
       },
       "response": []
     },

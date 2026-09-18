@@ -125,13 +125,7 @@ let r;
 r = await send("single bearer", { bearer: K.phone });
 ok("single: 202", r.status === 202, String(r.status));
 ok("single: ok", r.body.ok === true, json(r.body));
-ok("single: sent 1", r.body.sent === 1, json(r.body));
-ok(
-  "single: one result, named by a prefix of the key",
-  r.body.results?.length === 1 && K.phone.startsWith(r.body.results[0].key) && r.body.results[0].key.length < K.phone.length,
-  json(r.body),
-);
-ok("single: no warnings", r.body.warnings === undefined, json(r.body));
+ok("single: exactly {ok:true}", json(r.body) === json({ ok: true }), json(r.body));
 
 r = await send("single query", { query: K.mac });
 ok("single query: 202", r.status === 202, String(r.status));
@@ -141,15 +135,14 @@ ok("single json body: 202", r.status === 202, String(r.status));
 
 r = await send("unknown", { bearer: unknown });
 ok("unknown: 401", r.status === 401, String(r.status));
-ok("unknown: code", r.body.error?.code === "unknown_key", json(r.body));
+ok("unknown: error shape only", Object.keys(r.body).join() === "error" && r.body.error.code === "unknown_key", json(r.body));
 
 r = await send("revoked", { bearer: K.revoked });
 ok("revoked: 401", r.status === 401, String(r.status));
 
 r = await send("long title", { bearer: K.phone, title: longTitle });
 ok("long title: 202", r.status === 202, String(r.status));
-ok("long title: top-level warning", Array.isArray(r.body.warnings) && r.body.warnings.length === 1, json(r.body));
-ok("long title: result warning", r.body.results?.[0]?.warnings?.length === 1, json(r.body));
+ok("long title: warning only", Object.keys(r.body).sort().join() === "ok,warnings" && r.body.warnings.length === 1, json(r.body));
 
 r = await send("strict long title", { bearer: K.strict, title: longTitle });
 ok("strict: 422", r.status === 422, String(r.status));
@@ -171,6 +164,11 @@ r = await send("phone,mac bearer", { bearer: `${K.phone},${K.mac}` });
 ok("two: 202", r.status === 202, String(r.status));
 ok("two: sent 2", r.body.sent === 2, json(r.body));
 ok("two: both ok", r.body.results?.every((x) => x.ok) && r.body.results.length === 2, json(r.body));
+ok(
+  "two: results named by a prefix of each key",
+  K.phone.startsWith(r.body.results[0].key) && r.body.results[0].key.length < K.phone.length && K.mac.startsWith(r.body.results[1].key),
+  json(r.body),
+);
 
 r = await send("phone,mac query", { query: `${K.phone},${K.mac}` });
 ok("two query: sent 2", r.status === 202 && r.body.sent === 2, json(r.body));

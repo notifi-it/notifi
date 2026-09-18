@@ -174,8 +174,8 @@ export type SendResult = z.infer<typeof sendResult>;
 
 export const sendResponse = z.object({
   ok: z.literal(true),
-  sent: z.number().int(),
-  results: z.array(sendResult).max(SEND_KEYS_MAX),
+  sent: z.number().int().optional(),
+  results: z.array(sendResult).max(SEND_KEYS_MAX).optional(),
   warnings: z.array(z.string()).optional(),
 });
 export type SendResponse = z.infer<typeof sendResponse>;

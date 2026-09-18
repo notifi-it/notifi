@@ -123,8 +123,8 @@ struct SendResult: Codable, Sendable {
 
 struct SendResponse: Codable, Sendable {
     let ok: Bool
-    let sent: Int
-    let results: [SendResult]
+    let sent: Int?
+    let results: [SendResult]?
     let warnings: [String]?
 }
 

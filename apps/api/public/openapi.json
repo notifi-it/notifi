@@ -326,9 +326,7 @@
       "SendResponse": {
         "type": "object",
         "required": [
-          "ok",
-          "sent",
-          "results"
+          "ok"
         ],
         "properties": {
           "ok": {
@@ -338,7 +336,7 @@
           "sent": {
             "type": "integer",
             "minimum": -9007199254740991,
-            "description": "How many devices received the notification."
+            "description": "Present only for two keys: how many devices received the notification."
           },
           "results": {
             "maxItems": 2,
@@ -393,7 +391,7 @@
               ],
               "additionalProperties": false
             },
-            "description": "One entry per key, in the order given, named by the key prefix the Keys tab shows."
+            "description": "Present only for two keys: one entry per key, in the order given, named by the key prefix the Keys tab shows."
           },
           "warnings": {
             "type": "array",
@@ -450,29 +448,12 @@
             "examples": {
               "delivered": {
                 "value": {
-                  "ok": true,
-                  "sent": 1,
-                  "results": [
-                    {
-                      "key": "nk_abcd",
-                      "ok": true
-                    }
-                  ]
+                  "ok": true
                 }
               },
               "deliveredWithWarnings": {
                 "value": {
                   "ok": true,
-                  "sent": 1,
-                  "results": [
-                    {
-                      "key": "nk_abcd",
-                      "ok": true,
-                      "warnings": [
-                        "Title shortened to 200 characters."
-                      ]
-                    }
-                  ],
                   "warnings": [
                     "Title shortened to 200 characters."
                   ]

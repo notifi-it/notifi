@@ -92,18 +92,9 @@ function errorResponses(): Record<string, unknown> {
         'application/json': {
           schema: { $ref: '#/components/schemas/SendResponse' },
           examples: {
-            delivered: {
-              value: { ok: true, sent: 1, results: [{ key: 'nk_abcd', ok: true }] },
-            },
+            delivered: { value: { ok: true } },
             deliveredWithWarnings: {
-              value: {
-                ok: true,
-                sent: 1,
-                results: [
-                  { key: 'nk_abcd', ok: true, warnings: ['Title shortened to 200 characters.'] },
-                ],
-                warnings: ['Title shortened to 200 characters.'],
-              },
+              value: { ok: true, warnings: ['Title shortened to 200 characters.'] },
             },
             deliveredToOneOfTwo: {
               value: {
@@ -249,17 +240,17 @@ export function openapi(): Record<string, unknown> {
         },
         SendResponse: {
           type: 'object',
-          required: ['ok', 'sent', 'results'],
+          required: ['ok'],
           properties: {
             ok: responseProperties.ok,
             sent: {
               ...responseProperties.sent,
-              description: 'How many devices received the notification.',
+              description: 'Present only for two keys: how many devices received the notification.',
             },
             results: {
               ...responseProperties.results,
               description:
-                'One entry per key, in the order given, named by the key prefix the Keys tab shows.',
+                'Present only for two keys: one entry per key, in the order given, named by the key prefix the Keys tab shows.',
             },
             warnings: {
               ...responseProperties.warnings,

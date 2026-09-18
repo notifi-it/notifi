@@ -220,16 +220,16 @@ send.on(['GET', 'POST'], '/send', async (c) => {
   }
 
   const sent = results.length - failures.length;
+  const fanout = results.length > 1 ? { sent, results } : {};
   const first = failures[0];
   if (first && sent === 0) {
     if (first.retryAfter !== undefined) c.header('Retry-After', String(first.retryAfter));
-    return c.json({ ...errBody(first.code, first.message), sent, results }, first.status);
+    return c.json({ ...errBody(first.code, first.message), ...fanout }, first.status);
   }
   const allWarnings = [...new Set(results.flatMap((r) => r.warnings ?? []))];
   const body: SendResponse = {
     ok: true,
-    sent,
-    results,
+    ...fanout,
     ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
   };
   return c.json(body, 202);
