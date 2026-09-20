@@ -262,11 +262,11 @@ VERT_CLIP=['','','left:48%;top:59.9%;width:46%;height:9%']
 # with the title against its shoulder. The scale lives in the portrait
 # block alone, so the landscape film is untouched.
 # The padding is not symmetric: the bell carries its own margin in the
-# artwork, so the leading side is cut to .65 of the trailing one to make
+# artwork, so the leading side is cut to .4 of the trailing one to make
 # the two edges read alike.
 VERT_FS=[('.cp0',2.26),('.cp1',3.35),('.cp2',2.21)]
 CARD_INSET=(".scard{padding-block:.8cqw;"
-            "padding-inline:calc(1cqw * var(--k,1) * .65) calc(1cqw * var(--k,1));"
+            "padding-inline:calc(1cqw * var(--k,1) * .4) calc(1cqw * var(--k,1));"
             "gap:calc(1cqw * var(--k,1) * 1.15)}")
 vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
