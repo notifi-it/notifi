@@ -255,9 +255,11 @@ VERT_DEV=['left:4%;top:56%;width:92%;aspect-ratio:1292/916',
 VERT_CARD=['left:50%;top:73.5%;width:44%','left:50%;top:88.4%;width:50%','left:50%;top:50%;width:92%']
 VERT_CLIP=['','','left:48%;top:59.9%;width:46%;height:9%']
 # The portrait layout scales each card's type up by these factors, and the
-# bell, the thumbnail and the card's side padding ride the same --k, so a
-# card keeps the proportions it has in the landscape film. Without it the
-# padding stayed at the landscape size and the bell sat on the card's edge.
+# bell, the thumbnail, the card's side padding and the gap after the bell
+# all ride the same --k, so a card keeps the proportions it has in the
+# landscape film. Without them the padding and the gap stayed at their
+# landscape size: the bell sat on the card's edge with the title against
+# its shoulder.
 VERT_FS=[('.cp0',2.26),('.cp1',3.35),('.cp2',2.21)]
 vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
@@ -396,7 +398,7 @@ body{{background:#161618;min-height:100vh;display:grid;place-items:center;paddin
 .trail i{{width:calc(1cqw * var(--d));height:calc(1cqw * var(--d));border-radius:50%;background:var(--dim);opacity:0}}
 .clip{{position:absolute;overflow:hidden;border-radius:.6cqw;opacity:0}}
 .cardpos{{position:absolute;transform:translate(-50%,-50%)}}
-.scard{{font-family:var(--ui);background:var(--surface);border:1px solid var(--line);border-radius:.95cqw;padding:.8cqw calc(1cqw * var(--k,1));display:flex;gap:.75cqw;align-items:center;overflow:hidden;box-shadow:0 .8cqw 2.4cqw rgba(0,0,0,.4);opacity:0;animation-duration:var(--T);animation-iteration-count:infinite}}
+.scard{{font-family:var(--ui);background:var(--surface);border:1px solid var(--line);border-radius:.95cqw;padding:.8cqw calc(1cqw * var(--k,1));display:flex;gap:calc(1cqw * var(--k,1) * .75);align-items:center;overflow:hidden;box-shadow:0 .8cqw 2.4cqw rgba(0,0,0,.4);opacity:0;animation-duration:var(--T);animation-iteration-count:infinite}}
 .bell{{position:relative;width:calc(1cqw * var(--k,1) * 1.95);height:calc(1cqw * var(--k,1) * 1.95);flex:none}}
 .bell i{{position:absolute;inset:0;background:var(--fg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;transform-origin:50% 0}}
 .bell .bb{{-webkit-mask-image:url({BODY});mask-image:url({BODY})}}
