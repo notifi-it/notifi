@@ -536,7 +536,7 @@ section{padding:clamp(48px,7vw,86px) 0}
    reserved height came down with it. It is still reserved rather than
    auto — the first list item has to start on the same baseline across all
    four, or the hairlines under the headings stop reading as one rule. */
-.use-col .eyebrow{padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:4px;min-height:calc(2.2em + 10px)}
+.use-col .eyebrow{padding-bottom:10px;border-bottom:1px solid var(--line);min-height:calc(2.2em + 10px)}
 .use-col ul{list-style:none;margin:0;padding:0}
 .use-col li b{color:var(--fg);font-weight:500}
 .use-col li{
@@ -547,7 +547,11 @@ section{padding:clamp(48px,7vw,86px) 0}
 /* The 26px under the head rule is the section's own spacing. An item that adds
    its top padding on top of it starts the first line lower than a section whose
    content is a paragraph, which is what made the six sections disagree. */
-.use-col ul li:first-child,.rows .row:first-child{padding-top:0}
+/* A group's first item is not in that position: what sits above it is the
+   label's own rule, the same hairline every later item hangs from, so it keeps
+   its padding and the label gives up its margin. Without this the first line of
+   every group sat on its rule while the rest of the list stood clear of theirs. */
+.rows .row:first-child{padding-top:0}
 @media(max-width:920px){.uses{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.uses{grid-template-columns:1fr}}
 
