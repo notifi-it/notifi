@@ -523,8 +523,15 @@ section{padding:clamp(48px,7vw,86px) 0}
 .use-col .ico{width:15px;height:15px}
 
 /* ── uses: four hairline lists, no bullets, no boxes ────────── */
-.uses{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,2.4vw,30px)}
-.uses-2{grid-template-columns:repeat(2,1fr)}
+/* Columns are spaced by the clamp; rows by the 26px the section head leaves
+   under its rule, because once the grid stacks that gap is the space above
+   a group's label and the first group's label already sits 26px under the
+   head. At four columns there is one row and no row gap to spend. */
+.uses{display:grid;grid-template-columns:repeat(4,1fr);column-gap:clamp(20px,2.4vw,30px);row-gap:26px}
+/* Its columns carry no label, so a stacked row gap here is a seam between two
+   hairline lists rather than space above a heading, and it keeps the gap it
+   had. */
+.uses-2{grid-template-columns:repeat(2,1fr);row-gap:clamp(20px,2.4vw,30px)}
 /* Four columns rather than five, so every heading fits on two lines and the
    reserved height came down with it. It is still reserved rather than
    auto — the first list item has to start on the same baseline across all
@@ -755,6 +762,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-head .gf-l1{--fs:3.6}.gf-head .gf-l2{--fs:3.0}
 .gf-term{left:4%;top:16.25%;width:92%;height:auto;aspect-ratio:830/528}
 .gf-trail{display:none}
+.gf-scard{padding-block:.8cqw;padding-inline:calc(1cqw * var(--k,1) * .4) calc(1cqw * var(--k,1));gap:calc(1cqw * var(--k,1) * 1.15)}
 .gf-cp0 *{font-size:calc(1cqw * var(--fs,1.5) * 2.26)}
 .gf-cp0{--k:2.26}
 .gf-cp1 *{font-size:calc(1cqw * var(--fs,1.5) * 3.35)}
@@ -762,7 +770,7 @@ section{padding:clamp(48px,7vw,86px) 0}
 .gf-cp2 *{font-size:calc(1cqw * var(--fs,1.5) * 2.21)}
 .gf-cp2{--k:2.21}
 .gf-dv0{left:4%;top:56%;width:92%;aspect-ratio:1292/916}
-.gf-cp0{left:50%;top:73.5%;width:41%}
+.gf-cp0{left:50%;top:73.5%;width:47%}
 .gf-dv1{left:19%;top:55%;width:62%;aspect-ratio:428/900}
 .gf-cp1{left:50%;top:88.4%;width:50%}
 .gf-dv2{left:2%;top:57%;width:96%;aspect-ratio:1640/1040}
@@ -909,7 +917,13 @@ section{padding:clamp(48px,7vw,86px) 0}
 .mac-bar .bell{color:var(--fg)}
 .mac-wifi{display:block;width:4.6cqw;height:auto;color:var(--fg)}
 .mac-apple{width:5.06cqw;height:5.06cqw;display:block;fill:var(--fg);opacity:.85;flex:none;color:var(--fg)}
-.mac-status{display:flex;align-items:center;gap:2.85cqw;color:var(--fg)}
+/* Right to left, in both the flex order and the markup: the group is pinned to
+   the bar's right edge and grows leftwards, so while the page is still
+   streaming each glyph is laid down where it belongs instead of being shoved
+   left by the next one to arrive. The bell is the last thing in the markup and
+   the first thing in the bar — on a phone it used to travel most of the
+   figure's width before the clock landed. */
+.mac-status{display:flex;flex-direction:row-reverse;align-items:center;gap:2.85cqw;color:var(--fg)}
 .mac-batt{display:block;width:6.44cqw;height:auto}
 .mac-clock{
   font-size:3.13cqw;font-weight:500;font-variant-numeric:tabular-nums;
@@ -1402,17 +1416,17 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <div class="mac-bar" aria-hidden="true">
             <svg class="mac-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.5 1.3-2.6 0 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
             <span class="mac-status">
-              <span class="bell" style="--bell:3.7cqw"></span>
-              <svg class="mac-wifi" viewBox="2 9 52 38" fill="currentColor">
-                <path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/>
-              </svg>
+              <span class="mac-clock">Sat 29 Aug 14:07</span>
               <svg class="mac-batt" viewBox="0 0 30 14" fill="currentColor">
                 <rect x="0.75" y="0.75" width="24.5" height="12.5" rx="4" fill="none"
                       stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/>
                 <path d="M27.5 4.5a3.2 3.2 0 0 1 0 5Z" fill-opacity=".5"/>
                 <rect x="2.6" y="2.6" width="15" height="8.8" rx="2.2"/>
               </svg>
-              <span class="mac-clock">Sat 29 Aug 14:07</span>
+              <svg class="mac-wifi" viewBox="2 9 52 38" fill="currentColor">
+                <path d="M 5.4648 25.0352 C 5.9102 25.4805 6.5664 25.4571 6.9882 25.0118 C 12.5195 19.1289 19.8320 16.0352 28.0117 16.0352 C 36.2382 16.0352 43.5742 19.1523 49.0819 25.0352 C 49.4803 25.4336 50.1135 25.4336 50.5354 24.9883 L 53.6525 21.8711 C 54.0274 21.4727 54.0274 20.9571 53.7226 20.5820 C 48.4258 14.0664 38.4648 9.2617 28.0117 9.2617 C 17.5586 9.2617 7.5976 14.0664 2.3007 20.5820 C 1.9726 20.9571 1.9961 21.4727 2.3711 21.8711 Z M 14.8398 34.4336 C 15.3086 34.9258 15.9180 34.8789 16.3633 34.3633 C 19.0820 31.3398 23.4882 29.1602 28.0117 29.2071 C 32.5820 29.1602 36.9648 31.4102 39.7070 34.4336 C 40.1523 34.9023 40.7382 34.9023 41.1836 34.4102 L 44.6758 30.9649 C 45.0507 30.5898 45.0976 30.0977 44.7461 29.6992 C 41.3476 25.5039 35.0429 22.4102 28.0117 22.4102 C 20.9804 22.4102 14.6758 25.5274 11.2773 29.6992 C 10.9258 30.0977 10.9726 30.5664 11.3476 30.9649 Z M 28.0117 46.7383 C 28.5039 46.7383 28.9492 46.4805 29.8164 45.6367 L 35.3007 40.3633 C 35.6523 40.0352 35.7226 39.5196 35.4180 39.1211 C 33.9414 37.2227 31.1758 35.5820 28.0117 35.5820 C 24.7773 35.5820 21.9648 37.2930 20.5117 39.2617 C 20.3007 39.5898 20.3711 40.0352 20.7226 40.3633 L 26.2070 45.6367 C 27.0742 46.4805 27.5195 46.7383 28.0117 46.7383 Z"/>
+              </svg>
+              <span class="bell" style="--bell:3.7cqw"></span>
             </span>
           </div>
           <img class="mac-shot" src="/screens/mac-cut.webp" width="461" height="711" loading="lazy"

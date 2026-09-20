@@ -252,14 +252,28 @@ for p,P in enumerate(PASSES):
 VERT_DEV=['left:4%;top:56%;width:92%;aspect-ratio:1292/916',
           'left:19%;top:55%;width:62%;aspect-ratio:428/900',
           'left:2%;top:57%;width:96%;aspect-ratio:1640/1040']
-VERT_CARD=['left:50%;top:73.5%;width:41%','left:50%;top:88.4%;width:50%','left:50%;top:50%;width:92%']
+VERT_CARD=['left:50%;top:73.5%;width:47%','left:50%;top:88.4%;width:50%','left:50%;top:50%;width:92%']
 VERT_CLIP=['','','left:48%;top:59.9%;width:46%;height:9%']
+# The portrait layout scales each card's type up by these factors. The bell
+# and the thumbnail already ride the same --k; CARD_INSET gives the card's
+# padding and its gap the same treatment, so a card keeps the proportions
+# it has in the landscape film instead of holding landscape spacing around
+# type two or three times the size — which put the bell on the card's edge
+# with the title against its shoulder. The scale lives in the portrait
+# block alone, so the landscape film is untouched.
+# The padding is not symmetric: the bell carries its own margin in the
+# artwork, so the leading side is cut to .4 of the trailing one to make
+# the two edges read alike.
 VERT_FS=[('.cp0',2.26),('.cp1',3.35),('.cp2',2.21)]
+CARD_INSET=(".scard{padding-block:.8cqw;"
+            "padding-inline:calc(1cqw * var(--k,1) * .4) calc(1cqw * var(--k,1));"
+            "gap:calc(1cqw * var(--k,1) * 1.15)}")
 vgeo=[".stage{aspect-ratio:10/16}",
       ".head{left:4%;top:3.75%;width:92%}",
       ".head .l1{--fs:3.6}.head .l2{--fs:3.0}",
       ".term{left:4%;top:16.25%;width:92%;height:auto;aspect-ratio:830/528}",
-      ".trail{display:none}"]
+      ".trail{display:none}",
+      CARD_INSET]
 for sel,k in VERT_FS:
     vgeo.append(f"{sel} *{{font-size:calc(1cqw * var(--fs,1.5) * {k})}}")
     vgeo.append(f"{sel}{{--k:{k}}}")
