@@ -523,8 +523,15 @@ section{padding:clamp(48px,7vw,86px) 0}
 .use-col .ico{width:15px;height:15px}
 
 /* ── uses: four hairline lists, no bullets, no boxes ────────── */
-.uses{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,2.4vw,30px)}
-.uses-2{grid-template-columns:repeat(2,1fr)}
+/* Columns are spaced by the clamp; rows by the 26px the section head leaves
+   under its rule, because once the grid stacks that gap is the space above
+   a group's label and the first group's label already sits 26px under the
+   head. At four columns there is one row and no row gap to spend. */
+.uses{display:grid;grid-template-columns:repeat(4,1fr);column-gap:clamp(20px,2.4vw,30px);row-gap:26px}
+/* Its columns carry no label, so a stacked row gap here is a seam between two
+   hairline lists rather than space above a heading, and it keeps the gap it
+   had. */
+.uses-2{grid-template-columns:repeat(2,1fr);row-gap:clamp(20px,2.4vw,30px)}
 /* Four columns rather than five, so every heading fits on two lines and the
    reserved height came down with it. It is still reserved rather than
    auto — the first list item has to start on the same baseline across all
