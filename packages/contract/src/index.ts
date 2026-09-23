@@ -30,6 +30,7 @@ export const apiError = z.object({
 export type ApiError = z.infer<typeof apiError>;
 
 export const UNCOLLECTED_MAX = 500;
+export const DAILY_SEND_MAX = 25;
 export const SEND_KEYS_MAX = 2;
 export const SEND_KEYS_SEPARATOR = ',';
 

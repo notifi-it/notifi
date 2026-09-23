@@ -1,8 +1,15 @@
 import type { PublicErrorCode } from '@notifi/contract';
-import { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX, UNCOLLECTED_MAX } from '@notifi/contract';
+import {
+  DAILY_SEND_MAX,
+  IMAGE_URL_MAX,
+  LINK_URL_MAX,
+  MESSAGE_MAX,
+  TITLE_MAX,
+  UNCOLLECTED_MAX,
+} from '@notifi/contract';
 import type { Lang } from './shikify.js';
 
-export { IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX };
+export { DAILY_SEND_MAX, IMAGE_URL_MAX, LINK_URL_MAX, MESSAGE_MAX, TITLE_MAX };
 
 export interface Param {
   name: string;
@@ -43,9 +50,9 @@ export const ORIGIN = 'https://notifi.it';
 export const ENDPOINT = '/send';
 export const KEY_PREFIX = 'nk_';
 export const URL_MAX = LINK_URL_MAX;
-export const SENDS_PER_HOUR = 60;
 export const KEYS_PER_DEVICE = 5;
 export const REQUESTS_PER_MINUTE = 100;
+export const DAILY_LIMIT_MESSAGE = `Not sent. Daily limit of ${DAILY_SEND_MAX} notifications reached. Resets at midnight UTC.`;
 
 export const SUMMARY =
   'Push notifications to an iPhone, iPad or Mac from one HTTP request.';
@@ -171,8 +178,8 @@ export const errors: ErrorRow[] = [
     code: 'rate_limited',
     status: 429,
     reason: 'Too Many Requests',
-    message: 'Too many notifications. Try again shortly.',
-    summary: 'Over the hourly device limit or the per-minute IP limit.',
+    message: DAILY_LIMIT_MESSAGE,
+    summary: 'Over the daily device limit or the per-minute IP limit.',
     detail: 'Carries a Retry-After header with the seconds until the window resets.',
   },
   {
@@ -195,7 +202,7 @@ export const errors: ErrorRow[] = [
 ];
 
 export const limits: string[] = [
-  `${SENDS_PER_HOUR} notifications an hour per device, shared across every key on it.`,
+  `${DAILY_SEND_MAX} notifications a day per device, shared across every key on it. The count resets at midnight UTC.`,
   `${KEYS_PER_DEVICE} active send keys per device, one of which is the device key.`,
   `${REQUESTS_PER_MINUTE} requests a minute per IP, across every endpoint.`,
   `${UNCOLLECTED_MAX} uncollected notifications per device. Past that, sends are refused until the device collects.`,

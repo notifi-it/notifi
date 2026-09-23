@@ -5,7 +5,8 @@ export const es: Translation = {
   'api.unexpected': 'Error inesperado.',
 
   'api.rateLimitedIP': 'Demasiadas solicitudes desde esta IP.',
-  'api.rateLimitedAccount': 'Límite de solicitudes superado. Demasiadas notificaciones esta hora.',
+  'api.rateLimitedAccount':
+    'No enviado. Límite diario de {max} notificaciones alcanzado. Se restablece a medianoche UTC.',
   'api.uncollectedLimit':
     'No enviado. Este dispositivo tiene demasiadas notificaciones sin recoger. Se aceptarán nuevas cuando las recoja.',
 

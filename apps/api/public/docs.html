@@ -653,7 +653,7 @@ Content-Type<span class="f">:</span> <span class="s">application/json; charset=u
 Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
 Retry-After<span class="f">:</span> <span class="s">42</span>
 
-{<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;rate_limited&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Too many notifications. Try again shortly.&quot;</span>}}</pre>
+{<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;rate_limited&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Not sent. Daily limit of 25 notifications reached. Resets at midnight UTC.&quot;</span>}}</pre>
       </div>
       <div class="panel" id="r-p-429" role="tabpanel" tabindex="0" aria-labelledby="r-t-429" data-name="uncollected_limit" data-label="429" hidden>
 <pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">429</span> <span class="s">Too Many Requests</span>
@@ -689,7 +689,7 @@ Content-Type: application/json; charset=utf-8
 <pre data-lang="http">HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{&quot;ok&quot;:true,&quot;sent&quot;:1,&quot;results&quot;:[{&quot;key&quot;:&quot;nk_abcd&quot;,&quot;ok&quot;:true},{&quot;key&quot;:&quot;nk_wxyz&quot;,&quot;ok&quot;:false,&quot;error&quot;:{&quot;code&quot;:&quot;rate_limited&quot;,&quot;message&quot;:&quot;Rate limit exceeded. Too many notifications this hour.&quot;}}]}</pre>
+{&quot;ok&quot;:true,&quot;sent&quot;:1,&quot;results&quot;:[{&quot;key&quot;:&quot;nk_abcd&quot;,&quot;ok&quot;:true},{&quot;key&quot;:&quot;nk_wxyz&quot;,&quot;ok&quot;:false,&quot;error&quot;:{&quot;code&quot;:&quot;rate_limited&quot;,&quot;message&quot;:&quot;Not sent. Daily limit of 25 notifications reached. Resets at midnight UTC.&quot;}}]}</pre>
 
     <h3>Over-length text is cropped</h3>
     <p>
@@ -753,7 +753,7 @@ Content-Type: application/json; charset=utf-8
           <tr>
             <td><code>429</code></td>
             <td><code>rate_limited</code></td>
-            <td>Over the hourly device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets.</td>
+            <td>Over the daily device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets.</td>
           </tr>
           <tr>
             <td><code>429</code></td>
@@ -778,7 +778,7 @@ Content-Type: application/json; charset=utf-8
   <section id="limits">
     <h2>Rate limits</h2>
     <ul>
-      <li>60 notifications an hour per device, shared across every key on it.</li>
+      <li>25 notifications a day per device, shared across every key on it. The count resets at midnight UTC.</li>
       <li>5 active send keys per device, one of which is the device key.</li>
       <li>100 requests a minute per IP, across every endpoint.</li>
       <li>500 uncollected notifications per device. Past that, sends are refused until the device collects.</li>

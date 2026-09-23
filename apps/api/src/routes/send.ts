@@ -247,6 +247,7 @@ async function deliver(
   }
 
   const w = windowStart(nowS);
+  const limit = perDeviceLimit(c.env);
   const allowed = await c.env.DB.prepare(
     `UPDATE devices SET
        rl_window_count = CASE WHEN rl_window_start = ? THEN rl_window_count + 1 ELSE 1 END,
@@ -256,7 +257,7 @@ async function deliver(
        AND (rl_window_start != ? OR rl_window_count < ?)
      RETURNING seq_counter`,
   )
-    .bind(w, w, row.device_id, w, perDeviceLimit(c.env))
+    .bind(w, w, row.device_id, w, limit)
     .first<{ seq_counter: number }>();
 
   if (!allowed) {
@@ -267,7 +268,7 @@ async function deliver(
       return failure(401, 'unknown_key', t(c).api.unknownKey);
     }
     return {
-      ...failure(429, 'rate_limited', t(c).api.rateLimitedAccount),
+      ...failure(429, 'rate_limited', fmt(t(c).api.rateLimitedAccount, { max: limit })),
       retryAfter: w + PER_DEVICE_WINDOW_S - nowS,
     };
   }

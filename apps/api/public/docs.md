@@ -101,7 +101,7 @@ HTTP/1.1 429 Too Many Requests
 Content-Type: application/json; charset=utf-8
 Retry-After: 42
 
-{"error":{"code":"rate_limited","message":"Too many notifications. Try again shortly."}}
+{"error":{"code":"rate_limited","message":"Not sent. Daily limit of 25 notifications reached. Resets at midnight UTC."}}
 ```
 
 ### 429
@@ -136,7 +136,7 @@ curl -X POST https://notifi.it/send \
 HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true},{"key":"nk_wxyz","ok":false,"error":{"code":"rate_limited","message":"Rate limit exceeded. Too many notifications this hour."}}]}
+{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true},{"key":"nk_wxyz","ok":false,"error":{"code":"rate_limited","message":"Not sent. Daily limit of 25 notifications reached. Resets at midnight UTC."}}]}
 ```
 
 ### Over-length text is cropped
@@ -172,14 +172,14 @@ Every error nests the code one level down: read `error.code`. The `message` is t
 | `400` | `invalid_request` | A parameter is missing or malformed. |
 | `401` | `unknown_key` | The key is unknown or has been revoked. |
 | `422` | `invalid_content` | The device is set to refuse a notification it cannot deliver as written. |
-| `429` | `rate_limited` | Over the hourly device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets. |
+| `429` | `rate_limited` | Over the daily device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets. |
 | `429` | `uncollected_limit` | The device has 500 uncollected notifications. No Retry-After: the limit clears when the device next collects, not with time. Open the app on the device. |
 | `404` | `not_found` | No such path. |
 | `500` | `internal_error` | Something broke on our side. |
 
 ## Rate limits
 
-- 60 notifications an hour per device, shared across every key on it.
+- 25 notifications a day per device, shared across every key on it. The count resets at midnight UTC.
 - 5 active send keys per device, one of which is the device key.
 - 100 requests a minute per IP, across every endpoint.
 - 500 uncollected notifications per device. Past that, sends are refused until the device collects.

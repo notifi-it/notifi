@@ -26,7 +26,8 @@ export const copy = {
     unexpected: 'Unexpected error.',
 
     rateLimitedIP: 'Too many requests from this IP.',
-    rateLimitedAccount: 'Rate limit exceeded. Too many notifications this hour.',
+    rateLimitedAccount:
+      'Not sent. Daily limit of {max} notifications reached. Resets at midnight UTC.',
     uncollectedLimit:
       'Not sent. Too many uncollected notifications. Open the app to collect them.',
 

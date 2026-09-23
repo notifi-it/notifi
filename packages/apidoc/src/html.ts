@@ -2,12 +2,12 @@ import {
   AUTH,
   INTEGRATION_SURFACE,
   OPERATION_ERRORS,
+  DAILY_LIMIT_MESSAGE,
   ENDPOINT,
   KEYS_PER_DEVICE,
   MESSAGE_MAX,
   ORIGIN,
   REQUESTS_PER_MINUTE,
-  SENDS_PER_HOUR,
   TITLE_MAX,
   errors,
   limits,
@@ -67,7 +67,7 @@ const TWO_KEYS_REQUEST = `curl -X POST ${ORIGIN}${ENDPOINT} \\
 const TWO_KEYS_RESPONSE = `HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
 
-{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true},{"key":"nk_wxyz","ok":false,"error":{"code":"rate_limited","message":"Rate limit exceeded. Too many notifications this hour."}}]}`;
+{"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true},{"key":"nk_wxyz","ok":false,"error":{"code":"rate_limited","message":"${DAILY_LIMIT_MESSAGE}"}}]}`;
 
 const RAW_REQUEST = `POST /send HTTP/1.1
 Host: notifi.it

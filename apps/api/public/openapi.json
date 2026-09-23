@@ -473,7 +473,7 @@
                       "ok": false,
                       "error": {
                         "code": "rate_limited",
-                        "message": "Rate limit exceeded. Too many notifications this hour."
+                        "message": "Not sent. Daily limit of 25 notifications reached. Resets at midnight UTC."
                       }
                     }
                   ]
@@ -542,7 +542,7 @@
         }
       },
       "RateLimited": {
-        "description": "Over the hourly device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets.",
+        "description": "Over the daily device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets.",
         "content": {
           "application/json": {
             "schema": {
@@ -551,7 +551,7 @@
             "example": {
               "error": {
                 "code": "rate_limited",
-                "message": "Too many notifications. Try again shortly."
+                "message": "Not sent. Daily limit of 25 notifications reached. Resets at midnight UTC."
               }
             }
           }
@@ -568,7 +568,7 @@
     }
   },
   "x-rate-limits": {
-    "perDevicePerHour": 60,
+    "perDevicePerDay": 25,
     "perIpPerMinute": 100
   }
 }

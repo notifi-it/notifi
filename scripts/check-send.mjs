@@ -23,8 +23,8 @@ const record = process.env.RECORD === "1";
 const suite = process.env.SUITE ?? "all";
 const apiDir = process.env.API_DIR ?? new URL("../apps/api/", import.meta.url).pathname;
 
-const PER_DEVICE_LIMIT = 60;
-const WINDOW_S = 3600;
+const PER_DEVICE_LIMIT = 25;
+const WINDOW_S = 86400;
 const TITLE_MAX = 200;
 const MESSAGE_MAX = 16000;
 const nowS = Math.floor(Date.now() / 1000);
@@ -134,7 +134,10 @@ const INVALID_CONTENT = err(
   "invalid_content",
   "Not sent. This device is set to refuse a notification it cannot deliver as written.",
 );
-const RATE_LIMITED = err("rate_limited", "Rate limit exceeded. Too many notifications this hour.");
+const RATE_LIMITED = err(
+  "rate_limited",
+  `Not sent. Daily limit of ${PER_DEVICE_LIMIT} notifications reached. Resets at midnight UTC.`,
+);
 const TITLE_CROPPED = `Title shortened to ${TITLE_MAX} characters.`;
 const MESSAGE_CROPPED = `Body shortened to ${MESSAGE_MAX} characters.`;
 const CRITICAL_DOWNGRADED = "Sent as an ordinary notification: this key has no urgent alerts.";
