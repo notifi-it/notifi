@@ -35,7 +35,7 @@ A successful send answers `202` with `{"ok":true}`. The key can also be passed a
 
 ### How much can I send?
 
-- **60 sends an hour per device**, shared across its keys. Over that, `429` with `Retry-After`.
+- **25 notifications a day per device**, shared across its keys, reset at midnight UTC. Over that, `429` with `Retry-After`.
 - **Five active keys per device**, including the device key.
 - 100 requests a minute per IP on every endpoint.
 

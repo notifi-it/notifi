@@ -9,7 +9,7 @@ ogDescription: What notifi stores, for how long, and what our server can read.
 
 > What notifi stores, for how long, and what our server can read.
 
-_Last updated 6 September 2026_
+_Last updated 23 September 2026_
 
 ## Who runs notifi
 
@@ -29,13 +29,13 @@ The server identifies a device only by its public key. Nothing in the system lin
 - Your Apple push token, encrypted with a key held by the server, so notifications can be delivered. Alongside it, a keyed one-way hash of the same token, stored unencrypted: it lets the server recognise that a new registration comes from a device it already knows, so the old row can be retired instead of receiving duplicates. It identifies the physical device across identity resets, and this is the only thing it is used for.
 - The platform (`ios` or `macos`) and the app version, stored in plain text.
 - When the device first registered, when it was last seen, how far it has collected, and a lifetime count of notifications sent to it.
-- A rolling one-hour send counter, used for rate limiting, and the strict-send setting if you have turned it on.
+- A daily send counter, used for rate limiting, and the strict-send setting if you have turned it on.
 
 ### Your send keys
 
 - A SHA-256 hash of the key. The key itself is never stored, so it cannot be recovered or shown again.
 - The name and visible prefix you gave it, encrypted so only your device can read them.
-- How many notifications it has sent, when it was created, when it was last used, whether it is revoked, whether it may send urgent notifications, and a rolling one-hour send counter.
+- How many notifications it has sent, when it was created, when it was last used, whether it is revoked, and whether it may send urgent notifications.
 
 ### Your notifications
 

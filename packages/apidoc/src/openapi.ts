@@ -3,10 +3,11 @@ import { z } from 'zod';
 import {
   AUTH,
   DESCRIPTION,
+  DAILY_LIMIT_MESSAGE,
+  DAILY_SEND_MAX,
   ENDPOINT,
   ORIGIN,
   REQUESTS_PER_MINUTE,
-  SENDS_PER_HOUR,
   SUMMARY,
   errors,
   params,
@@ -107,7 +108,7 @@ function errorResponses(): Record<string, unknown> {
                     ok: false,
                     error: {
                       code: 'rate_limited',
-                      message: 'Rate limit exceeded. Too many notifications this hour.',
+                      message: DAILY_LIMIT_MESSAGE,
                     },
                   },
                 ],
@@ -285,7 +286,7 @@ export function openapi(): Record<string, unknown> {
       responses: errorResponses(),
     },
     'x-rate-limits': {
-      perDevicePerHour: SENDS_PER_HOUR,
+      perDevicePerDay: DAILY_SEND_MAX,
       perIpPerMinute: REQUESTS_PER_MINUTE,
     },
   };

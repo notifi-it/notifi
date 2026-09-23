@@ -134,9 +134,9 @@ The codes are `invalid_request` (400), `unknown_key` (401), `invalid_content`
 (422, the device refuses sends that would arrive with a warning) and
 `rate_limited` (429, which carries `Retry-After`).
 
-60 sends an hour per device, shared across every key on it. Five active keys per
-device. Delivery is not guaranteed, so do not make notifi the only path for
-anything where a missed notification causes harm.
+25 notifications a day per device, shared across every key on it, reset at
+midnight UTC. Five active keys per device. Delivery is not guaranteed, so do not
+make notifi the only path for anything where a missed notification causes harm.
 
 ## Recipe: Claude Code
 
