@@ -415,16 +415,29 @@ struct SegmentedRow<Option: Hashable>: View {
 
     @ViewBuilder private var row: some View {
         if typeSize.isAccessibilitySize {
-            VStack(alignment: .leading, spacing: 10) {
-                titleText
-                control
-            }
+            stacked
         } else {
-            HStack(spacing: 10) {
-                titleText
-                Spacer(minLength: 8)
-                control
+            ViewThatFits(in: .horizontal) {
+                inline(segmentPadding: Theme.segmentPadH)
+                inline(segmentPadding: Theme.segmentPadHTight)
+                stacked
             }
+        }
+    }
+
+    private var stacked: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            titleText
+            control(segmentPadding: Theme.segmentPadH)
+        }
+    }
+
+    private func inline(segmentPadding: CGFloat) -> some View {
+        HStack(spacing: 10) {
+            titleText
+                .fixedSize()
+            Spacer(minLength: 8)
+            control(segmentPadding: segmentPadding)
         }
     }
 
@@ -435,7 +448,7 @@ struct SegmentedRow<Option: Hashable>: View {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    private var control: some View {
+    private func control(segmentPadding: CGFloat) -> some View {
         HStack(spacing: 0) {
                 ForEach(Array(options.enumerated()), id: \.element) { index, option in
                     let isSelected = option == selection
@@ -449,7 +462,7 @@ struct SegmentedRow<Option: Hashable>: View {
                             .fixedSize(horizontal: true, vertical: false)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
-                            .padding(.horizontal, 16)
+                            .padding(.horizontal, segmentPadding)
                             .background(isSelected ? Theme.surface : Color.clear)
                             .contentShape(Rectangle())
                     }
