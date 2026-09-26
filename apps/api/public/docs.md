@@ -1,8 +1,8 @@
 # notifi API documentation
 
-> One endpoint, seven parameters. This page, [`/openapi.json`](https://notifi.it/openapi.json) and the client collections are generated from one source, so they cannot disagree.
+> One endpoint, seven parameters. One source generates this page, [`/openapi.json`](https://notifi.it/openapi.json) and the client collections, so they cannot disagree.
 
-_[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi.it/docs#auth) [Request](https://notifi.it/docs#request) [Parameters](https://notifi.it/docs#parameters) [Response](https://notifi.it/docs#response) [Errors](https://notifi.it/docs#errors) [Rate limits](https://notifi.it/docs#limits) [Clients and import](https://notifi.it/docs#clients) [For the bots](https://notifi.it/docs#machine) [Recipes](https://notifi.it/docs#recipes)_
+_[Quickstart](https://notifi.it/docs#quickstart) [Authentication](https://notifi.it/docs#auth) [Request](https://notifi.it/docs#request) [Parameters](https://notifi.it/docs#parameters) [Response](https://notifi.it/docs#response) [Errors](https://notifi.it/docs#errors) [Rate limits](https://notifi.it/docs#limits) [Clients and import](https://notifi.it/docs#clients) [For agents and crawlers](https://notifi.it/docs#machine) [Recipes](https://notifi.it/docs#recipes)_
 
 ## Quickstart
 
@@ -23,7 +23,7 @@ Use a bearer token. A key parameter works too, but ends up in server logs. Use i
 
 | Method | Sent as | Notes |
 | --- | --- | --- |
-| Bearer token | `Authorization: Bearer nk_yourkey` | The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history. |
+| Bearer token | `Authorization: Bearer nk_yourkey` | The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: edge logs and shell history do not record a header. |
 | Parameter | `key=nk_yourkey` | The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option. Use it only for a quick test, and rotate the key afterwards. |
 
 ## Request
@@ -46,13 +46,13 @@ Accept-Language: en-GB
 
 | Name | Type | Required | Limit | Description |
 | --- | --- | --- | --- | --- |
-| `key` | string | conditional | `nk_…` | The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform. |
-| `title` | string | required | `1–200 chars` | The notification title. A longer title is delivered cropped, with a warning in the response. |
-| `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. A longer body is delivered cropped, with a warning. |
-| `link` | string (uri) | optional | `≤ 2,048 chars` | A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden. |
-| `image` | string (uri) | optional | `≤ 2,048 chars` | URL of an image shown with the notification. Fetched by the receiving device, never by the server; by default the app loads it only when tapped. |
-| `occurred_at` | integer | optional | `unix ms` | When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request. |
-| `is_critical` | boolean | optional | — | Breaks through Focus. The key must also have urgent alerts switched on in the app, or an ordinary notification is delivered. |
+| `key` | string | conditional | `nk_…` | The send key, unless you send it as a bearer token. The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform. |
+| `title` | string | required | `1–200 chars` | The notification title. notifi crops a longer title and adds a warning to the response. |
+| `message` | string | optional | `≤ 16,000 chars` | The notification body, in Markdown. notifi crops a longer body and adds a warning. |
+| `link` | string (uri) | optional | `≤ 2,048 chars` | A link to a website or internal app. Opens when you tap the notification. https always opens; another scheme (shortcuts://run-shortcut?name=Deploy, or an app’s own deep link) opens only when the key’s Open any link switch is on in the app, and the app hides the link otherwise. |
+| `image` | string (uri) | optional | `≤ 2,048 chars` | URL of an image shown with the notification. The receiving device fetches it; the server never does. By default the app loads it only when you tap it. |
+| `occurred_at` | integer | optional | `unix ms` | When the event happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request. |
+| `is_critical` | boolean | optional | none | Breaks through Focus. The key must also have urgent alerts switched on in the app, or notifi delivers an ordinary notification. |
 
 ## Response
 
@@ -110,10 +110,10 @@ Retry-After: 42
 HTTP/1.1 429 Too Many Requests
 Content-Type: application/json; charset=utf-8
 
-{"error":{"code":"uncollected_limit","message":"Not sent. This device has too many uncollected notifications. New ones are accepted once it collects."}}
+{"error":{"code":"uncollected_limit","message":"Not sent. Too many uncollected notifications. Open the app to collect them."}}
 ```
 
-A `warnings` array is present only when the notification was delivered differently from what was asked: a cropped title or body, or `is_critical` on a key without urgent alerts. The status is still `202`; the notification was sent, in the altered form each warning describes.
+The response carries a `warnings` array only when notifi delivered the notification differently from the request: a cropped title or body, or `is_critical` on a key without urgent alerts. The status stays `202`: notifi sent the notification, in the altered form each warning describes.
 
 ```http
 HTTP/1.1 202 Accepted
@@ -124,7 +124,7 @@ Content-Type: application/json; charset=utf-8
 
 ### Two devices in one request
 
-Join two keys with a comma to send to both, one per platform: an iPhone or iPad and a Mac. Each device is delivered to separately, with its own rate limit. The response then carries `sent`, how many devices received it, and `results`, one entry per key named by the prefix the Keys tab shows. The status is `202` if at least one device received the notification, otherwise the first error's. Two keys on the same platform answer `400 invalid_request`.
+Join two keys with a comma to send to both, one per platform: an iPhone or iPad and a Mac. notifi delivers to each device separately, with its own rate limit. The response then carries `sent`, how many devices received it, and `results`, one entry per key named by the prefix the Keys tab shows. The status is `202` if at least one device received the notification, otherwise the first error's. Two keys on the same platform get `400 invalid_request`.
 
 ```bash
 curl -X POST https://notifi.it/send \
@@ -139,17 +139,17 @@ Content-Type: application/json; charset=utf-8
 {"ok":true,"sent":1,"results":[{"key":"nk_abcd","ok":true},{"key":"nk_wxyz","ok":false,"error":{"code":"rate_limited","message":"Not sent. Daily limit of 25 notifications reached. Resets at midnight UTC."}}]}
 ```
 
-### Over-length text is cropped
+### notifi crops over-length text
 
-A title over 200 characters or a body over 16000 is cropped, with a warning. **Reject invalid sends**, in the app's Settings, answers `422 invalid_content` instead and stores nothing. It is off by default.
+notifi crops a title over 200 characters or a body over 16000 and adds a warning. With **Reject invalid sends** on in the app's Settings, the server answers `422 invalid_content` instead and stores nothing. The switch is off by default.
 
 ![The Settings screen, showing the Reject invalid sends switch turned off.](/shots/settings-reject-invalid-sends.png)
 
 _Settings → Permissions → Reject invalid sends. Off by default._
 
-### Urgent alerts are granted per key
+### Urgent alerts are per key
 
-`is_critical=1` asks for a Time Sensitive notification, which breaks through Focus. It works only if the key has **Urgent alerts** on, in the app. Otherwise the notification is delivered normally.
+`is_critical=1` asks for a Time Sensitive notification, which breaks through Focus. It works only if the key has **Urgent alerts** on, in the app. Otherwise notifi delivers an ordinary notification.
 
 ![A key's screen in the app, showing the Urgent alerts switch turned on.](/shots/key-urgent-alerts.png)
 
@@ -157,7 +157,7 @@ _Keys → a key → Urgent alerts. Per key._
 
 ### A link does not have to be https
 
-`link` accepts any URL scheme, so it can deep-link into another app. The app opens only `https` until **Open any link** is switched on for the key. Only the person holding the device can switch it on.
+`link` accepts any URL scheme, so it can deep-link into another app. The app opens only `https` until you switch on **Open any link** for the key, and only the person holding the device can do that.
 
 ![A key's screen in the app, showing the Open any link switch.](/shots/key-open-any-link.png)
 
@@ -165,31 +165,31 @@ _Keys → a key → Open any link. Off, only https opens._
 
 ## Errors
 
-Every error nests the code one level down: read `error.code`. The `message` is translated and meant for a human, so match on the code.
+Every error nests the code one level down: read `error.code`. The `message` is translated for a human reader, so match on the code.
 
 | Status | `error.code` | Meaning |
 | --- | --- | --- |
 | `400` | `invalid_request` | A parameter is missing or malformed. |
-| `401` | `unknown_key` | The key is unknown or has been revoked. |
+| `401` | `unknown_key` | The key is unknown or revoked. |
 | `422` | `invalid_content` | The device is set to refuse a notification it cannot deliver as written. |
 | `429` | `rate_limited` | Over the daily device limit or the per-minute IP limit. Carries a Retry-After header with the seconds until the window resets. |
-| `429` | `uncollected_limit` | The device has 500 uncollected notifications. No Retry-After: the limit clears when the device next collects, not with time. Open the app on the device. |
+| `429` | `uncollected_limit` | The device has 500 uncollected notifications. No Retry-After: the limit clears when the device next collects. Open the app on the device. |
 | `404` | `not_found` | No such path. |
-| `500` | `internal_error` | Something broke on our side. |
+| `500` | `internal_error` | The server hit an unexpected error. |
 
 ## Rate limits
 
 - 25 notifications a day per device, shared across every key on it. The count resets at midnight UTC.
 - 5 active send keys per device, one of which is the device key.
 - 100 requests a minute per IP, across every endpoint.
-- 500 uncollected notifications per device. Past that, sends are refused until the device collects.
-- Revoking a key takes effect on the next send. Reinstalling the app, or moving device, makes a new identity and every old key stops working. No migration.
+- 500 uncollected notifications per device. Past that, the server refuses sends until the device collects.
+- Revoking a key takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity, and the old keys stop working with no way to migrate them.
 
 A `429` carries `Retry-After` in seconds.
 
 ## Clients and import
 
-Generated from the same source as this page. Set `NOTIFI_KEY` and send.
+These come from the same source as this page. Set `NOTIFI_KEY` and send.
 
 ### Postman
 
@@ -236,18 +236,18 @@ openapi-generator-cli generate \
   -o ./notifi
 ```
 
-## For the bots
+## For agents and crawlers
 
-- [`/llms.txt`](https://notifi.it/llms.txt) — The full reference as plain text, written for coding agents.
-- [`/openapi.json`](https://notifi.it/openapi.json) — OpenAPI 3.1 for /send.
-- [`/notifi.postman_collection.json`](https://notifi.it/notifi.postman_collection.json) — Postman v2.1 collection. Bruno, Insomnia, Hoppscotch and Paw import it too.
-- [`/notifi.bru`](https://notifi.it/notifi.bru) — A Bruno request file, for dropping straight into a collection folder.
-- [`/sitemap.xml`](https://notifi.it/sitemap.xml) — Every page worth reading.
-- [`/docs.md`](https://notifi.it/docs.md) — This page as Markdown.
+- [`/llms.txt`](https://notifi.it/llms.txt): the full reference as plain text, written for coding agents.
+- [`/openapi.json`](https://notifi.it/openapi.json): OpenAPI 3.1 for /send.
+- [`/notifi.postman_collection.json`](https://notifi.it/notifi.postman_collection.json): Postman v2.1 collection. Bruno, Insomnia, Hoppscotch and Paw import it too.
+- [`/notifi.bru`](https://notifi.it/notifi.bru): a Bruno request file to drop into a collection folder.
+- [`/sitemap.xml`](https://notifi.it/sitemap.xml): a list of the site’s pages.
+- [`/docs.md`](https://notifi.it/docs.md): this page as Markdown.
 
-Every page is also served as Markdown: send `Accept: text/markdown`, or append `.md`.
+The site also serves every page as Markdown: send `Accept: text/markdown`, or append `.md`.
 
-No MCP server, no OAuth. One endpoint and a bearer token is the whole surface.
+One endpoint and a bearer token make up the whole surface. There is no MCP server and no OAuth.
 
 ## Recipes
 

@@ -177,7 +177,7 @@ const SECTIONS: Array<[string, string]> = [
   ['errors', 'Errors'],
   ['limits', 'Rate limits'],
   ['clients', 'Clients and import'],
-  ['machine', 'For the bots'],
+  ['machine', 'For agents and crawlers'],
   ['recipes', 'Recipes'],
 ];
 
@@ -188,7 +188,7 @@ function parameterRows(): string {
             <td><code>${p.name}</code></td>
             <td>${escape(p.type)}</td>
             <td>${required(p)}</td>
-            <td>${p.limit ? `<code>${escape(p.limit)}</code>` : '—'}</td>
+            <td>${p.limit ? `<code>${escape(p.limit)}</code>` : 'none'}</td>
             <td>${escape(p.detail ? `${p.summary} ${p.detail}` : p.summary)}</td>
           </tr>`,
     )
@@ -217,8 +217,8 @@ export function docsBody(): string {
   <p class="eyebrow">API reference</p>
   <h1>notifi API documentation</h1>
   <p class="lede">
-    One endpoint, seven parameters. This page, <a href="/openapi.json"><code>/openapi.json</code></a>
-    and the client collections are generated from one source, so they cannot disagree.
+    One endpoint, seven parameters. One source generates this page, <a href="/openapi.json"><code>/openapi.json</code></a>
+    and the client collections, so they cannot disagree.
   </p>
 
   <p class="meta actions screen-only">
@@ -297,31 +297,31 @@ ${parameterRows()}
     </p>
 ${terminalGroup('r-', 'Responses', RESPONSES)}
     <p>
-      A <code>warnings</code> array is present only when the notification was delivered
-      differently from what was asked: a cropped title or body, or <code>is_critical</code>
-      on a key without urgent alerts. The status is still <code>202</code>; the notification
-      was sent, in the altered form each warning describes.
+      The response carries a <code>warnings</code> array only when notifi delivered the
+      notification differently from the request: a cropped title or body, or <code>is_critical</code>
+      on a key without urgent alerts. The status stays <code>202</code>: notifi sent the
+      notification, in the altered form each warning describes.
     </p>
 ${pre(WARNINGS_RESPONSE, 'http')}
 
     <h3 id="two-devices">Two devices in one request</h3>
     <p>
       Join two keys with a comma to send to both, one per platform: an iPhone or iPad
-      and a Mac. Each device is delivered to separately, with its own rate limit. The
+      and a Mac. notifi delivers to each device separately, with its own rate limit. The
       response then carries <code>sent</code>, how many devices received it, and
       <code>results</code>, one entry per key named by the prefix the Keys tab shows.
       The status is <code>202</code> if at least one device received the notification,
-      otherwise the first error's. Two keys on the same platform answer
+      otherwise the first error's. Two keys on the same platform get
       <code>400 invalid_request</code>.
     </p>
 ${pre(TWO_KEYS_REQUEST, 'bash')}
 ${pre(TWO_KEYS_RESPONSE, 'http')}
 
-    <h3>Over-length text is cropped</h3>
+    <h3>notifi crops over-length text</h3>
     <p>
-      A title over ${TITLE_MAX} characters or a body over ${MESSAGE_MAX} is cropped, with a
-      warning. <strong>Reject invalid sends</strong>, in the app's Settings, answers
-      <code>422 invalid_content</code> instead and stores nothing. It is off by default.
+      notifi crops a title over ${TITLE_MAX} characters or a body over ${MESSAGE_MAX} and adds a
+      warning. With <strong>Reject invalid sends</strong> on in the app's Settings, the server answers
+      <code>422 invalid_content</code> instead and stores nothing. The switch is off by default.
     </p>
 ${figure(
   '/shots/settings-reject-invalid-sends.png',
@@ -329,11 +329,11 @@ ${figure(
   'Settings → Permissions → Reject invalid sends. Off by default.',
 )}
 
-    <h3 id="urgent-alerts">Urgent alerts are granted per key</h3>
+    <h3 id="urgent-alerts">Urgent alerts are per key</h3>
     <p>
       <code>is_critical=1</code> asks for a Time Sensitive notification, which breaks through
       Focus. It works only if the key has <strong>Urgent alerts</strong> on, in the app.
-      Otherwise the notification is delivered normally.
+      Otherwise notifi delivers an ordinary notification.
     </p>
 ${figure(
   '/shots/key-urgent-alerts.png',
@@ -344,8 +344,8 @@ ${figure(
     <h3 id="links">A link does not have to be https</h3>
     <p>
       <code>link</code> accepts any URL scheme, so it can deep-link into another app. The app
-      opens only <code>https</code> until <strong>Open any link</strong> is switched on for the
-      key. Only the person holding the device can switch it on.
+      opens only <code>https</code> until you switch on <strong>Open any link</strong> for the
+      key, and only the person holding the device can do that.
     </p>
 ${figure(
   '/shots/key-open-any-link.png',
@@ -358,7 +358,7 @@ ${figure(
     <h2>Errors</h2>
     <p>
       Every error nests the code one level down: read <code>error.code</code>. The
-      <code>message</code> is translated and meant for a human, so match on the code.
+      <code>message</code> is translated for a human reader, so match on the code.
     </p>
     <div class="tablewrap" tabindex="0" role="group" aria-label="Error codes">
       <table>
@@ -383,20 +383,20 @@ ${limits.map((l) => `      <li>${escape(l)}</li>`).join('\n')}
   <section id="clients">
     <h2>Clients and import</h2>
     <p>
-      Generated from the same source as this page. Set <code>NOTIFI_KEY</code> and send.
+      These come from the same source as this page. Set <code>NOTIFI_KEY</code> and send.
     </p>
 ${terminalGroup('c-', 'Clients', CLIENTS)}
   </section>
 
   <section id="machine">
-    <h2>For the bots</h2>
+    <h2>For agents and crawlers</h2>
     <ul>
 ${resources
-  .map((r) => `      <li><a href="${r.path}"><code>${r.path}</code></a> — ${escape(r.summary)}</li>`)
+  .map((r) => `      <li><a href="${r.path}"><code>${r.path}</code></a>: ${escape(r.summary)}</li>`)
   .join('\n')}
     </ul>
     <p>
-      Every page is also served as Markdown: send <code>Accept: text/markdown</code>, or
+      The site also serves every page as Markdown: send <code>Accept: text/markdown</code>, or
       append <code>.md</code>.
     </p>
     <p>${escape(INTEGRATION_SURFACE)}</p>

@@ -463,8 +463,8 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <p class="eyebrow">API reference</p>
   <h1>notifi API documentation</h1>
   <p class="lede">
-    One endpoint, seven parameters. This page, <a href="/openapi.json"><code>/openapi.json</code></a>
-    and the client collections are generated from one source, so they cannot disagree.
+    One endpoint, seven parameters. One source generates this page, <a href="/openapi.json"><code>/openapi.json</code></a>
+    and the client collections, so they cannot disagree.
   </p>
 
   <p class="meta actions screen-only">
@@ -481,7 +481,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     <a href="#errors">Errors</a>
     <a href="#limits">Rate limits</a>
     <a href="#clients">Clients and import</a>
-    <a href="#machine">For the bots</a>
+    <a href="#machine">For agents and crawlers</a>
     <a href="#recipes">Recipes</a></p>
   </div>
 
@@ -510,7 +510,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <tr>
             <td>Bearer token</td>
             <td><code>Authorization: Bearer nk_yourkey</code></td>
-            <td>The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history.</td>
+            <td>The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: edge logs and shell history do not record a header.</td>
           </tr>
           <tr>
             <td>Parameter</td>
@@ -554,49 +554,49 @@ Accept-Language: en-GB
             <td>string</td>
             <td>conditional</td>
             <td><code>nk_…</code></td>
-            <td>The send key, if it is not sent as a bearer token. Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform.</td>
+            <td>The send key, unless you send it as a bearer token. The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform.</td>
           </tr>
           <tr>
             <td><code>title</code></td>
             <td>string</td>
             <td>required</td>
             <td><code>1–200 chars</code></td>
-            <td>The notification title. A longer title is delivered cropped, with a warning in the response.</td>
+            <td>The notification title. notifi crops a longer title and adds a warning to the response.</td>
           </tr>
           <tr>
             <td><code>message</code></td>
             <td>string</td>
             <td>optional</td>
             <td><code>≤ 16,000 chars</code></td>
-            <td>The notification body, in Markdown. A longer body is delivered cropped, with a warning.</td>
+            <td>The notification body, in Markdown. notifi crops a longer body and adds a warning.</td>
           </tr>
           <tr>
             <td><code>link</code></td>
             <td>string (uri)</td>
             <td>optional</td>
             <td><code>≤ 2,048 chars</code></td>
-            <td>A link to a website or internal app. Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.</td>
+            <td>A link to a website or internal app. Opens when you tap the notification. https always opens; another scheme (shortcuts://run-shortcut?name=Deploy, or an app’s own deep link) opens only when the key’s Open any link switch is on in the app, and the app hides the link otherwise.</td>
           </tr>
           <tr>
             <td><code>image</code></td>
             <td>string (uri)</td>
             <td>optional</td>
             <td><code>≤ 2,048 chars</code></td>
-            <td>URL of an image shown with the notification. Fetched by the receiving device, never by the server; by default the app loads it only when tapped.</td>
+            <td>URL of an image shown with the notification. The receiving device fetches it; the server never does. By default the app loads it only when you tap it.</td>
           </tr>
           <tr>
             <td><code>occurred_at</code></td>
             <td>integer</td>
             <td>optional</td>
             <td><code>unix ms</code></td>
-            <td>When the event actually happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request.</td>
+            <td>When the event happened, as unix milliseconds. For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request.</td>
           </tr>
           <tr>
             <td><code>is_critical</code></td>
             <td>boolean</td>
             <td>optional</td>
-            <td>—</td>
-            <td>Breaks through Focus. The key must also have urgent alerts switched on in the app, or an ordinary notification is delivered.</td>
+            <td>none</td>
+            <td>Breaks through Focus. The key must also have urgent alerts switched on in the app, or notifi delivers an ordinary notification.</td>
           </tr>
         </tbody>
       </table>
@@ -659,14 +659,14 @@ Retry-After<span class="f">:</span> <span class="s">42</span>
 <pre><span class="f">HTTP</span>/<span class="n">1.1</span> <span class="n">429</span> <span class="s">Too Many Requests</span>
 Content-Type<span class="f">:</span> <span class="s">application/json; charset=utf-8</span>
 
-{<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;uncollected_limit&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Not sent. This device has too many uncollected notifications. New ones are accepted once it collects.&quot;</span>}}</pre>
+{<span class="s">&quot;error&quot;</span>:{<span class="s">&quot;code&quot;</span>:<span class="s">&quot;uncollected_limit&quot;</span>,<span class="s">&quot;message&quot;</span>:<span class="s">&quot;Not sent. Too many uncollected notifications. Open the app to collect them.&quot;</span>}}</pre>
       </div>
     </div>
     <p>
-      A <code>warnings</code> array is present only when the notification was delivered
-      differently from what was asked: a cropped title or body, or <code>is_critical</code>
-      on a key without urgent alerts. The status is still <code>202</code>; the notification
-      was sent, in the altered form each warning describes.
+      The response carries a <code>warnings</code> array only when notifi delivered the
+      notification differently from the request: a cropped title or body, or <code>is_critical</code>
+      on a key without urgent alerts. The status stays <code>202</code>: notifi sent the
+      notification, in the altered form each warning describes.
     </p>
 <pre data-lang="http">HTTP/1.1 202 Accepted
 Content-Type: application/json; charset=utf-8
@@ -676,11 +676,11 @@ Content-Type: application/json; charset=utf-8
     <h3 id="two-devices">Two devices in one request</h3>
     <p>
       Join two keys with a comma to send to both, one per platform: an iPhone or iPad
-      and a Mac. Each device is delivered to separately, with its own rate limit. The
+      and a Mac. notifi delivers to each device separately, with its own rate limit. The
       response then carries <code>sent</code>, how many devices received it, and
       <code>results</code>, one entry per key named by the prefix the Keys tab shows.
       The status is <code>202</code> if at least one device received the notification,
-      otherwise the first error's. Two keys on the same platform answer
+      otherwise the first error's. Two keys on the same platform get
       <code>400 invalid_request</code>.
     </p>
 <pre data-lang="bash">curl -X POST https://notifi.it/send \
@@ -691,22 +691,22 @@ Content-Type: application/json; charset=utf-8
 
 {&quot;ok&quot;:true,&quot;sent&quot;:1,&quot;results&quot;:[{&quot;key&quot;:&quot;nk_abcd&quot;,&quot;ok&quot;:true},{&quot;key&quot;:&quot;nk_wxyz&quot;,&quot;ok&quot;:false,&quot;error&quot;:{&quot;code&quot;:&quot;rate_limited&quot;,&quot;message&quot;:&quot;Not sent. Daily limit of 25 notifications reached. Resets at midnight UTC.&quot;}}]}</pre>
 
-    <h3>Over-length text is cropped</h3>
+    <h3>notifi crops over-length text</h3>
     <p>
-      A title over 200 characters or a body over 16000 is cropped, with a
-      warning. <strong>Reject invalid sends</strong>, in the app's Settings, answers
-      <code>422 invalid_content</code> instead and stores nothing. It is off by default.
+      notifi crops a title over 200 characters or a body over 16000 and adds a
+      warning. With <strong>Reject invalid sends</strong> on in the app's Settings, the server answers
+      <code>422 invalid_content</code> instead and stores nothing. The switch is off by default.
     </p>
     <figure>
       <img src="/shots/settings-reject-invalid-sends.png" width="603" height="320" alt="The Settings screen, showing the Reject invalid sends switch turned off.">
       <figcaption>Settings → Permissions → Reject invalid sends. Off by default.</figcaption>
     </figure>
 
-    <h3 id="urgent-alerts">Urgent alerts are granted per key</h3>
+    <h3 id="urgent-alerts">Urgent alerts are per key</h3>
     <p>
       <code>is_critical=1</code> asks for a Time Sensitive notification, which breaks through
       Focus. It works only if the key has <strong>Urgent alerts</strong> on, in the app.
-      Otherwise the notification is delivered normally.
+      Otherwise notifi delivers an ordinary notification.
     </p>
     <figure>
       <img src="/shots/key-urgent-alerts.png" width="603" height="744" alt="A key's screen in the app, showing the Urgent alerts switch turned on.">
@@ -716,8 +716,8 @@ Content-Type: application/json; charset=utf-8
     <h3 id="links">A link does not have to be https</h3>
     <p>
       <code>link</code> accepts any URL scheme, so it can deep-link into another app. The app
-      opens only <code>https</code> until <strong>Open any link</strong> is switched on for the
-      key. Only the person holding the device can switch it on.
+      opens only <code>https</code> until you switch on <strong>Open any link</strong> for the
+      key, and only the person holding the device can do that.
     </p>
     <figure>
       <img src="/shots/key-open-any-link.png" width="603" height="145" alt="A key's screen in the app, showing the Open any link switch.">
@@ -729,7 +729,7 @@ Content-Type: application/json; charset=utf-8
     <h2>Errors</h2>
     <p>
       Every error nests the code one level down: read <code>error.code</code>. The
-      <code>message</code> is translated and meant for a human, so match on the code.
+      <code>message</code> is translated for a human reader, so match on the code.
     </p>
     <div class="tablewrap" tabindex="0" role="group" aria-label="Error codes">
       <table>
@@ -743,7 +743,7 @@ Content-Type: application/json; charset=utf-8
           <tr>
             <td><code>401</code></td>
             <td><code>unknown_key</code></td>
-            <td>The key is unknown or has been revoked.</td>
+            <td>The key is unknown or revoked.</td>
           </tr>
           <tr>
             <td><code>422</code></td>
@@ -758,7 +758,7 @@ Content-Type: application/json; charset=utf-8
           <tr>
             <td><code>429</code></td>
             <td><code>uncollected_limit</code></td>
-            <td>The device has 500 uncollected notifications. No Retry-After: the limit clears when the device next collects, not with time. Open the app on the device.</td>
+            <td>The device has 500 uncollected notifications. No Retry-After: the limit clears when the device next collects. Open the app on the device.</td>
           </tr>
           <tr>
             <td><code>404</code></td>
@@ -768,7 +768,7 @@ Content-Type: application/json; charset=utf-8
           <tr>
             <td><code>500</code></td>
             <td><code>internal_error</code></td>
-            <td>Something broke on our side.</td>
+            <td>The server hit an unexpected error.</td>
           </tr>
         </tbody>
       </table>
@@ -781,8 +781,8 @@ Content-Type: application/json; charset=utf-8
       <li>25 notifications a day per device, shared across every key on it. The count resets at midnight UTC.</li>
       <li>5 active send keys per device, one of which is the device key.</li>
       <li>100 requests a minute per IP, across every endpoint.</li>
-      <li>500 uncollected notifications per device. Past that, sends are refused until the device collects.</li>
-      <li>Revoking a key takes effect on the next send. Reinstalling the app, or moving device, makes a new identity and every old key stops working. No migration.</li>
+      <li>500 uncollected notifications per device. Past that, the server refuses sends until the device collects.</li>
+      <li>Revoking a key takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity, and the old keys stop working with no way to migrate them.</li>
     </ul>
     <p>
       A <code>429</code> carries <code>Retry-After</code> in seconds.
@@ -792,7 +792,7 @@ Content-Type: application/json; charset=utf-8
   <section id="clients">
     <h2>Clients and import</h2>
     <p>
-      Generated from the same source as this page. Set <code>NOTIFI_KEY</code> and send.
+      These come from the same source as this page. Set <code>NOTIFI_KEY</code> and send.
     </p>
     <div class="tabs" role="tablist" aria-label="Clients">
       <button class="tab" role="tab" aria-selected="true" aria-controls="c-p-postman" id="c-t-postman"><svg class="tab-i" viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" fill="currentColor"><path d="M13.527.099C6.955-.744.942 3.9.099 10.473c-.843 6.572 3.8 12.584 10.373 13.428 6.573.843 12.587-3.801 13.428-10.374C24.744 6.955 20.101.943 13.527.099zm2.471 7.485a.855.855 0 0 0-.593.25l-4.453 4.453-.307-.307-.643-.643c4.389-4.376 5.18-4.418 5.996-3.753zm-4.863 4.861l4.44-4.44a.62.62 0 1 1 .847.903l-4.699 4.125-.588-.588zm.33.694l-1.1.238a.06.06 0 0 1-.067-.032.06.06 0 0 1 .01-.073l.645-.645.512.512zm-2.803-.459l1.172-1.172.879.878-1.979.426a.074.074 0 0 1-.085-.039.072.072 0 0 1 .013-.093zm-3.646 6.058a.076.076 0 0 1-.069-.083.077.077 0 0 1 .022-.046h.002l.946-.946 1.222 1.222-2.123-.147zm2.425-1.256a.228.228 0 0 0-.117.256l.203.865a.125.125 0 0 1-.211.117h-.003l-.934-.934-.294-.295 3.762-3.758 1.82-.393.874.874c-1.255 1.102-2.971 2.201-5.1 3.268zm5.279-3.428h-.002l-.839-.839 4.699-4.125a.952.952 0 0 0 .119-.127c-.148 1.345-2.029 3.245-3.977 5.091zm3.657-6.46l-.003-.002a1.822 1.822 0 0 1 2.459-2.684l-1.61 1.613a.119.119 0 0 0 0 .169l1.247 1.247a1.817 1.817 0 0 1-2.093-.343zm2.578 0a1.714 1.714 0 0 1-.271.218h-.001l-1.207-1.207 1.533-1.533c.661.72.637 1.832-.054 2.522zM18.855 6.05a.143.143 0 0 0-.053.157.416.416 0 0 1-.053.45.14.14 0 0 0 .023.197.141.141 0 0 0 .084.03.14.14 0 0 0 .106-.05.691.691 0 0 0 .087-.751.138.138 0 0 0-.194-.033z"/></svg><span>Postman</span></button>
@@ -842,20 +842,20 @@ Content-Type: application/json; charset=utf-8
   </section>
 
   <section id="machine">
-    <h2>For the bots</h2>
+    <h2>For agents and crawlers</h2>
     <ul>
-      <li><a href="/llms.txt"><code>/llms.txt</code></a> — The full reference as plain text, written for coding agents.</li>
-      <li><a href="/openapi.json"><code>/openapi.json</code></a> — OpenAPI 3.1 for /send.</li>
-      <li><a href="/notifi.postman_collection.json"><code>/notifi.postman_collection.json</code></a> — Postman v2.1 collection. Bruno, Insomnia, Hoppscotch and Paw import it too.</li>
-      <li><a href="/notifi.bru"><code>/notifi.bru</code></a> — A Bruno request file, for dropping straight into a collection folder.</li>
-      <li><a href="/sitemap.xml"><code>/sitemap.xml</code></a> — Every page worth reading.</li>
-      <li><a href="/docs.md"><code>/docs.md</code></a> — This page as Markdown.</li>
+      <li><a href="/llms.txt"><code>/llms.txt</code></a>: the full reference as plain text, written for coding agents.</li>
+      <li><a href="/openapi.json"><code>/openapi.json</code></a>: OpenAPI 3.1 for /send.</li>
+      <li><a href="/notifi.postman_collection.json"><code>/notifi.postman_collection.json</code></a>: Postman v2.1 collection. Bruno, Insomnia, Hoppscotch and Paw import it too.</li>
+      <li><a href="/notifi.bru"><code>/notifi.bru</code></a>: a Bruno request file to drop into a collection folder.</li>
+      <li><a href="/sitemap.xml"><code>/sitemap.xml</code></a>: a list of the site’s pages.</li>
+      <li><a href="/docs.md"><code>/docs.md</code></a>: this page as Markdown.</li>
     </ul>
     <p>
-      Every page is also served as Markdown: send <code>Accept: text/markdown</code>, or
+      The site also serves every page as Markdown: send <code>Accept: text/markdown</code>, or
       append <code>.md</code>.
     </p>
-    <p>No MCP server, no OAuth. One endpoint and a bearer token is the whole surface.</p>
+    <p>One endpoint and a bearer token make up the whole surface. There is no MCP server and no OAuth.</p>
   </section>
 
   <section id="recipes">

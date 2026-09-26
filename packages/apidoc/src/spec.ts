@@ -58,9 +58,9 @@ export const SUMMARY =
   'Push notifications to an iPhone, iPad or Mac from one HTTP request.';
 
 export const DESCRIPTION = [
-  'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account. Install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before it is stored, so neither notifi nor Apple can read your notifications.',
-  'Send keys are minted on the device by a request signed with a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.',
-  'When to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It is not a way to reach anyone who has not given you one of their own keys, and delivery is best-effort, so it should not be the only path for anything where a missed notification causes harm.',
+  'notifi delivers a push notification to the device that created the send key you authenticate with. There is no account. Install the app, copy the send key it makes on first launch, and post a title and a body to notifi.it. Notification content is encrypted with the device’s public key before the server stores it, so neither notifi nor Apple can read your notifications.',
+  'Only the device can mint a send key, with a request signed by a private key that never leaves it. There is no endpoint that creates one, so an agent has to ask a human to copy the key out of the app’s Keys tab.',
+  'When to use it: a build, backup or training run that finished or failed; a CI job or deploy that broke; a coding agent that is done or is blocked on a decision; a cron job or home server that noticed something. It cannot reach anyone who has not given you one of their own keys, and delivery is best-effort, so do not make it the only path for anything where a missed notification causes harm.',
   'Use of the API is use of the service, and the terms at notifi.it/terms apply to it.',
 ].join('\n\n');
 
@@ -69,7 +69,7 @@ export const AUTH = {
   summary:
     'Use a bearer token. A key parameter works too, but ends up in server logs. Use it for a quick test only, then rotate the key.',
   bearerDescription:
-    'The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: a header is not written to edge logs or shell history.',
+    'The send key from the app’s Keys tab, as Authorization: Bearer nk_yourkey. Preferred: edge logs and shell history do not record a header.',
   parameterDescription:
     'The send key as a parameter. It appears in edge logs, in shell history and in any proxy in between, which makes it the weaker option. Use it only for a quick test, and rotate the key afterwards.',
 };
@@ -80,9 +80,9 @@ export const params: Param[] = [
     type: 'string',
     required: true,
     limit: 'nk_…',
-    summary: 'The send key, if it is not sent as a bearer token.',
+    summary: 'The send key, unless you send it as a bearer token.',
     detail:
-      'Required unless sent as a bearer token. The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform.',
+      'The key picks the device that receives the notification. Two keys, comma-separated, send to two devices in one request, one per platform.',
     openapi: { pattern: '^nk_' },
     example: 'nk_yourkey',
   },
@@ -92,7 +92,7 @@ export const params: Param[] = [
     required: true,
     limit: '1–200 chars',
     summary: 'The notification title.',
-    detail: 'A longer title is delivered cropped, with a warning in the response.',
+    detail: 'notifi crops a longer title and adds a warning to the response.',
     openapi: {},
     example: 'Hello from notifi',
   },
@@ -102,7 +102,7 @@ export const params: Param[] = [
     required: false,
     limit: '≤ 16,000 chars',
     summary: 'The notification body, in Markdown.',
-    detail: 'A longer body is delivered cropped, with a warning.',
+    detail: 'notifi crops a longer body and adds a warning.',
     openapi: {},
     example: 'Your first notification.',
   },
@@ -113,7 +113,7 @@ export const params: Param[] = [
     limit: '≤ 2,048 chars',
     summary: 'A link to a website or internal app.',
     detail:
-      'Opened when the notification is tapped. https always opens; another scheme — shortcuts://run-shortcut?name=Deploy, an app’s own deep link — opens only when the key’s Open any link switch is on in the app; off, the link is hidden.',
+      'Opens when you tap the notification. https always opens; another scheme (shortcuts://run-shortcut?name=Deploy, or an app’s own deep link) opens only when the key’s Open any link switch is on in the app, and the app hides the link otherwise.',
     openapi: {},
     example: 'https://notifi.it/docs',
   },
@@ -124,7 +124,7 @@ export const params: Param[] = [
     limit: '≤ 2,048 chars',
     summary: 'URL of an image shown with the notification.',
     detail:
-      'Fetched by the receiving device, never by the server; by default the app loads it only when tapped.',
+      'The receiving device fetches it; the server never does. By default the app loads it only when you tap it.',
     openapi: { format: 'uri' },
     example: 'https://notifi.it/anaglyph-bell.png',
   },
@@ -133,7 +133,7 @@ export const params: Param[] = [
     type: 'integer',
     required: false,
     limit: 'unix ms',
-    summary: 'When the event actually happened, as unix milliseconds.',
+    summary: 'When the event happened, as unix milliseconds.',
     detail:
       'For a queued or retried send. Only changes the timestamp shown in the app; defaults to the time the server accepted the request.',
     openapi: { format: 'int64' },
@@ -144,7 +144,7 @@ export const params: Param[] = [
     required: false,
     summary: 'Breaks through Focus.',
     detail:
-      'The key must also have urgent alerts switched on in the app, or an ordinary notification is delivered.',
+      'The key must also have urgent alerts switched on in the app, or notifi delivers an ordinary notification.',
     openapi: {},
   },
 ];
@@ -163,7 +163,7 @@ export const errors: ErrorRow[] = [
     status: 401,
     reason: 'Unauthorized',
     message: 'Unknown or revoked key.',
-    summary: 'The key is unknown or has been revoked.',
+    summary: 'The key is unknown or revoked.',
     detail: '',
   },
   {
@@ -186,17 +186,17 @@ export const errors: ErrorRow[] = [
     code: 'uncollected_limit',
     status: 429,
     reason: 'Too Many Requests',
-    message: 'Not sent. This device has too many uncollected notifications. New ones are accepted once it collects.',
+    message: 'Not sent. Too many uncollected notifications. Open the app to collect them.',
     summary: `The device has ${UNCOLLECTED_MAX} uncollected notifications.`,
-    detail: 'No Retry-After: the limit clears when the device next collects, not with time. Open the app on the device.',
+    detail: 'No Retry-After: the limit clears when the device next collects. Open the app on the device.',
   },
-  { code: 'not_found', status: 404, reason: 'Not Found', message: 'No such path.', summary: 'No such path.', detail: '' },
+  { code: 'not_found', status: 404, reason: 'Not Found', message: 'Not found.', summary: 'No such path.', detail: '' },
   {
     code: 'internal_error',
     status: 500,
     reason: 'Internal Server Error',
-    message: 'Something went wrong.',
-    summary: 'Something broke on our side.',
+    message: 'Unexpected error.',
+    summary: 'The server hit an unexpected error.',
     detail: '',
   },
 ];
@@ -205,20 +205,20 @@ export const limits: string[] = [
   `${DAILY_SEND_MAX} notifications a day per device, shared across every key on it. The count resets at midnight UTC.`,
   `${KEYS_PER_DEVICE} active send keys per device, one of which is the device key.`,
   `${REQUESTS_PER_MINUTE} requests a minute per IP, across every endpoint.`,
-  `${UNCOLLECTED_MAX} uncollected notifications per device. Past that, sends are refused until the device collects.`,
-  'Revoking a key takes effect on the next send. Reinstalling the app, or moving device, makes a new identity and every old key stops working. No migration.',
+  `${UNCOLLECTED_MAX} uncollected notifications per device. Past that, the server refuses sends until the device collects.`,
+  'Revoking a key takes effect on the next send. Reinstalling the app, or moving to a new device, makes a new identity, and the old keys stop working with no way to migrate them.',
 ];
 
 export const OPERATION_ERRORS = ['invalid_request', 'unknown_key', 'invalid_content', 'rate_limited', 'uncollected_limit'];
 
 export const INTEGRATION_SURFACE =
-  'No MCP server, no OAuth. One endpoint and a bearer token is the whole surface.';
+  'One endpoint and a bearer token make up the whole surface. There is no MCP server and no OAuth.';
 
 export const resources: Resource[] = [
-  { path: '/llms.txt', summary: 'The full reference as plain text, written for coding agents.' },
+  { path: '/llms.txt', summary: 'the full reference as plain text, written for coding agents.' },
   { path: '/openapi.json', summary: 'OpenAPI 3.1 for /send.' },
   { path: '/notifi.postman_collection.json', summary: 'Postman v2.1 collection. Bruno, Insomnia, Hoppscotch and Paw import it too.' },
-  { path: '/notifi.bru', summary: 'A Bruno request file, for dropping straight into a collection folder.' },
-  { path: '/sitemap.xml', summary: 'Every page worth reading.' },
-  { path: '/docs.md', summary: 'This page as Markdown.' },
+  { path: '/notifi.bru', summary: 'a Bruno request file to drop into a collection folder.' },
+  { path: '/sitemap.xml', summary: 'a list of the site’s pages.' },
+  { path: '/docs.md', summary: 'this page as Markdown.' },
 ];

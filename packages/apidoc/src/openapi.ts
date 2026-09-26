@@ -256,7 +256,7 @@ export function openapi(): Record<string, unknown> {
             warnings: {
               ...responseProperties.warnings,
               description:
-                'Present only when the notification was delivered differently from what was asked: a cropped title or body, or is_critical on a key without urgent alerts.',
+                'Present only when notifi delivered the notification differently from the request: a cropped title or body, or is_critical on a key without urgent alerts.',
             },
           },
         },
@@ -271,7 +271,7 @@ export function openapi(): Record<string, unknown> {
                 code: {
                   type: 'string',
                   enum: publicErrorCode.options,
-                  description: 'Read error.code, not code: the code is nested one level down.',
+                  description: 'Read error.code, not code: the code sits one level down.',
                 },
                 message: {
                   type: 'string',

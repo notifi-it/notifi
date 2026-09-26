@@ -4,14 +4,13 @@
 > notifi.it. No account. Notification content is encrypted with the
 > device's public key, so neither we nor Apple can read your notifications.
 
-Bigger products link out from here to a documentation site. notifi has one
-endpoint and seven parameters, so the whole thing is inlined below and this is
-the only file you need to read. Links to the human pages are at the end.
+notifi has one endpoint and seven parameters, so this file holds the whole
+reference. Links to the human pages are at the end.
 
 ## When to use notifi
 
 Reach for notifi when something you are running needs to interrupt a person who
-is not watching the terminal it runs in. It is a pager for machines you control.
+is not watching the terminal it runs in. It is a pager for your own systems.
 It works only with a key its owner handed you.
 
 Good fits:
@@ -25,7 +24,7 @@ Good fits:
 - A monitoring script noticed something: a disk filling, a certificate expiring,
   a service that stopped answering, a scraper whose selector went stale.
 - A long-running agent session wants a checkpoint on a phone rather than a line
-  in a log nobody reads.
+  in a log.
 
 How to call it: one `POST` to `https://notifi.it/send` with an
 `Authorization: Bearer nk_...` header, `title` required and `message`, `link`,
@@ -38,9 +37,9 @@ How to call it: one `POST` to `https://notifi.it/send` with an
 You can install the app, take a key from a human, send notifications, and wire
 notifi into any script, hook, CI job or unit.
 
-You cannot create a send key. Keys are minted only by a request signed with a
-private key that never leaves the device, so there is no endpoint for it and no
-credential that would let you call one. Do not go looking. Ask the human, using
+You cannot create a send key. Only the device can mint one, with a request
+signed by a private key that never leaves it, so there is no endpoint for it and
+no credential that would let you call one. Do not go looking. Ask the human, using
 the wording under "Getting the key".
 
 ## Install on macOS
@@ -60,18 +59,19 @@ hdiutil detach /Volumes/notifi -quiet
 open -a notifi
 ```
 
-macOS 14 or later, Apple silicon or T2. The app lives in the menu bar and
-updates itself. It is not on the Mac App Store.
+macOS 14 or later, Apple silicon or T2. The app runs in the menu bar and
+updates itself. The Mac App Store also carries it, but installing from there
+needs the human.
 
 ## Install on iPhone and iPad
 
-<https://apps.apple.com/app/id1563961135> — iOS 17 or later. There is nothing
-here you can do from a shell. Give the human the link.
+<https://apps.apple.com/app/id1563961135>, iOS 17 or later. You cannot install
+it from a shell, so give the human the link.
 
 ## Getting the key
 
 The app makes a key named "Device" the first time it launches and keeps it on
-the device, so it can be copied again whenever it is needed. There is no
+the device, so the human can copy it again whenever you need it. There is no
 create-a-key step to walk anyone through.
 
 Two things need a human at the device. Ask for both at once:
@@ -81,8 +81,8 @@ Two things need a human at the device. Ask for both at once:
 >   2. Open the Keys tab, pick "Device", press "Copy key".
 > Then paste the key here. It starts with nk_.
 
-Prefer that Device key. A key someone creates by hand is shown once, at
-creation, and is never recoverable — if it is lost, the only fix is a new key.
+Prefer that Device key. The app shows a key someone creates by hand once, at
+creation, and no one can recover it: if they lose it, the only fix is a new key.
 
 Put the key in the environment, not in a file that gets committed:
 
@@ -116,9 +116,9 @@ quick test and rotate the key afterwards.
 | `title` | Required. 1 to 200 characters. |
 | `message` | Up to 16,000 characters, Markdown. |
 | `link` | URL, up to 2,048 characters. A link to a website or internal app. |
-| `image` | URL of an image shown with the notification, up to 2,048 characters. Fetched by the receiving device, never by the server. |
+| `image` | URL of an image shown with the notification, up to 2,048 characters. The receiving device fetches it; the server never does. |
 | `occurred_at` | Unix milliseconds. Changes the timestamp shown in the app; defaults to when the server receives the request. |
-| `is_critical` | Breaks through Focus. The key must also have urgent alerts switched on in the app, or an ordinary notification is delivered. |
+| `is_critical` | Breaks through Focus. The key must also have urgent alerts switched on in the app, or notifi delivers an ordinary notification. |
 
 `202` with `{"ok":true}` on success. Two keys joined by a comma, one per
 platform (an iPhone or iPad and a Mac), send to both devices in one request;
@@ -131,8 +131,9 @@ error nests the code one level down, so read `error.code` and not `code`:
 ```
 
 The codes are `invalid_request` (400), `unknown_key` (401), `invalid_content`
-(422, the device refuses sends that would arrive with a warning) and
-`rate_limited` (429, which carries `Retry-After`).
+(422, the device refuses sends that would arrive with a warning),
+`rate_limited` (429, which carries `Retry-After`) and `uncollected_limit` (429,
+which clears when the device next collects).
 
 25 notifications a day per device, shared across every key on it, reset at
 midnight UTC. Five active keys per device. Delivery is not guaranteed, so do not
@@ -156,9 +157,9 @@ Get paged when a run ends. In `.claude/settings.json`:
 ```
 
 Use the `Notification` hook instead to be paged when Claude is waiting on a
-decision rather than when it stops. `NOTIFI_KEY` has to be set in the
-environment the hook runs in. A key exported in the shell you are sitting in is
-gone by the next run, so put it in the profile that shell reads:
+decision rather than when it stops. The hook's environment needs `NOTIFI_KEY`.
+A key exported in the shell you are sitting in is gone by the next run, so put
+it in the profile that shell reads:
 
 ```bash
 echo 'export NOTIFI_KEY=nk_...' >> ~/.zshrc
@@ -183,10 +184,11 @@ Put the key in the repository's secrets, then:
 
 ## Keys
 
-One key per script, so a leak costs one script rather than all of them. Each key
-delivers only to the device that made it, so which key a script holds decides
-where its notifications go; give a script two keys to reach a phone and a Mac.
-Revoking is done in the app and takes effect on the next send.
+Give each script its own key, so a leak costs one script rather than all of
+them. Each key delivers only to the device that made it, so a script reaches
+whichever device its key came from; give a script two keys to reach a phone and
+a Mac. You revoke a key in the app, and the revocation takes effect on the next
+send.
 
 Reinstalling the app, or moving to a new device, makes a new identity and every
 old key stops working. There is no migration.
@@ -203,18 +205,19 @@ old key stops working. There is no migration.
   variable and send.
 - [Bruno request](https://notifi.it/notifi.bru): a single `.bru` file to drop
   into a collection folder.
-- Every page of this site is also served as Markdown. Send
-  `Accept: text/markdown` to any page URL, or append `.md` to its path —
-  `https://notifi.it/docs.md`, `https://notifi.it/faq.md`. Responses carry
-  `Vary: Accept`.
+- The site also serves every page as Markdown. Send `Accept: text/markdown`
+  to any page URL, or append `.md` to its path: `https://notifi.it/docs.md`,
+  `https://notifi.it/faq.md`. Responses carry `Vary: Accept`.
 - [Sitemap](https://notifi.it/sitemap.xml) and [robots.txt](https://notifi.it/robots.txt).
-- No MCP server, no OAuth. One endpoint and a bearer token is the whole surface.
+- One endpoint and a bearer token make up the whole surface. There is no MCP
+  server and no OAuth.
 
 ## Links
 
-- [Product page](https://notifi.it/): the same API, plus samples in 13 languages.
+- [Product page](https://notifi.it/): the same API, with code samples.
 - [FAQ](https://notifi.it/faq): limits, encryption, reliability, deleting the app.
-- Email: hello@notifi.it. Bugs and security disclosure: the GitHub issues above.
+- Email: hello@notifi.it. Report bugs in [GitHub issues](https://github.com/notifi-it/notifi/issues)
+  and security problems by email, never in a public issue.
 - [Privacy policy](https://notifi.it/privacy)
 - [Terms](https://notifi.it/terms)
 - [Source](https://github.com/notifi-it/notifi): the app, the API and the crypto.
