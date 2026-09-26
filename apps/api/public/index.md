@@ -16,7 +16,7 @@ not watching a terminal:
 - A long build, backup, migration or training run has finished, or failed.
 - A CI job or deploy broke and someone should look now rather than at standup.
 - A coding agent has finished a task, or is blocked waiting on a decision.
-- A cron job, home server or monitoring script noticed something — a disk
+- A cron job, home server or monitoring script noticed something: a disk
   filling, a certificate expiring, a service that stopped answering.
 - A webhook you already receive should reach a phone as well as a log.
 
@@ -52,13 +52,13 @@ One endpoint: `GET` or `POST https://notifi.it/send`, JSON or form-encoded.
 Authenticate with `Authorization: Bearer nk_yourkey`, or pass `key` as a
 parameter.
 
-- `key` — required unless sent as a bearer token. Picks the device that gets the notification.
-- `title` — required, 1 to 200 characters.
-- `message` — the body, Markdown, up to 16,000 characters.
-- `link` — a link to a website or internal app, up to 2,048 characters.
-- `image` — URL of an image shown with the notification, up to 2,048 characters.
-- `occurred_at` — unix milliseconds; changes the timestamp shown in the app.
-- `is_critical` — breaks through Focus, if the key allows it.
+- `key`: required unless you send it as a bearer token. Picks the device that gets the notification.
+- `title`: required, 1 to 200 characters.
+- `message`: the body, Markdown, up to 16,000 characters.
+- `link`: a link to a website or internal app, up to 2,048 characters.
+- `image`: URL of an image shown with the notification, up to 2,048 characters.
+- `occurred_at`: unix milliseconds; changes the timestamp shown in the app.
+- `is_critical`: breaks through Focus, if the key allows it.
 
 The full reference is at [notifi.it/docs](https://notifi.it/docs), machine-readable
 at [notifi.it/openapi.json](https://notifi.it/openapi.json).
@@ -75,8 +75,8 @@ at [notifi.it/openapi.json](https://notifi.it/openapi.json).
 
 ## What it costs
 
-Nothing. The service is free, there is no paid tier, and there is nothing to
-sign up for. The app, the API and the cryptography are open source at
+Nothing. There is no paid tier and nothing to sign up for. The app, the API and
+the cryptography are open source at
 [github.com/notifi-it/notifi](https://github.com/notifi-it/notifi).
 
 ---

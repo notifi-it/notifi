@@ -256,11 +256,11 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>The basics</h2>
     <h3>What is notifi?</h3>
-    <p>A push-notification relay. One HTTP request to notifi.it and it’s on your iPhone or Mac. Nothing to install on the sending side, nothing to sign up for.</p>
+    <p>A push-notification relay. Send one HTTP request to notifi.it and a notification arrives on your iPhone or Mac. The sending side needs no install and no signup.</p>
     <h3>What does it cost?</h3>
     <p>Nothing. There is no paid tier.</p>
     <h3>Do I need an account?</h3>
-    <p>No. The app makes a keypair on first launch. That is your identity. No signup required.</p>
+    <p>No. The app makes a keypair on first launch, and that keypair is your identity.</p>
     <h3>How do I send something?</h3>
     <p>One request, <code>GET</code> or <code>POST</code>, JSON or form-encoded:</p>
     <div class="card">
@@ -271,40 +271,40 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
       &nbsp;&nbsp;-d "link=https://notifi.it/docs" \<br>
       &nbsp;&nbsp;-d "image=https://notifi.it/anaglyph-bell.png"</code></p>
     </div>
-    <p>A successful send answers <code>202</code> with <code>{"ok":true}</code>. The key can also be passed as a <code>key</code> parameter, though the <a href="/faq#logs">note on query strings</a> below applies if you do.</p>
+    <p>A successful send answers <code>202</code> with <code>{"ok":true}</code>. You can also pass the key as a <code>key</code> parameter, but a query string ends up in server logs.</p>
   </section>
 
   <section>
     <h2>Limits</h2>
     <h3>How much can I send?</h3>
     <ul>
-      <li><strong>25 notifications a day per device</strong>, shared across its keys, reset at midnight UTC. Over that, <code>429</code> with <code>Retry-After</code>.</li>
+      <li><strong>25 notifications a day per device</strong>, shared across its keys. The count resets at midnight UTC, and a send over the limit gets <code>429</code> with <code>Retry-After</code>.</li>
       <li><strong>Five active keys per device</strong>, including the device key.</li>
       <li>100 requests a minute per IP on every endpoint.</li>
     </ul>
     <h3>How long can a notification be?</h3>
     <ul>
-      <li><code>title</code> — 1 to 200 characters, required.</li>
-      <li><code>message</code> — up to 16,000 characters.</li>
-      <li><code>link</code> and <code>image</code> — up to 2,048 characters.</li>
+      <li><code>title</code>: 1 to 200 characters, required.</li>
+      <li><code>message</code>: up to 16,000 characters.</li>
+      <li><code>link</code> and <code>image</code>: up to 2,048 characters.</li>
     </ul>
-    <p>Apple caps a push at 4,000 bytes, so a long notification is truncated in the banner and delivered in full to the app.</p>
+    <p>Apple caps a push at 4,000 bytes, so a long notification shows truncated in the banner and in full in the app.</p>
     <h3>Why did my send get a 401?</h3>
-    <p>The key is unknown or revoked. Reinstalling the app or moving device makes a new identity and every old key stops working.</p>
+    <p>The key is unknown or revoked. Reinstalling the app or moving to a new device makes a new identity, and your old keys stop working.</p>
   </section>
 
   <section>
     <h2>Privacy and encryption</h2>
     <h3>Can you read my notifications?</h3>
-    <p>No. Notifications are encrypted with your device’s public key before they are stored, and only your device can open them. See the <a href="/privacy">privacy policy</a>.</p>
+    <p>No. Notifications are encrypted with your device’s public key before the server stores them, and only your device can open them. See the <a href="/privacy">privacy policy</a>.</p>
     <h3>What can the server see?</h3>
     <p>Sender and device IP addresses, your platform and app version, the time of every send and collection, the rough size of each notification, which key sent it and how often, and your push token. See the <a href="/privacy">privacy policy</a>.</p>
     <h3>Is it safe to put the key in the URL?</h3>
-    <p>It is the weaker option: a query string ends up in server logs. Ideally use an <code>Authorization: Bearer</code> header and a <code>POST</code> body. See the <a href="/docs">docs</a>.</p>
+    <p>It is the weaker option: a query string ends up in server logs. Use an <code>Authorization: Bearer</code> header and a <code>POST</code> body instead. See the <a href="/docs">docs</a>.</p>
     <h3>How long are notifications kept?</h3>
-    <p>A notification is deleted as soon as your device has it. An uncollected one waits, encrypted, with no time limit. Revoked keys are kept as hashes so they can never be reused.</p>
+    <p>The server deletes a notification as soon as your device has it. An uncollected one waits, encrypted, for up to 90 days. The server keeps revoked keys as hashes so that no one can reuse them.</p>
     <h3>What happens if I delete the app?</h3>
-    <p>Your notifications, keys and identity go with it. Nothing is recoverable, and every key stops working.</p>
+    <p>Your notifications, keys and identity go with it. You can’t recover any of it, and every key stops working.</p>
     <h3>Do you track me?</h3>
     <p>The apps have no analytics, crash reporting or tracking SDK, and this site sets no cookies. The server reports its own errors to Sentry and counts sends and collections, with no content and no IP address. See the <a href="/privacy">privacy policy</a>.</p>
   </section>
@@ -312,19 +312,19 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>The apps</h2>
     <h3>Which devices does it run on?</h3>
-    <p>iPhone and iPad on iOS 17+, Mac on macOS 14+, in the menu bar. No Android, because delivery goes through Apple’s push service.</p>
+    <p>iPhone and iPad on iOS 17+, Mac on macOS 14+, in the menu bar. There is no Android app: delivery goes through Apple’s push service.</p>
     <h3>Where do I get the Mac app?</h3>
-    <p><a href="/download/mac">Download the DMG</a>, which updates itself, or get it from the <a href="https://apps.apple.com/app/id1563961135?platform=mac">Mac App Store</a>. Same app.</p>
+    <p><a href="/download/mac">Download the DMG</a>, which updates itself, or get it from the <a href="https://apps.apple.com/app/id1563961135?platform=mac">Mac App Store</a>. Both are the same app.</p>
     <h3>Can I send to more than one device?</h3>
     <p>Yes. Create a key on each. A key delivers only to the device that created it.</p>
     <h3>How do I revoke a key?</h3>
-    <p>In the app. The next send with it is refused. A key is shown once and never stored; if you lose it, make a new one.</p>
+    <p>Open the key in the app and tap <strong>Revoke key</strong>. The server refuses the next send that uses it. The app shows a key you create once and never stores it; if you lose it, make a new one.</p>
   </section>
 
   <section>
     <h2>Urgent alerts</h2>
     <h3>What does the urgent toggle do?</h3>
-    <p>A key marked urgent, sent with <code>is_critical=1</code>, is delivered as Time Sensitive: it breaks through Focus and stays on the lock screen.</p>
+    <p>A notification sent with <code>is_critical=1</code> through a key marked urgent arrives as Time Sensitive: it breaks through Focus and stays on the lock screen.</p>
     <h3>Will it ring through silent mode?</h3>
     <p>No. Time Sensitive breaks through Focus but respects the silent switch.</p>
   </section>
@@ -332,7 +332,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
   <section>
     <h2>Reliability</h2>
     <h3>Is delivery guaranteed?</h3>
-    <p>No. Every send goes out over Apple’s push service and a websocket, and is stored before either, so the app can fetch what a push missed. Delivery still depends on Apple, your network and your device. See the <a href="/terms">terms</a>.</p>
+    <p>No. The server stores every send before it goes out over Apple’s push service and a websocket, so the app can fetch what a push missed. Delivery depends on Apple, your network and your device. See the <a href="/terms">terms</a>.</p>
     <div class="card">
       <p><strong>Do not make notifi the only path for anything where a missed notification causes harm.</strong> It is a pager for your own systems, not a life-safety, medical or emergency alerting system.</p>
     </div>
@@ -340,7 +340,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
 
   <section>
     <h2>Something else</h2>
-    <p>Any questions please contact <a href="mailto:hello@notifi.it">hello@notifi.it</a> or open an issue at <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.</p>
+    <p>Email <a href="mailto:hello@notifi.it">hello@notifi.it</a> or open an issue at <a href="https://github.com/notifi-it/notifi/issues">github.com/notifi-it/notifi/issues</a>.</p>
   </section>
 
 </main>

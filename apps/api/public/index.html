@@ -1279,7 +1279,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
     </div>
 
     <figure class="app-film" id="film"
-            aria-label="A coding agent, a deploy script and a failing GitHub Action each landing as a notification on an iPhone, iPad and Mac.">
+            aria-label="A shell script, a coding agent and a training run, each arriving as a notification on an iPad, an iPhone and a Mac.">
       <!-- gf:html:start -->
       <div class="gf-stage">
         <div class="gf-head gf-hd0"><div class="gf-l1">One key per device.</div><div class="gf-l2">Each iPhone, iPad or Mac gets its own key.</div></div>
@@ -1436,7 +1436,7 @@ footer{border-top:1px solid var(--line);padding:40px 0 56px}
           <img class="mac-shot" src="/screens/mac-cut.webp" width="461" height="711" loading="lazy"
                alt="The inbox hanging from the Mac menu bar: the bell sits in the bar and the popover beneath it lists the day’s notifications, the urgent one in red.">
         </div>
-        <figcaption>The inbox in the Mac menu bar. Notifications are stored only on your device, never on our servers.</figcaption>
+        <figcaption>The inbox in the Mac menu bar.</figcaption>
       </figure>
     </div>
 
@@ -1864,21 +1864,21 @@ spec:
     <div class="rows">
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-noaccount"/></svg>
-        <p>No signup. The app makes a keypair on first launch. That is your
-           identity.</p>
+        <p>No signup: the app makes a keypair on first launch, and that keypair
+           is your identity.</p>
       </div>
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>
         <div>
           <p>Notifications are
              <a href="https://github.com/notifi-it/notifi/blob/main/apps/api/src/lib/seal.ts" class="src">encrypted</a>
-             with your public key before they are stored, so the server only ever holds
-             encrypted text. Apple relays an alert that just says <code>notifi</code>,
+             with your public key before the server stores them, so it holds only
+             encrypted text. Apple relays a push titled <code>notifi</code>,
              and your phone
              <a href="https://github.com/notifi-it/notifi/blob/main/apps/app/Shared/Identity/DeviceIdentity.swift" class="src">decrypts</a>
              the real title when it arrives.</p>
           <p style="margin-top:12px">
-             <a href="/privacy" class="src">See more</a>.</p>
+             <a href="/privacy" class="src">Read the privacy policy</a>.</p>
         </div>
       </div>
       <div class="row">
@@ -1893,11 +1893,11 @@ spec:
       </div>
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>
-        <p>One key per source. If one leaks, revoke it and the rest keep working.</p>
+        <p>Give each source its own key. If one leaks, revoke it and the rest keep working.</p>
       </div>
       <div class="row">
         <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>
-        <p>Plain HTTP, so anything that can make an HTTP request can send: a
+        <p>It is plain HTTP, so anything that can make an HTTP request can send: a
            Linux box, a CI runner, a router, a home hub, another phone.</p>
       </div>
       <div class="row">

@@ -176,7 +176,7 @@ export const copy = {
     deleteTitle: 'Delete “{title}”?',
     deleteTitleFallback: 'Delete this notification?',
     deleteMessage:
-      'This can’t be undone.',
+      'You can’t undo this.',
   },
 
   reader: {
@@ -213,7 +213,7 @@ export const copy = {
     imageHidden: 'Image hidden',
     imageHost: 'another host',
     imageLoadWarning:
-      'Loading contacts {host}.',
+      'Loads from {host}.',
     loadImage: 'Load image',
     load: 'Load',
     imageBlocked: 'blocked',
@@ -251,9 +251,9 @@ export const copy = {
     copyCurl: 'Copy curl',
     examplesLink: 'Docs',
     defaultKeyDetail:
-      'Created automatically.',
+      'The app made this key on first launch.',
     shownOnceDetail:
-      'Shown once, when the key was created. Not stored on this device.',
+      'notifi showed this key once, when you created it. This device doesn’t store it.',
 
     sectionUsage: 'Usage',
     fieldSent: 'Sent',
@@ -273,23 +273,23 @@ export const copy = {
     regenerate: 'Regenerate key',
     regenerating: 'Regenerating…',
     regenerateDetail:
-      'Issues a new value. API requests still using the old one will be rejected.',
+      'Issues a new value. notifi rejects API requests that still use the old one.',
     revoke: 'Revoke key',
     revoking: 'Revoking…',
     revokeDetail:
-      'Revoking is permanent. Any API request still sending to this key will be rejected.',
+      'Revoking is permanent. notifi rejects any API request that still uses this key.',
 
     revokeTitle: 'Revoke “{name}”?',
     revokeTitleFallback: 'Revoke this key?',
     revokeConfirm: 'Revoke',
     revokeMessage:
-      'API requests using this key will be rejected.',
+      'notifi will reject API requests that use this key.',
 
     regenerateTitle: 'Regenerate “{name}”?',
     regenerateTitleFallback: 'Regenerate this key?',
     regenerateConfirm: 'Regenerate',
     regenerateMessage:
-      'API requests still using the old value will be rejected.',
+      'notifi will reject API requests that still use the old value.',
 
     regeneratedAnnouncement: 'Key regenerated. The old value no longer works.',
     revokedAnnouncement: 'Key revoked.',
@@ -305,9 +305,9 @@ export const copy = {
     nameLabel: 'Key name',
     charCount: '{n}/{max}',
     nameReserved:
-      '“device” is taken by your device’s own key.',
+      'Your device’s own key uses that name.',
     nameTaken:
-      'An active key already has this name.',
+      'Another active key has this name.',
     create: 'Create key',
     creating: 'Creating…',
 
@@ -318,7 +318,7 @@ export const copy = {
 
     revealTitle:
       'Copy your key',
-    revealDetail: "It won’t be shown again.",
+    revealDetail: 'You won’t see it again.',
     revealLabel: 'Your new key',
     revealWarning:
       'Treat it like a password. If you lose it, revoke it and make a new one.',
@@ -327,7 +327,7 @@ export const copy = {
     leaveCopyAndClose: 'Copy and close',
     leaveCloseAndRevoke: 'Close and revoke',
     leaveMessage:
-      'It won’t be shown again.',
+      'You won’t see it again.',
   },
 
   settings: {
@@ -363,9 +363,9 @@ export const copy = {
     strictSendDetail:
       'Refuses an API request whose title or body is over length.\n' +
       '\n' +
-      'When turned off, the field is cropped and the send is accepted with a warnings array.\n' +
+      'Off, notifi crops the field and accepts the send with a warnings array.\n' +
       '\n' +
-      '[For more information see the docs](https://notifi.it/docs#response)',
+      '[See the docs](https://notifi.it/docs#response)',
 
     testTitle: 'Hello from notifi',
     testBody: 'Your first notification.',
@@ -383,12 +383,12 @@ export const copy = {
     openAtLoginDetail:
       'Starts notifi in the menu bar at login.',
     installUpdatesAutomatically: 'Install updates automatically',
-    installUpdatesAutomaticallyDetail: 'Download and install new versions without asking. notifi relaunches itself when it updates.',
+    installUpdatesAutomaticallyDetail: 'notifi relaunches itself when it updates.',
     checkForUpdates: 'Check for updates',
     deleteAll: 'Delete all notifications',
     deleteAllTitle: 'Delete all notifications?',
     deleteAllConfirm: 'Delete all',
-    deleteAllMessage: "This can’t be undone.",
+    deleteAllMessage: 'You can’t undo this.',
     support: 'Report a problem',
     feedback: 'Feedback',
     privacyPolicy: 'Privacy policy',

@@ -1617,7 +1617,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It won’t be shown again."
+            "value": "You won’t see it again."
           }
         },
         "es": {
@@ -1757,7 +1757,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "“device” is taken by your device’s own key."
+            "value": "Your device’s own key uses that name."
           }
         },
         "es": {
@@ -1792,7 +1792,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "An active key already has this name."
+            "value": "Another active key has this name."
           }
         },
         "es": {
@@ -1827,7 +1827,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It won’t be shown again."
+            "value": "You won’t see it again."
           }
         },
         "es": {
@@ -3112,7 +3112,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can’t be undone."
+            "value": "You can’t undo this."
           }
         },
         "es": {
@@ -3742,7 +3742,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Created automatically."
+            "value": "The app made this key on first launch."
           }
         },
         "es": {
@@ -4127,7 +4127,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Issues a new value. API requests still using the old one will be rejected."
+            "value": "Issues a new value. notifi rejects API requests that still use the old one."
           }
         },
         "es": {
@@ -4162,7 +4162,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "API requests still using the old value will be rejected."
+            "value": "notifi will reject API requests that still use the old value."
           }
         },
         "es": {
@@ -4407,7 +4407,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Revoking is permanent. Any API request still sending to this key will be rejected."
+            "value": "Revoking is permanent. notifi rejects any API request that still uses this key."
           }
         },
         "es": {
@@ -4477,7 +4477,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "API requests using this key will be rejected."
+            "value": "notifi will reject API requests that use this key."
           }
         },
         "es": {
@@ -4722,7 +4722,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shown once, when the key was created. Not stored on this device."
+            "value": "notifi showed this key once, when you created it. This device doesn’t store it."
           }
         },
         "es": {
@@ -5517,7 +5517,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Loading contacts %1$@."
+            "value": "Loads from %1$@."
           }
         },
         "es": {
@@ -6767,7 +6767,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can’t be undone."
+            "value": "You can’t undo this."
           }
         },
         "es": {
@@ -6977,7 +6977,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download and install new versions without asking. notifi relaunches itself when it updates."
+            "value": "notifi relaunches itself when it updates."
           }
         },
         "es": {
@@ -7817,7 +7817,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Refuses an API request whose title or body is over length.\n\nWhen turned off, the field is cropped and the send is accepted with a warnings array.\n\n[For more information see the docs](https://notifi.it/docs#response)"
+            "value": "Refuses an API request whose title or body is over length.\n\nOff, notifi crops the field and accepts the send with a warnings array.\n\n[See the docs](https://notifi.it/docs#response)"
           }
         },
         "es": {
