@@ -145,6 +145,7 @@ final class AppModel {
     private var pendingToken: String?
     private var registrationChain: Task<Void, Never>?
     private var hasRegistered = false
+    private var registrationFailure: Error?
     private var lastRegisteredToken: String?
     private var defaultKeyTask: Task<Void, Error>?
     private static let defaultKeyRetryDelays: [Duration] = [.seconds(1), .seconds(2), .seconds(4)]
@@ -318,9 +319,7 @@ final class AppModel {
     }
 
     private func createDefaultKeyIfMissing(api: APIClient, sync: SyncEngine) async throws {
-        if !hasRegistered {
-            await enqueueRegistration(token: nil).value
-        }
+        try await ensureRegistered()
         try await sync.loadKeys()
         if sync.keys.contains(where: { $0.isDefault && !$0.isRevoked }) {
             return
@@ -386,6 +385,18 @@ final class AppModel {
         return task
     }
 
+    private func ensureRegistered() async throws {
+        await registrationChain?.value
+        if hasRegistered { return }
+        if registrationFailure == nil {
+            await enqueueRegistration(token: nil).value
+            if hasRegistered { return }
+        }
+        let failure = registrationFailure ?? NotifiError.identityMissing
+        registrationFailure = nil
+        throw failure
+    }
+
     private func registerDevice(token: String?) async {
         guard let api, let identity else { return }
         if let token { UserDefaults.standard.set(token, forKey: Self.realTokenKey) }
@@ -402,8 +413,10 @@ final class AppModel {
             let response = try await api.registerDevice(body)
             if let strict = response.strictSend { strictSend = strict == 1 }
             hasRegistered = true
+            registrationFailure = nil
             lastRegisteredToken = apnsToken
         } catch {
+            registrationFailure = error
             log.error("device registration failed: \(String(describing: error), privacy: .private)")
         }
     }
