@@ -32,4 +32,15 @@ extension APIError {
             return Copy.ClientErrors.decoding
         }
     }
+
+    var isTransient: Bool {
+        switch self {
+        case let .http(status, _, _):
+            status == 429 || status >= 500
+        case let .transport(error):
+            (error as? URLError)?.code != .timedOut
+        case .decoding, .invalidResponse:
+            false
+        }
+    }
 }
