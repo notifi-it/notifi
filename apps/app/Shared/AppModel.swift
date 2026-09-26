@@ -146,6 +146,8 @@ final class AppModel {
     private var registrationChain: Task<Void, Never>?
     private var hasRegistered = false
     private var lastRegisteredToken: String?
+    private var defaultKeyTask: Task<Void, Error>?
+    private static let defaultKeyRetryDelays: [Duration] = [.seconds(1), .seconds(2), .seconds(4)]
     private let log = Logger(subsystem: "it.notifi.notifi", category: "app")
 
     #if DEBUG
@@ -279,24 +281,53 @@ final class AppModel {
         Task {
             await enqueueRegistration(token: token).value
             await sync?.refreshKeys()
-            await ensureDefaultKey()
+            try? await ensureDefaultKey()
             await sync?.sync()
         }
     }
 
-    func ensureDefaultKey() async {
-        guard let api, let sync else { return }
-        guard !sync.keysRefreshFailed else { return }
+    func ensureDefaultKey() async throws {
+        guard let api, let sync else { throw NotifiError.identityMissing }
         if sync.keys.contains(where: { $0.isDefault && !$0.isRevoked }) {
             return
         }
+        if let defaultKeyTask {
+            return try await defaultKeyTask.value
+        }
+        let task = Task { try await self.createDefaultKey(api: api, sync: sync) }
+        defaultKeyTask = task
+        defer { defaultKeyTask = nil }
+        try await task.value
+    }
+
+    private func createDefaultKey(api: APIClient, sync: SyncEngine) async throws {
+        for delay in Self.defaultKeyRetryDelays {
+            do {
+                return try await createDefaultKeyIfMissing(api: api, sync: sync)
+            } catch let error as APIError where error.isTransient {
+                log.error("default key creation failed, retrying: \(String(describing: error), privacy: .private)")
+                try await Task.sleep(for: delay)
+            }
+        }
         do {
-            let created = try await api.createKey(name: "device")
-            DeviceIdentity.storeDefaultKey(created.key)
-            await sync.refreshKeys()
+            try await createDefaultKeyIfMissing(api: api, sync: sync)
         } catch {
             log.error("default key creation failed: \(String(describing: error), privacy: .private)")
+            throw error
         }
+    }
+
+    private func createDefaultKeyIfMissing(api: APIClient, sync: SyncEngine) async throws {
+        if !hasRegistered {
+            await enqueueRegistration(token: nil).value
+        }
+        try await sync.loadKeys()
+        if sync.keys.contains(where: { $0.isDefault && !$0.isRevoked }) {
+            return
+        }
+        let created = try await api.createKey(name: "device")
+        DeviceIdentity.storeDefaultKey(created.key)
+        await sync.refreshKeys()
     }
 
     var defaultKeyValue: String? { DeviceIdentity.loadDefaultKey() }
