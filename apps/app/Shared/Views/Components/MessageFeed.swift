@@ -238,8 +238,13 @@ struct MessageFeed<Empty: View>: View {
         let calendar = Calendar.current
         var order: [Date] = []
         var bucketed: [Date: [Message]] = [:]
+        var current: DateInterval?
         for message in messages {
-            let day = calendar.startOfDay(for: message.occurredAt ?? message.createdAt)
+            let basis = message.occurredAt ?? message.createdAt
+            if current.map({ !($0.start <= basis && basis < $0.end) }) ?? true {
+                current = calendar.dateInterval(of: .day, for: basis)
+            }
+            let day = current?.start ?? calendar.startOfDay(for: basis)
             if bucketed[day] == nil { order.append(day) }
             bucketed[day, default: []].append(message)
         }

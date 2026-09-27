@@ -5,7 +5,6 @@ import SwiftUI
 struct FeedHeader<Trailing: View, Accessory: View>: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
-    @Query(sort: \Message.createdAt, order: .reverse) private var messages: [Message]
     #if os(macOS)
     @Environment(\.isReaderWindow) private var isReader
     #endif
@@ -125,10 +124,11 @@ struct FeedHeader<Trailing: View, Accessory: View>: View {
 
     private var filterableKeys: [CachedKey] { keys.mergedByName }
 
-    private var unreadCount: Int { messages.reduce(0) { $0 + ($1.isRead ? 0 : 1) } }
+    private var unreadCount: Int { model.sync?.unread ?? 0 }
 
     private func markAllRead() {
-        for message in messages where !message.isRead { message.isRead = true }
+        let unread = (try? context.fetch(FetchDescriptor<Message>(predicate: #Predicate { !$0.isRead }))) ?? []
+        for message in unread { message.isRead = true }
         Haptics.success()
         do {
             try context.save()

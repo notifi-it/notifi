@@ -320,11 +320,14 @@ final class SyncEngine {
         NotificationCenter.default.post(name: .notifiUnreadChanged, object: nil)
         #endif
 
-        let read = readServerIDs()
         Task {
             let center = UNUserNotificationCenter.current()
             try? await center.setBadgeCount(raw)
-            let stale = await center.deliveredNotifications().filter { delivered in
+            let delivered = await center.deliveredNotifications()
+            let ids = delivered.compactMap { Self.serverID(from: $0.request.content.userInfo) }
+            guard !ids.isEmpty else { return }
+            let read = readServerIDs(among: ids)
+            let stale = delivered.filter { delivered in
                 guard let id = Self.serverID(from: delivered.request.content.userInfo)
                 else { return false }
                 return read.contains(id)
@@ -336,8 +339,8 @@ final class SyncEngine {
         }
     }
 
-    private func readServerIDs() -> Set<Int> {
-        let descriptor = FetchDescriptor<Message>(predicate: #Predicate { $0.isRead == true })
+    private func readServerIDs(among ids: [Int]) -> Set<Int> {
+        let descriptor = FetchDescriptor<Message>(predicate: #Predicate { $0.isRead == true && ids.contains($0.serverID) })
         let messages = (try? context.fetch(descriptor)) ?? []
         return Set(messages.map(\.serverID))
     }
