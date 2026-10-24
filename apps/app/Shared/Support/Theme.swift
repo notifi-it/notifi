@@ -60,7 +60,7 @@ enum Theme {
 
     static let gutter: CGFloat = 20
 
-    static let readerMeasure: CGFloat = 640
+    static let readerMeasure: CGFloat = 860
 
     #if os(macOS)
     static let chromeRule: CGFloat = 3
