@@ -26,7 +26,7 @@ $(codesign -dv "$APP" 2>&1)"
 ENTITLEMENTS="$(codesign -d --entitlements - --xml "$APP" 2>/dev/null)"
 [[ -n "$ENTITLEMENTS" ]] || die "$APP is signed with no entitlements"
 
-VALUE="$(plutil -extract "$KEY" raw -o - - <<<"$ENTITLEMENTS" 2>/dev/null || true)"
+VALUE="$(plutil -extract "${KEY//./\\.}" raw -o - - <<<"$ENTITLEMENTS" 2>/dev/null || true)"
 [[ "$VALUE" == "production" ]] || die "$APP has $KEY='${VALUE}', expected 'production'. Push notifications would never arrive."
 
 echo "$(basename "$APP"): signed, $KEY = production"
