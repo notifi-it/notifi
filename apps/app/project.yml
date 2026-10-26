@@ -86,7 +86,7 @@ targets:
         INFOPLIST_FILE: Support/Info/App-iOS-Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
         PROVISIONING_PROFILE_SPECIFIER: ${IOS_APP_PROFILE}
-        CODE_SIGN_IDENTITY: ${IOS_CODE_SIGN_IDENTITY}
+        CODE_SIGN_IDENTITY: $(IOS_CODE_SIGN_IDENTITY:default=Apple Development)
       # aps-environment has to track the configuration. Release points at the
       # production Worker, and a production Worker talks to the production APNs
       # host, which rejects a sandbox token as BadDeviceToken.
@@ -190,7 +190,7 @@ targets:
         INFOPLIST_FILE: Support/Info/NotificationService-Info.plist
         CODE_SIGN_ENTITLEMENTS: Support/Entitlements/NotificationService-iOS.entitlements
         PROVISIONING_PROFILE_SPECIFIER: ${IOS_NSE_PROFILE}
-        CODE_SIGN_IDENTITY: ${IOS_CODE_SIGN_IDENTITY}
+        CODE_SIGN_IDENTITY: $(IOS_CODE_SIGN_IDENTITY:default=Apple Development)
       configs:
         Debug:
           PRODUCT_BUNDLE_IDENTIFIER: it.notifi.notifi.dev.nse

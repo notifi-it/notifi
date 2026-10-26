@@ -12,6 +12,7 @@
 # notifi-macOS-AppStore target, without it). iOS goes to the App Store only.
 
 require "shellwords"
+require "tmpdir"
 
 # This folder's docs are hand-written; don't regenerate fastlane/README.md.
 skip_docs
@@ -91,6 +92,18 @@ def build_ios_release
     # alone reaches both the archive and the export.
     xcargs: "#{provisioning_xcargs} #{marketing_version_xcargs} CURRENT_PROJECT_VERSION=#{build_number}",
   )
+  assert_ipa_push_entitlement(lane_context[SharedValues::IPA_OUTPUT_PATH])
+end
+
+# The exported IPA, not the archive: a local archive is signed Apple Development
+# (aps-environment = development) and only the export re-signs it for the store.
+# Checked before either lane uploads, because App Store Connect accepts a build
+# with no push entitlement and nothing fails until notifications stop arriving.
+def assert_ipa_push_entitlement(ipa)
+  Dir.mktmpdir do |dir|
+    sh("unzip", "-q", ipa, "-d", dir)
+    sh(File.expand_path("../Scripts/assert-push-entitlement.sh", __dir__), "#{dir}/Payload/notifi.app")
+  end
 end
 
 # Without ITSAppUsesNonExemptEncryption in the Info.plist, App Store Connect asks
@@ -489,6 +502,7 @@ platform :mac do
     # happily reports "accepted" by asking Apple. `syspolicy_check distribution`
     # is the offline-truthful check, and it calls the missing ticket fatal.
     assert_distributable(app)
+    sh(File.expand_path("../Scripts/assert-push-entitlement.sh", __dir__), app)
     notarize(package: app, api_key: asc_key, print_log: true)
 
     identity = "Developer ID Application: Max Mitchell (Z28DW76Y3W)"
