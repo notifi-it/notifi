@@ -104,18 +104,27 @@ jobs:
           </dict>
           </plist>
           PLIST
+      # Xcode resolves $(IOS_CODE_SIGN_IDENTITY) in project.yml at build time,
+      # from this step's environment, so the identity is set here too.
       - name: Archive and upload iOS
         working-directory: apps/app
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          IOS_CODE_SIGN_IDENTITY: Apple Distribution
         run: |
+          # CURRENT_PROJECT_VERSION is CFBundleVersion. Left at project.yml's
+          # "1", this upload ranks below any local `make app-submit` build of
+          # the same version, which is how unsigned local builds shipped
+          # instead of this one.
           xcodebuild archive \
             -scheme notifi-iOS \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive" \
             DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
-            MARKETING_VERSION="$MARKETING_VERSION"
+            MARKETING_VERSION="$MARKETING_VERSION" \
+            CURRENT_PROJECT_VERSION="$(date -u +%Y%m%d%H%M)"
+          Scripts/assert-push-entitlement.sh "$RUNNER_TEMP/notifi-iOS.xcarchive/Products/Applications/notifi.app"
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/notifi-iOS.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-appstore.plist" \
@@ -240,6 +249,7 @@ jobs:
             DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
             MARKETING_VERSION="$MARKETING_VERSION" \
             CURRENT_PROJECT_VERSION="$(date -u +%Y%m%d%H%M)"
+          Scripts/assert-push-entitlement.sh "$RUNNER_TEMP/notifi-macOS-AppStore.xcarchive/Products/Applications/notifi.app"
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/notifi-macOS-AppStore.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-mas.plist" \
