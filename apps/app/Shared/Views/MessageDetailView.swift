@@ -62,9 +62,6 @@ struct MessageDetailView: View {
     var body: some View {
         page
             .background(StaticField())
-            #if os(iOS)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
             .onAppear {
                 markRead()
                 #if os(iOS)
@@ -88,11 +85,11 @@ struct MessageDetailView: View {
     @ViewBuilder
     private var page: some View {
         #if os(iOS)
-        if #available(iOS 26.0, *) {
-            scroll.safeAreaBar(edge: .top, spacing: 0) { backBar }
-        } else {
-            scroll.safeAreaInset(edge: .top, spacing: 0) { backBar }
-        }
+        scroll
+            .toolbar(.visible, for: .navigationBar)
+            .toolbarRole(.editor)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { actions }
         #else
         VStack(spacing: 0) {
             backBar
@@ -100,6 +97,38 @@ struct MessageDetailView: View {
         }
         #endif
     }
+
+    #if os(iOS)
+    @ToolbarContentBuilder
+    private var actions: some ToolbarContent {
+        if let message {
+            let anyScheme = model.allowsAnyLink(keyID: message.keyID)
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if let link = message.link, LinkPolicy.allows(link, anyScheme: anyScheme) {
+                    Button(Copy.Common.openLink, systemImage: "globe") {
+                        open(link, keyID: message.keyID)
+                    }
+                }
+
+                Button(message.isRead ? Copy.Common.markAsUnread : Copy.Common.markAsRead,
+                       systemImage: message.isRead ? "circle" : "circle.fill") {
+                    message.isRead.toggle()
+                    try? context.save()
+                    model.sync?.reconcileNotifications()
+                }
+                .tint(message.isRead ? Theme.fg : Theme.brand)
+
+                Button(Copy.Common.delete, systemImage: "trash") {
+                    requestDelete()
+                }
+
+                Menu(Copy.Common.moreActions, systemImage: "ellipsis") {
+                    copyMenu(for: message, anyScheme: anyScheme)
+                }
+            }
+        }
+    }
+    #endif
 
     private func viewer(for image: ViewedImage) -> some View {
         ImageViewer(url: image.url,
@@ -142,9 +171,10 @@ struct MessageDetailView: View {
         goBack()
     }
 
+    #if os(macOS)
     private var backBar: some View {
         HStack(spacing: 7) {
-            if !isReaderSurface { backButton }
+            if !isReader { backButton }
 
             Spacer(minLength: 8)
 
@@ -179,18 +209,14 @@ struct MessageDetailView: View {
         }
         .geistGutter()
         .geistPageHeader()
-        #if os(macOS)
         .background(StaticField())
-        #endif
     }
 
-    private var isReaderSurface: Bool {
-        #if os(macOS)
-        isReader
-        #else
-        false
-        #endif
+    private var backButton: some View {
+        IconButton(systemName: "chevron.backward",
+                   label: Copy.Components.backTo(Copy.Inbox.title)) { goBack() }
     }
+    #endif
 
     private func requestDelete() {
         #if os(macOS)
@@ -221,11 +247,6 @@ struct MessageDetailView: View {
         }
         #endif
         model.path.append(key)
-    }
-
-    private var backButton: some View {
-        IconButton(systemName: "chevron.backward",
-                   label: Copy.Components.backTo(Copy.Inbox.title)) { goBack() }
     }
 
     @ViewBuilder
@@ -411,6 +432,7 @@ struct MessageDetailView: View {
         }
     }
 
+    #if os(macOS)
     private struct MenuButton<Content: View>: View {
         let systemName: String
         let label: String
@@ -444,6 +466,7 @@ struct MessageDetailView: View {
                               color: tint, glass: true, action: action)
         }
     }
+    #endif
 
     private func markRead() {
         guard let message, !message.isRead else { return }
