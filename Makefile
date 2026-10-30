@@ -3,7 +3,7 @@
 	app-project app-preflight app-dmg app-testflight app-submit app-appstore \
 	app-submit-mac app-submit-uploaded-mac app-resubmit-mac app-metadata-mac app-screenshots-mac screens-mac-store \
 	app-metadata app-metadata-check app-screenshots app-resubmit shots doc-shots screens screens-mac \
-	film film-gif film-stills check-film
+	film film-gif film-stills gallery-frames check-film
 
 # The capture scripts need a python3 with Pillow and fontTools, and the
 # fastlane lanes need the bundler version Gemfile.lock pins. Neither is what a
@@ -129,6 +129,11 @@ film-wide:
 # full opacity. These are the gallery slides.
 film-stills:
 	cd sketches/gif && node stills.mjs
+
+# The iPhone frames for the Product Hunt gallery, in the Mac App Store frames'
+# layout, from the captures `TABS="inbox message" make shots` leaves behind.
+gallery-frames:
+	python3 apps/app/Scripts/gallery-frames.py
 
 app-project:
 	cd apps/app && xcodegen generate
