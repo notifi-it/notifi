@@ -60,32 +60,45 @@ struct MessageDetailView: View {
     }()
 
     var body: some View {
+        page
+            .background(StaticField())
+            #if os(iOS)
+            .toolbar(.hidden, for: .navigationBar)
+            #endif
+            .onAppear {
+                markRead()
+                #if os(iOS)
+                if ReviewNudge.shouldAskAfterMessageOpen() { requestReview() }
+                #endif
+            }
+            #if os(iOS)
+            .fullScreenCover(item: $viewingImage) { viewer(for: $0) }
+            #else
+            .sheet(item: $viewingImage) { viewer(for: $0) }
+            #endif
+            .alert(message.map { Copy.Inbox.deleteTitle($0.title) } ?? Copy.Inbox.deleteTitleFallback,
+                   isPresented: $confirmingDelete) {
+                Button(Copy.Common.delete, role: .destructive) { deleteMessage() }
+                Button(Copy.Common.cancel, role: .cancel) {}
+            } message: {
+                Text(Copy.Inbox.deleteMessage)
+            }
+    }
+
+    @ViewBuilder
+    private var page: some View {
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            scroll.safeAreaBar(edge: .top, spacing: 0) { backBar }
+        } else {
+            scroll.safeAreaInset(edge: .top, spacing: 0) { backBar }
+        }
+        #else
         VStack(spacing: 0) {
             backBar
             scroll
         }
-        .background(StaticField())
-        #if os(iOS)
-        .toolbar(.hidden, for: .navigationBar)
         #endif
-        .onAppear {
-            markRead()
-            #if os(iOS)
-            if ReviewNudge.shouldAskAfterMessageOpen() { requestReview() }
-            #endif
-        }
-        #if os(iOS)
-        .fullScreenCover(item: $viewingImage) { viewer(for: $0) }
-        #else
-        .sheet(item: $viewingImage) { viewer(for: $0) }
-        #endif
-        .alert(message.map { Copy.Inbox.deleteTitle($0.title) } ?? Copy.Inbox.deleteTitleFallback,
-               isPresented: $confirmingDelete) {
-            Button(Copy.Common.delete, role: .destructive) { deleteMessage() }
-            Button(Copy.Common.cancel, role: .cancel) {}
-        } message: {
-            Text(Copy.Inbox.deleteMessage)
-        }
     }
 
     private func viewer(for image: ViewedImage) -> some View {
@@ -117,8 +130,8 @@ struct MessageDetailView: View {
         .contentMargins(.top, Theme.contentTop, for: .scrollContent)
         #if os(macOS)
         .geistBottomPlate()
-        #endif
         .geistTopFade()
+        #endif
     }
 
     private func deleteMessage() {
@@ -166,7 +179,9 @@ struct MessageDetailView: View {
         }
         .geistGutter()
         .geistPageHeader()
+        #if os(macOS)
         .background(StaticField())
+        #endif
     }
 
     private var isReaderSurface: Bool {
