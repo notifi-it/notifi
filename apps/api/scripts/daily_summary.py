@@ -27,6 +27,10 @@ SESSION = requests.Session()
 SESSION.headers["User-Agent"] = "notifi-daily-summary"
 
 
+class AppleRefused(Exception):
+    pass
+
+
 def app_store_connect_token():
     key = os.environ.get("ASC_PRIVATE_KEY")
     if key is None:
@@ -58,7 +62,13 @@ def first_installs_on(token, day):
     # downloads every morning: the run fired before Apple published the day.
     if res.status_code == 404:
         return None, Counter()
-    res.raise_for_status()
+    if not res.ok:
+        try:
+            error = res.json()["errors"][0]
+            reason = f"{error['title']} ({error['code']})"
+        except (ValueError, KeyError, IndexError):
+            reason = res.reason
+        raise AppleRefused(f"Apple answered {res.status_code}: {reason}")
 
     tsv = gzip.decompress(res.content).decode()
     platforms, countries = Counter(), Counter()
@@ -213,10 +223,15 @@ def compose_notification():
     # counts shift with it: a device registers on first launch, so counting
     # it over the same Pacific day as the report makes the two comparable.
     report_day = today - timedelta(days=2)
-    reports = [
-        first_installs_on(token, (today - timedelta(days=n)).strftime("%Y-%m-%d"))
-        for n in range(2, 16)
-    ]
+    apple_error = None
+    try:
+        reports = [
+            first_installs_on(token, (today - timedelta(days=n)).strftime("%Y-%m-%d"))
+            for n in range(2, 16)
+        ]
+    except AppleRefused as refusal:
+        apple_error = str(refusal)
+        reports = [(None, Counter())]
 
     downloads_latest, countries = reports[0]
     week_platforms = sum((p for p, _ in reports[:7] if p is not None), Counter())
@@ -292,7 +307,11 @@ def compose_notification():
         " · _no prior week to compare yet_"
     )
     weekday = report_day.strftime("%A")
-    if downloads_latest is None:
+    if apple_error:
+        downloads_headline = "Downloads failed"
+        downloads_line = f"- Downloads **failed** — {apple_error}"
+        downloads_title = "downloads failed"
+    elif downloads_latest is None:
         downloads_headline = f"Downloads unreported for {weekday}"
         downloads_line = f"- Downloads ({weekday}) **unreported** — Apple has not published it"
         downloads_title = "downloads unreported"
@@ -320,7 +339,9 @@ def compose_notification():
         "**This week**",
         sends_week,
         f"- Collected **{week_collected['collected']}** by {senders(week_collected['collectors'])}",
-        f"- Downloads **{downloads_week}** · {split(week_platforms)}"
+        downloads_line
+        if apple_error
+        else f"- Downloads **{downloads_week}** · {split(week_platforms)}"
         f" ({week_on_week(downloads_week, downloads_prior)} vs prior 7d)",
         f"- Site **{humans_wk}** measured humans ({week_on_week(humans_wk, humans_prior)} vs prior 7d)"
         f" · {site_wk_u} IPs · {site_wk_v} loads",
@@ -335,11 +356,11 @@ def compose_notification():
         f"notifi · {downloads_title}, "
         f"{day['sends']} send{'' if day['sends'] == 1 else 's'}"
     )
-    return title, "\n".join(lines)
+    return title, "\n".join(lines), apple_error
 
 
 def send_daily_summary():
-    title, body = compose_notification()
+    title, body, apple_error = compose_notification()
     if "--dry-run" in sys.argv:
         print(f"--- title ---\n{title}\n--- body ---\n{body}")
         return
@@ -351,6 +372,8 @@ def send_daily_summary():
     print(f"send: {res.status_code}")
     if not res.ok:
         raise SystemExit(res.text[:200])
+    if apple_error:
+        raise SystemExit(apple_error)
 
 
 if __name__ == "__main__":
