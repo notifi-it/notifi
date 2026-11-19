@@ -8,7 +8,7 @@ struct EmptyStateView: View {
     @State private var sent = false
     @State private var sendError: String?
     @State private var key: String?
-    @State private var keyFailed = false
+    @State private var keyError: String?
 
     private static let sampleTitle = Copy.Empty.sampleTitle
     private static let sampleMessage = Copy.Empty.sampleMessage
@@ -55,10 +55,14 @@ struct EmptyStateView: View {
             key = existing
             return
         }
-        keyFailed = false
-        await model.ensureDefaultKey()
-        key = model.defaultKeyValue
-        keyFailed = key == nil
+        keyError = nil
+        do {
+            try await model.ensureDefaultKey()
+            key = model.defaultKeyValue
+            if key == nil { keyError = Copy.ClientErrors.generic }
+        } catch {
+            keyError = (error as? APIError)?.userMessage ?? Copy.ClientErrors.generic
+        }
     }
 
     var body: some View {
@@ -134,8 +138,8 @@ struct EmptyStateView: View {
                         )
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                } else if keyFailed {
-                    InlineError(message: Copy.ClientErrors.transport)
+                } else if let keyError {
+                    InlineError(message: keyError)
 
                     OutlineButton(title: Copy.Common.tryAgain, fill: true) {
                         Task { await loadKey() }

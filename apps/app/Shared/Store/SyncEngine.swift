@@ -270,42 +270,51 @@ final class SyncEngine {
 
     func refreshKeys() async {
         do {
-            #if DEBUG
-            if SampleData.usesSampleKeys {
-                keys = SampleData.keys
-                keysRefreshFailed = false
-                KeyCacheStore.save(keys)
-                NotificationCategories.register(keys: Self.summaryKeys(keys))
-                return
-            }
-            #endif
-            let response = try await api.listKeys()
-            var built: [CachedKey] = []
-            for summary in response.keys {
-                guard let plaintext = try? identity.open(sealedB64: summary.metaSealed, info: "key_meta"),
-                      let meta = try? JSONDecoder().decode(KeyMeta.self, from: plaintext),
-                      meta.id == summary.id else {
-                    continue
-                }
-                built.append(CachedKey(
-                    id: summary.id,
-                    name: meta.name,
-                    prefix: meta.prefix,
-                    sentCount: summary.sentCount,
-                    createdAt: summary.createdAt,
-                    lastUsedAt: summary.lastUsedAt,
-                    revokedAt: summary.revokedAt,
-                    isCriticalFlag: summary.isCritical == 1
-                ))
-            }
-            keys = built
-            keysRefreshFailed = false
-            KeyCacheStore.save(built)
-            NotificationCategories.register(keys: Self.summaryKeys(built))
+            try await loadKeys()
         } catch {
-            keysRefreshFailed = true
             log.error("key refresh failed: \(String(describing: error), privacy: .private)")
         }
+    }
+
+    func loadKeys() async throws {
+        #if DEBUG
+        if SampleData.usesSampleKeys {
+            keys = SampleData.keys
+            keysRefreshFailed = false
+            KeyCacheStore.save(keys)
+            NotificationCategories.register(keys: Self.summaryKeys(keys))
+            return
+        }
+        #endif
+        let response: ListKeysResponse
+        do {
+            response = try await api.listKeys()
+        } catch {
+            keysRefreshFailed = true
+            throw error
+        }
+        var built: [CachedKey] = []
+        for summary in response.keys {
+            guard let plaintext = try? identity.open(sealedB64: summary.metaSealed, info: "key_meta"),
+                  let meta = try? JSONDecoder().decode(KeyMeta.self, from: plaintext),
+                  meta.id == summary.id else {
+                continue
+            }
+            built.append(CachedKey(
+                id: summary.id,
+                name: meta.name,
+                prefix: meta.prefix,
+                sentCount: summary.sentCount,
+                createdAt: summary.createdAt,
+                lastUsedAt: summary.lastUsedAt,
+                revokedAt: summary.revokedAt,
+                isCriticalFlag: summary.isCritical == 1
+            ))
+        }
+        keys = built
+        keysRefreshFailed = false
+        KeyCacheStore.save(built)
+        NotificationCategories.register(keys: Self.summaryKeys(built))
     }
 
     func unreadCount() -> Int {
