@@ -147,11 +147,10 @@ struct MessageFeed<Empty: View>: View {
         .listStyle(.plain)
         .environment(\.defaultMinListRowHeight, 0)
         .scrollContentBackground(.hidden)
+        .contentMargins(.top, Theme.listContentTop, for: .scrollContent)
         #if os(macOS)
         .geistBottomPlate()
         #endif
-        .contentMargins(.top, Theme.listContentTop, for: .scrollContent)
-        .geistTopFade()
         .background(Color.clear)
         .scrollDismissesKeyboard(.immediately)
         .onReceive(clock) { now = $0 }

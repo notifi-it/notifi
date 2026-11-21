@@ -141,6 +141,7 @@ export const fr: Translation = {
   'keys.aboutKeys': 'À propos des clés',
   'keys.sent': { one: '1 envoi', other: '{n} envois' },
   'keys.rowLastUsed': 'utilisée {ago}',
+  'keys.rowStats': '{count} · {age}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Appareil',
   'keys.chipCritical': 'Critique',

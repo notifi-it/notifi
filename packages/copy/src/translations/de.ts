@@ -188,6 +188,7 @@ export const de: Translation = {
   'keys.aboutKeys': 'Über Schlüssel',
   'keys.sent': { one: '1 gesendet', other: '{n} gesendet' },
   'keys.rowLastUsed': 'genutzt {ago}',
+  'keys.rowStats': '{count} · {age}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Gerät',
   'keys.chipCritical': 'Kritisch',

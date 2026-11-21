@@ -114,6 +114,7 @@ enum Copy {
         static var aboutKeys: String { NSLocalizedString("keys.aboutKeys", comment: "") }
         static func sent(_ n: Int) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.sent", comment: ""), n) }
         static func rowLastUsed(_ ago: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowLastUsed", comment: ""), ago) }
+        static func rowStats(_ count: String, _ age: String) -> String { String.localizedStringWithFormat(NSLocalizedString("keys.rowStats", comment: ""), count, age) }
         static var docsLink: String { NSLocalizedString("keys.docsLink", comment: "") }
         static var chipDefault: String { NSLocalizedString("keys.chipDefault", comment: "") }
         static var chipCritical: String { NSLocalizedString("keys.chipCritical", comment: "") }
