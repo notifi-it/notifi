@@ -19,19 +19,19 @@ struct GeistPage<Header: View, Content: View>: View {
     #endif
 
     var body: some View {
-        VStack(spacing: 0) {
-            header()
-                .geistPageHeader()
-                .geistGutter()
-                .geistMeasure()
-                .background(StaticField())
+        scrollingContent
+            .modifier(TopBar { pageHeader })
+            .background(StaticField())
+            #if os(iOS)
+            .toolbar(navigationBar, for: .navigationBar)
+            #endif
+    }
 
-            scrollingContent
-        }
-        .background(StaticField())
-        #if os(iOS)
-        .toolbar(navigationBar, for: .navigationBar)
-        #endif
+    private var pageHeader: some View {
+        header()
+            .geistPageHeader()
+            .geistGutter()
+            .geistMeasure()
     }
 
     @ViewBuilder
@@ -49,7 +49,20 @@ struct GeistPage<Header: View, Content: View>: View {
             #if os(macOS)
             .geistBottomPlate()
             #endif
-            .geistTopFade()
+        }
+    }
+}
+
+private struct TopBar<Bar: View>: ViewModifier {
+    @ViewBuilder var bar: () -> Bar
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, macOS 26.0, *) {
+            content.safeAreaBar(edge: .top, spacing: 0, content: bar)
+        } else {
+            content.safeAreaInset(edge: .top, spacing: 0) {
+                bar().frame(maxWidth: .infinity).background(.bar)
+            }
         }
     }
 }

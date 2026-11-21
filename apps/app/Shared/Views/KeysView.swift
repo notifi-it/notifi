@@ -58,11 +58,6 @@ struct KeysView: View {
                         }
                         .buttonStyle(.geistRow)
                         .geistGutter()
-                        .background {
-                            if key.isDefault {
-                                StaticField(level: .raised, fillsScreen: false)
-                            }
-                        }
                         .hoverHighlight()
                         Hairline()
                     }
@@ -126,42 +121,42 @@ private struct KeyRow: View {
         Copy.Keys.sent(key.sentCount)
     }
 
+    private var stats: String {
+        let count = key.sentCount.formatted()
+        guard let used = key.lastUsedDate else { return count }
+        return Copy.Keys.rowStats(count, RelativeAge.string(since: used))
+    }
+
     var body: some View {
         DisclosureRow {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
+                Text(key.name)
+                    .font(.inco(.headline, weight: isFixture ? .bold : .medium))
+                    .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
+                    .lineLimit(1)
+                Spacer(minLength: 8)
                 if isFixture {
-                    Image("BellLogo")
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 26, height: 26)
-                        .foregroundStyle(Theme.fg)
+                    Image(systemName: "lock")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Theme.dim)
                         .accessibilityHidden(true)
                 }
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 8) {
-                        Text(key.name)
-                            .font(.inco(.headline, weight: isFixture ? .bold : .medium))
-                            .textCase(isFixture ? .uppercase : nil)
-                            .tracking(isFixture ? 0.5 : 0)
-                            .foregroundStyle(key.isRevoked ? Theme.read : Theme.fg)
-                            .lineLimit(1)
-                    }
-                    Text(key.maskedValue)
-                        .font(Theme.meta)
-                        .foregroundStyle(Theme.muted)
-                    Text(sent)
-                        .font(Theme.metaSmall)
-                        .foregroundStyle(Theme.dim)
-                    if let used = key.lastUsedDate {
-                        Text(Copy.Keys.rowLastUsed(RelativeAge.agoString(since: used)))
-                            .font(Theme.metaSmall)
-                            .foregroundStyle(Theme.dim)
-                    }
+                if key.isCritical && !key.isRevoked {
+                    Image(systemName: "bolt")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Theme.brand)
+                        .accessibilityHidden(true)
                 }
+                Text(stats)
+                    .font(Theme.meta)
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.dim)
+                    .lineLimit(1)
+                    .fixedSize()
             }
         }
-        .padding(.vertical, isFixture ? 18 : 14)
+        .padding(.vertical, Theme.rowPadV)
+        .frame(minHeight: Theme.minTarget)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             Copy.Keys.rowLabel(key.name, String(key.prefix.suffix(4)))

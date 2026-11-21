@@ -231,6 +231,7 @@ export const copy = {
     aboutKeys: 'About keys',
     sent: plural('1 sent', '{n} sent'),
     rowLastUsed: 'used {ago}',
+    rowStats: '{count} · {age}',
     docsLink: 'API docs',
     chipDefault: 'Device',
     chipCritical: 'Urgent',

@@ -141,6 +141,7 @@ export const es: Translation = {
   'keys.aboutKeys': 'Acerca de las claves',
   'keys.sent': { one: '1 enviada', other: '{n} enviadas' },
   'keys.rowLastUsed': 'usada {ago}',
+  'keys.rowStats': '{count} · {age}',
   'keys.docsLink': 'API docs',
   'keys.chipDefault': 'Dispositivo',
   'keys.chipCritical': 'Crítica',

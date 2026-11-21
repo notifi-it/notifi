@@ -113,7 +113,6 @@ struct InboxView: View {
                 onClear: clearFilters
             )
         }
-        .geistTopFade()
     }
 
     #if os(macOS)
