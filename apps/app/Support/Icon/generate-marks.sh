@@ -224,12 +224,6 @@ svg("%s/EmptyBell.imageset/bell.svg" % assets, 32, 32, ghost_box, ghost("#000", 
     note="\n\n       The empty inbox: the mark hollowed out, drawn from its own outline.")
 framed("%s/EmptyBell.imageset/bell.svg" % assets)
 
-for name, ink in (("bell-light", "#A1A1A1"), ("bell-dark", "#5B5B5B")):
-    svg("%s/LaunchBell.imageset/%s.svg" % (assets, name), 88, 88, logo_box,
-        mark(logo_box, ink, ink),
-        note="\n\n       The iOS launch screen's mark, quiet on purpose: the ground it sits\n"
-             "       on is the same one the app paints first.")
-
 svg("%s/bell.svg" % web, 32, 32, logo_box, mark(logo_box, "#000", "#000"))
 
 svg("%s/bell-empty.svg" % web, 32, 32, ghost_box, ghost("#000", ghost_box),

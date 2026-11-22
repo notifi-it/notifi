@@ -83,9 +83,7 @@ struct RootContentView: View {
         Group {
             switch model.bootState {
             case .loading:
-                ProgressView()
-                    .tint(Theme.muted)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Color.clear
             case .unsupported:
                 UnsupportedDeviceView()
             case .unavailable:

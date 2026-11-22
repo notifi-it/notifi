@@ -160,7 +160,7 @@ final class AppModel {
         remoteImagesEnabled = RemoteImages.isEnabled
         appearance = Appearance(rawValue: UserDefaults.standard.string(forKey: Self.appearanceKey) ?? "")
             ?? .dark
-        grainEnabled = UserDefaults.standard.object(forKey: Self.grainKey) as? Bool ?? true
+        grainEnabled = UserDefaults.standard.object(forKey: Self.grainKey) as? Bool ?? false
         keysAllowingAnyLink = LocalDev.isActive ? [] : LinkPolicy.allowedKeyIDs()
     }
 
