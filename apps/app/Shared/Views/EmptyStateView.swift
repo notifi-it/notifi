@@ -3,10 +3,11 @@ import UserNotifications
 
 struct EmptyStateView: View {
     @Environment(AppModel.self) private var model
+    var offlineShown = false
     @State private var copied = false
     @State private var sending = false
     @State private var sent = false
-    @State private var sendError: String?
+    @State private var sendError: APIError?
     @State private var key: String?
     @State private var keyFailed = false
 
@@ -24,12 +25,19 @@ struct EmptyStateView: View {
                     message: Self.sampleMessage
                 )
                 sent = true
+            } catch let error as APIError {
+                sendError = error
             } catch {
-                sendError = (error as? APIError)?.userMessage
-                    ?? Copy.ClientErrors.transport
+                sendError = .transport(error)
             }
             sending = false
         }
+    }
+
+    private var visibleSendError: String? {
+        guard let sendError else { return nil }
+        if case .transport = sendError, offlineShown { return nil }
+        return sendError.userMessage
     }
 
     private static func displayKey(_ key: String) -> String {
@@ -125,8 +133,8 @@ struct EmptyStateView: View {
                         .disabled(sending)
                     }
 
-                    if let sendError {
-                        InlineError(message: sendError)
+                    if let visibleSendError {
+                        InlineError(message: visibleSendError)
                     } else if sent {
                         AnnouncedText(
                             message: Copy.Empty.sent,
@@ -135,7 +143,9 @@ struct EmptyStateView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 } else if keyFailed {
-                    InlineError(message: Copy.ClientErrors.transport)
+                    if !offlineShown {
+                        InlineError(message: Copy.ClientErrors.transport)
+                    }
 
                     OutlineButton(title: Copy.Common.tryAgain, fill: true) {
                         Task { await loadKey() }

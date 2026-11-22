@@ -96,7 +96,7 @@ struct InboxView: View {
         if messages.isEmpty {
             GeometryReader { proxy in
                 ScrollView {
-                    EmptyStateView()
+                    EmptyStateView(offlineShown: isOffline)
                         .frame(minHeight: proxy.size.height)
                 }
             }
