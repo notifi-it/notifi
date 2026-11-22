@@ -185,6 +185,11 @@ app-testflight:
 app-submit:
 	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane ios submit
 
+# After `app-submit` uploaded the binary but stopped before submitting: pushes
+# the listing, attaches that build and submits. MARKETING_VERSION=X.Y required.
+app-submit-uploaded:
+	apps/app/Scripts/with-credentials.sh $(BUNDLE) exec fastlane ios submit_uploaded
+
 # `app-appstore` used to mean TestFlight, which stopped being an honest name once
 # a real submission target existed. Refuse rather than guess: one of the two
 # things it could now mean submits the app for review.
