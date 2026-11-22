@@ -319,7 +319,7 @@ extension View {
 }
 
 extension EnvironmentValues {
-    @Entry var grainEnabled = true
+    @Entry var grainEnabled = false
     @Entry var isReaderWindow = false
     @Entry var contentMeasure: CGFloat? = nil
 }
